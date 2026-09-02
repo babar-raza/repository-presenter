@@ -119,11 +119,8 @@ def render_messages(manifest: LoadedManifest, packet: Mapping[str, Any]) -> list
             raise ConfigError(f"packet field {field.name} must be a string")
     user = string.Template(manifest.manifest.user_template).substitute(rendered)
     schema = json.dumps(manifest.manifest.output.schema_, indent=1, sort_keys=True)
-    system = (
-        f"{manifest.manifest.system.rstrip()}\n\n"
-        "Output schema. Your entire response is one JSON object that validates against this "
-        f"JSON Schema; every key and nesting is literal:\n{schema}\n"
-    )
+    preface = manifest.manifest.schema_preface.strip()
+    system = f"{manifest.manifest.system.rstrip()}\n\n{preface}\n{schema}\n"
     return [
         {"role": "system", "content": system},
         {"role": "user", "content": user},
@@ -354,18 +351,16 @@ def run_job(
             )
         attempts.record_invalid("OutputRejected")
         if ask == 1:
-            current = _re_ask(payload, reply.content, rejection)
+            current = _re_ask(manifest, payload, reply.content, rejection)
     raise JobError(f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}")
 
 
-def _re_ask(payload: dict[str, Any], previous: str, errors: list[str]) -> dict[str, Any]:
-    """The same request plus the rejected output and its exact errors, once."""
-    reasons = "\n- ".join(errors)
-    correction = (
-        f"That output was rejected before use for these exact reasons:\n- {reasons}\n"
-        "Return one corrected JSON object matching the output schema. Cite only IDs that "
-        "appear in the input; nothing else may change."
-    )
+def _re_ask(
+    manifest: LoadedManifest, payload: dict[str, Any], previous: str, errors: list[str]
+) -> dict[str, Any]:
+    """The same request plus the rejected output and the manifest's correction, once."""
+    template = string.Template(manifest.manifest.rejection_template)
+    correction = template.substitute(errors="\n- ".join(errors)).strip()
     messages = [
         *payload["messages"],
         {"role": "assistant", "content": previous},

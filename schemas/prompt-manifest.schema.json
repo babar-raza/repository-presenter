@@ -13,6 +13,8 @@
     "model_route",
     "route_rationale",
     "sampling",
+    "schema_preface",
+    "rejection_template",
     "packet",
     "output",
     "system",
@@ -44,6 +46,8 @@
         "response_format": { "enum": ["json_object", "json_schema"] }
       }
     },
+    "schema_preface": { "$ref": "#/$defs/text" },
+    "rejection_template": { "type": "string", "pattern": "\\$errors" },
     "packet": {
       "type": "object",
       "additionalProperties": false,

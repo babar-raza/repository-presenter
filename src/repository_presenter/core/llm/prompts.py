@@ -102,6 +102,8 @@ class PromptManifest(BaseModel):
     model_route: str = Field(min_length=1)
     route_rationale: str = Field(min_length=1)
     sampling: Sampling
+    schema_preface: str = Field(min_length=1)
+    rejection_template: str = Field(min_length=1)
     packet: Packet
     output: Output
     system: str = Field(min_length=1)
@@ -114,6 +116,13 @@ class PromptManifest(BaseModel):
         if prompt_id not in JOB_STAGES:
             raise ValueError(f"unknown job {prompt_id!r}; jobs are {', '.join(JOB_IDS)}")
         return prompt_id
+
+    @field_validator("rejection_template")
+    @classmethod
+    def _quotes_the_rejection(cls, template: str) -> str:
+        if "$errors" not in template:
+            raise ValueError("rejection_template must place the rejection reasons at $errors")
+        return template
 
     def placeholders(self) -> frozenset[str]:
         pattern = string.Template.pattern

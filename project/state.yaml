@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T17:26:49+05:00"
+updated_at: "2026-09-02T18:20:54+05:00"
 
 authority:
   product: plans/idea.md
@@ -28,13 +28,13 @@ accepted_gates:
   - G0_FOUNDATION
 
 active_work_item:
-  id: G1-W03
-  status: IN_PROGRESS
-  purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
+  id: G1-W04
+  status: READY
+  purpose: "Composition to docs/README_CONTRACT.md - the semantic shell of section 2, the assembly pipeline of section 3, and the agentic decisions of section 4; the LLM returns typed content units bound to fact IDs and the deterministic renderer emits the Markdown (headings, badges, Mermaid, commands, code, links, license text); one coherence pass may revise LLM-owned units only."
   prerequisites:
-    - G1-W02 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - OWNER-02 is satisfied - the process environment provides GPT_OSS_ENDPOINT (the OpenAI-compatible base URL) and GPT_OSS_API_KEY, plus GPT_OSS_MODEL if the default is wrong; no .env file is read or required; both values are read only through the configured loader and never printed.
-    - docs/RESEARCH_AND_GUIDELINES.md section 18.2 names the openai SDK as the transport; docs/README_CONTRACT.md section 3 stages S3 to S6 and section 4 define the jobs, their packets, and their typed outputs.
+    - G1-W03 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - docs/README_CONTRACT.md sections 2 (semantic shell v1), 3 (stages S4 to S8), 4 (agentic decisions), and 8 (prose rules) define what is rendered, by whom, and in what order; the renderer owns every heading, badge, command, code block, link, diagram, and license statement.
+    - The governed jobs this item consumes (source_reconciliation, presentation_planning, section_authoring in author and coherence mode) run through core/llm/jobs.py under their manifests with the binding guard and the ledger; the LLM never writes Markdown.
   owned_paths:
     - src/repository_presenter/
     - tests/
@@ -42,20 +42,20 @@ active_work_item:
     - prompts/
     - migration/reuse-manifest.yaml
   acceptance:
-    - "repository-presenter preflight reads GPT_OSS_ENDPOINT and GPT_OSS_API_KEY through the configured loader, reaches the gateway's /models endpoint, and prints the model route without printing, logging, or persisting the key; with either variable absent it exits 2 naming OWNER-02 and its resume predicate."
-    - One governed prompt manifest per job under prompts/ (repository_investigation, source_reconciliation, presentation_planning, section_authoring, independent_review, targeted_repair), each with a schema-validated packet and a typed output bound to fact IDs; an output that names an unknown or contradicted fact ID is rejected before use.
-    - Every provider call is recorded by the ledger in calls.jsonl with its job, prompt manifest hash, model route, and token counts, and the calls reconcile with the ledger.
-    - Every pulled legacy file (call schema, ledger, prompt registry, prompt hygiene after the CPL-01 cut) has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present or preflight.
-    - ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked in tests; the commit is pushed and hosted CI is watched to completion.
+    - "present writes dispositions.json for the canary with exactly one disposition per material inherited unit, each with its evidence and either a destination section or a recorded reason; a material unit with no safe destination fails the transaction closed."
+    - "present writes plan.json whose every selection is a fact, example, symbol, unit, or link ID from facts.json, with every required section included, every conditional section's inclusion reasoned from the facts, and the policy ceilings respected."
+    - "present writes content_units.json of plain-prose units bound to SUPPORTED fact IDs for every LLM-owned section of the plan; a unit with an unknown ID, a contradicted fact, or an unlisted identifier never reaches the renderer."
+    - "present renders README.md and README.patch deterministically from the shell, the plan, the units, the facts, and the dispositions - exactly one H1 with the canonical product name, one badge row, navigation, the verified install command, the executed quick-start example in the correct fence, placed inherited units in their destinations, and the license prose - and no LLM output contains Markdown, a URL, a command, or code."
+    - "One coherence pass revises LLM-owned units only, once, and every deterministic block is byte-identical before and after it."
+    - "An immediate rerun on the same revision reproduces README.md, README.patch, dispositions.json, plan.json, and content_units.json byte for byte with zero provider calls, the ledger recording one cache reuse per job."
+    - "Every pulled legacy file has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present."
+    - "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion."
   evidence_required:
-    - A preflight transcript against the real gateway with the key redacted.
+    - README.md, README.patch, dispositions.json, plan.json, and content_units.json for the canary at its pinned revision, with the ledger showing the provider calls that produced them and the zero-call rerun.
     - Manifest file records for every pulled legacy file.
   blocker: null
 
 next_ready_items:
-  - id: G1-W04
-    status: PENDING
-    purpose: "Composition to docs/README_CONTRACT.md - the semantic shell of section 2, the assembly pipeline of section 3, and the agentic decisions of section 4; the LLM returns typed content units bound to fact IDs and the deterministic renderer emits the Markdown (headings, badges, Mermaid, commands, code, links, license text); one coherence pass may revise LLM-owned units only; consumes OWNER-02 through the G1-W03 jobs."
   - id: G1-W05
     status: PENDING
     purpose: "Blocking checks and independent review - exactly the eleven blocking checks of docs/README_CONTRACT.md section 5 with everything else advisory until G2 freezes contract v1; review per sections 4 and 6 under a separate prompt and identity, findings naming a section and a causal stage, one targeted repair per equivalent fingerprint, unrepairable findings advisory; consumes OWNER-02 through the G1-W03 jobs."

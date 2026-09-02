@@ -8,6 +8,11 @@ sampling:
   temperature: 0.0
   max_output_tokens: 3000
   response_format: json_schema
+schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
+rejection_template: |
+  That output was rejected before use for these exact reasons:
+  - $errors
+  Return one corrected JSON object matching the output schema. Select only IDs that appear in the input and stay within the policy ceilings; nothing else may change.
 packet:
   fields:
     - name: repository

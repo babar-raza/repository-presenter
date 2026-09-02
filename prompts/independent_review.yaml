@@ -8,6 +8,11 @@ sampling:
   temperature: 0.0
   max_output_tokens: 3000
   response_format: json_schema
+schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
+rejection_template: |
+  That output was rejected before use for these exact reasons:
+  - $errors
+  Return one corrected JSON object matching the output schema. Every finding names a section and a causal stage and cites only fact IDs that appear in the input; the verdict stays your own.
 packet:
   fields:
     - name: repository

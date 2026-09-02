@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T17:58:15+05:00"
+updated_at: "2026-09-02T18:19:32+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1308,6 +1308,42 @@ file_records:
     pulled_at: "2026-09-02"
     work_item: G1-W03
     note: The runner adds what the legacy transport lacked - JSON Schema validation of the output against the manifest, the fact-ID binding guard, one bounded re-ask quoting the rejection, and the request-hash store that makes a rerun a zero-call reuse.
+
+  - source_path: src/readme_agent/llm/prompt_source_audit.py
+    sha256: 116b68d8b5e33915e753a20aba5eb79c52c0dd201fa7c45bbdbe33e6b71be038
+    disposition: EXTRACT_AND_REFACTOR
+    destination: tests/core/llm/test_prompt_hygiene.py
+    retained_behavior:
+      - The syntax-tree scan for chat messages built in code whose content is a literal (constant, f-string, or concatenation) instead of manifest text; any hit fails.
+    removed_behavior:
+      - Prompt-registry call-site, hash-reference, route-reference, and prompt_id keyword tracking (the registry is a value, routes are catalog models, and no call site names a prompt by ID outside the registry subscript).
+    tests_ported:
+      - tests/unit/test_prompt_hygiene.py (inline-literal cases) -> tests/core/llm/test_prompt_hygiene.py.
+    acceptance: The scan finds no inline message literal under src/ after the runner's framing text moved into the manifests.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+    note: A CI-time check, not a runtime module - no production stage consumes an audit report, so a runtime module would have no importer.
+
+  - source_path: src/readme_agent/llm/prompt_hygiene.py
+    sha256: 6708c43072e79238f37ac4490777d956eaf4b2ea910daa4286d2cb20fc67a3f8
+    disposition: EXTRACT_AND_REFACTOR
+    destination: tests/core/llm/test_prompt_hygiene.py
+    retained_behavior:
+      - The active prompt tree holds exactly the registered manifests and nothing else.
+      - Prompt files are read by one module only, and code names only governed jobs.
+    removed_behavior:
+      - The prompts/README.md inventory table and its metadata comparison (the manifests are self-describing and the schema validates them).
+      - owner and runtime_consumer existence checks (no such fields), invalidation-scope dependency hashes, the registry content hash, and the pydantic report models.
+      - require_prompt_hygiene at paid-call entry (the registry fails loud at load and preflight validates routes; hygiene is asserted in CI).
+    tests_ported:
+      - tests/unit/test_prompt_hygiene.py (tree and reader cases) -> tests/core/llm/test_prompt_hygiene.py and tests/core/llm/test_prompts.py.
+    acceptance: prompts/ is flat with the six manifests; core/llm/prompts.py is the only module naming the directory; every job-like name in code is a governed job.
+    import_closure:
+      - readme_agent.llm.prompt_source_audit -> the same test module (pulled together).
+      - readme_agent.llm.prompt_registry and readme_agent.env -> src/repository_presenter/core/llm/prompts.py (routes come from the catalog, not a routing table).
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
