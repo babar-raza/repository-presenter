@@ -28,6 +28,9 @@ class PlatformPlugin(Protocol):
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """Public symbols of the product packages, read statically from the tree."""
 
+    def registry_facts(self, facts: Sequence[Fact]) -> list[Fact]:
+        """Facts re-issued with the package registry's observation; matched by ID on merge."""
+
     def verify_examples(
         self,
         root: Path,

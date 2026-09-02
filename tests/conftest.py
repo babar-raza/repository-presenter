@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from repository_presenter.components.readme.extractors.platforms import python_registry
 from support import REPO_ROOT, write_cursor
 
 
@@ -19,6 +20,16 @@ def isolate_ambient_credentials_and_git_config(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setenv("GCM_INTERACTIVE", "never")
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+
+
+@pytest.fixture(autouse=True)
+def no_package_registry_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No test reaches the real package registry; a test that needs it injects its own fetch."""
+
+    def refuse(url: str, transport: object = None) -> object:
+        raise RuntimeError(f"package registry network is disabled in tests: {url}")
+
+    monkeypatch.setattr(python_registry, "fetch_project_json", refuse)
 
 
 @pytest.fixture

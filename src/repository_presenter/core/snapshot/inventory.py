@@ -13,6 +13,24 @@ from pathlib import Path
 
 README_FILENAMES = frozenset({"readme.md", "readme", "readme.rst", "readme.txt"})
 LICENSE_FILENAMES = frozenset({"license", "license.txt", "license.md", "copying", "license.rst"})
+NOTICES_FILENAMES = frozenset(
+    {
+        "notice",
+        "notice.txt",
+        "notice.md",
+        "notices",
+        "notices.txt",
+        "notices.md",
+        "third-party-notices",
+        "third-party-notices.txt",
+        "third-party-notices.md",
+        "third_party_notices",
+        "third_party_notices.txt",
+        "third_party_notices.md",
+        "thirdpartynotices.txt",
+        "thirdpartynotices.md",
+    }
+)
 COMMUNITY_FILENAMES: dict[str, frozenset[str]] = {
     "CONTRIBUTING": frozenset(
         {"contributing.md", "contributing", "contributing.txt", "contributing.rst"}
@@ -32,6 +50,7 @@ class FileInventory:
     readme_path: Path | None
     license_path: Path | None
     community_paths: dict[str, Path] = field(default_factory=dict)
+    notices_path: Path | None = None
 
 
 def _find_case_insensitive(directory: Path, names: frozenset[str]) -> Path | None:
@@ -59,5 +78,8 @@ def scan(root: Path) -> FileInventory:
         if found is not None:
             community_paths[canonical_name] = found
     return FileInventory(
-        readme_path=readme_path, license_path=license_path, community_paths=community_paths
+        readme_path=readme_path,
+        license_path=license_path,
+        community_paths=community_paths,
+        notices_path=_find_case_insensitive(root, NOTICES_FILENAMES),
     )

@@ -29,10 +29,24 @@ def classify_license_text(text: str) -> str | None:
     return None
 
 
-def license_facts(clone_path: Path, license_path: str | None) -> list[Fact]:
-    """The license file as a fact, plus its SPDX identity when the text states one."""
+def license_facts(
+    clone_path: Path, license_path: str | None, notices_path: str | None = None
+) -> list[Fact]:
+    """The license file and its SPDX identity when the text states one, plus any notices file."""
+    notices = (
+        [
+            Fact(
+                fact_id("third_party_notices", "file"),
+                "third_party_notices",
+                notices_path,
+                (Evidence(notices_path, "third-party notices file at the root"),),
+            )
+        ]
+        if notices_path is not None
+        else []
+    )
     if license_path is None:
-        return []
+        return notices
     facts = [Fact(fact_id("license", "file"), "license", license_path, (Evidence(license_path),))]
     text = (clone_path / license_path).read_text(encoding="utf-8", errors="replace")
     spdx = classify_license_text(text)
@@ -56,4 +70,4 @@ def license_facts(clone_path: Path, license_path: str | None) -> list[Fact]:
                 confidence=0.0,
             )
         )
-    return facts
+    return facts + notices

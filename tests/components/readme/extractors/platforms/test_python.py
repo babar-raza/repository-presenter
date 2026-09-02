@@ -4,12 +4,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from repository_presenter.components.readme.extractors.platforms.python import (
     PythonPlugin,
     package_directories,
     parse_manifests,
     parse_pyproject,
 )
+from repository_presenter.core.facts import Evidence, Fact
 
 CANARY_TREE = [
     ".github/workflows/publish.yml",
@@ -163,3 +166,69 @@ def test_declared_packages_take_precedence_over_the_tree(tmp_path: Path) -> None
     import_paths = [f for f in facts if f.kind == "import_path"]
     assert [f.value for f in import_paths] == ["aspose", "aspose.cells_foss"]
     assert import_paths[0].evidence[0].path == "pyproject.toml"
+
+
+def test_declared_dependencies_become_facts(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "aspose-x-foss"\ndependencies = ["numpy>=1.20", "pillow"]\n',
+        encoding="utf-8",
+    )
+    facts = PythonPlugin().manifest_facts(tmp_path, tmp_path / "pyproject.toml", ["x/__init__.py"])
+    dependencies = [(f.id, f.value, f.evidence[0].path) for f in facts if f.kind == "dependency"]
+    assert dependencies == [
+        ("dependency:numpy-1.20", "numpy>=1.20", "pyproject.toml"),
+        ("dependency:pillow", "pillow", "pyproject.toml"),
+    ]
+
+
+def test_registry_facts_reissue_the_install_claim_with_the_observation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from repository_presenter.components.readme.extractors.platforms import python as plugin_module
+    from repository_presenter.components.readme.extractors.platforms.python_registry import (
+        RegistryObservation,
+    )
+
+    plugin = PythonPlugin()
+    facts = [
+        Fact("package:name", "package", "aspose-3d-foss", (Evidence("setup.py"),)),
+        Fact("package:version", "package", "26.1.0", (Evidence("setup.py"),)),
+        Fact(
+            "install_command:pip",
+            "install_command",
+            "pip install aspose-3d-foss",
+            (Evidence("setup.py", "pending"),),
+            polarity="UNRESOLVED",
+            confidence=0.5,
+        ),
+    ]
+    seen: list[tuple[str, str | None]] = []
+
+    def observe(name: str, version: str | None) -> RegistryObservation:
+        seen.append((name, version))
+        return RegistryObservation(name, f"https://pypi.org/pypi/{name}/json", True, "26.1.0", True)
+
+    monkeypatch.setattr(plugin_module, "observe_pypi", observe)
+    [resolved] = plugin.registry_facts(facts)
+    assert seen == [("aspose-3d-foss", "26.1.0")]
+    assert (resolved.id, resolved.polarity, resolved.confidence) == (
+        "install_command:pip",
+        "SUPPORTED",
+        1.0,
+    )
+    assert resolved.evidence[1].path == "https://pypi.org/pypi/aspose-3d-foss/json"
+    assert "manifest version published" in resolved.evidence[1].detail
+
+    monkeypatch.setattr(
+        plugin_module,
+        "observe_pypi",
+        lambda name, version: RegistryObservation(name, "u", False),
+    )
+    assert plugin.registry_facts(facts)[0].polarity == "CONTRADICTED"
+    monkeypatch.setattr(
+        plugin_module,
+        "observe_pypi",
+        lambda name, version: RegistryObservation(name, "u", False, error="ConnectError"),
+    )
+    assert plugin.registry_facts(facts)[0].polarity == "UNRESOLVED"
+    assert plugin.registry_facts(facts[:1]) == []

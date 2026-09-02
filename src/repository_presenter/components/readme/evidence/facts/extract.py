@@ -56,9 +56,11 @@ def extract_facts(
     facts = identity_facts(entry, snapshot)
     facts.extend(example_facts(examples, receipts, receipts_path))
     if manifest is not None:
-        facts.extend(plugin.manifest_facts(clone_path, manifest, tree_paths))
+        manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
+        observed = {fact.id: fact for fact in plugin.registry_facts(manifest_facts)}
+        facts.extend(observed.get(fact.id, fact) for fact in manifest_facts)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
-    facts.extend(license_facts(clone_path, snapshot.license_path))
+    facts.extend(license_facts(clone_path, snapshot.license_path, snapshot.notices_path))
     facts.extend(asset_facts(tree_paths))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()

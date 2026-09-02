@@ -130,3 +130,16 @@ def test_proven_setuptools_import_forms_are_accepted(
 def test_unreadable_or_invalid_source_yields_nothing(tmp_path: Path) -> None:
     assert parse_setup_py(tmp_path / "missing.py") == {}
     assert parse_setup_py(_setup_py(tmp_path, "def broken(:\n")) == {}
+
+
+def test_literal_install_requires_become_dependencies(tmp_path: Path) -> None:
+    path = _setup_py(
+        tmp_path,
+        "from setuptools import setup\n"
+        'setup(name="x", install_requires=["numpy>=1.20", " requests ", 3, ""])\n',
+    )
+    assert parse_setup_py(path) == {"name": "x", "dependencies": "numpy>=1.20,requests"}
+    empty = _setup_py(
+        tmp_path, 'from setuptools import setup\nsetup(name="y", install_requires=[])\n'
+    )
+    assert parse_setup_py(empty) == {"name": "y"}

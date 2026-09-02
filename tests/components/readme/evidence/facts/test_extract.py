@@ -5,9 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import httpx
+import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
+from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
@@ -46,7 +49,12 @@ def _canary_like_source(tmp_path: Path) -> Path:
     return source
 
 
-def test_facts_document_for_a_local_clone(tmp_path: Path) -> None:
+def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        python_registry,
+        "fetch_project_json",
+        lambda url, transport=None: httpx.Response(404, json={"message": "Not Found"}),
+    )
     source = _canary_like_source(tmp_path)
     clone = pinned_read_only_clone(str(source), tmp_path / "clone")
     snapshot = capture_snapshot(ENTRY.repository, clone)
@@ -81,6 +89,10 @@ def test_facts_document_for_a_local_clone(tmp_path: Path) -> None:
     assert by_id["identity:revision"].value == clone.revision
     assert by_id["license:spdx"].value == "MIT"
     assert by_id["package:name"].value == "aspose-example"
+    assert by_id["install_command:pip"].polarity == "CONTRADICTED"
+    assert by_id["install_command:pip"].evidence[1].detail == (
+        "package registry: distribution not found"
+    )
     assert all(fact.evidence for fact in document.facts)
 
     schema = json.loads((REPO_ROOT / "schemas" / "facts.schema.json").read_text("utf-8"))

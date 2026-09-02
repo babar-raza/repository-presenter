@@ -156,4 +156,9 @@ def parse_setup_py(setup_py_path: Path) -> dict[str, str]:
     classifier_versions = _literal_python_classifier_versions(literals.get("classifiers"))
     if classifier_versions:
         info["python_classifier_versions"] = ",".join(classifier_versions)
+    requirements = literals.get("install_requires")
+    if isinstance(requirements, list | tuple):
+        declared = [r.strip() for r in requirements if isinstance(r, str) and r.strip()]
+        if declared:
+            info["dependencies"] = ",".join(declared)
     return info

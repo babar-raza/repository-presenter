@@ -20,6 +20,9 @@ from typing import Any
 from repository_presenter.components.readme.extractors.platforms.python_examples import (
     verify_python_examples,
 )
+from repository_presenter.components.readme.extractors.platforms.python_registry import (
+    observe_pypi,
+)
 from repository_presenter.components.readme.extractors.platforms.python_setup_py import (
     parse_setup_py,
 )
@@ -31,6 +34,7 @@ from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
+    Polarity,
     fact_id,
 )
 
@@ -110,6 +114,9 @@ def parse_pyproject(pyproject_path: Path) -> dict[str, str]:
         info["license"] = str(license_value)
     if project.get("requires-python"):
         info["requires_python"] = project["requires-python"]
+    dependencies = [d for d in project.get("dependencies", []) if isinstance(d, str) and d.strip()]
+    if dependencies:
+        info["dependencies"] = ",".join(d.strip() for d in dependencies)
     setuptools_cfg = data.get("tool", {}).get("setuptools", {})
     packages_cfg = setuptools_cfg.get("packages", [])
     if isinstance(packages_cfg, dict):
@@ -189,6 +196,38 @@ class PythonPlugin:
         package_dirs = [dotted.replace(".", "/") for dotted in package_directories(tree_paths)]
         return public_symbol_facts(inspect_public_surface(root, package_dirs))
 
+    def registry_facts(self, facts: Sequence[Fact]) -> list[Fact]:
+        """Resolve the pip install claim against PyPI; the fact keeps its ID and gains evidence."""
+        by_id = {fact.id: fact for fact in facts}
+        install = by_id.get("install_command:pip")
+        name = by_id.get("package:name")
+        if install is None or name is None:
+            return []
+        version = by_id.get("package:version")
+        observation = observe_pypi(name.value, version.value if version else None)
+        polarity: Polarity
+        if observation.error is not None:
+            polarity, confidence = "UNRESOLVED", 0.5
+        elif observation.found:
+            polarity, confidence = "SUPPORTED", 1.0
+        else:
+            polarity, confidence = "CONTRADICTED", 1.0
+        return [
+            Fact(
+                install.id,
+                install.kind,
+                install.value,
+                (
+                    Evidence(
+                        install.evidence[0].path, "distribution name declared by the manifest"
+                    ),
+                    Evidence(observation.url, observation.summary),
+                ),
+                polarity=polarity,
+                confidence=confidence,
+            )
+        ]
+
     def verify_examples(
         self,
         root: Path,
@@ -224,6 +263,16 @@ class PythonPlugin:
         add("package", "python_requires", "requires_python", "python_requires declared")
         add("package", "python_versions", "python_classifier_versions", "Python classifiers")
         add("package", "license", "license", "license declared by the manifest")
+        for requirement in merged.get("dependencies", "").split(","):
+            if requirement:
+                facts.append(
+                    Fact(
+                        fact_id("dependency", requirement),
+                        "dependency",
+                        requirement,
+                        (Evidence(sources["dependencies"], "install requirement declared"),),
+                    )
+                )
 
         if "name" in merged:
             facts.append(

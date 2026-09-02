@@ -35,6 +35,7 @@ class RepositorySnapshot:
     readme_path: str | None
     readme_sha256: str | None
     license_path: str | None
+    notices_path: str | None = None
     schema_version: int = 1
 
 
@@ -90,6 +91,7 @@ def capture_snapshot(repository: str, clone: ReadOnlyClone) -> RepositorySnapsho
         readme_path=_relative(root, inventory.readme_path),
         readme_sha256=readme_sha256,
         license_path=_relative(root, inventory.license_path),
+        notices_path=_relative(root, inventory.notices_path),
     )
 
 

@@ -45,3 +45,17 @@ def test_unrecognized_text_is_recorded_as_unresolved(tmp_path: Path) -> None:
 
 def test_no_license_file_yields_no_facts(tmp_path: Path) -> None:
     assert license_facts(tmp_path, None) == []
+
+
+def test_a_notices_file_is_a_fact_with_or_without_a_license(tmp_path: Path) -> None:
+    (tmp_path / "NOTICE").write_text("Includes zlib.\n", "utf-8")
+    facts = license_facts(tmp_path, None, "NOTICE")
+    assert [(f.id, f.kind, f.value) for f in facts] == [
+        ("third_party_notices:file", "third_party_notices", "NOTICE")
+    ]
+    (tmp_path / "LICENSE").write_text("MIT License\n", "utf-8")
+    assert [f.id for f in license_facts(tmp_path, "LICENSE", "NOTICE")] == [
+        "license:file",
+        "license:spdx",
+        "third_party_notices:file",
+    ]

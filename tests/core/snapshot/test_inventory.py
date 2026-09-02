@@ -64,6 +64,12 @@ class TestCommunityFiles:
         assert scan(tmp_path).community_paths == {}
 
 
+def test_third_party_notices_are_found_regardless_of_casing(tmp_path: Path) -> None:
+    assert scan(tmp_path).notices_path is None
+    (tmp_path / "Third-Party-Notices.txt").write_text("zlib\n", encoding="utf-8")
+    assert scan(tmp_path).notices_path == tmp_path / "Third-Party-Notices.txt"
+
+
 def test_a_missing_root_yields_an_empty_inventory(tmp_path: Path) -> None:
     inventory = scan(tmp_path / "nope")
     assert (inventory.readme_path, inventory.license_path, inventory.community_paths) == (
