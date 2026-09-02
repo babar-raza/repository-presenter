@@ -324,6 +324,94 @@ SCRIPTED_OUTPUTS: dict[str, dict[str, Any]] = {
 }
 
 
+def _unit(section: str, slot: str, text: str, *fact_ids: str) -> dict[str, Any]:
+    return {"section": section, "slot": slot, "text": text, "fact_ids": list(fact_ids)}
+
+
+LOCAL_UNITS: dict[str, dict[str, Any]] = {
+    "opening": {
+        "units": [
+            _unit(
+                "opening",
+                "opening",
+                "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
+                "Developers using Python use it to write GLB from code.",
+                "identity:repository",
+                "format:output.glb",
+            )
+        ],
+        "omitted": [],
+    },
+    "key_capabilities": {
+        "units": [
+            _unit(
+                "key_capabilities",
+                "capability:1",
+                "Scene objects are created in memory.",
+                "public_symbol:aspose.threed.scene",
+            ),
+            _unit(
+                "key_capabilities",
+                "capability:2",
+                "A scene saves as a GLB file.",
+                "format:output.glb",
+            ),
+            _unit(
+                "key_capabilities",
+                "capability:3",
+                "The package imports as aspose.threed.",
+                "import_path:aspose.threed",
+            ),
+        ],
+        "omitted": [],
+    },
+    "quick_start": {
+        "units": [
+            _unit(
+                "quick_start",
+                "lead_in",
+                "The example below creates a scene and saves it.",
+                "example:001",
+            )
+        ],
+        "omitted": [],
+    },
+    "api_reference": {
+        "units": [
+            _unit(
+                "api_reference",
+                "hub:public_symbol:aspose.threed.scene",
+                "Scene holds the scene graph and saves it.",
+                "public_symbol:aspose.threed.scene",
+            )
+        ],
+        "omitted": [],
+    },
+    "documentation_resources": {
+        "units": [
+            _unit(
+                "documentation_resources",
+                "resources",
+                "The documentation site explains the API.",
+                "link_target:002",
+            )
+        ],
+        "omitted": [],
+    },
+    "scope_limitations": {
+        "units": [
+            _unit(
+                "scope_limitations",
+                "scope",
+                "The package writes GLB files and nothing else.",
+                "identity:repository",
+            )
+        ],
+        "omitted": [],
+    },
+}
+
+
 class _ChatGateway:
     """A scripted chat gateway: one canned output per job, every request body recorded."""
 
@@ -335,6 +423,12 @@ class _ChatGateway:
         payload = json.loads(request.content)
         self.requests.append(payload)
         job = payload["response_format"]["json_schema"]["name"]
+        if job == "section_authoring":
+            user = payload["messages"][1]["content"]
+            section = re.search(r"^Section: (\S+)$", user, re.M).group(1)  # type: ignore[union-attr]
+            content = json.dumps(LOCAL_UNITS[section])
+        else:
+            content = json.dumps(SCRIPTED_OUTPUTS[job])
         body = {
             "id": f"chatcmpl-{job}",
             "object": "chat.completion",
@@ -343,7 +437,7 @@ class _ChatGateway:
             "choices": [
                 {
                     "index": 0,
-                    "message": {"role": "assistant", "content": json.dumps(SCRIPTED_OUTPUTS[job])},
+                    "message": {"role": "assistant", "content": content},
                     "finish_reason": "stop",
                 }
             ],
@@ -451,7 +545,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 3
+    assert len(gateway_ready.requests) == 9
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -480,6 +574,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "repository_investigation",
         "source_reconciliation",
         "presentation_planning",
+        *(["section_authoring"] * 6),
     ]
     shell_packet = json.loads(
         gateway_ready.requests[2]["messages"][1]["content"]
@@ -492,10 +587,39 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 3 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 9 and all('"disposition":"provider_call"' in line for line in ledger)
     assert LIVE_KEY not in "".join(ledger)
+    units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
+    assert units_line.startswith(
+        f"units: {facts_dir}/content_units.json (8 units across 6 sections: opening, "
+        "key_capabilities, quick_start, api_reference, documentation_resources, "
+        "scope_limitations; provider calls 6; digest "
+    )
+    written_units = json.loads(
+        (project_with_registry / facts_dir / "content_units.json").read_text("utf-8")
+    )
+    assert [unit["slot"] for unit in written_units["units"]] == [
+        "opening",
+        "capability:1",
+        "capability:2",
+        "capability:3",
+        "lead_in",
+        "hub:public_symbol:aspose.threed.scene",
+        "resources",
+        "scope",
+    ]
+    authoring_requests = [
+        r
+        for r in gateway_ready.requests
+        if r["response_format"]["json_schema"]["name"] == "section_authoring"
+    ]
+    assert len(authoring_requests) == 6
+    assert (
+        "Product name (preserve exactly): Aspose.3D FOSS for Python"
+        in (authoring_requests[0]["messages"][1]["content"])
+    )
     assert code == EXIT_INCONSISTENT
-    assert "authoring stage is not implemented" in captured.err
+    assert "render stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -518,11 +642,11 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ", "plan: ")
+    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ", "plan: ", "units: ")
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 5
+        assert len(lines) == 6
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -532,12 +656,13 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     assert digests(first) == digests(second)
     assert first.count("provider calls 1, model qwen3-next") == 3
     assert second.count("provider calls 0, model stored output reused") == 3
-    assert len(gateway_ready.requests) == 3
+    assert len(gateway_ready.requests) == 9
+    assert "provider calls 6; digest" in first and "provider calls 0; digest" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 3 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 9 + [
         "cache_reuse"
-    ] * 3
+    ] * 9
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(

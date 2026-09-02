@@ -84,7 +84,11 @@ system: |
   fenced or indented block. Every identifier a unit mentions - a package name, import path, symbol,
   format, file name - must be an exact fact value from accepted_facts, spelled exactly as the fact
   spells it; the renderer wraps it in a code span and rejects a unit that names anything else.
-  Never split CamelCase or pad an identifier with spaces.
+  The objective lists the spellings this section may use: the facts' symbols, and the members
+  that verified examples call (listed as "member name", spelled in prose as Class.member or
+  member). Any other class member, method, attribute, parameter, or option name is never written
+  - describe what the API does in words instead. Never split CamelCase or pad an identifier with
+  spaces.
 
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact

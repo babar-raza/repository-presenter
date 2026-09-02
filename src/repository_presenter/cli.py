@@ -3,14 +3,24 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import os
 import sys
 from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from repository_presenter import __version__
+from repository_presenter.components.readme.composition.authoring import (
+    CONTENT_UNITS_FILENAME,
+    authoring_tasks,
+    merge_units,
+    unit_checks,
+    write_content_units,
+)
+from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     plan_checks,
@@ -339,15 +349,39 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             checks=lambda candidate: plan_checks(candidate, document),
         )
         plan_digest = write_plan(planned.output, transaction / PLAN_FILENAME)
+        print(
+            f"plan: {(transaction / PLAN_FILENAME).relative_to(root).as_posix()} "
+            f"({summarize_plan(planned.output)}; provider calls {planned.provider_calls}, "
+            f"model {planned.model_served or 'stored output reused'}; digest {plan_digest})"
+        )
+        loaded = prompts["section_authoring"]
+        name = product_name(entry)
+        authored: dict[str, dict[str, Any]] = {}
+        authoring_calls = 0
+        for task in authoring_tasks(entry, document, output, reconciled.output, planned.output):
+            section_result = run_job(
+                loaded,
+                task.packet,
+                config=config,
+                facts=document,
+                ledger=ledger,
+                store=store,
+                context=context,
+                checks=functools.partial(unit_checks, task=task, facts=document, name=name),
+            )
+            authoring_calls += section_result.provider_calls
+            authored[task.section_id] = section_result.output
+        units_document = merge_units(authored)
+        units_digest = write_content_units(units_document, transaction / CONTENT_UNITS_FILENAME)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
     print(
-        f"plan: {(transaction / PLAN_FILENAME).relative_to(root).as_posix()} "
-        f"({summarize_plan(planned.output)}; provider calls {planned.provider_calls}, "
-        f"model {planned.model_served or 'stored output reused'}; digest {plan_digest})"
+        f"units: {(transaction / CONTENT_UNITS_FILENAME).relative_to(root).as_posix()} "
+        f"({len(units_document['units'])} units across {len(authored)} sections: "
+        f"{', '.join(authored)}; provider calls {authoring_calls}; digest {units_digest})"
     )
-    _fail("present: the authoring stage is not implemented at this revision")
+    _fail("present: the render stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 
