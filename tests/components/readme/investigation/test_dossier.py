@@ -6,11 +6,10 @@ import json
 from pathlib import Path
 
 from repository_presenter.components.readme.investigation.dossier import (
-    SYMBOL_CAP,
     investigation_packet,
     write_investigation,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import SYMBOL_CAP, Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT

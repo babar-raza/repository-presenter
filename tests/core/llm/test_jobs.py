@@ -60,7 +60,9 @@ def _investigation(*capability_fact_ids: str) -> dict[str, Any]:
     }
 
 
-def _completion(content: Any, model: str = "qwen3-next") -> httpx.Response:
+def _completion(
+    content: Any, model: str = "qwen3-next", finish_reason: str = "stop"
+) -> httpx.Response:
     body = {
         "id": "chatcmpl-1",
         "object": "chat.completion",
@@ -70,7 +72,7 @@ def _completion(content: Any, model: str = "qwen3-next") -> httpx.Response:
             {
                 "index": 0,
                 "message": {"role": "assistant", "content": json.dumps(content)},
-                "finish_reason": "stop",
+                "finish_reason": finish_reason,
             }
         ],
         "usage": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120},
@@ -181,6 +183,58 @@ def test_a_rejected_output_earns_one_re_ask_that_quotes_the_rejection(
         ("success", 1),
         ("response_invalid", 1),
         ("success", 2),
+    ]
+
+
+def test_a_jobs_own_checks_are_quoted_in_the_re_ask(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gateway = _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    seen: list[int] = []
+
+    def checks(output: dict[str, Any]) -> list[str]:
+        seen.append(len(output["capabilities"]))
+        return [] if len(seen) > 1 else ["capability titles repeat the keyword Do"]
+
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        checks=checks,
+    )
+    assert result.attempts == 2 and seen == [3, 3]
+    assert (
+        "capability titles repeat the keyword Do" in gateway.requests[1]["messages"][-1]["content"]
+    )
+
+
+def test_a_truncated_reply_fails_fast_naming_the_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    gateway = _Gateway(monkeypatch, _completion('{"product_summary": {', finish_reason="length"))
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    with pytest.raises(JobError, match=r"truncated at the manifest's max_output_tokens \(3000\)"):
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=ledger,
+            store=CallStore(tmp_path / "calls"),
+            context=CONTEXT,
+        )
+    assert len(gateway.requests) == 1
+    assert [(r.outcome, r.error_class) for r in ledger.records()] == [
+        ("success", None),
+        ("response_invalid", "TruncatedOutput"),
     ]
 
 

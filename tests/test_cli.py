@@ -231,24 +231,64 @@ LOCAL_INVESTIGATION: dict[str, Any] = {
 }
 
 
+LOCAL_DISPOSITIONS: dict[str, Any] = {
+    "dispositions": [
+        {
+            "unit_id": "inherited_unit:001.heading",
+            "disposition": "SUPERSEDE_REDUNDANT",
+            "destination_section": None,
+            "fact_ids": ["identity:repository"],
+            "rationale": "The identity section renders the product name.",
+        },
+        {
+            "unit_id": "inherited_unit:002.paragraph",
+            "disposition": "VERIFIED_REWRITE",
+            "destination_section": "opening",
+            "fact_ids": ["identity:repository"],
+            "rationale": "Its substance is the opening.",
+        },
+        {
+            "unit_id": "inherited_unit:003.code_block",
+            "disposition": "VERIFIED_PRESERVE",
+            "destination_section": "quick_start",
+            "fact_ids": ["example:001"],
+            "rationale": "The example executed.",
+        },
+        {
+            "unit_id": "inherited_unit:004.code_block",
+            "disposition": "OMIT_UNSUPPORTED",
+            "destination_section": None,
+            "fact_ids": ["example:002"],
+            "rationale": "The example failed.",
+        },
+    ]
+}
+SCRIPTED_OUTPUTS: dict[str, dict[str, Any]] = {
+    "repository_investigation": LOCAL_INVESTIGATION,
+    "source_reconciliation": LOCAL_DISPOSITIONS,
+}
+
+
 class _ChatGateway:
-    """A scripted chat gateway that records every request body it receives."""
+    """A scripted chat gateway: one canned output per job, every request body recorded."""
 
     def __init__(self) -> None:
         self.requests: list[dict[str, Any]] = []
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/chat/completions")
-        self.requests.append(json.loads(request.content))
+        payload = json.loads(request.content)
+        self.requests.append(payload)
+        job = payload["response_format"]["json_schema"]["name"]
         body = {
-            "id": "chatcmpl-local",
+            "id": f"chatcmpl-{job}",
             "object": "chat.completion",
             "created": 1,
             "model": "qwen3-next",
             "choices": [
                 {
                     "index": 0,
-                    "message": {"role": "assistant", "content": json.dumps(LOCAL_INVESTIGATION)},
+                    "message": {"role": "assistant", "content": json.dumps(SCRIPTED_OUTPUTS[job])},
                     "finish_reason": "stop",
                 }
             ],
@@ -356,17 +396,37 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 1
+    assert len(gateway_ready.requests) == 2
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
     assert request["response_format"]["json_schema"]["strict"] is True
     assert '"id": "example:001"' in request["messages"][1]["content"]
+    dispositions_line = next(
+        line for line in captured.out.splitlines() if line.startswith("dispositions: ")
+    )
+    assert dispositions_line.startswith(
+        f"dispositions: {facts_dir}/dispositions.json (4 units: OMIT_UNSUPPORTED 1, "
+        "SUPERSEDE_REDUNDANT 1, VERIFIED_PRESERVE 1, VERIFIED_REWRITE 1; provider calls 1, "
+        "model qwen3-next; digest "
+    )
+    written_dispositions = json.loads(
+        (project_with_registry / facts_dir / "dispositions.json").read_text("utf-8")
+    )
+    assert written_dispositions == LOCAL_DISPOSITIONS
+    assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests] == [
+        "repository_investigation",
+        "source_reconciliation",
+    ]
+    assert (
+        '"id": "inherited_unit:004.code_block"'
+        in gateway_ready.requests[1]["messages"][1]["content"]
+    )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 1 and '"disposition":"provider_call"' in ledger[0]
-    assert LIVE_KEY not in ledger[0]
+    assert len(ledger) == 2 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert LIVE_KEY not in "".join(ledger)
     assert code == EXIT_INCONSISTENT
-    assert "reconciliation stage is not implemented" in captured.err
+    assert "planning stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -389,11 +449,11 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    prefixes = ("source: ", "facts: ", "investigation: ")
+    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ")
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 3
+        assert len(lines) == 4
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -401,16 +461,17 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
-    assert "provider calls 1, model qwen3-next" in first
-    assert "provider calls 0, model stored output reused" in second
-    assert len(gateway_ready.requests) == 1
+    assert first.count("provider calls 1, model qwen3-next") == 2
+    assert second.count("provider calls 0, model stored output reused") == 2
+    assert len(gateway_ready.requests) == 2
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [
-        '"disposition":"provider_call"' in ledger[0],
-        '"disposition":"cache_reuse"' in ledger[1],
+    assert [json.loads(line)["disposition"] for line in ledger] == [
+        "provider_call",
+        "provider_call",
+        "cache_reuse",
+        "cache_reuse",
     ]
-    assert len(ledger) == 2
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(

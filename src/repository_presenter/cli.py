@@ -24,6 +24,13 @@ from repository_presenter.components.readme.investigation.dossier import (
     investigation_packet,
     write_investigation,
 )
+from repository_presenter.components.readme.reconciliation.dispositions import (
+    DISPOSITIONS_FILENAME,
+    reconcile_checks,
+    reconciliation_packet,
+    summarize,
+    write_dispositions,
+)
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import PresenterError
@@ -264,33 +271,59 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
             f"({len(document.facts)} records: {counts}; digest {facts_digest})"
         )
+        ledger = Ledger(transaction / LEDGER_FILENAME)
+        store = CallStore(transaction / CALLS_DIRNAME)
+        context = JobContext(entry.repository, clone.revision)
         loaded = prompts["repository_investigation"]
         result = run_job(
             loaded,
             investigation_packet(entry, document, loaded.manifest),
             config=config,
             facts=document,
-            ledger=Ledger(transaction / LEDGER_FILENAME),
-            store=CallStore(transaction / CALLS_DIRNAME),
-            context=JobContext(entry.repository, clone.revision),
+            ledger=ledger,
+            store=store,
+            context=context,
         )
         investigation_digest = write_investigation(
             result.output, transaction / INVESTIGATION_FILENAME
         )
+        output = result.output
+        print(
+            f"investigation: {(transaction / INVESTIGATION_FILENAME).relative_to(root).as_posix()} "
+            f"(capabilities {len(output.get('capabilities', []))}, "
+            f"workflows {len(output.get('workflows', []))}, "
+            f"limitations {len(output.get('limitations', []))}; "
+            f"provider calls {result.provider_calls}, "
+            f"model {result.model_served or 'stored output reused'}; "
+            f"digest {investigation_digest})"
+        )
+        loaded = prompts["source_reconciliation"]
+        reconciled = run_job(
+            loaded,
+            reconciliation_packet(entry, document, output, loaded.manifest),
+            config=config,
+            facts=document,
+            ledger=ledger,
+            store=store,
+            context=context,
+            checks=lambda candidate: reconcile_checks(candidate, document),
+        )
+        dispositions_digest = write_dispositions(
+            reconciled.output, transaction / DISPOSITIONS_FILENAME
+        )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
-    output = result.output
+    disposition_counts = summarize(reconciled.output)
+    tally = ", ".join(f"{name} {count}" for name, count in sorted(disposition_counts.items()))
     print(
-        f"investigation: {(transaction / INVESTIGATION_FILENAME).relative_to(root).as_posix()} "
-        f"(capabilities {len(output.get('capabilities', []))}, "
-        f"workflows {len(output.get('workflows', []))}, "
-        f"limitations {len(output.get('limitations', []))}; "
-        f"provider calls {result.provider_calls}, "
-        f"model {result.model_served or 'stored output reused'}; "
-        f"digest {investigation_digest})"
+        f"dispositions: {(transaction / DISPOSITIONS_FILENAME).relative_to(root).as_posix()} "
+        f"({sum(disposition_counts.values())} units: {tally}; "
+        f"provider calls {reconciled.provider_calls}, "
+        f"model {reconciled.model_served or 'stored output reused'}; "
+        f"digest {dispositions_digest})"
     )
-    _fail("present: the reconciliation stage is not implemented at this revision")
+    _fail("present: the planning stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

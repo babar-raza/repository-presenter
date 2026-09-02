@@ -19,7 +19,7 @@ import functools
 import json
 import string
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -67,6 +67,7 @@ class _Reply:
     prompt_tokens: int | None
     completion_tokens: int | None
     total_tokens: int | None
+    finish_reason: str | None = None
 
 
 class CallStore:
@@ -151,14 +152,15 @@ def _complete(config: GatewayConfig, payload: dict[str, Any]) -> _Reply:
     client = transport.build_client(config)
     completion = client.chat.completions.create(**payload)
     usage = completion.usage
-    content = completion.choices[0].message.content if completion.choices else None
+    choice = completion.choices[0] if completion.choices else None
     return _Reply(
-        content=content or "",
+        content=(choice.message.content if choice else None) or "",
         model=completion.model,
         request_id=completion.id,
         prompt_tokens=usage.prompt_tokens if usage else None,
         completion_tokens=usage.completion_tokens if usage else None,
         total_tokens=usage.total_tokens if usage else None,
+        finish_reason=choice.finish_reason if choice else None,
     )
 
 
@@ -266,8 +268,11 @@ class _Attempts:
         )
 
 
+Checks = Callable[[dict[str, Any]], list[str]]
+
+
 def _parse(
-    manifest: LoadedManifest, content: str, facts: FactsDocument
+    manifest: LoadedManifest, content: str, facts: FactsDocument, checks: Checks | None = None
 ) -> tuple[dict[str, Any] | None, list[str]]:
     try:
         output = json.loads(content)
@@ -281,6 +286,8 @@ def _parse(
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
     ]
     errors.extend(binding_errors(output, facts, manifest.manifest.output.binding))
+    if not errors and checks is not None:
+        errors.extend(checks(output))
     return (output if not errors else None), errors
 
 
@@ -293,8 +300,14 @@ def run_job(
     ledger: Ledger,
     store: CallStore,
     context: JobContext,
+    checks: Checks | None = None,
 ) -> JobResult:
-    """The accepted output of one job, from the store when the same request was accepted before."""
+    """The accepted output of one job, from the store when the same request was accepted before.
+
+    ``checks`` are the job's own rules beyond schema and binding; they may normalise the output
+    in place before judging it, and their errors are quoted back in the one re-ask exactly like
+    the others. What the checks accept is what is stored.
+    """
     job = manifest.manifest.prompt_id
     messages = render_messages(manifest, packet)
     payload = request_payload(manifest, messages)
@@ -336,7 +349,15 @@ def run_job(
     rejection: list[str] = []
     for ask in (1, 2):
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
-        output, rejection = _parse(manifest, reply.content, facts)
+        if reply.finish_reason == "length":
+            # A re-ask under the same budget cannot help; the manifest's budget must change.
+            attempts.record_invalid("TruncatedOutput")
+            raise JobError(
+                f"{job}: output truncated at the manifest's max_output_tokens "
+                f"({manifest.manifest.sampling.max_output_tokens}); raise the budget or bound "
+                "the output, never retry"
+            )
+        output, rejection = _parse(manifest, reply.content, facts, checks)
         if output is not None:
             store.put(request_sha256, job, reply.model, output)
             return JobResult(

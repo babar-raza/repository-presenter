@@ -6,7 +6,7 @@ model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output; this job returns one JSON record per unit with exact IDs, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 4000
+  max_output_tokens: 16000
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |
@@ -76,7 +76,7 @@ output:
                 - { type: "null" }
                 - { type: string, minLength: 1 }
             fact_ids: { type: array, items: { type: string } }
-            rationale: { type: string, minLength: 1 }
+            rationale: { type: string, minLength: 1, maxLength: 160 }
 system: |
   You reconcile the existing README of one real repository with the facts deterministic code has
   established at a pinned revision. For every inherited unit you return exactly one disposition.
@@ -88,18 +88,29 @@ system: |
   VERIFIED_REWRITE keeps its substance but the wording will be re-authored from facts. VERIFIED_MOVE
   keeps it as written in a different section. CORRECT_WITH_EVIDENCE keeps the unit's subject but a
   fact contradicts a detail; cite the contradicting fact. SUPERSEDE_REDUNDANT drops a unit whose
-  substance a deterministic section renders from facts (an install command, a badge row, a license
-  statement, a link list); cite the facts that render it. OMIT_UNSUPPORTED drops a claim no fact
+  substance a deterministic section renders from facts (the H1 product name, a badge row, an
+  install command, a dependency list, a notices link, a license statement); name that section in
+  destination_section and cite the facts that render it when you can. OMIT_UNSUPPORTED drops a claim no fact
   supports; cite the facts you searched or leave fact_ids empty and say so. DEFER_UNRESOLVED marks a
   material claim the facts neither support nor contradict; it is listed for the owner and never
   rendered. NON_CONTENT covers separators, empty lines, and HTML comments.
 
   Rules that are checked mechanically. Every unit ID appears exactly once. The four placing
-  dispositions (PRESERVE, REWRITE, MOVE, CORRECT) require a destination_section from the supplied
-  section list; the others require null. CORRECT_WITH_EVIDENCE and SUPERSEDE_REDUNDANT require at
-  least one fact ID. Fact IDs are copied exactly from the facts you were given; an unknown ID
-  rejects the whole output. A material unit with no safe destination fails the transaction closed;
-  do not invent a section for it. Code blocks whose example fact is CONTRADICTED are never placed.
+  dispositions (PRESERVE, REWRITE, MOVE, CORRECT) require a destination_section whose entry in
+  the supplied section list says placeable: true. A section marked placeable: false renders from
+  facts (identity, badges, navigation, installation, dependencies, third_party_notices, license);
+  a unit whose substance such a section renders is SUPERSEDE_REDUNDANT with that section named in
+  destination_section, and deterministic code records the facts that section renders. OMIT,
+  DEFER, and NON_CONTENT take a null destination. CORRECT_WITH_EVIDENCE requires at least one
+  fact ID; SUPERSEDE_REDUNDANT requires the section or at least one fact ID. Fact IDs are copied
+  character for character
+  from the facts you were given; never construct an ID from a symbol or file name you see in the
+  README, and when no supplied fact supports a unit, cite nothing and choose OMIT_UNSUPPORTED or
+  DEFER_UNRESOLVED. An unknown ID rejects the whole output. A material unit with no safe
+  destination fails the transaction closed; do not invent a section for it. Code blocks whose
+  example fact is CONTRADICTED are never placed.
+  Each rationale is one short sentence of at most 160 characters; the output is long because the
+  README is, so spend words on decisions, never on restating the unit.
 
   Judgment. Keep repository-specific detail a visitor needs and a generic README would lack. A unit
   that merely repeats a capability inventory rendered elsewhere is SUPERSEDE_REDUNDANT. Promotional

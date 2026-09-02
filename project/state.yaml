@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T18:20:54+05:00"
+updated_at: "2026-09-02T18:40:13+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W04
-  status: READY
+  status: IN_PROGRESS
   purpose: "Composition to docs/README_CONTRACT.md - the semantic shell of section 2, the assembly pipeline of section 3, and the agentic decisions of section 4; the LLM returns typed content units bound to fact IDs and the deterministic renderer emits the Markdown (headings, badges, Mermaid, commands, code, links, license text); one coherence pass may revise LLM-owned units only."
   prerequisites:
     - G1-W03 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.

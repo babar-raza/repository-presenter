@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal, get_args
@@ -122,6 +123,41 @@ class FactsDocument:
             "facts": [asdict(fact) for fact in sorted(self.facts, key=lambda f: f.id)],
         }
         return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+
+
+SYMBOL_MAX_DEPTH = 3
+SYMBOL_CAP = 150
+
+
+def bounded_records(
+    document: FactsDocument,
+    kinds: Iterable[str],
+    polarities: Iterable[str] = ("SUPPORTED",),
+    *,
+    symbol_max_depth: int = SYMBOL_MAX_DEPTH,
+    symbol_cap: int = SYMBOL_CAP,
+) -> list[dict[str, str]]:
+    """Facts of ``kinds`` and ``polarities`` as packet records, with public symbols bounded.
+
+    Public symbols enter only to ``symbol_max_depth`` dotted parts and ``symbol_cap`` in document
+    order, so a job's packet stays bounded however large the surface is.
+    """
+    admitted_kinds = set(kinds)
+    admitted_polarities = set(polarities)
+    records: list[dict[str, str]] = []
+    symbols = 0
+    for fact in document.facts:
+        if fact.kind not in admitted_kinds or fact.polarity not in admitted_polarities:
+            continue
+        if fact.kind == "public_symbol":
+            if fact.value.count(".") >= symbol_max_depth or symbols >= symbol_cap:
+                continue
+            symbols += 1
+        record = {"id": fact.id, "kind": fact.kind, "value": fact.value}
+        if admitted_polarities != {"SUPPORTED"}:
+            record["polarity"] = fact.polarity
+        records.append(record)
+    return records
 
 
 def write_facts(document: FactsDocument, path: Path) -> str:
