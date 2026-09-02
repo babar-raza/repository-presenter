@@ -1,0 +1,186 @@
+"""Planning: conditions evaluated from facts, a bounded packet, a guard on every selection."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from repository_presenter.components.readme.composition.planning import (
+    plan_checks,
+    planning_packet,
+    section_conditions,
+    summarize_plan,
+    write_plan,
+)
+from repository_presenter.components.readme.composition.policy import PlanningPolicy
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.registry.models import RegistryEntry
+from support import REPO_ROOT
+
+ENTRY = RegistryEntry.model_validate(
+    {
+        "repository": "org/Aspose.Widget-FOSS-for-Python",
+        "family": "widget",
+        "platform": "python",
+        "ecosystem": "python",
+        "mode": "dry_run",
+        "policy_profile": "widget",
+        "active": True,
+        "provider_identity": {"provider": "github", "repository_id": 1, "node_id": "R_1"},
+    }
+)
+MANIFEST = load_manifests(REPO_ROOT / "prompts")["presentation_planning"].manifest
+
+
+def _fact(fact_id: str, kind: str, value: str, polarity: str = "SUPPORTED") -> Fact:
+    return Fact(fact_id, kind, value, (Evidence("x"),), polarity=polarity)  # type: ignore[arg-type]
+
+
+FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("identity:repository", "identity", ENTRY.repository),
+        _fact("format:input.obj", "format", ".obj", "UNRESOLVED"),
+        _fact("format:output.stl", "format", ".stl"),
+        _fact("example:001", "example", "print(1)"),
+        _fact("example:002", "example", "print(2)"),
+        _fact("example:003", "example", "boom", "CONTRADICTED"),
+        _fact("public_symbol:widget.scene", "public_symbol", "widget.Scene"),
+        _fact("link_target:001", "link_target", "LICENSE"),
+        _fact("link_target:002", "link_target", "https://docs.aspose.org/widget"),
+        _fact("link_target:003", "link_target", "https://example.com/gone", "CONTRADICTED"),
+        _fact("build_test_asset:tests", "build_test_asset", "tests/"),
+        _fact("inherited_unit:001.paragraph", "inherited_unit", "A limitation."),
+    ),
+)
+ALL_SECTIONS = [
+    "identity",
+    "badges",
+    "opening",
+    "navigation",
+    "at_a_glance",
+    "key_capabilities",
+    "installation",
+    "dependencies",
+    "quick_start",
+    "additional_examples",
+    "api_reference",
+    "documentation_resources",
+    "scope_limitations",
+    "development_testing",
+    "enterprise_relationship",
+    "third_party_notices",
+    "license",
+]
+EXCLUDED = {"at_a_glance", "dependencies", "enterprise_relationship", "third_party_notices"}
+
+
+def _plan(**overrides: Any) -> dict[str, Any]:
+    plan: dict[str, Any] = {
+        "sections": [
+            {"section_id": s, "include": s not in EXCLUDED, "reason": "facts"} for s in ALL_SECTIONS
+        ],
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        "at_a_glance": None,
+        "quick_start_example_id": "example:001",
+        "additional_example_ids": ["example:002"],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
+        "material_limitations": [{"fact_ids": [], "unit_ids": ["inherited_unit:001.paragraph"]}],
+        "links": [{"link_fact_id": "link_target:002", "section_id": "documentation_resources"}],
+        "deviations": [],
+    }
+    plan.update(overrides)
+    return plan
+
+
+def test_conditions_are_evaluated_from_the_facts() -> None:
+    conditions = section_conditions(FACTS)
+    assert conditions["identity"] is True and conditions["license"] is True
+    assert conditions["at_a_glance"] is False
+    assert conditions["dependencies"] is False
+    assert conditions["additional_examples"] is True
+    assert conditions["api_reference"] is None
+    assert conditions["documentation_resources"] is True
+    assert conditions["development_testing"] is True
+    assert conditions["enterprise_relationship"] is False
+    assert conditions["third_party_notices"] is False
+    with_target = PlanningPolicy(enterprise_target_url="https://products.aspose.com/widget/")
+    assert section_conditions(FACTS, with_target)["enterprise_relationship"] is True
+
+
+def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None:
+    packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"d": 2}, MANIFEST)
+    assert packet["repository"] == ENTRY.repository
+    by_id = {section["id"]: section for section in packet["shell"]}
+    assert by_id["at_a_glance"]["condition_holds"] is False
+    assert by_id["api_reference"]["condition_holds"] is None
+    assert by_id["license"]["condition_holds"] is True
+    assert packet["policy"]["capabilities_max"] == 8 and packet["policy"]["version"] == "1"
+    ids = {record["id"] for record in packet["facts"]}
+    assert "format:input.obj" not in ids and "example:003" not in ids
+    assert {"inherited_unit:001.paragraph", "link_target:002", "example:002"} <= ids
+    assert (packet["investigation"], packet["dispositions"]) == ({"i": 1}, {"d": 2})
+
+
+def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
+    assert plan_checks(_plan(), FACTS) == []
+    assert summarize_plan(_plan()) == (
+        "sections 13/17, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
+    )
+
+    sections = [dict(entry) for entry in _plan()["sections"]]
+    sections[0]["include"] = False  # identity
+    sections[4]["include"] = True  # at_a_glance
+    sections[9]["include"] = False  # additional_examples
+    errors = plan_checks(_plan(sections=sections), FACTS)
+    assert "section identity is required and cannot be omitted" in errors
+    assert "section at_a_glance: its condition does not hold, so it is omitted" in errors
+    assert "section additional_examples: its condition holds, so it is included" in errors
+    assert "at_a_glance is included, so its formats and capabilities are given" in errors
+    assert "additional_example_ids are given exactly when additional_examples is included" in errors
+
+    errors = plan_checks(
+        _plan(
+            core_capabilities=[{"title": "Only one", "fact_ids": ["example:001"]}],
+            quick_start_example_id="example:003",
+            additional_example_ids=["example:002", "example:002"],
+            api_hubs=[{"symbol_fact_id": "public_symbol:nope", "fact_ids": ["example:001"]}],
+            links=[
+                {"link_fact_id": "link_target:003", "section_id": "documentation_resources"},
+                {"link_fact_id": "link_target:002", "section_id": "dependencies"},
+            ],
+            deviations=[{"section_id": "changelog", "text": "x", "fact_ids": ["example:001"]}],
+            material_limitations=[{"fact_ids": [], "unit_ids": []}],
+        ),
+        FACTS,
+    )
+    assert errors == [
+        "core_capabilities must number 3 to 8; got 1",
+        "quick_start_example_id must be a SUPPORTED example; got 'example:003'",
+        "additional_example_ids must be distinct and exclude the quick start",
+        "api_hubs must be distinct public_symbol facts",
+        "a material limitation cites at least one fact or inherited unit",
+        "link 'link_target:003' is not a verified link target",
+        "link 'link_target:002' is assigned to a section that is not included: 'dependencies'",
+        "deviation names an unknown section 'changelog'",
+    ]
+
+    ceiling = PlanningPolicy(aspose_links_max=0)
+    assert plan_checks(_plan(), FACTS, ceiling) == ["Aspose links exceed the ceiling of 0: 1"]
+
+
+def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
+    path = tmp_path / "t" / "plan.json"
+    digest = write_plan(_plan(), path)
+    raw = path.read_bytes()
+    assert raw.startswith(b'{\n  "additional_example_ids": [\n    "example:002"\n  ],')
+    assert raw.endswith(b"}\n") and b"\r\n" not in raw
+    assert json.loads(raw) == _plan()
+    assert write_plan(_plan(), path) == digest

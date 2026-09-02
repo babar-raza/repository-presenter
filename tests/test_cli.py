@@ -263,9 +263,64 @@ LOCAL_DISPOSITIONS: dict[str, Any] = {
         },
     ]
 }
+LOCAL_PLAN_INCLUDED = {
+    "identity",
+    "badges",
+    "opening",
+    "navigation",
+    "key_capabilities",
+    "installation",
+    "quick_start",
+    "api_reference",
+    "documentation_resources",
+    "scope_limitations",
+    "license",
+}
+LOCAL_PLAN: dict[str, Any] = {
+    "sections": [
+        {"section_id": section, "include": section in LOCAL_PLAN_INCLUDED, "reason": "facts"}
+        for section in [
+            "identity",
+            "badges",
+            "opening",
+            "navigation",
+            "at_a_glance",
+            "key_capabilities",
+            "installation",
+            "dependencies",
+            "quick_start",
+            "additional_examples",
+            "api_reference",
+            "documentation_resources",
+            "scope_limitations",
+            "development_testing",
+            "enterprise_relationship",
+            "third_party_notices",
+            "license",
+        ]
+    ],
+    "core_capabilities": [
+        {"title": "Create scenes", "fact_ids": ["public_symbol:aspose.threed.scene"]},
+        {"title": "Save GLB", "fact_ids": ["format:output.glb"]},
+        {"title": "Import the package", "fact_ids": ["import_path:aspose.threed"]},
+    ],
+    "at_a_glance": None,
+    "quick_start_example_id": "example:001",
+    "additional_example_ids": [],
+    "api_hubs": [
+        {
+            "symbol_fact_id": "public_symbol:aspose.threed.scene",
+            "fact_ids": ["public_symbol:aspose.threed.scene", "example:001"],
+        }
+    ],
+    "material_limitations": [],
+    "links": [{"link_fact_id": "link_target:002", "section_id": "documentation_resources"}],
+    "deviations": [],
+}
 SCRIPTED_OUTPUTS: dict[str, dict[str, Any]] = {
     "repository_investigation": LOCAL_INVESTIGATION,
     "source_reconciliation": LOCAL_DISPOSITIONS,
+    "presentation_planning": LOCAL_PLAN,
 }
 
 
@@ -396,7 +451,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 2
+    assert len(gateway_ready.requests) == 3
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -414,19 +469,33 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "dispositions.json").read_text("utf-8")
     )
     assert written_dispositions == LOCAL_DISPOSITIONS
+    plan_line = next(line for line in captured.out.splitlines() if line.startswith("plan: "))
+    assert plan_line.startswith(
+        f"plan: {facts_dir}/plan.json (sections 11/17, capabilities 3, hubs 1, examples 1+0, "
+        "links 1, limitations 0; provider calls 1, model qwen3-next; digest "
+    )
+    written_plan = json.loads((project_with_registry / facts_dir / "plan.json").read_text("utf-8"))
+    assert written_plan == LOCAL_PLAN
     assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests] == [
         "repository_investigation",
         "source_reconciliation",
+        "presentation_planning",
     ]
+    shell_packet = json.loads(
+        gateway_ready.requests[2]["messages"][1]["content"]
+        .split("Semantic shell:\n", 1)[1]
+        .split("\n\nPolicy ceilings", 1)[0]
+    )
+    assert {s["id"]: s["condition_holds"] for s in shell_packet}["at_a_glance"] is False
     assert (
         '"id": "inherited_unit:004.code_block"'
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 2 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 3 and all('"disposition":"provider_call"' in line for line in ledger)
     assert LIVE_KEY not in "".join(ledger)
     assert code == EXIT_INCONSISTENT
-    assert "planning stage is not implemented" in captured.err
+    assert "authoring stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -449,11 +518,11 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ")
+    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ", "plan: ")
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 4
+        assert len(lines) == 5
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -461,17 +530,14 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
-    assert first.count("provider calls 1, model qwen3-next") == 2
-    assert second.count("provider calls 0, model stored output reused") == 2
-    assert len(gateway_ready.requests) == 2
+    assert first.count("provider calls 1, model qwen3-next") == 3
+    assert second.count("provider calls 0, model stored output reused") == 3
+    assert len(gateway_ready.requests) == 3
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == [
-        "provider_call",
-        "provider_call",
-        "cache_reuse",
-        "cache_reuse",
-    ]
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 3 + [
+        "cache_reuse"
+    ] * 3
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(

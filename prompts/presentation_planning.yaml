@@ -29,7 +29,7 @@ packet:
       description: The accepted source_reconciliation output; placed units name their destination sections.
     - name: shell
       type: json
-      description: The semantic shell's sections with id, heading, required flag, condition, and owner.
+      description: The semantic shell's sections with id, heading, required flag, owner, condition, and condition_holds - true or false when deterministic code evaluated the condition from the facts, null when the plan decides.
     - name: policy
       type: json
       description: Ceilings and budgets - capability count, hub API count, link ceilings, length budget - as numbers.
@@ -120,8 +120,12 @@ system: |
   whole plan. Ceilings and column rules are enforced at render; stay within the policy numbers.
 
   Sections. Return one decision for every shell section. Required sections are always included.
-  A conditional section is included only when its condition holds in the facts, and its reason
-  names the facts or their absence. Never add a section the shell does not define.
+  A conditional section follows condition_holds: included when true, omitted when false, and
+  your decision when null (api_reference: include it when a visitor benefits from curated hub
+  APIs, with the hubs listed). Every reason names the facts or their absence. Never add a section
+  the shell does not define. additional_example_ids are given exactly when additional_examples
+  is included, api_hubs exactly when api_reference is included, and at_a_glance is null exactly
+  when that section is omitted.
 
   Core capabilities. Three to eight, each an action-led natural phrase grounded in the cited
   facts, with no keyword repeated across titles. One capability inventory per document: the At a

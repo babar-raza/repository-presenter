@@ -101,7 +101,10 @@ system: |
   REJECT_LIMITATIONS: a material limitation is missing or overstated. REJECT_LINKS: a link is
   irrelevant, mis-targeted, or promotional where product substance belongs. REJECT_COHERENCE: the
   document does not read as one developer journey. INSUFFICIENT_EVIDENCE: the supplied inputs are
-  unusable for review at all; never a way to avoid a hard call.
+  unusable for review at all; never a way to avoid a hard call. Two confirmed portfolio defects
+  are always findings: a phrase disclosing that one platform's implementation depends on another
+  ("via Java", "a wrapper around X") is REJECT_PRESENTATION, and an unscoped absolute dependency
+  claim ("no dependencies", "dependency-free") that no dependency fact proves is REJECT_FACTUAL.
 
   Findings. Each finding names the section it concerns, the causal stage responsible (S2 facts,
   S3 investigation, S4 reconciliation, S5 planning, S6 authoring, S7 render, S8 coherence, S9

@@ -11,6 +11,13 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.readme.composition.planning import (
+    PLAN_FILENAME,
+    plan_checks,
+    planning_packet,
+    summarize_plan,
+    write_plan,
+)
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
 from repository_presenter.components.readme.evidence.processability import (
     DISPOSITION_FILENAME,
@@ -311,19 +318,36 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         dispositions_digest = write_dispositions(
             reconciled.output, transaction / DISPOSITIONS_FILENAME
         )
+        disposition_counts = summarize(reconciled.output)
+        tally = ", ".join(f"{name} {count}" for name, count in sorted(disposition_counts.items()))
+        print(
+            f"dispositions: {(transaction / DISPOSITIONS_FILENAME).relative_to(root).as_posix()} "
+            f"({sum(disposition_counts.values())} units: {tally}; "
+            f"provider calls {reconciled.provider_calls}, "
+            f"model {reconciled.model_served or 'stored output reused'}; "
+            f"digest {dispositions_digest})"
+        )
+        loaded = prompts["presentation_planning"]
+        planned = run_job(
+            loaded,
+            planning_packet(entry, document, output, reconciled.output, loaded.manifest),
+            config=config,
+            facts=document,
+            ledger=ledger,
+            store=store,
+            context=context,
+            checks=lambda candidate: plan_checks(candidate, document),
+        )
+        plan_digest = write_plan(planned.output, transaction / PLAN_FILENAME)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
-    disposition_counts = summarize(reconciled.output)
-    tally = ", ".join(f"{name} {count}" for name, count in sorted(disposition_counts.items()))
     print(
-        f"dispositions: {(transaction / DISPOSITIONS_FILENAME).relative_to(root).as_posix()} "
-        f"({sum(disposition_counts.values())} units: {tally}; "
-        f"provider calls {reconciled.provider_calls}, "
-        f"model {reconciled.model_served or 'stored output reused'}; "
-        f"digest {dispositions_digest})"
+        f"plan: {(transaction / PLAN_FILENAME).relative_to(root).as_posix()} "
+        f"({summarize_plan(planned.output)}; provider calls {planned.provider_calls}, "
+        f"model {planned.model_served or 'stored output reused'}; digest {plan_digest})"
     )
-    _fail("present: the planning stage is not implemented at this revision")
+    _fail("present: the authoring stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

@@ -99,7 +99,13 @@ system: |
   verb (Create, Read, Convert, Render, Inspect, Export) and each description is one sentence that
   adds detail rather than restating the title. Call the commercial product only "<product name>
   Enterprise Edition". A unit that reads as a template sentence with the product name substituted
-  fails the coherence pass.
+  fails the coherence pass. Never disclose that one platform's implementation depends on another
+  ("via Java", "a wrapper around X", "backed by X", "implemented through X"). Never make an
+  unscoped absolute dependency claim ("no dependencies", "dependency-free", "no external
+  runtime") unless the same sentence names the exact dependency class it excludes and a
+  dependency fact proves it. In the Enterprise Edition sentence a family-level target names no
+  platform and a platform-level target names exactly the one real platform, never an
+  implementation detail of the resolved page.
 
   Coherence mode. You receive the rendered document and every LLM-owned unit. Revise only those
   units, once, so the document reads as one coherent developer journey; keep every fact citation
