@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/registry.schema.json",
+  "title": "Repository registry allow-list",
+  "description": "Shape of data/registry.json, the hard allow-list of admitted repositories. Presence is the only read authorization; mode governs publication readiness. Identity is the stable provider repository ID. The clone URL is derived from the repository coordinates and never stored.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "repository",
+          "family",
+          "platform",
+          "ecosystem",
+          "mode",
+          "policy_profile",
+          "active",
+          "provider_identity"
+        ],
+        "properties": {
+          "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+          "family": { "type": "string", "minLength": 1 },
+          "platform": { "type": "string", "minLength": 1 },
+          "ecosystem": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "mode": { "enum": ["full", "dry_run", "disabled"] },
+          "policy_profile": { "type": "string", "minLength": 1 },
+          "active": { "type": "boolean" },
+          "provider_identity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["provider", "repository_id", "node_id"],
+            "properties": {
+              "provider": { "const": "github" },
+              "repository_id": { "type": "integer", "minimum": 1 },
+              "node_id": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W01
-  status: READY
+  status: IN_PROGRESS
   purpose: "Snapshot stage for the canary - registry allow-list admission, push-neutered clone at the pinned default-branch revision, exact README bytes, and tree inventory as stage artifacts; pull gitsafety, repository_snapshot, inspection, registry loader, redaction, errors, and retry through manifest file records with ported tests, declaring tenacity as a direct dependency rather than a hand-rolled loop (RESEARCH_AND_GUIDELINES.md section 18); place every new module per REPOSITORY_LAYOUT.md; run the present command end to end."
   prerequisites:
     - G0_FOUNDATION is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.

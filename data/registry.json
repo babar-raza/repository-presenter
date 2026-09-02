@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+      "family": "3d",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-3d-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1178837115,
+        "node_id": "R_kgDORkOgew"
+      }
+    },
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+      "family": "3d",
+      "platform": "java",
+      "ecosystem": "java",
+      "mode": "full",
+      "policy_profile": "aspose-3d-foss",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1178837520,
+        "node_id": "R_kgDORkOiEA"
+      }
+    },
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+      "family": "3d",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-3d-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1138357893,
+        "node_id": "R_kgDOQ9n2hQ"
+      }
+    },
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+      "family": "3d",
+      "platform": "typescript",
+      "ecosystem": "typescript",
+      "mode": "dry_run",
+      "policy_profile": "aspose-3d-foss-typescript",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1168969375,
+        "node_id": "R_kgDORa0Onw"
+      }
+    },
+    {
+      "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+      "family": "barcode",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-barcode-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1280393633,
+        "node_id": "R_kgDOTFFBoQ"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+      "family": "cells",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1203447266,
+        "node_id": "R_kgDOR7sl4g"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+      "family": "cells",
+      "platform": "cpp",
+      "ecosystem": "cpp",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-cpp",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1246258574,
+        "node_id": "R_kgDOSkhljg"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+      "family": "cells",
+      "platform": "go",
+      "ecosystem": "go",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-go",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1301410121,
+        "node_id": "R_kgDOTZHxSQ"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "family": "cells",
+      "platform": "java",
+      "ecosystem": "java",
+      "mode": "full",
+      "policy_profile": "aspose-cells-foss",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1213521112,
+        "node_id": "R_kgDOSFTc2A"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+      "family": "cells",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1037981320,
+        "node_id": "R_kgDOPd5WiA"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+      "family": "cells",
+      "platform": "rust",
+      "ecosystem": "rust",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-rust",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1301317734,
+        "node_id": "R_kgDOTZCIZg"
+      }
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+      "family": "cells",
+      "platform": "typescript",
+      "ecosystem": "typescript",
+      "mode": "dry_run",
+      "policy_profile": "aspose-cells-foss-typescript",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1224468949,
+        "node_id": "R_kgDOSPvp1Q"
+      }
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+      "family": "email",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-email-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1193864496,
+        "node_id": "R_kgDORyjtMA"
+      }
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "family": "email",
+      "platform": "cpp",
+      "ecosystem": "cpp",
+      "mode": "dry_run",
+      "policy_profile": "aspose-email-foss-cpp",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1193857039,
+        "node_id": "R_kgDORyjQDw"
+      }
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+      "family": "email",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-email-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1183488768,
+        "node_id": "R_kgDORoqbAA"
+      }
+    },
+    {
+      "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+      "family": "font",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-font-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1230713255,
+        "node_id": "R_kgDOSVsxpw"
+      }
+    },
+    {
+      "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+      "family": "html",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-html-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1276603134,
+        "node_id": "R_kgDOTBdq_g"
+      }
+    },
+    {
+      "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+      "family": "note",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-note-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1137426093,
+        "node_id": "R_kgDOQ8u-rQ"
+      }
+    },
+    {
+      "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+      "family": "page",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-page-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1243410151,
+        "node_id": "R_kgDOShzu5w"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "family": "pdf",
+      "platform": "go",
+      "ecosystem": "go",
+      "mode": "dry_run",
+      "policy_profile": "aspose-pdf-foss-go",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1245479016,
+        "node_id": "R_kgDOSjyAaA"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+      "family": "pdf",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-pdf-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1276658443,
+        "node_id": "R_kgDOTBhDCw"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+      "family": "pdf",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-pdf-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1250546660,
+        "node_id": "R_kgDOSonT5A"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "family": "pdf",
+      "platform": "cpp",
+      "ecosystem": "cpp",
+      "mode": "dry_run",
+      "policy_profile": "aspose-pdf-foss-cpp",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1280033370,
+        "node_id": "R_kgDOTEvCWg"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+      "family": "pdf",
+      "platform": "java",
+      "ecosystem": "java",
+      "mode": "dry_run",
+      "policy_profile": "aspose-pdf-foss",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1245412430,
+        "node_id": "R_kgDOSjt8Tg"
+      }
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+      "family": "pdf",
+      "platform": "typescript",
+      "ecosystem": "typescript",
+      "mode": "disabled",
+      "policy_profile": "aspose-pdf-foss-typescript",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1345974189,
+        "node_id": "R_kgDOUDnvrQ"
+      }
+    },
+    {
+      "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+      "family": "psd",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "disabled",
+      "policy_profile": "aspose-psd-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1332915817,
+        "node_id": "R_kgDOT3KuaQ"
+      }
+    },
+    {
+      "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python",
+      "family": "psd",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "disabled",
+      "policy_profile": "aspose-psd-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1323959290,
+        "node_id": "R_kgDOTuoD-g"
+      }
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+      "family": "slides",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-slides-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1185437353,
+        "node_id": "R_kgDORqhWqQ"
+      }
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+      "family": "slides",
+      "platform": "cpp",
+      "ecosystem": "cpp",
+      "mode": "dry_run",
+      "policy_profile": "aspose-slides-foss-cpp",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1186397596,
+        "node_id": "R_kgDORrb9nA"
+      }
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+      "family": "slides",
+      "platform": "java",
+      "ecosystem": "java",
+      "mode": "dry_run",
+      "policy_profile": "aspose-slides-foss-java",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1185448261,
+        "node_id": "R_kgDORqiBRQ"
+      }
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+      "family": "slides",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-slides-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1172529510,
+        "node_id": "R_kgDOReNhZg"
+      }
+    },
+    {
+      "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+      "family": "tex",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-tex-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1243409232,
+        "node_id": "R_kgDOShzrUA"
+      }
+    },
+    {
+      "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+      "family": "words",
+      "platform": "net",
+      "ecosystem": "net",
+      "mode": "dry_run",
+      "policy_profile": "aspose-words-foss-net",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1159931799,
+        "node_id": "R_kgDORSMnlw"
+      }
+    },
+    {
+      "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+      "family": "words",
+      "platform": "python",
+      "ecosystem": "python",
+      "mode": "dry_run",
+      "policy_profile": "aspose-words-foss-python",
+      "active": true,
+      "provider_identity": {
+        "provider": "github",
+        "repository_id": 1199624632,
+        "node_id": "R_kgDOR4DRuA"
+      }
+    }
+  ]
+}

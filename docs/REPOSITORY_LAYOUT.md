@@ -26,6 +26,7 @@ src/repository_presenter/
   core/                     capabilities usable by any future surface, not README-specific
     identity.py             shared repository/revision identity types
     hashing.py               canonical text hashing
+    errors.py               typed failure hierarchy mapped to CLI exit codes
     config/                  configuration precedence, secrets, environment
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture

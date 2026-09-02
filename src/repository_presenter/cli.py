@@ -10,6 +10,12 @@ from pathlib import Path
 
 from repository_presenter import __version__
 from repository_presenter.core.candidates import BundleError, count_current_candidates
+from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.registry.loader import (
+    REGISTRY_RELATIVE_PATH,
+    load_registry,
+    require_listed,
+)
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks
 from repository_presenter.cursor import (
     CURSOR_RELATIVE_PATH,
@@ -33,19 +39,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=f"{PROGRAM} {__version__}")
     subcommands = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
+    root_help = (
+        f"project root holding {CURSOR_RELATIVE_PATH.as_posix()}; "
+        "discovered from the working directory when omitted"
+    )
     status = subcommands.add_parser(
         "status",
         help="report the current gate and current reviewable no-op-proven candidates",
     )
-    status.add_argument(
-        "--root",
-        type=Path,
-        default=None,
-        help=(
-            f"project root holding {CURSOR_RELATIVE_PATH.as_posix()}; "
-            "discovered from the working directory when omitted"
-        ),
+    status.add_argument("--root", type=Path, default=None, help=root_help)
+    present = subcommands.add_parser(
+        "present",
+        help="run the README transaction for one admitted repository",
     )
+    present.add_argument(
+        "--repo",
+        required=True,
+        metavar="OWNER/NAME",
+        help="repository coordinates exactly as listed in the registry",
+    )
+    present.add_argument("--root", type=Path, default=None, help=root_help)
     return parser
 
 
@@ -53,23 +66,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run the CLI and return its exit status."""
     parser = build_parser()
     args = parser.parse_args(argv)
-    if args.command != "status":
-        parser.error(f"unknown command {args.command!r}")
-    return run_status(args.root)
+    if args.command == "status":
+        return run_status(args.root)
+    if args.command == "present":
+        return run_present(args.repo, args.root)
+    parser.error(f"unknown command {args.command!r}")
 
 
 def run_status(root_argument: Path | None) -> int:
     """Print version, gate, work item, and N/34 progress from sealed bundles on disk."""
-    if root_argument is None:
-        root = find_project_root(Path.cwd())
-        if root is None:
-            _fail(f"no {CURSOR_RELATIVE_PATH.as_posix()} found at or above {Path.cwd()}")
-            return EXIT_USAGE
-    else:
-        root = root_argument.resolve()
-        if not (root / CURSOR_RELATIVE_PATH).is_file():
-            _fail(f"no {CURSOR_RELATIVE_PATH.as_posix()} under {root}")
-            return EXIT_USAGE
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
     try:
         cursor = load_cursor(root)
         leaks = find_secret_leaks(root, configured_secrets(os.environ))
@@ -94,6 +102,39 @@ def run_status(root_argument: Path | None) -> int:
         )
         return EXIT_INCONSISTENT
     return EXIT_OK
+
+
+def run_present(repository: str, root_argument: Path | None) -> int:
+    """Admit ``repository`` from the registry, then run the transaction stages."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    try:
+        registry = load_registry(root / REGISTRY_RELATIVE_PATH)
+        entry = require_listed(registry, repository)
+    except PresenterError as exc:
+        _fail(str(exc))
+        return exc.exit_code
+    print(
+        f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
+        f"family {entry.family}, platform {entry.platform})"
+    )
+    _fail("present: the snapshot stage is not implemented at this revision")
+    return EXIT_INCONSISTENT
+
+
+def _resolve_root(root_argument: Path | None) -> Path | None:
+    """Return the project root, printing the usage failure when it cannot be found."""
+    if root_argument is None:
+        root = find_project_root(Path.cwd())
+        if root is None:
+            _fail(f"no {CURSOR_RELATIVE_PATH.as_posix()} found at or above {Path.cwd()}")
+        return root
+    root = root_argument.resolve()
+    if not (root / CURSOR_RELATIVE_PATH).is_file():
+        _fail(f"no {CURSOR_RELATIVE_PATH.as_posix()} under {root}")
+        return None
+    return root
 
 
 def _fail(message: str) -> None:

@@ -1,8 +1,8 @@
 schema_version: 1
-manifest_status: LEDGER_OPEN_NO_PULLS
+manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T12:01:45+05:00"
+updated_at: "2026-09-02T12:51:53+05:00"
 
 authority:
   governance: AGENTS.md
@@ -186,8 +186,8 @@ source:
 
 audit:
   model: INCREMENTAL_PULL
-  status: NOT_STARTED
-  first_pull_at: null
+  status: PULLS_IN_PROGRESS
+  first_pull_at: "2026-09-02"
   census_completed_at: null
   auditor: null
   inventory_path: migration/legacy-source-inventory.json
@@ -749,7 +749,114 @@ expected_asset_dispositions:
     retained_behavior:
       - Shape regression material only; not an acceptance oracle.
 
-file_records: []
+file_records:
+  - source_path: src/readme_agent/errors.py
+    sha256: 628397a3aa5a66416891539c178a32b829d5151f386cf6250c1c3d3177521b48
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/errors.py
+    retained_behavior:
+      - Typed failure hierarchy with exit-code mapping (1 policy failure, 2 configuration, 3 safety refusal).
+      - ConfigError and NotAllowlistedError with their exit codes.
+    removed_behavior:
+      - UsageError, PreflightError, GitSafetyError, RepositorySnapshotError, StateBackendError, ValidationFailure, and every LLM and merged-review error; each returns only with the stage that raises it.
+    tests_ported:
+      - tests/test_present.py (exit-code mapping) and tests/test_registry.py (ConfigError, NotAllowlistedError); the legacy suite has no dedicated errors test.
+    acceptance: present exits 2 on a malformed or missing registry and 3 on a repository outside the allow-list.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    provenance: git archive of the frozen revision extracted to runs/legacy; the legacy repository has no LICENSE file and this repository's MIT license governs the result.
+
+  - source_path: src/readme_agent/registry/naming.py
+    sha256: cedae703e5196a3c9e795d6b41532e14a7104dbe7d8228478773f7f5d097b9fd
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/registry/naming.py
+    retained_behavior:
+      - The governed repository-name contract (Aspose.Family-FOSS-for-Platform, dot or dash), platform aliases, and coordinate validation.
+    removed_behavior: []
+    tests_ported:
+      - tests/unit/test_registry_loader.py name-contract cases -> tests/test_registry.py (governed forms, variant suffix, coordinate mismatch).
+    acceptance: A registry entry whose name breaks the contract or contradicts its family/platform fails closed at load.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/registry/models.py
+    sha256: 7e5c8573c55b6612958b8e16fddc52a7c3e051c5ce0d0e1c15d7effd7ca1245d
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/registry/models.py
+    retained_behavior:
+      - Typed admitted-repository entry with family, platform, ecosystem, mode (full, dry_run, disabled), policy profile, active flag, and a stable GitHub provider identity; unknown fields rejected.
+      - Name contract enforced on every entry.
+    removed_behavior:
+      - PolicyProfile and every policy, link-allocation, and product-truth model (they arrive with profiles at composition).
+      - surface_ownership coupling.
+      - Stored repo_url and clone_url (the clone URL is derived from the repository coordinates), discovered_via, registry_schema_version, and overrides.
+    tests_ported:
+      - tests/unit/test_registry_loader.py entry-shape cases -> tests/test_registry.py.
+    acceptance: The re-emitted registry loads with 34 entries and the canary resolves to mode dry_run, ecosystem python.
+    import_closure:
+      - src/readme_agent/registry/surface_ownership.py (cut, not pulled)
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: pydantic is declared by this work item per RESEARCH_AND_GUIDELINES.md section 18.3 - the registry needs nested validation (provider identity), field patterns, closed modes, unknown-field rejection, and a cross-field name contract with readable fail-closed errors, which a dataclass cannot express cheaply; stdlib dataclasses remain the default for simple records.
+
+  - source_path: src/readme_agent/registry/reconciliation.py
+    sha256: e8bd45cfce398c23cf14d4534eb8287a2fe88ee25c018722d9468f376b2b6e96
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/registry/models.py
+    retained_behavior:
+      - validate_stable_identities - duplicate provider repository IDs and node IDs fail closed (extended to duplicate repository coordinates).
+    removed_behavior:
+      - reconcile_registry and every discovery observation, refresh, migration, and admission path; hosted discovery is decided at G4 if at all.
+    tests_ported:
+      - tests/unit/test_registry_loader.py duplicate-identity case -> tests/test_registry.py.
+    acceptance: A registry with two entries sharing a provider repository ID, node ID, or repository fails closed at load.
+    import_closure:
+      - src/readme_agent/registry/discovery_models.py (cut, not pulled)
+      - src/readme_agent/registry/reconciliation_models.py (cut, not pulled)
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/registry/loader.py
+    sha256: 45a6fb8004bcde3d660ea53132b0698ee05fc64147cc9d18f19088dfc95af49b
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/registry/loader.py
+    retained_behavior:
+      - Fail-closed loading - missing file, invalid JSON, and malformed entries raise ConfigError.
+      - The read gate require_listed (presence is the only read authorization) and the stricter write gate is_permitted (mode disabled is never proposed to), plus enabled_entries.
+    removed_behavior:
+      - load_policy over config/policies (profiles arrive at composition).
+      - Working-directory-relative default paths; the caller passes the project root (CPL-05).
+      - Re-reading the file on every gate call; the loaded registry is passed explicitly.
+    tests_ported:
+      - tests/unit/test_registry_loader.py -> tests/test_registry.py (12 of 17 tests; the five dropped cover config/policies and the retired pilot plan).
+    acceptance: present admits the canary through require_listed and refuses an unlisted repository with exit 3 before any clone.
+    import_closure:
+      - src/readme_agent/errors.py
+      - src/readme_agent/registry/models.py
+      - src/readme_agent/registry/naming.py
+      - src/readme_agent/registry/reconciliation.py (validate_stable_identities only; the rest of its chain is cut)
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: The ported tests were not among the 13 failures of the legacy developer-worktree run recorded in measured_legacy_baseline; the frozen-revision baseline was measured on Windows and the legacy suite is not rerun.
+
+  - source_path: data/products.json
+    sha256: c810071ea3b65f97f66153388ed114e4bad55e95d3b6cb27b0c90c3a3bc3c88b
+    disposition: MIGRATION_READER_ONLY
+    destination: data/registry.json
+    retained_behavior:
+      - The 34 admitted repositories with family, platform, ecosystem, mode, policy profile, active flag, and stable provider identity, re-emitted in schemas/registry.schema.json and sorted by repository.
+    removed_behavior:
+      - repo_url and clone_url (derived from the repository; every derived URL was checked equal to the legacy value), discovered_via, registry_schema_version.
+      - overrides (one entry, Aspose.Cells-FOSS-for-TypeScript product_name and license), which belong to the reviewed profile overlay pulled with config/policies.
+    tests_ported:
+      - tests/test_registry.py validates data/registry.json against its schema and asserts the frozen portfolio shape (34 entries, 31 enabled).
+    acceptance: The canary is admitted from data/registry.json by the official entry point.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: One-time field mapping by a throwaway reader; the frozen registry revision is produced by this runtime at G4 and this file is never treated as truth beyond admission.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
