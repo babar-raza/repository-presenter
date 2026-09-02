@@ -1140,3 +1140,47 @@ project's answer to the same underlying problem, timed to when concurrent hosted
 exist. Do not port theirs; do study its `--adopt-orphaned` liveness-check shape when G4 designs
 its own.
 
+## 20. Enterprise/backlink resolution: adopt the algorithm, not the data (2026-09-02)
+
+**Observed, following up on §19 at the user's direction:** `aspose.org/data/aspose_com_targets.json`
+(19.5 MB, real sitemap fetches from products/docs/reference/kb/blog.aspose.com, `http_status: 200`
+and a `last_verified` timestamp on every entry, generated 2026-08-21) and its consumer,
+`scripts/pipeline/lib/backlink_targets.py` (1,658 lines). This is a materially better-verified
+source than the legacy `foss-readme-optimizer` catalog flagged in §7.2.1 (that one: 44 of 7,755
+records ever live-checked). `resolve_backlink()` is the specific, reusable piece: family/platform
+lookup with a canonical `PLATFORM_ALIASES` table (real bridge slugs — `python-cpp`, `go-cpp`,
+`rust-cpp` — each a documented, hard-won correction), a platform-then-family fallback, and explicit
+`AMBIGUOUS_PLATFORM_TARGETS` handling when two verified variants exist with no rule to pick between
+them (never silently choosing one).
+
+**Decision: adopt the resolution shape and the alias taxonomy as a design reference; do not pull
+the data file or the module.** Three reasons, not just caution for its own sake:
+
+1. **Wrong shape for the need.** That data file and module solve aspose.org's own problem — bulk,
+   offline backlink resolution for SEO compliance across an entire site's worth of pages, plus
+   anchor-slot registries and per-page link-quota policy this project has no use for.
+   `enterprise_link` here is one lookup per candidate, not a portfolio-wide precomputed catalog; a
+   live, on-demand check (`GET https://products.aspose.com/{family}/{platform}/`, falling back to
+   `/{family}/`) is simpler, always current, and matches this project's own "verify what you
+   actually use" rule (§7.2.1) better than ingesting 5,200 curated + 75,729 raw entries most
+   candidates will never touch.
+2. **Wrong source model.** `migration/reuse-manifest.yaml`'s pull-based reuse is scoped to one
+   frozen revision of `foss-readme-optimizer`, retired and never changing again. `aspose.org` is a
+   live, actively-developed sibling repository — pulling code or data from it is a different kind
+   of dependency than migrating a dead system's parts, and would need its own, explicitly-decided
+   sourcing model (a second reuse source, or a periodic-refresh boundary) before any file crosses
+   over. That decision was not made here — flagged for the owner, not assumed.
+3. **The genuinely portable part is small.** `resolve_backlink`'s core logic and the
+   `PLATFORM_ALIASES`/`KNOWN_FAMILIES` tables are a few hundred lines of real, tested knowledge
+   about this exact product portfolio's platform-naming quirks — worth reimplementing cleanly for
+   `enterprise_link`'s own fact extractor, citing this research, not copy-pasted from a non-migration
+   source.
+
+**First needed**: G1-W04 (composition) — `enterprise_relationship` and `documentation_resources`
+are exactly what's being built now. A minimal version for the canary: live HTTP check against
+`products.aspose.com/{family}/{platform}/` then `/{family}/`, `family`/`platform`/`unresolved`
+classification matching `README_CONTRACT.md` row 15's existing rule, omit the section on
+`unresolved` — no bulk catalog required for one product. The alias table only matters once a second
+ecosystem's platform-slug quirks show up (G2 onward); adapt entries from `PLATFORM_ALIASES` as
+that need appears, not all at once now.
+
