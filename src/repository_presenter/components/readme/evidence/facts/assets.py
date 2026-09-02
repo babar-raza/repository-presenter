@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from repository_presenter.components.readme.evidence.facts.records import Evidence, Fact, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 
 _MAX_EVIDENCE_PATHS = 5
 

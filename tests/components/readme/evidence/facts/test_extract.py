@@ -74,6 +74,8 @@ def test_facts_document_for_a_local_clone(tmp_path: Path) -> None:
         "package:name",
         "package:python_requires",
         "package:version",
+        "public_symbol:aspose",
+        "public_symbol:aspose.example",
     ]
     by_id = {fact.id: fact for fact in document.facts}
     assert by_id["identity:revision"].value == clone.revision
@@ -102,5 +104,6 @@ def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Pa
 
     document = extract_facts(ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin, None)
 
-    assert {fact.kind for fact in document.facts} == {"identity", "inherited_unit"}
+    assert {fact.kind for fact in document.facts} == {"identity", "inherited_unit", "public_symbol"}
     assert [f.value for f in document.by_kind("inherited_unit")] == ["# Example"]
+    assert [f.value for f in document.by_kind("public_symbol")] == ["pkg"]

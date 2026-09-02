@@ -10,7 +10,7 @@ from repository_presenter.components.readme.evidence.facts.inherited import (
     inherited_unit_facts,
     inventory_units,
 )
-from repository_presenter.components.readme.evidence.facts.records import FactsDocument
+from repository_presenter.core.facts import FactsDocument
 from support import REPO_ROOT
 
 README = """# Aspose.3D FOSS for Python

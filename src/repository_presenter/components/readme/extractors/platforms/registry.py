@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Protocol
 
-from repository_presenter.components.readme.evidence.facts.records import Fact
 from repository_presenter.components.readme.extractors.platforms.python import PythonPlugin
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.facts import Fact
 
 
 class PlatformPlugin(Protocol):
@@ -22,6 +22,9 @@ class PlatformPlugin(Protocol):
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         """Package, version, Python range, import path, and install facts from the manifest."""
+
+    def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
+        """Public symbols of the product packages, read statically from the tree."""
 
 
 _PLUGINS: dict[str, PlatformPlugin] = {plugin.ecosystem: plugin for plugin in (PythonPlugin(),)}

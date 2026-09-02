@@ -16,13 +16,17 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.evidence.facts.records import (
+from repository_presenter.components.readme.extractors.platforms.python_setup_py import (
+    parse_setup_py,
+)
+from repository_presenter.components.readme.extractors.platforms.python_surface import (
+    inspect_public_surface,
+    public_symbol_facts,
+)
+from repository_presenter.core.facts import (
     Evidence,
     Fact,
     fact_id,
-)
-from repository_presenter.components.readme.extractors.platforms.python_setup_py import (
-    parse_setup_py,
 )
 
 MANIFEST_NAMES = ("pyproject.toml", "setup.cfg", "setup.py")
@@ -175,6 +179,10 @@ class PythonPlugin:
             if candidate.is_file():
                 return candidate
         return None
+
+    def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
+        package_dirs = [dotted.replace(".", "/") for dotted in package_directories(tree_paths)]
+        return public_symbol_facts(inspect_public_surface(root, package_dirs))
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         facts: list[Fact] = []

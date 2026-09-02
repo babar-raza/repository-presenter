@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T14:44:06+05:00"
+updated_at: "2026-09-02T15:10:56+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1095,6 +1095,28 @@ file_records:
       - tests/unit/test_license_auditor.py (5 of 9; the GitHub-API cases are cut with that path) -> tests/components/readme/evidence/facts/test_license.py.
     acceptance: The canary yields license:file LICENSE and license:spdx MIT from the file text alone.
     import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+
+  - source_path: src/readme_agent/ecosystems/python_public_api.py
+    sha256: 6ea4832be736132ef3389886f66981d3e084b6fc12b22a96331f11cb0bb9d10b
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/extractors/platforms/python_surface.py
+    retained_behavior:
+      - AST-only inventory of the public surface - literal __all__ (including augmented assignment), the leading-underscore rule, package re-exports with their origin, private modules skipped, star imports and unresolvable relative imports and syntax errors recorded as unresolved.
+      - Re-export kind resolved from the origin definition, read from the origin file when it lies outside the walked packages.
+    removed_behavior:
+      - The pydantic surface and layout models and the source digest (frozen dataclasses; facts.json is the artifact).
+      - Class members, decorators, annotations, and property stacks through python_symbol_members.py (deferred to the example verifier, bounded to the classes the README uses).
+      - Coupling to python_package_layout.py; package directories come from the tree inventory or the manifest's declared packages.
+      - Member aliasing under re-exports; only the re-exported symbol itself is aliased.
+    tests_ported:
+      - tests/unit/test_python_public_api.py public-surface cases (4 of 5; the property-stack case is deferred with class members) -> tests/components/readme/extractors/platforms/test_python_surface.py.
+    acceptance: The canary yields public_symbol facts for its package modules, classes, and re-exports such as aspose.threed.Scene and aspose.threed.formats.obj.ObjLoadOptions, each with file and line evidence.
+    import_closure:
+      - src/readme_agent/ecosystems/python_api_schema.py (cut, not pulled)
+      - src/readme_agent/ecosystems/python_package_layout.py (cut, not pulled)
+      - src/readme_agent/ecosystems/python_symbol_members.py (cut, deferred)
     pulled_at: "2026-09-02"
     work_item: G1-W02
 

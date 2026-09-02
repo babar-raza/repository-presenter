@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from repository_presenter.components.readme.evidence.facts.records import Evidence, Fact, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 
 _CLASSIFIERS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bmit license\b", re.IGNORECASE), "MIT"),

@@ -28,6 +28,7 @@ src/repository_presenter/
     hashing.py               canonical text hashing
     errors.py               typed failure hierarchy mapped to CLI exit codes
     retry.py                bounded retry policies on tenacity
+    facts.py                typed fact records and the facts.json writer (the extraction boundary)
     config/                  configuration precedence, secrets, environment
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture

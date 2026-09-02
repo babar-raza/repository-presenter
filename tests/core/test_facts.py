@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from repository_presenter.components.readme.evidence.facts.records import (
+from repository_presenter.core.facts import (
     Evidence,
     Fact,
     FactsDocument,

@@ -10,10 +10,6 @@ from pathlib import Path
 
 from repository_presenter import __version__
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
-from repository_presenter.components.readme.evidence.facts.records import (
-    FACTS_FILENAME,
-    write_facts,
-)
 from repository_presenter.components.readme.evidence.processability import (
     DISPOSITION_FILENAME,
     assess_processability,
@@ -22,6 +18,10 @@ from repository_presenter.components.readme.evidence.processability import (
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.facts import (
+    FACTS_FILENAME,
+    write_facts,
+)
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,

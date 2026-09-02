@@ -16,7 +16,7 @@ from typing import Literal
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
-from repository_presenter.components.readme.evidence.facts.records import Evidence, Fact, fact_id
+from repository_presenter.core.facts import Evidence, Fact, fact_id
 
 UnitType = Literal[
     "heading",
