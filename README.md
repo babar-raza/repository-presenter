@@ -8,10 +8,11 @@ foundational component; other repository-presentation surfaces follow through th
 
 ## Status
 
-Pre-implementation. The repository currently holds governance and design authority only; no
-runtime code exists yet. The live build cursor is `project/state.yaml` (current gate:
-`G0_FOUNDATION`). It succeeds the legacy `babar-raza/foss-readme-optimizer` project, whose
-reusable behavior migrates here only through `migration/reuse-manifest.yaml`.
+Run `repository-presenter status` for the current gate, work item, and the only progress metric:
+current reviewable no-op-proven README candidates out of 34. `project/state.yaml` is the live
+cursor; this file never restates it. The project succeeds the legacy
+`babar-raza/foss-readme-optimizer` repository, whose reusable behavior migrates here only through
+`migration/reuse-manifest.yaml`.
 
 ## Authority
 
@@ -21,6 +22,7 @@ reusable behavior migrates here only through `migration/reuse-manifest.yaml`.
 | Agent conduct, safety, work loop | [`AGENTS.md`](AGENTS.md) |
 | Build order, gates, acceptance | [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md) |
 | Production runtime behavior | [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) |
+| Candidate README shape, assembly, agentic decisions, blocking checks | [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) |
 | Research record and design reasoning | [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) |
 | Live implementation cursor | [`project/state.yaml`](project/state.yaml) |
 | Legacy-code disposition | [`migration/reuse-manifest.yaml`](migration/reuse-manifest.yaml) |

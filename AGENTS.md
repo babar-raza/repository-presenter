@@ -20,7 +20,8 @@ Read in this order at the start of every session:
 
 1. `project/state.yaml` — the only live implementation cursor.
 2. The current gate in `docs/EXECUTION_STATE_MACHINE.md`.
-3. Relevant behavior in `docs/STATE_MACHINE.md`.
+3. Relevant behavior in `docs/STATE_MACHINE.md`, and `docs/README_CONTRACT.md` whenever the work
+   item touches facts, composition, validation, or review.
 4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`.
 5. `plans/idea.md` — the human product authority, for the outcome standard and standing
    constraints; never a cursor or task list.
@@ -34,6 +35,8 @@ Authority by subject:
 - `AGENTS.md` owns agent conduct and safety.
 - `docs/EXECUTION_STATE_MACHINE.md` owns build order and gate acceptance.
 - `docs/STATE_MACHINE.md` owns production runtime behavior.
+- `docs/README_CONTRACT.md` owns the candidate README's shape, assembly, agentic decisions, and
+  blocking checks.
 - `project/state.yaml` owns current implementation status.
 - `migration/reuse-manifest.yaml` owns legacy-code disposition after its audit.
 - Accepted schemas and tests own implemented interfaces.

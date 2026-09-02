@@ -250,6 +250,11 @@ context model, but the composer performs a final coherence pass over the complet
 LLM-authored text may only express accepted facts supplied in its packet. Deterministic code owns
 commands, links, badges, diagram topology, exact identifiers, example code, and license identity.
 
+The LLM never writes Markdown or the final document. Each job returns typed content units bound to
+fact IDs, and the deterministic renderer assembles the document from the semantic shell defined in
+`README_CONTRACT.md`. The coherence pass and every repair may change only LLM-owned units and plan
+selections; deterministic blocks change only when their facts change.
+
 ### 7.5 Independent review
 
 The reviewer receives the candidate, relevant evidence, dispositions, presentation plan, and

@@ -1,12 +1,13 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T14:00:00+05:00"
+updated_at: "2026-09-02T15:00:00+05:00"
 
 authority:
   product: plans/idea.md
   governance: AGENTS.md
   implementation: docs/EXECUTION_STATE_MACHINE.md
   runtime: docs/STATE_MACHINE.md
+  readme_contract: docs/README_CONTRACT.md
   research: docs/RESEARCH_AND_GUIDELINES.md
   legacy_reuse: migration/reuse-manifest.yaml
 
@@ -89,6 +90,12 @@ owner_items:
     resume_predicate: A hosted workflow run mints a read-only installation token for the canary repository.
     consumed_by: [G4_HOSTED_PORTFOLIO, G5_PROPOSAL_EFFECT_PROOF]
     recorded_at: "2026-09-02T14:00:00+05:00"
+  - id: OWNER-05
+    status: OPEN
+    summary: Archive babar-raza/foss-readme-optimizer on GitHub after committing or discarding its dirty working tree, so the legacy system becomes read-only forensic evidence and no further fixes land there.
+    resume_predicate: GET /repos/babar-raza/foss-readme-optimizer returns archived true.
+    consumed_by: [NONE]
+    recorded_at: "2026-09-02T15:00:00+05:00"
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer

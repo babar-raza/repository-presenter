@@ -5,7 +5,8 @@ files, never from memory of a previous iteration.
 ## 0. Rules that override everything else
 
 - Authority, in order: `AGENTS.md`, `project/state.yaml`, the current gate section only of
-  `docs/EXECUTION_STATE_MACHINE.md`, then `docs/STATE_MACHINE.md`, `docs/RESEARCH_AND_GUIDELINES.md`,
+  `docs/EXECUTION_STATE_MACHINE.md`, then `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (for
+  any work on facts, composition, validation, or review), `docs/RESEARCH_AND_GUIDELINES.md`,
   `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
@@ -66,6 +67,9 @@ files, never from memory of a previous iteration.
   aspose-3d-foss/Aspose.3D-FOSS-for-Python` and its immediate rerun, which must be byte-identical
   with zero provider calls.
 - A module with no production importer is a defect. Wire it or delete it in this iteration.
+- The LLM never writes Markdown or the document. Jobs return typed content units bound to fact IDs;
+  the deterministic renderer owns headings, badges, Mermaid, commands, code, links, and license text
+  (`docs/README_CONTRACT.md` §3). Claim checks are structural, never substring matching on prose.
 - Run focused checks, then the gate's required checks: `ruff check .`, `ruff format --check .`,
   `mypy src`, `pytest`. Disposable clones and run output go under `runs/` (gitignored). Candidate
   bundles under `candidates/` and gate evidence under `evidence/` are committed.

@@ -80,7 +80,8 @@ are not progress. The observable repository transaction is:
 The coding agent reads authority in this order:
 
 1. This document owns implementation sequence, gates, deliverables, and the build cursor.
-2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions.
+2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions;
+   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks.
 3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
 4. The reuse manifest owns the disposition of each legacy module and asset.
 5. Git history and committed evidence record what actually happened.
@@ -247,22 +248,15 @@ leases, or hosted execution yet; those are G4.
    prompt hygiene after the `CPL-01` cut. LLM prose may only express fact IDs supplied in its
    packet; deterministic code renders commands, links, badges, Mermaid, example code, and license
    identity.
-4. **Composition.** One central composer applies the portfolio shell and a final coherence pass.
-   Default length budget from policy: at most 300 visible lines for the canary, no generated API
-   inventory, curated hub APIs only with evidence.
-5. **Blocking checks, exactly these eleven at G1:** pinned source revision and exact README bytes;
-   install command verified against manifest and package-registry observation; every example
-   verified in isolation; every capability and limitation claim bound to an evidence ID by
-   structure, never by substring matching on rendered prose; every material inherited unit has
-   exactly one disposition; links resolve, Aspose links are contextual and within ceilings, and
-   the only edition name is "Enterprise Edition"; one factual H1, one badge row, title-case
-   headings, canonical abbreviations, valid Mermaid topology, no internal assurance narration,
-   length within budget; protected content preserved; no secret in the bundle; one independent
-   non-authoring review returns `ACCEPT`; fresh-process rerun is byte-identical with zero provider
-   calls. Everything else is advisory until G2.
-6. **Independent review.** Separate prompt and call from authoring. Findings name a section and a
-   causal stage (`EXTRACTING`, `INVESTIGATING`, `RECONCILING`, `PLANNING`, `COMPOSING`); at most one
-   targeted repair per equivalent fingerprint; unrepairable findings are advisory.
+4. **Composition** to `docs/README_CONTRACT.md`: the semantic shell in its §2, the assembly
+   pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed content units
+   bound to fact IDs; the deterministic renderer emits the Markdown; one coherence pass may revise
+   LLM-owned units only.
+5. **Blocking checks:** exactly the eleven in `docs/README_CONTRACT.md` §5. Everything else is
+   advisory until G2 freezes contract v1.
+6. **Independent review** per `docs/README_CONTRACT.md` §4 and §6: separate prompt and identity;
+   findings name a section and a causal stage; one targeted repair per equivalent fingerprint;
+   unrepairable findings are advisory.
 7. **Bundle.** `README.md`, `README.patch`, `facts.json`, `dispositions.json`, `plan.json`,
    `validation.json`, `review.json`, `calls.jsonl`, `dependencies.json` (exact hashes of every
    consumed input: source revision and relevant tree, fact records, prompt manifests, model route,
@@ -275,7 +269,7 @@ leases, or hosted execution yet; those are G4.
 ### Exit predicates
 
 - A human can open the candidate at its stable path and it reads as a concise, product-first README
-  for this repository, within budget.
+  for this repository, within budget, with every required section of the semantic shell present.
 - All eleven blocking checks pass; review verdict is `ACCEPT`; no-op is proven in a fresh process.
 - Every pulled legacy file has a manifest record and ported tests; every new module has a production
   importer; provider calls reconcile with the ledger.
