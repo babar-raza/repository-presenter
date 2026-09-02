@@ -40,6 +40,7 @@ _PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
 _RENDERED_ELSEWHERE = frozenset({"heading", "badge_row", "code_block"})
 _LINK_TEXT = re.compile(r"text '(.*)'$")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
+_EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
 _MIT_PROSE = (
     "{name} is released under the MIT License. You may use, copy, modify, merge, publish, "
@@ -121,6 +122,8 @@ class RenderContext:
         """
         tokens = set(identifier_tokens(text))
         tokens.update(word for word in _WORD.findall(text) if word in self.symbol_names)
+        # A bare extension that is a format fact value (``.stl``) is an identifier too.
+        tokens.update(ext for ext in _EXTENSION.findall(text) if ext in self.allowed)
         rendered = text
         for token in sorted(tokens, key=len, reverse=True):
             if token in self.name_tokens:
@@ -200,6 +203,12 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     lines.append('  subgraph C["Core capabilities"]')
     for index, title in enumerate(titles):
         lines.append(f'    C{index + 1}["{title}"]')
+    # Up to five capabilities form one column; six to eight form two balanced columns, the
+    # rows held side by side by invisible links (README_CONTRACT.md section 2.1).
+    if len(titles) >= 6:
+        left = (len(titles) + 1) // 2
+        for row in range(len(titles) - left):
+            lines.append(f"    C{row + 1} ~~~ C{left + row + 1}")
     lines.append("  end")
     if any(f is not None for f in outputs):
         lines.append("  C --- O")

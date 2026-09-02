@@ -645,8 +645,19 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         r"\(\d+ visible lines of \d+; digest [0-9a-f]{64}\)",
         readme_line,
     )
+    validation_line = next(
+        line for line in captured.out.splitlines() if line.startswith("validation: ")
+    )
+    assert validation_line.startswith(
+        f"validation: {facts_dir}/validation.json (pass 9, fail 0, pending 2; digest "
+    )
+    written_validation = json.loads(
+        (project_with_registry / facts_dir / "validation.json").read_text("utf-8")
+    )
+    assert [c["verdict"] for c in written_validation["checks"]] == ["PASS"] * 9 + ["PENDING"] * 2
+    assert written_validation["advisory"] == []
     assert code == EXIT_INCONSISTENT
-    assert "validation stage is not implemented" in captured.err
+    assert "review stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -678,11 +689,12 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
         "units: ",
         "readme: ",
         "patch: ",
+        "validation: ",
     )
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 8
+        assert len(lines) == 9
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])

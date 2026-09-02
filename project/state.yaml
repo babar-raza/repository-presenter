@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T20:55:03+05:00"
+updated_at: "2026-09-02T21:22:32+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W05
-  status: READY
+  status: IN_PROGRESS
   purpose: "Blocking checks and independent review - exactly the eleven blocking checks of docs/README_CONTRACT.md section 5 with everything else advisory until G2 freezes contract v1; review per sections 4 and 6 under a separate prompt and identity, findings naming a section and a causal stage, one targeted repair per equivalent fingerprint, unrepairable findings advisory."
   prerequisites:
     - G1-W04 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.

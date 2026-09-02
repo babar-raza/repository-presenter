@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.composition.renderer import (
+    RenderContext,
     anchor,
     line_counts,
     render_patch,
@@ -242,3 +243,10 @@ def test_the_patch_is_a_unified_diff_from_the_original(tmp_path: Path) -> None:
     digest = write_text(patch, tmp_path / "t" / "README.patch")
     assert (tmp_path / "t" / "README.patch").read_bytes() == patch.encode("utf-8")
     assert write_text(patch, tmp_path / "t" / "README.patch") == digest
+
+
+def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
+    context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("Export to .glb, not .obj or .xyz, via Scene.save.") == (
+        "Export to `.glb`, not `.obj` or .xyz, via `Scene.save`."
+    )

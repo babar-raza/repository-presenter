@@ -61,6 +61,14 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     summarize,
     write_dispositions,
 )
+from repository_presenter.components.readme.validation.registry import (
+    VALIDATION_FILENAME,
+    Candidate,
+    blocking_failures,
+    summarize_validation,
+    validate_candidate,
+    write_validation,
+)
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import PresenterError
@@ -413,13 +421,33 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"provider calls {coherent.provider_calls}, "
             f"model {coherent.model_served or 'stored output reused'}"
         )
+        original_bytes: bytes | None = None
         original = ""
         if snapshot.readme_path is not None:
-            original = (
-                (clone.path / snapshot.readme_path).read_bytes().decode("utf-8", errors="replace")
-            )
+            original_bytes = (clone.path / snapshot.readme_path).read_bytes()
+            original = original_bytes.decode("utf-8", errors="replace")
         readme_digest = write_text(readme, transaction / README_FILENAME)
         patch_digest = write_text(render_patch(original, readme), transaction / PATCH_FILENAME)
+        # Stage S9 runs exactly the contract's blocking checks over the written artifacts; a
+        # failure names its causal stage so repair reopens the cause, never the validation.
+        validation = validate_candidate(
+            Candidate(
+                entry,
+                document,
+                planned.output,
+                units_document,
+                reconciled.output,
+                readme,
+                original_bytes,
+                clone.revision,
+                snapshot.readme_sha256,
+                tree_paths,
+                tasks,
+            ),
+            transaction,
+            configured_secrets(os.environ),
+        )
+        validation_digest = write_validation(validation, transaction / VALIDATION_FILENAME)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
@@ -430,7 +458,19 @@ def run_present(repository: str, root_argument: Path | None) -> int:
     )
     patch_path = (transaction / PATCH_FILENAME).relative_to(root).as_posix()
     print(f"patch: {patch_path} (digest {patch_digest})")
-    _fail("present: the validation stage is not implemented at this revision")
+    print(
+        f"validation: {(transaction / VALIDATION_FILENAME).relative_to(root).as_posix()} "
+        f"({summarize_validation(validation)}; digest {validation_digest})"
+    )
+    failed = blocking_failures(validation)
+    if failed:
+        first = failed[0]
+        _fail(
+            f"validation: {first['id']} failed at {first['causal_stage'] or 'the bundle'}: "
+            f"{first['details'][0]}; targeted repair is not implemented at this revision"
+        )
+        return EXIT_INCONSISTENT
+    _fail("present: the review stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

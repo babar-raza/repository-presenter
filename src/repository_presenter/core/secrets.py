@@ -69,13 +69,17 @@ def redact(text: str, live_secret_values: Sequence[str] = ()) -> str:
     return result
 
 
-def find_secret_leaks(root: Path, secrets: Sequence[ConfiguredSecret]) -> list[SecretLeak]:
-    """Return every (variable, file) pair where a secret appears under ``root/candidates``."""
-    candidates = root / CANDIDATES_DIRNAME
-    if not secrets or not candidates.is_dir():
+def scan_for_secrets(directory: Path, secrets: Sequence[ConfiguredSecret]) -> list[SecretLeak]:
+    """Return every (variable, file) pair where a secret's value appears under ``directory``."""
+    if not secrets or not directory.is_dir():
         return []
     leaks: list[SecretLeak] = []
-    for path in sorted(p for p in candidates.rglob("*") if p.is_file()):
+    for path in sorted(p for p in directory.rglob("*") if p.is_file()):
         data = path.read_bytes()
         leaks.extend(SecretLeak(s.variable, path) for s in secrets if s.value in data)
     return leaks
+
+
+def find_secret_leaks(root: Path, secrets: Sequence[ConfiguredSecret]) -> list[SecretLeak]:
+    """Return every (variable, file) pair where a secret appears under ``root/candidates``."""
+    return scan_for_secrets(root / CANDIDATES_DIRNAME, secrets)
