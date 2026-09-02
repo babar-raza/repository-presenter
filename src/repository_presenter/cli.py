@@ -20,6 +20,11 @@ from repository_presenter.components.readme.composition.authoring import (
     unit_checks,
     write_content_units,
 )
+from repository_presenter.components.readme.composition.coherence import (
+    apply_coherence,
+    coherence_checks,
+    coherence_packet,
+)
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
@@ -366,7 +371,8 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         name = product_name(entry)
         authored: dict[str, dict[str, Any]] = {}
         authoring_calls = 0
-        for task in authoring_tasks(entry, document, output, reconciled.output, planned.output):
+        tasks = authoring_tasks(entry, document, output, reconciled.output, planned.output)
+        for task in tasks:
             section_result = run_job(
                 loaded,
                 task.packet,
@@ -380,13 +386,33 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             authoring_calls += section_result.provider_calls
             authored[task.section_id] = section_result.output
         units_document = merge_units(authored)
+        readme = render_readme(entry, document, planned.output, units_document, reconciled.output)
+        coherent = run_job(
+            loaded,
+            coherence_packet(entry, readme, units_document, tasks, document),
+            config=config,
+            facts=document,
+            ledger=ledger,
+            store=store,
+            context=context,
+            checks=functools.partial(coherence_checks, tasks=tasks, facts=document, name=name),
+        )
+        units_document, revised = apply_coherence(units_document, coherent.output)
+        if revised:
+            readme = render_readme(
+                entry, document, planned.output, units_document, reconciled.output
+            )
         units_digest = write_content_units(units_document, transaction / CONTENT_UNITS_FILENAME)
         print(
             f"units: {(transaction / CONTENT_UNITS_FILENAME).relative_to(root).as_posix()} "
             f"({len(units_document['units'])} units across {len(authored)} sections: "
             f"{', '.join(authored)}; provider calls {authoring_calls}; digest {units_digest})"
         )
-        readme = render_readme(entry, document, planned.output, units_document, reconciled.output)
+        print(
+            f"coherence: {len(revised)} of {len(units_document['units'])} units revised; "
+            f"provider calls {coherent.provider_calls}, "
+            f"model {coherent.model_served or 'stored output reused'}"
+        )
         original = ""
         if snapshot.readme_path is not None:
             original = (

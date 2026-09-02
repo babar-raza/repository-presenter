@@ -6,7 +6,7 @@ model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for structured JSON and for bounded section prose across four ecosystems without prompt branching; the lighter-cost alternative, gpt-oss, was recorded as unreliable at JSON validity, so this job also routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 2500
+  max_output_tokens: 8000
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

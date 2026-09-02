@@ -426,7 +426,11 @@ class _ChatGateway:
         if job == "section_authoring":
             user = payload["messages"][1]["content"]
             section = re.search(r"^Section: (\S+)$", user, re.M).group(1)  # type: ignore[union-attr]
-            content = json.dumps(LOCAL_UNITS[section])
+            if section == "all":
+                every = [unit for scripted in LOCAL_UNITS.values() for unit in scripted["units"]]
+                content = json.dumps({"units": every, "omitted": []})
+            else:
+                content = json.dumps(LOCAL_UNITS[section])
         else:
             content = json.dumps(SCRIPTED_OUTPUTS[job])
         body = {
@@ -545,7 +549,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 9
+    assert len(gateway_ready.requests) == 10
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -574,7 +578,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "repository_investigation",
         "source_reconciliation",
         "presentation_planning",
-        *(["section_authoring"] * 6),
+        *(["section_authoring"] * 7),
     ]
     shell_packet = json.loads(
         gateway_ready.requests[2]["messages"][1]["content"]
@@ -587,7 +591,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 9 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 10 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert "coherence: 0 of 8 units revised; provider calls 1, model qwen3-next" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
     assert units_line.startswith(
@@ -598,6 +603,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     written_units = json.loads(
         (project_with_registry / facts_dir / "content_units.json").read_text("utf-8")
     )
+    assert written_units["coherence"] == {"applied": True, "revised": []}
     assert [unit["slot"] for unit in written_units["units"]] == [
         "opening",
         "capability:1",
@@ -613,7 +619,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         for r in gateway_ready.requests
         if r["response_format"]["json_schema"]["name"] == "section_authoring"
     ]
-    assert len(authoring_requests) == 6
+    assert len(authoring_requests) == 7
+    assert "Mode: coherence" in authoring_requests[6]["messages"][1]["content"]
+    assert "# Aspose.3D FOSS for Python" in authoring_requests[6]["messages"][1]["content"]
     assert (
         "Product name (preserve exactly): Aspose.3D FOSS for Python"
         in (authoring_requests[0]["messages"][1]["content"])
@@ -682,15 +690,16 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
-    assert first.count("provider calls 1, model qwen3-next") == 3
-    assert second.count("provider calls 0, model stored output reused") == 3
-    assert len(gateway_ready.requests) == 9
+    assert first.count("provider calls 1, model qwen3-next") == 4
+    assert second.count("provider calls 0, model stored output reused") == 4
+    assert len(gateway_ready.requests) == 10
     assert "provider calls 6; digest" in first and "provider calls 0; digest" in second
+    assert "coherence: 0 of 8 units revised; provider calls 0, model stored output reused" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 9 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 10 + [
         "cache_reuse"
-    ] * 9
+    ] * 10
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
