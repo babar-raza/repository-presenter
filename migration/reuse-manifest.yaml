@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T17:41:06+05:00"
+updated_at: "2026-09-02T17:58:15+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1247,6 +1247,67 @@ file_records:
     pulled_at: "2026-09-02"
     work_item: G1-W03
     note: The CPL-01 seam - the legacy chain llm.call_transport -> llm.prompt_registry -> readme.facts (sha256_text) -> validation.registry is cut here; only the one pure function crosses.
+
+  - source_path: src/readme_agent/llm/call_schema.py
+    sha256: 772beeaa99261131831afd493e9fb9f0ca38d55623e6e13eace3b0eeb590c5f6
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/llm/ledger.py
+    retained_behavior:
+      - One flat record per provider attempt or explicit cache reuse - repository, revision, stage, job, prompt hash, model route and model served, attempt, disposition, timestamps, latency, outcome, HTTP status, request and response hashes, provider request ID, token counts, error class - with content never stored.
+    removed_behavior:
+      - run_id and campaign_id (no campaigns; a transaction is identified by repository and revision).
+      - The fixture disposition (tests substitute the transport, never the ledger).
+      - cost, currency, pricing source and version and their validator (no pricing is configured; budgets arrive at G6).
+      - The pydantic model (a frozen dataclass; the record is flat).
+    tests_ported:
+      - none existed for the schema alone; tests/core/llm/test_ledger.py covers the round trip.
+    acceptance: Every record in calls.jsonl loads back to the same CallRecord and provider calls reconcile with the summary.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+
+  - source_path: src/readme_agent/llm/call_ledger.py
+    sha256: 09ddcd62f3f9ecebc0e34fccf3bdca0149a6469e2522f41cfdfef367f4d3ca90
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/llm/ledger.py
+    retained_behavior:
+      - Canonical request hashing over the JSON-serialised request.
+      - Append-only JSON lines with LF endings, duplicate call IDs refused on load.
+      - Explicit cache-reuse records that never inflate provider totals, and the provider-versus-reuse summary with token totals only when every provider record carries them.
+    removed_behavior:
+      - The context-variable accounting session, write lock, and the module-level current-summary accessor (a Ledger is a value bound to one transaction path).
+      - Fixture-call recording and the prompt-hygiene coupling on record.
+      - UUID call IDs (IDs derive from the logical request hash, the attempt, and the outcome, so a rerun's ledger is reproducible).
+    tests_ported:
+      - none existed for the ledger alone; tests/core/llm/test_ledger.py and tests/core/llm/test_jobs.py cover append, load, summary, and reuse accounting.
+    acceptance: A rerun on the same inputs appends one cache_reuse record per job and zero provider_call records.
+    import_closure:
+      - readme_agent.llm.call_schema -> the same destination (pulled in the same work item).
+      - readme_agent.paths -> nothing (the ledger path is the transaction's calls.jsonl).
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+
+  - source_path: src/readme_agent/llm/call_transport.py
+    sha256: 5ed884cddcb33948da115c90b7311ec807f3effc5ae0dfdd46b6cb3cdb8ffc69
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/llm/jobs.py
+    retained_behavior:
+      - Physical-attempt accounting under one logical call ID - every attempt recorded with its outcome class (success, http_error, timeout, connection_error, response_invalid) before any retry decision.
+      - Request and response hashing per attempt.
+      - Bounded provider retries on transient statuses and transport failures only (through core/retry.py's llm_call policy).
+    removed_behavior:
+      - The requests-based OpenAI-compatible protocol handling (the openai SDK builds the request and parses the response; see this file's seed note for the evaluation).
+      - ProviderCallSession and the trusted-lane provider attempt budget.
+      - Prompt-hygiene and route validation on every call (preflight validates routes once against the recorded catalog).
+    tests_ported:
+      - none existed for the transport alone; tests/core/llm/test_jobs.py covers accounting, retry, re-ask, and refusal.
+    acceptance: A 503 is retried and both attempts are in the ledger; a 401 is not retried and fails the job closed.
+    import_closure:
+      - readme_agent.llm.call_ledger and call_schema -> src/repository_presenter/core/llm/ledger.py (pulled in the same work item).
+      - readme_agent.errors.LLMError -> JobError in src/repository_presenter/core/errors.py.
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+    note: The runner adds what the legacy transport lacked - JSON Schema validation of the output against the manifest, the fact-ID binding guard, one bounded re-ask quoting the rejection, and the request-hash store that makes a rerun a zero-call reuse.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

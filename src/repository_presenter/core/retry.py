@@ -15,7 +15,7 @@ from typing import Literal, TypeVar
 from tenacity import RetryCallState, Retrying, retry_if_exception_type, stop_after_attempt
 from tenacity.wait import wait_random_exponential
 
-OperationClass = Literal["clone", "package_registry", "link_check"]
+OperationClass = Literal["clone", "package_registry", "link_check", "llm_call"]
 T = TypeVar("T")
 
 
@@ -41,6 +41,7 @@ RETRY_POLICIES: dict[OperationClass, RetryPolicy] = {
         "package_registry", max_attempts=3, initial_seconds=1, maximum_seconds=20
     ),
     "link_check": RetryPolicy("link_check", max_attempts=2, initial_seconds=1, maximum_seconds=10),
+    "llm_call": RetryPolicy("llm_call", max_attempts=3, initial_seconds=2, maximum_seconds=30),
 }
 
 

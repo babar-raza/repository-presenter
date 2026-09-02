@@ -13,7 +13,7 @@ from repository_presenter.core.retry import (
 
 
 def test_every_declared_operation_class_has_a_bounded_policy() -> None:
-    assert set(RETRY_POLICIES) == {"clone", "package_registry", "link_check"}
+    assert set(RETRY_POLICIES) == {"clone", "package_registry", "link_check", "llm_call"}
     assert all(policy.max_attempts <= 5 for policy in RETRY_POLICIES.values())
 
 

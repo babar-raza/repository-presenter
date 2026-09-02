@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from repository_presenter.core.config import MODEL_VARIABLE, GatewayConfig
-from repository_presenter.core.errors import GatewayError
+from repository_presenter.core.errors import ConfigError, GatewayError
 from repository_presenter.core.llm.prompts import PromptRegistry, load_manifests, validate_routes
 from repository_presenter.core.llm.transport import ModelCatalog, list_models
 
@@ -45,6 +45,24 @@ def run_gateway_preflight(config: GatewayConfig, prompts_dir: Path) -> Preflight
         )
     validate_routes(prompts, catalog.ids)
     return PreflightResult(catalog, config.model_override, prompts)
+
+
+def read_catalog_ids(path: Path) -> tuple[str, ...]:
+    """The model IDs preflight recorded; a transaction never queries the gateway for them."""
+    if not path.is_file():
+        raise ConfigError(
+            f"no recorded model catalog at {path.as_posix()}; run repository-presenter preflight"
+        )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    models = payload.get("models") if isinstance(payload, dict) else None
+    ids = tuple(
+        entry["id"]
+        for entry in (models or [])
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str)
+    )
+    if not ids:
+        raise ConfigError(f"recorded model catalog at {path.as_posix()} lists no models")
+    return ids
 
 
 def write_catalog(result: PreflightResult, path: Path) -> str:

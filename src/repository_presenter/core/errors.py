@@ -24,6 +24,10 @@ class GatewayError(PresenterError):
     """The LLM gateway refused, failed, or answered unusably; no job runs on a guess."""
 
 
+class JobError(PresenterError):
+    """A job's output was rejected after its one bounded re-ask, or the provider failed for good."""
+
+
 class NotAllowlistedError(PresenterError):
     """The repository is not in the registry allow-list, so nothing is touched."""
 

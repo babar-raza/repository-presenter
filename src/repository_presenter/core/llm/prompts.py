@@ -45,7 +45,7 @@ class Sampling(BaseModel):
 
     temperature: float = Field(ge=0.0, le=2.0)
     max_output_tokens: int = Field(ge=1)
-    response_format: Literal["json_object"]
+    response_format: Literal["json_object", "json_schema"]
 
 
 class PacketField(BaseModel):

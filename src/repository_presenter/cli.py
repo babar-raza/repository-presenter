@@ -19,6 +19,11 @@ from repository_presenter.components.readme.evidence.processability import (
 )
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.components.readme.investigation.dossier import (
+    INVESTIGATION_FILENAME,
+    investigation_packet,
+    write_investigation,
+)
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import PresenterError
@@ -33,10 +38,13 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
-from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME
+from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, run_job
+from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
+from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
 from repository_presenter.core.preflight import (
     CATALOG_FILENAME,
     PREFLIGHT_DIRNAME,
+    read_catalog_ids,
     run_gateway_preflight,
     write_catalog,
 )
@@ -180,12 +188,20 @@ def run_present(repository: str, root_argument: Path | None) -> int:
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
         print(
             f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
             f"family {entry.family}, platform {entry.platform})"
+        )
+        # The gateway, the governed manifests, and the recorded catalog are checked before any
+        # clone: a transaction never runs without them and never queries the catalog itself.
+        config = load_gateway_config(os.environ)
+        prompts = load_manifests(root / PROMPTS_DIRNAME)
+        validate_routes(
+            prompts, read_catalog_ids(root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME)
         )
         clone = pinned_read_only_clone(
             entry.clone_url,
@@ -242,16 +258,39 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
         )
         facts_digest = write_facts(document, transaction / FACTS_FILENAME)
+        kinds = sorted({fact.kind for fact in document.facts})
+        counts = ", ".join(f"{kind} {len(document.by_kind(kind))}" for kind in kinds)
+        print(
+            f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
+            f"({len(document.facts)} records: {counts}; digest {facts_digest})"
+        )
+        loaded = prompts["repository_investigation"]
+        result = run_job(
+            loaded,
+            investigation_packet(entry, document, loaded.manifest),
+            config=config,
+            facts=document,
+            ledger=Ledger(transaction / LEDGER_FILENAME),
+            store=CallStore(transaction / CALLS_DIRNAME),
+            context=JobContext(entry.repository, clone.revision),
+        )
+        investigation_digest = write_investigation(
+            result.output, transaction / INVESTIGATION_FILENAME
+        )
     except PresenterError as exc:
-        _fail(str(exc))
+        _fail(redact(str(exc), live_values))
         return exc.exit_code
-    kinds = sorted({fact.kind for fact in document.facts})
-    counts = ", ".join(f"{kind} {len(document.by_kind(kind))}" for kind in kinds)
+    output = result.output
     print(
-        f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
-        f"({len(document.facts)} records: {counts}; digest {facts_digest})"
+        f"investigation: {(transaction / INVESTIGATION_FILENAME).relative_to(root).as_posix()} "
+        f"(capabilities {len(output.get('capabilities', []))}, "
+        f"workflows {len(output.get('workflows', []))}, "
+        f"limitations {len(output.get('limitations', []))}; "
+        f"provider calls {result.provider_calls}, "
+        f"model {result.model_served or 'stored output reused'}; "
+        f"digest {investigation_digest})"
     )
-    _fail("present: the investigation stage is not implemented at this revision")
+    _fail("present: the reconciliation stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

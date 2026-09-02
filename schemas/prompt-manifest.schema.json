@@ -41,7 +41,7 @@
       "properties": {
         "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
         "max_output_tokens": { "type": "integer", "minimum": 1 },
-        "response_format": { "const": "json_object" }
+        "response_format": { "enum": ["json_object", "json_schema"] }
       }
     },
     "packet": {

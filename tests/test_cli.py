@@ -197,6 +197,83 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
     return {"source": source, "revision": revision, "calls": calls}
 
 
+LOCAL_INVESTIGATION: dict[str, Any] = {
+    "product_summary": {
+        "text": "Aspose.3D for Python builds scenes in memory and saves them as GLB files.",
+        "fact_ids": ["identity:repository", "package:name", "format:output.glb"],
+    },
+    "audience": {"text": "Developers using python.", "fact_ids": ["identity:ecosystem"]},
+    "problems_solved": [
+        {"text": "Writing GLB files from code.", "fact_ids": ["format:output.glb", "example:001"]}
+    ],
+    "workflows": [
+        {
+            "name": "Save a scene",
+            "text": "Create a Scene and save it.",
+            "fact_ids": ["example:001", "public_symbol:aspose.threed.scene"],
+        }
+    ],
+    "capabilities": [
+        {
+            "title": "Create scenes",
+            "text": "Scene objects are created in memory.",
+            "fact_ids": ["public_symbol:aspose.threed.scene"],
+        },
+        {"title": "Save GLB", "text": "Scenes save as GLB.", "fact_ids": ["format:output.glb"]},
+        {
+            "title": "Import the package",
+            "text": "The package imports as aspose.threed.",
+            "fact_ids": ["import_path:aspose.threed"],
+        },
+    ],
+    "limitations": [],
+    "uncertainties": [],
+}
+
+
+class _ChatGateway:
+    """A scripted chat gateway that records every request body it receives."""
+
+    def __init__(self) -> None:
+        self.requests: list[dict[str, Any]] = []
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        assert request.url.path.endswith("/chat/completions")
+        self.requests.append(json.loads(request.content))
+        body = {
+            "id": "chatcmpl-local",
+            "object": "chat.completion",
+            "created": 1,
+            "model": "qwen3-next",
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {"role": "assistant", "content": json.dumps(LOCAL_INVESTIGATION)},
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": {"prompt_tokens": 500, "completion_tokens": 120, "total_tokens": 620},
+        }
+        return httpx.Response(200, json=body)
+
+
+@pytest.fixture
+def gateway_ready(project_with_registry: Path, monkeypatch: pytest.MonkeyPatch) -> _ChatGateway:
+    """Credentials, manifests, a recorded catalog, and a scripted gateway for a transaction."""
+    monkeypatch.setenv("GPT_OSS_ENDPOINT", "https://gw.example/v1")
+    monkeypatch.setenv("GPT_OSS_API_KEY", LIVE_KEY)
+    shutil.copytree(REPO_ROOT / "prompts", project_with_registry / "prompts")
+    catalog = project_with_registry / "runs" / "preflight" / "catalog.json"
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text(
+        json.dumps({"schema_version": 1, "models": [{"id": "qwen3-next", "owned_by": "org"}]}),
+        encoding="utf-8",
+    )
+    gateway = _ChatGateway()
+    mock_gateway(monkeypatch, gateway)
+    return gateway
+
+
 @pytest.fixture
 def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Serve the canary's clone URL from the README-only placeholder fixture."""
@@ -215,6 +292,7 @@ def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pat
 def test_present_admits_clones_and_captures_the_source_snapshot(
     project_with_registry: Path,
     local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -267,8 +345,28 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     receipts = json.loads((project_with_registry / facts_dir / "examples.json").read_text("utf-8"))
     assert [r["outcome"] for r in receipts] == ["EXECUTED", "FAILED"]
     assert receipts[0]["stdout"].strip() == "scene"
+    investigation_line = next(
+        line for line in captured.out.splitlines() if line.startswith("investigation: ")
+    )
+    assert investigation_line.startswith(
+        f"investigation: {facts_dir}/investigation.json (capabilities 3, workflows 1, "
+        "limitations 0; provider calls 1, model qwen3-next; digest "
+    )
+    written_investigation = json.loads(
+        (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
+    )
+    assert written_investigation == LOCAL_INVESTIGATION
+    assert len(gateway_ready.requests) == 1
+    request = gateway_ready.requests[0]
+    assert request["model"] == "qwen3-next"
+    assert request["response_format"]["type"] == "json_schema"
+    assert request["response_format"]["json_schema"]["strict"] is True
+    assert '"id": "example:001"' in request["messages"][1]["content"]
+    ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
+    assert len(ledger) == 1 and '"disposition":"provider_call"' in ledger[0]
+    assert LIVE_KEY not in ledger[0]
     assert code == EXIT_INCONSISTENT
-    assert "investigation stage is not implemented" in captured.err
+    assert "reconciliation stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -285,25 +383,46 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert json.loads((written / "snapshot.json").read_text("utf-8"))["source_revision"] == revision
 
 
-def test_present_rerun_on_the_same_revision_is_byte_identical(
-    project_with_registry: Path, local_canary: dict[str, Any], capsys: pytest.CaptureFixture[str]
+def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    prefixes = ("source: ", "facts: ")
+    prefixes = ("source: ", "facts: ", "investigation: ")
+
+    def digests(text: str) -> list[str]:
+        lines = [line for line in text.splitlines() if line.startswith(prefixes)]
+        assert len(lines) == 3
+        return [line.rsplit("digest ", 1)[1] for line in lines]
+
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
-    first = [line for line in capsys.readouterr().out.splitlines() if line.startswith(prefixes)]
+    first = capsys.readouterr().out
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
-    second = [line for line in capsys.readouterr().out.splitlines() if line.startswith(prefixes)]
-    assert first == second
-    assert len(first) == 2
-    assert all("digest " in line for line in first)
+    second = capsys.readouterr().out
+    assert digests(first) == digests(second)
+    assert "provider calls 1, model qwen3-next" in first
+    assert "provider calls 0, model stored output reused" in second
+    assert len(gateway_ready.requests) == 1
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
+    assert [
+        '"disposition":"provider_call"' in ledger[0],
+        '"disposition":"cache_reuse"' in ledger[1],
+    ]
+    assert len(ledger) == 2
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
-    project_with_registry: Path, readme_only_upstream: Path, capsys: pytest.CaptureFixture[str]
+    project_with_registry: Path,
+    readme_only_upstream: Path,
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
 
     captured = capsys.readouterr()
+    assert gateway_ready.requests == []
     assert code == EXIT_INCONSISTENT
     assert "insufficient_evidence: NO_IMPLEMENTATION_EVIDENCE for " + CANARY in captured.out
     assert "resume when a later default-branch revision adds a python manifest" in captured.out
@@ -333,7 +452,10 @@ def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(
 
 
 def test_present_reports_a_clone_that_cannot_be_proven_safe(
-    project_with_registry: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    project_with_registry: Path,
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     def refuse(*args: Any, **kwargs: Any) -> ReadOnlyClone:
         raise GitSafetyError("push is not proven blocked in the clone")
