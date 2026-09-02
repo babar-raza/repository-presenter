@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T12:00:00+05:00"
+updated_at: "2026-09-02T11:34:13+05:00"
 
 authority:
   product: plans/idea.md
@@ -19,7 +19,7 @@ progress:
 
 current_gate:
   id: G0_FOUNDATION
-  status: READY
+  status: IN_PROGRESS
   time_box_days: 2
   purpose: Make the repository buildable, checkable, and protected without importing legacy runtime behavior or building speculative infrastructure.
 
@@ -27,7 +27,7 @@ accepted_gates: []
 
 active_work_item:
   id: G0-W01
-  status: READY
+  status: IN_PROGRESS
   purpose: Python package, lock, CLI skeleton with version and status, CI, JSON Schemas for the cursor, manifest, and candidate bundle, secret canary, path budget.
   prerequisites:
     - Root AGENTS.md governs implementation work.
