@@ -1184,3 +1184,97 @@ classification matching `README_CONTRACT.md` row 15's existing rule, omit the se
 ecosystem's platform-slug quirks show up (G2 onward); adapt entries from `PLATFORM_ALIASES` as
 that need appears, not all at once now.
 
+## 21. Two future components: research only, not scheduled (2026-09-02)
+
+Per the owner: the metadata component and the upstream-defect logger (both named in `plans/idea.md`
+— "Central Agent" responsibilities and the "Upstream Defect Reporting" section) will be logged and
+implemented separately once the README component is done. Nothing here creates a gate or work item;
+`EXECUTION_STATE_MACHINE.md` already carries their eventual seams (G6 item 4 and G7 items 4 and 5)
+and is left alone. This section only records what already exists to draw from, so the research
+isn't repeated or lost by the time either component starts.
+
+### 21.1 Metadata (repository description, topics, social preview, org icon)
+
+**The real, ready-to-adopt design already exists in `foss-readme-optimizer`, not aspose.org.**
+`docs/github-surface-control.md` (102 lines) and `docs/repository-presentation-surface-model.md`
+(83 lines) define five control classes covering every GitHub-repository-page surface, each with a
+truth owner, a real documented API endpoint or its absence, and a forbidden-operations list:
+
+| Class | Surfaces | Apply channel |
+|---|---|---|
+| A — repository-file | README, LICENSE, community files, issue/PR templates | Normal PR flow — already this project's native model |
+| B — API/settings | description, homepage, topics, feature settings | `PATCH`/`PUT /repos/{owner}/{repo}[/topics]`; proposal-only until a write credential and apply gate exist |
+| C — manual UI | social-preview image | No documented write API; prepare an asset + instructions, track a status machine, never claim applied without operator evidence |
+| D — product-agent owned | releases, packages | Audit/handoff only, no writer, ever |
+| E — GitHub-generated | contributors, languages, stars/forks/activity, page layout | Audit-only, never a quality gate |
+
+This maps directly onto `plans/idea.md`'s own list ("repository description... topics, visuals,
+and social-preview image... community, contribution, licensing, and security files... auditing
+GitHub-generated information without treating it as directly editable metadata") almost clause for
+clause — the framework already fits the product spec, not the other way round. Concrete,
+transferable findings baked into those two documents, independently verified there:
+
+- **License-file placement, not presence, is the highest-value target**: 28% of that project's own
+  25-repository registry had real license content GitHub's Community Profile API didn't recognize
+  (wrong filename or location) — a Class-A, file-only fix. Worth checking against this project's
+  own 34 repositories when this component starts; plausibly a quick, high-value win.
+- **GitHub Packages is universally unused**: confirmed empty on n8n, iText, EPPlus, SheetJS, and
+  Apache PDFBox despite all being real, widely-distributed libraries. Never target populating it;
+  validate the real external registry instead (already this project's own `installation` design).
+- **Community-file quick-links are automatic** — GitHub renders the README/Contributing/License/
+  Security row itself from file presence and Community-Profile-API recognition; nothing to build
+  for that appearance beyond placing the files correctly (Class A).
+- **The org-level icon/avatar is not covered by either document** — both are scoped to
+  per-repository surfaces; an organization icon is shared across every repository in one Aspose
+  GitHub org and would need its own control-class entry (likely B, via the orgs API, pending
+  verification) when this component is actually scoped.
+
+`src/readme_agent/capabilities/propose_metadata_changes.py` (150 lines) is a working, small,
+already-correctly-scoped reference implementation of the Class-B slice: read current
+description/homepage/topics via the real GitHub API, propose a value only where the field is
+genuinely empty and governed facts support it, cite the facts, never PATCH. A reasonable
+`EXTRACT_AND_REFACTOR` candidate when this component's own work item exists — not pulled now.
+
+### 21.2 Upstream defect logger
+
+**`aspose.org/scripts/pipeline/commands/foss/upstream_issue_workflow.py`** (2,059 lines) is a
+working, production-proven implementation of close to exactly `plans/idea.md`'s own spec: fires
+only after independent verification against evidence, deduplicated, never fabricates severity,
+interim evidence-backed handoff until issue creation is authorized. Confirmed not present in the
+`foss-readme-optimizer` migration source (including its `vendored_asposeorg/` subset) — this is the
+one place to look when the time comes.
+
+Real, transferable shape:
+
+- **Two-tier state machine**: a `Finding` (`DISCOVERED → VERIFYING → VERIFIED →
+  DUPLICATE_CHECKED → BUNDLED`, or a named terminal — `REJECTED_NOT_UPSTREAM`,
+  `DUPLICATE_EXISTING`, `FIXED_UPSTREAM`, `PRIVATE_SECURITY_ROUTE`, `BLOCKED_MISSING_EVIDENCE`,
+  `DEFERRED_LOW_PRIORITY`) and a `Bundle` (`BUNDLED → DRAFTED → INDEPENDENTLY_REVIEWED →
+  READY_TO_CREATE → CREATED → REMOTE_VERIFIED`) — kept as two entity types with two lifecycles
+  deliberately, not one graph, because a finding and a filed issue are genuinely different things.
+- **A real GitHub Issue is created only via an explicit `--live` flag, never the default** — the
+  same dry-run-first posture this project already requires for every effect (`AGENTS.md` Security
+  and Effects). `severity == "critical"` unconditionally forces a private security route at
+  classification time, never left to drafting-time judgment.
+- **Deduplication is a real, read-only search across five GitHub surfaces** (issues, PRs, cross-repo
+  issue search, commit messages, latest release) before a bundle may be drafted.
+- **A bundle can never reach `INDEPENDENTLY_REVIEWED` on automated checks alone** — a real, separate
+  positive reviewer verdict is structurally required before creation, matching this project's own
+  "independent review... separate identity" invariant for README candidates.
+- **The draft is composed from structured, already-verified fields, never by copying raw internal
+  evidence text verbatim** — a real, confirmed leak (internal audit-trail phrasing reaching a public
+  draft) was fixed by hand-editing the draft directly, not by re-deriving it, since the leak
+  originated in the internal field itself.
+- **Identity is re-verified on every call, dry-run or not** — a rehearsal whose preview doesn't
+  reflect a real identity check would be a misleading rehearsal.
+
+**Same sourcing caveat as §20**: this is a live sibling repository, not the frozen migration
+source — the state-machine shape and safety mechanisms above are worth reimplementing cleanly for
+this project's own upstream-defect logger, cited as precedent, not pulled as code, unless the owner
+separately decides to treat `aspose.org` as a formal second reuse source.
+
+**Already anticipated correctly**: `EXECUTION_STATE_MACHINE.md` G6 item 4 (interim handoff, seeded
+by the real Aspose.Email FOSS for .NET `CS1929` case) and G7 item 4 (automated creation behind its
+own authorization and deduplication ledger) already match this shape — this section grounds that
+plan in a working reference, it does not change it.
+
