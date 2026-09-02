@@ -1091,3 +1091,52 @@ can resolve differently over time on the gateway's side, and attribution must su
 that disappears from the catalog is `FAILED_INTERNAL` for any manifest still routed to it, fixed by
 re-pointing the manifest to a discovered replacement, never by silently retrying another model.
 
+## 19. Comparative research: a sibling system that shipped (2026-09-02)
+
+**Observed:** `aspose.org`'s `readme-refresh` skill (`skills/readme-refresh.md`, 1,471 lines) and
+its companion checks module (`readme_refresh_checks.py`, 11,002 lines, 115 `check_*` functions) —
+18,532 lines total across the three core scripts — generate and validate READMEs for 31 products
+in this same portfolio, accumulated over 57+ documented incidents from 2026-08-04 onward. Unlike
+`foss-readme-optimizer`, it works: real PRs, real merges, a real portfolio in production.
+
+**The load-bearing difference, not to lose sight of:** it is not fully autonomous. `approve` and
+the PR merge step are explicitly documented as "never on this skill's own initiative, only on an
+unambiguous, fresh instruction from the user in that turn," and composition itself happens inside
+an interactive session — "the script does not write README prose — the agent reads `factpack.json`
+and writes `readme.md` directly." `plans/idea.md` commits this project to scheduled, unattended
+runs with no per-candidate human touch. That target is unchanged and correct, but this sibling
+system's track record is evidence for its deterministic-extraction-and-validation layer, not proof
+that unsupervised composition reaches the same quality — the two are different claims.
+
+**Adopted directly into `README_CONTRACT.md` this session** (both real, confirmed defects on this
+exact portfolio, not hypotheticals): the implementation-bridge non-disclosure rule ("via Java", "a
+wrapper around X" — never anywhere in the document) and the Enterprise Edition anchor's family-vs-
+platform precision (a platform anchor never leaks which implementation the resolved URL happens to
+use). Both are now in §2's "Never present" list and the `enterprise_relationship` row.
+
+**Recorded here, not yet built — each tagged with the gate whose work actually consumes it:**
+
+- **Rewrite fidelity scoring** (a word-overlap score naming missing content for a
+  `VERIFIED_REWRITE` disposition, not just the category label — the sibling system caught a
+  reframe that silently dropped "returns a copy of the messages collected during the most recent
+  run" while every categorical check passed). Belongs in `source_reconciliation` (S4) or validation
+  (S9), first needed when G1-W04/W05 build those stages; `README_CONTRACT.md` §5's advisory list
+  already names it.
+- **Doc/code parity check** — a test failing if `README_CONTRACT.md`'s semantic shell or blocking-
+  check list names something the real renderer/validator code doesn't implement, or vice versa
+  (the sibling system's `check_readme_template_contract_parity.py`). Cannot be written before the
+  renderer exists; first needed at G1-W05 once S7/S9 are real, as an acceptance criterion for that
+  work item, not before.
+- **Already-published self-diff tautology** — once a candidate has merged, re-running preservation
+  tracking against the now-identical live README is a pure tautology and produces false failures
+  (confirmed live on the sibling system: 158 of them, one product, before it added the check). Not
+  relevant before G5 (proposal/update-vs-duplicate); a design note for whoever builds that gate.
+
+**Deliberately not adopting**: the sibling system's per-product run-state-machine — file locks,
+orphaned-session adoption, cross-session ownership checks. Real infrastructure it needs because
+multiple human operators work the same portfolio concurrently; building it now would violate
+principle 18 (infrastructure is just-in-time). G4's own leases/fencing/CAS design is this
+project's answer to the same underlying problem, timed to when concurrent hosted runs actually
+exist. Do not port theirs; do study its `--adopt-orphaned` liveness-check shape when G4 designs
+its own.
+

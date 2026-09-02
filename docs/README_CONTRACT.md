@@ -41,7 +41,7 @@ content: `D` deterministic renderer from facts, `L` LLM content units bound to f
 | 12 | `documentation_resources` | Documentation and Resources | Conditional: verified relevant targets exist | visible | M | Verified documentation, reference, and knowledge-base links that explain material shown nearby; Aspose links within the configured or derived ceilings. |
 | 13 | `scope_limitations` | Scope and Limitations | Required | visible | L | Every material limitation from evidence and inherited units; at least one honest scope statement. |
 | 14 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | How to build and test from the actual build files and CI; representative assets shown openly, ending with a repository-relative complete-inventory link when items are omitted. Never collapsed. |
-| 15 | `enterprise_relationship` | none (prose paragraph) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | One or two sentences relating the FOSS scope to the **full-featured ... Enterprise Edition**, with that anchor to the verified product page. "Enterprise Edition" is the only edition name anywhere in the document. |
+| 15 | `enterprise_relationship` | none (prose paragraph) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | One or two sentences relating the FOSS scope to the **full-featured ... Enterprise Edition**, with that anchor to the verified product page. "Enterprise Edition" is the only edition name anywhere in the document. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the section entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
 | 16 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
 | 17 | `license` | License | Required | visible | D | Prose declaration from the license fact. For a permissive license such as MIT, a brief statement of practical permissions and the notice condition. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
 
@@ -52,7 +52,12 @@ link destinations keep their source spelling inside code spans.
 Never present: an "Other platforms" or promotional section, internal assurance narration (source
 revisions, provider calls, validators, evidence, isolated-build conditions), the label "Preserved
 repository details" or any other implementation label, a repeated capability inventory in two
-sections, a non-canonical edition name, or a split identifier such as "A3 D Object".
+sections, a non-canonical edition name, a split identifier such as "A3 D Object", a phrase
+disclosing that one platform's implementation depends on another ("via Java", "a wrapper around
+X", "backed by X", "implemented through X" — a real, confirmed defect class on this exact
+portfolio; `RESEARCH_AND_GUIDELINES.md` §19), or an unscoped absolute dependency claim ("no
+dependencies", "dependency-free", "no external runtime") unless the same clause names the exact
+dependency class it excludes and the `dependencies` fact record actually proves it.
 
 ### 2.1 At a Glance topology
 
@@ -142,8 +147,11 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 11 | Fresh-process rerun is byte-identical with zero provider calls | bundle |
 
 Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per title, prose quality
-(sentence length, hedges, superlatives), navigation completeness, badge floor, dependency section
-accuracy, development section inventory link, 30-point criterion profile.
+(sentence length, hedges, superlatives), navigation completeness, badge floor, dependency claim
+accuracy against the `dependencies` fact record (the unscoped-claim rule above names the shape;
+this is its check), a fidelity score naming missing words for a `VERIFIED_REWRITE` disposition
+(never just its category — `RESEARCH_AND_GUIDELINES.md` §19), development section inventory link,
+30-point criterion profile.
 
 ## 6. Repair scope
 
