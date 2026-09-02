@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "gate": "G0_FOUNDATION",
+  "work_item": "G0-W01",
+  "gate_status": "VERIFYING",
+  "work_item_status": "BLOCKED_EXTERNAL",
+  "recorded_at": "2026-09-02T12:01:45+05:00",
+  "control_revision": "34a31376739a613a73c9899c94563a0e9928ca24",
+  "control_revision_note": "Revision verified; this manifest, the cursor change, and the legacy-exclusion record are committed on top of it.",
+  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
+  "legacy_working_tree": {
+    "status": "DIRTY",
+    "modified_tracked_files": 15,
+    "untracked_files": 18,
+    "reconciliation": "EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE",
+    "recorded_in": "migration/reuse-manifest.yaml source.working_tree_at_freeze.exclusions",
+    "legacy_files_copied": 0
+  },
+  "environment": {
+    "os": "Windows 11 Pro 10.0.26200",
+    "interpreters": {
+      "3.11.16": "uv 0.12.9 managed CPython",
+      "3.12.14": "uv 0.12.9 managed CPython",
+      "3.13.2": "system CPython at C:\\Python313"
+    },
+    "lock": "requirements-lock.txt, uv pip compile --extra dev --universal --generate-hashes, 20 pins, pip hash-checking mode"
+  },
+  "runs": [
+    {
+      "python": "3.11.16",
+      "steps": [
+        {
+          "command": "uv venv --seed --python <version> runs/verify/py<tag>",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check -r requirements-lock.txt",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check --no-deps -e .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff check .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff format --check .",
+          "exit_code": 0
+        },
+        {
+          "command": "mypy src",
+          "exit_code": 0
+        },
+        {
+          "command": "pytest -p no:cacheprovider",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter --version",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter status",
+          "exit_code": 0
+        }
+      ],
+      "pytest": {
+        "passed": 47,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "summary": "47 passed in 3.31s"
+      },
+      "entry_point": {
+        "version": "repository-presenter 0.1.0",
+        "status": [
+          "gate: G0_FOUNDATION (IN_PROGRESS)",
+          "work item: G0-W01 (IN_PROGRESS)",
+          "candidates: 0/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ],
+        "note": "Observed before this commit moved the cursor to VERIFYING / BLOCKED_EXTERNAL."
+      },
+      "log": "runs/verify/py311.log (disposable, gitignored)"
+    },
+    {
+      "python": "3.12.14",
+      "steps": [
+        {
+          "command": "uv venv --seed --python <version> runs/verify/py<tag>",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check -r requirements-lock.txt",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check --no-deps -e .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff check .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff format --check .",
+          "exit_code": 0
+        },
+        {
+          "command": "mypy src",
+          "exit_code": 0
+        },
+        {
+          "command": "pytest -p no:cacheprovider",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter --version",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter status",
+          "exit_code": 0
+        }
+      ],
+      "pytest": {
+        "passed": 47,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "summary": "47 passed in 2.22s"
+      },
+      "entry_point": {
+        "version": "repository-presenter 0.1.0",
+        "status": [
+          "gate: G0_FOUNDATION (IN_PROGRESS)",
+          "work item: G0-W01 (IN_PROGRESS)",
+          "candidates: 0/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ],
+        "note": "Observed before this commit moved the cursor to VERIFYING / BLOCKED_EXTERNAL."
+      },
+      "log": "runs/verify/py312.log (disposable, gitignored)"
+    },
+    {
+      "python": "3.13.2",
+      "steps": [
+        {
+          "command": "uv venv --seed --python <version> runs/verify/py<tag>",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check -r requirements-lock.txt",
+          "exit_code": 0
+        },
+        {
+          "command": "python -m pip install --disable-pip-version-check --no-deps -e .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff check .",
+          "exit_code": 0
+        },
+        {
+          "command": "ruff format --check .",
+          "exit_code": 0
+        },
+        {
+          "command": "mypy src",
+          "exit_code": 0
+        },
+        {
+          "command": "pytest -p no:cacheprovider",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter --version",
+          "exit_code": 0
+        },
+        {
+          "command": "repository-presenter status",
+          "exit_code": 0
+        }
+      ],
+      "pytest": {
+        "passed": 47,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "summary": "47 passed in 1.54s"
+      },
+      "entry_point": {
+        "version": "repository-presenter 0.1.0",
+        "status": [
+          "gate: G0_FOUNDATION (IN_PROGRESS)",
+          "work item: G0-W01 (IN_PROGRESS)",
+          "candidates: 0/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ],
+        "note": "Observed before this commit moved the cursor to VERIFYING / BLOCKED_EXTERNAL."
+      },
+      "log": "runs/verify/py313.log (disposable, gitignored)"
+    }
+  ],
+  "test_inventory": {
+    "total": 47,
+    "by_file": {
+      "tests/test_candidates.py": 8,
+      "tests/test_cli.py": 10,
+      "tests/test_cursor.py": 10,
+      "tests/test_path_budget.py": 2,
+      "tests/test_schemas.py": 10,
+      "tests/test_secret_canary.py": 7
+    }
+  },
+  "llm_calls": {
+    "provider_calls": 0,
+    "note": "No LLM is configured or invoked at G0."
+  },
+  "target_repositories": [],
+  "artifact_hashes": {
+    "algorithm": "sha256",
+    "files": {
+      ".env.example": "1d722d8bef4087aada8f606c23004e6c5884ec678e411c928587223b741358cc",
+      ".github/workflows/ci.yml": "2680648304519a8bb5f93fdc960c04d84fb08544d43ae125b1c00e88e4cdd373",
+      "migration/reuse-manifest.yaml": "2df834df492f31d2df72d0bbd27dea8262cafb5ef83fdc5096cfbe1e550a56b2",
+      "pyproject.toml": "b54a32666e311201e2fd754ec187b76b796b2d1511edc877e1be3ab8a439caa9",
+      "requirements-lock.txt": "f285759672fe565821fa1bcd976717522eede2352f0d24aaf94718950b0b0803",
+      "schemas/candidate-bundle.schema.json": "cd5d64f3193f3fe1f8fde2ff897d34259e72a6bce4719998a023ac0a504634e8",
+      "schemas/reuse-manifest.schema.json": "edba6c663efb0397a7b5cc2b39bb108a39988bea5d89e1302b42545f41a47355",
+      "schemas/state.schema.json": "5ff9442d7bfc43fd6d53deeb933fad9f8c91cc1f02d31f3a9bc043215641541a",
+      "src/repository_presenter/__init__.py": "e72fd3b7dad2abf79dec09887fc75c8694e627bf2936616dc555e3286c351452",
+      "src/repository_presenter/__main__.py": "30e9304d1a6c33c73ba856a119350764fb43534878d5e9125d2f0ccff1e2c9c8",
+      "src/repository_presenter/cli.py": "99da75973016577f7a232631027c26f573423891f418e1087bf73eb57986aba3",
+      "src/repository_presenter/core/__init__.py": "846bcfe0a669f8d0268ee2b9788e490084ae213c3426c5c0c38149b22e6dca14",
+      "src/repository_presenter/core/candidates.py": "c0b1023e4a9e74d4ee4879f658723996e2c27ee7948141bc082d10a67d3de097",
+      "src/repository_presenter/core/secrets.py": "213e0b8ecedb7b7723cad62befeaf73c82a6a4b2015695db872ff2915220e69e",
+      "src/repository_presenter/cursor.py": "9b919dfcb295da02cf44affe30bbeaf2a78724fba096d59622107756fb6a1c9c",
+      "tests/conftest.py": "8a287c873b29c4388664beb12f1689cd6a91206d644f1ba43e45d6d0e216a38c",
+      "tests/support.py": "cff8ce34f7bb4bdc97a607857b1fef54daa89b9909db2e5c2533080cf3a3cd7d",
+      "tests/test_candidates.py": "4f6192aab76ddfb79de95e7132ce5cb4cd7fe5154ccf314e00850a5cb6b4b5d7",
+      "tests/test_cli.py": "57171824bccad3a10fe08145167eca80393e9d07e39196bd54eadf7a61293a66",
+      "tests/test_cursor.py": "18d1080f3b34f6de280d4c537c046bd9fba2e1fb5dbae98c05af2dfdc02e7b0e",
+      "tests/test_path_budget.py": "e50e5b1230220347bf6a7414df96d3b8666f13dc7ef9b395fb1dbac53ecf0aea",
+      "tests/test_schemas.py": "f730a055a86063e4f73d4dfcfc48ef7dda17e1dee50d583273902d816d99afcc",
+      "tests/test_secret_canary.py": "7a599b9fdeb05abf6a4061cee466bdc2cbcc6c0f024daf6dc78246c479700b3a"
+    }
+  },
+  "remote_observations": {
+    "origin_main": "a26fd5e25ae64c84a4456b2c7f80fe90b1f934ee (three local commits ahead, unpushed)",
+    "ci_workflow_on_default_branch": "absent (HTTP 404 for .github/workflows/ci.yml on origin)",
+    "branch_protection": "HTTP 404 Branch not protected"
+  },
+  "work_item_acceptance": [
+    {
+      "predicate": "A clean Python 3.11 or newer environment installs from the declared lock.",
+      "verdict": "PASS",
+      "evidence": "runs[*].steps: lock and editable installs exit 0 on 3.11.16, 3.12.14, 3.13.2 in fresh venvs."
+    },
+    {
+      "predicate": "The CLI reports its version, the current gate, and 0/34 current candidates.",
+      "verdict": "PASS",
+      "evidence": "runs[*].entry_point."
+    },
+    {
+      "predicate": "Formatting, linting, typing, and unit tests pass on Python 3.11, 3.12, and 3.13.",
+      "verdict": "PASS",
+      "evidence": "runs[*].steps: ruff check, ruff format --check, mypy src, pytest exit 0; 47 passed on each version."
+    },
+    {
+      "predicate": "JSON Schemas validate project/state.yaml and migration/reuse-manifest.yaml in CI.",
+      "verdict": "BLOCKED_EXTERNAL",
+      "evidence": "tests/test_schemas.py validates both files on every pytest run and passed on all three versions locally; the hosted CI run needs OA-1."
+    },
+    {
+      "predicate": "A secret-canary test proves configured secrets cannot enter a candidate bundle.",
+      "verdict": "PASS",
+      "evidence": "tests/test_secret_canary.py (7 tests); status exits 3 on a bundle holding a configured secret."
+    },
+    {
+      "predicate": "A path-budget test fails when any tracked path exceeds 200 characters.",
+      "verdict": "PASS",
+      "evidence": "tests/test_path_budget.py (2 tests); longest tracked path is well under budget."
+    },
+    {
+      "predicate": "No legacy production file has been copied.",
+      "verdict": "PASS",
+      "evidence": "file_records is empty; src imports only stdlib, pyyaml, and repository_presenter; no readme_agent reference outside schema-test string literals."
+    }
+  ],
+  "gate_exit_predicates": [
+    {
+      "predicate": "Clean environment installs from the lock; CI green on all three Python versions.",
+      "verdict": "BLOCKED_EXTERNAL",
+      "evidence": "Install PASS locally on three versions; CI needs OA-1."
+    },
+    {
+      "predicate": "CLI reports version, current gate, and 0/34 candidates.",
+      "verdict": "PASS",
+      "evidence": "runs[*].entry_point."
+    },
+    {
+      "predicate": "Schemas validate the cursor and manifest in CI; canary and path-budget tests pass.",
+      "verdict": "BLOCKED_EXTERNAL",
+      "evidence": "Canary and path budget PASS; schema validation PASS locally; CI needs OA-1."
+    },
+    {
+      "predicate": "Branch protection is active, or BLOCKED_EXTERNAL records the exact owner action.",
+      "verdict": "PASS",
+      "evidence": "Not protected (HTTP 404); OA-2 records the exact owner action and resume predicate, which this predicate accepts."
+    },
+    {
+      "predicate": "The freeze decision for the dirty legacy tree is recorded in the manifest.",
+      "verdict": "PASS",
+      "evidence": "33 exclusions recorded as EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE; owner may override via OA-3."
+    },
+    {
+      "predicate": "No legacy production file has been copied.",
+      "verdict": "PASS",
+      "evidence": "As above."
+    }
+  ],
+  "owner_actions": [
+    {
+      "id": "OA-1",
+      "action": "Push local main (this commit and its three predecessors) to origin; the agent never pushes.",
+      "resume_predicate": "origin/main contains the local main head and the CI run for it shows jobs Python 3.11, Python 3.12, and Python 3.13 successful."
+    },
+    {
+      "id": "OA-2",
+      "action": "Protect main: require a pull request and the status checks Python 3.11, Python 3.12, Python 3.13 before merge.",
+      "resume_predicate": "GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks naming the three jobs.",
+      "observed": "HTTP 404 Branch not protected at recording time."
+    },
+    {
+      "id": "OA-3",
+      "action": "Optional override: commit the 33 uncommitted legacy changes upstream and re-freeze, replacing the recorded EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE entries.",
+      "resume_predicate": "Not required for G0 acceptance; the default record satisfies the freeze-decision predicate."
+    }
+  ],
+  "known_limitations": [
+    "Hosted CI has not run; the local three-version matrix on Windows stands in until the owner pushes and ubuntu-latest CI confirms it.",
+    "The 3.13 environment used the system CPython 3.13.2 rather than a uv-managed build."
+  ],
+  "next_work_item": "G1-W01 once G0 is accepted; G0-W02 remains owner-only."
+}

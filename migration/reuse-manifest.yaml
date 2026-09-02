@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN_NO_PULLS
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T11:43:59+05:00"
+updated_at: "2026-09-02T12:01:45+05:00"
 
 authority:
   governance: AGENTS.md
@@ -31,7 +31,7 @@ source:
     observed_at: "2026-09-02"
     status: DIRTY
     modified_tracked_files: 15
-    untracked_files: 9
+    untracked_files: 18
     insertions: 496
     deletions: 77
     touched_production_files:
@@ -44,9 +44,143 @@ source:
     touched_documents:
       - plans/idea.md (adds "Upstream Defect Reporting"; already carried in this repository's plans/idea.md)
       - plans/investigations/control/mission-resume-capsule.md
-    untracked_paths_summary: golden-corpus reconstruction investigation, roster, taskcards, evidence, and five tools under plans/investigations/
-    reconciliation: PENDING_OWNER_DECISION_G0_W02
+    untracked_paths_summary: 18 files (9 entries in default git status) - golden-corpus reconstruction investigation, roster, taskcards, evidence, and five tools under plans/investigations/
+    reconciliation: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
     reconciliation_rule: Commit upstream and re-freeze to the new revision, or record each exclusion with a reason; no pulled behavior may depend on an uncommitted change.
+    decided_at: "2026-09-02"
+    exclusions:
+      - path: plans/idea.md
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted product-authority edit; its Upstream Defect Reporting addition is already carried by this repository's plans/idea.md.
+      - path: plans/investigations/control/mission-resume-capsule.md
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted legacy investigation document; never a runtime input.
+      - path: src/readme_agent/facts/portfolio_facts_readiness.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: src/readme_agent/presentation/verified_template_api_reference.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: src/readme_agent/presentation/verified_template_example_presentation.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: src/readme_agent/presentation/verified_template_sections.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: src/readme_agent/specialists/review_standard_mermaid_premises.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: src/readme_agent/supervisor/mission_execution_guard.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted production change; any pull of this file takes only its content at the frozen revision.
+      - path: tests/unit/test_agentic_readme_composition.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_mission_execution_guard.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_repository_presentation_template.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_review_standard_premises.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_verified_template_api_reference_completeness.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_verified_template_example_presentation.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: tests/unit/test_verified_template_sections.py
+        kind: MODIFIED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Uncommitted test change; a ported test is taken only at the frozen revision.
+      - path: plans/investigations/control/readme-golden-corpus-sample-roster.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/control/readme-golden-corpus-taskcards.yaml
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/aspose-org-disposition-ledger-extract.json
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/difference-classification-ledger.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/evolution-comparison.json
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/golden-sample-disposition-table.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/headline-findings-reverification.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/portfolio-inventory.json
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/portfolio-inventory.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/preservation-evidence-summary.json
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/section-occurrence-matrix.json
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/evidence/readme-golden-corpus-reconstruction/section-occurrence-matrix.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/readme-golden-corpus-reconstruction.md
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/tools/build_readme_golden_corpus_evolution_comparison.py
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/tools/build_readme_golden_corpus_portfolio_inventory.py
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/tools/build_readme_golden_corpus_preservation_evidence_summary.py
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/tools/build_readme_golden_corpus_section_structure_parser.py
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
+      - path: plans/investigations/tools/read_aspose_org_disposition_ledgers.py
+        kind: UNTRACKED
+        disposition: EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE
+        reason: Untracked golden-corpus reconstruction material; not part of the frozen revision and never a runtime input.
   clean_inventory_captured: false
   runtime_dependency_allowed: false
 

@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T11:48:34+05:00"
+updated_at: "2026-09-02T12:01:45+05:00"
 
 authority:
   product: plans/idea.md
@@ -19,7 +19,7 @@ progress:
 
 current_gate:
   id: G0_FOUNDATION
-  status: IN_PROGRESS
+  status: VERIFYING
   time_box_days: 2
   purpose: Make the repository buildable, checkable, and protected without importing legacy runtime behavior or building speculative infrastructure.
 
@@ -27,7 +27,7 @@ accepted_gates: []
 
 active_work_item:
   id: G0-W01
-  status: IN_PROGRESS
+  status: BLOCKED_EXTERNAL
   purpose: Python package, lock, CLI skeleton with version and status, CI, JSON Schemas for the cursor, manifest, and candidate bundle, secret canary, path budget.
   prerequisites:
     - Root AGENTS.md governs implementation work.
@@ -52,7 +52,11 @@ active_work_item:
   evidence_required:
     - evidence/build/G0_FOUNDATION/manifest.json
     - Exact commands and exit statuses for installation and all checks.
-  blocker: null
+  blocker:
+    class: BLOCKED_EXTERNAL
+    summary: "Every G0-W01 acceptance predicate passed locally on Python 3.11, 3.12, and 3.13; the remaining G0 exit predicates need the owner - push main so hosted CI runs, protect main with the three CI checks, and optionally override the recorded legacy exclusions."
+    resume_predicate: "origin/main contains the local main head; the CI workflow run for that commit shows the jobs Python 3.11, Python 3.12, and Python 3.13 successful; GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks naming those three jobs."
+    recorded_at: "2026-09-02T12:01:45+05:00"
 
 next_ready_items:
   - id: G0-W02
