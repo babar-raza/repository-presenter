@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/reuse-manifest.schema.json",
+  "title": "Legacy reuse manifest",
+  "description": "Shape of migration/reuse-manifest.yaml, the ledger of legacy-code disposition. A legacy file enters this repository only through one file record carrying its SHA-256 at the frozen revision, its disposition, destination, retained and removed behavior, ported tests, acceptance, and the import closure it dragged.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_status",
+    "project",
+    "created_at",
+    "updated_at",
+    "authority",
+    "source",
+    "audit",
+    "allowed_dispositions",
+    "measured_legacy_baseline",
+    "preliminary_coupling_findings",
+    "summary",
+    "expected_area_dispositions",
+    "expected_asset_dispositions_note",
+    "expected_asset_dispositions",
+    "file_records",
+    "acceptance"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "manifest_status": { "$ref": "#/$defs/token" },
+    "project": { "const": "repository-presenter" },
+    "created_at": { "$ref": "#/$defs/timestamp" },
+    "updated_at": { "$ref": "#/$defs/timestamp" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["governance", "reuse_model", "first_pull_gate", "census_gate", "note"],
+      "properties": {
+        "governance": { "const": "AGENTS.md" },
+        "reuse_model": { "const": "INCREMENTAL_PULL" },
+        "first_pull_gate": { "$ref": "#/$defs/gate_id" },
+        "census_gate": { "$ref": "#/$defs/gate_id" },
+        "note": { "$ref": "#/$defs/text" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "url",
+        "frozen_revision",
+        "revision_verified",
+        "revision_metadata",
+        "working_tree_at_freeze",
+        "clean_inventory_captured",
+        "runtime_dependency_allowed"
+      ],
+      "properties": {
+        "repository": { "$ref": "#/$defs/repository" },
+        "url": { "type": "string", "pattern": "^https://" },
+        "frozen_revision": { "$ref": "#/$defs/git_sha" },
+        "revision_verified": { "type": "boolean" },
+        "revision_metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["verified_at", "author", "authored_at", "subject"],
+          "properties": {
+            "verified_at": { "$ref": "#/$defs/date" },
+            "author": { "$ref": "#/$defs/text" },
+            "authored_at": { "$ref": "#/$defs/timestamp" },
+            "subject": { "$ref": "#/$defs/text" },
+            "local_clone_is_shallow": { "type": "boolean" },
+            "local_clone_visible_commits": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "working_tree_at_freeze": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["observed_at", "status", "reconciliation", "reconciliation_rule"],
+          "properties": {
+            "observed_at": { "$ref": "#/$defs/date" },
+            "status": { "enum": ["CLEAN", "DIRTY"] },
+            "modified_tracked_files": { "type": "integer", "minimum": 0 },
+            "untracked_files": { "type": "integer", "minimum": 0 },
+            "insertions": { "type": "integer", "minimum": 0 },
+            "deletions": { "type": "integer", "minimum": 0 },
+            "touched_production_files": { "$ref": "#/$defs/sentences" },
+            "touched_documents": { "$ref": "#/$defs/sentences" },
+            "untracked_paths_summary": { "$ref": "#/$defs/text" },
+            "reconciliation": { "$ref": "#/$defs/token" },
+            "reconciliation_rule": { "$ref": "#/$defs/text" },
+            "decided_at": { "$ref": "#/$defs/date" },
+            "exclusions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "kind", "disposition", "reason"],
+                "properties": {
+                  "path": { "$ref": "#/$defs/text" },
+                  "kind": { "enum": ["MODIFIED", "UNTRACKED"] },
+                  "disposition": {
+                    "enum": [
+                      "EXCLUDED_BY_DEFAULT_PENDING_OWNER_OVERRIDE",
+                      "EXCLUDED_BY_OWNER",
+                      "COMMITTED_UPSTREAM_AND_REFROZEN"
+                    ]
+                  },
+                  "reason": { "$ref": "#/$defs/text" }
+                }
+              }
+            }
+          }
+        },
+        "clean_inventory_captured": { "type": "boolean" },
+        "runtime_dependency_allowed": { "const": false }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "status",
+        "first_pull_at",
+        "census_completed_at",
+        "auditor",
+        "inventory_path",
+        "dependency_report_path",
+        "census_evidence",
+        "per_pull_checks",
+        "census_checks"
+      ],
+      "properties": {
+        "model": { "const": "INCREMENTAL_PULL" },
+        "status": { "enum": ["NOT_STARTED", "PULLS_IN_PROGRESS", "CENSUS_COMPLETE"] },
+        "first_pull_at": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/date" }] },
+        "census_completed_at": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/date" }] },
+        "auditor": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/text" }] },
+        "inventory_path": { "$ref": "#/$defs/text" },
+        "dependency_report_path": { "$ref": "#/$defs/text" },
+        "census_evidence": { "$ref": "#/$defs/text" },
+        "per_pull_checks": { "$ref": "#/$defs/sentences" },
+        "census_checks": { "$ref": "#/$defs/sentences" }
+      }
+    },
+    "allowed_dispositions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "PORT_NEARLY_INTACT",
+        "EXTRACT_AND_REFACTOR",
+        "ADAPT_AS_PLUGIN",
+        "FIXTURE_OR_ORACLE_ONLY",
+        "MIGRATION_READER_ONLY",
+        "RETIRE"
+      ],
+      "properties": {
+        "PORT_NEARLY_INTACT": { "$ref": "#/$defs/text" },
+        "EXTRACT_AND_REFACTOR": { "$ref": "#/$defs/text" },
+        "ADAPT_AS_PLUGIN": { "$ref": "#/$defs/text" },
+        "FIXTURE_OR_ORACLE_ONLY": { "$ref": "#/$defs/text" },
+        "MIGRATION_READER_ONLY": { "$ref": "#/$defs/text" },
+        "RETIRE": { "$ref": "#/$defs/text" }
+      }
+    },
+    "measured_legacy_baseline": {
+      "type": "object",
+      "required": [
+        "status",
+        "measured_at",
+        "measurement_method",
+        "first_party_production_python_lines",
+        "vendored_aspose_org_python_lines",
+        "test_python_lines",
+        "legacy_test_baseline"
+      ],
+      "properties": {
+        "status": { "$ref": "#/$defs/token" },
+        "measured_at": { "$ref": "#/$defs/date" },
+        "measurement_method": { "$ref": "#/$defs/text" },
+        "first_party_production_python_lines": { "type": "integer", "minimum": 0 },
+        "vendored_aspose_org_python_lines": { "type": "integer", "minimum": 0 },
+        "test_python_lines": { "type": "integer", "minimum": 0 },
+        "legacy_test_baseline": {
+          "type": "object",
+          "required": ["measured_at", "environment", "definitive_baseline"],
+          "properties": {
+            "measured_at": { "$ref": "#/$defs/date" },
+            "environment": { "$ref": "#/$defs/text" },
+            "definitive_baseline": { "$ref": "#/$defs/text" }
+          }
+        }
+      }
+    },
+    "preliminary_coupling_findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "measured_at",
+        "method",
+        "retained_modules_reaching_a_retired_module",
+        "retained_modules_reaching_supervisor_capabilities_or_specialists",
+        "findings"
+      ],
+      "properties": {
+        "measured_at": { "$ref": "#/$defs/date" },
+        "method": { "$ref": "#/$defs/text" },
+        "retained_modules_reaching_a_retired_module": { "type": "integer", "minimum": 0 },
+        "retained_modules_reaching_supervisor_capabilities_or_specialists": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "findings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "chain"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^CPL-[0-9]{2}$" },
+              "chain": { "$ref": "#/$defs/text" },
+              "affected": { "$ref": "#/$defs/text" },
+              "closure": { "$ref": "#/$defs/text" },
+              "required_cut": { "$ref": "#/$defs/text" },
+              "note": { "$ref": "#/$defs/text" }
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "final_counts_available",
+        "files_in_inventory",
+        "files_by_disposition",
+        "lines_by_disposition"
+      ],
+      "properties": {
+        "final_counts_available": { "type": "boolean" },
+        "files_in_inventory": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] },
+        "files_by_disposition": { "$ref": "#/$defs/counts_by_disposition" },
+        "lines_by_disposition": { "$ref": "#/$defs/counts_by_disposition" }
+      }
+    },
+    "expected_area_dispositions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/expected_disposition" }
+    },
+    "expected_asset_dispositions_note": { "$ref": "#/$defs/text" },
+    "expected_asset_dispositions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/expected_disposition" }
+    },
+    "file_records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file_record" }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "per_pull_gate",
+        "census_gate",
+        "status",
+        "per_pull_predicates",
+        "census_predicates"
+      ],
+      "properties": {
+        "per_pull_gate": { "$ref": "#/$defs/text" },
+        "census_gate": { "$ref": "#/$defs/gate_id" },
+        "status": { "enum": ["NOT_READY", "READY", "ACCEPTED"] },
+        "per_pull_predicates": { "$ref": "#/$defs/sentences" },
+        "census_predicates": { "$ref": "#/$defs/sentences" }
+      }
+    }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 },
+    "token": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+    "sentences": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+    "gate_id": { "type": "string", "pattern": "^G[0-7]_[A-Z][A-Z0-9_]*$" },
+    "work_item_id": { "type": "string", "pattern": "^G[0-7]-W[0-9]{2}$" },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "git_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "disposition": {
+      "enum": [
+        "PORT_NEARLY_INTACT",
+        "EXTRACT_AND_REFACTOR",
+        "ADAPT_AS_PLUGIN",
+        "FIXTURE_OR_ORACLE_ONLY",
+        "MIGRATION_READER_ONLY",
+        "RETIRE"
+      ]
+    },
+    "counts_by_disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "PORT_NEARLY_INTACT",
+        "EXTRACT_AND_REFACTOR",
+        "ADAPT_AS_PLUGIN",
+        "FIXTURE_OR_ORACLE_ONLY",
+        "MIGRATION_READER_ONLY",
+        "RETIRE"
+      ],
+      "properties": {
+        "PORT_NEARLY_INTACT": { "$ref": "#/$defs/count_or_null" },
+        "EXTRACT_AND_REFACTOR": { "$ref": "#/$defs/count_or_null" },
+        "ADAPT_AS_PLUGIN": { "$ref": "#/$defs/count_or_null" },
+        "FIXTURE_OR_ORACLE_ONLY": { "$ref": "#/$defs/count_or_null" },
+        "MIGRATION_READER_ONLY": { "$ref": "#/$defs/count_or_null" },
+        "RETIRE": { "$ref": "#/$defs/count_or_null" }
+      }
+    },
+    "count_or_null": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] },
+    "expected_disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_glob", "expected_disposition", "destination_area", "retained_behavior"],
+      "allOf": [
+        {
+          "if": { "properties": { "expected_disposition": { "const": "RETIRE" } } },
+          "then": { "properties": { "destination_area": { "type": "null" } } },
+          "else": { "properties": { "destination_area": { "$ref": "#/$defs/text" } } }
+        }
+      ],
+      "properties": {
+        "source_glob": { "$ref": "#/$defs/text" },
+        "expected_disposition": { "$ref": "#/$defs/disposition" },
+        "destination_area": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/text" }] },
+        "retained_behavior": { "$ref": "#/$defs/sentences" },
+        "removed_behavior": { "$ref": "#/$defs/sentences" },
+        "prohibited_coupling": { "$ref": "#/$defs/sentences" },
+        "known_coupling": { "$ref": "#/$defs/text" },
+        "migration_exception": { "$ref": "#/$defs/sentences" },
+        "observed_at_frozen_revision": { "$ref": "#/$defs/text" },
+        "note": { "$ref": "#/$defs/text" }
+      }
+    },
+    "file_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_path",
+        "sha256",
+        "disposition",
+        "destination",
+        "retained_behavior",
+        "removed_behavior",
+        "tests_ported",
+        "acceptance",
+        "import_closure",
+        "pulled_at",
+        "work_item"
+      ],
+      "properties": {
+        "source_path": { "$ref": "#/$defs/text" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "disposition": { "$ref": "#/$defs/disposition" },
+        "destination": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "retained_behavior": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } },
+        "removed_behavior": { "$ref": "#/$defs/sentences" },
+        "tests_ported": { "$ref": "#/$defs/sentences" },
+        "acceptance": { "$ref": "#/$defs/text" },
+        "import_closure": { "$ref": "#/$defs/sentences" },
+        "pulled_at": { "$ref": "#/$defs/date" },
+        "work_item": { "$ref": "#/$defs/work_item_id" },
+        "provenance": { "$ref": "#/$defs/text" },
+        "note": { "$ref": "#/$defs/text" }
+      }
+    }
+  }
+}

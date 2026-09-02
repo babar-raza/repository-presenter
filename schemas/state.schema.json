@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/state.schema.json",
+  "title": "Repository Presenter implementation cursor",
+  "description": "Shape of project/state.yaml, the only live statement of build status. It is updated in the same commit as every accepted transition. A blocked or failed work item must carry a blocker with an exact resume predicate; a non-blocked item must not.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "updated_at",
+    "authority",
+    "progress",
+    "current_gate",
+    "accepted_gates",
+    "active_work_item",
+    "next_ready_items",
+    "legacy_source",
+    "target_portfolio_baseline",
+    "execution_limits",
+    "publication",
+    "last_transition"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project": { "const": "repository-presenter" },
+    "updated_at": { "$ref": "#/$defs/timestamp" },
+    "authority": {
+      "type": "object",
+      "required": ["product", "governance", "implementation", "runtime", "research", "legacy_reuse"],
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "current_candidates", "denominator", "denominator_status", "canary"],
+      "properties": {
+        "unit": { "const": "current reviewable no-op-proven README candidates" },
+        "current_candidates": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 1 },
+        "denominator_status": { "$ref": "#/$defs/text" },
+        "canary": { "$ref": "#/$defs/repository" }
+      }
+    },
+    "current_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "time_box_days", "purpose"],
+      "properties": {
+        "id": { "$ref": "#/$defs/gate_id" },
+        "status": { "$ref": "#/$defs/active_status" },
+        "time_box_days": { "type": "integer", "minimum": 1 },
+        "purpose": { "$ref": "#/$defs/text" }
+      }
+    },
+    "accepted_gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate_id" },
+      "uniqueItems": true,
+      "maxItems": 8
+    },
+    "active_work_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "purpose",
+        "prerequisites",
+        "owned_paths",
+        "acceptance",
+        "evidence_required",
+        "blocker"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/work_item_id" },
+        "status": { "$ref": "#/$defs/active_status" },
+        "purpose": { "$ref": "#/$defs/text" },
+        "prerequisites": { "$ref": "#/$defs/sentences" },
+        "owned_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        },
+        "acceptance": { "$ref": "#/$defs/sentences" },
+        "evidence_required": { "$ref": "#/$defs/sentences" },
+        "blocker": { "$ref": "#/$defs/blocker" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "enum": ["BLOCKED_EXTERNAL", "FAILED_INTERNAL"] } } },
+          "then": { "properties": { "blocker": { "type": "object" } } },
+          "else": { "properties": { "blocker": { "type": "null" } } }
+        }
+      ]
+    },
+    "next_ready_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "purpose"],
+        "properties": {
+          "id": { "$ref": "#/$defs/work_item_id" },
+          "status": { "enum": ["PENDING", "BLOCKED_BY_GATE"] },
+          "owner": { "$ref": "#/$defs/text" },
+          "blocked_by": { "$ref": "#/$defs/gate_id" },
+          "purpose": { "$ref": "#/$defs/text" }
+        },
+        "if": { "properties": { "status": { "const": "BLOCKED_BY_GATE" } } },
+        "then": { "required": ["blocked_by"] }
+      }
+    },
+    "legacy_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "role",
+        "revision_verified",
+        "working_tree_at_freeze",
+        "test_suite_at_freeze"
+      ],
+      "properties": {
+        "repository": { "$ref": "#/$defs/repository" },
+        "revision": { "$ref": "#/$defs/git_sha" },
+        "role": { "$ref": "#/$defs/text" },
+        "revision_verified": { "type": "boolean" },
+        "revision_verified_at": { "$ref": "#/$defs/date" },
+        "working_tree_at_freeze": { "enum": ["CLEAN", "DIRTY"] },
+        "working_tree_note": { "type": "string" },
+        "test_suite_at_freeze": { "enum": ["GREEN", "NOT_GREEN", "NOT_MEASURED"] },
+        "test_suite_note": { "type": "string" }
+      }
+    },
+    "target_portfolio_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed_at", "registry_entries", "status"],
+      "properties": {
+        "observed_at": { "$ref": "#/$defs/date" },
+        "registry_entries": { "type": "integer", "minimum": 0 },
+        "registry_entries_verified_at_revision": { "$ref": "#/$defs/git_sha" },
+        "registry_modes": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "standard_shell": { "type": "integer", "minimum": 0 },
+        "bespoke": { "type": "integer", "minimum": 0 },
+        "insufficient_evidence": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/token" }
+      }
+    },
+    "execution_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shared_code_items_in_progress",
+        "parallel_repository_work_allowed",
+        "third_equivalent_attempt_allowed",
+        "first_principles_review_after_equivalent_failures",
+        "first_principles_review_after_minutes_without_narrowing",
+        "new_module_requires_production_importer",
+        "global_control_plane_hashes_allowed",
+        "governance_budget"
+      ],
+      "properties": {
+        "shared_code_items_in_progress": { "const": 1 },
+        "parallel_repository_work_allowed": { "type": "boolean" },
+        "third_equivalent_attempt_allowed": { "const": false },
+        "first_principles_review_after_equivalent_failures": { "const": 2 },
+        "first_principles_review_after_minutes_without_narrowing": { "const": 15 },
+        "new_module_requires_production_importer": { "const": true },
+        "global_control_plane_hashes_allowed": { "const": false },
+        "governance_budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["agents_md_max_lines", "execution_state_machine_max_lines", "max_gates"],
+          "properties": {
+            "agents_md_max_lines": { "const": 200 },
+            "execution_state_machine_max_lines": { "const": 500 },
+            "max_gates": { "const": 8 }
+          }
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "target_writes_authorized", "direct_default_branch_push_allowed"],
+      "properties": {
+        "mode": { "$ref": "#/$defs/token" },
+        "target_writes_authorized": { "type": "boolean" },
+        "direct_default_branch_push_allowed": { "const": false }
+      }
+    },
+    "last_transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "reason", "evidence"],
+      "properties": {
+        "from": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gate_id" }] },
+        "to": { "$ref": "#/$defs/gate_id" },
+        "reason": { "$ref": "#/$defs/text" },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/text" } }
+      }
+    }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 },
+    "token": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+    "sentences": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+    "gate_id": { "type": "string", "pattern": "^G[0-7]_[A-Z][A-Z0-9_]*$" },
+    "work_item_id": { "type": "string", "pattern": "^G[0-7]-W[0-9]{2}$" },
+    "active_status": {
+      "enum": ["READY", "IN_PROGRESS", "VERIFYING", "ACCEPTED", "BLOCKED_EXTERNAL", "FAILED_INTERNAL"]
+    },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "git_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "blocker": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["class", "summary", "resume_predicate", "recorded_at"],
+          "properties": {
+            "class": { "enum": ["BLOCKED_EXTERNAL", "FAILED_INTERNAL"] },
+            "summary": { "$ref": "#/$defs/text" },
+            "resume_predicate": { "$ref": "#/$defs/text" },
+            "recorded_at": { "$ref": "#/$defs/timestamp" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/candidate-bundle.schema.json",
+  "title": "Sealed candidate bundle manifest",
+  "description": "Shape of candidates/<owner>__<name>/<revision>/manifest.json, the seal of one README transaction. The bundle is content-addressed evidence: every file it lists is hashed here, and this manifest is the only record that status counts from. A bundle is sealed at ACCEPTED and may reach READY_FOR_PROPOSAL only with a recorded fresh-process, byte-identical, zero-provider-call no-op proof.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "revision",
+    "state",
+    "sealed_at",
+    "files",
+    "provider_calls",
+    "no_op_proof"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "state": {
+      "enum": ["ACCEPTED", "PROVING_NO_OP", "READY_FOR_PROPOSAL", "INVALIDATED", "SUPERSEDED"]
+    },
+    "sealed_at": { "$ref": "#/$defs/timestamp" },
+    "files": {
+      "type": "object",
+      "required": [
+        "README.md",
+        "README.patch",
+        "facts.json",
+        "dispositions.json",
+        "plan.json",
+        "validation.json",
+        "review.json",
+        "calls.jsonl",
+        "dependencies.json"
+      ],
+      "propertyNames": { "pattern": "^[A-Za-z0-9._-]+$" },
+      "additionalProperties": { "$ref": "#/$defs/file_digest" }
+    },
+    "provider_calls": { "type": "integer", "minimum": 0 },
+    "no_op_proof": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proven_at", "fresh_process", "byte_identical", "provider_calls"],
+          "properties": {
+            "proven_at": { "$ref": "#/$defs/timestamp" },
+            "fresh_process": { "const": true },
+            "byte_identical": { "const": true },
+            "provider_calls": { "const": 0 }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "state": { "const": "READY_FOR_PROPOSAL" } } },
+      "then": { "properties": { "no_op_proof": { "type": "object" } } }
+    }
+  ],
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "file_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "bytes"],
+      "properties": {
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
