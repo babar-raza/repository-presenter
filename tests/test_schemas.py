@@ -125,6 +125,29 @@ def test_cursor_schema_ties_blockers_to_blocked_statuses() -> None:
     assert errors(validator, cursor)
 
 
+def test_cursor_schema_keeps_owner_predicates_in_owner_items() -> None:
+    validator = load_schema("state.schema.json")
+    cursor = load_yaml(CURSOR)
+    assert cursor["owner_items"], "owner-only predicates live in owner_items, never in a gate"
+    assert all(item["consumed_by"] for item in cursor["owner_items"])
+
+    unconsumed = copy.deepcopy(cursor)
+    del unconsumed["owner_items"][0]["consumed_by"]
+    assert errors(validator, unconsumed)
+
+    unknown_status = copy.deepcopy(cursor)
+    unknown_status["owner_items"][0]["status"] = "WAITING"
+    assert errors(validator, unknown_status)
+
+    force_push = copy.deepcopy(cursor)
+    force_push["publication"]["control_repository"]["push"] = "FORCE"
+    assert errors(validator, force_push)
+
+    product_push = copy.deepcopy(cursor)
+    product_push["publication"]["direct_default_branch_push_allowed"] = True
+    assert errors(validator, product_push)
+
+
 def test_manifest_schema_requires_complete_file_records() -> None:
     validator = load_schema("reuse-manifest.schema.json")
     manifest = load_yaml(MANIFEST)

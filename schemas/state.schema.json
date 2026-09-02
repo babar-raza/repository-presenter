@@ -15,6 +15,7 @@
     "accepted_gates",
     "active_work_item",
     "next_ready_items",
+    "owner_items",
     "legacy_source",
     "target_portfolio_baseline",
     "execution_limits",
@@ -111,6 +112,29 @@
         "then": { "required": ["blocked_by"] }
       }
     },
+    "owner_items": {
+      "description": "Owner-only predicates live here, never in a gate's exit predicates. Each names the gate or work item that consumes it; it hard-blocks only there and is re-checked every iteration.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "summary", "resume_predicate", "consumed_by", "recorded_at"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^OWNER-[0-9]{2}$" },
+          "status": { "enum": ["OPEN", "SATISFIED", "OVERRIDDEN", "DEFAULT_APPLIED"] },
+          "summary": { "$ref": "#/$defs/text" },
+          "resume_predicate": { "$ref": "#/$defs/text" },
+          "consumed_by": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^(G[0-7]_[A-Z][A-Z0-9_]*|G[0-7]-W[0-9]{2}|NONE)$" }
+          },
+          "recorded_at": { "$ref": "#/$defs/timestamp" },
+          "last_checked_at": { "$ref": "#/$defs/timestamp" },
+          "note": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
     "legacy_source": {
       "type": "object",
       "additionalProperties": false,
@@ -188,11 +212,28 @@
     "publication": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mode", "target_writes_authorized", "direct_default_branch_push_allowed"],
+      "required": [
+        "mode",
+        "target_writes_authorized",
+        "direct_default_branch_push_allowed",
+        "control_repository"
+      ],
       "properties": {
         "mode": { "$ref": "#/$defs/token" },
         "target_writes_authorized": { "type": "boolean" },
-        "direct_default_branch_push_allowed": { "const": false }
+        "direct_default_branch_push_allowed": { "const": false },
+        "control_repository": {
+          "description": "Pushes to this repository's own origin so hosted CI runs. Product repositories are never pushed; that is governed by target_writes_authorized.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["remote", "push", "main_protected", "mode"],
+          "properties": {
+            "remote": { "$ref": "#/$defs/text" },
+            "push": { "enum": ["ALLOWED_AFTER_LOCAL_CHECKS", "NEVER"] },
+            "main_protected": { "type": "boolean" },
+            "mode": { "enum": ["DIRECT_MAIN_WHILE_UNPROTECTED", "BRANCH_AND_PR_WITH_AUTO_MERGE"] }
+          }
+        }
       }
     },
     "last_transition": {

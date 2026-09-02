@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T12:01:45+05:00"
+updated_at: "2026-09-02T14:00:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -27,7 +27,7 @@ accepted_gates: []
 
 active_work_item:
   id: G0-W01
-  status: BLOCKED_EXTERNAL
+  status: VERIFYING
   purpose: Python package, lock, CLI skeleton with version and status, CI, JSON Schemas for the cursor, manifest, and candidate bundle, secret canary, path budget.
   prerequisites:
     - Root AGENTS.md governs implementation work.
@@ -44,29 +44,51 @@ active_work_item:
   acceptance:
     - A clean Python 3.11 or newer environment installs from the declared lock.
     - The CLI reports its version, the current gate, and 0/34 current candidates.
-    - Formatting, linting, typing, and unit tests pass on Python 3.11, 3.12, and 3.13.
+    - Formatting, linting, typing, and unit tests pass locally on Python 3.11, 3.12, and 3.13.
     - JSON Schemas validate project/state.yaml and migration/reuse-manifest.yaml in CI.
     - A secret-canary test proves configured secrets cannot enter a candidate bundle.
     - A path-budget test fails when any tracked path exceeds 200 characters.
     - No legacy production file has been copied.
+    - The accepted commits are pushed to the control repository's origin so hosted CI runs; a red hosted run is FAILED_INTERNAL at the next iteration.
   evidence_required:
     - evidence/build/G0_FOUNDATION/manifest.json
     - Exact commands and exit statuses for installation and all checks.
-  blocker:
-    class: BLOCKED_EXTERNAL
-    summary: "Every G0-W01 acceptance predicate passed locally on Python 3.11, 3.12, and 3.13; the remaining G0 exit predicates need the owner - push main so hosted CI runs, protect main with the three CI checks, and optionally override the recorded legacy exclusions."
-    resume_predicate: "origin/main contains the local main head; the CI workflow run for that commit shows the jobs Python 3.11, Python 3.12, and Python 3.13 successful; GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks naming those three jobs."
-    recorded_at: "2026-09-02T12:01:45+05:00"
+  blocker: null
 
 next_ready_items:
-  - id: G0-W02
-    status: PENDING
-    owner: product owner
-    purpose: Protect main with required CI status, and decide the dirty legacy working tree (commit upstream and re-freeze, or record each exclusion in the manifest).
   - id: G1-W01
     status: BLOCKED_BY_GATE
     blocked_by: G0_FOUNDATION
     purpose: Snapshot stage for the canary - pull gitsafety, repository_snapshot, inspection, registry loader, redaction, errors, and retry with manifest records and tests; run the present command end to end.
+
+owner_items:
+  - id: OWNER-01
+    status: OPEN
+    summary: Protect main on babar-raza/repository-presenter with the CI jobs Python 3.11, Python 3.12, and Python 3.13 as required status checks, and enable auto-merge for the repository.
+    resume_predicate: GET /repos/babar-raza/repository-presenter/branches/main/protection returns required_status_checks naming the three CI jobs; then publication.control_repository switches to BRANCH_AND_PR_WITH_AUTO_MERGE.
+    consumed_by: [G4_HOSTED_PORTFOLIO]
+    recorded_at: "2026-09-02T14:00:00+05:00"
+    note: Until then the agent pushes main directly after the full local CI-equivalent passes. Hosted CI still runs on every push.
+  - id: OWNER-02
+    status: OPEN
+    summary: Provide .env at the repository root with LLM_BASE_URL and LLM_API_KEY for the OpenAI-compatible gateway (and LLM_MODEL if the default is wrong); GH_TOKEN is already present in the environment.
+    resume_predicate: .env exists, is gitignored, and repository-presenter preflight (built in G1-W03) reaches the gateway's /models endpoint without leaking the key.
+    consumed_by: [G1-W03]
+    recorded_at: "2026-09-02T14:00:00+05:00"
+    note: G1-W01 (snapshot) and G1-W02 (facts) do not need it and proceed.
+  - id: OWNER-03
+    status: DEFAULT_APPLIED
+    summary: Decide the dirty legacy working tree at freeze (15 modified tracked files, 18 untracked files).
+    resume_predicate: The owner either commits the legacy changes and names a new frozen revision, or confirms the recorded exclusions; until then every pull takes file content at a8a163f7 only.
+    consumed_by: [NONE]
+    recorded_at: "2026-09-02T14:00:00+05:00"
+    note: Default applied on 2026-09-02; exclusions are recorded per file in migration/reuse-manifest.yaml source.working_tree_at_freeze.exclusions.
+  - id: OWNER-04
+    status: OPEN
+    summary: Create the GitHub App for production tokens and install it on the authorized organizations; provide GH_APP_CLIENT_ID and GH_APP_PRIVATE_KEY as repository secrets, plus LLM_BASE_URL and LLM_API_KEY.
+    resume_predicate: A hosted workflow run mints a read-only installation token for the canary repository.
+    consumed_by: [G4_HOSTED_PORTFOLIO, G5_PROPOSAL_EFFECT_PROOF]
+    recorded_at: "2026-09-02T14:00:00+05:00"
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
@@ -75,7 +97,7 @@ legacy_source:
   revision_verified: true
   revision_verified_at: "2026-09-02"
   working_tree_at_freeze: DIRTY
-  working_tree_note: 15 modified tracked files and 9 untracked files were absent from the frozen revision; the owner decides in G0-W02 (see migration/reuse-manifest.yaml source.working_tree_at_freeze)
+  working_tree_note: 15 modified tracked files and 18 untracked files were absent from the frozen revision; excluded by default (OWNER-03), recorded per file in migration/reuse-manifest.yaml
   test_suite_at_freeze: NOT_GREEN
   test_suite_note: 4 confirmed and 2 probable genuine failures; details in migration/reuse-manifest.yaml measured_legacy_baseline.legacy_test_baseline
 
@@ -103,17 +125,20 @@ execution_limits:
     max_gates: 8
 
 publication:
-  mode: NEVER_PUSH_DURING_FOUNDATION
+  mode: PRODUCT_REPOSITORIES_NEVER_WRITTEN_BEFORE_G5
   target_writes_authorized: false
   direct_default_branch_push_allowed: false
+  control_repository:
+    remote: https://github.com/babar-raza/repository-presenter.git
+    push: ALLOWED_AFTER_LOCAL_CHECKS
+    main_protected: false
+    mode: DIRECT_MAIN_WHILE_UNPROTECTED
 
 last_transition:
   from: null
   to: G0_FOUNDATION
-  reason: Governance established; build plan revised to outcome-first sequencing (revision 2) after the pre-migration assessment; implementation has not started.
+  reason: Owner-only predicates moved out of the gate into owner_items and the control-repository push policy was defined, after the first loop iteration deadlocked on hosted CI and branch protection.
   evidence:
-    - AGENTS.md
-    - docs/EXECUTION_STATE_MACHINE.md
-    - docs/RESEARCH_AND_GUIDELINES.md
-    - migration/reuse-manifest.yaml
+    - evidence/build/G0_FOUNDATION/manifest.json
     - project/state.yaml
+    - docs/EXECUTION_STATE_MACHINE.md

@@ -136,6 +136,9 @@ deterministic gate result, or directly mutates a repository.
 - Never log, commit, cache, or persist credentials or unredacted secret-bearing values.
 - Work clones are push-disabled and verified before analysis.
 - Initial publication is pull-request-only; never push directly to a target default branch.
+- This control repository may be pushed to its own `origin` after the full local CI-equivalent
+  passes, under `publication.control_repository` in `project/state.yaml`: directly to `main` while
+  unprotected, by branch and PR with auto-merge once protected. Never force, never a product repo.
 - Candidate acceptance never implies publication authorization.
 - Recheck upstream revision immediately before an effect.
 - Reconcile uncertain remote effects before retrying.

@@ -201,7 +201,7 @@ audit:
     - Run the official entry point on the canary after the pull; a pulled module with no production importer is a defect.
   census_checks:
     - Verify the frozen source revision exists and record its commit metadata. (done 2026-09-02; see source.revision_metadata)
-    - Reconcile the dirty legacy working tree observed at freeze. (owner decision in G0-W02; see source.working_tree_at_freeze)
+    - Reconcile the dirty legacy working tree observed at freeze. (default exclusion applied as owner item OWNER-03; see source.working_tree_at_freeze)
     - Record the legacy test-suite pass/fail baseline on a Linux runner before the first pull so ported-test failures are attributable.
     - Classify every non-Python production asset listed under expected_asset_dispositions as pulled or retired.
     - Measure final file, line, and test totals by disposition at the G3 census; everything unpulled is RETIRE.

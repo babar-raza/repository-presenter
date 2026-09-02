@@ -699,9 +699,10 @@ reconstruction investigation with its roster, taskcards, evidence directory, and
 
 **Decision:** this repository's `plans/idea.md` deliberately carries the uncommitted worktree text
 (so it includes Upstream Defect Reporting) and says so in its authority note. The code changes are
-not part of the frozen revision; the product owner decides in work item G0-W02 whether they are
-committed upstream and re-frozen or recorded as excluded. Until then the manifest records
-`reconciliation: PENDING_OWNER_DECISION_G0_W02`.
+not part of the frozen revision. The default exclusion was applied on 2026-09-02 as owner item
+OWNER-03 in `project/state.yaml`; the owner may override it by committing the changes upstream and
+naming a new frozen revision. The manifest records each exclusion under
+`source.working_tree_at_freeze.exclusions`.
 
 ### 16.3 Scale measurements
 
