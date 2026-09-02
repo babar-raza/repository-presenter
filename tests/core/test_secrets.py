@@ -23,25 +23,25 @@ CANARY_KEY = "sk-canary-3a1f9e7c5d2b4a6f"
 def test_configured_secrets_are_named_by_convention() -> None:
     environment = {
         "GH_TOKEN": CANARY_TOKEN,
-        "LLM_API_KEY": CANARY_KEY,
-        "LLM_BASE_URL": "https://gateway.example.com/v1",
-        "LLM_MODEL": "model-name-that-is-long",
+        "GPT_OSS_API_KEY": CANARY_KEY,
+        "GPT_OSS_ENDPOINT": "https://gateway.example.com/v1",
+        "GPT_OSS_MODEL": "model-name-that-is-long",
         "REGISTRY_PASSWORD": "hunter2hunter2",
         "SHORT_TOKEN": "abc",
         "EMPTY_SECRET": "",
         "PATH": "/usr/bin:/bin",
     }
     secrets = configured_secrets(environment)
-    assert [s.variable for s in secrets] == ["GH_TOKEN", "LLM_API_KEY", "REGISTRY_PASSWORD"]
+    assert [s.variable for s in secrets] == ["GH_TOKEN", "GPT_OSS_API_KEY", "REGISTRY_PASSWORD"]
     assert all(isinstance(s.value, bytes) for s in secrets)
 
 
 def test_every_secret_in_env_example_is_a_configured_secret() -> None:
     names = re.findall(r"^([A-Z_]+)=", (REPO_ROOT / ".env.example").read_text("utf-8"), re.M)
-    assert {"GH_TOKEN", "LLM_API_KEY"} <= set(names)
+    assert {"GH_TOKEN", "GPT_OSS_API_KEY"} <= set(names)
     environment = {name: "value-that-is-long-enough" for name in names}
     detected = {s.variable for s in configured_secrets(environment)}
-    assert detected == {"GH_TOKEN", "LLM_API_KEY"}
+    assert detected == {"GH_TOKEN", "GPT_OSS_API_KEY"}
 
 
 def test_secret_values_never_appear_in_reprs() -> None:
