@@ -247,9 +247,11 @@ leases, or hosted execution yet; those are G4.
    proceed without them). Governed prompt manifests for `repository_investigation`,
    `source_reconciliation`, `presentation_planning`, `section_authoring`, `independent_review`, and
    `targeted_repair`, one file each under `prompts/`, plus a `preflight` command that reaches the
-   gateway without leaking the key, built on the `openai` SDK per `RESEARCH_AND_GUIDELINES.md`
-   §18.2 rather than porting `call_transport.py`'s `requests`-based protocol handling, unless
-   evaluating the SDK against the actual gateway finds a documented reason not to. Pull the call
+   gateway without leaking the key and lists its model catalog; each prompt manifest's `model_route`
+   is chosen from that catalog for job fit, never assumed (`RESEARCH_AND_GUIDELINES.md` §18.4). Build
+   the transport on the `openai` SDK per §18.2 rather than porting `call_transport.py`'s `requests`-
+   based protocol handling, unless evaluating the SDK against the actual gateway finds a documented
+   reason not to. Pull the call
    ledger, call schema, prompt registry, and prompt hygiene after the `CPL-01` cut; the ledger and
    schema are project-specific accounting the SDK does not replace. LLM prose may only express fact
    IDs supplied in its packet; deterministic code renders commands, links, badges, Mermaid, example
@@ -352,8 +354,7 @@ and reach `34/34` local dispositions.
    consumes the branch-protection and GitHub App owner items.
 3. Complete authorized discovery and intake; freeze one registry revision as the denominator; new
    repositories enter disabled and read-only; every exclusion explicit.
-4. Dynamic changed-or-due matrix; TTL-governed package and release surfaces; acceleration caches
-   never authoritative.
+4. Dynamic changed-or-due matrix; TTL-governed package/release surfaces; caches never authoritative.
 5. Process every processable repository in isolated lanes with bounded concurrency; adversarial
    audit for clone-like generic prose; development-only comparison against the frozen
    `BenchmarkQualityProfileV1`, a shortfall routed to its causal stage.
@@ -395,8 +396,7 @@ Goal: harden for unattended operation and enable it on the approved repository a
 ### Work
 
 1. Threat model: credentials, prompt injection from repositories, malicious Markdown, unsafe links,
-   example execution, untrusted build files, evidence exfiltration; sandbox example execution per
-   ecosystem.
+   untrusted build files, evidence exfiltration; sandboxed, per-ecosystem example execution.
 2. Failure exercises: leases, crash recovery, duplicate triggers, corrupt state, gateway outage,
    GitHub outage, rate limits, matrix partial failure; dependency locking, SBOM, vulnerability audit.
 3. Budgets, health, alerts naming the causal repository and resume predicate, dead-man monitoring;

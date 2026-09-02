@@ -1058,3 +1058,36 @@ A work item that needs a concern not listed here follows the same duty directly 
 §"Prefer Battle-Tested Solutions": research an existing option before writing one, and if none
 fits, document why in the commit and add the concern to this table in the same change.
 
+### 18.4 Model discovery and per-job routing (2026-09-02)
+
+**Credentials.** The owner will not commit the gateway key, not even gitignored: `GPT_OSS_ENDPOINT`
+(the OpenAI-compatible base URL) and `GPT_OSS_API_KEY` are process environment variables, already
+present wherever this project runs; no `.env` is read or required for them. `GPT_OSS_MODEL` is an
+optional override of a manifest's default route, for local experimentation only — it is never the
+mechanism jobs use to pick a model day to day (below).
+
+**Observed:** a `GET {GPT_OSS_ENDPOINT}/models` on 2026-09-02, authenticated, without printing the
+key, returned HTTP 200 and seven entries: `qwen3-next`, `gpt-oss`, `qwen3-embedding-8b`,
+`Qwen2.5-VL-7B`, `stable-diffusion-3.5-large`, plus two alias slots, `recommended` and `experimental`.
+Only the first two are general-purpose chat/completion models suited to the six governed jobs;
+`qwen3-embedding-8b` is an embedding model, `Qwen2.5-VL-7B` a vision-language model, and
+`stable-diffusion-3.5-large` an image generator — none fit a job that returns typed prose or JSON
+content units. The catalog is heterogeneous and gateway-controlled, not a small fixed set this
+project can hardcode.
+
+**Rule.** `preflight` (G1-W03) discovers the catalog from `/models`, not from an assumption, and
+records it; it is not queried again mid-job. Each prompt manifest declares its own `model_route`,
+chosen from the discovered catalog for that job's fit — reasoning depth for
+`independent_review`/`targeted_repair`, lighter cost for `section_authoring`, and so on — as a
+reviewed, versioned decision recorded in the manifest, exactly like every other manifest field
+tracked in a candidate's `dependencies.json`. "Explore and use whichever fits" means this review,
+done when a manifest is authored or updated, never a live per-call choice: principle 20 already
+requires model route to be a stable, attributable input, and a route that varied call to call would
+break no-op proof (S12) and per-candidate invalidation alike.
+
+An alias route (`recommended`, `experimental`) is allowed in a manifest only if the ledger records
+the concrete model ID the gateway actually served for every call, not just the alias name — an alias
+can resolve differently over time on the gateway's side, and attribution must survive that. A model
+that disappears from the catalog is `FAILED_INTERNAL` for any manifest still routed to it, fixed by
+re-pointing the manifest to a discovered replacement, never by silently retrying another model.
+
