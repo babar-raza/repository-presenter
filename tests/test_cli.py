@@ -20,7 +20,14 @@ from repository_presenter.components.readme.extractors.platforms import python_r
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
-from support import REPO_ROOT, commit_all, init_git_repository, write_bundle, write_cursor
+from support import (
+    REPO_ROOT,
+    commit_all,
+    init_git_repository,
+    mock_gateway,
+    write_bundle,
+    write_cursor,
+)
 
 STATUS = r"\((READY|IN_PROGRESS|VERIFYING|ACCEPTED|BLOCKED_EXTERNAL|FAILED_INTERNAL)\)"
 CANARY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
@@ -363,3 +370,65 @@ def test_present_discovers_the_root_like_status(
     write_cursor(tmp_path)
     assert main(["present", "--repo", CANARY]) == EXIT_USAGE
     assert "registry not found" in capsys.readouterr().err
+
+
+LIVE_KEY = "sk-live-key-0123456789abcdef"
+
+
+def _gateway(monkeypatch: pytest.MonkeyPatch, handler: Any) -> None:
+    """Configure the gateway variables and serve the gateway from a mock transport."""
+    monkeypatch.setenv("GPT_OSS_ENDPOINT", "https://gw.example/v1/")
+    monkeypatch.setenv("GPT_OSS_API_KEY", LIVE_KEY)
+    mock_gateway(monkeypatch, handler)
+
+
+def test_preflight_without_the_gateway_variables_names_the_owner_item(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["preflight", "--root", str(project)]) == EXIT_USAGE
+    err = capsys.readouterr().err
+    assert (
+        "OWNER-02: GPT_OSS_ENDPOINT and GPT_OSS_API_KEY not set in the process environment" in err
+    )
+    assert "resume when GPT_OSS_ENDPOINT and GPT_OSS_API_KEY are present" in err
+    assert not (project / "runs" / "preflight").exists()
+
+
+def test_preflight_records_the_catalog_and_never_prints_the_key(
+    project: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["authorization"] == f"Bearer {LIVE_KEY}"
+        data = [
+            {"id": "qwen3-next", "object": "model", "owned_by": "org"},
+            {"id": "gpt-oss", "object": "model", "owned_by": "org"},
+        ]
+        return httpx.Response(200, json={"object": "list", "data": data})
+
+    _gateway(monkeypatch, handler)
+    assert main(["preflight", "--root", str(project)]) == EXIT_OK
+    captured = capsys.readouterr()
+    out = captured.out.splitlines()
+    assert out[0] == "gateway: gw.example reachable (GPT_OSS_API_KEY read, never printed)"
+    assert out[1] == "models: gpt-oss, qwen3-next (2)"
+    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[2])
+    assert LIVE_KEY not in captured.out + captured.err
+    raw = (project / "runs" / "preflight" / "catalog.json").read_text("utf-8")
+    assert [m["id"] for m in json.loads(raw)["models"]] == ["gpt-oss", "qwen3-next"]
+    assert LIVE_KEY not in raw
+
+
+def test_preflight_refusal_is_reported_by_status_with_nothing_else(
+    project: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _gateway(
+        monkeypatch,
+        lambda request: httpx.Response(401, json={"error": {"message": f"bad key {LIVE_KEY}"}}),
+    )
+    assert main(["preflight", "--root", str(project)]) == EXIT_INCONSISTENT
+    captured = capsys.readouterr()
+    assert (
+        captured.err == "repository-presenter: GET https://gw.example/v1/models answered HTTP 401\n"
+    )
+    assert LIVE_KEY not in captured.out + captured.err
+    assert not (project / "runs" / "preflight").exists()

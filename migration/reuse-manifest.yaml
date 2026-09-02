@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T15:32:52+05:00"
+updated_at: "2026-09-02T17:21:46+05:00"
 
 authority:
   governance: AGENTS.md
@@ -348,7 +348,10 @@ expected_area_dispositions:
       This module builds the OpenAI-compatible chat-completions protocol directly on requests.
       RESEARCH_AND_GUIDELINES.md §18.2 requires evaluating the openai SDK (custom base_url) before
       this pull; only request/response hashing and attempt accounting are genuinely project-
-      specific. Record the evaluation outcome here when this file is actually pulled.
+      specific. Evaluated on 2026-09-02 (G1-W03): openai 3.7.0 with base_url set to GPT_OSS_ENDPOINT listed the gateway's
+      catalog live (GET /models, HTTP 200) through core/llm/transport.py with the SDK's own retries
+      off; the protocol handling of this file is therefore not pulled. Only the request/response
+      hashing and physical-attempt accounting remain candidates, to be pulled with the ledger.
 
   - source_glob: src/readme_agent/llm/call_ledger.py
     expected_disposition: PORT_NEARLY_INTACT
@@ -1153,6 +1156,44 @@ file_records:
     import_closure: []
     pulled_at: "2026-09-02"
     work_item: G1-W02
+
+  - source_path: src/readme_agent/env.py
+    sha256: d28fcf8cfee5c0ded58f77a97ce8271a597c39a116a482d586a1660d098e9960
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/config.py
+    retained_behavior:
+      - One reading point for the gateway variables, from a mapping of the process environment, with trailing-slash normalisation of the base URL and an optional model override.
+      - Fail closed when a variable is absent (the legacy returned None and let the transport fail later; the loader now raises ConfigError naming OWNER-02 and its resume predicate).
+    removed_behavior:
+      - The alias chains LLM_BASE_URL > GPT_OSS_ENDPOINT and LLM_API_KEY > PROFESSIONALIZE_API_KEY > GPT_OSS_API_KEY; only GPT_OSS_ENDPOINT and GPT_OSS_API_KEY are read (RESEARCH_AND_GUIDELINES.md section 18.4).
+      - The hardcoded default base URL, default model, and embedding model - no gateway or model is ever assumed.
+      - JOB_MODEL_ROUTING and llm_model_for_job (routes live in each prompt manifest, chosen from the discovered catalog) and the READMEAGENT_DEBUG_MODEL_OVERRIDE gate (GPT_OSS_MODEL is validated against the live catalog instead).
+      - GitHub token, App token, staging token, workflow trigger, clone timeout, Java home, and secret_values readers (git_safety and core/secrets own those; GitHub App configuration arrives at G4).
+    tests_ported:
+      - tests/unit/test_env.py -> tests/core/test_config.py (the precedence and secret-values cases are replaced by the single-name loader tests; the GitHub App authentication cases follow G4).
+    acceptance: Both variables present yield a config whose repr never shows the key; a missing one fails closed naming OWNER-02.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+
+  - source_path: src/readme_agent/preflight/llm_check.py
+    sha256: 21efa193e2278be55b36276aa460f79486403e2b25d6d30f18014a25f01047b8
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/preflight.py
+    retained_behavior:
+      - The live GET /models check, failing closed on a refusal, a network failure, or an empty catalog.
+      - An explicitly requested model absent from the live list is a hard failure, never a silent substitution.
+    removed_behavior:
+      - Default-model selection and the refusal to guess (there is no default model; prompt manifests choose routes from the recorded catalog, RESEARCH_AND_GUIDELINES.md section 18.4).
+      - The non-chat keyword filter (a route's fit is a reviewed manifest decision, not a name heuristic).
+      - The requests-based call (the transport is the openai SDK; see the call_transport.py note).
+    tests_ported:
+      - tests/unit/test_preflight.py -> tests/core/test_preflight.py and tests/core/llm/test_transport.py (the LLM cases; the GitHub cases follow G4).
+    acceptance: repository-presenter preflight lists the live catalog and records it under runs/preflight/catalog.json without printing the key.
+    import_closure:
+      - readme_agent.env -> src/repository_presenter/core/config.py (pulled in the same work item; DEFAULT_LLM_MODEL removed).
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

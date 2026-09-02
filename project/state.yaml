@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T16:57:22+05:00"
+updated_at: "2026-09-02T17:26:49+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W03
-  status: READY
+  status: IN_PROGRESS
   purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
   prerequisites:
     - G1-W02 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.

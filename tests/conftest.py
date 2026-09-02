@@ -9,13 +9,22 @@ import pytest
 
 from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.extractors.platforms import python_registry
+from repository_presenter.core.llm import transport
 from support import REPO_ROOT, write_cursor
 
 
 @pytest.fixture(autouse=True)
 def isolate_ambient_credentials_and_git_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tests never inherit a developer's or runner's credentials or git configuration."""
-    for name in ("GH_TOKEN", "GITHUB_TOKEN", "LLM_API_KEY"):
+    for name in (
+        "GH_TOKEN",
+        "GITHUB_TOKEN",
+        "GPT_OSS_ENDPOINT",
+        "GPT_OSS_API_KEY",
+        "GPT_OSS_MODEL",
+        "LLM_API_KEY",
+        "LLM_BASE_URL",
+    ):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("GIT_TERMINAL_PROMPT", "0")
     monkeypatch.setenv("GCM_INTERACTIVE", "never")
@@ -32,6 +41,11 @@ def no_package_registry_network(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(python_registry, "fetch_project_json", refuse)
     monkeypatch.setattr(links, "fetch_status", refuse)
+
+    def refuse_client(config: object) -> object:
+        raise RuntimeError("the LLM gateway is unreachable in tests; use support.mock_gateway")
+
+    monkeypatch.setattr(transport, "build_client", refuse_client)
 
 
 @pytest.fixture

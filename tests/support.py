@@ -3,11 +3,40 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 
+import httpx
+import pytest
+from openai import OpenAI
+
+from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.git_safety.git import run_git
+from repository_presenter.core.llm import transport
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def model_listing(*models: tuple[str, str]) -> httpx.Response:
+    """A ``GET /models`` body in the OpenAI list shape, one entry per (id, owned_by)."""
+    data = [{"id": model_id, "object": "model", "owned_by": owner} for model_id, owner in models]
+    return httpx.Response(200, json={"object": "list", "data": data})
+
+
+def mock_gateway(
+    monkeypatch: pytest.MonkeyPatch, handler: Callable[[httpx.Request], httpx.Response]
+) -> None:
+    """Serve the gateway from ``handler`` through the real SDK client, never the network."""
+
+    def build(config: GatewayConfig) -> OpenAI:
+        return OpenAI(
+            base_url=config.base_url,
+            api_key=config.api_key,
+            max_retries=0,
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+        )
+
+    monkeypatch.setattr(transport, "build_client", build)
 
 
 def write_cursor(

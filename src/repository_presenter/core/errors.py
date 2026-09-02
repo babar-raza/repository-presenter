@@ -20,6 +20,10 @@ class ConfigError(PresenterError):
     exit_code = 2
 
 
+class GatewayError(PresenterError):
+    """The LLM gateway refused, failed, or answered unusably; no job runs on a guess."""
+
+
 class NotAllowlistedError(PresenterError):
     """The repository is not in the registry allow-list, so nothing is touched."""
 

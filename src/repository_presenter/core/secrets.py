@@ -15,7 +15,7 @@ from pathlib import Path
 
 from repository_presenter.core.candidates import CANDIDATES_DIRNAME
 
-SECRET_VARIABLES = frozenset({"LLM_API_KEY", "GH_TOKEN"})
+SECRET_VARIABLES = frozenset({"GPT_OSS_API_KEY", "GH_TOKEN"})
 SECRET_SUFFIXES = ("_API_KEY", "_TOKEN", "_SECRET", "_PASSWORD")
 MIN_SECRET_LENGTH = 8
 

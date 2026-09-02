@@ -20,6 +20,7 @@ from repository_presenter.components.readme.evidence.processability import (
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.core.candidates import BundleError, count_current_candidates
+from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
@@ -32,12 +33,18 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
+from repository_presenter.core.preflight import (
+    CATALOG_FILENAME,
+    PREFLIGHT_DIRNAME,
+    run_gateway_preflight,
+    write_catalog,
+)
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
     load_registry,
     require_listed,
 )
-from repository_presenter.core.secrets import configured_secrets, find_secret_leaks
+from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
     list_tree_paths,
@@ -87,6 +94,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="repository coordinates exactly as listed in the registry",
     )
     present.add_argument("--root", type=Path, default=None, help=root_help)
+    preflight = subcommands.add_parser(
+        "preflight",
+        help="reach the LLM gateway from the process environment and record its model catalog",
+    )
+    preflight.add_argument("--root", type=Path, default=None, help=root_help)
     return parser
 
 
@@ -98,7 +110,32 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_status(args.root)
     if args.command == "present":
         return run_present(args.repo, args.root)
+    if args.command == "preflight":
+        return run_preflight(args.root)
     parser.error(f"unknown command {args.command!r}")
+
+
+def run_preflight(root_argument: Path | None) -> int:
+    """Read the gateway variables, list the live models, and record the catalog under runs/."""
+    root = _resolve_root(root_argument)
+    if root is None:
+        return EXIT_USAGE
+    live_values = [secret.value.decode("utf-8") for secret in configured_secrets(os.environ)]
+    catalog_path = root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME
+    try:
+        config = load_gateway_config(os.environ)
+        result = run_gateway_preflight(config)
+        digest = write_catalog(result, catalog_path)
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    ids = result.catalog.ids
+    print(f"gateway: {config.host} reachable ({API_KEY_VARIABLE} read, never printed)")
+    print(f"models: {', '.join(ids)} ({len(ids)})")
+    if result.model_override is not None:
+        print(f"override: {result.model_override} (present in the catalog)")
+    print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
+    return EXIT_OK
 
 
 def run_status(root_argument: Path | None) -> int:

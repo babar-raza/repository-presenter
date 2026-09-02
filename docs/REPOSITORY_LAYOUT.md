@@ -31,11 +31,11 @@ src/repository_presenter/
     facts.py                typed fact records and the facts.json writer (the extraction boundary)
     examples.py             shared example-verification types and the receipts writer
     execution.py            bounded secret-free execution of repository examples
-    config/                  configuration precedence, secrets, environment
+    config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture
     github/                  read and write GitHub API clients
-    preflight/               fail-closed startup checks (GitHub, LLM gateway)
+    preflight.py            fail-closed LLM gateway check recording the model catalog (the GitHub check joins it at G4)
     llm/                     transport, ledger, call schema, prompt registry, prompt hygiene
     state/                   repository/proposal records, backend, migrations
     evidence/                evidence writer and manifest schema
