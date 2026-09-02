@@ -37,12 +37,13 @@ files, never from memory of a previous iteration.
 2. Read `project/state.yaml`: `current_gate`, `active_work_item`, `next_ready_items`,
    `owner_items`, `progress`, `publication.control_repository`.
 3. Read the current gate's section and exit predicates in `docs/EXECUTION_STATE_MACHINE.md`.
-4. Re-check every `OPEN` owner item cheaply (`gh api` for branch protection; `.env` presence for
-   credentials) and update its `status` and `last_checked_at` if it changed.
+4. Re-check every `OPEN` owner item cheaply (`gh api` for branch protection, App installation) and
+   update its `status` and `last_checked_at` if it changed.
 5. Environment: repo-local `.venv` from `C:\Python313\python.exe` with `pip install -e .[dev]`;
    Python 3.11 and 3.12 interpreters were provisioned with `uv` under `runs/verify/` in a previous
-   iteration and may be reused or recreated. `GH_TOKEN` is present. `.env` is provided by the
-   owner (OWNER-02); read it only through the configured loader, never print it.
+   iteration and may be reused or recreated. `GH_TOKEN`, `GPT_OSS_ENDPOINT`, and `GPT_OSS_API_KEY`
+   are present in the process environment (OWNER-02 is `OVERRIDDEN`; no `.env` file is read or
+   required). Read all three only through the configured loader, never print them.
 
 ## 2. Select
 
