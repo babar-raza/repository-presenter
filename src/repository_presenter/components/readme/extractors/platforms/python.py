@@ -12,10 +12,14 @@ from __future__ import annotations
 
 import ast
 import tomllib
+from collections.abc import Sequence
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.extractors.platforms.python_examples import (
+    verify_python_examples,
+)
 from repository_presenter.components.readme.extractors.platforms.python_setup_py import (
     parse_setup_py,
 )
@@ -23,6 +27,7 @@ from repository_presenter.components.readme.extractors.platforms.python_surface 
     inspect_public_surface,
     public_symbol_facts,
 )
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
@@ -183,6 +188,15 @@ class PythonPlugin:
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         package_dirs = [dotted.replace(".", "/") for dotted in package_directories(tree_paths)]
         return public_symbol_facts(inspect_public_surface(root, package_dirs))
+
+    def verify_examples(
+        self,
+        root: Path,
+        tree_paths: list[str],
+        candidates: Sequence[ExampleCandidate],
+        workspace: Path,
+    ) -> list[ExampleReceipt]:
+        return verify_python_examples(root, tree_paths, candidates, workspace)
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         facts: list[Fact] = []

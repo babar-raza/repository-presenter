@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import sys
+from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -15,9 +17,16 @@ from repository_presenter.components.readme.evidence.processability import (
     assess_processability,
     write_disposition,
 )
+from repository_presenter.components.readme.extractors.examples.selection import select_examples
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.examples import (
+    RECEIPTS_FILENAME,
+    ExampleCandidate,
+    ExampleReceipt,
+    write_receipts,
+)
 from repository_presenter.core.facts import (
     FACTS_FILENAME,
     write_facts,
@@ -167,7 +176,28 @@ def run_present(repository: str, root_argument: Path | None) -> int:
                 f"at {clone.revision}; resume when {disposition.resume_predicate}"
             )
             return EXIT_INCONSISTENT
-        document = extract_facts(entry, snapshot, clone.path, tree_paths, plugin, manifest)
+        candidates: list[ExampleCandidate] = []
+        receipts: list[ExampleReceipt] = []
+        if snapshot.readme_path is not None:
+            readme_bytes = (clone.path / snapshot.readme_path).read_bytes()
+            candidates = select_examples(snapshot.readme_path, readme_bytes, entry.ecosystem)
+            # A short workspace: a virtual environment nested under the transaction
+            # directory overruns the Windows path limit before pip finishes.
+            workspace_key = hashlib.sha256(
+                f"{entry.repository}@{clone.revision}".encode()
+            ).hexdigest()[:12]
+            receipts = plugin.verify_examples(
+                clone.path, tree_paths, candidates, root / RUNS_DIRNAME / "verify" / workspace_key
+            )
+            write_receipts(receipts, transaction / RECEIPTS_FILENAME)
+        outcomes = ", ".join(
+            f"{outcome.lower()} {count}"
+            for outcome, count in sorted(Counter(r.outcome for r in receipts).items())
+        )
+        print(f"examples: {len(candidates)} candidates; {outcomes or 'none'}")
+        document = extract_facts(
+            entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
+        )
         facts_digest = write_facts(document, transaction / FACTS_FILENAME)
     except PresenterError as exc:
         _fail(str(exc))

@@ -148,15 +148,22 @@ def fake_clone(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
 def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     """Serve the canary's clone URL from a local repository through the real clone contract."""
     source = init_git_repository(tmp_path / "upstream", with_commit=False)
-    (source / "README.md").write_bytes(b"# Aspose.3D for Python\n\nOriginal bytes.\n")
+    (source / "README.md").write_bytes(
+        b"# Aspose.3D for Python\n\nOriginal bytes.\n\n```python\n"
+        b"from aspose.threed import Scene\nprint(Scene().name)\n```\n\n```python\n"
+        b"from aspose.threed import Missing\n```\n"
+    )
     (source / "LICENSE").write_text("MIT License\n\nPermission is hereby granted", "utf-8")
     (source / "setup.py").write_text(
-        'from setuptools import setup\nsetup(name="aspose-3d-foss", version="26.1.0")\n',
+        "from setuptools import setup\n"
+        'setup(name="aspose-3d-foss", version="26.1.0", packages=["aspose", "aspose.threed"])\n',
         encoding="utf-8",
     )
     (source / "aspose" / "threed").mkdir(parents=True)
     (source / "aspose" / "__init__.py").write_text("", encoding="utf-8")
-    (source / "aspose" / "threed" / "__init__.py").write_text("", encoding="utf-8")
+    (source / "aspose" / "threed" / "__init__.py").write_text(
+        "class Scene:\n    name = 'scene'\n", encoding="utf-8"
+    )
     revision = commit_all(source, "seed")
     calls: list[dict[str, Any]] = []
 
@@ -209,14 +216,23 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     facts_dir = source_dir.removesuffix("/source")
     assert facts_line.startswith(f"facts: {facts_dir}/facts.json (")
     assert "identity 5" in facts_line and "license 2" in facts_line and "package 2" in facts_line
+    assert "example 2" in facts_line
+    assert "examples: 2 candidates; executed 1, failed 1" in captured.out
     facts = json.loads((project_with_registry / facts_dir / "facts.json").read_text("utf-8"))
     assert facts["source_revision"] == revision
-    assert {fact["id"] for fact in facts["facts"]} >= {
+    by_id = {fact["id"]: fact for fact in facts["facts"]}
+    assert set(by_id) >= {
         "package:name",
         "import_path:aspose.threed",
         "license:spdx",
         "install_command:pip",
+        "public_symbol:aspose.threed.scene",
     }
+    assert by_id["example:001"]["polarity"] == "SUPPORTED"
+    assert by_id["example:002"]["polarity"] == "CONTRADICTED"
+    receipts = json.loads((project_with_registry / facts_dir / "examples.json").read_text("utf-8"))
+    assert [r["outcome"] for r in receipts] == ["EXECUTED", "FAILED"]
+    assert receipts[0]["stdout"].strip() == "scene"
     assert code == EXIT_INCONSISTENT
     assert "investigation stage is not implemented" in captured.err
     assert local_canary["calls"] == [
@@ -228,7 +244,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     ]
     assert "ghp_read_only_token_value" not in captured.out + captured.err
     written = project_with_registry / source_dir
-    assert (written / "README.md").read_bytes() == b"# Aspose.3D for Python\n\nOriginal bytes.\n"
+    readme_bytes = (written / "README.md").read_bytes()
+    assert readme_bytes.startswith(b"# Aspose.3D for Python\n\nOriginal bytes.\n\n```python\n")
+    assert readme_bytes == (local_canary["source"] / "README.md").read_bytes()
     assert (written / "tree.txt").read_text(encoding="utf-8").count("\n") == 5
     assert json.loads((written / "snapshot.json").read_text("utf-8"))["source_revision"] == revision
 

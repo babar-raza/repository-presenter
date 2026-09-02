@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
 
 from repository_presenter.components.readme.extractors.platforms.python import PythonPlugin
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.facts import Fact
 
 
@@ -25,6 +27,15 @@ class PlatformPlugin(Protocol):
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """Public symbols of the product packages, read statically from the tree."""
+
+    def verify_examples(
+        self,
+        root: Path,
+        tree_paths: list[str],
+        candidates: Sequence[ExampleCandidate],
+        workspace: Path,
+    ) -> list[ExampleReceipt]:
+        """Run every candidate against the repository's own package in isolation."""
 
 
 _PLUGINS: dict[str, PlatformPlugin] = {plugin.ecosystem: plugin for plugin in (PythonPlugin(),)}

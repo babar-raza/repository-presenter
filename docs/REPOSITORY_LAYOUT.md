@@ -29,6 +29,8 @@ src/repository_presenter/
     errors.py               typed failure hierarchy mapped to CLI exit codes
     retry.py                bounded retry policies on tenacity
     facts.py                typed fact records and the facts.json writer (the extraction boundary)
+    examples.py             shared example-verification types and the receipts writer
+    execution.py            bounded secret-free execution of repository examples
     config/                  configuration precedence, secrets, environment
     git_safety/              push-neutered clone, safety checks
     snapshot/                immutable repository snapshot capture

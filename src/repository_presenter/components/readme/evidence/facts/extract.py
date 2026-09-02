@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter.components.readme.evidence.facts.assets import asset_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
+from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
+from repository_presenter.core.examples import (
+    RECEIPTS_FILENAME,
+    ExampleCandidate,
+    ExampleReceipt,
+)
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
@@ -41,9 +48,13 @@ def extract_facts(
     tree_paths: list[str],
     plugin: PlatformPlugin,
     manifest: Path | None,
+    examples: Sequence[ExampleCandidate] = (),
+    receipts: Sequence[ExampleReceipt] = (),
+    receipts_path: str = RECEIPTS_FILENAME,
 ) -> FactsDocument:
     """Every deterministic fact the snapshot supports, in one document."""
     facts = identity_facts(entry, snapshot)
+    facts.extend(example_facts(examples, receipts, receipts_path))
     if manifest is not None:
         facts.extend(plugin.manifest_facts(clone_path, manifest, tree_paths))
     facts.extend(plugin.surface_facts(clone_path, tree_paths))

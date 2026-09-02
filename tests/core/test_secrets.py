@@ -99,3 +99,22 @@ def test_status_accepts_bundles_without_configured_secrets(
 
     assert main(["status", "--root", str(project)]) == EXIT_OK
     assert "candidates: 1/34" in capsys.readouterr().out
+
+
+def test_redaction_masks_secret_shaped_and_live_values() -> None:
+    from repository_presenter.core.secrets import redact
+
+    text = (
+        "key sk-abcdefghijklmnop token ghp_abcdefghijklmnop "
+        "bearer Bearer abcdefghijklmnopqrstuvwxyz "
+        "url https://x/?api_key=abcdefghij literal MY-LIVE-SECRET-VALUE plain text"
+    )
+    result = redact(text, ["MY-LIVE-SECRET-VALUE", ""])
+    assert "sk-abcdefghijklmnop" not in result
+    assert "ghp_abcdefghijklmnop" not in result
+    assert "Bearer abcdefghijklmnopqrstuvwxyz" not in result
+    assert "api_key=abcdefghij" not in result
+    assert "MY-LIVE-SECRET-VALUE" not in result
+    assert result.count("[REDACTED]") == 5
+    assert result.endswith("plain text")
+    assert redact("nothing secret here") == "nothing secret here"

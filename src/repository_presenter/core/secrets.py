@@ -8,6 +8,7 @@ The leak is reported by variable name and file path only; the value itself is ne
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,6 +46,27 @@ def configured_secrets(environment: Mapping[str, str]) -> tuple[ConfiguredSecret
         if len(value) >= MIN_SECRET_LENGTH:
             found.append(ConfiguredSecret(name, value.encode("utf-8")))
     return tuple(found)
+
+
+_SECRET_LIKE_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_])(sk-[A-Za-z0-9]{10,})"
+    r"|(?<![A-Za-z0-9_])(ghp_[A-Za-z0-9]{10,})"
+    r"|(?<![A-Za-z0-9_])(ghu_[A-Za-z0-9]{10,})"
+    r"|(?<![A-Za-z0-9_])(AIzaSy[A-Za-z0-9_-]{10,})"
+    r"|(Bearer\s+[A-Za-z0-9._-]{20,})"
+    r"|([?&](api_key|token|key|access_token)=[^\s&]{8,})",
+    re.IGNORECASE,
+)
+REDACTED = "[REDACTED]"
+
+
+def redact(text: str, live_secret_values: Sequence[str] = ()) -> str:
+    """Mask secret-shaped values and every live secret value before text is persisted."""
+    result = _SECRET_LIKE_PATTERN.sub(REDACTED, text)
+    for secret in live_secret_values:
+        if secret:
+            result = result.replace(secret, REDACTED)
+    return result
 
 
 def find_secret_leaks(root: Path, secrets: Sequence[ConfiguredSecret]) -> list[SecretLeak]:

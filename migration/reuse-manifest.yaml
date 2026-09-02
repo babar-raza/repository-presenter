@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T15:10:56+05:00"
+updated_at: "2026-09-02T15:32:52+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1117,6 +1117,40 @@ file_records:
       - src/readme_agent/ecosystems/python_api_schema.py (cut, not pulled)
       - src/readme_agent/ecosystems/python_package_layout.py (cut, not pulled)
       - src/readme_agent/ecosystems/python_symbol_members.py (cut, deferred)
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+
+  - source_path: src/readme_agent/facts/example_execution.py
+    sha256: 85638692d836515a017f2da121aa57582286a726f74c2285edaa5b0000fcf268
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/execution.py
+    retained_behavior:
+      - The bounded secret-free execution boundary - an allow-list of process essentials, every credential-like name removed, no shell, no stdin, a hard timeout within 300 s, and output redacted of every live secret value.
+    removed_behavior:
+      - The pydantic result model and its permanent truth-ineligibility flag (a frozen dataclass; eligibility is a receipt polarity decided by the verifier).
+      - The dotnet, go, java, rust, and cargo environment names (each ecosystem's plugin adds what its toolchain needs, per RESEARCH_AND_GUIDELINES.md section 7.4).
+    tests_ported:
+      - tests/core/test_execution.py (new; the legacy boundary was covered through local_verification.py).
+    acceptance: A README example runs with no inherited credential and a token in the parent environment never appears in its recorded output.
+    import_closure:
+      - src/readme_agent/evidence/redaction.py
+      - src/readme_agent/gitsafety/process.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+    note: Container isolation (isolated_execution.py and its Docker control, inputs, and cleanup modules) is not pulled at G1; the hosted runner decides isolation at G4. A disposable virtual environment under the transaction workspace is the G1 isolation for the canary.
+
+  - source_path: src/readme_agent/evidence/redaction.py
+    sha256: 1163f3cd5d433a222d51559db70e127010da6c4e8f24de9de61877326939e1e2
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/secrets.py
+    retained_behavior:
+      - Pattern-based masking of secret-shaped values (sk-, ghp_, ghu_, Google API keys, bearer tokens, key-bearing query strings) plus exact masking of every live secret value before text is persisted.
+    removed_behavior:
+      - The non-string pass-through of redact_secret_like_values (callers pass text).
+    tests_ported:
+      - tests/core/test_secrets.py redaction cases (new; the legacy tests/unit/test_evidence_redaction.py cases are folded in).
+    acceptance: Example receipts and stage output never carry a configured secret value or a secret-shaped token.
+    import_closure: []
     pulled_at: "2026-09-02"
     work_item: G1-W02
 
