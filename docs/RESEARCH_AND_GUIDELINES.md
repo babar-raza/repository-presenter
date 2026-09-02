@@ -372,6 +372,26 @@ required facts fail compilation.
 - Repository profiles are reviewed declarative overlays used only for true residual exceptions.
 - No profile may bypass evidence, force a fact, or predetermine the entire document.
 
+### 7.2.1 Importing legacy profiles and catalogs (2026-09-02)
+
+**Observed in the legacy source:** `config/policies/*.yml` (34 files) hardcode a per-product
+`products_org_link`, `products_com_link`, label, and prohibited-term list each. `data/
+aspose_org_links.json` is a generated catalog of 7,755 link records whose own provenance block
+records only 44 as live-verified, at a probe dated a month before freeze; `data/aspose_com_links.json`
+is the same shape. `data/families.json` (17 records) and `data/platform_priorities.json` (a seven-item
+execution order) are different in kind: small, global, structural, and low-risk to pull in full.
+
+Rule: a policy file or a catalog record is pulled only when the repository or family currently being
+composed needs it, never as the full 34-file or 7,755-record set ahead of G4 — the same pull-based
+discipline `EXECUTION_STATE_MACHINE.md` §7 requires of code, applied to data. The pulling work item
+re-verifies what it pulls before writing the file record: the link target resolves now (the check
+`README_CONTRACT.md` §5 already requires of every rendered link), and the label and terminology still
+match current product reality. A stale or unverifiable entry is corrected or dropped, never carried
+forward on the legacy catalog's word. Record what was checked, changed, and dropped in the file
+record's `note`. A pulled profile or catalog value is a lead, in the same evidentiary tier as an
+Aspose.org page (§5.1): it can corroborate `presentation_planning`'s link and ceiling choices, never
+override contradictory repository evidence or stand alone as a public factual claim.
+
 ### 7.3 Component boundary
 
 README is one component of Repository Presenter. Shared `core` services own snapshot, evidence,
@@ -387,6 +407,22 @@ Future components may manage:
 - drift protection across those surfaces.
 
 They consume public core contracts and must not depend on README-private implementation.
+
+### 7.4 Extraction and platform independence (2026-09-02)
+
+Knowledge extraction (`extractors/`, facts stage S2) and knowledge processing (`investigation/`,
+`reconciliation/`, `composition/`, S3 onward) are independent: `facts.json` is the only artifact that
+crosses the boundary; no processing module imports an extractor module directly. Within extraction,
+each platform's module (`extractors/platforms/<ecosystem>.py`) depends only on `core/` and its own
+file, sharing no import with any other ecosystem's module; only the registry
+(`extractors/platforms/registry.py`) references more than one ecosystem, and only to register them.
+
+**Verified in the legacy source:** `ecosystems/registry.py` is already the sole file importing more
+than one ecosystem module; `ecosystems/python.py` and `ecosystems/rust.py` import no sibling ecosystem
+module. This one boundary was sound and this repository keeps it. Adding, fixing, or extending one
+ecosystem's extractor must change only that file, its test, and its registration line — never another
+ecosystem's file, the registry's dispatch logic, or any downstream stage. `REPOSITORY_LAYOUT.md` §2.1
+states this as a placement and test requirement.
 
 ## 8. Autonomous GitHub operation
 

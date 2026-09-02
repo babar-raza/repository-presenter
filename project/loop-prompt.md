@@ -8,8 +8,9 @@ files, never from memory of a previous iteration.
   `docs/EXECUTION_STATE_MACHINE.md`, then `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (for
   any work on facts, composition, validation, or review), `docs/REPOSITORY_LAYOUT.md` (before
   creating any file or directory), `docs/RESEARCH_AND_GUIDELINES.md` §18 (before writing any new
-  mechanism — check its library registry first), `plans/idea.md`, `migration/reuse-manifest.yaml`.
-  Read only what the current work item needs.
+  mechanism — check its library registry first), §7.4 (before touching any platform extractor
+  module), and §7.2.1 (before pulling any profile, policy, or link-catalog asset), `plans/idea.md`,
+  `migration/reuse-manifest.yaml`. Read only what the current work item needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite.
@@ -67,6 +68,12 @@ files, never from memory of a previous iteration.
 - Before creating a file or directory, check `docs/REPOSITORY_LAYOUT.md`; if the work genuinely
   needs a path it does not name, add that path to it in the same commit. No stray, temporary, or
   duplicate-purpose files anywhere in `src/`, `tests/`, `docs/`, or `schemas/`.
+- A platform extractor module imports only `core/` and its own file — never a sibling ecosystem's
+  module or anything in `investigation/`, `reconciliation/`, or `composition/`.
+- A pulled legacy profile, policy file, or catalog record is reviewed before its file record is
+  written: confirm its link target still resolves and its label or terminology still matches current
+  product reality; pull only what the repository or family in progress needs, never the full
+  policy or catalog set ahead of G4.
 - Pull legacy code only through a manifest file record: source path, SHA-256 at the frozen
   revision, disposition, destination, retained and removed behavior, tests ported, import closure,
   work item. Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`,

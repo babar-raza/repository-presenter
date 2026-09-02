@@ -80,6 +80,17 @@ A concern gets a flat module (`core/identity.py`) when it is one cohesive file, 
 for a single file, and do not let a flat module grow past what one work item's scope justifies —
 split it into a subpackage instead of letting it become a god-module.
 
+### 2.1 Extraction and platform independence
+
+`extractors/platforms/<ecosystem>.py` depends only on `core/` and its own module; it never imports
+another ecosystem's module or anything under `investigation/`, `reconciliation/`, `composition/`, or
+`review/`. `extractors/platforms/registry.py` is the only file allowed to import more than one
+ecosystem module, and only to register them; an unregistered ecosystem fails closed. Every stage
+after facts consumes `facts.json` only — no later stage imports an extractor module directly. Each
+platform module's tests live and pass in isolation from every other platform's; adding a new
+ecosystem changes only its own file, its own test, and one registration line. `RESEARCH_AND_GUIDELINES.md`
+§7.4 records why, including what the legacy `ecosystems/registry.py` already got right.
+
 ## 3. Tests mirror source
 
 `tests/<path>/test_<module>.py` mirrors `src/repository_presenter/<path>/<module>.py` exactly, so

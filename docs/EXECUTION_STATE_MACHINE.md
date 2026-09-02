@@ -40,20 +40,20 @@ are not progress. The observable repository transaction is:
    independent review, and targeted repair.
 4. Deterministic code owns evidence, validation, state, transitions, safety, authorization,
    idempotency, recovery, and GitHub effects.
-5. The portfolio presentation contract is a brand and assurance shell, not a universal prose
-   template.
+5. The portfolio presentation contract is a brand/assurance shell, not a universal prose template.
 6. Normal execution detects product, ecosystem, shape, sections, evidence, examples, and validation
-   paths without human template selection.
+   paths without human template selection. Each platform extractor is independent of every other
+   and of every downstream stage, sharing only `facts.json` (`REPOSITORY_LAYOUT.md` §2.1).
 7. The exact immutable repository snapshot is factual authority.
 8. Existing README content is high-value evidence: validate, preserve, improve, correct, or
    explicitly omit every material unit.
 9. Aspose.org and previously published candidates are development oracles, never runtime
-   dependencies.
+   dependencies. Legacy per-product profiles and catalogs hold the same status: pulled and
+   reviewed per repository or family as needed, never in bulk (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
 10. A README-only placeholder receives a typed non-processable disposition, never invented content.
 11. An accepted unchanged transaction makes zero new provider calls.
 12. Analysis and write credentials are separately minted, repository-scoped, and short-lived.
-13. Initial automatic publication means opening or updating a PR, never a direct default-branch
-    commit.
+13. Initial publication is PR-only: opening or updating one, never a direct default-branch commit.
 14. A content candidate and permission to publish it are separate decisions.
 15. One repository failure never stops safe work on unrelated repositories.
 16. Research a battle-tested library or standard facility before writing a custom mechanism;

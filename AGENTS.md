@@ -62,7 +62,6 @@ execution plan permits it. No two agents edit the same file or durable state con
 
 ## Implementation Discipline
 
-- Inspect before editing, replacing, or deleting.
 - Preserve unrelated user work; never use destructive reset/clean commands for convenience.
 - Research a battle-tested library or standard facility before writing a custom mechanism, per
   `plans/idea.md`'s Prefer Battle-Tested Solutions and `RESEARCH_AND_GUIDELINES.md` §18's registry
@@ -71,7 +70,11 @@ execution plan permits it. No two agents edit the same file or durable state con
 - Port legacy behavior only through a reuse-manifest entry with source revision, destination,
   retained behavior, removed coupling, provenance, tests, and acceptance.
 - Keep orchestration small; domain behavior belongs behind public component/plugin interfaces.
-- Add ecosystems and families through registries, not a central `if/elif` chain.
+- Add ecosystems and families through registries, not a central `if/elif` chain; one ecosystem's
+  extractor never imports another's or a downstream stage's module (`RESEARCH_AND_GUIDELINES.md` §7.4).
+- Pull a legacy profile, policy file, or catalog record only for the repository or family in
+  progress, never in bulk; verify what it claims still holds before writing its file record
+  (`RESEARCH_AND_GUIDELINES.md` §7.2.1).
 - Place every file where `docs/REPOSITORY_LAYOUT.md` puts it: README-specific work under
   `components/readme`, reusable capabilities under `core`, tests mirroring `src/` path for path.
   Record a genuinely new location there in the same commit; never leave a file "to organize later".
@@ -137,8 +140,8 @@ deterministic gate result, or directly mutates a repository.
 
 ## Security and Effects
 
-- Check the hard allow-list before repository-specific network work.
-- Analysis uses repository-scoped read-only credentials.
+- Check the hard allow-list before repository-specific network work; analysis uses repository-scoped
+  read-only credentials.
 - Write credentials exist only in a separate effect job and are short-lived and target-scoped.
 - Never log, commit, cache, or persist credentials or unredacted secret-bearing values.
 - Work clones are push-disabled and verified before analysis.
@@ -147,8 +150,8 @@ deterministic gate result, or directly mutates a repository.
   passes, under `publication.control_repository` in `project/state.yaml`: directly to `main` while
   unprotected, by branch and PR with auto-merge once protected. Never force, never a product repo.
 - Candidate acceptance never implies publication authorization.
-- Recheck upstream revision immediately before an effect.
-- Reconcile uncertain remote effects before retrying.
+- Recheck upstream revision immediately before an effect; reconcile uncertain remote effects before
+  retrying.
 - Do not perform a target write unless the current execution gate and exact authorization permit it.
 
 ## Testing and Evidence
@@ -156,11 +159,8 @@ deterministic gate result, or directly mutates a repository.
 Every behavior change includes focused tests. Include negative controls where applicable:
 
 - hallucinated, unsupported, malformed, or contradictory model output;
-- illegal state transitions;
-- stale or corrupt evidence;
-- secret leakage;
-- duplicate triggers or effects;
-- stale leases and fencing tokens;
+- illegal state transitions; stale or corrupt evidence; secret leakage;
+- duplicate triggers or effects; stale leases and fencing tokens;
 - source drift before publication;
 - invalid examples, public APIs, packages, links, or template facts; and
 - non-processable placeholder repositories.
