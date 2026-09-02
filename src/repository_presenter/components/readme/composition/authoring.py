@@ -247,30 +247,56 @@ def verified_members(facts: FactsDocument) -> frozenset[str]:
     return frozenset(members)
 
 
+def surface_members(facts: FactsDocument) -> dict[str, frozenset[str]]:
+    """Public methods per class, from the surface facts recorded as ``module.Class.method``."""
+    members: dict[str, set[str]] = {}
+    for fact in facts.by_kind("public_symbol"):
+        detail = fact.evidence[0].detail or "" if fact.evidence else ""
+        if fact.polarity != "SUPPORTED" or "; method;" not in detail:
+            continue
+        parts = fact.value.split(".")
+        if len(parts) >= 3:
+            members.setdefault(parts[-2], set()).add(parts[-1])
+    return {name: frozenset(found) for name, found in members.items()}
+
+
 def section_spellings(accepted_ids: list[str], facts: FactsDocument) -> list[str]:
-    """The identifiers a section may spell, told to the job: its facts' symbols, then the
-    member names verified examples use (spelled as Class.member or member)."""
+    """The identifiers a section may spell, told to the job: its facts' symbols, the public
+    methods of its classes as Class.method, then the member names verified examples use."""
     by_id = {fact.id: fact for fact in facts.facts}
+    methods = surface_members(facts)
     spellings: list[str] = []
+    class_methods: list[str] = []
     for fact_id in accepted_ids:
         fact = by_id.get(fact_id)
         if fact is None or fact.kind not in {"public_symbol", "import_path", "package", "format"}:
             continue
         spellings.append(fact.value)
         if fact.kind in {"public_symbol", "import_path"} and "." in fact.value:
-            spellings.append(fact.value.rsplit(".", 1)[-1])
-    members = sorted(verified_members(facts))[:_MEMBER_CAP]
-    return list(dict.fromkeys(spellings)) + [f"member {name}" for name in members]
+            last = fact.value.rsplit(".", 1)[-1]
+            spellings.append(last)
+            class_methods.extend(f"{last}.{method}" for method in sorted(methods.get(last, ())))
+    verified = sorted(verified_members(facts))
+    listed = list(dict.fromkeys(spellings)) + list(dict.fromkeys(class_methods))[:_MEMBER_CAP]
+    return listed + [f"member {name}" for name in verified[:_MEMBER_CAP]]
 
 
-def identifier_allowed(token: str, allowed: frozenset[str], members: frozenset[str]) -> bool:
-    """A token is allowed as a fact value, a call of one, a verified member, or Class.member."""
+def identifier_allowed(
+    token: str,
+    allowed: frozenset[str],
+    members: frozenset[str],
+    methods: dict[str, frozenset[str]] | None = None,
+) -> bool:
+    """A token is allowed as a fact value, a call of one, a verified member, a public method
+    (bare, or as Class.method), or Class.member for a member a verified example uses."""
+    methods = methods or {}
+    every_method = frozenset(name for found in methods.values() for name in found)
     bare = token[:-2] if token.endswith("()") else token
-    if token in allowed or bare in allowed or bare in members:
+    if token in allowed or bare in allowed or bare in members or bare in every_method:
         return True
     if "." in bare:
         head, tail = bare.rsplit(".", 1)
-        return head in allowed and tail in members
+        return head in allowed and (tail in members or tail in methods.get(head, frozenset()))
     return False
 
 
@@ -309,6 +335,7 @@ def unit_checks(
     errors: list[str] = []
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
+    methods = surface_members(facts)
     slots_seen = [unit.get("slot") for unit in output.get("units", [])]
     expected = list(task.slots)
     if sorted(slots_seen) != sorted(expected):
@@ -328,7 +355,7 @@ def unit_checks(
         strays = sorted(
             token
             for token in identifier_tokens(text)
-            if not identifier_allowed(token, allowed, members)
+            if not identifier_allowed(token, allowed, members, methods)
         )
         if strays:
             errors.append(

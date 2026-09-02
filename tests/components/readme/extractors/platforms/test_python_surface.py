@@ -24,7 +24,14 @@ def _package(tmp_path: Path) -> Path:
         "from .widget import Widget, _Hidden\nfrom .factory import make, other\n"
         "from .sub import *\nfrom . import sub\n__all__ = ['Widget', 'make', 'sub']\n",
     )
-    _write(tmp_path, "pkg/widget.py", "class Widget:\n    pass\n\nclass _Hidden:\n    pass\n")
+    _write(
+        tmp_path,
+        "pkg/widget.py",
+        "class Widget:\n    def render(self):\n        pass\n\n    def _hide(self):\n"
+        "        pass\n\n    @property\n    def size(self):\n        return 1\n\n"
+        "    def render(self):\n        pass\n\nclass _Hidden:\n    def visible(self):\n"
+        "        pass\n",
+    )
     _write(
         tmp_path, "pkg/factory.py", "def make():\n    return Widget()\n\ndef other():\n    pass\n"
     )
@@ -52,7 +59,15 @@ def test_definitions_all_and_reexports_are_inventoried_without_importing(tmp_pat
         "pkg.sub.leaf.Leaf",
         "pkg.widget",
         "pkg.widget.Widget",
+        "pkg.widget.Widget.render",
+        "pkg.widget.Widget.size",
     ]
+    assert by_name["pkg.widget.Widget.render"] == PublicSymbol(
+        "pkg.widget.Widget.render", "pkg.widget", "render", "method", "pkg/widget.py", 2, "name"
+    )
+    assert by_name["pkg.widget.Widget.size"].kind == "method"
+    assert "pkg.widget.Widget._hide" not in by_name
+    assert "pkg.widget._Hidden.visible" not in by_name
     assert by_name["pkg.Widget"] == PublicSymbol(
         "pkg.Widget",
         "pkg",

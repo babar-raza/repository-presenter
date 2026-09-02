@@ -15,6 +15,7 @@ from repository_presenter.components.readme.composition.authoring import (
     identifier_tokens,
     merge_units,
     section_spellings,
+    surface_members,
     unit_checks,
     verified_members,
     write_content_units,
@@ -283,3 +284,43 @@ def test_units_merge_in_shell_order_and_write_deterministically(tmp_path: Path) 
     raw = path.read_bytes()
     assert raw.endswith(b"}\n") and b"\r\n" not in raw and json.loads(raw) == document
     assert write_content_units(document, path) == digest
+
+
+def test_public_methods_recorded_on_the_surface_may_be_spelled() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            Fact(
+                "public_symbol:aspose.threed.scene",
+                "public_symbol",
+                "aspose.threed.Scene",
+                (Evidence("aspose/threed/__init__.py", "line 12; class; public by reexport"),),
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.scene.open",
+                "public_symbol",
+                "aspose.threed.Scene.Scene.open",
+                (Evidence("aspose/threed/Scene.py", "line 40; method; public by name"),),
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.scene.hidden",
+                "public_symbol",
+                "aspose.threed.Scene.Scene.hidden",
+                (Evidence("aspose/threed/Scene.py", "line 50; method; public by name"),),
+                polarity="UNRESOLVED",
+            ),
+        ),
+    )
+    methods = surface_members(facts)
+    assert methods == {"Scene": frozenset({"open"})}
+    allowed = allowed_identifiers(facts, NAME)
+    assert identifier_allowed("Scene.open", allowed, frozenset(), methods)
+    assert identifier_allowed("open()", allowed, frozenset(), methods)
+    assert not identifier_allowed("Scene.hidden", allowed, frozenset(), methods)
+    assert not identifier_allowed("Mesh.open", allowed, frozenset(), methods)
+    assert section_spellings(["public_symbol:aspose.threed.scene"], facts) == [
+        "aspose.threed.Scene",
+        "Scene",
+        "Scene.open",
+    ]

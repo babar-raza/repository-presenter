@@ -2,10 +2,11 @@
 
 Nothing is imported or executed. Every module under the product packages is parsed with ``ast``.
 A top-level class or function is public when its name has no leading underscore and, when the
-module declares a literal ``__all__``, is listed there. A package ``__init__`` re-export is
-public by the same rule and keeps the origin it came from. Star imports, unresolvable relative
-imports, and syntax errors are recorded as unresolved, never guessed. Class members are not
-inventoried here; they arrive with the example verifier, bounded to the classes the README uses.
+module declares a literal ``__all__``, is listed there. A public class's methods without a
+leading underscore are public with it, recorded as ``module.Class.method`` so prose may name a
+method the code defines. A package ``__init__`` re-export is public by the same rule and keeps
+the origin it came from. Star imports, unresolvable relative imports, and syntax errors are
+recorded as unresolved, never guessed.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from typing import Literal
 
 from repository_presenter.core.facts import Evidence, Fact, fact_id
 
-SymbolKind = Literal["module", "class", "function", "unknown"]
+SymbolKind = Literal["module", "class", "function", "method", "unknown"]
 PublicBy = Literal["name", "__all__", "reexport"]
 
 _EXCLUDED_PARTS = frozenset({"__pycache__", "build", "dist", "tests", "test", "docs", "examples"})
@@ -133,6 +134,8 @@ def _module_symbols(
                         public_by,
                     )
                 )
+                if isinstance(node, ast.ClassDef):
+                    symbols.extend(_methods(node, module, relative, public_by))
         elif isinstance(node, ast.ImportFrom) and (is_package or explicit is not None):
             origin = _resolved_relative(module, is_package, node)
             if origin is None or any(alias.name == "*" for alias in node.names):
@@ -154,6 +157,32 @@ def _module_symbols(
                         )
                     )
     return symbols, unresolved
+
+
+def _methods(
+    node: ast.ClassDef, module: str, relative: str, public_by: PublicBy
+) -> list[PublicSymbol]:
+    """The public methods a class body defines, each once, in source order."""
+    found: list[PublicSymbol] = []
+    seen: set[str] = set()
+    for item in node.body:
+        if not isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
+            continue
+        if item.name.startswith("_") or item.name in seen:
+            continue
+        seen.add(item.name)
+        found.append(
+            PublicSymbol(
+                f"{module}.{node.name}.{item.name}",
+                module,
+                item.name,
+                "method",
+                relative,
+                item.lineno,
+                public_by,
+            )
+        )
+    return found
 
 
 def _origin_kind(origin: str, source_root: Path) -> SymbolKind | None:
