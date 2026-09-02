@@ -28,6 +28,14 @@ from repository_presenter.components.readme.composition.planning import (
     summarize_plan,
     write_plan,
 )
+from repository_presenter.components.readme.composition.renderer import (
+    PATCH_FILENAME,
+    README_FILENAME,
+    line_counts,
+    render_patch,
+    render_readme,
+    write_text,
+)
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
 from repository_presenter.components.readme.evidence.processability import (
     DISPOSITION_FILENAME,
@@ -373,15 +381,30 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             authored[task.section_id] = section_result.output
         units_document = merge_units(authored)
         units_digest = write_content_units(units_document, transaction / CONTENT_UNITS_FILENAME)
+        print(
+            f"units: {(transaction / CONTENT_UNITS_FILENAME).relative_to(root).as_posix()} "
+            f"({len(units_document['units'])} units across {len(authored)} sections: "
+            f"{', '.join(authored)}; provider calls {authoring_calls}; digest {units_digest})"
+        )
+        readme = render_readme(entry, document, planned.output, units_document, reconciled.output)
+        original = ""
+        if snapshot.readme_path is not None:
+            original = (
+                (clone.path / snapshot.readme_path).read_bytes().decode("utf-8", errors="replace")
+            )
+        readme_digest = write_text(readme, transaction / README_FILENAME)
+        patch_digest = write_text(render_patch(original, readme), transaction / PATCH_FILENAME)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
+    visible, total = line_counts(readme)
     print(
-        f"units: {(transaction / CONTENT_UNITS_FILENAME).relative_to(root).as_posix()} "
-        f"({len(units_document['units'])} units across {len(authored)} sections: "
-        f"{', '.join(authored)}; provider calls {authoring_calls}; digest {units_digest})"
+        f"readme: {(transaction / README_FILENAME).relative_to(root).as_posix()} "
+        f"({visible} visible lines of {total}; digest {readme_digest})"
     )
-    _fail("present: the render stage is not implemented at this revision")
+    patch_path = (transaction / PATCH_FILENAME).relative_to(root).as_posix()
+    print(f"patch: {patch_path} (digest {patch_digest})")
+    _fail("present: the validation stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

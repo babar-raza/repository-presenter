@@ -618,8 +618,27 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "Product name (preserve exactly): Aspose.3D FOSS for Python"
         in (authoring_requests[0]["messages"][1]["content"])
     )
+    readme_text = (project_with_registry / facts_dir / "README.md").read_text("utf-8")
+    assert readme_text.startswith("# Aspose.3D FOSS for Python\n\n[![PyPI]")
+    assert "## Installation\n\n```bash\npip install aspose-3d-foss\n```" in readme_text
+    assert (
+        "## Quick Start\n\nThe example below creates a scene and saves it.\n\n```python\n"
+        in readme_text
+    )
+    assert "- **Create scenes.** `Scene` objects are created in memory." in readme_text
+    assert "- [docs](https://docs.example.com/3d)" in readme_text
+    assert readme_text.rstrip("\n").endswith("See [LICENSE](LICENSE).")
+    patch_text = (project_with_registry / facts_dir / "README.patch").read_text("utf-8")
+    assert patch_text.startswith("--- a/README.md\n+++ b/README.md\n")
+    assert "-# Aspose.3D for Python" in patch_text
+    readme_line = next(line for line in captured.out.splitlines() if line.startswith("readme: "))
+    assert re.fullmatch(
+        rf"readme: {re.escape(facts_dir)}/README\.md "
+        r"\(\d+ visible lines of \d+; digest [0-9a-f]{64}\)",
+        readme_line,
+    )
     assert code == EXIT_INCONSISTENT
-    assert "render stage is not implemented" in captured.err
+    assert "validation stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -642,11 +661,20 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    prefixes = ("source: ", "facts: ", "investigation: ", "dispositions: ", "plan: ", "units: ")
+    prefixes = (
+        "source: ",
+        "facts: ",
+        "investigation: ",
+        "dispositions: ",
+        "plan: ",
+        "units: ",
+        "readme: ",
+        "patch: ",
+    )
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 6
+        assert len(lines) == 8
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
