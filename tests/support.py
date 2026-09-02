@@ -1,9 +1,11 @@
-"""Builders for synthetic project roots: a cursor and sealed candidate bundles."""
+"""Builders for synthetic project roots, cursors, sealed bundles, and disposable git repos."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+
+from repository_presenter.core.git_safety.git import run_git
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,3 +59,33 @@ def write_bundle(
     elif state is not None:
         manifest.write_text(json.dumps({"schema_version": 1, "state": state}), encoding="utf-8")
     return bundle
+
+
+def init_git_repository(path: Path, *, with_commit: bool = True) -> Path:
+    """A disposable local repository on branch ``main`` with a local identity."""
+    path.mkdir(parents=True, exist_ok=True)
+    for args in (
+        ["init", "-q", "-b", "main"],
+        ["config", "user.email", "test@example.com"],
+        ["config", "user.name", "Test"],
+    ):
+        result = run_git(args, cwd=path)
+        assert result.returncode == 0, result.stderr
+    if with_commit:
+        (path / "README.md").write_text("# test\n", encoding="utf-8")
+        commit_all(path, "initial")
+    return path
+
+
+def commit_all(path: Path, message: str) -> str:
+    """Stage everything, commit, and return the new HEAD revision."""
+    assert run_git(["add", "."], cwd=path).returncode == 0
+    result = run_git(["commit", "-q", "-m", message], cwd=path)
+    assert result.returncode == 0, result.stderr
+    return head_revision(path)
+
+
+def head_revision(path: Path) -> str:
+    result = run_git(["rev-parse", "HEAD"], cwd=path)
+    assert result.returncode == 0, result.stderr
+    return result.stdout.strip()

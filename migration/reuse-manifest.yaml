@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T12:51:53+05:00"
+updated_at: "2026-09-02T13:09:01+05:00"
 
 authority:
   governance: AGENTS.md
@@ -857,6 +857,135 @@ file_records:
     pulled_at: "2026-09-02"
     work_item: G1-W01
     note: One-time field mapping by a throwaway reader; the frozen registry revision is produced by this runtime at G4 and this file is never treated as truth beyond admission.
+
+  - source_path: src/readme_agent/gitsafety/process.py
+    sha256: 1c60a23d8038d62a0485279427d4849934b503b22be562bbbbdb2d2dc6277748
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/git_safety/process.py
+    retained_behavior:
+      - Bounded subprocess with a closed stdin, decoded output, and kill of the whole descendant tree on timeout, reported as exit 124 rather than an exception.
+    removed_behavior:
+      - Piped stdin bytes for state-backend plumbing (returns with the state backend at G4).
+    tests_ported:
+      - tests/core/git_safety/test_process.py (new; the legacy suite covered this only through run_git).
+    acceptance: A hung subprocess returns exit 124 within the bound and never blocks the entry point.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/gitsafety/_git.py
+    sha256: f7b43e362172995571ab056c21ea6b714e552696c4623cd94e26a42f16be04c1
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/git_safety/git.py
+    retained_behavior:
+      - One git wrapper pinning core.autocrlf=false, core.eol=lf, and core.longpaths=true per invocation.
+      - GIT_TERMINAL_PROMPT=0 and GCM_INTERACTIVE=never merged last so no caller can re-enable prompts.
+      - Process-local GitHub HTTPS authentication through an extraheader config, never a URL or file.
+      - A timeout reported as a failed result with exit 124.
+    removed_behavior:
+      - maintenance.auto, gc.auto, and ref-lock timeout flags (state CAS concerns, G4).
+      - The input_text stdin branch (state-backend plumbing, G4).
+    tests_ported:
+      - tests/unit/test_gitsafety.py TestRunGitTimeout and TestGitTerminalPromptDisabled -> tests/core/git_safety/test_git.py.
+    acceptance: Every git call in the clone path carries the pinned flags and the prompt suppression.
+    import_closure:
+      - src/readme_agent/gitsafety/process.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/gitsafety/neuter.py
+    sha256: 55d4c01fc8d5f1725e5f8e8f04c3e023a7c618019da845ea62b7ae21f29246f5
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/git_safety/neuter.py
+    retained_behavior:
+      - The origin push URL is replaced with the non-URL DISABLED; failure raises GitSafetyError.
+    removed_behavior: []
+    tests_ported:
+      - tests/unit/test_gitsafety.py TestNeuterAndVerify -> tests/core/git_safety/test_neuter.py.
+    acceptance: A neutered clone keeps its fetch URL and cannot resolve a push remote.
+    import_closure:
+      - src/readme_agent/errors.py
+      - src/readme_agent/gitsafety/_git.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/gitsafety/hooks.py
+    sha256: 6e2226f076614c7bfd37292f0c84269037d0a9eaac5326ce83053d060c54c87f
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/git_safety/hooks.py
+    retained_behavior:
+      - A pre-push hook that exits 1 with a marker, installed with a best-effort executable bit.
+    removed_behavior:
+      - The marker and message name repository-presenter instead of readme-agent.
+    tests_ported:
+      - tests/unit/test_gitsafety.py TestHookActuallyBlocksARealPush -> tests/core/git_safety/test_hooks.py.
+    acceptance: A real push to a local bare remote fails with the marker; without the hook it succeeds.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/gitsafety/verify.py
+    sha256: 66bc2a74a6f611ec08a5aaf5609feca3713c5d2be36f0458d0875985ffa0536f
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/core/git_safety/verify.py
+    retained_behavior:
+      - Independent re-derivation of both push controls from disk into a PushBlockProof; ok only when the push URL is DISABLED and the marker hook is installed.
+    removed_behavior:
+      - platform.system() replaced by sys.platform so mypy can reason about the Windows branch.
+    tests_ported:
+      - tests/unit/test_gitsafety.py TestNeuterAndVerify -> tests/core/git_safety/test_verify.py.
+    acceptance: The proof fails when either control is missing and passes when both hold.
+    import_closure:
+      - src/readme_agent/gitsafety/_git.py
+      - src/readme_agent/gitsafety/hooks.py
+      - src/readme_agent/gitsafety/neuter.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/gitsafety/clone.py
+    sha256: b1f4b1cfd18fceaaa3f9630c04c30c7bb60424d8bb2817313798f49342bbaae8
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/git_safety/clone.py
+    retained_behavior:
+      - Shallow read-only clone with LFS smudge skipped and process-local header authentication.
+      - Transient-failure detection (exit 124 or known network stderr markers) retried under the clone policy; permanent errors fail fast.
+      - remote_head_revision via ls-remote as the default-branch revision probe.
+      - force_rmtree with the read-only-file remedy and both Windows WinError 145 remedies (long-path sweep, bounded retry).
+    removed_behavior:
+      - The in-process clone memo and its probe-validated reuse (one clone per transaction; reuse is decided at G4).
+      - Coupling to the snapshot context variable, env-derived token and timeout, and the registry entry type (the clone takes a URL and a revision).
+      - create_work_clone, create_pr_clone, push_branch, diff_changed_paths, and toplevel_matches (effects arrive at G5; change detection at G2 through dependencies.json).
+    tests_ported:
+      - tests/unit/test_gitsafety.py TestRemoteHeadSha, TestCloneBaselineRetryAndTimeout, TestForceRmtree (5 of 7; the two shutil-walk long-path sweep cases are not ported) -> tests/core/git_safety/test_clone.py.
+    acceptance: present clones the canary at the revision observed by ls-remote, fails closed if the default branch moved, and returns only a clone whose push block is verified.
+    import_closure:
+      - src/readme_agent/env.py (cut, not pulled)
+      - src/readme_agent/errors.py
+      - src/readme_agent/gitsafety/_git.py
+      - src/readme_agent/registry/models.py (cut from this closure)
+      - src/readme_agent/repository_snapshot.py (cut, not pulled)
+      - src/readme_agent/retry.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: The pin-to-observed-revision check and the neuter, hook, and verify steps inside the clone contract are new; the legacy clone returned before any control was applied.
+
+  - source_path: src/readme_agent/retry.py
+    sha256: cdbc6c36e8544655be3b509aea3949cf1263f6c11965f1cd80f4366cf3ca50c4
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/retry.py
+    retained_behavior:
+      - A typed per-operation policy table on tenacity - attempts, exponential backoff bounds, retry-after honoring - replaying only RetryableOperationError, with a caller-tightened attempt bound.
+    removed_behavior:
+      - The pydantic policy model (a frozen dataclass with validation, per RESEARCH_AND_GUIDELINES.md section 18.3).
+      - Six operation classes without a consumer yet (github_read, llm_call, state_cas, package_registry, toolchain_registry, github_write); each returns with its boundary.
+      - run_http_with_retry, github_retry_after_seconds, and the requests dependency (the HTTP consumer arrives at G1-W02 on httpx).
+    tests_ported:
+      - tests/unit/test_retry.py -> tests/core/test_retry.py (4 of 9; the HTTP and GitHub rate-limit cases follow the HTTP consumer).
+    acceptance: A transient clone failure is retried under the clone policy and a permanent one is not.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: tenacity is declared by this work item as the registry's first choice for bounded retry.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

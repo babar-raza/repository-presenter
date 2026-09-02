@@ -1,19 +1,27 @@
-"""The official entry point: ``repository-presenter --version`` and ``status``."""
+"""The official entry point: ``--version``, ``status``, and ``present``."""
 
 from __future__ import annotations
 
+import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-from repository_presenter import __version__
-from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_USAGE, main
-from support import write_bundle, write_cursor
+from repository_presenter import __version__, cli
+from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
+from repository_presenter.core.errors import GitSafetyError
+from repository_presenter.core.git_safety.clone import ReadOnlyClone
+from repository_presenter.core.git_safety.verify import PushBlockProof
+from support import REPO_ROOT, write_bundle, write_cursor
 
 STATUS = r"\((READY|IN_PROGRESS|VERIFYING|ACCEPTED|BLOCKED_EXTERNAL|FAILED_INTERNAL)\)"
+CANARY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+REVISION = "f" * 40
 
 
 def test_version_flag_reports_program_and_version(capsys: pytest.CaptureFixture[str]) -> None:
@@ -113,3 +121,111 @@ def test_module_entry_point_matches_console_script() -> None:
     )
     assert result.returncode == 0
     assert result.stdout.strip() == f"repository-presenter {__version__}"
+
+
+@pytest.fixture
+def project_with_registry(project: Path) -> Path:
+    (project / "data").mkdir()
+    shutil.copy(REPO_ROOT / "data" / "registry.json", project / "data" / "registry.json")
+    return project
+
+
+@pytest.fixture
+def fake_clone(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
+    """Stand in for the network clone; records every call it receives."""
+    calls: list[dict[str, Any]] = []
+
+    def fake(clone_url: str, destination: Path, **kwargs: Any) -> ReadOnlyClone:
+        calls.append({"clone_url": clone_url, "destination": destination, **kwargs})
+        proof = PushBlockProof(True, "DISABLED", clone_url, True, True, None, "ok")
+        return ReadOnlyClone(path=destination, clone_url=clone_url, revision=REVISION, proof=proof)
+
+    monkeypatch.setattr(cli, "pinned_read_only_clone", fake)
+    return calls
+
+
+def test_present_admits_the_canary_then_clones_it_pinned_and_read_only(
+    project_with_registry: Path,
+    fake_clone: list[dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+
+    captured = capsys.readouterr()
+    assert f"admitted: {CANARY} (mode dry_run, ecosystem python" in captured.out
+    assert (
+        f"snapshot: {CANARY} at {REVISION} in "
+        "runs/clones/aspose-3d-foss__Aspose.3D-FOSS-for-Python "
+        "(push disabled, verified)"
+    ) in captured.out
+    assert code == EXIT_INCONSISTENT
+    assert "README bytes and tree inventory are not captured" in captured.err
+    assert fake_clone == [
+        {
+            "clone_url": f"https://github.com/{CANARY}.git",
+            "destination": project_with_registry
+            / "runs"
+            / "clones"
+            / "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+            "token": "ghp_read_only_token_value",
+        }
+    ]
+    assert "ghp_read_only_token_value" not in captured.out + captured.err
+
+
+def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(
+    project_with_registry: Path,
+    fake_clone: list[dict[str, Any]],
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code = main(
+        ["present", "--repo", "some-org/Aspose.X-FOSS-for-Go", "--root", str(project_with_registry)]
+    )
+    captured = capsys.readouterr()
+    assert code == EXIT_UNSAFE
+    assert captured.out == ""
+    assert "some-org/Aspose.X-FOSS-for-Go is not in the registry allow-list" in captured.err
+    assert fake_clone == []
+
+
+def test_present_reports_a_clone_that_cannot_be_proven_safe(
+    project_with_registry: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def refuse(*args: Any, **kwargs: Any) -> ReadOnlyClone:
+        raise GitSafetyError("push is not proven blocked in the clone")
+
+    monkeypatch.setattr(cli, "pinned_read_only_clone", refuse)
+    assert main(["present", "--repo", CANARY, "--root", str(project_with_registry)]) == EXIT_UNSAFE
+    assert "push is not proven blocked" in capsys.readouterr().err
+
+
+def test_present_fails_closed_without_a_registry(
+    project: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_USAGE
+    assert "registry not found" in capsys.readouterr().err
+
+
+def test_present_fails_closed_on_a_malformed_registry(
+    project_with_registry: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    registry = project_with_registry / "data" / "registry.json"
+    document = json.loads(registry.read_text("utf-8"))
+    document["entries"][0]["mode"] = "publish"
+    registry.write_text(json.dumps(document), encoding="utf-8")
+    assert main(["present", "--repo", CANARY, "--root", str(project_with_registry)]) == EXIT_USAGE
+    assert "registry is malformed" in capsys.readouterr().err
+
+
+def test_present_discovers_the_root_like_status(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    assert main(["present", "--repo", CANARY]) == EXIT_USAGE
+    assert "no project/state.yaml found at or above" in capsys.readouterr().err
+    write_cursor(tmp_path)
+    assert main(["present", "--repo", CANARY]) == EXIT_USAGE
+    assert "registry not found" in capsys.readouterr().err

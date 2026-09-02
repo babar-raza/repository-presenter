@@ -24,3 +24,9 @@ class NotAllowlistedError(PresenterError):
     """The repository is not in the registry allow-list, so nothing is touched."""
 
     exit_code = 3
+
+
+class GitSafetyError(PresenterError):
+    """A clone could not be made, pinned, or proven push-disabled; analysis never starts."""
+
+    exit_code = 3

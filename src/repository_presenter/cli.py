@@ -11,6 +11,7 @@ from pathlib import Path
 from repository_presenter import __version__
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
     load_registry,
@@ -25,6 +26,7 @@ from repository_presenter.cursor import (
 )
 
 PROGRAM = "repository-presenter"
+RUNS_DIRNAME = "runs"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
@@ -112,14 +114,23 @@ def run_present(repository: str, root_argument: Path | None) -> int:
     try:
         registry = load_registry(root / REGISTRY_RELATIVE_PATH)
         entry = require_listed(registry, repository)
+        print(
+            f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
+            f"family {entry.family}, platform {entry.platform})"
+        )
+        clone = pinned_read_only_clone(
+            entry.clone_url,
+            root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
+            token=os.environ.get("GH_TOKEN") or None,
+        )
     except PresenterError as exc:
         _fail(str(exc))
         return exc.exit_code
     print(
-        f"admitted: {entry.repository} (mode {entry.mode}, ecosystem {entry.ecosystem}, "
-        f"family {entry.family}, platform {entry.platform})"
+        f"snapshot: {entry.repository} at {clone.revision} in "
+        f"{clone.path.relative_to(root).as_posix()} (push disabled, verified)"
     )
-    _fail("present: the snapshot stage is not implemented at this revision")
+    _fail("present: README bytes and tree inventory are not captured at this revision")
     return EXIT_INCONSISTENT
 
 
