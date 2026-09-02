@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T16:46:24+05:00"
+updated_at: "2026-09-02T16:57:22+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,11 +29,11 @@ accepted_gates:
 
 active_work_item:
   id: G1-W03
-  status: BLOCKED_EXTERNAL
+  status: READY
   purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
   prerequisites:
     - G1-W02 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - OWNER-02 is satisfied - .env at the repository root provides LLM_BASE_URL and LLM_API_KEY (and LLM_MODEL if the default is wrong), read only through the configured loader and never printed.
+    - OWNER-02 is satisfied - the process environment provides GPT_OSS_ENDPOINT (the OpenAI-compatible base URL) and GPT_OSS_API_KEY, plus GPT_OSS_MODEL if the default is wrong; no .env file is read or required; both values are read only through the configured loader and never printed.
     - docs/RESEARCH_AND_GUIDELINES.md section 18.2 names the openai SDK as the transport; docs/README_CONTRACT.md section 3 stages S3 to S6 and section 4 define the jobs, their packets, and their typed outputs.
   owned_paths:
     - src/repository_presenter/
@@ -42,7 +42,7 @@ active_work_item:
     - prompts/
     - migration/reuse-manifest.yaml
   acceptance:
-    - "repository-presenter preflight reaches the gateway's /models endpoint through the configured loader and prints the model route without printing, logging, or persisting the key; without .env it exits 2 naming OWNER-02 and its resume predicate."
+    - "repository-presenter preflight reads GPT_OSS_ENDPOINT and GPT_OSS_API_KEY through the configured loader, reaches the gateway's /models endpoint, and prints the model route without printing, logging, or persisting the key; with either variable absent it exits 2 naming OWNER-02 and its resume predicate."
     - One governed prompt manifest per job under prompts/ (repository_investigation, source_reconciliation, presentation_planning, section_authoring, independent_review, targeted_repair), each with a schema-validated packet and a typed output bound to fact IDs; an output that names an unknown or contradicted fact ID is rejected before use.
     - Every provider call is recorded by the ledger in calls.jsonl with its job, prompt manifest hash, model route, and token counts, and the calls reconcile with the ledger.
     - Every pulled legacy file (call schema, ledger, prompt registry, prompt hygiene after the CPL-01 cut) has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present or preflight.
@@ -50,11 +50,7 @@ active_work_item:
   evidence_required:
     - A preflight transcript against the real gateway with the key redacted.
     - Manifest file records for every pulled legacy file.
-  blocker:
-    class: BLOCKED_EXTERNAL
-    summary: OWNER-02 is OPEN - no .env with LLM_BASE_URL and LLM_API_KEY exists at the repository root, so no gateway can be reached and no LLM job can be exercised end to end on the canary; every remaining G1 item and all of G2 depend on these jobs.
-    resume_predicate: .env exists at the repository root, is gitignored, and provides LLM_BASE_URL and LLM_API_KEY; then G1-W03 returns to READY and repository-presenter preflight is the first check of the next iteration.
-    recorded_at: "2026-09-02T16:46:24+05:00"
+  blocker: null
 
 next_ready_items:
   - id: G1-W04
@@ -76,13 +72,13 @@ owner_items:
     recorded_at: "2026-09-02T14:00:00+05:00"
     note: Until then the agent pushes main directly after the full local CI-equivalent passes. Hosted CI still runs on every push.
   - id: OWNER-02
-    status: OPEN
-    summary: Provide .env at the repository root with LLM_BASE_URL and LLM_API_KEY for the OpenAI-compatible gateway (and LLM_MODEL if the default is wrong); GH_TOKEN is already present in the environment.
-    resume_predicate: .env exists, is gitignored, and repository-presenter preflight (built in G1-W03) reaches the gateway's /models endpoint without leaking the key.
+    status: OVERRIDDEN
+    summary: Gateway credentials for the OpenAI-compatible gateway are provided as process environment variables GPT_OSS_ENDPOINT (base URL) and GPT_OSS_API_KEY (key), plus GPT_OSS_MODEL if the default is wrong; the owner declined a .env file, so none is read or required. GH_TOKEN is already present in the environment.
+    resume_predicate: Both variables are present in the environment and repository-presenter preflight (built in G1-W03) reaches the gateway's /models endpoint through the configured loader without leaking the key.
     consumed_by: [G1-W03]
     recorded_at: "2026-09-02T14:00:00+05:00"
-    last_checked_at: "2026-09-02T16:46:24+05:00"
-    note: G1-W01 (snapshot) and G1-W02 (facts) were accepted without it; since 2026-09-02 G1-W03 is BLOCKED_EXTERNAL on it and every remaining G1 and G2 item depends on the G1-W03 jobs, so the loop stops until it is satisfied.
+    last_checked_at: "2026-09-02T16:57:22+05:00"
+    note: Overridden by the owner on 2026-09-02 - the key is never saved in the repository, not even in a gitignored .env; the .env-based predicate recorded earlier is withdrawn. Observed at the override, without printing either value - both variables present and a GET on the configured endpoint's /models route answered HTTP 200 with the key. G1-W03 returns to READY.
   - id: OWNER-03
     status: DEFAULT_APPLIED
     summary: Decide the dirty legacy working tree at freeze (15 modified tracked files, 18 untracked files).
@@ -92,7 +88,7 @@ owner_items:
     note: Default applied on 2026-09-02; exclusions are recorded per file in migration/reuse-manifest.yaml source.working_tree_at_freeze.exclusions.
   - id: OWNER-04
     status: OPEN
-    summary: Create the GitHub App for production tokens and install it on the authorized organizations; provide GH_APP_CLIENT_ID and GH_APP_PRIVATE_KEY as repository secrets, plus LLM_BASE_URL and LLM_API_KEY.
+    summary: Create the GitHub App for production tokens and install it on the authorized organizations; provide GH_APP_CLIENT_ID and GH_APP_PRIVATE_KEY as repository secrets, plus GPT_OSS_ENDPOINT and GPT_OSS_API_KEY.
     resume_predicate: A hosted workflow run mints a read-only installation token for the canary repository.
     consumed_by: [G4_HOSTED_PORTFOLIO, G5_PROPOSAL_EFFECT_PROOF]
     recorded_at: "2026-09-02T14:00:00+05:00"

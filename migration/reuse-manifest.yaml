@@ -648,7 +648,7 @@ expected_area_dispositions:
       - github_app as the only production credential mode; fail closed without the App token.
     removed_behavior:
       - cwd-relative runtime root default.
-      - Gateway variable aliases beyond the documented LLM_BASE_URL and LLM_API_KEY.
+      - Gateway variable aliases and the hardcoded default base URL beyond the documented GPT_OSS_ENDPOINT and GPT_OSS_API_KEY (the owner's process-environment names since 2026-09-02; LLM_BASE_URL, LLM_API_KEY, and PROFESSIONALIZE_API_KEY are not read, and no .env file is read).
     known_coupling: CPL-05, CPL-07
 
   - source_glob: src/readme_agent/{errors,retry}.py
