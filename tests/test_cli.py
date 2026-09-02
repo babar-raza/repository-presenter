@@ -15,9 +15,9 @@ import pytest
 from repository_presenter import __version__, cli
 from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
 from repository_presenter.core.errors import GitSafetyError
-from repository_presenter.core.git_safety.clone import ReadOnlyClone
+from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
-from support import REPO_ROOT, write_bundle, write_cursor
+from support import REPO_ROOT, commit_all, init_git_repository, write_bundle, write_cursor
 
 STATUS = r"\((READY|IN_PROGRESS|VERIFYING|ACCEPTED|BLOCKED_EXTERNAL|FAILED_INTERNAL)\)"
 CANARY = "aspose-3d-foss/Aspose.3D-FOSS-for-Python"
@@ -144,36 +144,70 @@ def fake_clone(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
     return calls
 
 
-def test_present_admits_the_canary_then_clones_it_pinned_and_read_only(
+@pytest.fixture
+def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
+    """Serve the canary's clone URL from a local repository through the real clone contract."""
+    source = init_git_repository(tmp_path / "upstream", with_commit=False)
+    (source / "README.md").write_bytes(b"# Aspose.3D for Python\n\nOriginal bytes.\n")
+    (source / "LICENSE").write_text("MIT\n", encoding="utf-8")
+    revision = commit_all(source, "seed")
+    calls: list[dict[str, Any]] = []
+
+    def serve_locally(clone_url: str, destination: Path, **kwargs: Any) -> ReadOnlyClone:
+        calls.append({"clone_url": clone_url, "destination": destination, **kwargs})
+        return pinned_read_only_clone(str(source), destination)
+
+    monkeypatch.setattr(cli, "pinned_read_only_clone", serve_locally)
+    return {"source": source, "revision": revision, "calls": calls}
+
+
+def test_present_admits_clones_and_captures_the_source_snapshot(
     project_with_registry: Path,
-    fake_clone: list[dict[str, Any]],
+    local_canary: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    revision = local_canary["revision"]
+    clone_dir = "runs/clones/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+    source_dir = f"runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}/source"
 
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
 
     captured = capsys.readouterr()
     assert f"admitted: {CANARY} (mode dry_run, ecosystem python" in captured.out
-    assert (
-        f"snapshot: {CANARY} at {REVISION} in "
-        "runs/clones/aspose-3d-foss__Aspose.3D-FOSS-for-Python "
-        "(push disabled, verified)"
-    ) in captured.out
+    assert f"snapshot: {CANARY} at {revision} in {clone_dir} (push disabled, verified)" in (
+        captured.out
+    )
+    source_line = next(line for line in captured.out.splitlines() if line.startswith("source: "))
+    assert source_line.startswith(
+        f"source: {source_dir} (3 files, 2 tree entries, readme README.md"
+    )
     assert code == EXIT_INCONSISTENT
-    assert "README bytes and tree inventory are not captured" in captured.err
-    assert fake_clone == [
+    assert "facts stage is not implemented" in captured.err
+    assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
-            "destination": project_with_registry
-            / "runs"
-            / "clones"
-            / "aspose-3d-foss__Aspose.3D-FOSS-for-Python",
+            "destination": project_with_registry / Path(clone_dir),
             "token": "ghp_read_only_token_value",
         }
     ]
     assert "ghp_read_only_token_value" not in captured.out + captured.err
+    written = project_with_registry / source_dir
+    assert (written / "README.md").read_bytes() == b"# Aspose.3D for Python\n\nOriginal bytes.\n"
+    assert (written / "tree.txt").read_text(encoding="utf-8").count("\n") == 2
+    assert json.loads((written / "snapshot.json").read_text("utf-8"))["source_revision"] == revision
+
+
+def test_present_rerun_on_the_same_revision_is_byte_identical(
+    project_with_registry: Path, local_canary: dict[str, Any], capsys: pytest.CaptureFixture[str]
+) -> None:
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    first = [line for line in capsys.readouterr().out.splitlines() if line.startswith("source: ")]
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    second = [line for line in capsys.readouterr().out.splitlines() if line.startswith("source: ")]
+    assert first == second
+    assert "digest " in first[0]
 
 
 def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(

@@ -30,3 +30,7 @@ class GitSafetyError(PresenterError):
     """A clone could not be made, pinned, or proven push-disabled; analysis never starts."""
 
     exit_code = 3
+
+
+class RepositorySnapshotError(GitSafetyError):
+    """The immutable repository view is absent or drifted while a transaction used it."""

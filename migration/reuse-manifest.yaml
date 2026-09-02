@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T13:09:01+05:00"
+updated_at: "2026-09-02T13:20:58+05:00"
 
 authority:
   governance: AGENTS.md
@@ -986,6 +986,48 @@ file_records:
     pulled_at: "2026-09-02"
     work_item: G1-W01
     note: tenacity is declared by this work item as the registry's first choice for bounded retry.
+
+  - source_path: src/readme_agent/inspection/file_inventory.py
+    sha256: bf02e68a5471722d9bee23b5eaf695b3ec67261e9f468e60d3f7e284a3016fe4
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/snapshot/inventory.py
+    retained_behavior:
+      - Case-insensitive detection of the README, the license (root or a License directory), and the four community files at a clone root, with candidates visited in name order.
+    removed_behavior:
+      - Manifest detection through the ecosystem glob registry, the noise-directory bounded walk, find_all_manifest_roots, and resolve_manifest_candidates (they enter through the platform plugin registry of G1-W02, never as a central chain).
+    tests_ported:
+      - tests/unit/test_inspection.py README, license, and community cases (11 of 34) -> tests/core/snapshot/test_inventory.py; the manifest and git-metadata cases follow the facts stage.
+    acceptance: The canary snapshot names its README and license paths exactly as they are cased in the tree.
+    import_closure:
+      - src/readme_agent/ecosystems/registry.py (cut, not pulled)
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+
+  - source_path: src/readme_agent/repository_snapshot.py
+    sha256: b31bf51969ff2d4d9e098b9eb305728c4330201d403edea241fc9c4eb3666074
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/snapshot/capture.py
+    retained_behavior:
+      - An immutable snapshot record binding repository, clone URL, pinned revision, the ls-tree inventory hash, and the README hash and path.
+      - Drift verification that fails closed when the revision, the tree inventory, or the README changes or disappears.
+    removed_behavior:
+      - The context-variable scope, cross-repository reuse guard, and local-fact-verification flag (the linear pipeline passes the snapshot explicitly).
+      - Package roots through profile.detector and the ecosystems chain (facts stage, G1-W02).
+      - captured_at and the absolute snapshot_root, so the source/ artifact is byte-identical across reruns.
+      - The pydantic model (a frozen dataclass per RESEARCH_AND_GUIDELINES.md section 18.3).
+    tests_ported:
+      - tests/unit/test_repository_snapshot.py capture and README-drift cases (2 of 4) -> tests/core/snapshot/test_capture.py; the scope and profile-cache cases are cut with their machinery.
+    acceptance: present writes source/ with snapshot.json, tree.txt, and the exact README bytes for the canary, an immediate rerun produces the same digest, and a mutated README fails verification closed.
+    import_closure:
+      - src/readme_agent/errors.py
+      - src/readme_agent/gitsafety/_git.py
+      - src/readme_agent/inspection/file_inventory.py
+      - src/readme_agent/profile/detector.py (cut, not pulled)
+      - src/readme_agent/profile/schema.py (cut, not pulled)
+      - src/readme_agent/registry/models.py (cut from this closure)
+    pulled_at: "2026-09-02"
+    work_item: G1-W01
+    note: The source/ artifact layout (snapshot.json, tree.txt, README under its own name, one digest over all files) is new and follows docs/README_CONTRACT.md section 3 stage S1.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

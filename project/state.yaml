@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T16:00:00+05:00"
+updated_at: "2026-09-02T13:24:48+05:00"
 
 authority:
   product: plans/idea.md
@@ -28,13 +28,13 @@ accepted_gates:
   - G0_FOUNDATION
 
 active_work_item:
-  id: G1-W01
-  status: IN_PROGRESS
-  purpose: "Snapshot stage for the canary - registry allow-list admission, push-neutered clone at the pinned default-branch revision, exact README bytes, and tree inventory as stage artifacts; pull gitsafety, repository_snapshot, inspection, registry loader, redaction, errors, and retry through manifest file records with ported tests, declaring tenacity as a direct dependency rather than a hand-rolled loop (RESEARCH_AND_GUIDELINES.md section 18); place every new module per REPOSITORY_LAYOUT.md; run the present command end to end."
+  id: G1-W02
+  status: READY
+  purpose: "Facts stage for the canary - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; a PSD-style README-only fixture returns insufficient_evidence with a resume predicate and zero LLM calls."
   prerequisites:
-    - G0_FOUNDATION is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - Every pull follows migration/reuse-manifest.yaml audit.per_pull_checks; a closure that drags a RETIRE, supervisor, capabilities, or specialists module is cut first (CPL-01 to CPL-08).
-    - No gateway credential is needed; OWNER-02 gates G1-W03 only.
+    - G1-W01 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - Every pull follows migration/reuse-manifest.yaml audit.per_pull_checks; the legacy ecosystems and profile packages enter only through a platform plugin registry keyed by ecosystem, never as a central chain.
+    - docs/README_CONTRACT.md section 3 stage S2 defines the fact kinds and the record shape; no gateway credential is needed.
   owned_paths:
     - src/repository_presenter/
     - tests/
@@ -42,21 +42,19 @@ active_work_item:
     - migration/reuse-manifest.yaml
     - data/
   acceptance:
-    - "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python admits the canary from the registry allow-list, clones it push-neutered at the pinned default-branch revision, verifies the push URL is disabled before analysis, and writes the exact README bytes and tree inventory as stage artifacts on disk for that revision."
-    - A repository outside the allow-list is refused before any clone.
+    - "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python writes facts.json from the source/ snapshot with typed records {id, kind, value, evidence[], polarity, confidence} covering the deterministic fact kinds of docs/README_CONTRACT.md section 3 stage S2 that the canary's tree supports, each record naming its evidence paths."
+    - Every example fact carries a verification receipt from an isolated run of the exact example against the canary's own package; an example that does not run is recorded as CONTRADICTED, never explained away.
+    - The Python consumer and example verifier are the first platform plugin behind a registry keyed by ecosystem; no if/elif chain selects a platform.
+    - A README-only fixture under tests/fixtures/ yields insufficient_evidence with a resume predicate and zero LLM calls.
     - Every pulled legacy file has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present.
-    - An immediate rerun of the snapshot stage on the same revision is byte-identical with zero provider calls.
+    - An immediate rerun on the same revision produces byte-identical facts.json with zero provider calls.
     - ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13; the commit is pushed and hosted CI is checked at the next iteration.
-    - status still reports 0/34 because no bundle is sealed.
   evidence_required:
-    - Stage artifacts for the canary at its pinned revision.
+    - facts.json for the canary at its pinned revision.
     - Manifest file records for every pulled legacy file.
   blocker: null
 
 next_ready_items:
-  - id: G1-W02
-    status: PENDING
-    purpose: "Facts stage - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; inherited-README unit extraction uses a real CommonMark parser (markdown-it-py) not regex scanning, and the Python range check uses packaging, per RESEARCH_AND_GUIDELINES.md section 18; the PSD-style README-only fixture returns insufficient_evidence with zero LLM calls."
   - id: G1-W03
     status: PENDING
     purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."

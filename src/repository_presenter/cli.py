@@ -18,6 +18,11 @@ from repository_presenter.core.registry.loader import (
     require_listed,
 )
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks
+from repository_presenter.core.snapshot.capture import (
+    capture_snapshot,
+    verify_snapshot,
+    write_source_artifacts,
+)
 from repository_presenter.cursor import (
     CURSOR_RELATIVE_PATH,
     CursorError,
@@ -123,14 +128,25 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             root / RUNS_DIRNAME / "clones" / f"{entry.owner}__{entry.name}",
             token=os.environ.get("GH_TOKEN") or None,
         )
+        print(
+            f"snapshot: {entry.repository} at {clone.revision} in "
+            f"{clone.path.relative_to(root).as_posix()} (push disabled, verified)"
+        )
+        snapshot = capture_snapshot(entry.repository, clone)
+        transaction = (
+            root / RUNS_DIRNAME / "transactions" / f"{entry.owner}__{entry.name}" / clone.revision
+        )
+        artifacts = write_source_artifacts(snapshot, clone.path, transaction / "source")
+        verify_snapshot(snapshot, clone.path)
     except PresenterError as exc:
         _fail(str(exc))
         return exc.exit_code
     print(
-        f"snapshot: {entry.repository} at {clone.revision} in "
-        f"{clone.path.relative_to(root).as_posix()} (push disabled, verified)"
+        f"source: {artifacts.directory.relative_to(root).as_posix()} "
+        f"({len(artifacts.files)} files, {snapshot.tree_entries} tree entries, "
+        f"readme {snapshot.readme_path or 'absent'}, digest {artifacts.digest})"
     )
-    _fail("present: README bytes and tree inventory are not captured at this revision")
+    _fail("present: the facts stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 
