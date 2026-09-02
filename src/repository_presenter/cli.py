@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
 from repository_presenter.core.candidates import BundleError, count_current_candidates
+from repository_presenter.core.secrets import configured_secrets, find_secret_leaks
 from repository_presenter.cursor import (
     CURSOR_RELATIVE_PATH,
     CursorError,
@@ -20,6 +22,7 @@ PROGRAM = "repository-presenter"
 EXIT_OK = 0
 EXIT_INCONSISTENT = 1
 EXIT_USAGE = 2
+EXIT_UNSAFE = 3
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -69,10 +72,16 @@ def run_status(root_argument: Path | None) -> int:
             return EXIT_USAGE
     try:
         cursor = load_cursor(root)
+        leaks = find_secret_leaks(root, configured_secrets(os.environ))
         on_disk = count_current_candidates(root)
-    except (CursorError, BundleError) as exc:
+    except (CursorError, BundleError, OSError) as exc:
         _fail(str(exc))
         return EXIT_INCONSISTENT
+    if leaks:
+        for leak in leaks:
+            relative = leak.path.relative_to(root).as_posix()
+            _fail(f"secret canary: value of {leak.variable} found in {relative}")
+        return EXIT_UNSAFE
     print(f"{PROGRAM} {__version__}")
     print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
     print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
