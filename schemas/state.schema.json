@@ -46,7 +46,7 @@
     "current_gate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "status", "time_box_days", "purpose"],
+      "required": ["id", "status", "purpose"],
       "properties": {
         "id": { "$ref": "#/$defs/gate_id" },
         "status": { "$ref": "#/$defs/active_status" },
