@@ -8,6 +8,7 @@ from pathlib import Path
 from repository_presenter.components.readme.evidence.facts.assets import asset_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
+from repository_presenter.components.readme.evidence.facts.links import link_facts
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.core.examples import (
@@ -65,6 +66,7 @@ def extract_facts(
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
         facts.extend(inherited_unit_facts(snapshot.readme_path, readme_bytes))
+        facts.extend(link_facts(snapshot.readme_path, readme_bytes, tree_paths))
     return FactsDocument(
         repository=entry.repository,
         source_revision=snapshot.source_revision,

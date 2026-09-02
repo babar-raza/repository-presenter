@@ -15,6 +15,7 @@ import pytest
 
 from repository_presenter import __version__, cli
 from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
+from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
@@ -151,7 +152,8 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
     """Serve the canary's clone URL from a local repository through the real clone contract."""
     source = init_git_repository(tmp_path / "upstream", with_commit=False)
     (source / "README.md").write_bytes(
-        b"# Aspose.3D for Python\n\nOriginal bytes.\n\n```python\n"
+        b"# Aspose.3D for Python\n\nOriginal bytes. See [LICENSE](LICENSE) and "
+        b"[docs](https://docs.example.com/3d).\n\n```python\n"
         b"from aspose.threed import Scene\nprint(Scene().name)\n```\n\n```python\n"
         b"from aspose.threed import Missing\n```\n"
     )
@@ -181,6 +183,7 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
             200, json={"info": {"version": "26.1.0"}, "releases": {"26.1.0": []}}
         ),
     )
+    monkeypatch.setattr(links, "fetch_status", lambda url: (200, url))
     return {"source": source, "revision": revision, "calls": calls}
 
 
@@ -240,6 +243,10 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert by_id["example:001"]["polarity"] == "SUPPORTED"
     assert by_id["example:002"]["polarity"] == "CONTRADICTED"
     assert by_id["install_command:pip"]["polarity"] == "SUPPORTED"
+    assert {f["value"]: f["polarity"] for f in facts["facts"] if f["kind"] == "link_target"} == {
+        "LICENSE": "SUPPORTED",
+        "https://docs.example.com/3d": "SUPPORTED",
+    }
     assert by_id["install_command:pip"]["evidence"][1]["path"] == (
         "https://pypi.org/pypi/aspose-3d-foss/json"
     )
@@ -258,7 +265,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert "ghp_read_only_token_value" not in captured.out + captured.err
     written = project_with_registry / source_dir
     readme_bytes = (written / "README.md").read_bytes()
-    assert readme_bytes.startswith(b"# Aspose.3D for Python\n\nOriginal bytes.\n\n```python\n")
+    assert readme_bytes.startswith(b"# Aspose.3D for Python\n\nOriginal bytes. See [LICENSE]")
     assert readme_bytes == (local_canary["source"] / "README.md").read_bytes()
     assert (written / "tree.txt").read_text(encoding="utf-8").count("\n") == 5
     assert json.loads((written / "snapshot.json").read_text("utf-8"))["source_revision"] == revision
