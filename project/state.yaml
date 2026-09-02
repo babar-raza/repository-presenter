@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T13:24:48+05:00"
+updated_at: "2026-09-02T14:51:35+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W02
-  status: READY
+  status: IN_PROGRESS
   purpose: "Facts stage for the canary - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; a PSD-style README-only fixture returns insufficient_evidence with a resume predicate and zero LLM calls."
   prerequisites:
     - G1-W01 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
