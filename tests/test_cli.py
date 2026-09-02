@@ -406,16 +406,35 @@ def test_preflight_records_the_catalog_and_never_prints_the_key(
         return httpx.Response(200, json={"object": "list", "data": data})
 
     _gateway(monkeypatch, handler)
+    shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
     assert main(["preflight", "--root", str(project)]) == EXIT_OK
     captured = capsys.readouterr()
     out = captured.out.splitlines()
     assert out[0] == "gateway: gw.example reachable (GPT_OSS_API_KEY read, never printed)"
     assert out[1] == "models: gpt-oss, qwen3-next (2)"
-    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[2])
+    assert out[2] == "prompts: 6 manifests routed to qwen3-next; content hashes recorded"
+    assert re.fullmatch(r"catalog: runs/preflight/catalog\.json \(digest [0-9a-f]{64}\)", out[3])
     assert LIVE_KEY not in captured.out + captured.err
     raw = (project / "runs" / "preflight" / "catalog.json").read_text("utf-8")
-    assert [m["id"] for m in json.loads(raw)["models"]] == ["gpt-oss", "qwen3-next"]
+    catalog = json.loads(raw)
+    assert [m["id"] for m in catalog["models"]] == ["gpt-oss", "qwen3-next"]
+    assert [p["prompt_id"] for p in catalog["prompts"]] == [
+        "independent_review",
+        "presentation_planning",
+        "repository_investigation",
+        "section_authoring",
+        "source_reconciliation",
+        "targeted_repair",
+    ]
     assert LIVE_KEY not in raw
+
+
+def test_preflight_without_manifests_is_a_configuration_failure(
+    project: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _gateway(monkeypatch, lambda request: httpx.Response(200, json={"object": "list", "data": []}))
+    assert main(["preflight", "--root", str(project)]) == EXIT_USAGE
+    assert "prompt manifests not found: no prompts/ directory" in capsys.readouterr().err
 
 
 def test_preflight_refusal_is_reported_by_status_with_nothing_else(
@@ -425,6 +444,7 @@ def test_preflight_refusal_is_reported_by_status_with_nothing_else(
         monkeypatch,
         lambda request: httpx.Response(401, json={"error": {"message": f"bad key {LIVE_KEY}"}}),
     )
+    shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
     assert main(["preflight", "--root", str(project)]) == EXIT_INCONSISTENT
     captured = capsys.readouterr()
     assert (

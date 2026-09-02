@@ -33,6 +33,7 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
+from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME
 from repository_presenter.core.preflight import (
     CATALOG_FILENAME,
     PREFLIGHT_DIRNAME,
@@ -124,16 +125,21 @@ def run_preflight(root_argument: Path | None) -> int:
     catalog_path = root / RUNS_DIRNAME / PREFLIGHT_DIRNAME / CATALOG_FILENAME
     try:
         config = load_gateway_config(os.environ)
-        result = run_gateway_preflight(config)
+        result = run_gateway_preflight(config, root / PROMPTS_DIRNAME)
         digest = write_catalog(result, catalog_path)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
     ids = result.catalog.ids
+    routes = sorted(set(result.prompts.routes().values()))
     print(f"gateway: {config.host} reachable ({API_KEY_VARIABLE} read, never printed)")
     print(f"models: {', '.join(ids)} ({len(ids)})")
     if result.model_override is not None:
         print(f"override: {result.model_override} (present in the catalog)")
+    print(
+        f"prompts: {len(result.prompts.manifests)} manifests routed to {', '.join(routes)}; "
+        "content hashes recorded"
+    )
     print(f"catalog: {catalog_path.relative_to(root).as_posix()} (digest {digest})")
     return EXIT_OK
 

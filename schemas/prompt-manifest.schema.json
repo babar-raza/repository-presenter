@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/prompt-manifest.schema.json",
+  "title": "Repository Presenter governed prompt manifest",
+  "description": "Shape of prompts/<job>.yaml: one manifest per LLM job of docs/README_CONTRACT.md section 3. The packet is what deterministic code assembles for the job; the output contract and its binding are what the guard enforces before any output is used; model_route is a model ID from the catalog preflight recorded (docs/RESEARCH_AND_GUIDELINES.md section 18.4). The file's content hash is a candidate dependency.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "prompt_id",
+    "version",
+    "stage",
+    "purpose",
+    "model_route",
+    "route_rationale",
+    "sampling",
+    "packet",
+    "output",
+    "system",
+    "user_template"
+  ],
+  "properties": {
+    "prompt_id": {
+      "enum": [
+        "repository_investigation",
+        "source_reconciliation",
+        "presentation_planning",
+        "section_authoring",
+        "independent_review",
+        "targeted_repair"
+      ]
+    },
+    "version": { "type": "string", "pattern": "^[0-9]+$" },
+    "stage": { "enum": ["S3", "S4", "S5", "S6", "S10", "S11"] },
+    "purpose": { "$ref": "#/$defs/text" },
+    "model_route": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9._-]+$" },
+    "route_rationale": { "$ref": "#/$defs/text" },
+    "sampling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temperature", "max_output_tokens", "response_format"],
+      "properties": {
+        "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+        "max_output_tokens": { "type": "integer", "minimum": 1 },
+        "response_format": { "const": "json_object" }
+      }
+    },
+    "packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields"],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type", "description"],
+            "properties": {
+              "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+              "type": { "enum": ["string", "json"] },
+              "description": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        "fact_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "identity",
+              "package",
+              "install_command",
+              "import_path",
+              "public_symbol",
+              "example",
+              "format",
+              "capability",
+              "dependency",
+              "license",
+              "third_party_notices",
+              "build_test_asset",
+              "link_target",
+              "inherited_unit"
+            ]
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "binding", "schema"],
+      "properties": {
+        "contract": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*V[0-9]+$" },
+        "binding": {
+          "enum": ["fact_ids", "unit_ids", "selection_ids", "finding_ids", "revision_ids"]
+        },
+        "schema": {
+          "type": "object",
+          "required": ["type", "required", "properties"],
+          "properties": {
+            "type": { "const": "object" },
+            "required": { "type": "array", "items": { "type": "string" } },
+            "properties": { "type": "object" }
+          }
+        }
+      }
+    },
+    "system": { "$ref": "#/$defs/text" },
+    "user_template": { "$ref": "#/$defs/text" },
+    "notes": { "$ref": "#/$defs/text" }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 }
+  }
+}

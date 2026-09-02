@@ -232,6 +232,35 @@ def test_bundle_schema_rejects_incomplete_or_unknown_bundles() -> None:
     assert errors(validator, bad_digest)
 
 
+@pytest.mark.parametrize(
+    "path", sorted((REPO_ROOT / "prompts").glob("*.yaml")), ids=lambda p: p.stem
+)
+def test_every_prompt_manifest_validates_against_its_schema(path: Path) -> None:
+    assert errors(load_schema("prompt-manifest.schema.json"), load_yaml(path)) == []
+
+
+def test_prompt_manifest_schema_rejects_drift() -> None:
+    validator = load_schema("prompt-manifest.schema.json")
+    manifest = load_yaml(REPO_ROOT / "prompts" / "section_authoring.yaml")
+    assert errors(validator, manifest) == []
+
+    unknown_job = copy.deepcopy(manifest)
+    unknown_job["prompt_id"] = "summarize"
+    assert errors(validator, unknown_job)
+
+    alias_free_route = copy.deepcopy(manifest)
+    alias_free_route["model_route"] = "a model"
+    assert errors(validator, alias_free_route)
+
+    unbound_output = copy.deepcopy(manifest)
+    del unbound_output["output"]["binding"]
+    assert errors(validator, unbound_output)
+
+    inline_prompt_field = copy.deepcopy(manifest)
+    inline_prompt_field["few_shot"] = ["example"]
+    assert errors(validator, inline_prompt_field)
+
+
 def test_counted_states_are_sealed_bundle_states() -> None:
     schema = json.loads((SCHEMAS / "candidate-bundle.schema.json").read_text(encoding="utf-8"))
     assert set(schema["properties"]["state"]["enum"]) >= COUNTED_STATES

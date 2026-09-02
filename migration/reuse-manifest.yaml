@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T17:21:46+05:00"
+updated_at: "2026-09-02T17:41:06+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1194,6 +1194,59 @@ file_records:
       - readme_agent.env -> src/repository_presenter/core/config.py (pulled in the same work item; DEFAULT_LLM_MODEL removed).
     pulled_at: "2026-09-02"
     work_item: G1-W03
+
+  - source_path: src/readme_agent/llm/prompt_registry.py
+    sha256: c26ea062d7048fba0a96cb76cb1d94042524575fa49f8ed2b896a2e1a2adbee5
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/llm/prompts.py
+    retained_behavior:
+      - Eager, fail-loud loading of every manifest under prompts/, schema-validated, with prompt_id equal to the filename, duplicates refused, and a per-manifest content hash on the canonical text.
+      - Prompt content lives only in the manifests, never as a string literal in code; the registry loads and validates it.
+    removed_behavior:
+      - Category subdirectories (the tree is flat - six files, one per job of README_CONTRACT.md section 3).
+      - The route-to-prompt mapping and validate_job_prompt (a model_route is a catalog model, not a job; several jobs share one model and preflight checks every route against the recorded catalog).
+      - The deprecation lifecycle, dependency_hashes by invalidation scope, and the control-plane content_hash (a candidate depends on the individual manifest hashes it consumed, never on a global hash).
+      - Import-time module state (_MANIFESTS); the registry is a value returned by load_manifests.
+    tests_ported:
+      - tests/unit/test_prompt_registry.py -> tests/core/llm/test_prompts.py (valid load, filename mismatch, malformed YAML, schema-invalid, missing and stray files, hash stability; the category, route-uniqueness, and deprecation cases have no counterpart).
+    acceptance: preflight loads exactly the six governed manifests, checks every route against the recorded catalog, and records each content hash.
+    import_closure:
+      - readme_agent.llm.prompt_schema -> the PromptManifest model inside src/repository_presenter/core/llm/prompts.py (pulled in the same work item).
+      - readme_agent.readme.facts.sha256_text -> src/repository_presenter/core/hashing.py (the CPL-01 cut; the rest of readme/facts.py stays out).
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+
+  - source_path: src/readme_agent/llm/prompt_schema.py
+    sha256: cd9204516edef0ae07688d3be150b6328711ab27c8b532046037f92e98656ec2
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/llm/prompts.py
+    retained_behavior:
+      - A pydantic manifest model with extra fields forbidden - prompt_id, version, model_route, system, user_template, notes.
+    removed_behavior:
+      - category, owner, runtime_consumer, output_contract as a free string, invalidation_scope, dependent_artifacts, deprecated and replacement_prompt_id, turn_context_template, message_templates, examples, and the string-typed input_schema.
+      - Replaced by stage, purpose, route_rationale, a sampling contract, a typed packet (fields with names the user_template must bind to, and the fact kinds admitted), and an output contract naming its typed model, its fact-ID binding class, and its JSON schema, so the manifest hash covers everything a job depends on.
+    tests_ported:
+      - tests/unit/test_prompt_registry.py (schema cases) -> tests/core/llm/test_prompts.py and tests/test_schemas.py (schemas/prompt-manifest.schema.json validates the six real files and rejects drift).
+    acceptance: A manifest missing a field, carrying an unknown one, or binding a placeholder outside its packet is refused at load.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+
+  - source_path: src/readme_agent/readme/facts.py
+    sha256: d0cca4ee96cc6218d8ff9d88a938906f3ad574381c86594c2956ac992a5f1aa1
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/core/hashing.py
+    retained_behavior:
+      - sha256_text - one SHA-256 for one text with CRLF and CR normalised to LF, so a manifest hashes the same on every platform.
+    removed_behavior:
+      - Everything else in the file (tracked-content fingerprints, the RepositoryFacts model and its facts hash); the fact record of this project is src/repository_presenter/core/facts.py, and control-plane fingerprints are prohibited.
+    tests_ported:
+      - none existed for sha256_text; tests/core/test_hashing.py covers the normalisation.
+    acceptance: The same manifest saved with CRLF and with LF records one content hash.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W03
+    note: The CPL-01 seam - the legacy chain llm.call_transport -> llm.prompt_registry -> readme.facts (sha256_text) -> validation.registry is cut here; only the one pure function crosses.
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
