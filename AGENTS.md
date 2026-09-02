@@ -135,8 +135,6 @@ deterministic gate result, or directly mutates a repository.
 - README/license-only placeholders return `insufficient_evidence`; never fabricate a candidate.
 - A standard semantic shell does not permit mechanical template filling. Every processable
   repository still requires agentic interpretation and planning.
-- Do not expose internal source revisions, provider calls, evidence machinery, or validation
-  narration in public README prose.
 
 ## Security and Effects
 
@@ -173,13 +171,15 @@ creating evidence alone is not delivery.
 
 ## Git and Commits
 
-- Keep commits coherent and scoped to the current gate/work item.
-- Do not mix unrelated cleanup with active work.
-- Do not rewrite shared history or discard uncommitted work.
-- Review the complete diff and run required checks before committing.
+- Keep commits coherent and scoped to the current gate/work item; never mix in unrelated
+  cleanup, rewrite shared history, or discard uncommitted work.
+- Review the complete diff and run required checks before committing; the index can already hold
+  another session's staged work, so confirm `git diff --cached --stat` names only your own paths.
 - Update the cursor in the same commit that establishes its claimed state.
 - Identify the gate/work item in implementation commit messages or bodies.
 - AI-authored commits include an appropriate `Co-Authored-By` trailer.
+- After pushing, watch hosted CI to completion. A red run is fixed immediately, in the same work
+  session — never left for a later iteration to discover.
 
 ## Blocking and Completion
 

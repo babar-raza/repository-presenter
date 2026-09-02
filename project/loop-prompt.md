@@ -96,9 +96,16 @@ files, never from memory of a previous iteration.
 
 - Update `project/state.yaml` only with what evidence proves: statuses, `progress`, `owner_items`,
   `last_transition`, `updated_at`. It must validate against `schemas/state.schema.json`.
+- Before staging, run `git status --short`: the index can already hold another session's staged but
+  uncommitted work (a concurrent pull, rename, or edit), and `git add <your paths>` will not exclude
+  it. Stage only paths this iteration authored, then confirm `git diff --cached --stat` names exactly
+  those paths before committing.
 - One coherent commit: `<type>(<scope>): <what> (<GATE_ID>/<WORK_ITEM_ID>)`, ending with
   `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
-- Push per `publication.control_repository`. Record the pushed commit in the report.
+- Push per `publication.control_repository`, then watch the triggered run to completion (`gh run
+  list --limit 1` for the pushed SHA, or `gh run watch`) before ending the iteration. A red run is
+  fixed now, in this iteration — never deferred to the next iteration's Orient step. Record the
+  pushed commit and its CI result in the report.
 
 ## 5. Blockers and failures
 
