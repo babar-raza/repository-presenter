@@ -78,7 +78,10 @@ def test_source_artifacts_carry_exact_bytes_and_no_host_details(tmp_path: Path) 
     document = json.loads((artifacts.directory / "snapshot.json").read_text(encoding="utf-8"))
     assert document["source_revision"] == snapshot.source_revision
     assert document["schema_version"] == 1
-    assert str(tmp_path) not in json.dumps(document)
+    assert document["clone_url"] == str(source)
+    without_url = {key: value for key, value in document.items() if key != "clone_url"}
+    assert str(tmp_path) not in json.dumps(without_url)
+    assert tmp_path.as_posix() not in json.dumps(without_url)
     assert "captured_at" not in document
 
 
