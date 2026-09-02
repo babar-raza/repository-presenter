@@ -9,6 +9,17 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.readme.evidence.facts.extract import extract_facts
+from repository_presenter.components.readme.evidence.facts.records import (
+    FACTS_FILENAME,
+    write_facts,
+)
+from repository_presenter.components.readme.evidence.processability import (
+    DISPOSITION_FILENAME,
+    assess_processability,
+    write_disposition,
+)
+from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
@@ -20,6 +31,7 @@ from repository_presenter.core.registry.loader import (
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
+    list_tree_paths,
     verify_snapshot,
     write_source_artifacts,
 )
@@ -138,15 +150,35 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         )
         artifacts = write_source_artifacts(snapshot, clone.path, transaction / "source")
         verify_snapshot(snapshot, clone.path)
+        print(
+            f"source: {artifacts.directory.relative_to(root).as_posix()} "
+            f"({len(artifacts.files)} files, {snapshot.tree_entries} tree entries, "
+            f"readme {snapshot.readme_path or 'absent'}, digest {artifacts.digest})"
+        )
+        plugin = plugin_for(entry.ecosystem)
+        manifest = plugin.detect_manifest(clone.path)
+        tree_paths = list_tree_paths(clone.path)
+        manifest_path = None if manifest is None else manifest.relative_to(clone.path).as_posix()
+        disposition = assess_processability(snapshot, tree_paths, plugin, manifest_path)
+        if disposition is not None:
+            write_disposition(disposition, transaction / DISPOSITION_FILENAME)
+            print(
+                f"insufficient_evidence: {disposition.reason_code} for {entry.repository} "
+                f"at {clone.revision}; resume when {disposition.resume_predicate}"
+            )
+            return EXIT_INCONSISTENT
+        document = extract_facts(entry, snapshot, clone.path, tree_paths, plugin, manifest)
+        facts_digest = write_facts(document, transaction / FACTS_FILENAME)
     except PresenterError as exc:
         _fail(str(exc))
         return exc.exit_code
+    kinds = sorted({fact.kind for fact in document.facts})
+    counts = ", ".join(f"{kind} {len(document.by_kind(kind))}" for kind in kinds)
     print(
-        f"source: {artifacts.directory.relative_to(root).as_posix()} "
-        f"({len(artifacts.files)} files, {snapshot.tree_entries} tree entries, "
-        f"readme {snapshot.readme_path or 'absent'}, digest {artifacts.digest})"
+        f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
+        f"({len(document.facts)} records: {counts}; digest {facts_digest})"
     )
-    _fail("present: the facts stage is not implemented at this revision")
+    _fail("present: the investigation stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

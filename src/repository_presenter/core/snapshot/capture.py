@@ -130,3 +130,9 @@ def verify_snapshot(snapshot: RepositorySnapshot, clone_path: Path) -> None:
             raise RepositorySnapshotError("snapshot README disappeared during the transaction")
         if _sha256(readme.read_bytes()) != snapshot.readme_sha256:
             raise RepositorySnapshotError("snapshot README changed during the transaction")
+
+
+def list_tree_paths(clone_path: Path) -> list[str]:
+    """Every tracked path at HEAD, from the same ``ls-tree`` listing the artifact records."""
+    listing = _tree_listing(clone_path)
+    return [line.split("\t", 1)[1] for line in listing.splitlines() if "\t" in line]

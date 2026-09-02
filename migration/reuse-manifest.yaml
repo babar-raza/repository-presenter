@@ -2,7 +2,7 @@ schema_version: 1
 manifest_status: LEDGER_OPEN
 project: repository-presenter
 created_at: "2026-09-02T00:00:00+05:00"
-updated_at: "2026-09-02T13:20:58+05:00"
+updated_at: "2026-09-02T14:44:06+05:00"
 
 authority:
   governance: AGENTS.md
@@ -1028,6 +1028,75 @@ file_records:
     pulled_at: "2026-09-02"
     work_item: G1-W01
     note: The source/ artifact layout (snapshot.json, tree.txt, README under its own name, one digest over all files) is new and follows docs/README_CONTRACT.md section 3 stage S1.
+
+  - source_path: src/readme_agent/ecosystems/registry.py
+    sha256: 36a3b1c28401dcd6ff435310503b2d8ad2ec07892be7f05b24a6477807700fa1
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/extractors/platforms/registry.py
+    retained_behavior:
+      - Dispatch by ecosystem through a registry, additive by entry; an unregistered ecosystem fails closed with ConfigError.
+      - Manifest globs owned by the plugin, so inventory and parsing never disagree.
+    removed_behavior:
+      - The six other ecosystem parsers (java, net, typescript, go, cpp, rust); each returns as a plugin at G3.
+      - A dict-returning parse_manifest; plugins return typed facts with evidence.
+    tests_ported:
+      - tests/unit/test_ecosystems.py TestEcosystemRegistry (unknown ecosystem fails closed) -> tests/components/readme/extractors/platforms/test_registry.py.
+    acceptance: present selects the Python plugin for the canary through the registry.
+    import_closure:
+      - src/readme_agent/ecosystems/{cpp,dotnet,go,java,rust,typescript}.py (cut, not pulled)
+      - src/readme_agent/ecosystems/python.py
+      - src/readme_agent/errors.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+
+  - source_path: src/readme_agent/ecosystems/python.py
+    sha256: c4bc36699b7be5fc2908a2206725c410116ec293445dae751ccb0c125771c5c7
+    disposition: ADAPT_AS_PLUGIN
+    destination: src/repository_presenter/components/readme/extractors/platforms/python.py
+    retained_behavior:
+      - pyproject.toml authority with setup.cfg and setup.py as fallbacks; static PEP 621 dynamic-version resolution without executing repository code.
+      - Both real setuptools package-declaration shapes (packages.find.include and the flat packages list).
+    removed_behavior:
+      - The single Aspose-specific canonical_package heuristic; every declared or tree-proven package becomes an import_path fact and selection is an agentic decision.
+      - The dict interface; the plugin returns package, install_command, and import_path facts with evidence.
+    tests_ported:
+      - tests/unit/test_ecosystems.py TestPythonParser (7 of 13; the setup.py cases moved with python_setup_py.py) -> tests/components/readme/extractors/platforms/test_python.py.
+    acceptance: The canary yields package name aspose-3d-foss, version 26.1.0, python_requires >=3.7, classifier versions, an UNRESOLVED pip install command, and the aspose, aspose.pydrawing, and aspose.threed import paths.
+    import_closure:
+      - src/readme_agent/ecosystems/python_setup_py.py
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+
+  - source_path: src/readme_agent/ecosystems/python_setup_py.py
+    sha256: 1d597fc84b934fe707f8f9d343b951627599fd81e09cdaac9cb851ad02d9931c
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/platforms/python_setup_py.py
+    retained_behavior:
+      - AST-only reading of literal setup keywords from exactly one call proven to originate from setuptools; forged, rebound, spread, and duplicate calls yield nothing.
+      - Deterministic X.Y Python classifier versions.
+    removed_behavior:
+      - The license keyword is now also read (literal only).
+    tests_ported:
+      - tests/unit/test_ecosystems.py setup.py cases (6 of 13) -> tests/components/readme/extractors/platforms/test_python_setup_py.py.
+    acceptance: A setup.py with a side-effecting discover() call yields only the literal name and never runs.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
+
+  - source_path: src/readme_agent/license/auditor.py
+    sha256: 94d8570c473eb3ac0486ea7f66dd5dc00fca8168b9d4a16000315f523b3e39dc
+    disposition: EXTRACT_AND_REFACTOR
+    destination: src/repository_presenter/components/readme/evidence/facts/license.py
+    retained_behavior:
+      - SPDX classification of the license file text (MIT, Apache-2.0, GPL-3.0, BSD, ISC, MPL-2.0), including the real License/LICENSE.txt case.
+    removed_behavior:
+      - The GitHub API classification path and the LicenseState source label; an unrecognized text becomes an UNRESOLVED license:spdx fact instead of a silent None.
+    tests_ported:
+      - tests/unit/test_license_auditor.py (5 of 9; the GitHub-API cases are cut with that path) -> tests/components/readme/evidence/facts/test_license.py.
+    acceptance: The canary yields license:file LICENSE and license:spdx MIT from the file text alone.
+    import_closure: []
+    pulled_at: "2026-09-02"
+    work_item: G1-W02
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward

@@ -149,7 +149,14 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
     """Serve the canary's clone URL from a local repository through the real clone contract."""
     source = init_git_repository(tmp_path / "upstream", with_commit=False)
     (source / "README.md").write_bytes(b"# Aspose.3D for Python\n\nOriginal bytes.\n")
-    (source / "LICENSE").write_text("MIT\n", encoding="utf-8")
+    (source / "LICENSE").write_text("MIT License\n\nPermission is hereby granted", "utf-8")
+    (source / "setup.py").write_text(
+        'from setuptools import setup\nsetup(name="aspose-3d-foss", version="26.1.0")\n',
+        encoding="utf-8",
+    )
+    (source / "aspose" / "threed").mkdir(parents=True)
+    (source / "aspose" / "__init__.py").write_text("", encoding="utf-8")
+    (source / "aspose" / "threed" / "__init__.py").write_text("", encoding="utf-8")
     revision = commit_all(source, "seed")
     calls: list[dict[str, Any]] = []
 
@@ -159,6 +166,21 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
 
     monkeypatch.setattr(cli, "pinned_read_only_clone", serve_locally)
     return {"source": source, "revision": revision, "calls": calls}
+
+
+@pytest.fixture
+def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Serve the canary's clone URL from the README-only placeholder fixture."""
+    source = init_git_repository(tmp_path / "placeholder", with_commit=False)
+    for name in ("README.md", "LICENSE"):
+        shutil.copy(REPO_ROOT / "tests" / "fixtures" / "readme_only" / name, source / name)
+    commit_all(source, "placeholder")
+    monkeypatch.setattr(
+        cli,
+        "pinned_read_only_clone",
+        lambda clone_url, destination, **kwargs: pinned_read_only_clone(str(source), destination),
+    )
+    return source
 
 
 def test_present_admits_clones_and_captures_the_source_snapshot(
@@ -181,10 +203,22 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     source_line = next(line for line in captured.out.splitlines() if line.startswith("source: "))
     assert source_line.startswith(
-        f"source: {source_dir} (3 files, 2 tree entries, readme README.md"
+        f"source: {source_dir} (3 files, 5 tree entries, readme README.md"
     )
+    facts_line = next(line for line in captured.out.splitlines() if line.startswith("facts: "))
+    facts_dir = source_dir.removesuffix("/source")
+    assert facts_line.startswith(f"facts: {facts_dir}/facts.json (")
+    assert "identity 5" in facts_line and "license 2" in facts_line and "package 2" in facts_line
+    facts = json.loads((project_with_registry / facts_dir / "facts.json").read_text("utf-8"))
+    assert facts["source_revision"] == revision
+    assert {fact["id"] for fact in facts["facts"]} >= {
+        "package:name",
+        "import_path:aspose.threed",
+        "license:spdx",
+        "install_command:pip",
+    }
     assert code == EXIT_INCONSISTENT
-    assert "facts stage is not implemented" in captured.err
+    assert "investigation stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -195,19 +229,40 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert "ghp_read_only_token_value" not in captured.out + captured.err
     written = project_with_registry / source_dir
     assert (written / "README.md").read_bytes() == b"# Aspose.3D for Python\n\nOriginal bytes.\n"
-    assert (written / "tree.txt").read_text(encoding="utf-8").count("\n") == 2
+    assert (written / "tree.txt").read_text(encoding="utf-8").count("\n") == 5
     assert json.loads((written / "snapshot.json").read_text("utf-8"))["source_revision"] == revision
 
 
 def test_present_rerun_on_the_same_revision_is_byte_identical(
     project_with_registry: Path, local_canary: dict[str, Any], capsys: pytest.CaptureFixture[str]
 ) -> None:
+    prefixes = ("source: ", "facts: ")
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
-    first = [line for line in capsys.readouterr().out.splitlines() if line.startswith("source: ")]
+    first = [line for line in capsys.readouterr().out.splitlines() if line.startswith(prefixes)]
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
-    second = [line for line in capsys.readouterr().out.splitlines() if line.startswith("source: ")]
+    second = [line for line in capsys.readouterr().out.splitlines() if line.startswith(prefixes)]
     assert first == second
-    assert "digest " in first[0]
+    assert len(first) == 2
+    assert all("digest " in line for line in first)
+
+
+def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
+    project_with_registry: Path, readme_only_upstream: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "insufficient_evidence: NO_IMPLEMENTATION_EVIDENCE for " + CANARY in captured.out
+    assert "resume when a later default-branch revision adds a python manifest" in captured.out
+    transaction = next(
+        (project_with_registry / "runs" / "transactions").glob("aspose-3d-foss__*/*")
+    )
+    assert (transaction / "disposition.json").is_file()
+    assert not (transaction / "facts.json").exists()
+    document = json.loads((transaction / "disposition.json").read_text("utf-8"))
+    assert document["evidence_paths_inspected"] == ["LICENSE", "README.md"]
+    assert "not implemented" not in captured.err
 
 
 def test_present_refuses_a_repository_outside_the_allow_list_before_cloning(

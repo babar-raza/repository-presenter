@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/babar-raza/repository-presenter/schemas/facts.schema.json",
+  "title": "Fact records for one repository revision",
+  "description": "Shape of facts.json, stage S2 of README_CONTRACT.md section 3: typed records {id, kind, value, evidence[], polarity, confidence}. Every record names the repository paths that support it. IDs are <kind>:<slug> and unique within the document; records are sorted by ID so the file is byte-identical across reruns.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "repository", "source_revision", "facts"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+    "source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "value", "evidence", "polarity", "confidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z_]+:[a-z0-9]+(?:[._-][a-z0-9]+)*$" },
+          "kind": {
+            "enum": [
+              "identity",
+              "package",
+              "install_command",
+              "import_path",
+              "public_symbol",
+              "example",
+              "format",
+              "capability",
+              "dependency",
+              "license",
+              "third_party_notices",
+              "build_test_asset",
+              "link_target",
+              "inherited_unit"
+            ]
+          },
+          "value": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path", "detail"],
+              "properties": {
+                "path": { "type": "string", "minLength": 1 },
+                "detail": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "polarity": { "enum": ["SUPPORTED", "CONTRADICTED", "UNRESOLVED"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

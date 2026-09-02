@@ -70,6 +70,7 @@ candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRA
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
+  fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
 runs/                        disposable clones and run output (gitignored, never committed)
 ```
