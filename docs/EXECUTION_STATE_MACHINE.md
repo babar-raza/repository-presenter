@@ -214,8 +214,7 @@ the CLI needs, configuration precedence machinery, any legacy port.
 
 ### Exit predicates
 
-- Clean environment installs from the lock; lint, format, types, and tests pass locally on Python
-  3.11, 3.12, and 3.13.
+- Clean environment installs from the lock; lint, format, types, tests pass on Python 3.11-3.13.
 - CLI reports version, current gate, and `0/34` candidates.
 - Schemas validate the cursor and manifest; canary and path-budget tests pass.
 - The accepted commits are pushed to the control repository's `origin`; hosted CI is checked at the
@@ -269,8 +268,7 @@ leases, or hosted execution yet; those are G4.
    consumed input: source revision and relevant tree, fact records, prompt manifests, model route,
    template component versions, validator IDs and versions, acceptance profile, protected-content
    fingerprint, policy), and `manifest.json` with checksums.
-8. **No-op.** Fresh process, same inputs: same bytes, zero provider calls, ledger records cache
-   reuse per job.
+8. **No-op.** Fresh process, same inputs: same bytes, zero calls, ledger records cache reuse per job.
 9. `status` prints `1/34` from the bundles on disk.
 
 ### Exit predicates
@@ -425,7 +423,9 @@ Goal: keep the system useful after deployment without weakening the README found
 1. Monitor quality, cost, repair rate, false-positive drift, proposal acceptance, time to update.
 2. Refresh prompts and model routes only at declared version boundaries with regression evaluation
    across every current candidate.
-3. Admit new repositories disabled and read-only through normal processability.
+3. Admit new repositories disabled and read-only through normal processability; one in an ecosystem
+   with no registered plugin stays non-processable until that plugin lands the same way as G2 and
+   G3 — one file, one test, one registry entry — never a reason to weaken the fail-closed default.
 4. Automate upstream-defect issue creation behind its own authorization and deduplication ledger.
 5. Add repository description, homepage and topics, community files, release and package links,
    visual assets, and social preview as separate surface machines on the shared core; keep social-

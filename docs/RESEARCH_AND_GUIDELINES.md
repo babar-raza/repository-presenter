@@ -417,6 +417,17 @@ each platform's module (`extractors/platforms/<ecosystem>.py`) depends only on `
 file, sharing no import with any other ecosystem's module; only the registry
 (`extractors/platforms/registry.py`) references more than one ecosystem, and only to register them.
 
+**The registry is open-ended, not fixed at seven.** `ecosystem` is a pattern-constrained string in
+the registry schema and model (`^[a-z][a-z0-9_]*$`), never a closed enum, and the extractor registry
+holds plugins in a plain `{ecosystem: plugin}` dict that fails closed with `ConfigError` on anything
+unregistered — verified in the built code, not just planned. G3 qualifies seven representatives
+because that is what the frozen 34-repository portfolio needs; it proves the pattern generalizes, and
+is a milestone, not a ceiling. An eighth ecosystem, or a fiftieth, enters exactly the same way at any
+later gate: one plugin file implementing the same protocol, one test, one entry in the registry's
+dict — nothing else changes. A repository in an ecosystem with no registered plugin stays
+non-processable, correctly, until that plugin exists; that is the fail-closed default working, never
+a defect to route around.
+
 **Verified in the legacy source:** `ecosystems/registry.py` is already the sole file importing more
 than one ecosystem module; `ecosystems/python.py` and `ecosystems/rust.py` import no sibling ecosystem
 module. This one boundary was sound and this repository keeps it. Adding, fixing, or extending one
