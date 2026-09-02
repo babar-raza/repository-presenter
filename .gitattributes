@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+# Windows command files keep the line ending cmd.exe expects.
+*.bat text eol=crlf
+*.cmd text eol=crlf

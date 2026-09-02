@@ -1,0 +1,625 @@
+schema_version: 1
+manifest_status: LEDGER_OPEN_NO_PULLS
+project: repository-presenter
+created_at: "2026-09-02T00:00:00+05:00"
+updated_at: "2026-09-02T12:00:00+05:00"
+
+authority:
+  governance: AGENTS.md
+  reuse_model: INCREMENTAL_PULL
+  first_pull_gate: G1_FIRST_VALID_CANDIDATE
+  census_gate: G3_SEVEN_ECOSYSTEM_REPRESENTATIVES
+  note: >
+    This manifest is a ledger, not a census. A legacy file or asset enters the new repository only when a
+    gate's work pulls it, and it enters with one file record, its ported tests, and a cut import closure.
+    Everything never pulled is RETIRE by default. Expected dispositions below are seeds for the pull, not
+    completed audit evidence. The G3 census records final totals by disposition.
+
+source:
+  repository: babar-raza/foss-readme-optimizer
+  url: https://github.com/babar-raza/foss-readme-optimizer
+  frozen_revision: a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815
+  revision_verified: true
+  revision_metadata:
+    verified_at: "2026-09-02"
+    author: Babar Raza <babar.raza@aspose.com>
+    authored_at: "2026-09-01T18:39:18+05:00"
+    subject: "fix(readme): drop the ungrounded Project Structure summary phrase (PWD-060-FOLLOWUP5)"
+    local_clone_is_shallow: true
+    local_clone_visible_commits: 1423
+  working_tree_at_freeze:
+    observed_at: "2026-09-02"
+    status: DIRTY
+    modified_tracked_files: 15
+    untracked_files: 9
+    insertions: 496
+    deletions: 77
+    touched_production_files:
+      - src/readme_agent/facts/portfolio_facts_readiness.py
+      - src/readme_agent/presentation/verified_template_api_reference.py
+      - src/readme_agent/presentation/verified_template_example_presentation.py
+      - src/readme_agent/presentation/verified_template_sections.py
+      - src/readme_agent/specialists/review_standard_mermaid_premises.py
+      - src/readme_agent/supervisor/mission_execution_guard.py
+    touched_documents:
+      - plans/idea.md (adds "Upstream Defect Reporting"; already carried in this repository's plans/idea.md)
+      - plans/investigations/control/mission-resume-capsule.md
+    untracked_paths_summary: golden-corpus reconstruction investigation, roster, taskcards, evidence, and five tools under plans/investigations/
+    reconciliation: PENDING_OWNER_DECISION_G0_W02
+    reconciliation_rule: Commit upstream and re-freeze to the new revision, or record each exclusion with a reason; no pulled behavior may depend on an uncommitted change.
+  clean_inventory_captured: false
+  runtime_dependency_allowed: false
+
+audit:
+  model: INCREMENTAL_PULL
+  status: NOT_STARTED
+  first_pull_at: null
+  census_completed_at: null
+  auditor: null
+  inventory_path: migration/legacy-source-inventory.json
+  dependency_report_path: migration/legacy-dependency-closure.json
+  census_evidence: evidence/build/G3_SEVEN_ECOSYSTEM_REPRESENTATIVES/reuse-census.json
+  per_pull_checks:
+    - Compute the import closure of the source file before pulling; the pull fails if it drags a RETIRE module or any supervisor, capabilities, or specialists module.
+    - Record the exact SHA-256 of the file at the frozen revision, taken from a git archive extracted to a short path.
+    - Port or write the tests that cover every retained behavior in the same work item.
+    - Record provenance per file; the legacy repository has no LICENSE file, and this repository's MIT license governs the ported result.
+    - Run the official entry point on the canary after the pull; a pulled module with no production importer is a defect.
+  census_checks:
+    - Verify the frozen source revision exists and record its commit metadata. (done 2026-09-02; see source.revision_metadata)
+    - Reconcile the dirty legacy working tree observed at freeze. (owner decision in G0-W02; see source.working_tree_at_freeze)
+    - Record the legacy test-suite pass/fail baseline on a Linux runner before the first pull so ported-test failures are attributable.
+    - Classify every non-Python production asset listed under expected_asset_dispositions as pulled or retired.
+    - Measure final file, line, and test totals by disposition at the G3 census; everything unpulled is RETIRE.
+    - Prove no retired mission, trusted-lane, cohort, or promotion dependency entered any pulled closure.
+
+allowed_dispositions:
+  PORT_NEARLY_INTACT: Same responsibility and public contract; port with provenance and tests.
+  EXTRACT_AND_REFACTOR: Retain bounded behavior while removing obsolete coupling.
+  ADAPT_AS_PLUGIN: Convert ecosystem, family, or product behavior to a registered adapter.
+  FIXTURE_OR_ORACLE_ONLY: Retain only as immutable regression or evaluation evidence.
+  MIGRATION_READER_ONLY: Read legacy data but emit only current schemas and state.
+  RETIRE: Do not include in the new production runtime.
+
+measured_legacy_baseline:
+  status: VERIFIED_AT_FROZEN_REVISION
+  measured_at: "2026-09-02"
+  measurement_method: git archive of the frozen revision; line counts are newline counts of *.py files
+  first_party_production_python_lines: 171345
+  vendored_aspose_org_python_lines: 23574
+  test_python_lines: 156031
+  test_files: {unit: 457, integration: 12, security: 9, fixtures: 5}
+  unit_tests_collected: 5669
+  unit_tests_deselected_live: 4
+  workflow_files: 13
+  production_entry_point: ".github/workflows/readme-agent-production.yml -> readme-agent supervise --execution-profile github_observe (daily 05:17 UTC, weekly Sun 04:43 UTC, workflow_dispatch, workflow_call, repository_dispatch)"
+  supervise_import_closure:
+    modules: 760
+    lines: 154167
+    supervisor_modules: 83
+    specialists_modules: 75
+    capabilities_modules: 43
+    retired_modules: 22
+    vendored_modules: 2
+  legacy_narrow_orchestrator_closure:
+    modules: 122
+    lines: 16385
+  legacy_test_baseline:
+    measured_at: "2026-09-02"
+    environment: Windows 11, legacy .venv Python 3.13.2, pytest 9.1.1, pytest -n 8 -m "not live", LongPathsEnabled=0
+    clean_frozen_clone: {tests: 5674, passed: 5399, failed: 261, errors: 13, skipped: 1, note: "267 of 269 failing paths exceed 260 chars (Path.resolve() through the mapped drive, pytest temp dirs); environmental"}
+    developer_worktree_dirty: {tests: 5683, passed: 5669, failed: 13, skipped: 1, note: "dirty diff adds 9 tests; all 13 failures also fail in the clean clone"}
+    reproducible_in_both_environments: 13
+    confirmed_code_failures_at_frozen_revision:
+      - tests/unit/test_verified_template_capabilities_seo_keyword_lineage.py (3 tests; AssertionError on rendered Key Capabilities titles)
+      - tests/unit/test_portfolio_stage_transactions.py::test_candidate_transaction_observation_tampering_still_breaks_seal (DID NOT RAISE ValueError)
+    probable_code_failures_at_frozen_revision:
+      - tests/unit/test_portfolio_stage_transactions.py::test_candidate_transaction_observations_do_not_change_semantic_receipt (FileNotFoundError, 179-char path)
+      - tests/unit/test_supervisor_loop.py::TestBasicLoop::test_local_poc_records_snapshot_and_profile_before_later_stages (FileNotFoundError, 185-char path)
+    environmental_failures_in_both: 7 (temporary paths of 281-282 chars)
+    definitive_baseline: PENDING_BEFORE_FIRST_PULL (legacy CI on a Linux runner, or a local run with LongPathsEnabled=1)
+  seed_glob_coverage:
+    covered_lines: 56767
+    covered_percent: 29.1
+    uncovered_lines: 138152
+    uncovered_by_package:
+      facts: 30995
+      readme: 29298
+      specialists: 20221
+      supervisor: 19601
+      presentation: 9240
+      capabilities: 6485
+      state: 5239
+      root_modules: 4782
+      verification: 4769
+      llm: 1881
+      validation: 1602
+      golden_set: 1341
+      registry: 1176
+      profile: 331
+      authorization: 295
+      evidence: 288
+      github_api: 279
+      preflight: 261
+      license: 49
+      effects: 19
+  expected_reusable_fraction:
+    lower_percent: 31
+    upper_percent: 37
+    note: Audit estimate only; it does not authorize bulk copying. Seed globs cover 29.1% of lines, so the estimate cannot be confirmed from seeds alone.
+
+preliminary_coupling_findings:
+  measured_at: "2026-09-02"
+  method: static import-closure analysis (ast) over src/readme_agent at the frozen revision; 156 seed-retained modules analysed
+  retained_modules_reaching_a_retired_module: 31
+  retained_modules_reaching_supervisor_capabilities_or_specialists: 13
+  findings:
+    - id: CPL-01
+      chain: llm.call_transport -> llm.prompt_registry -> readme.facts (sha256_text) -> validation.registry (VALIDATION_RULESET_VERSION) -> validation.rules.change_boundary -> readme.markers
+      affected: every llm/* module, presentation/claim_validation, presentation/verified_source_*, readme/assessment, readme/agentic_composition, validation/public_quality_*
+      required_cut: Move sha256_text and the ruleset version into core hashing and the validation registry; readme/markers stays RETIRE.
+    - id: CPL-02
+      chain: evidence.writer -> evidence.manifest_v2 -> state.schema -> state.proposal_schema -> capabilities.schema (OrgRepoRef)
+      affected: evidence/writer, evidence/manifest_v3, state/git_backend, state/cas, state/recovery, state/health, state/freshness_contract, registry/revision_store
+      required_cut: Extract shared identity types into core; capabilities/schema.py has 62 direct importers.
+    - id: CPL-03
+      chain: specialists.separated_readme_review -> capabilities.dispatcher -> capabilities.registry -> capabilities.check_install_path -> orchestrator -> readme.candidate_pipeline
+      closure: 592 modules / 115816 lines, including the vendored tree
+      required_cut: Reimplement the reviewer-separation contract narrowly; the legacy module cannot be extracted as a unit.
+    - id: CPL-04
+      chain: commands_supervision -> commands_compatibility._durable_state_backend
+      note: A RETIRE module supplies the production state-backend factory; relocate before retiring.
+    - id: CPL-05
+      chain: paths.runs_dir() defaults to Path.cwd()/runs; 69 direct importers of paths
+      note: Global cwd-relative path assumption; the new runtime root must be explicit.
+    - id: CPL-06
+      chain: 15 production modules (30 references) name plans/investigations/... evidence paths, including env.py, evidence/writer.py, state/schema.py, ecosystems/resolver.py, llm/planner_client.py
+      note: Runtime coupling to the legacy plans tree; classify each reference as fixture, oracle, or dead before porting.
+    - id: CPL-07
+      chain: env.py resolves GH_TOKEN then GITHUB_PAT unless README_AGENT_PRODUCTION_AUTH=github_app
+      note: The fail-closed production mode required by plans/idea.md exists; port github_app as the only production mode and keep the PAT path for local act runs only.
+    - id: CPL-08
+      chain: 11 specialists modules import langgraph or langchain-core
+      note: separated_readme_review does not import them directly; the new project decides its orchestration dependency explicitly rather than inheriting it.
+
+summary:
+  final_counts_available: false
+  files_in_inventory: null
+  files_by_disposition:
+    PORT_NEARLY_INTACT: null
+    EXTRACT_AND_REFACTOR: null
+    ADAPT_AS_PLUGIN: null
+    FIXTURE_OR_ORACLE_ONLY: null
+    MIGRATION_READER_ONLY: null
+    RETIRE: null
+  lines_by_disposition:
+    PORT_NEARLY_INTACT: null
+    EXTRACT_AND_REFACTOR: null
+    ADAPT_AS_PLUGIN: null
+    FIXTURE_OR_ORACLE_ONLY: null
+    MIGRATION_READER_ONLY: null
+    RETIRE: null
+
+expected_area_dispositions:
+  - source_glob: src/readme_agent/llm/call_transport.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/llm/transport.py
+    retained_behavior:
+      - Bounded provider retries.
+      - Physical-attempt accounting.
+      - Request and response hashing.
+    prohibited_coupling:
+      - Trusted-lane provider budgets.
+
+  - source_glob: src/readme_agent/llm/call_ledger.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/llm/ledger.py
+    retained_behavior:
+      - Repository, revision, stage, prompt, model, attempt, latency, outcome, and token attribution.
+      - Explicit cache reuse and zero-provider-call accounting.
+
+  - source_glob: src/readme_agent/llm/call_schema.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/llm/schema.py
+    retained_behavior:
+      - Typed provider-call records.
+
+  - source_glob: src/readme_agent/llm/live_client.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/llm/client.py
+    retained_behavior:
+      - Configurable OpenAI-compatible chat-completions gateway.
+      - Typed response parsing and fail-closed errors.
+    removed_behavior:
+      - Job-specific defaults that belong in route configuration.
+
+  - source_glob: src/readme_agent/llm/*_client.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/llm/jobs/
+    retained_behavior:
+      - Useful typed job adapters.
+    removed_behavior:
+      - Duplicate HTTP transports.
+      - Trusted-lane-specific clients.
+
+  - source_glob: src/readme_agent/llm/prompt_registry.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/llm/prompts.py
+    retained_behavior:
+      - Governed prompt identity and dependency hashes.
+
+  - source_glob: src/readme_agent/llm/prompt_hygiene.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/llm/prompt_hygiene.py
+    retained_behavior:
+      - Unknown, duplicate, orphaned, or inline executable prompt rejection.
+
+  - source_glob: src/readme_agent/gitsafety/**
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/git_safety/
+    retained_behavior:
+      - Push-neutered work clones.
+      - Blocking pre-push hook.
+      - Deterministic safety verification.
+
+  - source_glob: src/readme_agent/registry/loader.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/registry/loader.py
+    retained_behavior:
+      - Hard allow-list check before repository-specific work.
+
+  - source_glob: src/readme_agent/registry/{discovery,intake,revision,reconciliation}*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/registry/
+    retained_behavior:
+      - Complete authorized discovery.
+      - Revision-bound intake and explicit dispositions.
+    removed_behavior:
+      - Legacy mission and campaign coupling.
+
+  - source_glob: src/readme_agent/repository_snapshot.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/snapshot/repository.py
+    retained_behavior:
+      - Immutable source revision and exact README bytes.
+
+  - source_glob: src/readme_agent/inspection/**
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/snapshot/inspection/
+    retained_behavior:
+      - File inventory and Git metadata inspection.
+
+  - source_glob: src/readme_agent/ecosystems/**
+    expected_disposition: ADAPT_AS_PLUGIN
+    destination_area: src/repository_presenter/components/readme/extractors/platforms/
+    retained_behavior:
+      - Platform detection.
+      - Public consumer-surface extraction.
+      - Ecosystem-specific example and package verification inputs.
+
+  - source_glob: src/readme_agent/evidence/redaction.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/evidence/redaction.py
+    retained_behavior:
+      - Secret redaction before evidence persistence.
+
+  - source_glob: src/readme_agent/evidence/{writer,manifest_v3}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/evidence/
+    retained_behavior:
+      - Atomic content-addressed evidence and checksum validation.
+    removed_behavior:
+      - Obsolete manifest versions and lane-specific fields.
+
+  - source_glob: src/readme_agent/links/**
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/validation/links/
+    retained_behavior:
+      - Contextual matching, conservative allocation, terminology, and destination validation.
+
+  - source_glob: src/readme_agent/validation/public_quality_*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/validation/
+    retained_behavior:
+      - Applicable factual, structural, contradiction, and public-quality checks.
+
+  - source_glob: src/readme_agent/facts/schema_v2.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/evidence/facts.py
+    retained_behavior:
+      - Typed product facts and lineage.
+    removed_behavior:
+      - Fields with only legacy proof/campaign consumers.
+
+  - source_glob: src/readme_agent/facts/*consumer*.py
+    expected_disposition: ADAPT_AS_PLUGIN
+    destination_area: src/repository_presenter/components/readme/extractors/platforms/
+    retained_behavior:
+      - Public package/API consumer verification.
+
+  - source_glob: src/readme_agent/facts/*example_verifier*.py
+    expected_disposition: ADAPT_AS_PLUGIN
+    destination_area: src/repository_presenter/components/readme/extractors/examples/
+    retained_behavior:
+      - Ecosystem-aware example verification.
+
+  - source_glob: src/readme_agent/facts/{repository_*,format_*,product_identity,protected_content}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/evidence/
+    retained_behavior:
+      - Repository examples, formats, product identity, and protected source content.
+
+  - source_glob: src/readme_agent/facts/{interpretive_evidence,interpretive_resolution}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/investigation/
+    retained_behavior:
+      - Evidence-bound interpretive result contracts.
+
+  - source_glob: src/readme_agent/readme/{assessment,agentic_composition}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/
+    retained_behavior:
+      - Existing-document assessment and agentic composition-plan concepts.
+
+  - source_glob: src/readme_agent/readme/*disposition*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/reconciliation/
+    retained_behavior:
+      - Exactly one disposition per material source unit.
+
+  - source_glob: src/readme_agent/readme/*section_author*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/composition/
+    retained_behavior:
+      - Bounded fact packets and authored-unit provenance.
+
+  - source_glob: src/readme_agent/presentation/{template_compiler,claim_validation}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/{compiler,validation}/
+    retained_behavior:
+      - Versioned semantic component compilation and claim grounding.
+
+  - source_glob: src/readme_agent/presentation/verified_source_*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/reconciliation/
+    retained_behavior:
+      - Verified source preservation, placement, and omission rules.
+
+  - source_glob: src/readme_agent/specialists/separated_readme_review.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/review/independent.py
+    retained_behavior:
+      - Separation of author and independent reviewer.
+
+  - source_glob: src/readme_agent/state/{git_backend,cas,trigger_v2,change_detection,freshness_contract,recovery,health}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/
+    retained_behavior:
+      - Repository-scoped CAS, trigger deduplication, freshness, recovery, and health concepts.
+    removed_behavior:
+      - Overlapping legacy lifecycle and mission schemas.
+
+  - source_glob: src/readme_agent/vendored_asposeorg/**
+    expected_disposition: FIXTURE_OR_ORACLE_ONLY
+    destination_area: tests/fixtures/oracles/aspose_org/
+    retained_behavior:
+      - Selected regression inputs and independently adapted lessons only.
+    prohibited_coupling:
+      - Runtime dependency on the vendored or sibling Aspose.org system.
+
+  - source_glob: src/readme_agent/readme/{candidate_pipeline,markers}.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    known_coupling: CPL-01 (markers is in the import closure of every retained llm module) and CPL-03
+    migration_exception:
+      - A read-only legacy marker parser (find_presentation_span has nine importers) may be recorded separately if real migration requires it.
+
+  - source_glob: src/readme_agent/supervisor/trusted_*.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+
+  - source_glob: src/readme_agent/supervisor/*mission*.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+
+  - source_glob: src/readme_agent/supervisor/proven_transaction_runner/**
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+
+  - source_glob: src/readme_agent/commands_compatibility.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    known_coupling: CPL-04
+    migration_exception:
+      - _durable_state_backend is relocated into the core state backend before this module retires.
+
+  - source_glob: src/readme_agent/github_api/**
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/github/
+    retained_behavior:
+      - Read-only GitHub API client.
+      - Write client used only inside the separately authorized effect job.
+
+  - source_glob: src/readme_agent/preflight/**
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/preflight/
+    retained_behavior:
+      - Fail-closed GitHub and LLM gateway preflight.
+
+  - source_glob: src/readme_agent/authorization/**
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/authorization/
+    retained_behavior:
+      - Exact effect-authorization data contracts.
+    removed_behavior:
+      - Portfolio write gate coupled to legacy proof state.
+
+  - source_glob: src/readme_agent/capabilities/schema.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/identity.py
+    retained_behavior:
+      - Shared repository identity types (OrgRepoRef and peers).
+    prohibited_coupling:
+      - Capability registry, dispatcher, or any capability module.
+    known_coupling: CPL-02
+
+  - source_glob: src/readme_agent/state/{schema,proposal_schema,backend,migrations,git_workspace}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/state/
+    retained_behavior:
+      - Repository record, proposal record, backend protocol, explicit schema migration, Git workspace handling.
+    removed_behavior:
+      - Legacy lifecycle and mission fields.
+
+  - source_glob: src/readme_agent/readme/facts.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/hashing.py
+    retained_behavior:
+      - Canonical text hashing used by prompt and artifact identity.
+    removed_behavior:
+      - Gap-report and validation-ruleset coupling.
+    known_coupling: CPL-01
+
+  - source_glob: src/readme_agent/validation/registry.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/validation/registry.py
+    retained_behavior:
+      - Versioned applicable-check registry identity.
+
+  - source_glob: src/readme_agent/validation/rules/**
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    migration_exception:
+      - Individual rules proven applicable to the verified lane may be re-registered one by one with tests; change_boundary (four-gap owned span) never returns.
+
+  - source_glob: src/readme_agent/{env,paths}.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/core/config/
+    retained_behavior:
+      - Configuration precedence for local development and GitHub Actions.
+      - github_app as the only production credential mode; fail closed without the App token.
+    removed_behavior:
+      - cwd-relative runtime root default.
+      - Gateway variable aliases beyond the documented LLM_BASE_URL and LLM_API_KEY.
+    known_coupling: CPL-05, CPL-07
+
+  - source_glob: src/readme_agent/{errors,retry}.py
+    expected_disposition: PORT_NEARLY_INTACT
+    destination_area: src/repository_presenter/core/
+    retained_behavior:
+      - Typed error categories.
+      - Tenacity-based bounded retry.
+
+  - source_glob: src/readme_agent/presentation/candidate_benchmark_acceptance*.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/review/acceptance.py
+    retained_behavior:
+      - Criterion-specific 30-point acceptance results with hard disqualifiers.
+    removed_behavior:
+      - Portfolio-proof-engine and benchmark-gate coupling.
+
+  - source_glob: src/readme_agent/specialists/readme_review_roles.py
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/review/
+    retained_behavior:
+      - Factual and visitor-quality reviewer role separation.
+
+  - source_glob: src/readme_agent/facts/aspose_benchmark_profile.py
+    expected_disposition: FIXTURE_OR_ORACLE_ONLY
+    destination_area: tests/fixtures/oracles/benchmark/
+    retained_behavior:
+      - Development-only benchmark comparison used at G4.
+    prohibited_coupling:
+      - Runtime or acceptance dependency.
+
+  - source_glob: .github/workflows/**
+    expected_disposition: FIXTURE_OR_ORACLE_ONLY
+    destination_area: .github/workflows/
+    retained_behavior:
+      - Scheduled, manual, workflow-call, and repository-dispatch trigger lessons.
+      - Separate analysis and effect credentials.
+      - Dynamic repository matrix and health reporting.
+    removed_behavior:
+      - Trusted cohort, ACT proof, overlapping compatibility, and mission workflow paths.
+    note: Thirteen workflow files exist at the frozen revision; two production crons plus weekly registry update and daily log-coverage audit are scheduled.
+
+expected_asset_dispositions_note: Non-Python production assets carry contract meaning that Python globs do not cover. Each is pulled per asset with a record when a gate needs it, or classified RETIRE at the G3 census.
+
+expected_asset_dispositions:
+  - source_glob: data/products.json
+    expected_disposition: MIGRATION_READER_ONLY
+    destination_area: src/repository_presenter/core/registry/
+    retained_behavior:
+      - Hard allow-list re-emitted in the current registry schema; the frozen registry revision is produced by the new runtime, never copied as truth.
+    observed_at_frozen_revision: 34 entries, all active; mode full 2, dry_run 29, disabled 3; ecosystems python 13, net 7, java 4, cpp 4, typescript 3, go 2, rust 1; 13 families
+  - source_glob: prompts/**/*.yaml
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: prompts/
+    retained_behavior:
+      - Schema-validated manifests (prompt_id, category, version, model_route, owner, runtime_consumer, output_contract, invalidation_scope, dependent_artifacts).
+      - Six governed jobs: repository_investigation, source_reconciliation, presentation_planning, section_authoring, independent_review, targeted_repair.
+    removed_behavior:
+      - Trusted-lane, supervisor-turn, specialist-selection, merged-review, and four-gap relationship prompts.
+    observed_at_frozen_revision: 17 manifests across analysis, generation, planning, verification
+  - source_glob: templates/readme/{repository-presentation-v1,section-registry-v2}.json
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/components/
+    retained_behavior:
+      - Versioned semantic components and invariants (badge rows, Mermaid grammar, topology, capability column threshold, required slots, Third-Party Notices, License).
+    observed_at_frozen_revision: template_version 1.21.0 with reference_status requires_requalification; 16 registered sections
+  - source_glob: templates/readme/*.md
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: src/repository_presenter/components/readme/components/
+    retained_behavior:
+      - Presentation framing only; no facts, commands, or links inside templates.
+  - source_glob: config/policies/*.yml
+    expected_disposition: ADAPT_AS_PLUGIN
+    destination_area: profiles/
+    retained_behavior:
+      - Per-repository link targets, terminology, and ceilings as reviewed repository and family profile overlays.
+    observed_at_frozen_revision: 34 policy files
+  - source_glob: data/{aspose_org_links,aspose_com_links,families,platform_priorities}.json
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: data/
+    retained_behavior:
+      - Verified link catalog, family registry, and scheduling priority inputs with TTL-governed refresh.
+  - source_glob: data/aspose_benchmark_quality_profile.json
+    expected_disposition: FIXTURE_OR_ORACLE_ONLY
+    destination_area: tests/fixtures/oracles/benchmark/
+    retained_behavior:
+      - Development-only BenchmarkQualityProfileV1 comparison at G4.
+    prohibited_coupling:
+      - Runtime or acceptance dependency.
+  - source_glob: docs/presentation-standard.md
+    expected_disposition: EXTRACT_AND_REFACTOR
+    destination_area: docs/
+    retained_behavior:
+      - Source for the deterministic validators and reviewer rubric of the presentation contract in plans/idea.md.
+  - source_glob: golden-sample/**
+    expected_disposition: FIXTURE_OR_ORACLE_ONLY
+    destination_area: tests/fixtures/oracles/golden_sample/
+    retained_behavior:
+      - Shape regression material only; not an acceptance oracle.
+
+file_records: []
+
+acceptance:
+  per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
+  census_gate: G3_SEVEN_ECOSYSTEM_REPRESENTATIVES
+  status: NOT_READY
+  per_pull_predicates:
+    - Every pulled file or asset has one exact file record whose hash matches the frozen revision.
+    - Every retained behavior of a pulled file maps to destination tests in the same work item.
+    - Every destination compiles without a retired dependency; a pull across CPL-01 or CPL-02 requires the chain to be proven cut first.
+    - Every pulled module has a production importer exercised by the official entry point.
+  census_predicates:
+    - The freeze decision for uncommitted legacy changes is recorded and no pulled behavior depends on an uncommitted change.
+    - Every legacy production file and asset is either pulled with a record or RETIRE.
+    - Final file and line totals reconcile with the clean source inventory.
+    - No percentage or completion claim relies only on expected area dispositions.

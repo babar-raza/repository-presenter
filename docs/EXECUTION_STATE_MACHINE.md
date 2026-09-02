@@ -1,0 +1,499 @@
+# Repository Presenter Implementation State Machine
+
+Status: authoritative build and delivery plan, revision 2 (2026-09-02)  
+Audience: the coding agent responsible for implementing Repository Presenter  
+Companion authority: [`STATE_MACHINE.md`](STATE_MACHINE.md) defines the runtime target;
+[`../plans/idea.md`](../plans/idea.md) owns the product outcome; `migration/reuse-manifest.yaml`
+owns legacy disposition; `project/state.yaml` is the only cursor  
+Legacy source baseline: `babar-raza/foss-readme-optimizer` at
+`a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`
+
+Revision 1 of this plan sequenced four infrastructure gates before the first README. That is the
+legacy failure mode, and `RESEARCH_AND_GUIDELINES.md` §17 records why revision 2 replaced it. This
+document is capped at 500 lines and eight gates; growth beyond that is a defect to remove.
+
+## 1. Mission
+
+Build and deploy Repository Presenter as an autonomous GitHub-native system whose foundational
+component keeps the README files of authorized repositories accurate, credible, repository-specific,
+and current, using a configurable custom LLM inside deterministic controls.
+
+Progress has exactly one unit: **current, reviewable, no-op-proven README candidates, N/34**. The
+`status` command prints it. Code volume, tests, evidence, schemas, transitions, and closed work items
+are not progress. The observable repository transaction is:
+
+1. inspect an immutable real repository revision;
+2. interpret the product agentically from repository-grounded evidence;
+3. reconcile the existing README without silently losing valuable content;
+4. plan and compose a concise repository-specific README;
+5. validate it deterministically with a small set of blocking checks;
+6. obtain one independent agentic approval;
+7. prove an unchanged rerun is byte-identical and makes zero provider calls;
+8. keep that candidate valid while the system changes around it;
+9. later, monitor drift on hosted runners and open or update a safe proposal; and
+10. recover correctly after interruption or an uncertain remote effect.
+
+## 2. Binding principles
+
+1. The system runs autonomously on GitHub-hosted runners on schedules and explicit triggers.
+2. The production LLM is a configurable OpenAI-compatible gateway supplied through GitHub secrets.
+3. Agentic reasoning is mandatory for interpretation, reconciliation, planning, composition,
+   independent review, and targeted repair.
+4. Deterministic code owns evidence, validation, state, transitions, safety, authorization,
+   idempotency, recovery, and GitHub effects.
+5. The portfolio presentation contract is a brand and assurance shell, not a universal prose
+   template.
+6. Normal execution detects product, ecosystem, shape, sections, evidence, examples, and validation
+   paths without human template selection.
+7. The exact immutable repository snapshot is factual authority.
+8. Existing README content is high-value evidence: validate, preserve, improve, correct, or
+   explicitly omit every material unit.
+9. Aspose.org and previously published candidates are development oracles, never runtime
+   dependencies.
+10. A README-only placeholder receives a typed non-processable disposition, never invented content.
+11. An accepted unchanged transaction makes zero new provider calls.
+12. Analysis and write credentials are separately minted, repository-scoped, and short-lived.
+13. Initial automatic publication means opening or updating a PR, never a direct default-branch
+    commit.
+14. A content candidate and permission to publish it are separate decisions.
+15. One repository failure never stops safe work on unrelated repositories.
+16. Prefer established libraries and proven legacy modules over new bespoke infrastructure.
+17. Do not import the legacy mission graph, trusted lane, or proof bureaucracy.
+18. **Infrastructure is just-in-time.** A mechanism enters only when the current or next gate's
+    end-to-end run consumes it. Leases, fencing, durable CAS state, hosted workflows, and
+    authorization machinery arrive at G4 and G5, not before.
+19. **Every work item ends with a run of the official entry point on the canary.** A module with no
+    production importer is a defect, not a deliverable.
+20. **A candidate is invalidated only by a change to an input it consumed.** Every bundle carries a
+    per-candidate dependency manifest; no global control-plane hash exists in the codebase.
+21. **Validators and reviewers re-check; they do not invalidate.** A validator or rubric change
+    re-runs against accepted candidates and produces "still valid", `VALID_UPDATE_AVAILABLE`, or a
+    typed factual, safety, or protected-content failure. Only the last invalidates.
+22. **Reviewer findings must be repairable.** A finding names a candidate section and a causal
+    stage from a fixed vocabulary; anything else is advisory and never blocks twice.
+23. **The acceptance contract freezes at G2 exit** as version 1 and changes only at declared
+    version boundaries with regression evaluation across every current candidate.
+24. **Governance stays compact.** `AGENTS.md` at most 200 lines, this document at most 500, at most
+    eight gates. When a new rule is needed, an old one is replaced.
+
+## 3. Authority and conflict resolution
+
+The coding agent reads authority in this order:
+
+1. This document owns implementation sequence, gates, deliverables, and the build cursor.
+2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions.
+3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
+4. The reuse manifest owns the disposition of each legacy module and asset.
+5. Git history and committed evidence record what actually happened.
+
+`plans/idea.md` is the human product authority for outcomes and standing constraints. It does not
+own sequence or state. Section 12 maps every obligation it states to the gate that delivers it; an
+obligation without a gate is a defect in this document, not permission to skip the obligation.
+
+If implementation proves a design assumption wrong, the agent records evidence, updates the
+affected authoritative document and its tests in one coherent change, and resumes from the earliest
+invalidated gate. It never creates a competing plan.
+
+## 4. Build-state overview
+
+```mermaid
+stateDiagram-v2
+    [*] --> G0_Foundation
+    G0_Foundation --> G1_FirstValidCandidate: buildable, checkable, protected
+    G1_FirstValidCandidate --> G2_StabilityUnderChange: 1/34 accepted and no-op proven
+    G2_StabilityUnderChange --> G3_SevenRepresentatives: invalidation proven, contract v1 frozen
+    G3_SevenRepresentatives --> G4_HostedPortfolio: 7/34, reuse census recorded
+    G4_HostedPortfolio --> G5_ProposalProof: 34/34 local, hosted read-only run equal
+    G5_ProposalProof --> G6_ProductionDeployment: disposable PR lifecycle proven
+    G6_ProductionDeployment --> G7_ContinuousOperation: hosted controls accepted
+```
+
+The agent may research ahead of the cursor but may not build or claim a later gate's machinery
+before its dependency gate passes.
+
+## 5. Durable implementation cursor
+
+`project/state.yaml` is updated in the same commit as every accepted transition. It is a concise
+cursor with a `progress` block (`current_candidates`, `denominator`, `canary`), the current gate,
+one active work item, queued items, legacy-source verification, execution limits, and the last
+transition. Allowed statuses for the current gate and the active work item are `READY`,
+`IN_PROGRESS`, `VERIFYING`, `ACCEPTED`, `BLOCKED_EXTERNAL`, and `FAILED_INTERNAL`. Queued entries
+use `PENDING` or `BLOCKED_BY_GATE`. At most one shared-code item is `IN_PROGRESS`. A JSON Schema
+under `schemas/` validates the file in CI from G0 onward.
+
+## 6. Global execution loop
+
+```mermaid
+flowchart TD
+    O["Observe current gate"] --> R["Read relevant code and evidence"]
+    R --> P["Select smallest change that closes a predicate"]
+    P --> I["Implement with focused tests"]
+    I --> E["Run the official entry point on the canary"]
+    E --> D{"Claim production behavior?"}
+    D -->|Yes| S["Run production-shaped proof"]
+    D -->|No| C["Record evidence and commit"]
+    S --> C
+    C --> G{"Gate predicates pass?"}
+    G -->|No| X["Route defect to causal boundary"]
+    X --> R
+    G -->|Yes| N["Advance durable cursor"]
+```
+
+Rules: inspect before replacing; change the smallest causal boundary; two equivalent failed attempts
+or 15 minutes without narrowing force a first-principles review and a changed mechanism; unit tests
+support a claim but do not prove hosted workflows, live gateways, Git safety, recovery, or GitHub
+effects; every commit leaves the repository consistent and names its gate and work item; never
+mutate a target repository while proving read-only behavior.
+
+## 7. Legacy reuse protocol: pull-based
+
+The legacy repository holds 171,345 lines of first-party production Python, 23,574 vendored lines,
+and 156,031 test lines at the frozen revision. Its scheduled entry point imports 79% of that code,
+so reuse by entry point is impossible and a census-first audit would become its own project. Reuse
+is therefore **pull-based**: a legacy file enters this repository only when a gate's work needs it,
+and it enters with a manifest record, its tests, and a cut import closure.
+
+Every pulled file receives exactly one disposition: `PORT_NEARLY_INTACT`, `EXTRACT_AND_REFACTOR`,
+`ADAPT_AS_PLUGIN`, `FIXTURE_OR_ORACLE_ONLY`, or `MIGRATION_READER_ONLY`. Everything never pulled is
+`RETIRE` by default. Each record carries source path, SHA-256 at the frozen revision, disposition,
+destination, retained behavior, removed behavior and coupling, tests ported, and acceptance.
+
+Pull rules:
+
+- Compute the import closure at the source before pulling. A pull that drags a retired module or a
+  `supervisor`, `capabilities`, or `specialists` module fails; cut the chain first. The known chains
+  are recorded in the manifest as `CPL-01` to `CPL-08`.
+- Seam-cut order for the first pulls: shared identity types out of `capabilities/schema.py`;
+  `sha256_text` out of `readme/facts.py`; the validation ruleset version; then the `llm/*` modules.
+- Non-Python assets follow the same rule: prompt manifests, template and section registries, policy
+  files, registry and link data, the benchmark profile, the presentation standard, and the golden
+  sample are pulled per asset with a record. The manifest lists their expected dispositions.
+- The legacy suite is not green at the frozen revision (four confirmed failures, two probable;
+  `RESEARCH_AND_GUIDELINES.md` §16.9). Record the Linux-runner baseline before the first pull so a
+  ported test that fails is attributable.
+- The G3 exit census records file and line totals by disposition. No reuse percentage is claimed
+  before it.
+
+## 8. Gates
+
+## G0 — Foundation
+
+Goal: make the repository buildable, checkable, and protected in at most two working days, without
+importing legacy runtime behavior or building speculative infrastructure.
+
+### Work
+
+1. Python 3.11+ `src/` package, `pyproject.toml`, lock file, CLI with `--version` and `status`.
+2. Formatting, linting, typing, and unit-test CI on Python 3.11, 3.12, and 3.13.
+3. JSON Schemas under `schemas/` for `project/state.yaml`, the reuse manifest, and the candidate
+   bundle; CI validates the first two now.
+4. Secret canary test proving configured secrets cannot enter a candidate bundle; `.env.example`
+   with `GH_TOKEN`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
+5. Path-budget test: no tracked path exceeds 200 characters.
+6. Owner actions: protect `main` with required CI status; decide the dirty legacy working tree
+   (commit upstream and re-freeze, or record each exclusion in the manifest).
+
+Explicit non-goals: decision-record folders, evidence frameworks, typed error taxonomies beyond what
+the CLI needs, configuration precedence machinery, any legacy port.
+
+### Exit predicates
+
+- Clean environment installs from the lock; CI green on all three Python versions.
+- CLI reports version, current gate, and `0/34` candidates.
+- Schemas validate the cursor and manifest in CI; canary and path-budget tests pass.
+- Branch protection is active, or `BLOCKED_EXTERNAL` records the exact owner action.
+- The freeze decision for the dirty legacy tree is recorded in the manifest.
+- No legacy production file has been copied.
+
+## G1 — First Valid Candidate
+
+Goal: `repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python` produces a
+concise, product-first candidate at
+`candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/<revision>/README.md` with a sealed bundle,
+and an immediate rerun is a zero-call no-op. This is the first milestone of the recovery direction:
+one README that a human can open and judge.
+
+### Work
+
+The transaction is a linear pipeline with stage artifacts on disk. No durable multi-machine state,
+leases, or hosted execution yet; those are G4.
+
+1. **Snapshot.** Allow-list check against the registry, push-neutered clone at the pinned default-
+   branch revision, exact README bytes, tree inventory. Pull `gitsafety/`, `repository_snapshot.py`,
+   `inspection/`, `registry/loader.py`, `evidence/redaction.py`, `errors.py`, `retry.py`.
+2. **Facts.** Distribution name, import path, exported symbols, Python range, verified executable
+   examples, formats, license, and the material-unit inventory of the existing README, all as typed
+   `facts.json` records with evidence IDs and polarity. Pull the Python consumer and example
+   verifier as the first platform plugin behind a registry. A PSD-style README-only fixture returns
+   `insufficient_evidence` with a resume predicate and zero LLM calls.
+3. **LLM jobs.** Governed prompt manifests for `repository_investigation`, `source_reconciliation`,
+   `presentation_planning`, `section_authoring`, `independent_review`, and `targeted_repair`, one
+   file each under `prompts/`. Pull the LLM transport, call schema, ledger, prompt registry, and
+   prompt hygiene after the `CPL-01` cut. LLM prose may only express fact IDs supplied in its
+   packet; deterministic code renders commands, links, badges, Mermaid, example code, and license
+   identity.
+4. **Composition.** One central composer applies the portfolio shell and a final coherence pass.
+   Default length budget from policy: at most 300 visible lines for the canary, no generated API
+   inventory, curated hub APIs only with evidence.
+5. **Blocking checks, exactly these eleven at G1:** pinned source revision and exact README bytes;
+   install command verified against manifest and package-registry observation; every example
+   verified in isolation; every capability and limitation claim bound to an evidence ID by
+   structure, never by substring matching on rendered prose; every material inherited unit has
+   exactly one disposition; links resolve, Aspose links are contextual and within ceilings, and
+   the only edition name is "Enterprise Edition"; one factual H1, one badge row, title-case
+   headings, canonical abbreviations, valid Mermaid topology, no internal assurance narration,
+   length within budget; protected content preserved; no secret in the bundle; one independent
+   non-authoring review returns `ACCEPT`; fresh-process rerun is byte-identical with zero provider
+   calls. Everything else is advisory until G2.
+6. **Independent review.** Separate prompt and call from authoring. Findings name a section and a
+   causal stage (`EXTRACTING`, `INVESTIGATING`, `RECONCILING`, `PLANNING`, `COMPOSING`); at most one
+   targeted repair per equivalent fingerprint; unrepairable findings are advisory.
+7. **Bundle.** `README.md`, `README.patch`, `facts.json`, `dispositions.json`, `plan.json`,
+   `validation.json`, `review.json`, `calls.jsonl`, `dependencies.json` (exact hashes of every
+   consumed input: source revision and relevant tree, fact records, prompt manifests, model route,
+   template component versions, validator IDs and versions, acceptance profile, protected-content
+   fingerprint, policy), and `manifest.json` with checksums.
+8. **No-op.** Fresh process, same inputs: same bytes, zero provider calls, ledger records cache
+   reuse per job.
+9. `status` prints `1/34` from the bundles on disk.
+
+### Exit predicates
+
+- A human can open the candidate at its stable path and it reads as a concise, product-first README
+  for this repository, within budget.
+- All eleven blocking checks pass; review verdict is `ACCEPT`; no-op is proven in a fresh process.
+- Every pulled legacy file has a manifest record and ported tests; every new module has a production
+  importer; provider calls reconcile with the ledger.
+- The PSD fixture yields `insufficient_evidence` with zero calls.
+
+## G2 — Stability Under Change
+
+Goal: the G1 candidate remains valid while the system evolves. This is the milestone the legacy
+project never reached.
+
+### Work
+
+1. Implement dependency evaluation from `dependencies.json`: a changed component reopens only the
+   candidates that consumed it, at the earliest affected stage, reusing every unaffected artifact.
+2. Change each dependency class in isolation and prove the routing: source revision, fact extractor,
+   prompt, model route, template component, validator, reviewer rubric, link policy. Presentation-
+   only changes yield `VALID_UPDATE_AVAILABLE`; factual, safety, or protected-content failures
+   invalidate; corrupt or missing bundle artifacts fail closed.
+3. Inject one factual defect and one preservation defect; prove rejection and repair at the causal
+   stage with accepted unaffected work retained; prove the two-attempt rule terminates honestly.
+4. Grep-enforced test: no global control-plane hash anywhere in `src/`.
+5. Freeze acceptance contract v1: the 30-point criterion-specific profile with hard disqualifiers,
+   the eleven blocking checks, and the advisory set, each with a version identifier.
+6. Add one second ecosystem representative (Aspose.3D FOSS for .NET or Aspose.Cells FOSS for Java)
+   through the plugin registry to prove no central product or platform `if/elif` chain exists.
+
+### Exit predicates
+
+- `2/34` current candidates; the invalidation matrix test is green; unaffected artifacts are reused.
+- No global hash exists; contract v1 is frozen with a version identifier.
+- Deliberately injected defects are rejected and repaired at their causal stage.
+
+## G3 — Seven Ecosystem Representatives
+
+Goal: one accepted, no-op-proven candidate per ecosystem under frozen contract v1, then the legacy
+reuse census.
+
+| Ecosystem | Mandatory truth |
+|---|---|
+| Python | Distribution name, import path, exported symbols, Python range, extras, executable example. |
+| .NET | NuGet identity, TFMs, namespaces, project references, native dependencies, compilable C# example. |
+| Java | Maven coordinates, repository availability, JDK level, packages, dependencies, compilable example. |
+| C++ | Compiler and standard, CMake or build files, includes, namespaces, linkage, compilable example. |
+| Go | Module and import path, Go version, exported API, dependencies, idiomatic compilable example. |
+| Rust | Crate identity, edition and MSRV, visibility and re-exports, features, safety claims, compilable example. |
+| TypeScript | npm identity, exports and types, runtime targets, ESM/CJS behavior, dependencies, compilable example. |
+
+### Work
+
+1. One representative per ecosystem, serially; each platform verifier rejects at least one realistic
+   invalid example or public-surface claim.
+2. Both PSD repositories reach `NON_PROCESSABLE` with evidence-bound resume predicates.
+3. Failed-only repair; shared repairs complete before any repository concurrency.
+4. Legacy reuse census: totals by disposition; everything unpulled is `RETIRE`.
+
+### Exit predicates
+
+- `7/34` current candidates plus two non-processable dispositions; each verifier has a negative
+  control; the census is recorded; no shared repair is pending.
+
+## G4 — Hosted Monitoring and Full Local Portfolio
+
+Goal: run the read-only transaction autonomously on GitHub-hosted runners for the complete registry
+and reach `34/34` local dispositions.
+
+### Work
+
+1. Implement the durable runtime from `STATE_MACHINE.md`: repository record with CAS, leases and
+   fencing, trigger normalization and deduplication, recovery before scheduling, transition
+   receipts. Pull and slim `state/git_backend.py`, `cas.py`, `trigger_v2.py`, `recovery.py`,
+   `health.py`, `freshness_contract.py` after the `CPL-02` cut.
+2. `monitor.yml` (schedule, manual, workflow-call, repository-dispatch) and `present.yml` (isolated
+   per-repository job); prove both locally under `act` with `GH_TOKEN`, then hosted with a read-only
+   GitHub App token; production ignores ambient tokens and fails closed.
+3. Complete authorized discovery and intake; freeze one registry revision as the denominator; new
+   repositories enter disabled and read-only; every exclusion explicit.
+4. Dynamic changed-or-due matrix; TTL-governed package and release surfaces; acceleration caches
+   never authoritative.
+5. Process every processable repository in isolated lanes with bounded concurrency; adversarial
+   audit for clone-like generic prose; development-only comparison against the frozen
+   `BenchmarkQualityProfileV1`, a shortfall routed to its causal stage.
+6. Portfolio report with separated counts: fact-valid, presentation-valid, independently accepted,
+   no-op-proven, source-fresh, publication-eligible, effect-authorized; one control-repository issue
+   for persistent internal degradation.
+
+### Exit predicates
+
+- A hosted run reaches the same accepted result as local execution; an unchanged hosted rerun makes
+  zero provider calls; a synthetic upstream change schedules only the affected repository.
+- Every registry entry has exactly one current disposition; every processable target is accepted
+  and no-op proven; aggregate report reconciles with repository receipts.
+
+## G5 — Proposal Effect Proof
+
+Goal: prove automatic PR creation and maintenance against a disposable target with isolated
+credentials, then qualify the Java cohort that `plans/idea.md` designates.
+
+### Work
+
+1. `propose.yml` as a separately authorized write-capable workflow; exact authorization payload
+   binding candidate hash, source revision, branch, PR intent, policy version, and expiry.
+2. Fresh repository-scoped App token minted only inside the effect job; source revision rechecked
+   immediately before the effect; one stable presenter branch and PR per target.
+3. Update rather than duplicate; reconcile lost responses before retry; upstream README overlap
+   returns to reconciliation; merged and closed-unmerged outcomes observed without recreation.
+
+### Exit predicates
+
+- Disposable PR created and updated with exact effect evidence; the analysis token cannot write;
+  stale source blocks the effect; repeated invocation creates no duplicate; lost-response simulation
+  reconciles; no default-branch push exists.
+
+## G6 — Production Readiness and Deployment
+
+Goal: harden for unattended operation and enable it on the approved repository and App installation.
+
+### Work
+
+1. Threat model: credentials, prompt injection from repositories, malicious Markdown, unsafe links,
+   example execution, untrusted build files, evidence exfiltration; sandbox example execution per
+   ecosystem.
+2. Failure exercises: leases, crash recovery, duplicate triggers, corrupt state, gateway outage,
+   GitHub outage, rate limits, matrix partial failure; dependency locking, SBOM, vulnerability audit.
+3. Budgets, health, alerts naming the causal repository and resume predicate, dead-man monitoring;
+   App permissions, installation coverage, rotation, rollback, and incident documentation.
+4. Interim upstream-defect handoff: when isolated verification confirms a genuine product defect
+   (seed: the Aspose.Email FOSS for .NET `CS1929` build failure), emit an evidence-backed,
+   deduplicated handoff for a human to file; never a fabricated severity or an unverified fix.
+5. Deploy: configure App and gateway secrets, enable the scheduled monitor in read-only observation,
+   compare hosted output with accepted local bundles, then enable automatic PR mode for the Java
+   cohort with fresh effect authorization, expanding only after observed stability.
+
+### Exit predicates
+
+- Security suite and failure exercises pass; no write credential exists in analysis jobs; state
+  survives runner loss; scheduled hosted monitoring runs without human initiation; approved
+  repositories receive safe proposals after material drift; unchanged repositories incur no LLM
+  work; known remaining issues are bounded and non-critical.
+
+## G7 — Continuous Operation and Expansion
+
+Goal: keep the system useful after deployment without weakening the README foundation.
+
+### Work
+
+1. Monitor quality, cost, repair rate, false-positive drift, proposal acceptance, time to update.
+2. Refresh prompts and model routes only at declared version boundaries with regression evaluation
+   across every current candidate.
+3. Admit new repositories disabled and read-only through normal processability.
+4. Automate upstream-defect issue creation behind its own authorization and deduplication ledger.
+5. Add repository description, homepage and topics, community files, release and package links,
+   visual assets, and social preview as separate surface machines on the shared core; keep social-
+   preview application honest where GitHub exposes only a manual UI.
+6. Run the Level 7 and Level 8 elapsed-observation certifications from `plans/idea.md` as background
+   tracks; `delivery_complete` closes G6, `certification_complete` closes those tracks.
+
+### Operating objectives
+
+Source drift to accepted proposal within one daily cycle; zero provider calls for unchanged
+repositories; no unsupported published claim; no unexplained inherited-content loss; no duplicate
+presenter PR; no write credential in analysis code; no portfolio-wide halt from one repository.
+
+## 9. Gate failure routing
+
+| Failure | Route |
+|---|---|
+| Pulled legacy code drags retired machinery | Cut the seam or reimplement the narrow contract; never widen the pull. |
+| Custom gateway malformed output | Tighten the typed job schema or prompt, or change the routed model; never weaken validation. |
+| Facts incomplete | Improve deterministic extraction or bounded evidence tools. |
+| Candidate generic or too long | Reopen investigation or planning; enforce the budget; never polish prose only. |
+| Candidate loses source material | Reopen reconciliation and disposition mapping. |
+| Example does not compile or run | Reopen example selection; never explain it away in README prose. |
+| Reviewer rejects | Route the typed defect to its causal stage; if the finding is unrepairable, make it advisory and fix reviewer scope. |
+| Candidate invalidated by a component it did not consume | Fix the dependency manifest; never widen invalidation. |
+| Validator change fails accepted candidates on presentation only | Emit `VALID_UPDATE_AVAILABLE`; never invalidate. |
+| No-op invokes the LLM | Fix dependency identity, cache, or state; never exempt the call. |
+| Module has no production importer | Wire it or delete it in the same work item. |
+| Governance or module growth exceeds budget | Remove; do not document around it. |
+| Hosted state missing | Fix the durable backend; caches and artifacts cannot substitute. |
+| GitHub effect uncertain | Reconcile the remote branch and PR before retrying. |
+| External credential or permission absent | `BLOCKED_EXTERNAL` with the exact authority needed; continue safe gates. |
+| Internal bug blocks progress | `FAILED_INTERNAL`; repair and resume; never acceptable completion. |
+
+## 10. Evidence
+
+Each accepted gate writes `evidence/build/<gate-id>/manifest.json` with the control revision, legacy
+revision when applicable, exact commands and exit statuses, test inventory and results, production-
+shaped proof identity when applicable, artifact hashes, LLM call summary, target repositories and
+revisions, known limitations, predicate verdicts, and the next work item. For candidates, the sealed
+bundle is the evidence; nothing is duplicated into a second evidence tree. Evidence is redacted,
+checksum-valid, and reproducible, and never replaces a concise closeout in Git history.
+
+## 11. Definition of done
+
+Repository Presenter is complete when: the repository is independent of the legacy and Aspose.org
+trees at runtime; scheduled hosted monitoring covers the admitted portfolio; every processable
+repository has a current independently accepted candidate; every unchanged accepted repository
+proves zero-call idempotency; upstream and due-surface changes reopen exactly the affected work;
+custom-LLM investigation, planning, composition, review, and repair are live and attributable;
+automatic PR creation and update work through the isolated App effect job; placeholders and
+unresolved facts fail honestly; recovery, concurrency, stale authorization, and lost-response
+behavior are proven; and the system operates without routine human initiation or template selection.
+
+## 12. Product-outcome coverage of `plans/idea.md`
+
+| Obligation in `plans/idea.md` | Gate | Note |
+|---|---|---|
+| Product explained before promotion; contextual Aspose links within configured-or-derived ceilings; "Enterprise Edition" only; below-the-fold **full-featured ... Enterprise Edition** anchor | G1 | Blocking check; legacy `links/allocation.py` behavior pulled. |
+| Presentation contract: one H1, badge row, canonical product name, title case, abbreviations, At a Glance topology and column rules, visible-versus-collapsible rules, Third-Party Notices, license prose, no internal narration | G1 essential subset, G2 full | Ported from the legacy template registry and presentation standard. |
+| Search-intent vocabulary as corroborating evidence with output lineage, never repeated across headings | G2 | The legacy tests for this are red at the frozen revision. |
+| Every material source unit gets exactly one disposition; no generic dumping | G1 | Blocking check. |
+| LLM reasoning mandatory; template filling cannot pass | G1 | Investigation, planning, composition, review jobs. |
+| Every LLM call attributable; unchanged no-op makes zero calls | G1 | Ledger and fresh-process replay. |
+| Prompt assets as a small governed registry | G1 | Six manifests; hygiene check. |
+| System decides product and platform; no human template selection | G2, G3 | Plugin registry, seven representatives. |
+| Ecosystem truth includes the public consumer surface | G1 (Python), G3 (all) | Platform verifiers with negative controls. |
+| Aspose.org and sibling assets are oracles, never runtime dependencies | G1 rule, G4 benchmark | Fixture-only disposition. |
+| Benchmark quality profile met or exceeded; `BENCHMARK_REFRESH_AVAILABLE` | G4 | Development-only comparison. |
+| 30-point acceptance, zero hard disqualifiers, criterion-specific evidence | G2 | Frozen as contract v1. |
+| Independent non-authoring review; second reviewer only on typed trigger | G1 | Hard invariant. |
+| Complete authorized discovery; hard allow-list; frozen registry revision; new repositories disabled and read-only; explicit exclusions | G4 | Registry modules pulled and refactored. |
+| README-only placeholders become non-processable with resume predicates | G1 fixture, G3 PSD | Zero LLM calls. |
+| Versions freeze, design does not; component invalidation scopes; `VALID_UPDATE_AVAILABLE` | G2 | Per-candidate dependency manifests. |
+| Portfolio reporting with separated counts | G4 | Health report. |
+| Autonomous hosted operation; schedules and triggers; recovery before scheduling | G4 | Two workflows. |
+| Local testing on an Actions-compatible runner with `GH_TOKEN`; GitHub App only in production, fail closed | G4 | `act` proof and token boundary. |
+| Separate analysis and write credentials; PR-only publication; recheck before effect | G5 | Disposable target. |
+| Java repositories as the first verified-proposal cohort | G5, G6 | After disposable proof and fresh authorization. |
+| Drift detection and protected content as a durable control | G2, G4 | Broader-than-SHA freshness. |
+| Description, topics, visuals, social preview, community files, release links, GitHub-generated observations | G7 | Deferred by `plans/idea.md`. |
+| Upstream defect reporting, confirmed and deduplicated; interim human handoff | G6 handoff, G7 automated | Seed case `CS1929`. |
+| Level 7 and 8 certification after deployment | G7 | Background tracks. |
+| Two equivalent failures or 15 minutes force a first-principles review | `AGENTS.md` | Governance. |
+| Serial calibration; at most three disjoint workers after isolation proof | `project/state.yaml`, G3 | Execution limits. |
+| Battle-tested libraries over bespoke infrastructure | Principle 16 | Documented exceptions only. |
+| Baseline figures are dated observations | G4 | 34 entries at `a8a163f7`; frozen at G4. |

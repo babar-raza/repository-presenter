@@ -1,0 +1,26 @@
+# Disposable runtime state (work clones, caches, mutable run output) -- never durable authority
+/runs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+/build/
+/dist/
+.venv/
+venv/
+
+# Secrets and local overrides -- credentials never enter the repository
+.env
+.env.*
+!.env.example
+.secrets
+
+# Editors and local agent state
+.vscode/
+.idea/
+/.claude/settings.local.json
+/.claude/worktrees/
