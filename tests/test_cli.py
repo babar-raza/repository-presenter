@@ -154,7 +154,8 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
     (source / "README.md").write_bytes(
         b"# Aspose.3D for Python\n\nOriginal bytes. See [LICENSE](LICENSE) and "
         b"[docs](https://docs.example.com/3d).\n\n```python\n"
-        b"from aspose.threed import Scene\nprint(Scene().name)\n```\n\n```python\n"
+        b"from aspose.threed import Scene\nscene = Scene()\nprint(scene.name)\n"
+        b'scene.save("cube.glb")\n```\n\n```python\n'
         b"from aspose.threed import Missing\n```\n"
     )
     (source / "LICENSE").write_text("MIT License\n\nPermission is hereby granted", "utf-8")
@@ -166,7 +167,9 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
     (source / "aspose" / "threed").mkdir(parents=True)
     (source / "aspose" / "__init__.py").write_text("", encoding="utf-8")
     (source / "aspose" / "threed" / "__init__.py").write_text(
-        "class Scene:\n    name = 'scene'\n", encoding="utf-8"
+        "class Scene:\n    name = 'scene'\n\n"
+        "    def save(self, path):\n        open(path, 'wb').close()\n",
+        encoding="utf-8",
     )
     revision = commit_all(source, "seed")
     calls: list[dict[str, Any]] = []
@@ -242,6 +245,10 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert by_id["example:001"]["polarity"] == "SUPPORTED"
     assert by_id["example:002"]["polarity"] == "CONTRADICTED"
+    assert (by_id["format:output.glb"]["value"], by_id["format:output.glb"]["polarity"]) == (
+        ".glb",
+        "SUPPORTED",
+    )
     assert by_id["install_command:pip"]["polarity"] == "SUPPORTED"
     assert {f["value"]: f["polarity"] for f in facts["facts"] if f["kind"] == "link_target"} == {
         "LICENSE": "SUPPORTED",

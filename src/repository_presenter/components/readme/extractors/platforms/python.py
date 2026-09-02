@@ -20,6 +20,9 @@ from typing import Any
 from repository_presenter.components.readme.extractors.platforms.python_examples import (
     verify_python_examples,
 )
+from repository_presenter.components.readme.extractors.platforms.python_formats import (
+    format_claims,
+)
 from repository_presenter.components.readme.extractors.platforms.python_registry import (
     observe_pypi,
 )
@@ -30,7 +33,7 @@ from repository_presenter.components.readme.extractors.platforms.python_surface 
     inspect_public_surface,
     public_symbol_facts,
 )
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FormatClaim
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
@@ -236,6 +239,9 @@ class PythonPlugin:
         workspace: Path,
     ) -> list[ExampleReceipt]:
         return verify_python_examples(root, tree_paths, candidates, workspace)
+
+    def format_claims(self, code: str) -> Sequence[FormatClaim]:
+        return format_claims(code)
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         facts: list[Fact] = []

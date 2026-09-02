@@ -18,6 +18,9 @@ def test_python_is_the_first_registered_plugin() -> None:
     assert isinstance(plugin, PythonPlugin)
     assert plugin.manifest_globs == ("pyproject.toml", "setup.cfg", "setup.py")
     assert plugin.source_suffixes == frozenset({".py"})
+    assert [(c.direction, c.extension) for c in plugin.format_claims('s.save("a.glb")\n')] == [
+        ("output", ".glb")
+    ]
 
 
 def test_unknown_ecosystem_fails_closed() -> None:

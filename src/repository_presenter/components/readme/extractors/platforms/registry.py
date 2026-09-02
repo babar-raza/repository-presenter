@@ -8,7 +8,7 @@ from typing import Protocol
 
 from repository_presenter.components.readme.extractors.platforms.python import PythonPlugin
 from repository_presenter.core.errors import ConfigError
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FormatClaim
 from repository_presenter.core.facts import Fact
 
 
@@ -39,6 +39,9 @@ class PlatformPlugin(Protocol):
         workspace: Path,
     ) -> list[ExampleReceipt]:
         """Run every candidate against the repository's own package in isolation."""
+
+    def format_claims(self, code: str) -> Sequence[FormatClaim]:
+        """The extensions one example's statements load or save, read from its syntax tree."""
 
 
 _PLUGINS: dict[str, PlatformPlugin] = {plugin.ecosystem: plugin for plugin in (PythonPlugin(),)}

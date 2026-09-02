@@ -1,4 +1,4 @@
-"""Assemble the facts document for one snapshot: identity, manifest, license, and assets."""
+"""Assemble the facts document for one snapshot: identity, examples, manifest, surface, README."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter.components.readme.evidence.facts.assets import asset_facts
+from repository_presenter.components.readme.evidence.facts.formats import format_facts
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
 from repository_presenter.components.readme.evidence.facts.links import link_facts
@@ -56,6 +57,7 @@ def extract_facts(
     """Every deterministic fact the snapshot supports, in one document."""
     facts = identity_facts(entry, snapshot)
     facts.extend(example_facts(examples, receipts, receipts_path))
+    facts.extend(format_facts(examples, receipts, plugin.format_claims, receipts_path))
     if manifest is not None:
         manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
         observed = {fact.id: fact for fact in plugin.registry_facts(manifest_facts)}

@@ -8,7 +8,17 @@ from pathlib import Path
 from typing import Literal
 
 ExampleOutcome = Literal["EXECUTED", "FAILED", "TIMED_OUT", "NEEDS_INPUT", "NOT_VERIFIED"]
+FormatDirection = Literal["input", "output"]
 RECEIPTS_FILENAME = "examples.json"
+
+
+@dataclass(frozen=True)
+class FormatClaim:
+    """A file extension one example statement loads (input) or saves (output), by code line."""
+
+    extension: str
+    direction: FormatDirection
+    line: int
 
 
 @dataclass(frozen=True)

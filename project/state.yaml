@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T14:51:35+05:00"
+updated_at: "2026-09-02T16:46:24+05:00"
 
 authority:
   product: plans/idea.md
@@ -28,36 +28,44 @@ accepted_gates:
   - G0_FOUNDATION
 
 active_work_item:
-  id: G1-W02
-  status: IN_PROGRESS
-  purpose: "Facts stage for the canary - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; a PSD-style README-only fixture returns insufficient_evidence with a resume predicate and zero LLM calls."
+  id: G1-W03
+  status: BLOCKED_EXTERNAL
+  purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
   prerequisites:
-    - G1-W01 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - Every pull follows migration/reuse-manifest.yaml audit.per_pull_checks; the legacy ecosystems and profile packages enter only through a platform plugin registry keyed by ecosystem, never as a central chain.
-    - docs/README_CONTRACT.md section 3 stage S2 defines the fact kinds and the record shape; no gateway credential is needed.
+    - G1-W02 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - OWNER-02 is satisfied - .env at the repository root provides LLM_BASE_URL and LLM_API_KEY (and LLM_MODEL if the default is wrong), read only through the configured loader and never printed.
+    - docs/RESEARCH_AND_GUIDELINES.md section 18.2 names the openai SDK as the transport; docs/README_CONTRACT.md section 3 stages S3 to S6 and section 4 define the jobs, their packets, and their typed outputs.
   owned_paths:
     - src/repository_presenter/
     - tests/
     - schemas/
+    - prompts/
     - migration/reuse-manifest.yaml
-    - data/
   acceptance:
-    - "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python writes facts.json from the source/ snapshot with typed records {id, kind, value, evidence[], polarity, confidence} covering the deterministic fact kinds of docs/README_CONTRACT.md section 3 stage S2 that the canary's tree supports, each record naming its evidence paths."
-    - Every example fact carries a verification receipt from an isolated run of the exact example against the canary's own package; an example that does not run is recorded as CONTRADICTED, never explained away.
-    - The Python consumer and example verifier are the first platform plugin behind a registry keyed by ecosystem; no if/elif chain selects a platform.
-    - A README-only fixture under tests/fixtures/ yields insufficient_evidence with a resume predicate and zero LLM calls.
-    - Every pulled legacy file has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present.
-    - An immediate rerun on the same revision produces byte-identical facts.json with zero provider calls.
-    - ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13; the commit is pushed and hosted CI is checked at the next iteration.
+    - "repository-presenter preflight reaches the gateway's /models endpoint through the configured loader and prints the model route without printing, logging, or persisting the key; without .env it exits 2 naming OWNER-02 and its resume predicate."
+    - One governed prompt manifest per job under prompts/ (repository_investigation, source_reconciliation, presentation_planning, section_authoring, independent_review, targeted_repair), each with a schema-validated packet and a typed output bound to fact IDs; an output that names an unknown or contradicted fact ID is rejected before use.
+    - Every provider call is recorded by the ledger in calls.jsonl with its job, prompt manifest hash, model route, and token counts, and the calls reconcile with the ledger.
+    - Every pulled legacy file (call schema, ledger, prompt registry, prompt hygiene after the CPL-01 cut) has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present or preflight.
+    - ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked in tests; the commit is pushed and hosted CI is watched to completion.
   evidence_required:
-    - facts.json for the canary at its pinned revision.
+    - A preflight transcript against the real gateway with the key redacted.
     - Manifest file records for every pulled legacy file.
-  blocker: null
+  blocker:
+    class: BLOCKED_EXTERNAL
+    summary: OWNER-02 is OPEN - no .env with LLM_BASE_URL and LLM_API_KEY exists at the repository root, so no gateway can be reached and no LLM job can be exercised end to end on the canary; every remaining G1 item and all of G2 depend on these jobs.
+    resume_predicate: .env exists at the repository root, is gitignored, and provides LLM_BASE_URL and LLM_API_KEY; then G1-W03 returns to READY and repository-presenter preflight is the first check of the next iteration.
+    recorded_at: "2026-09-02T16:46:24+05:00"
 
 next_ready_items:
-  - id: G1-W03
+  - id: G1-W04
     status: PENDING
-    purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
+    purpose: "Composition to docs/README_CONTRACT.md - the semantic shell of section 2, the assembly pipeline of section 3, and the agentic decisions of section 4; the LLM returns typed content units bound to fact IDs and the deterministic renderer emits the Markdown (headings, badges, Mermaid, commands, code, links, license text); one coherence pass may revise LLM-owned units only; consumes OWNER-02 through the G1-W03 jobs."
+  - id: G1-W05
+    status: PENDING
+    purpose: "Blocking checks and independent review - exactly the eleven blocking checks of docs/README_CONTRACT.md section 5 with everything else advisory until G2 freezes contract v1; review per sections 4 and 6 under a separate prompt and identity, findings naming a section and a causal stage, one targeted repair per equivalent fingerprint, unrepairable findings advisory; consumes OWNER-02 through the G1-W03 jobs."
+  - id: G1-W06
+    status: PENDING
+    purpose: "Bundle, seal, and no-op - README.md, README.patch, facts.json, dispositions.json, plan.json, validation.json, review.json, calls.jsonl, dependencies.json with exact hashes of every consumed input, and manifest.json with checksums at candidates/<owner>__<name>/<revision>/; a fresh process on the same inputs reproduces the same bytes with zero calls and the ledger records cache reuse per job; status prints 1/34; consumes OWNER-02 through the G1-W03 jobs."
 
 owner_items:
   - id: OWNER-01
@@ -73,7 +81,8 @@ owner_items:
     resume_predicate: .env exists, is gitignored, and repository-presenter preflight (built in G1-W03) reaches the gateway's /models endpoint without leaking the key.
     consumed_by: [G1-W03]
     recorded_at: "2026-09-02T14:00:00+05:00"
-    note: G1-W01 (snapshot) and G1-W02 (facts) do not need it and proceed.
+    last_checked_at: "2026-09-02T16:46:24+05:00"
+    note: G1-W01 (snapshot) and G1-W02 (facts) were accepted without it; since 2026-09-02 G1-W03 is BLOCKED_EXTERNAL on it and every remaining G1 and G2 item depends on the G1-W03 jobs, so the loop stops until it is satisfied.
   - id: OWNER-03
     status: DEFAULT_APPLIED
     summary: Decide the dirty legacy working tree at freeze (15 modified tracked files, 18 untracked files).
