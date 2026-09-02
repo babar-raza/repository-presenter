@@ -26,6 +26,10 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.policy import (
+    DEFAULT_POLICY,
+    PlanningPolicy,
+)
 from repository_presenter.core.facts import FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -66,17 +70,22 @@ def reconciliation_packet(
     }
 
 
-def contradicted_code_units(facts: FactsDocument) -> frozenset[str]:
-    """Inherited code blocks whose example fact is CONTRADICTED, read from the example evidence."""
-    units: set[str] = set()
+def code_units_by_polarity(facts: FactsDocument, polarity: str) -> dict[str, str]:
+    """Inherited code blocks whose example fact has ``polarity``, by unit ID, from the evidence."""
+    units: dict[str, str] = {}
     for fact in facts.by_kind("example"):
-        if fact.polarity != "CONTRADICTED":
+        if fact.polarity != polarity:
             continue
         for evidence in fact.evidence:
             match = _UNIT_REFERENCE.search(evidence.detail or "")
             if match:
-                units.add(match.group(1))
-    return frozenset(units)
+                units[match.group(1)] = fact.id
+    return units
+
+
+def contradicted_code_units(facts: FactsDocument) -> frozenset[str]:
+    """Inherited code blocks whose example fact is CONTRADICTED, read from the example evidence."""
+    return frozenset(code_units_by_polarity(facts, "CONTRADICTED"))
 
 
 def rendering_fact_ids(section: str, facts: FactsDocument) -> list[str]:
@@ -87,26 +96,51 @@ def rendering_fact_ids(section: str, facts: FactsDocument) -> list[str]:
     )
 
 
-def normalize(output: dict[str, Any], facts: FactsDocument) -> list[str]:
-    """Fold placements into deterministic sections into supersessions, in place.
+def normalize(
+    output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
+) -> list[str]:
+    """Fold placements deterministic code cannot honour into the disposition it can, in place.
 
-    Returns the units that cannot be folded because the section renders nothing here.
+    A placement into a deterministic section becomes a supersession citing the facts that
+    section renders. A placed code block whose example is UNRESOLVED, or a placement into the
+    Enterprise Edition section while the policy carries no verified target, is deferred: the
+    candidate cannot render either at this revision, so "verified" would be false. A code block
+    placed into At a Glance is superseded by the renderer's own diagram. Returns the units that
+    cannot be folded because the section renders nothing here.
     """
     deterministic = set(section_ids()) - placeable_section_ids()
+    unresolved = code_units_by_polarity(facts, "UNRESOLVED")
     errors: list[str] = []
     for entry in output.get("dispositions", []):
+        unit = str(entry.get("unit_id", "?"))
         destination = entry.get("destination_section")
+        disposition = entry.get("disposition")
+        cited = set(entry.get("fact_ids") or [])
+        if disposition in PLACING and unit in unresolved:
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
+            entry["fact_ids"] = sorted(cited | {unresolved[unit]})
+            continue
+        if disposition in PLACING and destination == "enterprise_relationship":
+            if policy.enterprise_target_url is None:
+                entry["disposition"] = "DEFER_UNRESOLVED"
+                entry["destination_section"] = None
+            continue
+        if disposition in PLACING and destination == "at_a_glance" and unit.endswith(".code_block"):
+            entry["disposition"] = "SUPERSEDE_REDUNDANT" if cited else "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
+            continue
         if destination not in deterministic:
             continue
         ids = rendering_fact_ids(destination, facts)
         if not ids:
             errors.append(
-                f"{entry.get('unit_id', '?')}: section {destination} renders nothing for this "
+                f"{unit}: section {destination} renders nothing for this "
                 "repository; choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED"
             )
             continue
         entry["disposition"] = "SUPERSEDE_REDUNDANT"
-        entry["fact_ids"] = sorted(set(entry.get("fact_ids") or []) | set(ids))
+        entry["fact_ids"] = sorted(cited | set(ids))
     return errors
 
 
@@ -146,9 +180,11 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     return errors
 
 
-def reconcile_checks(output: dict[str, Any], facts: FactsDocument) -> list[str]:
+def reconcile_checks(
+    output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
+) -> list[str]:
     """The job's own checks for the runner: normalise, then judge what remains."""
-    return normalize(output, facts) + placement_errors(output, facts)
+    return normalize(output, facts, policy) + placement_errors(output, facts)
 
 
 def summarize(output: dict[str, Any]) -> Counter[str]:

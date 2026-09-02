@@ -40,7 +40,7 @@ _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
 _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
 _MEMBER_CAP = 60
 _FORBIDDEN = (
-    ("`", "a code span or fence"),
+    ("```", "a code fence"),
     ("http://", "a URL"),
     ("https://", "a URL"),
     ("www.", "a URL"),
@@ -348,6 +348,11 @@ def unit_checks(
         if unit.get("section") != task.section_id:
             errors.append(f"unit {slot}: section must be {task.section_id}")
         text = str(unit.get("text", ""))
+        if "`" in text and "```" not in text:
+            # The renderer owns every code span: a span the job wrote is dropped in place and
+            # the identifier it wrapped is judged like any other token.
+            text = text.replace("`", "")
+            unit["text"] = text
         for marker, meaning in _FORBIDDEN:
             if marker in text:
                 errors.append(f"unit {slot}: text contains {meaning} ({marker.strip()!r})")

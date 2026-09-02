@@ -37,7 +37,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 _PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
-_RENDERED_ELSEWHERE = frozenset({"heading", "badge_row", "code_block"})
+_RENDERED_ELSEWHERE = frozenset({"heading", "badge_row"})
 _LINK_TEXT = re.compile(r"text '(.*)'$")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
@@ -77,18 +77,13 @@ class RenderContext:
         self.units: dict[tuple[str, str], str] = {
             (unit["section"], unit["slot"]): unit["text"] for unit in units.get("units", [])
         }
-        # Placed inherited units render verbatim only when they are prose. The shell owns every
-        # heading and badge row and the plan owns every example, so a preserved heading, badge
-        # row, or code block would only duplicate what those already render.
         self.placed: dict[str, list[str]] = {}
         for item in dispositions.get("dispositions", []):
             unit_id = item.get("unit_id", "")
             if item.get("disposition") not in _PLACED or not item.get("destination_section"):
                 continue
-            if unit_id.rsplit(".", 1)[-1] in _RENDERED_ELSEWHERE:
-                continue
             unit = self.by_id.get(unit_id)
-            if unit is not None:
+            if unit is not None and renders_verbatim(unit_id, unit.value, entry.ecosystem):
                 self.placed.setdefault(item["destination_section"], []).append(unit.value)
         self.allowed = allowed_identifiers(facts, self.name)
         self.members = verified_members(facts)
@@ -134,6 +129,22 @@ class RenderContext:
                 continue
             rendered = re.sub(rf"(?<![`\w.]){re.escape(token)}(?![`\w])", f"`{token}`", rendered)
         return rendered
+
+
+def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
+    """Whether a placed inherited unit is rendered verbatim in its destination.
+
+    Prose is. The shell owns every heading and badge row, the plan owns every example, and the
+    renderer owns the diagram, so a preserved heading, badge row, ecosystem code block, or
+    Mermaid block would only duplicate what those already render; any other code block (a
+    command sequence, say) carries content nothing else renders and appears as written.
+    """
+    unit_type = unit_id.rsplit(".", 1)[-1]
+    if unit_type != "code_block":
+        return unit_type not in _RENDERED_ELSEWHERE
+    first = value.splitlines()[0].strip() if value.strip() else ""
+    language = first[3:].strip().lower() if first.startswith("```") else ""
+    return language not in {ecosystem, "mermaid"}
 
 
 def anchor(heading: str) -> str:

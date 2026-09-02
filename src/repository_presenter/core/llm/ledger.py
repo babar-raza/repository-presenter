@@ -19,7 +19,7 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any, Literal
 
-CallDisposition = Literal["provider_call", "cache_reuse"]
+CallDisposition = Literal["provider_call", "cache_reuse", "cache_stale"]
 CallOutcome = Literal[
     "success",
     "http_error",
@@ -27,6 +27,7 @@ CallOutcome = Literal[
     "connection_error",
     "response_invalid",
     "cache_reuse",
+    "cache_stale",
 ]
 LEDGER_FILENAME = "calls.jsonl"
 

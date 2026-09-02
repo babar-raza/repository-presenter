@@ -11,6 +11,7 @@ from repository_presenter.components.readme.composition.renderer import (
     line_counts,
     render_patch,
     render_readme,
+    renders_verbatim,
     write_text,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -250,3 +251,51 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     assert context.prose("Export to .glb, not .obj or .xyz, via Scene.save.") == (
         "Export to `.glb`, not `.obj` or .xyz, via `Scene.save`."
     )
+
+
+def test_renders_verbatim_follows_ownership() -> None:
+    assert renders_verbatim("inherited_unit:001.paragraph", "Prose.", "python")
+    assert renders_verbatim("inherited_unit:002.list", "- a\n- b", "python")
+    assert not renders_verbatim("inherited_unit:003.heading", "## Old", "python")
+    assert not renders_verbatim("inherited_unit:004.badge_row", "![x](y)", "python")
+    assert not renders_verbatim(
+        "inherited_unit:005.code_block", "```python\nprint(1)\n```", "python"
+    )
+    assert not renders_verbatim(
+        "inherited_unit:006.code_block", "```mermaid\ngraph LR\n```", "python"
+    )
+    assert renders_verbatim("inherited_unit:007.code_block", "```bash\npytest\n```", "python")
+    assert renders_verbatim("inherited_unit:008.code_block", "    indented\n", "python")
+
+
+def test_a_placed_command_block_appears_in_its_destination() -> None:
+    commands = "```bash\npip install -e .\npython -m unittest discover tests\n```"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "inherited_unit:010.code_block",
+                "inherited_unit",
+                commands,
+                (Evidence("README.md", "lines 20-24; code_block"),),
+            ),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:010.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "development_testing",
+                "fact_ids": ["build_test_asset:tests"],
+                "rationale": "r",
+            },
+        ]
+    }
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, dispositions)
+    section = readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
+    assert section.rstrip("\n").endswith(commands)
+    assert readme.count("print(2)") == 1

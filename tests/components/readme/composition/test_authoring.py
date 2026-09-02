@@ -256,7 +256,7 @@ def test_unit_checks_reject_markdown_urls_commands_stray_identifiers_and_outside
     assert errors == [
         "units must fill exactly these slots once each: capability:1, capability:2; "
         "got capability:1, capability:1",
-        "unit capability:1: text contains a code span or fence ('`')",
+        "unit capability:1: text contains a URL ('https://')",
         "unit capability:1: identifiers that are not accepted fact values: x.y",
         "unit capability:1: section must be key_capabilities",
         "unit capability:1: identifiers that are not accepted fact values: PbrMaterial, "

@@ -111,9 +111,9 @@ def test_checks_hold_every_returned_unit_to_its_sections_rules() -> None:
     errors = coherence_checks(bad, TASKS, FACTS, NAME)
     assert errors == [
         "units name a section the plan did not author: license",
-        "unit opening: text contains a code span or fence ('`')",
         "unit capability:1: cites facts outside this section's set: format:output.glb",
     ]
+    assert bad["units"][0]["text"] == "See GLB"  # the span is dropped; the renderer owns spans
     missing = {"units": UNITS["units"][:1], "omitted": []}
     assert coherence_checks(missing, TASKS, FACTS, NAME) == [
         "units must fill exactly these slots once each: capability:1; got "

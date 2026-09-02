@@ -16,11 +16,13 @@ trusted-lane budgets are removed in favour of the openai SDK and this project's 
 from __future__ import annotations
 
 import functools
+import itertools
 import json
+import re
 import string
 import time
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -81,12 +83,16 @@ class CallStore:
         return self.directory / f"{request_sha256[:24]}.json"
 
     def get(self, request_sha256: str) -> dict[str, Any] | None:
+        output = self.record(request_sha256).get("output")
+        return output if isinstance(output, dict) else None
+
+    def record(self, request_sha256: str) -> dict[str, Any]:
+        """The stored record (job, model_served, output), or an empty mapping."""
         path = self.path(request_sha256)
         if not path.is_file():
-            return None
+            return {}
         stored = json.loads(path.read_text(encoding="utf-8"))
-        output = stored.get("output")
-        return output if isinstance(output, dict) else None
+        return stored if isinstance(stored, dict) else {}
 
     def put(
         self, request_sha256: str, job: str, model_served: str | None, output: dict[str, Any]
@@ -168,6 +174,16 @@ def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="milliseconds")
 
 
+_SEQUENCE = itertools.count(1)
+
+
+def _call_id(logical_id: str, attempt: int, outcome: str, started_at: str) -> str:
+    """One ID per physical attempt or explicit reuse event, unique by construction: the
+    logical call, the attempt, the outcome, the moment, and a process-wide sequence."""
+    stamp = re.sub(r"[^0-9T]", "", started_at.split("+", 1)[0])
+    return f"{logical_id[:16]}-{attempt:02d}-{outcome}-{stamp}-{next(_SEQUENCE):04d}"
+
+
 class _Attempts:
     """Physical-attempt accounting for one logical call."""
 
@@ -242,7 +258,7 @@ class _Attempts:
     ) -> CallRecord:
         request_sha256 = canonical_hash(payload) if payload is not None else self.logical_id
         return CallRecord(
-            call_id=f"{self.logical_id[:16]}-{self.count:02d}-{outcome}",
+            call_id=_call_id(self.logical_id, self.count, outcome, started_at),
             logical_call_id=self.logical_id,
             repository=self.context.repository,
             source_revision=self.context.source_revision,
@@ -314,35 +330,52 @@ def run_job(
     request_sha256 = canonical_hash({"prompt_sha256": manifest.sha256, "payload": payload})
     stored = store.get(request_sha256)
     if stored is not None:
+        # A stored output is re-judged under the current rules before reuse (normalised in
+        # place like a fresh reply), so a corrected check takes effect without a call and a
+        # stored output the rules no longer accept is replaced, never reused.
+        output, _rejection = _parse(manifest, json.dumps(stored), facts, checks)
         now = _now()
-        ledger.append(
-            CallRecord(
-                call_id=f"{request_sha256[:16]}-00-cache_reuse",
-                logical_call_id=request_sha256,
-                repository=context.repository,
-                source_revision=context.source_revision,
-                stage=manifest.manifest.stage,
-                job=job,
-                prompt_sha256=manifest.sha256,
-                model_route=manifest.manifest.model_route,
-                model_served=None,
-                attempt=0,
-                disposition="cache_reuse",
-                started_at=now,
-                finished_at=now,
-                latency_ms=0,
-                outcome="cache_reuse",
-                http_status=None,
-                request_sha256=request_sha256,
-                response_sha256=canonical_hash(stored),
-                provider_request_id=None,
-                prompt_tokens=None,
-                completion_tokens=None,
-                total_tokens=None,
-                error_class=None,
-            )
+        reuse = CallRecord(
+            call_id=_call_id(request_sha256, 0, "cache_reuse", now),
+            logical_call_id=request_sha256,
+            repository=context.repository,
+            source_revision=context.source_revision,
+            stage=manifest.manifest.stage,
+            job=job,
+            prompt_sha256=manifest.sha256,
+            model_route=manifest.manifest.model_route,
+            model_served=None,
+            attempt=0,
+            disposition="cache_reuse",
+            started_at=now,
+            finished_at=now,
+            latency_ms=0,
+            outcome="cache_reuse",
+            http_status=None,
+            request_sha256=request_sha256,
+            response_sha256=canonical_hash(output if output is not None else stored),
+            provider_request_id=None,
+            prompt_tokens=None,
+            completion_tokens=None,
+            total_tokens=None,
+            error_class=None,
         )
-        return JobResult(job, stored, request_sha256, 0, 0, True, None, None)
+        if output is None:
+            ledger.append(
+                replace(
+                    reuse,
+                    call_id=_call_id(request_sha256, 0, "cache_stale", now),
+                    disposition="cache_stale",
+                    outcome="cache_stale",
+                    error_class="OutputRejected",
+                )
+            )
+        else:
+            if output != stored:
+                model_served = store.record(request_sha256).get("model_served")
+                store.put(request_sha256, job, model_served, output)
+            ledger.append(reuse)
+            return JobResult(job, output, request_sha256, 0, 0, True, None, None)
 
     attempts = _Attempts(manifest, context, ledger, request_sha256)
     current = payload

@@ -36,7 +36,10 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
-from repository_presenter.components.readme.composition.renderer import line_counts
+from repository_presenter.components.readme.composition.renderer import (
+    line_counts,
+    renders_verbatim,
+)
 from repository_presenter.components.readme.evidence.facts.links import (
     check_anchor,
     check_relative,
@@ -179,7 +182,6 @@ _PLACING = frozenset(
     {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE", "CORRECT_WITH_EVIDENCE"}
 )
 _PLACED_VERBATIM = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
-_RENDERED_ELSEWHERE = frozenset({"heading", "badge_row", "code_block"})
 _EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
 _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
@@ -331,9 +333,9 @@ def _placed_texts(candidate: Candidate) -> list[str]:
         unit_id = str(entry.get("unit_id", ""))
         if entry.get("disposition") not in _PLACED_VERBATIM or not entry.get("destination_section"):
             continue
-        if _unit_type(unit_id) in _RENDERED_ELSEWHERE or unit_id not in by_id:
-            continue
-        texts.append(by_id[unit_id].value)
+        fact = by_id.get(unit_id)
+        if fact is not None and renders_verbatim(unit_id, fact.value, candidate.entry.ecosystem):
+            texts.append(fact.value)
     return texts
 
 
@@ -511,7 +513,9 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
         destination = entry.get("destination_section")
         if entry.get("disposition") not in _PLACED_VERBATIM or not destination:
             continue
-        if _unit_type(unit_id) in _RENDERED_ELSEWHERE or unit_id not in inherited:
+        if unit_id not in inherited or not renders_verbatim(
+            unit_id, inherited[unit_id].value, candidate.entry.ecosystem
+        ):
             continue
         if destination not in included:
             failures.append(
@@ -713,7 +717,9 @@ def protected_fragments(candidate: Candidate) -> list[tuple[str, str, str]]:
                 for span in _SPAN.findall(fact.value)
                 if _COMMAND.match(span)
             )
-            if fact.id in placed and unit_type not in _RENDERED_ELSEWHERE:
+            if fact.id in placed and renders_verbatim(
+                fact.id, fact.value, candidate.entry.ecosystem
+            ):
                 fragments.append(("unit", fact.value, fact.id))
     return fragments
 
