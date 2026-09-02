@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from repository_presenter.components.readme.evidence.facts.assets import asset_facts
+from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
 from repository_presenter.components.readme.evidence.facts.records import (
     Evidence,
@@ -47,6 +48,9 @@ def extract_facts(
         facts.extend(plugin.manifest_facts(clone_path, manifest, tree_paths))
     facts.extend(license_facts(clone_path, snapshot.license_path))
     facts.extend(asset_facts(tree_paths))
+    if snapshot.readme_path is not None:
+        readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
+        facts.extend(inherited_unit_facts(snapshot.readme_path, readme_bytes))
     return FactsDocument(
         repository=entry.repository,
         source_revision=snapshot.source_revision,
