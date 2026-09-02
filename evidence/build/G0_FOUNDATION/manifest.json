@@ -445,8 +445,8 @@
     },
     {
       "predicate": "The accepted commits are pushed to the control repository's origin so hosted CI runs; a red hosted run is FAILED_INTERNAL at the next iteration.",
-      "verdict": "PENDING_PUSH",
-      "evidence": "Pushed directly to main immediately after this commit per publication.control_repository (DIRECT_MAIN_WHILE_UNPROTECTED); the pushed commit and CI run are recorded at the next iteration."
+      "verdict": "PASS",
+      "evidence": "Pushed directly to main as 8c5d857 per DIRECT_MAIN_WHILE_UNPROTECTED; hosted CI run 33604367627 for 8c5d857727e736bcff70094bee7aca8ebcc86a16: jobs Python 3.11, Python 3.12, Python 3.13 all success (observed 2026-09-02)."
     }
   ],
   "gate_exit_predicates": [
@@ -467,8 +467,8 @@
     },
     {
       "predicate": "The accepted commits are pushed to the control repository's origin; hosted CI is checked at the next iteration.",
-      "verdict": "PENDING_PUSH",
-      "evidence": "Push follows this commit; hosted CI result recorded at the next iteration."
+      "verdict": "PASS",
+      "evidence": "Pushed directly to main as 8c5d857 per DIRECT_MAIN_WHILE_UNPROTECTED; hosted CI run 33604367627 for 8c5d857727e736bcff70094bee7aca8ebcc86a16: jobs Python 3.11, Python 3.12, Python 3.13 all success (observed 2026-09-02)."
     },
     {
       "predicate": "Owner items are recorded with exact resume predicates; none is consumed by G0.",
@@ -482,8 +482,17 @@
     }
   ],
   "known_limitations": [
-    "Hosted CI has not yet run; the local three-version matrix on Windows stands in until the ubuntu-latest run for the pushed commit is checked at the next iteration.",
     "The 3.13 environment used the system CPython 3.13.2 rather than a uv-managed build."
   ],
-  "next_work_item": "G1-W01 (READY): snapshot stage for the canary."
+  "next_work_item": "G1-W01 (READY): snapshot stage for the canary.",
+  "hosted_ci": {
+    "run_id": 33604367627,
+    "head_sha": "8c5d857727e736bcff70094bee7aca8ebcc86a16",
+    "conclusion": "success",
+    "jobs": {
+      "Python 3.11": "success",
+      "Python 3.12": "success",
+      "Python 3.13": "success"
+    }
+  }
 }
