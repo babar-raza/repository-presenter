@@ -344,6 +344,11 @@ expected_area_dispositions:
       - Request and response hashing.
     prohibited_coupling:
       - Trusted-lane provider budgets.
+    note: >
+      This module builds the OpenAI-compatible chat-completions protocol directly on requests.
+      RESEARCH_AND_GUIDELINES.md §18.2 requires evaluating the openai SDK (custom base_url) before
+      this pull; only request/response hashing and attempt accounting are genuinely project-
+      specific. Record the evaluation outcome here when this file is actually pulled.
 
   - source_glob: src/readme_agent/llm/call_ledger.py
     expected_disposition: PORT_NEARLY_INTACT
@@ -366,6 +371,9 @@ expected_area_dispositions:
       - Typed response parsing and fail-closed errors.
     removed_behavior:
       - Job-specific defaults that belong in route configuration.
+    note: >
+      Same openai-SDK evaluation as llm/call_transport.py's note; this module is a strong candidate
+      to become a thin wrapper around the SDK rather than a requests-based reimplementation.
 
   - source_glob: src/readme_agent/llm/*_client.py
     expected_disposition: EXTRACT_AND_REFACTOR

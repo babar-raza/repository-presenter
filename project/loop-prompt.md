@@ -6,8 +6,10 @@ files, never from memory of a previous iteration.
 
 - Authority, in order: `AGENTS.md`, `project/state.yaml`, the current gate section only of
   `docs/EXECUTION_STATE_MACHINE.md`, then `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (for
-  any work on facts, composition, validation, or review), `docs/RESEARCH_AND_GUIDELINES.md`,
-  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
+  any work on facts, composition, validation, or review), `docs/REPOSITORY_LAYOUT.md` (before
+  creating any file or directory), `docs/RESEARCH_AND_GUIDELINES.md` §18 (before writing any new
+  mechanism — check its library registry first), `plans/idea.md`, `migration/reuse-manifest.yaml`.
+  Read only what the current work item needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite.
@@ -57,7 +59,14 @@ files, never from memory of a previous iteration.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 
-- Write code and its focused tests together. Prefer established libraries over bespoke code.
+- Write code and its focused tests together. Before writing a new mechanism, check
+  `RESEARCH_AND_GUIDELINES.md` §18's registry and `pyproject.toml`'s existing dependencies; use the
+  registry's first choice, or record a documented reason for departing (the alternative considered
+  and why) in the commit and, for a pulled file, in its manifest record's `note`. Add a dependency
+  only in the work item that actually consumes it — never speculatively.
+- Before creating a file or directory, check `docs/REPOSITORY_LAYOUT.md`; if the work genuinely
+  needs a path it does not name, add that path to it in the same commit. No stray, temporary, or
+  duplicate-purpose files anywhere in `src/`, `tests/`, `docs/`, or `schemas/`.
 - Pull legacy code only through a manifest file record: source path, SHA-256 at the frozen
   revision, disposition, destination, retained and removed behavior, tests ported, import closure,
   work item. Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`,

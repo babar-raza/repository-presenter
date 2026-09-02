@@ -936,3 +936,78 @@ and error handling thin until G1 needs them; that is intended. The eleven blocki
 weak candidate through at G1 that contract v1 later catches; G1 accepts that because a human reads
 the candidate before G2 begins.
 
+## 18. Preferred libraries over bespoke code (2026-09-02)
+
+`plans/idea.md` states this twice: "Battle-tested, proven tools and libraries are preferred over
+new custom infrastructure. Building a bespoke mechanism where an established one already solves the
+problem requires a documented reason — naming the proven alternative considered and why it was not
+used — not a silent default choice," and again under "Prefer Battle-Tested Solutions": existing
+solutions are "actively researched and evaluated before custom functionality is developed." Before
+this section, `AGENTS.md`, `EXECUTION_STATE_MACHINE.md` principle 16, and `project/loop-prompt.md`
+each carried a one-line paraphrase — but every occurrence paired "established libraries" with
+"proven retained code" or "proven legacy modules," which reads as permission to port a legacy
+module unexamined rather than as the evaluate-and-document duty `plans/idea.md` actually states. A
+ported legacy module is not exempt from this test merely for having run in production; §16.6's
+import-closure findings already show ported modules need seam cuts on their own terms.
+
+### 18.1 The concrete failure this prevents
+
+The PWD-060 cascade named in the recovery discussion (a project-tree diagram misclassified as
+emoji, exposing a crash on a language-less code fence, exposing missing provenance, exposing an
+evidence mismatch, ending in a deleted phrase) is a hand-rolled-text-handling failure chain. Each
+fix exposed the next defect because no step used a real, tested parser for the input class it was
+classifying. A maintained CommonMark parser and a maintained Unicode/emoji classifier do not
+misclassify a box-drawing tree diagram as emoji; a regex-based approximation can. This is the
+concrete stake behind the principle, not an abstract preference.
+
+### 18.2 What the legacy code already got right, and wrong
+
+Reading the legacy modules the manifest seeds for G1 (`retry.py`, `errors.py`, `llm/call_transport.py`,
+`llm/live_client.py`) on 2026-09-02:
+
+- `retry.py` is a thin, typed `pydantic` model wrapping `tenacity.Retrying` with a per-operation-
+  class policy table (attempts, backoff bounds, jitter). This already follows the principle — the
+  legacy project's own dependency comment records replacing an earlier bespoke retry loop with
+  Tenacity for exactly this reason. Porting the policy table is fine; the mechanism underneath it
+  should keep depending directly on `tenacity`, declared as such, not reimplemented.
+- `errors.py` is a plain exception hierarchy with no third-party import. No library replaces a
+  project's own typed error taxonomy; this is correctly bespoke and not a candidate for this rule.
+- `llm/call_transport.py`, `llm/live_client.py`, and every `llm/*_client.py` module build the
+  OpenAI-compatible chat-completions protocol — request construction, response parsing, retries,
+  fail-closed errors — directly on `requests`. `plans/idea.md` already specifies "a configurable
+  OpenAI-compatible gateway"; the official `openai` Python SDK accepts a custom `base_url` and
+  `api_key` and already implements request construction, typed responses, retries, and streaming
+  against that exact protocol. The manifest's seed dispositions for these modules (`PORT_NEARLY_INTACT`
+  for `call_transport.py`; `EXTRACT_AND_REFACTOR` for `live_client.py` and `*_client.py`) predate
+  this review and do not yet reflect an evaluation of the SDK. Before either is pulled, G1-W03
+  evaluates the `openai` SDK against the gateway's actual compatibility and records the outcome
+  either way in the pull's manifest file record — reuse it if it fits, and if it does not (the
+  gateway diverges from the protocol in a way the SDK cannot express), the file record names that
+  divergence as the documented reason, not a default. The call ledger and provider-call attribution
+  logic in `call_ledger.py` and `call_schema.py` are project-specific accounting, not something an
+  HTTP client replaces, and stay ported as seeded.
+
+### 18.3 Registry
+
+One entry per cross-cutting concern this project will need. "First choice" is the option to reach
+for; a work item that departs from it records why in its commit and, if the concern maps to a
+manifest entry, in that entry's `note` field.
+
+| Concern | First choice | Why | First needed |
+|---|---|---|---|
+| OpenAI-compatible LLM gateway client | `openai` SDK against a configurable `base_url` | Implements the protocol `plans/idea.md` already specifies; see §18.2 | G1-W03 |
+| Bounded retry with backoff | `tenacity` | Already proven in the legacy retry policy table; stdlib has no equivalent | G1-W01 (clone, package-registry checks) |
+| Typed data validation | stdlib `dataclasses` for simple records; `pydantic` only where a work item needs parsing, coercion, or nested validation a dataclass cannot express cheaply | Avoid a project-wide dependency until a concrete need states it; §5's fact record and disposition types may not need it | Declared per work item, not pre-added |
+| CommonMark/Markdown parsing for inherited-README material-unit extraction | `markdown-it-py` | Legacy's own justification stands: a real token stream, not regex, is what a validator needs to not misclassify real input (§18.1) | G1-W02 (facts stage, inherited-unit inventory) |
+| HTTP client for package-registry and link checks | `httpx` (or `requests` if a work item finds a concrete reason to prefer it — either is an established library, so this is not a departure either way) | Both are proven; pick one and use it consistently rather than mixing | G1-W01 or W02, first network check |
+| PEP 440 / version-range matching | `packaging` | Legacy's own justification: proven interpreter/version-range resolution, not textual comparison | G1-W02 (Python range fact) |
+| Multi-language public-surface parsing (.NET, Java, C++, Go, Rust, TypeScript) | `tree-sitter` with per-language grammars | Legacy's own justification for Rust applies to every ecosystem G3 adds: a maintained grammar, not textual pattern matching, resolves visibility, exports, and re-exports correctly | G3, per ecosystem as it is added |
+| Diffing for `README.patch` | stdlib `difflib`, unified format | A stdlib facility already solves this; no third-party dependency is a departure here, it is the default | G1-W01 (bundle stage) |
+| Git operations | the `git` CLI via `subprocess`, never a custom client | The CLI is itself the established, battle-tested tool; a Python wrapper library adds a dependency without adding proven behavior | G1-W01 (snapshot) |
+| Comment detection in generated example code, if a "no comments in visitor code" rule is adopted | `Pygments` lexers | Legacy's own justification: maintained lexers, not regexes that mistake URL-like string literals for comments | Only if `README_CONTRACT.md` adopts the rule; not yet decided |
+| Dependency vulnerability and SBOM scanning | `pip-audit` | Already found a real CVE in the legacy project's own bootstrap `pip` the first time it ran | G6 (production readiness) |
+
+A work item that needs a concern not listed here follows the same duty directly from `plans/idea.md`
+§"Prefer Battle-Tested Solutions": research an existing option before writing one, and if none
+fits, document why in the commit and add the concern to this table in the same change.
+

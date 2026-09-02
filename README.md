@@ -23,6 +23,7 @@ cursor; this file never restates it. The project succeeds the legacy
 | Build order, gates, acceptance | [`docs/EXECUTION_STATE_MACHINE.md`](docs/EXECUTION_STATE_MACHINE.md) |
 | Production runtime behavior | [`docs/STATE_MACHINE.md`](docs/STATE_MACHINE.md) |
 | Candidate README shape, assembly, agentic decisions, blocking checks | [`docs/README_CONTRACT.md`](docs/README_CONTRACT.md) |
+| Where a file lives | [`docs/REPOSITORY_LAYOUT.md`](docs/REPOSITORY_LAYOUT.md) |
 | Research record and design reasoning | [`docs/RESEARCH_AND_GUIDELINES.md`](docs/RESEARCH_AND_GUIDELINES.md) |
 | Live implementation cursor | [`project/state.yaml`](project/state.yaml) |
 | Legacy-code disposition | [`migration/reuse-manifest.yaml`](migration/reuse-manifest.yaml) |

@@ -56,7 +56,10 @@ are not progress. The observable repository transaction is:
     commit.
 14. A content candidate and permission to publish it are separate decisions.
 15. One repository failure never stops safe work on unrelated repositories.
-16. Prefer established libraries and proven legacy modules over new bespoke infrastructure.
+16. Research a battle-tested library or standard facility before writing a custom mechanism;
+    document a departure with the alternative considered. `RESEARCH_AND_GUIDELINES.md` §18 is the
+    registry. A pulled legacy module is judged by this rule too, not exempted by having run in
+    production.
 17. Do not import the legacy mission graph, trusted lane, or proof bureaucracy.
 18. **Infrastructure is just-in-time.** A mechanism enters only when the current or next gate's
     end-to-end run consumes it. Leases, fencing, durable CAS state, hosted workflows, and
@@ -81,7 +84,8 @@ The coding agent reads authority in this order:
 
 1. This document owns implementation sequence, gates, deliverables, and the build cursor.
 2. `docs/STATE_MACHINE.md` owns the production runtime states and transitions;
-   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks.
+   `docs/README_CONTRACT.md` owns the candidate's shape, assembly, agentic decisions, and checks;
+   `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 3. Typed schemas and tests own implemented interface behavior after their gate is accepted.
 4. The reuse manifest owns the disposition of each legacy module and asset.
 5. Git history and committed evidence record what actually happened.
@@ -244,10 +248,13 @@ leases, or hosted execution yet; those are G4.
    proceed without them). Governed prompt manifests for `repository_investigation`,
    `source_reconciliation`, `presentation_planning`, `section_authoring`, `independent_review`, and
    `targeted_repair`, one file each under `prompts/`, plus a `preflight` command that reaches the
-   gateway without leaking the key. Pull the LLM transport, call schema, ledger, prompt registry, and
-   prompt hygiene after the `CPL-01` cut. LLM prose may only express fact IDs supplied in its
-   packet; deterministic code renders commands, links, badges, Mermaid, example code, and license
-   identity.
+   gateway without leaking the key, built on the `openai` SDK per `RESEARCH_AND_GUIDELINES.md`
+   §18.2 rather than porting `call_transport.py`'s `requests`-based protocol handling, unless
+   evaluating the SDK against the actual gateway finds a documented reason not to. Pull the call
+   ledger, call schema, prompt registry, and prompt hygiene after the `CPL-01` cut; the ledger and
+   schema are project-specific accounting the SDK does not replace. LLM prose may only express fact
+   IDs supplied in its packet; deterministic code renders commands, links, badges, Mermaid, example
+   code, and license identity.
 4. **Composition** to `docs/README_CONTRACT.md`: the semantic shell in its §2, the assembly
    pipeline in its §3, and the agentic decisions in its §4. The LLM returns typed content units
    bound to fact IDs; the deterministic renderer emits the Markdown; one coherence pass may revise

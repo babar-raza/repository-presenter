@@ -36,7 +36,7 @@ Authority by subject:
 - `docs/EXECUTION_STATE_MACHINE.md` owns build order and gate acceptance.
 - `docs/STATE_MACHINE.md` owns production runtime behavior.
 - `docs/README_CONTRACT.md` owns the candidate README's shape, assembly, agentic decisions, and
-  blocking checks.
+  blocking checks. `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 - `project/state.yaml` owns current implementation status.
 - `migration/reuse-manifest.yaml` owns legacy-code disposition after its audit.
 - Accepted schemas and tests own implemented interfaces.
@@ -64,13 +64,17 @@ execution plan permits it. No two agents edit the same file or durable state con
 
 - Inspect before editing, replacing, or deleting.
 - Preserve unrelated user work; never use destructive reset/clean commands for convenience.
-- Prefer established libraries and proven retained code over bespoke infrastructure.
+- Research a battle-tested library or standard facility before writing a custom mechanism, per
+  `plans/idea.md`'s Prefer Battle-Tested Solutions and `RESEARCH_AND_GUIDELINES.md` §18's registry
+  — a legacy module is not exempt for having run in production. Departing from the registry's
+  first choice needs a documented reason naming the alternative, in the commit or the file record.
 - Port legacy behavior only through a reuse-manifest entry with source revision, destination,
   retained behavior, removed coupling, provenance, tests, and acceptance.
 - Keep orchestration small; domain behavior belongs behind public component/plugin interfaces.
 - Add ecosystems and families through registries, not a central `if/elif` chain.
-- Keep README-specific implementation under `components/readme`; reusable capabilities belong in
-  `core`.
+- Place every file where `docs/REPOSITORY_LAYOUT.md` puts it: README-specific work under
+  `components/readme`, reusable capabilities under `core`, tests mirroring `src/` path for path.
+  Record a genuinely new location there in the same commit; never leave a file "to organize later".
 - Treat templates as presentation assets—not sources of facts, package names, commands,
   capabilities, formats, APIs, or limitations.
 - Keep one central composer responsible for whole-document coherence.

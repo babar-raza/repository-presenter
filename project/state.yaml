@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-02T12:35:34+05:00"
+updated_at: "2026-09-02T16:00:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -8,6 +8,7 @@ authority:
   implementation: docs/EXECUTION_STATE_MACHINE.md
   runtime: docs/STATE_MACHINE.md
   readme_contract: docs/README_CONTRACT.md
+  repository_layout: docs/REPOSITORY_LAYOUT.md
   research: docs/RESEARCH_AND_GUIDELINES.md
   legacy_reuse: migration/reuse-manifest.yaml
 
@@ -29,7 +30,7 @@ accepted_gates:
 active_work_item:
   id: G1-W01
   status: READY
-  purpose: "Snapshot stage for the canary - registry allow-list admission, push-neutered clone at the pinned default-branch revision, exact README bytes, and tree inventory as stage artifacts; pull gitsafety, repository_snapshot, inspection, registry loader, redaction, errors, and retry through manifest file records with ported tests; run the present command end to end."
+  purpose: "Snapshot stage for the canary - registry allow-list admission, push-neutered clone at the pinned default-branch revision, exact README bytes, and tree inventory as stage artifacts; pull gitsafety, repository_snapshot, inspection, registry loader, redaction, errors, and retry through manifest file records with ported tests, declaring tenacity as a direct dependency rather than a hand-rolled loop (RESEARCH_AND_GUIDELINES.md section 18); place every new module per REPOSITORY_LAYOUT.md; run the present command end to end."
   prerequisites:
     - G0_FOUNDATION is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
     - Every pull follows migration/reuse-manifest.yaml audit.per_pull_checks; a closure that drags a RETIRE, supervisor, capabilities, or specialists module is cut first (CPL-01 to CPL-08).
@@ -55,10 +56,10 @@ active_work_item:
 next_ready_items:
   - id: G1-W02
     status: PENDING
-    purpose: "Facts stage - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; the PSD-style README-only fixture returns insufficient_evidence with zero LLM calls."
+    purpose: "Facts stage - distribution name, import path, exported symbols, Python range, verified executable examples, formats, license, and the material-unit inventory of the existing README as typed facts.json records with evidence IDs and polarity; the Python consumer and example verifier as the first platform plugin behind a registry; inherited-README unit extraction uses a real CommonMark parser (markdown-it-py) not regex scanning, and the Python range check uses packaging, per RESEARCH_AND_GUIDELINES.md section 18; the PSD-style README-only fixture returns insufficient_evidence with zero LLM calls."
   - id: G1-W03
     status: PENDING
-    purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key, and the transport, call schema, ledger, prompt registry, and prompt hygiene pulled after the CPL-01 cut; consumes OWNER-02."
+    purpose: "LLM jobs - governed prompt manifests under prompts/, the preflight command that reaches the gateway without leaking the key; the transport is built on the openai SDK per RESEARCH_AND_GUIDELINES.md section 18.2, not call_transport.py's requests-based protocol handling, unless evaluating the SDK against the gateway finds a documented reason otherwise; pull the call schema, ledger, prompt registry, and prompt hygiene after the CPL-01 cut; consumes OWNER-02."
 
 owner_items:
   - id: OWNER-01
