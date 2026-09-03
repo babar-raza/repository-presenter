@@ -61,10 +61,19 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     summarize,
     write_dispositions,
 )
+from repository_presenter.components.readme.review.independent.review import (
+    REVIEW_FILENAME,
+    review_checks,
+    review_document,
+    review_packet,
+    summarize_review,
+    write_review,
+)
 from repository_presenter.components.readme.validation.registry import (
     VALIDATION_FILENAME,
     Candidate,
     blocking_failures,
+    record_review_verdict,
     summarize_validation,
     validate_candidate,
     write_validation,
@@ -448,6 +457,31 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             configured_secrets(os.environ),
         )
         validation_digest = write_validation(validation, transaction / VALIDATION_FILENAME)
+        reviewed = None
+        review: dict[str, Any] = {}
+        review_digest = ""
+        if not blocking_failures(validation):
+            # Stage S10 runs only over a candidate every deterministic check accepted, under
+            # its own prompt and identity, and writes its verdict into check 10.
+            loaded = prompts["independent_review"]
+            reviewed = run_job(
+                loaded,
+                review_packet(
+                    entry, document, original, readme, planned.output, reconciled.output, validation
+                ),
+                config=config,
+                facts=document,
+                ledger=ledger,
+                store=store,
+                context=context,
+                checks=functools.partial(review_checks, candidate_readme=readme),
+            )
+            review = review_document(
+                reviewed.output, loaded, prompts["section_authoring"], readme_digest
+            )
+            review_digest = write_review(review, transaction / REVIEW_FILENAME)
+            validation = record_review_verdict(validation, review)
+            validation_digest = write_validation(validation, transaction / VALIDATION_FILENAME)
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
@@ -462,6 +496,12 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         f"validation: {(transaction / VALIDATION_FILENAME).relative_to(root).as_posix()} "
         f"({summarize_validation(validation)}; digest {validation_digest})"
     )
+    if reviewed is not None:
+        print(
+            f"review: {(transaction / REVIEW_FILENAME).relative_to(root).as_posix()} "
+            f"({summarize_review(review)}; provider calls {reviewed.provider_calls}, "
+            f"model {reviewed.model_served or 'stored output reused'}; digest {review_digest})"
+        )
     failed = blocking_failures(validation)
     if failed:
         first = failed[0]
@@ -470,7 +510,7 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"{first['details'][0]}; targeted repair is not implemented at this revision"
         )
         return EXIT_INCONSISTENT
-    _fail("present: the review stage is not implemented at this revision")
+    _fail("present: the seal stage is not implemented at this revision")
     return EXIT_INCONSISTENT
 
 

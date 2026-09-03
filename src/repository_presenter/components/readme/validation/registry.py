@@ -862,6 +862,42 @@ def validate_candidate(
     }
 
 
+def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> dict[str, Any]:
+    """validation.json with check 10 judged from review.json: PASS on ACCEPT under a separate
+    reviewer identity; otherwise FAIL, routed to the earliest causal state the findings name."""
+    findings = list(review.get("findings", []))
+    states = [f.get("causal_state") for f in findings if f.get("causal_state") in STAGE_ORDER]
+    accepted = review.get("verdict") == "ACCEPT" and bool(review.get("identity_separate"))
+    if accepted:
+        verdict, stage, details = "PASS", None, []
+    else:
+        verdict = "FAIL"
+        stage = min(states, key=STAGE_ORDER.index) if states else None
+        if not review.get("identity_separate"):
+            details = ["the reviewer identity is not separate from authoring"]
+        else:
+            details = [f"{review.get('verdict')}"] + [
+                f"{f.get('id')} {f.get('section_id')} ({f.get('causal_state')}): {f.get('text')}"
+                for f in findings
+            ]
+    checks = [
+        {**check, "verdict": verdict, "causal_stage": stage, "details": details}
+        if check.get("id") == "BC-10"
+        else check
+        for check in document.get("checks", [])
+    ]
+    verdicts = Counter(check["verdict"] for check in checks)
+    return {
+        **document,
+        "checks": checks,
+        "summary": {
+            "pass": verdicts.get("PASS", 0),
+            "fail": verdicts.get("FAIL", 0),
+            "pending": verdicts.get("PENDING", 0),
+        },
+    }
+
+
 def blocking_failures(document: dict[str, Any]) -> list[dict[str, Any]]:
     return [check for check in document.get("checks", []) if check.get("verdict") == "FAIL"]
 

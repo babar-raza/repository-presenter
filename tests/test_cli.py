@@ -321,6 +321,7 @@ SCRIPTED_OUTPUTS: dict[str, dict[str, Any]] = {
     "repository_investigation": LOCAL_INVESTIGATION,
     "source_reconciliation": LOCAL_DISPOSITIONS,
     "presentation_planning": LOCAL_PLAN,
+    "independent_review": {"verdict": "ACCEPT", "findings": [], "preserve": []},
 }
 
 
@@ -549,7 +550,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 10
+    assert len(gateway_ready.requests) == 11
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -579,6 +580,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "source_reconciliation",
         "presentation_planning",
         *(["section_authoring"] * 7),
+        "independent_review",
     ]
     shell_packet = json.loads(
         gateway_ready.requests[2]["messages"][1]["content"]
@@ -591,7 +593,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 10 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 11 and all('"disposition":"provider_call"' in line for line in ledger)
     assert "coherence: 0 of 8 units revised; provider calls 1, model qwen3-next" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
@@ -649,15 +651,29 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         line for line in captured.out.splitlines() if line.startswith("validation: ")
     )
     assert validation_line.startswith(
-        f"validation: {facts_dir}/validation.json (pass 9, fail 0, pending 2; digest "
+        f"validation: {facts_dir}/validation.json (pass 10, fail 0, pending 1; digest "
     )
     written_validation = json.loads(
         (project_with_registry / facts_dir / "validation.json").read_text("utf-8")
     )
-    assert [c["verdict"] for c in written_validation["checks"]] == ["PASS"] * 9 + ["PENDING"] * 2
+    assert [c["verdict"] for c in written_validation["checks"]] == ["PASS"] * 10 + ["PENDING"]
     assert written_validation["advisory"] == []
+    review_line = next(line for line in captured.out.splitlines() if line.startswith("review: "))
+    assert review_line.startswith(
+        f"review: {facts_dir}/review.json (verdict ACCEPT, findings 0, advisory 0, preserve 0; "
+        "provider calls 1, model qwen3-next; digest "
+    )
+    written_review = json.loads(
+        (project_with_registry / facts_dir / "review.json").read_text("utf-8")
+    )
+    assert written_review["identity_separate"] is True
+    assert written_review["reviewer"]["job"] == "independent_review"
+    review_request = gateway_ready.requests[10]
+    assert review_request["response_format"]["json_schema"]["name"] == "independent_review"
+    assert "# Aspose.3D FOSS for Python" in review_request["messages"][1]["content"]
+    assert "Original bytes." in review_request["messages"][1]["content"]
     assert code == EXIT_INCONSISTENT
-    assert "review stage is not implemented" in captured.err
+    assert "seal stage is not implemented" in captured.err
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -690,11 +706,12 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
         "readme: ",
         "patch: ",
         "validation: ",
+        "review: ",
     )
 
     def digests(text: str) -> list[str]:
         lines = [line for line in text.splitlines() if line.startswith(prefixes)]
-        assert len(lines) == 9
+        assert len(lines) == 10
         return [line.rsplit("digest ", 1)[1] for line in lines]
 
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -702,16 +719,16 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
-    assert first.count("provider calls 1, model qwen3-next") == 4
-    assert second.count("provider calls 0, model stored output reused") == 4
-    assert len(gateway_ready.requests) == 10
+    assert first.count("provider calls 1, model qwen3-next") == 5
+    assert second.count("provider calls 0, model stored output reused") == 5
+    assert len(gateway_ready.requests) == 11
     assert "provider calls 6; digest" in first and "provider calls 0; digest" in second
     assert "coherence: 0 of 8 units revised; provider calls 0, model stored output reused" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 10 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 11 + [
         "cache_reuse"
-    ] * 10
+    ] * 11
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
