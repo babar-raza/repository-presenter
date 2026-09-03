@@ -4,8 +4,17 @@ Status: normative for every candidate. Version 1 is a draft that freezes at G2 e
 `readme-contract-v1`; afterwards it changes only at a declared version boundary with regression
 evaluation across every current candidate. Every bundle's `dependencies.json` names the version it
 was built against.  
+**Revision hold (2026-09-03):** this draft was revised three times in two days ahead of any candidate
+sealing against it — the legacy pattern of the target moving faster than output. It is held at the
+current revision until a candidate seals against it (G2-W02); the only permitted change before then
+is the one `loop-prompt.md` already allows, a coherent fix to a predicate that implementation proved
+wrong, never a new requirement. `RESEARCH_AND_GUIDELINES.md` §25 records the reasoning.  
+Authority: `plans/idea.md` decides what a README must be; this document implements it; the
+aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
+how a reader receives it — evidence to check against, never a third authority (`EXECUTION_STATE_MACHINE.md`
+principle 9). When the two disagree, the owner decides and the decision is written once, here.  
 Derived from: `plans/idea.md` (Portfolio README Presentation Contract and standing constraints),
-`RESEARCH_AND_GUIDELINES.md` §4 to §7, and the legacy template registry pulled as an asset.  
+`RESEARCH_AND_GUIDELINES.md` §4 to §7 and §24, and the legacy template registry pulled as an asset.  
 Owns: the candidate's required shape, how content is assembled, which decisions are agentic, and
 which checks block. `EXECUTION_STATE_MACHINE.md` G1 builds to this document.
 

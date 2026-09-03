@@ -1390,7 +1390,7 @@ with nothing else in At a Glance; every one of the twelve standard sections pres
 
 | Aspect | Live portfolio convention | Was in this project | Decision |
 |---|---|---|---|
-| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G2-W07's second ecosystem |
+| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G2-W09's second ecosystem |
 | Banner | `[![Name](products.aspose.org/media/{f}/{p}/banner-readme.png)](products.aspose.org/{f}/{p}/)` on all 5 | absent, unmodeled | Matched (row 3) |
 | Navigation | explicit `## Navigation` heading | headerless list | Matched (row 5) |
 | At a Glance | present on all 5, including the generative one (no Starting Points); `flowchart TD`; one Starting Points node listing formats; single chain edge; ≤28-char tokens (hard gate) | condition required an input format, so the canary got none; `graph LR` with one node per input format and per-format edges | Matched and simplified: condition is three capabilities, inputs optional; single listing nodes; one edge per hop; label-geometry rule (§2.1) |
@@ -1416,4 +1416,52 @@ in the comparable); a fresh-process zero-call no-op proof; per-candidate `depend
 visible-length budget; and, once G3 lands, executed example verification for every ecosystem rather
 than Python alone. Matching the live portfolio's shape is the floor; these are the reasons a reader
 should prefer this project's candidate.
+
+## 25. Steering correction: converge before expanding (2026-09-03)
+
+**The risk, measured.** Between 2026-09-02 and 2026-09-03 this file grew from 1,013 to 1,419 lines
+and `README_CONTRACT.md` from 177 to 237, with three contract revisions, while `G2-W02`'s purpose
+grew from "fix five defects" to a 3,077-character item spanning the whole revised shell — and
+candidates stayed at 1/34. That is the legacy post-mortem's own line, "infrastructure and acceptance
+contracts expanded faster than visible output" (§3.6), reappearing in the steering layer even while
+the architecture the legacy lacked (per-candidate invalidation, no supervisor loop, a working
+transaction at gate 2) is present and proven. Two contract citations of `plans/idea.md` were also
+written before being verified against the file, and were wrong (§24). The corrections:
+
+- **`G2-W02` split into three converging items.** (a) `G2-W02`: seal the deterministic rows already
+  built plus the small remaining ones, superseding `65b1f577`; the interim candidate keeps the
+  hub-list API Reference and says so. (b) `G2-W03`: the complete API Reference, with the extraction
+  work below done first. (c) `G2-W04`: banner, Enterprise paragraph, At a Glance, images, the two
+  optional rows. Each seals something a reader can see.
+- **Contract revision hold** (its status line) until `G2-W02` seals; only a proved-wrong predicate may
+  change. Gaps go in this file, not the contract.
+- **Authority written once** (contract status line): `plans/idea.md` decides, the contract implements,
+  aspose.org's output is an oracle — evidence, never a third authority.
+- **A work-item size rule** in `loop-prompt.md`: about a thousand characters, a handful of iterations,
+  split rather than widen.
+- **My own discipline**: verify a `plans/idea.md` citation against the file before writing it into a
+  rule; consolidate §19–§25 into one comparative-research section once `G2-W04` seals rather than
+  keep appending.
+
+**The API Reference extraction gap, for `G2-W03` — read before touching the facts stage.** Checked
+on the sealed `65b1f577` bundle's `facts.json`: 1,918 `public_symbol` facts, every one with
+presence-only evidence (`"line 15; class; public by name"` — a path, a line, a kind word inside a
+free-text `detail`). Three specific gaps stand between that and row 14's "every description
+evidence-backed":
+
+1. **No descriptive evidence is extracted.** No docstring, no signature. The rule cannot be met from
+   these facts as they stand; the extractor must record the symbol's docstring first line and its
+   signature (or the class's public member names) as evidence fields.
+2. **Re-export paths are separate facts.** `Box` is three facts (`aspose.threed.box`,
+   `aspose.threed.entities.box`, `aspose.threed.entities.box.box`). The live README's table for this
+   product has 305 rows; 1,918 raw facts collapse to roughly that once each symbol is recorded once at
+   its canonical defining location, with its public re-export paths as evidence, not as duplicates.
+3. **Kind is not a field.** "module"/"class" lives inside the `detail` string; the table's split by
+   kind (`#### Enumerations`, `#### Interfaces`, …) needs a structured `symbol_kind` on the record.
+
+And a budget consequence: `section_authoring` allows 8,000 output tokens (already the largest of the
+six jobs) — not enough for one description per type in one call. Author the descriptions in bounded
+batches keyed to the deduplicated type list, or derive the description deterministically from the
+docstring first line where one exists and reserve the LLM for types without one — either is
+consistent with §3's "renderer owns structure, LLM owns bound prose"; a single oversized call is not.
 

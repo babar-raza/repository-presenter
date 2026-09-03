@@ -25,7 +25,14 @@ files, never from memory of a previous iteration.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
   document. Writable governance files: `project/state.yaml`, file records and pull notes in
   `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, and one coherent fix to a
-  document predicate that this iteration's implementation proved wrong.
+  document predicate that this iteration's implementation proved wrong. While
+  `docs/README_CONTRACT.md` carries a revision hold (its status line), no new requirement enters it
+  until a candidate has sealed against the held revision — build to the contract as written; a gap
+  between the contract and what is achievable is a report line and a `RESEARCH_AND_GUIDELINES.md`
+  note, not a contract edit.
+- A work item's purpose stays under about a thousand characters and closes in a handful of
+  iterations. When an item's scope grows past that, or three iterations move it without a predicate
+  closing, split it in `project/state.yaml` into items that each seal something — never widen it.
 - Progress has one unit: current reviewable no-op-proven candidates, N/34, as printed by
   `repository-presenter status` from sealed bundles on disk. Nothing else counts.
 - Budgets are hard: `AGENTS.md` at most 200 lines, `docs/EXECUTION_STATE_MACHINE.md` at most 500,
