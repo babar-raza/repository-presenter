@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-03T12:01:38+05:00"
+updated_at: "2026-09-03T13:10:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -58,17 +58,20 @@ active_work_item:
 next_ready_items:
   - id: G2-W02
     status: PENDING
-    purpose: "Invalidation matrix - change each dependency class in isolation (source revision, fact extractor, prompt, model route, template component, validator, reviewer rubric, link policy) and prove the routing: presentation-only changes yield VALID_UPDATE_AVAILABLE, factual, safety, or protected-content failures invalidate, corrupt or missing bundle artifacts fail closed; unaffected artifacts are reused."
+    purpose: "Repair confirmed candidate defects found reviewing the sealed G1 bundle against a live comparable (RESEARCH_AND_GUIDELINES.md section 22; read sections 20, 22, and 23 and README_CONTRACT.md section 3 and shell rows 3 and 9 before touching renderer.py, planning.py, or the facts stage): the renderer's additive placement of preserved inherited units over independently-authored content covering the same facts, the never-built enterprise-link and banner-link facts, the Dependencies section vanishing instead of stating verified-zero, and two still-live review.json advisory findings (F02 installation/PyPI-publication disclosure, F07 an incomplete single-test-file command). Acceptance: a regression test proves scope_limitations and documentation_resources each render every fact exactly once; enterprise_relationship and the banner row resolve from a live check and correctly omit when unresolved; dependencies renders the four-subsection shape with the fixed verified-zero sentence; the canary is re-composed at its pinned revision, passes all eleven blocking checks, independent review returns ACCEPT with zero code-caused advisory findings, and the new sealed bundle supersedes candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/d9f3bfe50d47e8156266955dda52ec5abf2d9dec per manifest.json's superseded_by field with a byte-identical zero-call rerun."
   - id: G2-W03
     status: PENDING
-    purpose: "Injected defects - one factual and one preservation defect are rejected and repaired at their causal stage with accepted unaffected work retained, and the two-attempt rule terminates honestly."
+    purpose: "Invalidation matrix - change each dependency class in isolation (source revision, fact extractor, prompt, model route, template component, validator, reviewer rubric, link policy) and prove the routing: presentation-only changes yield VALID_UPDATE_AVAILABLE, factual, safety, or protected-content failures invalidate, corrupt or missing bundle artifacts fail closed; unaffected artifacts are reused."
   - id: G2-W04
     status: PENDING
-    purpose: "Grep-enforced test that no global control-plane hash exists anywhere in src/."
+    purpose: "Injected defects - one factual and one preservation defect are rejected and repaired at their causal stage with accepted unaffected work retained, and the two-attempt rule terminates honestly."
   - id: G2-W05
     status: PENDING
-    purpose: "Freeze acceptance contract v1 - the 30-point criterion-specific profile with hard disqualifiers, the eleven blocking checks, and the advisory set, each with a version identifier, recorded in every bundle's dependencies.json."
+    purpose: "Grep-enforced test that no global control-plane hash exists anywhere in src/."
   - id: G2-W06
+    status: PENDING
+    purpose: "Freeze acceptance contract v1 - the 30-point criterion-specific profile with hard disqualifiers, the eleven blocking checks, and the advisory set, each with a version identifier, recorded in every bundle's dependencies.json."
+  - id: G2-W07
     status: PENDING
     purpose: "Second ecosystem representative (Aspose.3D FOSS for .NET or Aspose.Cells FOSS for Java) through the plugin registry, proving no central product or platform if/elif chain exists; status prints 2/34."
 

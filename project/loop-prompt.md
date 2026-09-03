@@ -79,6 +79,15 @@ files, never from memory of a previous iteration.
   revision, disposition, destination, retained and removed behavior, tests ported, import closure,
   work item. Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`,
   or `specialists` module fails, and you cut the seam instead. Known chains: `CPL-01` to `CPL-08`.
+- A work item touching a sealed candidate's bundle reads its `review.json` `advisory` list first.
+  A finding whose cause is deterministic code (the renderer, planning, or a fact extractor), not a
+  prose judgment call, is real repair work that survived one `targeted_repair` attempt for a
+  structural reason — content revision cannot fix a code defect. Route it to the causal module now,
+  never leave it advisory indefinitely (`RESEARCH_AND_GUIDELINES.md` §23).
+- When a live, already-published README exists for the repository a work item is producing a
+  candidate for, a quick `gh api repos/{owner}/{repo}/contents/README.md` comparison is cheap,
+  concrete evidence of what this candidate is actually replacing — a feature the live README already
+  has that this candidate lacks is a real gap, not a hypothesis.
 - After the change, run the official entry point end to end on the canary. G0:
   `repository-presenter --version` and `status`. G1 onward: `repository-presenter present --repo
   aspose-3d-foss/Aspose.3D-FOSS-for-Python` and its immediate rerun, which must be byte-identical
@@ -133,7 +142,8 @@ files, never from memory of a previous iteration.
    iteration, stop: keep it blocking only if it is one of the gate's essential checks, else make
    it advisory.
 5. A reviewer finding names a section and a causal stage or it is advisory. Never leave a
-   permanent unrepairable finding blocking a candidate.
+   permanent unrepairable finding blocking a candidate — and never leave one silently unresolved
+   forever either: advisory is deferred repair work, not accepted work.
 6. Done means wired into the official entry point, exercised end to end, tested, evidenced, in the
    cursor, committed, and pushed. Never close an item for code nothing calls.
 7. One CLI, one entry point per workflow. No compatibility facades, no parallel runtime paths, no
