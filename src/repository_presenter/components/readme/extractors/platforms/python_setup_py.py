@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import json
 from pathlib import Path
 
 _PYTHON_VERSION_CLASSIFIER_PREFIX = "Programming Language :: Python :: "
@@ -161,4 +162,15 @@ def parse_setup_py(setup_py_path: Path) -> dict[str, str]:
         declared = [r.strip() for r in requirements if isinstance(r, str) and r.strip()]
         if declared:
             info["dependencies"] = ",".join(declared)
+        else:
+            info["dependency_evidence"] = "the `install_requires` list is empty"
+    extras = literals.get("extras_require")
+    if isinstance(extras, dict):
+        buckets = {
+            str(extra): [r.strip() for r in reqs if isinstance(r, str) and r.strip()]
+            for extra, reqs in extras.items()
+            if isinstance(reqs, list | tuple)
+        }
+        if any(buckets.values()):
+            info["extras"] = json.dumps({k: v for k, v in buckets.items() if v}, sort_keys=True)
     return info

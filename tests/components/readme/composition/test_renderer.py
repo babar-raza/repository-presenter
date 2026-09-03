@@ -43,7 +43,11 @@ FACTS = FactsDocument(
     (
         _fact("identity:repository", "identity", ENTRY.repository),
         _fact("package:name", "package", "aspose-3d-foss"),
+        _fact("package:version", "package", "26.1.0"),
         _fact("package:python_requires", "package", ">=3.7"),
+        _fact("package:python_versions", "package", "3.7,3.8,3.12"),
+        _fact("import_path:aspose", "import_path", "aspose"),
+        _fact("import_path:aspose.threed", "import_path", "aspose.threed"),
         _fact("install_command:pip", "install_command", "pip install aspose-3d-foss"),
         _fact("license:spdx", "license", "MIT"),
         _fact("license:file", "license", "LICENSE"),
@@ -195,15 +199,24 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert lines[4] == (
         "Aspose.3D FOSS for Python builds scenes with `Scene` and saves them with `Scene.save`."
     )
+    assert lines[6] == "## Navigation"
     assert "- [At a Glance](#at-a-glance)" in lines and "- [License](#license)" in lines
     assert "- [Dependencies](#dependencies)" not in lines
+    assert "- [Navigation](#navigation)" not in lines
     assert "```mermaid" in lines and '  I1["OBJ"] --> P' in lines and '    O1["GLB"]' in lines
     assert "- **Build scenes.** Scenes are built from `aspose.threed.Scene` objects." in lines
-    assert lines[lines.index("## Installation") + 2 : lines.index("## Installation") + 5] == [
-        "```bash",
-        "pip install aspose-3d-foss",
-        "```",
-    ]
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert installation == (
+        "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n"
+        "```bash\npip install aspose-3d-foss\n```\n\n"
+        "To work from a source checkout instead, install the clone with pip:\n\n"
+        "```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\n"
+        "cd Aspose.3D-FOSS-for-Python\npip install .\n```\n\n"
+        "Verify the install:\n\n"
+        '```bash\npython -c "import aspose.threed"\n```\n\n'
+        "The package supports Python 3.7, 3.8, and 3.12 and declares `python_requires` as "
+        "`>=3.7`.\n"
+    )
     quick = lines.index("## Quick Start")
     assert lines[quick + 2] == "Create a scene and save it."
     assert lines[quick + 4 : quick + 8] == [
@@ -221,8 +234,11 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert lines.count("## Scope and Limitations") == 1
     assert readme.count("print(2)") == 1
     assert "- `tests/`" in lines
-    assert lines[-1].startswith("Aspose.3D FOSS for Python is released under the MIT License.")
-    assert lines[-1].endswith("See [LICENSE](LICENSE).")
+    assert lines[-1] == (
+        "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, "
+        "copying, modification, distribution, sublicensing, and commercial use, provided its "
+        "copyright and permission notice are retained. The software is provided without warranty."
+    )
     assert readme.endswith("\n") and "\r" not in readme and "\n\n\n" not in readme
     assert render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS) == readme
 
@@ -338,3 +354,95 @@ def test_a_placed_unit_inherits_its_sections_visibility_and_overlap_is_exclusive
     # paragraph is dropped; the planned bullet is what the reader sees.
     assert "OBJ import is unverified." in readme
     assert readme.count("OBJ import is unverified.") == 1
+
+
+def test_an_unpublished_package_is_stated_plainly_and_only_verified_installs_render() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(
+                f.id,
+                f.kind,
+                f.value,
+                (Evidence("setup.py", "manifest"), Evidence("pypi", "distribution not found")),
+                polarity="CONTRADICTED",
+            )
+            if f.id == "install_command:pip"
+            else f
+            for f in FACTS.facts
+            if f.id != "package:python_versions"
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert installation.startswith(
+        "The package `aspose-3d-foss` is not yet published on PyPI (distribution not found).\n\n"
+        "To work from a source checkout instead"
+    )
+    assert "pip install aspose-3d-foss" not in installation
+    assert installation.endswith("The package declares `python_requires` as `>=3.7`.\n")
+    apache = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(f.id, f.kind, "Apache-2.0", f.evidence) if f.id == "license:spdx" else f
+            for f in FACTS.facts
+        ),
+    )
+    assert render_readme(ENTRY, apache, PLAN, UNITS, DISPOSITIONS).endswith(
+        "This project is licensed under the [Apache-2.0](LICENSE).\n"
+    )
+
+
+def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "package:python_requires"),
+            Fact(
+                "package:python_requires",
+                "package",
+                ">=3.7",
+                (Evidence("setup.py", "python_requires declared"),),
+            ),
+            Fact(
+                "dependency:none",
+                "dependency",
+                "none",
+                (Evidence("setup.py", "the `install_requires` list is empty"),),
+            ),
+            Fact(
+                "dependency:development.dev.pytest-7.0.0",
+                "dependency",
+                "pytest>=7.0.0",
+                (Evidence("setup.py", "extra 'dev' declared"),),
+            ),
+            Fact(
+                "dependency:optional.viz.matplotlib",
+                "dependency",
+                "matplotlib",
+                (Evidence("setup.py", "extra 'viz' declared"),),
+            ),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True} if entry["section_id"] == "dependencies" else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    readme = render_readme(ENTRY, facts, plan, UNITS, DISPOSITIONS)
+    section = readme.split("## Dependencies\n\n", 1)[1].split("\n## ", 1)[0]
+    assert section == (
+        "### Required Package Dependencies\n\n"
+        "No required third-party package dependencies; in `setup.py`, the `install_requires` "
+        "list is empty.\n\n"
+        "### Optional Dependencies\n\n- `matplotlib` (extra `viz`)\n\n"
+        "### Native and System Requirements\n\n"
+        '- Requires Python 3.7 or later (`python_requires=">=3.7"` in `setup.py`).\n\n'
+        "### Development Dependencies\n\n- `pytest>=7.0.0` (extra `dev`)\n"
+    )
+    assert "- [Dependencies](#dependencies)" in readme.splitlines()

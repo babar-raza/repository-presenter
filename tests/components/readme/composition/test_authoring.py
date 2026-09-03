@@ -354,3 +354,28 @@ def test_units_that_repeat_a_slot_fold_into_one() -> None:
     assert output["units"][1]["text"] == "First point. Second point. Third point."
     assert output["units"][1]["fact_ids"] == ["format:input.obj", "identity:repository"]
     assert merge_repeated_slots(output) == []
+
+
+def test_names_an_executed_example_uses_are_accepted_identifiers() -> None:
+    facts = FactsDocument(
+        "org/Aspose.Widget-FOSS-for-Python",
+        "a" * 40,
+        (
+            Fact(
+                "example:001",
+                "example",
+                "import io\nbuffer = io.BytesIO()\nscene.save(buffer)\n",
+                (Evidence("README.md", "lines 1-3; python fence"),),
+            ),
+            Fact(
+                "example:002",
+                "example",
+                "import io\nio.StringIO()\n",
+                (Evidence("README.md", "lines 5-6; python fence"),),
+                polarity="CONTRADICTED",
+            ),
+        ),
+    )
+    allowed = allowed_identifiers(facts, "Aspose.Widget FOSS for Python")
+    assert "io.BytesIO" in allowed and "scene.save" in allowed
+    assert "io.StringIO" not in allowed  # a failed example proves nothing

@@ -49,6 +49,7 @@ def _plan(**overrides: Any) -> dict[str, Any]:
         "navigation",
         "key_capabilities",
         "installation",
+        "dependencies",
         "quick_start",
         "additional_examples",
         "api_reference",
@@ -167,3 +168,32 @@ def test_planning_includes_every_verified_example_and_refuses_an_excluded_destin
     plan_checks(omitted, FACTS)
     decision = next(e for e in omitted["sections"] if e["section_id"] == "additional_examples")
     assert decision["include"] is True and omitted["additional_example_ids"] == ["example:002"]
+
+
+def test_planning_refuses_to_exclude_a_section_a_supersession_relies_on() -> None:
+    def _supersede(unit: str, destination: str) -> dict[str, Any]:
+        return {
+            "unit_id": unit,
+            "disposition": "SUPERSEDE_REDUNDANT",
+            "destination_section": destination,
+            "fact_ids": [],
+            "rationale": "r",
+        }
+
+    plan = _plan(api_hubs=[])
+    for entry in plan["sections"]:
+        if entry["section_id"] == "api_reference":
+            entry["include"] = False
+    dispositions = {
+        "dispositions": [
+            _supersede("inherited_unit:012.paragraph", "api_reference"),
+            # A heading is the shell's anyway, and an absent section is reconciliation's job.
+            _supersede("inherited_unit:015.heading", "api_reference"),
+            _supersede("inherited_unit:014.paragraph", "at_a_glance"),
+        ]
+    }
+    assert plan_checks(plan, FACTS, dispositions=dispositions, ecosystem="python") == [
+        "section api_reference is excluded but the reconciliation relies on its content to "
+        "supersede inherited_unit:012.paragraph; include it, or the transaction fails closed "
+        "naming the unit"
+    ]

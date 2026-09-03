@@ -273,6 +273,7 @@ LOCAL_PLAN_INCLUDED = {
     "navigation",
     "key_capabilities",
     "installation",
+    "dependencies",
     "quick_start",
     "api_reference",
     "documentation_resources",
@@ -579,7 +580,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert written_dispositions == LOCAL_DISPOSITIONS
     plan_line = next(line for line in captured.out.splitlines() if line.startswith("plan: "))
     assert plan_line.startswith(
-        f"plan: {facts_dir}/plan.json (sections 11/17, capabilities 3, hubs 1, examples 1+0, "
+        f"plan: {facts_dir}/plan.json (sections 12/17, capabilities 3, hubs 1, examples 1+0, "
         "links 1, limitations 0; provider calls 1, model qwen3-next; digest "
     )
     written_plan = json.loads((project_with_registry / facts_dir / "plan.json").read_text("utf-8"))
@@ -639,14 +640,18 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     readme_text = (project_with_registry / facts_dir / "README.md").read_text("utf-8")
     assert readme_text.startswith("# Aspose.3D FOSS for Python\n\n[![PyPI]")
-    assert "## Installation\n\n```bash\npip install aspose-3d-foss\n```" in readme_text
+    assert "## Navigation\n\n- [Key Capabilities](#key-capabilities)\n" in readme_text
+    assert "## Installation\n\nInstall the published package from PyPI (`aspose-3d-foss`" in (
+        readme_text
+    )
+    assert "```bash\npip install aspose-3d-foss\n```" in readme_text
     assert (
         "## Quick Start\n\nThe example below creates a scene and saves it.\n\n```python\n"
         in readme_text
     )
     assert "- **Create scenes.** `Scene` objects are created in memory." in readme_text
     assert "- [docs](https://docs.example.com/3d)" in readme_text
-    assert readme_text.rstrip("\n").endswith("See [LICENSE](LICENSE).")
+    assert readme_text.rstrip("\n").endswith("The software is provided without warranty.")
     patch_text = (project_with_registry / facts_dir / "README.patch").read_text("utf-8")
     assert patch_text.startswith("--- a/README.md\n+++ b/README.md\n")
     assert "-# Aspose.3D for Python" in patch_text
@@ -722,8 +727,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "targeted_repair",
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
-        "shell": "1",
-        "renderer": "1",
+        "shell": "2",
+        "renderer": "2",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

@@ -18,7 +18,10 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.composition.components.shell import section_ids
+from repository_presenter.components.readme.composition.components.shell import (
+    SEMANTIC_SHELL,
+    section_ids,
+)
 from repository_presenter.core.facts import FACT_KINDS, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -54,10 +57,22 @@ _TYPOGRAPHY = str.maketrans(
 )
 
 
+_MARKUP = (
+    re.compile(r"(?m)^\s*```[^\n]*$"),  # fence lines, with their language
+    re.compile(r"<[^>\n]+>"),  # HTML tags such as details and summary
+    re.compile(r"(?m)^\s*(?:[-*+]|\d+[.)])\s+"),  # list markers
+    re.compile(r"(?m)^\s*#{1,6}\s+"),  # heading marks
+    re.compile(r"\*\*|__|(?<!\w)[*_](?=\S)|(?<=\S)[*_](?!\w)"),  # emphasis
+)
+
+
 def _normalized(text: str) -> str:
-    """Text as a reader compares it: no code spans, plain dashes and quotes, single spaces."""
-    plain = text.translate(_TYPOGRAPHY).replace("`", "")
-    return re.sub(r"\s+", " ", plain).strip().lower()
+    """Text as a reader compares it: no code spans or Markdown syntax, plain dashes and
+    quotes, single spaces. A reviewer quotes what it reads; the syntax around it is ours."""
+    plain = text.translate(_TYPOGRAPHY)
+    for pattern in _MARKUP:  # fence lines first, while their backticks still mark them
+        plain = pattern.sub("", plain)
+    return re.sub(r"\s+", " ", plain.replace("`", "")).strip().lower()
 
 
 def quote_located(quote: str, candidate_readme: str) -> bool:
@@ -138,6 +153,29 @@ def factuality_defect(finding: dict[str, Any], quote: str, by_id: dict[str, Fact
     return None
 
 
+def presentation_defect(finding: dict[str, Any]) -> str | None:
+    """Why a presentation finding is the reviewer's own defect, or None when it may stand.
+
+    A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
+    BC-07): its wording and its choice of command are the renderer's, so no stage the loop can
+    reopen would change them. A factual error there is a factuality finding against the fact.
+    """
+    if finding.get("criterion") != "presentation":
+        return None
+    if finding.get("section_id") not in _DETERMINISTIC_SECTIONS:
+        return None
+    return (
+        f"section {finding.get('section_id')} renders from facts under the contract's own "
+        "checks; its presentation is the renderer's, and a factual error there is a "
+        "factuality finding"
+    )
+
+
+_DETERMINISTIC_SECTIONS = frozenset(
+    section.id for section in SEMANTIC_SHELL if section.owner == "D"
+)
+
+
 def review_checks(
     output: dict[str, Any], candidate_readme: str, facts: FactsDocument | None = None
 ) -> list[str]:
@@ -168,16 +206,16 @@ def review_checks(
             # The bracketed prefix is this module's own mark; any other is not the reviewer's
             # finding text, so the output is asked for again.
             errors.append(f"finding {label}: text must not begin with a bracketed prefix")
-        elif facts is not None and finding.get("criterion") == "factuality":
-            _rejudge_factuality(finding, quote, by_id)
+        elif facts is not None and finding.get("criterion") in ("factuality", "presentation"):
+            _rejudge(finding, quote, by_id)
     return errors
 
 
 _MARK = re.compile(rf"^\[{re.escape(REVIEWER_SCOPE_DEFECT)} at (\S+): .*?\] ")
 
 
-def _rejudge_factuality(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> None:
-    """Mark a factuality finding the evidence refutes as advisory in place, or unmark it.
+def _rejudge(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> None:
+    """Mark a finding that is the reviewer's own defect as advisory in place, or unmark it.
 
     The mark carries the stage the reviewer named, so a stored finding is re-judged from its
     raw form under the current rule: the normalisation is a pure function of the finding, the
@@ -189,7 +227,10 @@ def _rejudge_factuality(finding: dict[str, Any], quote: str, by_id: dict[str, Fa
     if marked:
         finding["causal_stage"] = marked.group(1)
         text = text[marked.end() :]
-    reason = factuality_defect(finding, quote, by_id)
+    if finding.get("criterion") == "factuality":
+        reason = factuality_defect(finding, quote, by_id)
+    else:
+        reason = presentation_defect(finding)
     if reason is None:
         finding["text"] = text
         return

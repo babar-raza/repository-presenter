@@ -60,5 +60,25 @@
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
   "sealed_at": "2026-09-03T10:48:49Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "READY_FOR_PROPOSAL",
+  "update": {
+    "available": true,
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "facts.json",
+      "investigation.json",
+      "plan.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "recorded_at": "2026-09-03T12:19:45Z",
+    "transaction": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  }
 }

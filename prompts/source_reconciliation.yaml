@@ -1,5 +1,5 @@
 prompt_id: source_reconciliation
-version: "1"
+version: "2"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
@@ -89,8 +89,11 @@ system: |
   keeps it as written in a different section. CORRECT_WITH_EVIDENCE keeps the unit's subject but a
   fact contradicts a detail; cite the contradicting fact. SUPERSEDE_REDUNDANT drops a unit whose
   substance a deterministic section renders from facts (the H1 product name, a badge row, an
-  install command, a dependency list, a notices link, a license statement); name that section in
-  destination_section and cite the facts that render it when you can. OMIT_UNSUPPORTED drops a claim no fact
+  install command, a dependency list, a notices link, a license statement) or whose substance the
+  plan's freshly authored content for a placeable section covers (a section heading the shell
+  owns, a capability list re-authored under key_capabilities, a limitations list re-authored under
+  scope_limitations, a resource list re-authored under documentation_resources); name that section
+  in destination_section and cite the facts that render it when you can. OMIT_UNSUPPORTED drops a claim no fact
   supports; cite the facts you searched or leave fact_ids empty and say so. DEFER_UNRESOLVED marks a
   material claim the facts neither support nor contradict; it is listed for the owner and never
   rendered. NON_CONTENT covers separators, empty lines, and HTML comments.

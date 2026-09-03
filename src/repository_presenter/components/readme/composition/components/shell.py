@@ -11,7 +11,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-SHELL_VERSION = "1"
+SHELL_VERSION = "2"
+# Fixed level-three subheadings a shell row prescribes (README_CONTRACT.md section 2 row 9).
+SUBSECTION_HEADINGS = frozenset(
+    {
+        "Required Package Dependencies",
+        "Optional Dependencies",
+        "Native and System Requirements",
+        "Development Dependencies",
+    }
+)
 Owner = Literal["D", "L", "M"]
 
 
@@ -56,12 +65,12 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
     ),
     Section(
         "navigation",
-        None,
+        "Navigation",
         True,
         "visible",
         "D",
         None,
-        "Compact list of in-page links to the visible sections actually present.",
+        "Compact list of in-page links to the visible headed sections actually present.",
     ),
     Section(
         "at_a_glance",
@@ -93,11 +102,11 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
     Section(
         "dependencies",
         "Dependencies",
-        False,
+        True,
         "visible",
         "D",
-        "non-trivial runtime dependencies",
-        "From manifests and lock files.",
+        None,
+        "The dependency snapshot in four subsections; verified-zero is stated, never omitted.",
     ),
     Section(
         "quick_start",

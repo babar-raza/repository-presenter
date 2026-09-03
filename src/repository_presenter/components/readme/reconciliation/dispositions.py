@@ -137,6 +137,16 @@ def normalize(
             entry["destination_section"] = None
             continue
         if (
+            disposition == "SUPERSEDE_REDUNDANT"
+            and destination in absent
+            and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+        ):
+            # Nothing covers the unit when the section that would cannot appear at this
+            # revision, so the unit is deferred for the owner rather than silently dropped.
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
+            continue
+        if (
             disposition in PLACING
             and destination in absent
             and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
@@ -183,15 +193,13 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
             if unit in contradicted:
                 errors.append(f"{unit}: its example is CONTRADICTED and cannot be placed")
         elif disposition == "SUPERSEDE_REDUNDANT":
-            if destination is not None and destination in placeable:
+            # Superseded by a deterministic section's rendering (cited by fact ID after the
+            # fold) or by the plan's own content for a placeable section: the exclusivity of
+            # README_CONTRACT.md section 3 from the reconciler's side.
+            if destination is None and not cited:
                 errors.append(
-                    f"{unit}: SUPERSEDE_REDUNDANT names the deterministic section that renders "
-                    f"the unit, never {destination!r}"
-                )
-            if not cited:
-                errors.append(
-                    f"{unit}: SUPERSEDE_REDUNDANT needs the deterministic section that renders "
-                    "the unit in destination_section or at least one fact ID"
+                    f"{unit}: SUPERSEDE_REDUNDANT names the section whose content renders or "
+                    "covers the unit in destination_section, or cites at least one fact ID"
                 )
         elif destination is not None:
             errors.append(f"{unit}: {disposition} takes no destination; got {destination!r}")

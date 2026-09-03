@@ -135,8 +135,8 @@ def test_placements_into_deterministic_sections_fold_into_supersessions() -> Non
         "quick_start, scope_limitations); got 'installation'",
         "inherited_unit:003.code_block: CORRECT_WITH_EVIDENCE needs at least one fact ID as "
         "evidence",
-        "inherited_unit:004.code_block: SUPERSEDE_REDUNDANT needs the deterministic section that "
-        "renders the unit in destination_section or at least one fact ID",
+        "inherited_unit:004.code_block: SUPERSEDE_REDUNDANT names the section whose content "
+        "renders or covers the unit in destination_section, or cites at least one fact ID",
     ]
     assert reconcile_checks(output, FACTS) == errors + remaining
 
@@ -166,8 +166,8 @@ def test_placement_rules_are_checked_before_use() -> None:
     }
     errors = placement_errors(bad, FACTS)
     assert errors[0] == (
-        "inherited_unit:001.heading: SUPERSEDE_REDUNDANT needs the deterministic section that "
-        "renders the unit in destination_section or at least one fact ID"
+        "inherited_unit:001.heading: SUPERSEDE_REDUNDANT names the section whose content "
+        "renders or covers the unit in destination_section, or cites at least one fact ID"
     )
     assert errors[1].startswith(
         "inherited_unit:002.paragraph: VERIFIED_MOVE needs a destination the shell can hold ("

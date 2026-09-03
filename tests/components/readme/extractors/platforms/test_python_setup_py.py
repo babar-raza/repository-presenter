@@ -142,4 +142,7 @@ def test_literal_install_requires_become_dependencies(tmp_path: Path) -> None:
     empty = _setup_py(
         tmp_path, 'from setuptools import setup\nsetup(name="y", install_requires=[])\n'
     )
-    assert parse_setup_py(empty) == {"name": "y"}
+    assert parse_setup_py(empty) == {
+        "name": "y",
+        "dependency_evidence": "the `install_requires` list is empty",
+    }

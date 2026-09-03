@@ -31,7 +31,10 @@ from repository_presenter.components.readme.composition.authoring import (
     verified_members,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
-from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.composition.components.shell import (
+    SEMANTIC_SHELL,
+    SUBSECTION_HEADINGS,
+)
 from repository_presenter.components.readme.composition.placement import (
     Placement,
     placements,
@@ -183,6 +186,8 @@ _PLACING = frozenset(
     {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE", "CORRECT_WITH_EVIDENCE"}
 )
 _EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
+# (level, is a shell heading, is a prescribed subheading) combinations a heading may take
+_HEADING_OK = frozenset({(2, True, False), (3, False, True)})
 _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
 _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
@@ -466,9 +471,18 @@ def _check_units(candidate: Candidate) -> list[Failure]:
         if fact.polarity == "SUPPORTED"
     }
     placed_lines = {line for text in _placed_texts(candidate) for line in text.splitlines()}
+    # A deterministic section's spans come from facts and their evidence (a manifest path, a
+    # declaration key), so the identifier rule judges authored prose only.
+    owners = {section.id: section.owner for section in SEMANTIC_SHELL}
+    renderer_lines = {
+        line
+        for section_id, text in _section_texts(candidate.readme).items()
+        if owners.get(section_id) == "D"
+        for line in text.splitlines()
+    }
     seen: set[str] = set()
     for line in _outside_fences(candidate.readme):
-        if line in placed_lines:
+        if line in placed_lines or line in renderer_lines:
             continue
         for span in _SPAN.findall(line):
             if span in seen:
@@ -641,7 +655,7 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         if line.startswith("#") and not line.startswith("# "):
             level = len(line) - len(line.lstrip("#"))
             text = line.lstrip("#").strip()
-            if level != 2 or text not in headings:
+            if (level, text in headings, text in SUBSECTION_HEADINGS) not in _HEADING_OK:
                 failures.append(
                     Failure("COMPOSING", f"heading {line!r} is not a shell heading in title case")
                 )

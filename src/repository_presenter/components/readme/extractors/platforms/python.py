@@ -11,6 +11,7 @@ directories the tree inventory proves.
 from __future__ import annotations
 
 import ast
+import json
 import tomllib
 from collections.abc import Sequence
 from configparser import ConfigParser
@@ -44,6 +45,13 @@ from repository_presenter.core.facts import (
 MANIFEST_NAMES = ("pyproject.toml", "setup.cfg", "setup.py")
 _NON_PRODUCT_TOP_LEVEL = frozenset({"tests", "test", "docs", "examples", "pyi", "scripts", "build"})
 _MAX_IMPORT_PATH_DEPTH = 2
+# Extras whose requirements serve development, not users of the package.
+_DEVELOPMENT_EXTRAS = frozenset({"dev", "develop", "development", "test", "tests", "testing"})
+_NOT_DECLARED = {
+    "pyproject.toml": "no `project.dependencies` is declared",
+    "setup.cfg": "no `options.install_requires` is declared",
+    "setup.py": "no `install_requires` is declared",
+}
 
 
 def _literal_assignment(path: Path, name: str) -> str | None:
@@ -120,6 +128,17 @@ def parse_pyproject(pyproject_path: Path) -> dict[str, str]:
     dependencies = [d for d in project.get("dependencies", []) if isinstance(d, str) and d.strip()]
     if dependencies:
         info["dependencies"] = ",".join(d.strip() for d in dependencies)
+    elif "dependencies" in project:
+        info["dependency_evidence"] = "the `project.dependencies` list is empty"
+    optional = project.get("optional-dependencies", {})
+    if isinstance(optional, dict):
+        buckets = {
+            str(extra): [d.strip() for d in reqs if isinstance(d, str) and d.strip()]
+            for extra, reqs in optional.items()
+            if isinstance(reqs, list)
+        }
+        if any(buckets.values()):
+            info["extras"] = json.dumps({k: v for k, v in buckets.items() if v}, sort_keys=True)
     setuptools_cfg = data.get("tool", {}).get("setuptools", {})
     packages_cfg = setuptools_cfg.get("packages", [])
     if isinstance(packages_cfg, dict):
@@ -151,7 +170,24 @@ def parse_setup_cfg(setup_cfg_path: Path) -> dict[str, str]:
         requires_python = parser.get("options", "python_requires", fallback="").strip()
         if requires_python:
             info["requires_python"] = requires_python
+        if parser.has_option("options", "install_requires"):
+            declared = _requirement_lines(parser.get("options", "install_requires"))
+            if declared:
+                info["dependencies"] = ",".join(declared)
+            else:
+                info["dependency_evidence"] = "the `options.install_requires` list is empty"
+    if parser.has_section("options.extras_require"):
+        buckets = {
+            extra: _requirement_lines(parser.get("options.extras_require", extra))
+            for extra in parser.options("options.extras_require")
+        }
+        if any(buckets.values()):
+            info["extras"] = json.dumps({k: v for k, v in buckets.items() if v}, sort_keys=True)
     return info
+
+
+def _requirement_lines(raw: str) -> list[str]:
+    return [line.strip() for line in raw.splitlines() if line.strip()]
 
 
 def parse_manifests(root: Path) -> dict[str, dict[str, str]]:
@@ -269,6 +305,9 @@ class PythonPlugin:
         add("package", "python_requires", "requires_python", "python_requires declared")
         add("package", "python_versions", "python_classifier_versions", "Python classifiers")
         add("package", "license", "license", "license declared by the manifest")
+        # The dependency snapshot (README_CONTRACT.md section 2 row 9): every required
+        # requirement, or the verified-zero marker citing the manifest clause that proves it,
+        # then each extra's requirements in the optional or development bucket.
         for requirement in merged.get("dependencies", "").split(","):
             if requirement:
                 facts.append(
@@ -277,6 +316,25 @@ class PythonPlugin:
                         "dependency",
                         requirement,
                         (Evidence(sources["dependencies"], "install requirement declared"),),
+                    )
+                )
+        if "dependencies" not in merged and "name" in merged:
+            # A parsed manifest that declares no requirement proves verified-zero: an empty
+            # list when the manifest spells one out, else the absence of the declaration.
+            path = sources.get("dependency_evidence", sources["name"])
+            clause = merged.get("dependency_evidence") or _NOT_DECLARED[sources["name"]]
+            facts.append(
+                Fact(fact_id("dependency", "none"), "dependency", "none", (Evidence(path, clause),))
+            )
+        for extra, requirements in json.loads(merged.get("extras", "{}")).items():
+            bucket = "development" if extra.lower() in _DEVELOPMENT_EXTRAS else "optional"
+            for requirement in requirements:
+                facts.append(
+                    Fact(
+                        fact_id("dependency", bucket, extra, requirement),
+                        "dependency",
+                        requirement,
+                        (Evidence(sources["extras"], f"extra '{extra}' declared"),),
                     )
                 )
 

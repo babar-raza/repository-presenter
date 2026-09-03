@@ -39,7 +39,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "1"  # the template component version dependencies.json records
+RENDERER_VERSION = "2"  # the template component version dependencies.json records
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
@@ -47,12 +47,17 @@ _LINK_TEXT = re.compile(r"text '(.*)'$")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
+# README_CONTRACT.md section 2 row 20: the declaration, then for a permissive license one
+# sentence of practical permissions and the notice condition, and the absence of warranty.
 _MIT_PROSE = (
-    "{name} is released under the MIT License. You may use, copy, modify, merge, publish, "
-    "distribute, sublicense, and sell copies of the software, provided the copyright notice and "
-    "the permission notice accompany every copy. See [LICENSE]({file})."
+    "This project is licensed under the [MIT License]({file}). The MIT License permits use, "
+    "copying, modification, distribution, sublicensing, and commercial use, provided its "
+    "copyright and permission notice are retained. The software is provided without warranty."
 )
-_GENERIC_PROSE = "{name} is released under the {spdx} license. See [LICENSE]({file})."
+_GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
+_IMPORT = r"(?m)^\s*(?:import|from)\s+{module}\b"
+_EXTRA = re.compile(r"extra '([^']+)'")
+_FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
 
 
 class RenderContext:
@@ -170,8 +175,137 @@ def _navigation(context: RenderContext) -> list[str]:
     return [
         f"- [{section.heading}](#{anchor(section.heading)})"
         for section in context.included
-        if section.heading is not None
+        if section.heading is not None and section.id != "navigation"
     ]
+
+
+def _extra_bullet(fact: Fact) -> str:
+    match = _EXTRA.search(fact.evidence[0].detail or "") if fact.evidence else None
+    suffix = f" (extra `{match.group(1)}`)" if match else ""
+    return f"- `{fact.value}`{suffix}"
+
+
+def _dependencies(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2 row 9: the dependency snapshot in four subsections.
+
+    Required renders its requirements, or the fixed verified-zero sentence with the manifest
+    clause the extractor recorded, so a reader never mistakes zero for a forgotten section.
+    Optional, Native and System, and Development omit silently when their bucket is empty.
+    """
+    facts = context.supported("dependency")
+    marker = context.fact("dependency:none")
+    required = [
+        fact
+        for fact in facts
+        if fact.id != "dependency:none"
+        and not fact.id.startswith(("dependency:optional.", "dependency:development."))
+    ]
+    optional = [fact for fact in facts if fact.id.startswith("dependency:optional.")]
+    development = [fact for fact in facts if fact.id.startswith("dependency:development.")]
+    lines: list[str] = []
+    if required:
+        lines.extend(["### Required Package Dependencies", ""])
+        lines.extend(f"- `{fact.value}`" for fact in required)
+    elif marker is not None and marker.polarity == "SUPPORTED" and marker.evidence:
+        clause = marker.evidence[0].detail or "the manifest declares none"
+        lines.extend(["### Required Package Dependencies", ""])
+        lines.append(
+            "No required third-party package dependencies; in "
+            f"`{marker.evidence[0].path}`, {clause}."
+        )
+    if optional:
+        lines.extend(["", "### Optional Dependencies", ""])
+        lines.extend(_extra_bullet(fact) for fact in optional)
+    requires = context.fact("package:python_requires")
+    if requires is not None and requires.polarity == "SUPPORTED" and requires.evidence:
+        lines.extend(["", "### Native and System Requirements", ""])
+        floor = _FLOOR.fullmatch(requires.value.strip())
+        path = requires.evidence[0].path
+        if floor:
+            lines.append(
+                f"- Requires Python {floor.group(1)} or later "
+                f'(`python_requires="{requires.value}"` in `{path}`).'
+            )
+        else:
+            lines.append(f"- Requires Python `{requires.value}` (`python_requires` in `{path}`).")
+    if development:
+        lines.extend(["", "### Development Dependencies", ""])
+        lines.extend(_extra_bullet(fact) for fact in development)
+    return lines[1:] if lines and lines[0] == "" else lines
+
+
+def _oxford(items: list[str]) -> str:
+    if len(items) <= 2:
+        return " and ".join(items)
+    return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def _installation(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2 row 8, every command verified at this revision.
+
+    The registry install renders only when the manifest and the package registry agree it is
+    published; an unpublished or unchecked package is stated plainly instead. The source install
+    is the form the examples stage itself ran (a clone installed with pip) and appears only when
+    that install produced an executed example; the verify command imports a module an executed
+    example imported; the runtime sentence restates the manifest's own declarations.
+    """
+    lines: list[str] = []
+    install = context.fact("install_command:pip")
+    package = context.fact("package:name")
+    version = context.fact("package:version")
+    if install is not None and install.polarity == "SUPPORTED" and package is not None:
+        lead = f"Install the published package from PyPI (`{package.value}`"
+        lead += f", version {version.value}):" if version is not None else "):"
+        lines.append(lead)
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
+    elif install is not None and package is not None:
+        detail = install.evidence[-1].detail or "the registry could not be checked"
+        state = (
+            "is not yet published on PyPI"
+            if install.polarity == "CONTRADICTED"
+            else "could not be confirmed on PyPI at this revision"
+        )
+        lines.append(f"The package `{package.value}` {state} ({detail}).")
+    executed = context.supported("example")
+    repository = context.fact("identity:repository")
+    if executed and repository is not None:
+        name = repository.value.split("/")[-1]
+        lines.append("")
+        lines.append("To work from a source checkout instead, install the clone with pip:")
+        lines.append("")
+        lines.extend(
+            _code_block(
+                "bash",
+                f"git clone https://github.com/{repository.value}.git\ncd {name}\npip install .",
+            )
+        )
+    imported = [
+        fact.value
+        for fact in context.supported("import_path")
+        if any(re.search(_IMPORT.format(module=re.escape(fact.value)), e.value) for e in executed)
+    ]
+    if imported:
+        module = max(imported, key=len)
+        lines.append("")
+        lines.append("Verify the install:")
+        lines.append("")
+        lines.extend(_code_block("bash", f'python -c "import {module}"'))
+    versions = context.fact("package:python_versions")
+    requires = context.fact("package:python_requires")
+    sentence = ""
+    if versions is not None and versions.polarity == "SUPPORTED":
+        listed = _oxford([v.strip() for v in versions.value.split(",") if v.strip()])
+        sentence = f"The package supports Python {listed}"
+        if requires is not None and requires.polarity == "SUPPORTED":
+            sentence += f" and declares `python_requires` as `{requires.value}`"
+        sentence += "."
+    elif requires is not None and requires.polarity == "SUPPORTED":
+        sentence = f"The package declares `python_requires` as `{requires.value}`."
+    if sentence:
+        lines.append("")
+        lines.append(sentence)
+    return lines[1:] if lines and lines[0] == "" else lines
 
 
 def _code_block(language: str, code: str) -> list[str]:
@@ -234,14 +368,9 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         for index, item in enumerate(plan.get("core_capabilities", []), start=1):
             lines.append(f"- **{item['title']}.** {context.unit(sid, f'capability:{index}')}")
     elif sid == "installation":
-        install = context.fact("install_command:pip")
-        if install is not None and install.polarity == "SUPPORTED":
-            lines.extend(_code_block("bash", install.value))
-        else:
-            lines.append("From a clone of the repository:")
-            lines.extend(_code_block("bash", "pip install ."))
+        lines.extend(_installation(context))
     elif sid == "dependencies":
-        lines.extend(f"- `{fact.value}`" for fact in context.supported("dependency"))
+        lines.extend(_dependencies(context))
     elif sid == "quick_start":
         lines.append(context.unit(sid, "lead_in"))
         example = context.fact(plan.get("quick_start_example_id", ""))

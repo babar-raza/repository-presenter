@@ -9,6 +9,7 @@ from typing import Any
 from repository_presenter.components.readme.review.independent.review import (
     CAUSAL_STATES,
     demote_findings,
+    quote_located,
     review_checks,
     review_document,
     review_packet,
@@ -273,3 +274,37 @@ def test_check_ten_is_judged_from_the_verdict_and_the_identity() -> None:
     assert judged["checks"][1]["details"] == [
         "the reviewer identity is not separate from authoring"
     ]
+
+
+def test_a_presentation_finding_against_a_deterministic_section_is_the_reviewers_defect() -> None:
+    renderer_owned = {
+        **_finding("F01", "installation", "S6", "It writes `.glb` files."),
+        "criterion": "presentation",
+    }
+    authored = {
+        **_finding("F02", "key_capabilities", "S6", "It writes `.glb` files."),
+        "criterion": "presentation",
+    }
+    output = {"verdict": "REJECT_PRESENTATION", "findings": [renderer_owned, authored]}
+    assert review_checks(output, CANDIDATE, FACTS) == []
+    assert renderer_owned["causal_stage"] == "unclear" and renderer_owned["text"].startswith(
+        "[reviewer-scope defect at S6: section installation renders from facts under the "
+        "contract's own checks; its presentation is the renderer's"
+    )
+    assert authored["causal_stage"] == "S6" and not authored["text"].startswith("[")
+    assert review_checks(output, CANDIDATE, FACTS) == []  # idempotent on the stored form
+    assert renderer_owned["text"].count("[reviewer-scope defect") == 1
+
+
+def test_a_quote_locates_text_through_markdown_syntax_a_reader_does_not_see() -> None:
+    candidate = (
+        '## Installation\n\nVerify the install:\n\n```bash\npython -c "import aspose.threed"\n'
+        "```\n\n- **Construct meshes.** Inspect mesh geometry by accessing `Mesh` members.\n\n"
+        "<details>\n<summary>Hub APIs</summary>\n\n- `aspose.threed.Scene`: holds the graph.\n"
+        "</details>\n"
+    )
+    assert quote_located('Verify the install:\n\npython -c "import aspose.threed"', candidate)
+    assert quote_located("Construct meshes. Inspect mesh geometry by accessing Mesh", candidate)
+    assert quote_located("Hub APIs\n\n- aspose.threed.Scene: holds the graph.", candidate)
+    assert quote_located("Installation Verify the install", candidate)
+    assert not quote_located("Verify the install: pip install", candidate)

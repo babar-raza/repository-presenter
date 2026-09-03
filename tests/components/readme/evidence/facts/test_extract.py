@@ -68,6 +68,7 @@ def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.Mo
     ids = sorted(fact.id for fact in document.facts)
     assert ids == [
         "build_test_asset:tests",
+        "dependency:none",
         "identity:ecosystem",
         "identity:family",
         "identity:platform",

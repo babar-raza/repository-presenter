@@ -18,6 +18,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
+    placeable_section_ids,
     section_ids,
     shell_packet,
 )
@@ -131,6 +132,22 @@ def plan_checks(
                     f"section {placement.destination} is excluded but the reconciliation placed "
                     f"{placement.unit_id} there; include it, or the transaction fails closed "
                     "naming the unit"
+                )
+        placeable = placeable_section_ids()
+        for entry in dispositions.get("dispositions", []):
+            destination = entry.get("destination_section")
+            unit_type = str(entry.get("unit_id", "")).rsplit(".", 1)[-1]
+            if (
+                entry.get("disposition") == "SUPERSEDE_REDUNDANT"
+                and destination in placeable
+                and destination not in included
+                and conditions.get(destination) is not False  # reconciliation defers those
+                and unit_type not in ("heading", "badge_row")  # the shell owns these anyway
+            ):
+                errors.append(
+                    f"section {destination} is excluded but the reconciliation relies on its "
+                    f"content to supersede {entry.get('unit_id')}; include it, or the "
+                    "transaction fails closed naming the unit"
                 )
     for section, holds in conditions.items():
         if section not in decisions:

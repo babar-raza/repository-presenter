@@ -75,7 +75,7 @@ ALL_SECTIONS = [
     "third_party_notices",
     "license",
 ]
-EXCLUDED = {"at_a_glance", "dependencies", "enterprise_relationship", "third_party_notices"}
+EXCLUDED = {"at_a_glance", "enterprise_relationship", "third_party_notices"}
 
 
 def _plan(**overrides: Any) -> dict[str, Any]:
@@ -104,7 +104,7 @@ def test_conditions_are_evaluated_from_the_facts() -> None:
     conditions = section_conditions(FACTS)
     assert conditions["identity"] is True and conditions["license"] is True
     assert conditions["at_a_glance"] is False
-    assert conditions["dependencies"] is False
+    assert conditions["dependencies"] is True
     assert conditions["additional_examples"] is True
     assert conditions["api_reference"] is None
     assert conditions["documentation_resources"] is True
@@ -132,7 +132,7 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS) == []
     assert summarize_plan(_plan()) == (
-        "sections 13/17, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
+        "sections 14/17, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
     )
 
     sections = [dict(entry) for entry in _plan()["sections"]]
@@ -154,7 +154,7 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
             api_hubs=[{"symbol_fact_id": "public_symbol:nope", "fact_ids": ["example:001"]}],
             links=[
                 {"link_fact_id": "link_target:003", "section_id": "documentation_resources"},
-                {"link_fact_id": "link_target:002", "section_id": "dependencies"},
+                {"link_fact_id": "link_target:002", "section_id": "third_party_notices"},
             ],
             deviations=[{"section_id": "changelog", "text": "x", "fact_ids": ["example:001"]}],
             material_limitations=[{"fact_ids": [], "unit_ids": []}],
@@ -168,7 +168,8 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "api_hubs must be distinct public_symbol facts",
         "a material limitation cites at least one fact or inherited unit",
         "link 'link_target:003' is not a verified link target",
-        "link 'link_target:002' is assigned to a section that is not included: 'dependencies'",
+        "link 'link_target:002' is assigned to a section that is not included: "
+        "'third_party_notices'",
         "deviation names an unknown section 'changelog'",
     ]
 

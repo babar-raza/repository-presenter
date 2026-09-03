@@ -120,3 +120,29 @@ def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing
         "choose DEFER_UNRESOLVED"
     ]
     assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_unit_may_be_superseded_by_a_planned_sections_own_content() -> None:
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "SUPERSEDE_REDUNDANT", "key_capabilities"),
+            _entry("inherited_unit:003.code_block", "SUPERSEDE_REDUNDANT", None),
+        ]
+    }
+    assert placement_errors(output, FACTS) == [
+        "inherited_unit:003.code_block: SUPERSEDE_REDUNDANT names the section whose content "
+        "renders or covers the unit in destination_section, or cites at least one fact ID"
+    ]
+
+
+def test_a_supersession_by_an_absent_section_is_deferred_for_the_owner() -> None:
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "SUPERSEDE_REDUNDANT", "at_a_glance"),
+            _entry("inherited_unit:007.heading", "SUPERSEDE_REDUNDANT", "at_a_glance"),
+        ]
+    }
+    assert normalize(output, FACTS) == []
+    assert output["dispositions"][0]["disposition"] == "DEFER_UNRESOLVED"
+    assert output["dispositions"][0]["destination_section"] is None
+    assert output["dispositions"][1]["disposition"] == "SUPERSEDE_REDUNDANT"

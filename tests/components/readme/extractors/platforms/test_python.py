@@ -232,3 +232,40 @@ def test_registry_facts_reissue_the_install_claim_with_the_observation(
     )
     assert plugin.registry_facts(facts)[0].polarity == "UNRESOLVED"
     assert plugin.registry_facts(facts[:1]) == []
+
+
+def test_the_dependency_snapshot_records_verified_zero_and_extras_by_bucket(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "setup.py").write_text(
+        "from setuptools import setup\n"
+        'setup(name="aspose-x-foss", install_requires=[], '
+        'extras_require={"dev": ["pytest>=7.0.0"], "viz": ["matplotlib"]})\n',
+        encoding="utf-8",
+    )
+    facts = PythonPlugin().manifest_facts(tmp_path, tmp_path / "setup.py", ["x/__init__.py"])
+    snapshot = [
+        (f.id, f.value, f.evidence[0].path, f.evidence[0].detail)
+        for f in facts
+        if f.kind == "dependency"
+    ]
+    assert snapshot == [
+        ("dependency:none", "none", "setup.py", "the `install_requires` list is empty"),
+        (
+            "dependency:development.dev.pytest-7.0.0",
+            "pytest>=7.0.0",
+            "setup.py",
+            "extra 'dev' declared",
+        ),
+        ("dependency:optional.viz.matplotlib", "matplotlib", "setup.py", "extra 'viz' declared"),
+    ]
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "aspose-x-foss"\n[project.optional-dependencies]\ntest = ["pytest"]\n',
+        encoding="utf-8",
+    )
+    facts = PythonPlugin().manifest_facts(tmp_path, tmp_path / "pyproject.toml", ["x/__init__.py"])
+    snapshot = [(f.id, f.evidence[0].detail) for f in facts if f.kind == "dependency"]
+    assert snapshot == [
+        ("dependency:none", "no `project.dependencies` is declared"),
+        ("dependency:development.test.pytest", "extra 'test' declared"),
+    ]

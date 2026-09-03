@@ -321,6 +321,9 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
         if fact.polarity != "SUPPORTED":
             continue
         allowed.add(fact.value)
+        if fact.kind == "example":
+            # Executed code proves every name it uses, a standard-library stream type included.
+            allowed.update(identifier_tokens(fact.value))
         if fact.kind in {"public_symbol", "import_path"}:
             parts = fact.value.split(".")
             for start in range(len(parts)):
