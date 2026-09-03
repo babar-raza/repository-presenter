@@ -1,0 +1,292 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:005",
+    "example:009",
+    "example:012",
+    "example:010"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.scene"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.node"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.node"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.polygonbuilder"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animationnode"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.keyframesequence"
+    }
+  ],
+  "at_a_glance": null,
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:012"
+      ],
+      "title": "Import multiple 3D formats"
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:012"
+      ],
+      "title": "Export to interchange formats"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012",
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "title": "Construct and edit meshes"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "title": "Assign materials"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "title": "Build and traverse scene graphs"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "title": "Triangulate polygonal geometry"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
+      ],
+      "title": "Create keyframe animations"
+    }
+  ],
+  "deviations": [],
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "Required section; H1 product name is rendered deterministically from identity and package facts.",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "Required section; badge row is rendered deterministically from verified badge link targets.",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "Required section; paragraph's substance is supported and matches the product summary and capabilities.",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "Required section; navigation list is rendered deterministically from verified in-page link targets.",
+      "section_id": "navigation"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'at least one verified input format and one capability' is false; no SUPPORTED input format facts exist.",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "Required section; heading and list items are supported by verified examples and public symbols.",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "Required section; installation heading and code block are rendered deterministically from the install command fact.",
+      "section_id": "installation"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'non-trivial runtime dependencies' is false; no required third-party package dependencies exist.",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "Required section; quick start heading and paragraph are supported by the first verified example.",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'at least one further verified example' is true; multiple additional examples are verified.",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'the plan finds it useful' is null; visitor benefits from curated hub APIs with hubs listed.",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'verified relevant targets exist' is true; verified documentation links exist.",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "Required section; heading and limitations list are supported by inherited limitations.",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'build or test assets exist' is true; tests/, .github/workflows/, and docs/ assets are verified.",
+      "section_id": "development_testing"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'a verified aspose.com product target exists in policy' is false; enterprise_target_url is null.",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'the file exists' is false; no LICENSE file fact supports this section.",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "Required section; license heading and paragraph are rendered deterministically from license facts.",
+      "section_id": "license"
+    }
+  ]
+}

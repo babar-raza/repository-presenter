@@ -21,6 +21,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.placement import placements
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
@@ -88,9 +89,20 @@ def planning_packet(
 
 
 def plan_checks(
-    output: dict[str, Any], facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
+    output: dict[str, Any],
+    facts: FactsDocument,
+    policy: PlanningPolicy = DEFAULT_POLICY,
+    dispositions: dict[str, Any] | None = None,
+    ecosystem: str = "",
 ) -> list[str]:
-    """Why the plan may not be used, beyond schema and binding; empty when every rule holds."""
+    """Why the plan may not be used, beyond schema and binding; empty when every rule holds.
+
+    Two rules normalise or fail closed here because planning is where they are first knowable:
+    every further verified example belongs in Additional Examples (README_CONTRACT.md section 2
+    row 12), so a missing one is appended and the section included; and a placed inherited unit
+    whose destination the plan excludes is never dropped silently (section 3), so the plan is
+    asked to include the destination, and a second refusal fails the transaction naming the unit.
+    """
     errors: list[str] = []
     conditions = section_conditions(facts, policy)
     required = {section.id for section in SEMANTIC_SHELL if section.required}
@@ -99,6 +111,27 @@ def plan_checks(
     if sorted(ids) != sorted(section_ids()) or len(ids) != len(set(ids)):
         errors.append("sections must carry exactly one decision for every shell section")
     included = {section for section, entry in decisions.items() if entry.get("include")}
+    verified_examples = sorted(
+        fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
+    )
+    quick = output.get("quick_start_example_id")
+    additional = [i for i in output.get("additional_example_ids", []) if i != quick]
+    missing = [i for i in verified_examples if i != quick and i not in additional]
+    if missing:
+        output["additional_example_ids"] = additional + missing
+        entry = decisions.get("additional_examples")
+        if entry is not None and not entry.get("include"):
+            entry["include"] = True
+            entry["reason"] = "every further verified example is presented"
+            included.add("additional_examples")
+    if dispositions is not None:
+        for placement in placements(output, dispositions, facts, ecosystem):
+            if placement.outcome == "excluded":
+                errors.append(
+                    f"section {placement.destination} is excluded but the reconciliation placed "
+                    f"{placement.unit_id} there; include it, or the transaction fails closed "
+                    "naming the unit"
+                )
     for section, holds in conditions.items():
         if section not in decisions:
             continue

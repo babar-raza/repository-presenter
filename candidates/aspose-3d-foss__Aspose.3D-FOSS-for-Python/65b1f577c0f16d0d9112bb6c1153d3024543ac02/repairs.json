@@ -1,0 +1,118 @@
+{
+  "attempts": {
+    "2c4addae57ffac38ecfb93fa": {
+      "changes": [
+        {
+          "after": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — PdfSaveOptions, PlyLoadOptions, DracoSaveOptions, and similar option classes exist as public types, but Scene.open() and Scene.save() cannot detect or dispatch any of these extensions and raise an error if you try. FBX support is experimental — FbxImporter has a working tokenizer and parser but no bundled test opens a real .fbx file through it, and FbxExporter.save() and save_to_stream() both raise an error outright, so FBX is import-only at best. COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before ColladaExporter is ever consulted. Always import a format's load/save options class from its own format submodule — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects. Scene.render() and the entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raise an error — this library does not render scenes to images. Texture and TextureBase raise an error on construction, so an image-backed texture cannot be created, but material color and factor properties such as diffuse_color and metallic_factor work independently of texture assignment. Watermark.encode_watermark() and decode_watermark() and every TransformBuilder method raise an error — build node transforms through Transform's own translation, rotation, and scaling properties instead of the fluent TransformBuilder chain. Mesh.do_boolean(), union(), difference(), and intersect() raise an error — Boolean or CSG mesh operations are not implemented, even though BooleanOperator and BooleanOperand exist as configuration holders. NurbsCurve.evaluate() and evaluate_at() and NurbsSurface.to_mesh() raise an error — NURBS curves and surfaces can be configured but not sampled or converted to a Mesh. PointCloud.from_geometry() and from_geometry_with_density() raise an error, and AxisSystem raises an error on every method, including construction.",
+          "before": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — PdfSaveOptions, PlyLoadOptions, DracoSaveOptions, and similar option classes exist as public types, but Scene.open() and Scene.save() cannot detect or dispatch any of these extensions and raise an error if you try. FBX support is experimental — FbxImporter has a working tokenizer and parser but no bundled test opens a real .fbx file through it, and FbxExporter.save() and save_to_stream() both raise an error outright, so FBX is import-only at best. COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before ColladaExporter is ever consulted. Always import a format's load/save options class from its own format submodule — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects. Scene.render() and the entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raise an error — this library does not render scenes to images. Texture and TextureBase raise an error on construction, so an image-backed texture cannot be created, but material color and factor properties such as diffuse_color and metallic_factor work independently of texture assignment. Watermark.encode_watermark() and decode_watermark() and every TransformBuilder method raise an error — build node transforms through Transform's own translation, rotation, and scaling properties instead of the fluent TransformBuilder chain. Mesh.do_boolean(), union(), difference(), and intersect() raise an error — Boolean or CSG mesh operations are not implemented, even though BooleanOperator and BooleanOperand exist as configuration holders. NurbsCurve.evaluate() and evaluate_at() and NurbsSurface.to_mesh() raise an error — NURBS curves and surfaces can be configured but not sampled or converted to a Mesh. PointCloud.from_geometry() and from_geometry_with_density() raise an error, and AxisSystem raises an error on every method, including construction.",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[1].text"
+        }
+      ],
+      "label": "F03",
+      "outcome": "repaired",
+      "re_raised": [
+        "F03"
+      ],
+      "reason": null,
+      "request_sha256": "47e65f0fe9a187321d5501b5569c8ab34611ef805289b885abb626948e0d6fe7",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "82bea0d3e165ccc2147728b3": {
+      "changes": [
+        {
+          "after": "[\"public_symbol:aspose.threed.scene\"]",
+          "before": "[\"public_symbol:aspose.threed.scene\", \"inherited_unit:057.paragraph\"]",
+          "fact_ids": [
+            "public_symbol:aspose.threed.scene"
+          ],
+          "id": "R01",
+          "path": "units.0.fact_ids"
+        },
+        {
+          "after": "[\"public_symbol:aspose.threed.node\"]",
+          "before": "[\"public_symbol:aspose.threed.node\", \"inherited_unit:057.paragraph\"]",
+          "fact_ids": [
+            "public_symbol:aspose.threed.node"
+          ],
+          "id": "R02",
+          "path": "units.1.fact_ids"
+        }
+      ],
+      "label": "F02",
+      "outcome": "repaired",
+      "re_raised": [
+        "F02"
+      ],
+      "reason": null,
+      "request_sha256": "0083151cbcdd8fda5a9a9f6af92dda40908da6810a95839b9a86b2c03f1ff2a4",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "8ee0e3d248f6d3b7aa59aa2e": {
+      "changes": [],
+      "label": "BC-07",
+      "outcome": "unrepairable",
+      "reason": "the failing detail names no LLM-owned section",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
+    },
+    "90f1b79e6cbed2c2f555d953": {
+      "changes": [],
+      "label": "BC-08",
+      "outcome": "unrepairable",
+      "reason": "the failing detail names no LLM-owned section",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
+    },
+    "e5ddc1e1acc1e2687bad2412": {
+      "changes": [
+        {
+          "after": "Read and write scenes to formats including .gltf and .stl using Scene.open and Scene.save, where Scene.open auto-detects the format from the file extension or an explicit FileFormat argument.",
+          "before": "Read and write scenes to formats including .gltf and .stl using Scene.open and Scene.save, where Scene.from_file and Scene.open auto-detect the format from the file extension or an explicit FileFormat argument.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.scene",
+            "format:output.gltf",
+            "format:output.stl",
+            "example:002",
+            "example:004",
+            "example:005",
+            "example:009"
+          ],
+          "id": "R01",
+          "path": "units.3.text"
+        },
+        {
+          "after": "Triangulate arbitrary polygon meshes using PolygonBuilder, a real ear-clipping triangulation implementation rather than a naive fan split, ensuring valid geometry for downstream workflows.",
+          "before": "Triangulate arbitrary polygon meshes into triangle fans using PolygonBuilder, a real ear-clipping triangulation implementation rather than a naive fan split, ensuring valid geometry for downstream workflows.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.polygonbuilder"
+          ],
+          "id": "R02",
+          "path": "units.5.text"
+        }
+      ],
+      "label": "F01",
+      "outcome": "repaired",
+      "re_raised": [
+        "F01"
+      ],
+      "reason": null,
+      "request_sha256": "8c46f14a10eb1d6470a99dabaa27e6ad9f2dd7384bbfd2a9ef7ebfae052dcb7b",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "schema_version": 1
+}

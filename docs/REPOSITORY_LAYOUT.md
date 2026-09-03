@@ -50,6 +50,7 @@ src/repository_presenter/
     investigation/            repository_investigation job wiring
     reconciliation/           source_reconciliation job wiring, dispositions
     composition/               presentation_planning, section_authoring, renderer
+      placement.py             where each inherited unit renders, under the three placement rules
     components/                 semantic-shell template components (README_CONTRACT.md §2)
     validation/
       registry.py              versioned check registry

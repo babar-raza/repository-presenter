@@ -32,14 +32,15 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
+from repository_presenter.components.readme.composition.placement import (
+    Placement,
+    placements,
+)
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
-from repository_presenter.components.readme.composition.renderer import (
-    line_counts,
-    renders_verbatim,
-)
+from repository_presenter.components.readme.composition.renderer import line_counts
 from repository_presenter.components.readme.evidence.facts.links import (
     check_anchor,
     check_relative,
@@ -181,13 +182,13 @@ class Candidate:
 _PLACING = frozenset(
     {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE", "CORRECT_WITH_EVIDENCE"}
 )
-_PLACED_VERBATIM = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
 _EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
 _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
 _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
 _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
-_LOWER_WORD = re.compile(r"\b[a-z]{3,}\b")
+# A word after a dot is an extension spelling (.dae), not an abbreviation.
+_LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
 _LINK_DESTINATION = re.compile(r"\]\([^)]*\)")
 _URL = re.compile(r"https?://\S+")
 _COMMAND = re.compile(
@@ -326,17 +327,14 @@ def _example_for_unit(facts: FactsDocument, unit_id: str) -> Fact | None:
     return None
 
 
+def _placements(candidate: Candidate) -> list[Placement]:
+    return placements(
+        candidate.plan, candidate.dispositions, candidate.facts, candidate.entry.ecosystem
+    )
+
+
 def _placed_texts(candidate: Candidate) -> list[str]:
-    by_id = {fact.id: fact for fact in candidate.facts.by_kind("inherited_unit")}
-    texts: list[str] = []
-    for entry in candidate.dispositions.get("dispositions", []):
-        unit_id = str(entry.get("unit_id", ""))
-        if entry.get("disposition") not in _PLACED_VERBATIM or not entry.get("destination_section"):
-            continue
-        fact = by_id.get(unit_id)
-        if fact is not None and renders_verbatim(unit_id, fact.value, candidate.entry.ecosystem):
-            texts.append(fact.value)
-    return texts
+    return [p.text for p in _placements(candidate) if p.outcome == "placed"]
 
 
 def _check_source(candidate: Candidate) -> list[Failure]:
@@ -503,35 +501,27 @@ def _check_dispositions(candidate: Candidate) -> list[Failure]:
             failures.append(
                 Failure("RECONCILING", f"{unit_id} is not an inherited unit of this README")
             )
-    included = {
-        item.get("section_id") for item in candidate.plan.get("sections", []) if item.get("include")
-    }
     headed = {section.id for section in SEMANTIC_SHELL if section.heading}
     texts = _section_texts(candidate.readme)
-    for entry in entries:
-        unit_id = str(entry.get("unit_id", ""))
-        destination = entry.get("destination_section")
-        if entry.get("disposition") not in _PLACED_VERBATIM or not destination:
-            continue
-        if unit_id not in inherited or not renders_verbatim(
-            unit_id, inherited[unit_id].value, candidate.entry.ecosystem
-        ):
-            continue
-        if destination not in included:
+    for placement in _placements(candidate):
+        destination = placement.destination
+        if placement.outcome == "excluded":
             failures.append(
                 Failure(
                     "PLANNING",
-                    f"{unit_id} was placed in {destination}, which the plan omits",
+                    f"{placement.unit_id} was placed in {destination}, which the plan omits",
                 )
             )
             continue
+        if placement.outcome != "placed":
+            continue  # owned by the plan or the renderer, or dropped for fact-ID overlap
         haystack = texts.get(destination, "") if destination in headed else candidate.readme
-        if _normalized(inherited[unit_id].value) not in _normalized(haystack):
+        if _normalized(placement.text) not in _normalized(haystack):
             failures.append(
                 Failure(
                     "COMPOSING",
-                    f"{unit_id} was placed in {destination} but the candidate does not render "
-                    "it there",
+                    f"{placement.unit_id} was placed in {destination} but the candidate does "
+                    "not render it there",
                 )
             )
     return failures
@@ -695,11 +685,7 @@ def protected_fragments(candidate: Candidate) -> list[tuple[str, str, str]]:
     """(category, text, unit_id) for every command, ecosystem example, and verbatim-placed
     prose unit of the existing README - the content whose loss the check judges."""
     fragments: list[tuple[str, str, str]] = []
-    placed = {
-        str(entry.get("unit_id", ""))
-        for entry in candidate.dispositions.get("dispositions", [])
-        if entry.get("disposition") in _PLACED_VERBATIM and entry.get("destination_section")
-    }
+    placed = {p.unit_id for p in _placements(candidate) if p.outcome == "placed"}
     for fact in candidate.facts.by_kind("inherited_unit"):
         unit_type = _unit_type(fact.id)
         if unit_type == "code_block":
@@ -717,9 +703,7 @@ def protected_fragments(candidate: Candidate) -> list[tuple[str, str, str]]:
                 for span in _SPAN.findall(fact.value)
                 if _COMMAND.match(span)
             )
-            if fact.id in placed and renders_verbatim(
-                fact.id, fact.value, candidate.entry.ecosystem
-            ):
+            if fact.id in placed:
                 fragments.append(("unit", fact.value, fact.id))
     return fragments
 

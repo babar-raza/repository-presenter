@@ -288,7 +288,7 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     ]
 
     lowercase = validate_candidate(
-        _candidate(readme + "\nIt writes pdf and glb files.\n"), tmp_path, ()
+        _candidate(readme + "\nIt writes pdf and glb files, and reads .dae files.\n"), tmp_path, ()
     )
     assert _failed(lowercase, "BC-07")["details"] == [
         "abbreviation 'glb' is not in its canonical form GLB",

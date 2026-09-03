@@ -26,6 +26,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
     shell_packet,
 )
+from repository_presenter.components.readme.composition.planning import section_conditions
 from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
@@ -38,6 +39,8 @@ DISPOSITIONS_FILENAME = "dispositions.json"
 PLACING = frozenset(
     {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE", "CORRECT_WITH_EVIDENCE"}
 )
+# The shell owns every heading and badge row; placing one anywhere renders nothing.
+_SHELL_OWNED = frozenset({"heading", "badge_row"})
 RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
     "identity": ("identity", "package"),
     "badges": ("link_target",),
@@ -110,6 +113,9 @@ def normalize(
     """
     deterministic = set(section_ids()) - placeable_section_ids()
     unresolved = code_units_by_polarity(facts, "UNRESOLVED")
+    absent = {
+        section for section, holds in section_conditions(facts, policy).items() if holds is False
+    }
     errors: list[str] = []
     for entry in output.get("dispositions", []):
         unit = str(entry.get("unit_id", "?"))
@@ -129,6 +135,20 @@ def normalize(
         if disposition in PLACING and destination == "at_a_glance" and unit.endswith(".code_block"):
             entry["disposition"] = "SUPERSEDE_REDUNDANT" if cited else "DEFER_UNRESOLVED"
             entry["destination_section"] = None
+            continue
+        if (
+            disposition in PLACING
+            and destination in absent
+            and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+        ):
+            # README_CONTRACT.md section 3: an excluded destination re-routes or fails closed
+            # naming the unit. The section's condition does not hold at this revision, so no
+            # plan can include it; the reconciler chooses another section or defers the unit.
+            errors.append(
+                f"{unit}: section {destination} does not appear in this candidate (its "
+                "condition does not hold at this revision); place the unit in another section "
+                "or choose DEFER_UNRESOLVED"
+            )
             continue
         if destination not in deterministic:
             continue

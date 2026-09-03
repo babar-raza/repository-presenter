@@ -299,3 +299,42 @@ def test_a_placed_command_block_appears_in_its_destination() -> None:
     section = readme.split("## Development and Testing\n", 1)[1].split("\n## ", 1)[0]
     assert section.rstrip("\n").endswith(commands)
     assert readme.count("print(2)") == 1
+
+
+def test_a_placed_unit_inherits_its_sections_visibility_and_overlap_is_exclusive() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("inherited_unit:020.paragraph", "inherited_unit", "The old API note."),
+            _fact("inherited_unit:021.paragraph", "inherited_unit", "OBJ import is unverified."),
+        ),
+    )
+    dispositions: dict[str, Any] = {
+        "dispositions": [
+            *DISPOSITIONS["dispositions"],
+            {
+                "unit_id": "inherited_unit:020.paragraph",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "api_reference",
+                "fact_ids": [],
+                "rationale": "r",
+            },
+            {
+                "unit_id": "inherited_unit:021.paragraph",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["format:input.obj"],
+                "rationale": "r",
+            },
+        ]
+    }
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, dispositions)
+    api = readme.split("## API Reference\n", 1)[1].split("\n## ", 1)[0]
+    assert api.index("The old API note.") < api.index("</details>")  # inside the details block
+    assert api.rstrip("\n").endswith("</details>")
+    # The plan's material limitation cites format:input.obj, so the overlapping preserved
+    # paragraph is dropped; the planned bullet is what the reader sees.
+    assert "OBJ import is unverified." in readme
+    assert readme.count("OBJ import is unverified.") == 1

@@ -102,3 +102,21 @@ def test_an_enterprise_placement_stands_once_the_policy_carries_a_target() -> No
     assert normalize(output, FACTS, policy) == []
     assert output["dispositions"][0]["disposition"] == "VERIFIED_MOVE"
     assert output["dispositions"][0]["destination_section"] == "enterprise_relationship"
+
+
+def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing() -> None:
+    # No verified input format, so At a Glance cannot appear at this revision: a paragraph placed
+    # there is re-routed by the reconciler (README_CONTRACT.md section 3), while a heading, which
+    # the shell owns and never renders verbatim, needs no re-routing.
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "at_a_glance"),
+            _entry("inherited_unit:007.heading", "VERIFIED_PRESERVE", "at_a_glance"),
+        ]
+    }
+    assert normalize(output, FACTS) == [
+        "inherited_unit:002.paragraph: section at_a_glance does not appear in this candidate "
+        "(its condition does not hold at this revision); place the unit in another section or "
+        "choose DEFER_UNRESOLVED"
+    ]
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"

@@ -1,0 +1,233 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:python_requires",
+      "package:python_versions"
+    ],
+    "text": "Python developers building 3D content pipelines, especially for 3D printing, CAD visualization, and lightweight 3D scene processing."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:012"
+      ],
+      "text": "Imports OBJ, STL, glTF/GLB, COLLADA, and 3MF files using Scene.open() with automatic format detection from file extension or explicit FileFormat.",
+      "title": "Import multiple 3D formats"
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:012"
+      ],
+      "text": "Exports scenes to OBJ, STL, glTF/GLB, and 3MF using Scene.save() with format-specific SaveOptions for settings like compression and coordinate flipping.",
+      "title": "Export to interchange formats"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012",
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "text": "Construct meshes from control points and polygons, or convert primitives to editable meshes via to_mesh().",
+      "title": "Construct and edit meshes"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "text": "Assign LambertMaterial, PhongMaterial, or PbrMaterial to nodes and set diffuse, specular, albedo, metallic, and roughness properties.",
+      "title": "Assign materials"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "text": "Build hierarchical scene graphs using Scene, Node, and Transform, with support for child nodes and independent node transforms.",
+      "title": "Build and traverse scene graphs"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "text": "Triangulate arbitrary polygon data using PolygonModifier.triangulate() with a real ear-clipping implementation.",
+      "title": "Triangulate polygonal geometry"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
+      ],
+      "text": "Create keyframe animations using AnimationClip, AnimationNode, and KeyframeSequence, and store skeletal bind-pose data with Pose.",
+      "title": "Create keyframe animations"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "COLLADA export is not reachable through Scene.save() due to exporter lookup order issues."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "FBX import is experimental and FBX export raises NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "Scene.render() and the entire aspose.threed.render module raise NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "Texture and TextureBase raise NotImplementedError on construction."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "Mesh boolean operations (union, difference, intersect) raise NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "text": "NURBS curve evaluation and surface-to-mesh conversion raise NotImplementedError."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name"
+      ],
+      "text": "Enables programmatic creation, modification, and export of 3D scenes using a pure-Python API with no external SDK or native runtime."
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:012"
+      ],
+      "text": "Supports common 3D interchange formats—OBJ, STL, glTF/GLB, COLLADA, and 3MF—via a unified Scene/Node/Mesh object graph."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:010",
+        "example:012"
+      ],
+      "text": "Provides parameterized primitives (Box, Sphere, Cylinder, etc.) and direct mesh construction via control points and polygons."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.animation",
+        "example:002",
+        "example:004",
+        "example:005"
+      ],
+      "text": "Supports material assignment and keyframe animation for scene authoring and export."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "license:spdx"
+    ],
+    "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes without native dependencies."
+  },
+  "uncertainties": [
+    "Whether COLLADA import works reliably beyond the documented limitation on export.",
+    "Whether FBX import works with real-world FBX files given only tokenizer-level tests exist.",
+    "Whether the in-memory stream export behavior for glTF and STL is fully documented and consistent across all formats.",
+    "Whether the Scene.save() behavior with bare streams and missing file_format in options is consistent for all formats beyond glTF and STL."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene"
+      ],
+      "name": "Scene import and inspection",
+      "text": "Load a 3D file using Scene.open() and inspect its geometry, nodes, and materials."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:010"
+      ],
+      "name": "Primitive-based scene construction",
+      "text": "Create parameterized primitives like Box or Sphere, convert them to meshes, assign materials, and save to formats such as glTF or STL."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:009",
+        "example:012"
+      ],
+      "name": "Manual mesh construction",
+      "text": "Build a mesh vertex by vertex using Mesh.control_points and Mesh.create_polygon(), attach materials, and export to formats like glTF or STL."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "name": "Scene graph traversal and modification",
+      "text": "Create child nodes, attach entities and materials, and manipulate transforms using Node.create_child_node() and Node.transform."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "name": "Triangulation of polygonal geometry",
+      "text": "Triangulate arbitrary polygon data using PolygonModifier.triangulate() to produce triangle fans."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
+      ],
+      "name": "Animation authoring",
+      "text": "Build keyframe animations using AnimationClip, AnimationNode, and KeyframeSequence, and store skeletal bind-pose data with Pose."
+    }
+  ]
+}

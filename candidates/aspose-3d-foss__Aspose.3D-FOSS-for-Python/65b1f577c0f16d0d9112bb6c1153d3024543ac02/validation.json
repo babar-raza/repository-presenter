@@ -1,0 +1,158 @@
+{
+  "advisory": [],
+  "checks": [
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-01",
+      "judged_at": "S9",
+      "name": "Source revision pinned; original README bytes exact; every fact carries evidence",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-02",
+      "judged_at": "S9",
+      "name": "Install command verified against the manifest and the package-registry observation",
+      "sections": [
+        "installation"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-03",
+      "judged_at": "S9",
+      "name": "Every rendered example was executed or compiled in isolation at this revision",
+      "sections": [
+        "quick_start",
+        "additional_examples"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-04",
+      "judged_at": "S9",
+      "name": "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact value in a code span",
+      "sections": [
+        "opening",
+        "key_capabilities",
+        "scope_limitations",
+        "api_reference",
+        "documentation_resources",
+        "enterprise_relationship"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-05",
+      "judged_at": "S9",
+      "name": "Every material inherited unit has exactly one disposition; placed units appear in their destination",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-06",
+      "judged_at": "S9",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "sections": [
+        "documentation_resources",
+        "enterprise_relationship",
+        "badges"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-07",
+      "judged_at": "S9",
+      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "sections": [
+        "structure"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-08",
+      "judged_at": "S9",
+      "name": "Protected content preserved",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-09",
+      "judged_at": "S9",
+      "name": "No configured secret in the bundle",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "id": "BC-10",
+      "judged_at": "S10",
+      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring",
+      "sections": [
+        "review"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+      ],
+      "id": "BC-11",
+      "judged_at": "S12",
+      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    }
+  ],
+  "protected_content_fingerprint": "3b908bb38f81c5102aaf99661d68cf80040316a8ad0bd1d3c5c0323593c7258e",
+  "readme_sha256": "fbc448e00ce2698253dfa3390702ad1bdccd1d2077e5e92966a2b6d94c272cc3",
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "schema_version": 1,
+  "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "summary": {
+    "fail": 0,
+    "pass": 11,
+    "pending": 0
+  },
+  "validator_version": "1"
+}
