@@ -611,11 +611,11 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
     assert len(ledger) == 11 and all('"disposition":"provider_call"' in line for line in ledger)
-    assert "coherence: 0 of 8 units revised; provider calls 1, model qwen3-next" in captured.out
+    assert "coherence: 0 of 9 units revised; provider calls 1, model qwen3-next" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
     assert units_line.startswith(
-        f"units: {facts_dir}/content_units.json (8 units across 6 sections: opening, "
+        f"units: {facts_dir}/content_units.json (9 units across 6 sections: opening, "
         "key_capabilities, quick_start, api_reference, documentation_resources, "
         "scope_limitations; provider calls 6; digest "
     )
@@ -797,7 +797,7 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     assert second.count("provider calls 0, model stored output reused") == 5
     assert len(gateway_ready.requests) == 11
     assert "provider calls 6; digest" in first and "provider calls 0; digest" in second
-    assert "coherence: 0 of 8 units revised; provider calls 0, model stored output reused" in second
+    assert "coherence: 0 of 9 units revised; provider calls 0, model stored output reused" in second
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
     assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 11 + [
