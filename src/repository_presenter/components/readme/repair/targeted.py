@@ -69,10 +69,20 @@ class Defect:
         return self.stage is not None
 
 
-def defect_fingerprint(source: str, section: str | None, stage: str | None, criterion: str) -> str:
-    """Two defects the loop would repair the same way share a fingerprint."""
+def defect_fingerprint(
+    source: str, section: str | None, stage: str | None, criterion: str, context: str = ""
+) -> str:
+    """Two defects the loop would repair the same way share a fingerprint. ``context`` is the
+    judge's own identity - the reviewer prompt's hash or the validator version - so a changed
+    mechanism permits a new attempt, as the contract requires after a second failure."""
     return canonical_hash(
-        {"source": source, "section": section, "stage": stage, "criterion": criterion}
+        {
+            "source": source,
+            "section": section,
+            "stage": stage,
+            "criterion": criterion,
+            "context": context,
+        }
     )[:24]
 
 
@@ -80,7 +90,7 @@ def review_defects(
     review: dict[str, Any], facts: FactsDocument, llm_sections: set[str]
 ) -> list[Defect]:
     """The review's blocking findings routed to the stage a repair may revise."""
-    by_id = {fact.id: fact for fact in facts.facts}
+    context = str(review.get("reviewer", {}).get("prompt_sha256", ""))
     defects: list[Defect] = []
     for finding in review.get("findings", []):
         section = str(finding.get("section_id") or "") or None
@@ -89,12 +99,10 @@ def review_defects(
         stage: str | None = "S6" if named in _COMPOSITION_STAGES else named
         reason: str | None = None
         if named == "S2":
-            cited = [i for i in finding.get("fact_ids", []) if i in by_id]
-            if (
-                cited
-                and all(by_id[i].polarity == "SUPPORTED" for i in cited)
-                and section in llm_sections
-            ):
+            # In an LLM-authored section the claim either misused evidence that exists or
+            # asserts what no fact supports; both are fixed by revising the units. Only a
+            # deterministic section's content follows the facts themselves.
+            if section in llm_sections:
                 stage = "S6"
             else:
                 stage, reason = None, EVIDENCE_REASON
@@ -107,7 +115,7 @@ def review_defects(
             stage, reason = None, f"stage {named} is not repairable by revision"
         defects.append(
             Defect(
-                defect_fingerprint("review", section, stage or named, criterion),
+                defect_fingerprint("review", section, stage or named, criterion, context),
                 "review",
                 str(finding.get("id", "?")),
                 section,
@@ -122,6 +130,7 @@ def review_defects(
 def validation_defects(validation: dict[str, Any], llm_sections: set[str]) -> list[Defect]:
     """The failing blocking checks routed to the stage a repair may revise."""
     defects: list[Defect] = []
+    context = str(validation.get("validator_version", ""))
     for check in validation.get("checks", []):
         if check.get("verdict") != "FAIL":
             continue
@@ -147,7 +156,7 @@ def validation_defects(validation: dict[str, Any], llm_sections: set[str]) -> li
         defects.append(
             Defect(
                 defect_fingerprint(
-                    "validation", section, stage or str(state), str(check.get("id"))
+                    "validation", section, stage or str(state), str(check.get("id")), context
                 ),
                 "validation",
                 str(check.get("id", "?")),

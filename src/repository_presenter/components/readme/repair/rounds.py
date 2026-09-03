@@ -235,7 +235,7 @@ def run_round(tx: TransactionInputs) -> Round:
         review_packet(
             entry, facts, tx.original, readme, planned.output, reconciled.output, validation
         ),
-        checks=functools.partial(review_checks, candidate_readme=readme),
+        checks=functools.partial(review_checks, candidate_readme=readme, facts=facts),
         **common,
     )
     review = review_document(
@@ -261,7 +261,10 @@ def round_defects(current: Round, facts: FactsDocument) -> list[Defect]:
         for check in current.validation.get("checks", [])
         if check.get("verdict") == "FAIL" and check.get("id") != "BC-10"
     ]
-    defects = validation_defects({"checks": checks}, current.llm_sections)
+    defects = validation_defects(
+        {"checks": checks, "validator_version": current.validation.get("validator_version")},
+        current.llm_sections,
+    )
     if review_failed:
         defects.extend(review_defects(current.review, facts, current.llm_sections))
     return defects

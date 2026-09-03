@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.composition.components.shell import section_ids
-from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
+from repository_presenter.core.facts import FACT_KINDS, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -104,10 +104,46 @@ def blocking(finding: dict[str, Any]) -> bool:
     return bool(finding.get("section_id")) and finding.get("causal_stage") in CAUSAL_STATES
 
 
-def review_checks(output: dict[str, Any], candidate_readme: str) -> list[str]:
+REVIEWER_SCOPE_DEFECT = "reviewer-scope defect"
+
+
+def factuality_defect(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> str | None:
+    """Why a factuality finding is the reviewer's own defect, or None when it may stand.
+
+    A factuality finding cites a product fact that contradicts the quote or should have
+    supported it; inherited README units are maintainer text, not evidence. A quote containing
+    the literal value of a cited SUPPORTED fact is supported by definition.
+    """
+    cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
+    if not cited:
+        return None  # "no fact supports this claim" cites nothing, by definition
+    product = [fact for fact in cited if fact.kind != "inherited_unit"]
+    if not product:
+        return (
+            "a factuality finding cites at least one product fact that contradicts the quote "
+            "or should have supported it; inherited README units are maintainer text, not "
+            "evidence"
+        )
+    if any(fact.polarity == "CONTRADICTED" for fact in product):
+        return None
+    wanted = _normalized(quote)
+    for fact in product:
+        value = _normalized(fact.value)
+        if fact.polarity == "SUPPORTED" and len(value) >= 3 and value in wanted:
+            return (
+                f"the quote contains the literal value of SUPPORTED fact {fact.id} "
+                f"({fact.value!r}); literal fact text is supported"
+            )
+    return None
+
+
+def review_checks(
+    output: dict[str, Any], candidate_readme: str, facts: FactsDocument | None = None
+) -> list[str]:
     """Why the review may not be used, beyond schema and binding; empty when it holds."""
     errors: list[str] = []
     known = set(section_ids()) | _STRUCTURAL_SECTIONS
+    by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     seen: set[str] = set()
     findings = output.get("findings", [])
     for finding in findings:
@@ -126,13 +162,39 @@ def review_checks(output: dict[str, Any], candidate_readme: str) -> list[str]:
             errors.append(
                 f"finding {label}: quote is not the candidate's text: {quote.strip()[:60]!r}"
             )
-    verdict = output.get("verdict")
-    if verdict != ACCEPT and not any(blocking(f) for f in findings):
-        errors.append(
-            f"verdict {verdict} needs at least one finding that names a section and a causal "
-            "stage from S2 to S8; otherwise the candidate is accepted"
-        )
+        text = str(finding.get("text", ""))
+        if text.startswith("[") and not _MARK.match(text):
+            # The bracketed prefix is this module's own mark; any other is not the reviewer's
+            # finding text, so the output is asked for again.
+            errors.append(f"finding {label}: text must not begin with a bracketed prefix")
+        elif facts is not None and finding.get("criterion") == "factuality":
+            _rejudge_factuality(finding, quote, by_id)
     return errors
+
+
+_MARK = re.compile(rf"^\[{re.escape(REVIEWER_SCOPE_DEFECT)} at (\S+): .*?\] ")
+
+
+def _rejudge_factuality(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> None:
+    """Mark a factuality finding the evidence refutes as advisory in place, or unmark it.
+
+    The mark carries the stage the reviewer named, so a stored finding is re-judged from its
+    raw form under the current rule: the normalisation is a pure function of the finding, the
+    facts, and the rule, never of an earlier run's verdict. A reviewer-scope defect is recorded,
+    never blocks (docs/README_CONTRACT.md section 6), and never earns a second ask.
+    """
+    text = str(finding.get("text", ""))
+    marked = _MARK.match(text)
+    if marked:
+        finding["causal_stage"] = marked.group(1)
+        text = text[marked.end() :]
+    reason = factuality_defect(finding, quote, by_id)
+    if reason is None:
+        finding["text"] = text
+        return
+    stage = str(finding.get("causal_stage", "unclear"))
+    finding["causal_stage"] = "unclear"
+    finding["text"] = f"[{REVIEWER_SCOPE_DEFECT} at {stage}: {reason}] {text}"
 
 
 def review_document(
@@ -150,10 +212,15 @@ def review_document(
         else:
             record["causal_state"] = None
             advisory.append(record)
+    returned = str(output.get("verdict"))
+    # A rejection rests on its blocking findings; one whose findings are all advisory has
+    # nothing the loop can act on and, by section 6 of the contract, does not block.
+    verdict = returned if findings or returned == ACCEPT else ACCEPT
     return {
         "schema_version": 1,
         "readme_sha256": readme_digest,
-        "verdict": output.get("verdict"),
+        "verdict": verdict,
+        "verdict_as_returned": returned,
         "findings": findings,
         "advisory": advisory,
         "preserve": list(output.get("preserve", [])),

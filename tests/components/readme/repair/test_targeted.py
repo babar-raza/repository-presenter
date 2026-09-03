@@ -73,14 +73,16 @@ def test_review_findings_route_to_the_stage_a_repair_may_revise() -> None:
             _finding("F07", "scope_limitations", "S4"),
             _finding("F08", "key_capabilities", "S5"),
             _finding("F09", "opening", "S3"),
+            _finding("F10", "installation", "S2"),
         ]
     }
     defects = {d.label: d for d in review_defects(review, FACTS, LLM_SECTIONS)}
     assert defects["F01"].stage == "S6" and defects["F01"].repairable
     assert defects["F02"].stage == "S6"
+    # An evidence finding in an authored section is an authoring matter either way.
     assert defects["F03"].stage == "S6" and defects["F03"].reason is None
-    assert defects["F04"].stage is None and defects["F04"].reason == EVIDENCE_REASON
-    assert defects["F05"].stage is None and defects["F05"].reason == EVIDENCE_REASON
+    assert defects["F04"].stage == "S6" and defects["F05"].stage == "S6"
+    assert defects["F10"].stage is None and defects["F10"].reason == EVIDENCE_REASON
     assert defects["F06"].stage is None and "deterministic" in str(defects["F06"].reason)
     assert defects["F07"].stage == "S4" and defects["F08"].stage == "S5"
     assert defects["F09"].stage == "S3"
@@ -88,6 +90,14 @@ def test_review_findings_route_to_the_stage_a_repair_may_revise() -> None:
     assert defects["F01"].fingerprint == defects["F02"].fingerprint == defects["F03"].fingerprint
     assert defects["F01"].fingerprint != defects["F07"].fingerprint
     assert defects["F01"].fingerprint == defect_fingerprint("review", "opening", "S6", "factuality")
+    # A changed reviewer prompt is a changed mechanism: the same target may be attempted again.
+    rejudged = review_defects(
+        {**review, "reviewer": {"prompt_sha256": "x" * 64}}, FACTS, LLM_SECTIONS
+    )
+    assert rejudged[0].fingerprint != defects["F01"].fingerprint
+    assert rejudged[0].fingerprint == defect_fingerprint(
+        "review", "opening", "S6", "factuality", "x" * 64
+    )
 
 
 def test_validation_failures_route_by_causal_state_and_named_section() -> None:

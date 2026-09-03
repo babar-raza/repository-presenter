@@ -113,6 +113,60 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
     assert review_checks(respelled, CANDIDATE) == []
     assert review_checks(respelled, "Note — It writes `.glb`  files.") == []
     assert review_checks(respelled, "It writes `.glb` files, always.") != []
+    # Factuality is checked against the cited facts once they are given.
+    literal = {**_finding("F01", "opening", "S6", "It writes `.glb` files."), "fact_ids": []}
+    literal["fact_ids"] = ["format:output.glb"]
+    contradicted = {**literal, "fact_ids": ["format:input.obj"]}
+    maintainer_only = {**literal, "fact_ids": ["inherited_unit:001.paragraph"]}
+    unsupported = {**literal, "quote": "It writes", "fact_ids": ["format:output.glb"]}
+    completeness = {**literal, "criterion": "completeness"}
+    nothing_cited = {**literal, "quote": "It writes", "fact_ids": []}
+    for finding in (
+        literal,
+        contradicted,
+        maintainer_only,
+        unsupported,
+        completeness,
+        nothing_cited,
+    ):
+        output = {"verdict": "REJECT_FACTUAL", "findings": [finding], "preserve": []}
+        assert review_checks(output, CANDIDATE, FACTS) == []
+    # The evidence refutes two of them: they are the reviewer's defects, made advisory in place.
+    assert literal["causal_stage"] == "unclear" and literal["text"].startswith(
+        "[reviewer-scope defect at S6: the quote contains the literal value of SUPPORTED fact "
+        "format:output.glb ('.glb'); literal fact text is supported] A claim"
+    )
+    assert maintainer_only["causal_stage"] == "unclear" and maintainer_only["text"].startswith(
+        "[reviewer-scope defect at S6: a factuality finding cites at least one product fact"
+    )
+    assert contradicted["causal_stage"] == "S6" and unsupported["causal_stage"] == "S6"
+    assert completeness["causal_stage"] == "S6" and not completeness["text"].startswith("[")
+    assert nothing_cited["causal_stage"] == "S6"  # "no fact supports this claim" stands
+    # A stored finding is re-judged from its raw form: the mark never stacks, and it lifts when
+    # the facts or the rule no longer refute the finding.
+    assert (
+        review_checks({"verdict": "REJECT_FACTUAL", "findings": [literal]}, CANDIDATE, FACTS) == []
+    )
+    assert literal["text"].count("[reviewer-scope defect") == 1
+    refuting = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(f.id, f.kind, f.value, f.evidence, polarity="CONTRADICTED")
+            if f.id == "format:output.glb"
+            else f
+            for f in FACTS.facts
+        ),
+    )
+    assert (
+        review_checks({"verdict": "REJECT_FACTUAL", "findings": [literal]}, CANDIDATE, refuting)
+        == []
+    )
+    assert literal["causal_stage"] == "S6" and literal["text"] == "A claim is unsupported."
+    foreign = {**_finding("F01", "opening", "S6"), "text": "[note] A claim is unsupported."}
+    assert review_checks(
+        {"verdict": "REJECT_FACTUAL", "findings": [foreign], "preserve": []}, CANDIDATE, FACTS
+    ) == ["finding F01: text must not begin with a bracketed prefix"]
     bad = {
         "verdict": "REJECT_FACTUAL",
         "findings": [
@@ -125,8 +179,6 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
         "finding F01: quote is not the candidate's text: 'It writes PDF files.'",
         "finding F01: its ID repeats an earlier finding",
         "finding F01: section_id must be a shell section or 'structure'; got 'nowhere'",
-        "verdict REJECT_FACTUAL needs at least one finding that names a section and a causal "
-        "stage from S2 to S8; otherwise the candidate is accepted",
     ]
 
 
@@ -144,7 +196,15 @@ def test_the_document_splits_advisory_findings_and_records_both_identities(
     }
     document = review_document(output, REVIEWER, AUTHORING, "d" * 64)
     assert document["verdict"] == "REJECT_PRESENTATION"
+    assert document["verdict_as_returned"] == "REJECT_PRESENTATION"
     assert [f["id"] for f in document["findings"]] == ["F01"]
+    # A rejection whose findings are all advisory has nothing to act on and does not block.
+    unfounded = review_document(
+        {**output, "findings": output["findings"][1:]}, REVIEWER, AUTHORING, "d" * 64
+    )
+    assert unfounded["verdict"] == "ACCEPT"
+    assert unfounded["verdict_as_returned"] == "REJECT_PRESENTATION"
+    assert [f["id"] for f in unfounded["advisory"]] == ["F02", "F03"]
     assert document["findings"][0]["causal_state"] == "RECONCILING"
     assert [f["id"] for f in document["advisory"]] == ["F02", "F03"]
     assert document["reviewer"]["job"] == "independent_review"

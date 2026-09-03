@@ -21,6 +21,7 @@ from repository_presenter.components.readme.repair.targeted import defect_finger
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
+from repository_presenter.core.llm.prompts import load_manifests
 from support import (
     REPO_ROOT,
     commit_all,
@@ -739,6 +740,8 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
 
 
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
+REVIEWER_SHA = load_manifests(REPO_ROOT / "prompts")["independent_review"].sha256
+OPENING_FINGERPRINT = defect_fingerprint("review", "opening", "S6", "factuality", REVIEWER_SHA)
 REVISED_OPENING = (
     "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
     "Python developers use it to write GLB files from code."
@@ -766,7 +769,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
 
 def _opening_repair() -> dict[str, Any]:
     return {
-        "fingerprint": defect_fingerprint("review", "opening", "S6", "factuality"),
+        "fingerprint": OPENING_FINGERPRINT,
         "causal_stage": "S6",
         "revised_output": {
             "units": [
@@ -825,7 +828,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     validation = json.loads((transaction / "validation.json").read_text("utf-8"))
     assert validation["summary"] == {"pass": 10, "fail": 0, "pending": 1}
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
-    attempt = repairs["attempts"][defect_fingerprint("review", "opening", "S6", "factuality")]
+    attempt = repairs["attempts"][OPENING_FINGERPRINT]
     assert attempt["outcome"] == "repaired" and attempt["changes"][0]["id"] == "R01"
     assert "provider calls 1, model qwen3-next; digest" in next(
         line for line in captured.out.splitlines() if line.startswith("review: ")
@@ -891,6 +894,7 @@ def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
         **_rejection("F01")["findings"][0],
         "section_id": "installation",
         "causal_stage": "S2",
+        "criterion": "completeness",
         "quote": "pip install aspose-3d-foss",
         "fact_ids": [],
     }
