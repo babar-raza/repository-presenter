@@ -52,6 +52,7 @@ src/repository_presenter/
     composition/               presentation_planning, section_authoring, renderer
       placement.py             where each inherited unit renders, under the three placement rules
     components/                 semantic-shell template components (README_CONTRACT.md §2)
+      ecosystems.py            per-ecosystem presentation knowledge: package registry names
     validation/
       registry.py              versioned check registry
       links/                   link resolution

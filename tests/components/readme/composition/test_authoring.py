@@ -379,3 +379,8 @@ def test_names_an_executed_example_uses_are_accepted_identifiers() -> None:
     allowed = allowed_identifiers(facts, "Aspose.Widget FOSS for Python")
     assert "io.BytesIO" in allowed and "scene.save" in allowed
     assert "io.StringIO" not in allowed  # a failed example proves nothing
+
+
+def test_package_registry_names_are_proper_nouns_prose_may_spell() -> None:
+    allowed = allowed_identifiers(FACTS, NAME)
+    assert {"PyPI", "NuGet", "crates.io", "pkg.go.dev"} <= allowed

@@ -102,6 +102,17 @@ class CallStore:
         text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         self.path(request_sha256).write_bytes(text.encode("utf-8"))
 
+    def reject(
+        self, request_sha256: str, attempt: int, job: str, content: str, errors: list[str]
+    ) -> Path:
+        """Keep a rejected reply beside the store, so a rejection can be read, never guessed."""
+        self.directory.mkdir(parents=True, exist_ok=True)
+        path = self.directory / f"{request_sha256[:24]}.rejected-{attempt}.json"
+        payload = {"job": job, "attempt": attempt, "rejection": errors, "content": content}
+        text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+        path.write_bytes(text.encode("utf-8"))
+        return path
+
 
 def render_messages(manifest: LoadedManifest, packet: Mapping[str, Any]) -> list[dict[str, str]]:
     """The system and user messages for ``packet``; the packet must match the manifest exactly."""
@@ -404,6 +415,7 @@ def run_job(
                 attempts.last_tokens,
             )
         attempts.record_invalid("OutputRejected")
+        store.reject(request_sha256, ask, job, reply.content, rejection)
         if ask == 1:
             current = _re_ask(manifest, payload, reply.content, rejection)
     raise JobError(f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}")

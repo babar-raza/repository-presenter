@@ -227,6 +227,9 @@ def plan_checks(
         fact.id: fact.value for fact in facts.by_kind("link_target") if fact.polarity == "SUPPORTED"
     }
     aspose = 0
+    targets = [link.get("link_fact_id") for link in output.get("links", [])]
+    for target in sorted({t for t in targets if targets.count(t) > 1}):
+        errors.append(f"link {target!r} is assigned more than once; never the same target twice")
     for link in output.get("links", []):
         target = link.get("link_fact_id")
         section = link.get("section_id")

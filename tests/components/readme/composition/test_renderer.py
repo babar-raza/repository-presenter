@@ -149,7 +149,7 @@ UNITS = {
         _unit(
             "api_reference", "hub:public_symbol:aspose.threed.scene", "Scene holds the scene graph."
         ),
-        _unit("documentation_resources", "resources", "The docs explain the API."),
+        _unit("documentation_resources", "link:link_target:002", "The docs explain the API."),
         _unit("scope_limitations", "scope", "The package writes GLB only."),
         _unit("scope_limitations", "limitation:1", "OBJ import is unverified."),
         _unit("development_testing", "summary", "Run the tests with the standard runner."),
@@ -228,7 +228,11 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert "<summary>View Additional Examples</summary>" in lines
     assert "### Print a number" in lines and lines.count("<details>") == 2
     assert "- `aspose.threed.Scene`: `Scene` holds the scene graph." in lines
-    assert "- [Docs](https://docs.example.com/3d)" in lines
+    assert "- **[Docs](https://docs.example.com/3d)** — The docs explain the API." in lines
+    assert (
+        "- Found a bug or have a feature request? [Open an issue]"
+        "(https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues)." in lines
+    )
     assert "- OBJ import is unverified." in lines
     assert "Kept verbatim from the old README." in lines
     assert "## Old limitations heading" not in lines
@@ -447,3 +451,8 @@ def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> 
         "### Development Dependencies\n\n- `pytest>=7.0.0` (extra `dev`)\n"
     )
     assert "- [Dependencies](#dependencies)" in readme.splitlines()
+
+
+def test_a_package_registry_name_stays_plain_in_prose() -> None:
+    context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."

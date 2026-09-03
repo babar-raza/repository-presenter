@@ -83,5 +83,34 @@
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
   "sealed_at": "2026-09-03T13:12:59Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "READY_FOR_PROPOSAL",
+  "update": {
+    "available": true,
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "presentation",
+    "earliest_affected_stage": "COMPOSING",
+    "files": {
+      "README.md": "4593fe197e4ab240d854199d5772365fb077d00acf91e850b0df9eb9518f29a2",
+      "README.patch": "962071e900d4950c547682856dd92c3f021075b03721a4fa28b6bdb34f56b1a8",
+      "content_units.json": "a1367e39488a8c9c528d95225f2b181f0900d07bdc8f3312b0fe43edf9e2940c",
+      "dependencies.json": "2fc38247f044828cebfec553fcbb8ebf7581b2f50d205179b37036398267388b",
+      "dispositions.json": "21ef497af4d85151221e20157d0d04ccdef17a7c306966dbd8003eba12267f4f",
+      "facts.json": "2c42eef24790be323c20a2124f35c010069a4c0d4a15751e2503aaaa4c52f773",
+      "investigation.json": "010f5fbb71fbae24723c346a09253aaff27318e3cee42ff5578df281bb359aaa",
+      "plan.json": "99bcc329c860bb811a0265d98a07eab79861a99b1692767c4fdbbfd3e63964b8",
+      "repairs.json": "3493e93783ff5397cbb9387d0ae7e3ce02ee5567423285d8703e6bbc8ff54eeb",
+      "review.json": "7e96c0a51f48c736b87bfdd94fbf9fd2da2cb347fc7bf38ecab6c5bcffca6d01",
+      "validation.json": "ab9f09801f38723a51b51fcebf06f0cbbaccf0a5492b657de76086da6053c766"
+    },
+    "recorded_at": "2026-09-03T14:35:18Z",
+    "transaction": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  }
 }

@@ -308,3 +308,24 @@ def test_a_quote_locates_text_through_markdown_syntax_a_reader_does_not_see() ->
     assert quote_located("Hub APIs\n\n- aspose.threed.Scene: holds the graph.", candidate)
     assert quote_located("Installation Verify the install", candidate)
     assert not quote_located("Verify the install: pip install", candidate)
+
+
+def test_a_long_quote_anchors_by_its_opening() -> None:
+    candidate = "## API Reference\n\n" + "The scene graph holds nodes and entities. " * 6 + "\n"
+    opening = (
+        "API Reference\n\nThe scene graph holds nodes and entities. The scene graph holds nodes "
+    )
+    drifted = opening + "and entities. " + "Something the reviewer paraphrased badly. " * 3
+    assert len(drifted) > 80 and quote_located(drifted, candidate)
+    assert not quote_located("Something the reviewer paraphrased badly. " * 3, candidate)
+    assert not quote_located("API Reference invented", candidate)
+
+
+def test_an_ellipsis_in_a_quote_abbreviates_between_exact_fragments() -> None:
+    candidate = (
+        "## Key Capabilities - **Load formats.** Read OBJ and STL files. - **Save.** Write glTF."
+    )
+    assert quote_located("Key Capabilities - **Load formats.** ... Write glTF.", candidate)
+    assert quote_located("Load formats. … Save.", candidate)
+    assert not quote_located("Load formats. ... Write PDF.", candidate)
+    assert not quote_located("...", candidate)

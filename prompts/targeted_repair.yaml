@@ -1,12 +1,12 @@
 prompt_id: targeted_repair
-version: "2"
+version: "3"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output and bounded revisions; repair returns a revised stage artifact as JSON under tight constraints, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 3000
+  max_output_tokens: 8000
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

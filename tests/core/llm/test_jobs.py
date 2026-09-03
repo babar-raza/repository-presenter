@@ -255,7 +255,9 @@ def test_a_second_rejection_fails_the_job_closed(
             store=store,
             context=CONTEXT,
         )
-    assert not store.directory.exists()
+    kept = sorted(path.name for path in store.directory.iterdir())
+    assert [name.rsplit(".", 2)[1] for name in kept] == ["rejected-1", "rejected-2"]
+    assert all("rejected" in name for name in kept)  # no accepted output was stored
 
 
 def test_transient_failures_are_retried_and_accounted_and_refusals_are_not(

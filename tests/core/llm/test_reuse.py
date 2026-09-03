@@ -152,3 +152,19 @@ def test_a_stored_output_the_rules_reject_is_replaced_by_a_new_call(
         ("provider_call", "success", None),
     ]
     assert ledger.summary().provider_calls == 2 and ledger.summary().cache_reuses == 0
+
+
+def test_a_rejected_reply_is_kept_beside_the_store(tmp_path: Path) -> None:
+    from repository_presenter.core.llm.jobs import CallStore
+
+    store = CallStore(tmp_path / "calls")
+    path = store.reject("a" * 64, 2, "independent_review", "{bad json", ["quote is not the text"])
+    assert path == tmp_path / "calls" / ("a" * 24 + ".rejected-2.json")
+    record = json.loads(path.read_text("utf-8"))
+    assert record == {
+        "attempt": 2,
+        "content": "{bad json",
+        "job": "independent_review",
+        "rejection": ["quote is not the text"],
+    }
+    assert store.get("a" * 64) is None  # a rejection is never an accepted output

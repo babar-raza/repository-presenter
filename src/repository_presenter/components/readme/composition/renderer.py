@@ -14,7 +14,7 @@ import hashlib
 import re
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 from repository_presenter.components.readme.composition.authoring import (
     allowed_identifiers,
@@ -22,6 +22,10 @@ from repository_presenter.components.readme.composition.authoring import (
     identifier_tokens,
     surface_members,
     verified_members,
+)
+from repository_presenter.components.readme.composition.components.ecosystems import (
+    REGISTRY_NAMES,
+    registry_name,
 )
 from repository_presenter.components.readme.composition.components.identity import (
     product_name,
@@ -39,7 +43,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "3"  # the template component version dependencies.json records
+RENDERER_VERSION = "5"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
@@ -128,8 +132,8 @@ class RenderContext:
         tokens.update(ext for ext in _EXTENSION.findall(text) if ext in self.allowed)
         rendered = text
         for token in sorted(tokens, key=len, reverse=True):
-            if token in self.name_tokens:
-                continue
+            if token in self.name_tokens or token in REGISTRY_NAMES.values():
+                continue  # the product's own name and package registries are proper nouns
             if token not in self.symbol_names and not identifier_allowed(
                 token, self.allowed, self.members, self.methods
             ):
@@ -235,6 +239,45 @@ def _dependencies(context: RenderContext) -> list[str]:
     return lines[1:] if lines and lines[0] == "" else lines
 
 
+def _public_type_count(context: RenderContext) -> int:
+    return sum(
+        1
+        for fact in context.supported("public_symbol")
+        if fact.evidence and "; class;" in (fact.evidence[0].detail or "")
+    )
+
+
+def _documentation_resources(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2 row 15: one list, each item a bold link, an em dash, and
+    the authored sentence; the reference item states the verified public type count and points
+    to the in-page API Reference; the issues line closes it; never the same target twice."""
+    sid = "documentation_resources"
+    repository = context.fact("identity:repository")
+    issues = f"https://github.com/{repository.value}/issues" if repository is not None else None
+    api_included = any(section.id == "api_reference" for section in context.included)
+    lines: list[str] = []
+    seen: set[str] = set()
+    for link in context.plan.get("links", []):
+        if link.get("section_id") != sid:
+            continue
+        target = context.fact(link.get("link_fact_id", ""))
+        if target is None or target.value in seen or target.value == issues:
+            continue
+        seen.add(target.value)
+        sentence = context.unit(sid, f"link:{target.id}")
+        host = (urlsplit(target.value).hostname or "").lower()
+        if host.startswith("reference.") and api_included:
+            count = _public_type_count(context)
+            sentence += (
+                f" It covers all {count} verified public types; the "
+                "[API Reference](#api-reference) section above covers the essentials."
+            )
+        lines.append(f"- **[{_link_text(target)}]({target.value})** — {sentence}")
+    if issues is not None:
+        lines.append(f"- Found a bug or have a feature request? [Open an issue]({issues}).")
+    return lines
+
+
 def _oxford(items: list[str]) -> str:
     if len(items) <= 2:
         return " and ".join(items)
@@ -255,17 +298,19 @@ def _installation(context: RenderContext) -> list[str]:
     package = context.fact("package:name")
     version = context.fact("package:version")
     if install is not None and install.polarity == "SUPPORTED" and package is not None:
-        lead = f"Install the published package from PyPI (`{package.value}`"
+        registry = registry_name(context.entry.ecosystem)
+        lead = f"Install the published package from {registry} (`{package.value}`"
         lead += f", version {version.value}):" if version is not None else "):"
         lines.append(lead)
         lines.append("")
         lines.extend(_code_block("bash", install.value))
     elif install is not None and package is not None:
         detail = install.evidence[-1].detail or "the registry could not be checked"
+        registry = registry_name(context.entry.ecosystem)
         state = (
-            "is not yet published on PyPI"
+            f"is not yet published on {registry}"
             if install.polarity == "CONTRADICTED"
-            else "could not be confirmed on PyPI at this revision"
+            else f"could not be confirmed on {registry} at this revision"
         )
         lines.append(f"The package `{package.value}` {state} ({detail}).")
     executed = context.supported("example")
@@ -409,14 +454,7 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.append("")
         lines.append("</details>")
     elif sid == "documentation_resources":
-        lines.append(context.unit(sid, "resources"))
-        lines.append("")
-        for link in plan.get("links", []):
-            if link.get("section_id") != sid:
-                continue
-            target = context.fact(link.get("link_fact_id", ""))
-            if target is not None:
-                lines.append(f"- [{_link_text(target)}]({target.value})")
+        lines.extend(_documentation_resources(context))
     elif sid == "scope_limitations":
         lines.append(context.unit(sid, "scope"))
         limitations = plan.get("material_limitations", [])

@@ -19,6 +19,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.composition.components.ecosystems import (
+    REGISTRY_NAMES,
+)
 from repository_presenter.components.readme.composition.components.identity import (
     product_name,
     product_name_tokens,
@@ -77,8 +80,9 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit per hub, one sentence each",
     ),
     "documentation_resources": (
-        "One or two sentences on what the verified documentation targets explain.",
-        "one unit of one or two sentences",
+        "One sentence per verified target on what it covers, in the reader's terms; never a "
+        "count of types or members, which the renderer states from the facts.",
+        "one unit per link, one sentence each",
     ),
     "scope_limitations": (
         "One honest scope statement, then one sentence per material limitation.",
@@ -161,12 +165,10 @@ def section_selections(
             ids.extend(hub.get("fact_ids", []))
             slots.append(f"hub:{hub.get('symbol_fact_id', '')}")
     elif section == "documentation_resources":
-        ids.extend(
-            link.get("link_fact_id", "")
-            for link in plan.get("links", [])
-            if link.get("section_id") == section
-        )
-        slots = ["resources"]
+        for link in plan.get("links", []):
+            if link.get("section_id") == section:
+                ids.append(link.get("link_fact_id", ""))
+                slots.append(f"link:{link.get('link_fact_id', '')}")
     elif section == "scope_limitations":
         slots = ["scope"]
         for index, item in enumerate(plan.get("material_limitations", []), start=1):
@@ -317,6 +319,7 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
     name any fact, as the contract requires, because the renderer wraps them in code spans.
     """
     allowed: set[str] = set(product_name_tokens(name))
+    allowed.update(REGISTRY_NAMES.values())  # package registries are proper nouns, not APIs
     for fact in facts.facts:
         if fact.polarity != "SUPPORTED":
             continue

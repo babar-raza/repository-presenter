@@ -75,11 +75,26 @@ def _normalized(text: str) -> str:
     return re.sub(r"\s+", " ", plain.replace("`", "")).strip().lower()
 
 
+_ANCHOR_LENGTH = 80
+_ELLIPSIS = re.compile(r"\s*(?:\.\.\.|\u2026)\s*")
+
+
 def quote_located(quote: str, candidate_readme: str) -> bool:
     """A quote locates candidate text when its normalized form occurs in the candidate; a quote
-    that exists nowhere in any spelling is invented and rejects the finding."""
+    that exists nowhere in any spelling is invented and rejects the finding.
+
+    A long quote anchors by its opening: a reviewer that copies a whole block and drifts in
+    its tail still points at real text, so the first eighty normalized characters locate it.
+    """
     wanted = _normalized(quote)
-    return not wanted or wanted in _normalized(candidate_readme)
+    haystack = _normalized(candidate_readme)
+    if not wanted or wanted in haystack:
+        return True
+    # An ellipsis abbreviates: every fragment around it is exact candidate text.
+    fragments = [part.strip() for part in _ELLIPSIS.split(wanted) if part.strip()]
+    if len(fragments) > 1 and all(part in haystack for part in fragments):
+        return True
+    return len(wanted) > _ANCHOR_LENGTH and wanted[:_ANCHOR_LENGTH] in haystack
 
 
 def review_packet(

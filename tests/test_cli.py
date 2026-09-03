@@ -396,7 +396,7 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
         "units": [
             _unit(
                 "documentation_resources",
-                "resources",
+                "link:link_target:002",
                 "The documentation site explains the API.",
                 "link_target:002",
             )
@@ -623,7 +623,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "capability:3",
         "lead_in",
         "hub:public_symbol:aspose.threed.scene",
-        "resources",
+        "link:link_target:002",
         "scope",
     ]
     authoring_requests = [
@@ -650,7 +650,15 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in readme_text
     )
     assert "- **Create scenes.** `Scene` objects are created in memory." in readme_text
-    assert "- [docs](https://docs.example.com/3d)" in readme_text
+    assert (
+        "- **[docs](https://docs.example.com/3d)** "
+        + chr(0x2014)
+        + " The documentation site explains the API."
+    ) in readme_text
+    assert (
+        "[Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues)."
+        in (readme_text)
+    )
     assert readme_text.rstrip("\n").endswith("The software is provided without warranty.")
     patch_text = (project_with_registry / facts_dir / "README.patch").read_text("utf-8")
     assert patch_text.startswith("--- a/README.md\n+++ b/README.md\n")
@@ -728,7 +736,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "3",
-        "renderer": "3",
+        "renderer": "5",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
