@@ -1,66 +1,29 @@
 {
   "schema_version": 1,
   "gate": "G2_STABILITY_UNDER_CHANGE",
-  "work_item": "G2-W03",
+  "work_item": "G2-W04",
   "gate_status": "READY",
   "work_item_status": "ACCEPTED",
-  "recorded_at": "2026-09-04T00:02:19+05:00",
-  "control_revision": "ff7353431f555e9941cdad7c84096f96232e49e4",
-  "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W04) is its child, pushed to origin in the same iteration with hosted CI watched.",
+  "recorded_at": "2026-09-04T04:27:26+05:00",
+  "control_revision": "58902dd8a35348cb8bf71ddf9a5b62d77b4e2814",
+  "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W05) is its child, pushed to origin in the same iteration with hosted CI watched.",
   "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
   },
   "local_ci_equivalent": {
-    "control_revision": "ff7353431f555e9941cdad7c84096f96232e49e4",
+    "control_revision": "58902dd8a35348cb8bf71ddf9a5b62d77b4e2814",
     "runs": [
-      {
-        "python": "3.13.2",
-        "steps": [
-          {
-            "command": "ruff check .",
-            "exit_code": 0
-          },
-          {
-            "command": "ruff format --check .",
-            "exit_code": 0
-          },
-          {
-            "command": "mypy src",
-            "exit_code": 0
-          },
-          {
-            "command": "python -m pytest -p no:cacheprovider",
-            "exit_code": 0
-          },
-          {
-            "command": "repository-presenter --version",
-            "exit_code": 0
-          },
-          {
-            "command": "repository-presenter status",
-            "exit_code": 0
-          }
-        ],
-        "pytest": "399 passed in 208.94s (0:03:28)",
-        "status": [
-          "repository-presenter 0.1.0",
-          "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W03 (IN_PROGRESS)",
-          "candidates: 1/34 current reviewable no-op-proven",
-          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
-        ]
-      },
       {
         "python": "3.11.16",
         "steps": [
           {
-            "command": "ruff check .",
+            "command": "ruff check src tests",
             "exit_code": 0
           },
           {
-            "command": "ruff format --check .",
+            "command": "ruff format --check src tests",
             "exit_code": 0
           },
           {
@@ -68,11 +31,7 @@
             "exit_code": 0
           },
           {
-            "command": "python -m pytest -p no:cacheprovider",
-            "exit_code": 0
-          },
-          {
-            "command": "repository-presenter --version",
+            "command": "python -m pytest tests -q -p no:cacheprovider",
             "exit_code": 0
           },
           {
@@ -80,11 +39,11 @@
             "exit_code": 0
           }
         ],
-        "pytest": "399 passed in 185.50s (0:03:05)",
+        "pytest": "exit 0; the repository's quiet pytest configuration prints no summary line",
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W03 (IN_PROGRESS)",
+          "work item: G2-W04 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -93,11 +52,11 @@
         "python": "3.12.14",
         "steps": [
           {
-            "command": "ruff check .",
+            "command": "ruff check src tests",
             "exit_code": 0
           },
           {
-            "command": "ruff format --check .",
+            "command": "ruff format --check src tests",
             "exit_code": 0
           },
           {
@@ -105,11 +64,7 @@
             "exit_code": 0
           },
           {
-            "command": "python -m pytest -p no:cacheprovider",
-            "exit_code": 0
-          },
-          {
-            "command": "repository-presenter --version",
+            "command": "python -m pytest tests -q -p no:cacheprovider",
             "exit_code": 0
           },
           {
@@ -117,11 +72,44 @@
             "exit_code": 0
           }
         ],
-        "pytest": "399 passed in 190.67s (0:03:10)",
+        "pytest": "exit 0; the repository's quiet pytest configuration prints no summary line",
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W03 (IN_PROGRESS)",
+          "work item: G2-W04 (IN_PROGRESS)",
+          "candidates: 1/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ]
+      },
+      {
+        "python": "3.13",
+        "steps": [
+          {
+            "command": "ruff check src tests",
+            "exit_code": 0
+          },
+          {
+            "command": "ruff format --check src tests",
+            "exit_code": 0
+          },
+          {
+            "command": "mypy src",
+            "exit_code": 0
+          },
+          {
+            "command": "python -m pytest tests -q -p no:cacheprovider",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter status",
+            "exit_code": 0
+          }
+        ],
+        "pytest": "exit 0; the repository's quiet pytest configuration prints no summary line",
+        "status": [
+          "repository-presenter 0.1.0",
+          "gate: G2_STABILITY_UNDER_CHANGE (READY)",
+          "work item: G2-W04 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -133,20 +121,21 @@
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "state": "READY_FOR_PROPOSAL",
-    "sealed_at": "2026-09-03T18:24:59Z",
+    "sealed_at": "2026-09-03T23:14:31Z",
     "no_op_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-03T18:24:59Z",
+      "proven_at": "2026-09-03T23:14:31Z",
       "provider_calls": 0
     },
     "adopted": {
-      "adopted_at": "2026-09-03T18:24:59Z",
+      "adopted_at": "2026-09-03T23:14:31Z",
       "changed": [
         "README.md",
         "README.patch",
         "content_units.json",
         "dependencies.json",
+        "repairs.json",
         "review.json",
         "validation.json"
       ],
@@ -155,136 +144,225 @@
       "previous_proof": {
         "byte_identical": true,
         "fresh_process": true,
-        "proven_at": "2026-09-03T17:45:02Z",
+        "proven_at": "2026-09-03T22:45:43Z",
         "provider_calls": 0
       },
-      "recorded_at": "2026-09-03T18:22:20Z"
+      "recorded_at": "2026-09-03T23:13:57Z"
     },
     "files": {
       "README.md": {
-        "bytes": 50810,
-        "sha256": "778fe61e7bcc2e617b635e0bb0e55bea4790acfa2c0e0c9687d011fee095c86d"
+        "bytes": 56229,
+        "sha256": "a6cbbe0171b01b78d29cad5a4ea6da8989c6018fa1961cc7ead51c3340f99efd"
       },
       "README.patch": {
-        "bytes": 86627,
-        "sha256": "ff27e682f0fd35e742fe9a0e04344ffbc2cf1e2534f6c35c68d8f144047c6cbb"
+        "bytes": 92322,
+        "sha256": "95ac979a5f982c085cc3c236c706443b1c7b77815aa77f396eed8ea90d7ad38a"
       },
       "calls.jsonl": {
-        "bytes": 717508,
-        "sha256": "28deee7ac7e526279fe09c7bdbb24b337e6ab7593d50c060610ed509c5c198e2"
+        "bytes": 1311564,
+        "sha256": "be7dab670438301791dff50aedb22499cb9c5ef02d6aac6f47b24e46e8a28f85"
       },
       "content_units.json": {
-        "bytes": 82891,
-        "sha256": "ccb84d80810ca0f9bccc01692047d272c06ac3c552a3ef9ba989cd5095f34e00"
+        "bytes": 81223,
+        "sha256": "c52727f984563788ec40e4d26aaa5c8a5797e0c9f6457f96a09937128728e17d"
       },
       "dependencies.json": {
-        "bytes": 222272,
-        "sha256": "5944fd3fd312fe1781fda97ab60141cbdd846ad977d711b277b9ea16e9ef130c"
+        "bytes": 222584,
+        "sha256": "5312d11b894176bf97c06dd9feb1e285f7618dc280602a6ad87ab0cf527bc873"
       },
       "dispositions.json": {
-        "bytes": 28506,
-        "sha256": "caf487111efe535ddad04c5195f8aeed34ae7b495406f6302343ed3e097d4cef"
+        "bytes": 33889,
+        "sha256": "f3eeac2d042bfdd3cc5ba10a5e64e04b02d661f2f5f7c40ab17cdbedbc980676"
       },
       "facts.json": {
-        "bytes": 1124115,
-        "sha256": "35ffc1b5655be9e19b2e4748eb49b918a706368c2ccbed4c0ceb0c1ebb4f02fa"
+        "bytes": 1125655,
+        "sha256": "55203cb5a33de1e709a332e5ca8bbded3ef84899d080e6372b7340fb18b4c3e2"
       },
       "investigation.json": {
         "bytes": 8377,
         "sha256": "010f5fbb71fbae24723c346a09253aaff27318e3cee42ff5578df281bb359aaa"
       },
       "plan.json": {
-        "bytes": 8113,
-        "sha256": "d6a3e578a24237ee275db5027b3775168e84800458a7584dd62a2aa02af475c2"
+        "bytes": 8515,
+        "sha256": "a4ff282cabe9d931ef89f3fa54b49e2927e6885250f95f723e684907a34050bb"
       },
       "repairs.json": {
-        "bytes": 24622,
-        "sha256": "3493e93783ff5397cbb9387d0ae7e3ce02ee5567423285d8703e6bbc8ff54eeb"
+        "bytes": 32131,
+        "sha256": "19acbd421f550e22df8765020f1991612c996aa3df61e8db355e1bbf740a9433"
       },
       "review.json": {
-        "bytes": 9188,
-        "sha256": "9c59d53ce1dd2583491af12bf4ce18e77c39d8a6f2db901bb2fa7e3efacdd589"
+        "bytes": 9489,
+        "sha256": "4f8b55f6a772d48d87f0b5804f2ee63b852d4770cde6f3d92d66cf441e8606fa"
       },
       "validation.json": {
-        "bytes": 4373,
-        "sha256": "02de2e7f625814c8cb5233fdaa90303340a3d5af60c8852fa7969ea88142e5cc"
+        "bytes": 4159,
+        "sha256": "0ba9b614903ca67bd1fc755832e6219a7dfc8116f3c4939405c53b7e0ed56def"
       }
     },
     "readme": {
-      "visible_lines": 142,
-      "total_lines": 729
+      "visible_lines": 215,
+      "total_lines": 828
+    },
+    "product_facts": {
+      "link_target:product.enterprise": {
+        "value": "https://products.aspose.com/3d/python-net/",
+        "polarity": "SUPPORTED",
+        "attributes": {
+          "level": "platform",
+          "platform": "python",
+          "role": "enterprise"
+        }
+      },
+      "link_target:product.homepage": {
+        "value": "https://products.aspose.org/3d/python/",
+        "polarity": "SUPPORTED",
+        "attributes": {
+          "role": "product homepage"
+        }
+      },
+      "link_target:product.banner": {
+        "value": "https://products.aspose.org/media/3d/python/banner-readme.png",
+        "polarity": "SUPPORTED",
+        "attributes": {
+          "role": "banner illustration"
+        }
+      }
     }
   },
   "predicates": [
     {
-      "predicate": "The public_symbol extractor records a structured symbol kind, collapses re-export paths to one fact at the canonical defining location with the public paths as evidence, and records the docstring first line and signature as evidence; the canary's facts.json shows the collapsed type count and every type carries that evidence or an explicit absence.",
+      "predicate": "The banner (row 3) renders as a linked image only from a verified illustration fact and a verified homepage fact resolved by a live lookup, and is omitted entirely when either is unresolved; the Enterprise Edition paragraph (row 18) closes Scope and Limitations from the verified target, appears exactly once, and names no platform for a family-level target.",
       "verdict": "PASS",
-      "evidence": "facts.json: 1564 SUPPORTED public_symbol facts by kind {'module': 52, 'class': 338, 'method': 1169, 'enum': 5} (1,918 before the collapse in 8b602f8 and 28f2b25), 1512 with a signature and 316 with a docstring first line in their attributes; a symbol without a docstring carries no docstring key, which is the recorded absence (the wording 'explicit absence' meant this, corrected here rather than in the contract)."
+      "evidence": "facts.json: {\"link_target:product.enterprise\": {\"value\": \"https://products.aspose.com/3d/python-net/\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"level\": \"platform\", \"platform\": \"python\", \"role\": \"enterprise\"}}, \"link_target:product.homepage\": {\"value\": \"https://products.aspose.org/3d/python/\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"role\": \"product homepage\"}}, \"link_target:product.banner\": {\"value\": \"https://products.aspose.org/media/3d/python/banner-readme.png\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"role\": \"banner illustration\"}}}; README line '[![Aspose.3D FOSS for Python](https://products.aspose.org/media/3d/python/banner-readme.png)](https://products.aspose.org/3d/python/)' immediately below the badge row; 'Enterprise Edition' appears 2 time(s), in the closing paragraph of Scope and Limitations naming the platform-level target; the omission paths are unit-tested (test_product_pages.py, test_renderer.py, test_planning.py). Commits 64a360a and e5b3f2d."
     },
     {
-      "predicate": "The renderer emits API Reference as README_CONTRACT.md row 14: a visible intro naming the entry-point classes and the verified public type count, the details block titled View the Complete Public API Surface, a Core API table over every verified public type split by kind, and a Detailed Member Reference grouped by topic; descriptions authored in bounded batches from the recorded evidence, signature summary otherwise, never filler.",
+      "predicate": "At a Glance renders under its revised condition (row 6) with the section 2.1 topology.",
       "verdict": "PASS",
-      "evidence": "Sealed README (9661e49, ff73534): 142 visible lines of 729; the table holds 343 rows, 195 from docstrings and 148 authored in batches of forty from signatures, 0 signature fallbacks; enumerations split under their own heading; hub topics list every verified method."
+      "evidence": "The section holds exactly one Mermaid fence: '```mermaid' .. '```'; chain edge ['  PRODUCT --> Capabilities --> Outputs']; Starting Points present: False (SUPPORTED input formats none; unresolved ['format:input.dae', 'format:input.gltf', 'format:input.obj']); 7 capability nodes in two balanced columns; BC-07 judges that shape (registry.py _topology_failures). Commit fca6439; the Starting Points gap is RESEARCH_AND_GUIDELINES.md section 25 item 3."
     },
     {
-      "predicate": "A type-by-type comparison against the live README shows every verified public type it lists present here with an evidence-backed or signature-derived description, recorded in this manifest.",
+      "predicate": "Additional Examples shows one visible flagship example under its own task-named heading when the plan selects one, and preserves every verified repository-owned image from the inherited README under its own descriptive heading.",
       "verdict": "PASS",
-      "evidence": "live table 305 rows, candidate 343; live types missing in the candidate: none; candidate types the live table lacks: 24; filler pattern hits: none."
+      "evidence": "plan.json flagship_example_id 'example:005', rendered visibly before the collapsed block (True); the inherited README carries 0 repository-owned image(s), so the image clause holds vacuously here and its mechanism is exercised by the second ecosystem representative (G2-W09). Commit 6604eb9."
     },
     {
-      "predicate": "All eleven blocking checks pass on the canary, the independent review returns ACCEPT with zero advisory findings whose cause is deterministic code, and the sealed bundle carries the result through the adopt-on-proof seal with a byte-identical zero-call rerun; status counts the repository once.",
+      "predicate": "A section-by-section comparison against the live README shows no section, image, or link it has that this candidate lacks, recorded in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.",
       "verdict": "PASS",
-      "evidence": "validation.json summary {'fail': 0, 'pass': 11, 'pending': 0}; review ACCEPT with 4 reviewer-scope advisories (F02, F01, F03, F04), code-caused: none; manifest state READY_FOR_PROPOSAL, adopted at 2026-09-03T18:24:59Z with no_op_proof provider_calls 0; status 1/34."
+      "evidence": "comparison below: live H2 sections missing here none; live images missing ['https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg']; live links missing ['https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg', 'https://www.python.org/downloads/'], each a badge-row detail recorded under deviations with its reason (no repository content, image, or documentation link is lost)."
+    },
+    {
+      "predicate": "All eleven blocking checks pass on the canary, the independent review returns ACCEPT with zero advisory findings whose cause is deterministic code, and the sealed bundle carries the result through the adopt-on-proof seal.",
+      "verdict": "PASS",
+      "evidence": "validation.json summary {'fail': 0, 'pass': 11, 'pending': 0}; review ACCEPT with 5 advisories (F01, F03, F02, F04, F05), 5 marked reviewer-scope and 0 unmarked; the one advisory with a deterministic cause (duplicate API table names, F04 in the previous seal) was fixed in the renderer and the table now carries 0 duplicate name(s). Bundle READY_FOR_PROPOSAL with no_op_proof and the adopted update record."
     },
     {
       "predicate": "Every pulled legacy file has one manifest file record; every new module has a production importer exercised by present.",
       "verdict": "PASS",
-      "evidence": "No legacy file was pulled under this item; no new module was created (the work landed in existing modules: python_surface.py, facts.py, authoring.py, coherence.py, renderer.py, registry.py, rounds.py)."
+      "evidence": "No legacy file was pulled under this item; the one new module, evidence/facts/product_pages.py, is imported by extract.py, planning.py, renderer.py, dispositions.py, and registry.py and exercised by present; docs/REPOSITORY_LAYOUT.md lists it."
     },
     {
       "predicate": "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion.",
       "verdict": "PASS",
-      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for the item's final commit (run 33793489062 on ff73534); one intermediate commit (9661e49) failed CI on two stale test expectations and was corrected by 33c259b in the same iteration."
+      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of the item (33800665398, 33809276390, 33813400440, 33814977490, 33817345910 on 58902dd)."
     }
   ],
   "comparison": {
     "live_readme_blob": "47fb6f51ea6d7eedaea25f4769cd0e54fe5e1580",
-    "scope": "README_CONTRACT.md row 14: the live README's Core API table against this candidate's",
-    "live_table_rows": 305,
-    "candidate_table_rows": 343,
-    "live_types_missing_in_candidate": [],
-    "candidate_types_not_in_live": [
-      "IBuffer",
-      "ICommandList",
-      "IDescriptorSet",
-      "IIndexBuffer",
-      "IIndexedVertexElement",
-      "IMeshConvertible",
-      "INamedObject",
-      "IOConfig",
-      "IOExtension",
-      "IOService",
-      "IOrientable",
-      "IPipeline",
-      "IRenderQueue",
-      "IRenderTarget",
-      "IRenderTexture",
-      "IRenderWindow",
-      "ITexture1D",
-      "ITexture2D",
-      "ITextureCodec",
-      "ITextureCubemap",
-      "ITextureDecoder",
-      "ITextureEncoder",
-      "ITextureUnit",
-      "IVertexBuffer"
+    "scope": "README_CONTRACT.md section 2: every section, image, and link of the live README against this candidate",
+    "live_h2": [
+      "## Navigation",
+      "## At a Glance",
+      "## Key Capabilities",
+      "## Installation",
+      "## Dependencies",
+      "## Quick Start",
+      "## Additional Examples",
+      "## API Reference",
+      "## Documentation & Resources",
+      "## Scope and Limitations",
+      "## Development and Testing",
+      "## License"
     ],
-    "signature_fallback_rows": 0,
-    "filler_descriptions": [],
-    "docstring_descriptions": 195,
-    "batch_authored_descriptions": 148
+    "candidate_h2": [
+      "## Navigation",
+      "## At a Glance",
+      "## Key Capabilities",
+      "## Installation",
+      "## Dependencies",
+      "## Quick Start",
+      "## Additional Examples",
+      "## API Reference",
+      "## Documentation & Resources",
+      "## Scope and Limitations",
+      "## Development and Testing",
+      "## License"
+    ],
+    "live_h2_missing_in_candidate": [],
+    "live_h3_headings": 14,
+    "candidate_h3_headings": 21,
+    "h3_note": "Level-three headings are authored task names over the verified examples and the API hubs; the live README names ten examples where six execute at this revision (facts.json), so the sets differ by content, not by a lost section.",
+    "live_images_missing_in_candidate": [
+      "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg"
+    ],
+    "live_links_missing_in_candidate": [
+      "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg",
+      "https://www.python.org/downloads/"
+    ],
+    "deviations": [
+      {
+        "what": "https://www.python.org/downloads/ as the Python badge target",
+        "why": "the badge row (row 2, deterministic) states python_requires from the manifest fact; no fact verifies a downloads page, so the badge carries no target rather than an unverified link"
+      },
+      {
+        "what": "https://img.shields.io/github/contributors/<repo>.svg as the Contributors badge image",
+        "why": "the same badge with the same target; the candidate uses the shields path without the .svg suffix"
+      }
+    ],
+    "repository_owned_images_in_live": []
   },
   "previous_items": [
+    {
+      "work_item": "G2-W03",
+      "recorded_at": "2026-09-04T00:02:19+05:00",
+      "control_revision": "ff7353431f555e9941cdad7c84096f96232e49e4",
+      "comparison": {
+        "live_readme_blob": "47fb6f51ea6d7eedaea25f4769cd0e54fe5e1580",
+        "scope": "README_CONTRACT.md row 14: the live README's Core API table against this candidate's",
+        "live_table_rows": 305,
+        "candidate_table_rows": 343,
+        "live_types_missing_in_candidate": [],
+        "candidate_types_not_in_live": [
+          "IBuffer",
+          "ICommandList",
+          "IDescriptorSet",
+          "IIndexBuffer",
+          "IIndexedVertexElement",
+          "IMeshConvertible",
+          "INamedObject",
+          "IOConfig",
+          "IOExtension",
+          "IOService",
+          "IOrientable",
+          "IPipeline",
+          "IRenderQueue",
+          "IRenderTarget",
+          "IRenderTexture",
+          "IRenderWindow",
+          "ITexture1D",
+          "ITexture2D",
+          "ITextureCodec",
+          "ITextureCubemap",
+          "ITextureDecoder",
+          "ITextureEncoder",
+          "ITextureUnit",
+          "IVertexBuffer"
+        ],
+        "signature_fallback_rows": 0,
+        "filler_descriptions": [],
+        "docstring_descriptions": 195,
+        "batch_authored_descriptions": 148
+      }
+    },
     {
       "work_item": "G2-W02",
       "recorded_at": "2026-09-03T21:46:22+05:00",
@@ -439,5 +517,5 @@
       }
     }
   ],
-  "next_work_item": "G2-W04"
+  "next_work_item": "G2-W05"
 }
