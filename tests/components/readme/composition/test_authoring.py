@@ -15,6 +15,7 @@ from repository_presenter.components.readme.composition.authoring import (
     identifier_tokens,
     merge_repeated_slots,
     merge_units,
+    section_selections,
     section_spellings,
     surface_members,
     unit_checks,
@@ -384,3 +385,52 @@ def test_names_an_executed_example_uses_are_accepted_identifiers() -> None:
 def test_package_registry_names_are_proper_nouns_prose_may_spell() -> None:
     allowed = allowed_identifiers(FACTS, NAME)
     assert {"PyPI", "NuGet", "crates.io", "pkg.go.dev"} <= allowed
+
+
+def test_every_investigated_limitation_gets_its_own_slot_and_recorded_exceptions_may_be_named() -> (
+    None
+):
+    investigation = {
+        "limitations": [
+            {"text": "FBX export raises NotImplementedError.", "fact_ids": ["identity:repository"]},
+            {"text": "Rendering is not implemented.", "fact_ids": ["identity:repository"]},
+            {"text": "NURBS cannot be sampled.", "fact_ids": ["identity:repository"]},
+        ]
+    }
+    plan = {"material_limitations": [{"fact_ids": [], "unit_ids": ["inherited_unit:067.list"]}]}
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "inherited_unit:067.list",
+                "inherited_unit",
+                "- FbxExporter.save raises NotImplementedError outright.",
+                (Evidence("README.md", "lines 1-1; list"),),
+            ),
+        ),
+    )
+    ids, slots = section_selections("scope_limitations", plan, investigation, {}, facts)
+    assert slots == ("scope", "limitation:1", "limitation:2", "limitation:3")
+    assert "inherited_unit:067.list" in ids
+    task = SectionTask("scope_limitations", {}, frozenset(ids), slots)
+
+    def unit(slot: str, text: str, fact_id: str) -> dict[str, object]:
+        return {"section": "scope_limitations", "slot": slot, "text": text, "fact_ids": [fact_id]}
+
+    output = {
+        "units": [
+            unit("scope", "It reads files.", "identity:repository"),
+            unit(
+                "limitation:1", "FBX export raises NotImplementedError.", "inherited_unit:067.list"
+            ),
+            unit("limitation:2", "Rendering raises ValueError.", "identity:repository"),
+            unit("limitation:3", "NURBS cannot be sampled.", "identity:repository"),
+        ],
+        "omitted": [],
+    }
+    errors = unit_checks(output, task, facts, NAME)
+    assert errors == [
+        "unit limitation:2: identifiers that are not accepted fact values: ValueError"
+    ]

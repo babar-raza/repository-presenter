@@ -42,6 +42,7 @@ _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
 _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
 _MEMBER_CAP = 60
+_EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 _FORBIDDEN = (
     ("```", "a code fence"),
     ("http://", "a URL"),
@@ -171,11 +172,17 @@ def section_selections(
                 ids.append(link.get("link_fact_id", ""))
                 slots.append(f"link:{link.get('link_fact_id', '')}")
     elif section == "scope_limitations":
+        # One bullet per limitation (README_CONTRACT.md section 2 row 16): the plan's material
+        # limitations and every limitation the investigation found each get their own slot,
+        # so a precise mechanism is never crammed into one bullet.
         slots = ["scope"]
-        for index, item in enumerate(plan.get("material_limitations", []), start=1):
+        material = plan.get("material_limitations", [])
+        for item in material:
             ids.extend(item.get("fact_ids", []))
             ids.extend(item.get("unit_ids", []))
-            slots.append(f"limitation:{index}")
+        found = investigation.get("limitations") or []
+        count = max(len(material), len(found) if isinstance(found, list) else 0)
+        slots.extend(f"limitation:{index}" for index in range(1, count + 1))
         ids.extend(_cited(investigation.get("limitations")))
     elif section == "development_testing":
         ids.extend(fact.id for fact in facts.by_kind("build_test_asset"))
@@ -376,6 +383,13 @@ def unit_checks(
             f"units must fill exactly these slots once each: {', '.join(expected)}; "
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
+    # An exception class name is written only when a fact this section may cite records it
+    # verbatim (README_CONTRACT.md section 2 row 16: the precise mechanism a fact records).
+    recorded = " ".join(
+        fact.value
+        for fact in facts.facts
+        if fact.id in task.accepted_ids and fact.polarity == "SUPPORTED"
+    )
     for unit in output.get("units", []):
         slot = unit.get("slot", "?")
         if unit.get("section") != task.section_id:
@@ -394,6 +408,7 @@ def unit_checks(
             token
             for token in identifier_tokens(text)
             if not identifier_allowed(token, allowed, members, methods)
+            and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
         )
         if strays:
             errors.append(

@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)](https://pypi.org/project/aspose-3d-foss/) ![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python)](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/graphs/contributors)
 
-Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials from `aspose.threed.shading`, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
+Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
 
 ## Navigation
 
@@ -19,13 +19,14 @@ Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, co
 
 ## Key Capabilities
 
-- **Load multiple 3D formats.** Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.
-- **Export to common 3D formats.** Export scenes to `.gltf` and `.stl` formats using `FileFormat` and format-specific save options, including binary and ASCII modes.
-- **Construct and manipulate meshes.** Inspect mesh geometry by accessing control points, polygon count, and bounding boxes through the `Mesh` API.
-- **Assign materials to geometry.** Apply physically based rendering materials with configurable albedo, metallic factor, and roughness factor via the shading module.
-- **Build and traverse scene graphs.** Manage scene hierarchy by creating child nodes, setting transforms, and assigning materials to individual entities.
-- **Triangulate arbitrary polygons.** Build polygonal meshes programmatically using `PolygonBuilder`-style operations to add control points and create polygons.
-- **Create keyframe animations.** Support for 3D formats includes detection, import, and export via `FileFormat.formats`, `FileFormat.get_format_by_extension`, and `FileFormat.create_save_options`.
+- **Load multiple 3D formats.** Create and edit mesh geometry by adding control points and polygons with `Mesh.control_points` and `Mesh.create_polygon`, or convert primitives like `Box` and `Sphere` to editable `Mesh` objects with `to_mesh`.
+- **Export to common 3D formats.** Build a scene graph by attaching entities to nodes with `Node.create_child_node`, and inspect or modify each node's position and orientation through its `Transform` property.
+- **Construct and manipulate meshes.** Assign materials such as `LambertMaterial` or `PbrMaterial` to nodes, setting diffuse color, metallic factor, and roughness factor to control how light interacts with the geometry.
+- **Assign materials to geometry.** Import and export scenes to formats including OBJ, STL, glTF/GLB, and 3MF using `FileFormat.get_format_by_extension` and format-specific save options like `GltfSaveOptions` and `ThreeMfSaveOptions`.
+- **Build and traverse scene graphs.** Construct parameterized primitives such as `Box` and `Sphere`, then call their `to_mesh` method to produce editable `Mesh` geometry with control points and polygons.
+- **Triangulate arbitrary polygons.** Build keyframe animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations, and store skeletal bind-pose data with `Pose`.
+- **Create keyframe animations.** Inspect mesh properties such as control points, polygon count, and bounding box with `Mesh.control_points`, `Mesh.polygon_count`, and `Mesh.get_bounding_box` to analyze geometry structure.
+- **Convert primitives to editable meshes.** Traverse the scene graph by accessing `Node.child_nodes` and `Node.parent_node`, and query global transformations with `Node.evaluate_global_transform` to understand spatial relationships.
 
 ## Installation
 
@@ -67,7 +68,7 @@ No required third-party package dependencies; in `setup.py`, the `install_requir
 
 ## Quick Start
 
-Create a scene, add a box entity with a Lambert material, and save it as a GLTF file using Aspose.3D FOSS for Python version 26.1.0 on Python 3.7 or later.
+Create a scene with a textured box and save it as glTF using Aspose.3D FOSS for Python 26.1.0 on Python 3.7 through 3.12.
 
 ```python
 from aspose.threed import Scene
@@ -86,12 +87,12 @@ scene.save("crate.gltf")
 
 ## Additional Examples
 
-The following examples demonstrate creating meshes, assigning materials, and saving scenes to various 3D formats using aspose-3d-foss.
+The following examples demonstrate core workflows in Aspose.3D FOSS for Python, including mesh construction, material assignment, and format conversion.
 
 <details>
 <summary>View Additional Examples</summary>
 
-### Create a sphere with a metallic red material and save it as STL
+### Create a sphere with a PBR material and save it as STL
 
 ```python
 from aspose.threed import Scene
@@ -109,7 +110,7 @@ scene.root_node.create_child_node("Ball", entity=sphere.to_mesh(), material=mate
 scene.save("ball.stl")
 ```
 
-### Build a triangle mesh, apply a PBR material, and export to text-based GLTF
+### Build a mesh, assign a PBR material, and export to glTF JSON
 
 ```python
 import io
@@ -150,7 +151,7 @@ gltf_data = json.loads(stream.read().decode("utf-8"))
 print(gltf_data["materials"][0]["pbrMetallicRoughness"])
 ```
 
-### Construct a triangle mesh and export it as ASCII STL using a `StringIO` stream
+### Construct a triangle mesh and export it to ASCII STL
 
 ```python
 import io
@@ -179,7 +180,17 @@ scene.save(stream, options)
 print(stream.getvalue())
 ```
 
-### Build a cube mesh and save it as uncompressed 3MF to a `BytesIO` stream
+### Convert a `Box` primitive to a mesh and count control points
+
+```python
+from aspose.threed.entities import Box
+
+box = Box(10, 20, 30)
+mesh = box.to_mesh()
+print(f"Control points: {len(mesh.control_points)}")
+```
+
+### Build a cube mesh and export it to uncompressed 3MF
 
 ```python
 import io
@@ -218,16 +229,6 @@ options.enable_compression = False
 scene.save(stream, options)
 ```
 
-### Generate a box mesh and inspect its control point count
-
-```python
-from aspose.threed.entities import Box
-
-box = Box(10, 20, 30)
-mesh = box.to_mesh()
-print(f"Control points: {len(mesh.control_points)}")
-```
-
 </details>
 
 ## API Reference
@@ -235,18 +236,14 @@ print(f"Control points: {len(mesh.control_points)}")
 <details>
 <summary>Hub APIs</summary>
 
-- `aspose.threed.Scene`: Create, open, and manage 3D scenes using the `aspose.threed.Scene` class, which provides methods like `Scene.open`, `Scene.save`, `Scene.root_node`, `Scene.create_animation_clip`, `Scene.get_animation_clip`, `Scene.clear`, `Scene.sub_scenes`, `Scene.library`, `Scene.asset_info`, `Scene.poses`, and `Scene.render`.
-- `aspose.threed.Node`: Navigate and manipulate the scene hierarchy with the `aspose.threed.Node` class, which supports operations such as `Node.add_child_node`, `Node.create_child_node`, `Node.add_entity`, `Node.get_child`, `Node.get_entity`, `Node.child_nodes`, `Node.parent_node`, `Node.entities`, `Node.global_transform`, `Node.evaluate_global_transform`, `Node.get_bounding_box`, `Node.material`, `Node.materials`, `Node.transform`, `Node.visible`, `Node.excluded`, `Node.meta_datas`, `Node.select_objects`, `Node.select_single_object`, and `Node.merge`.
-- `aspose.threed.Mesh`: Construct and modify polygonal geometry using the `aspose.threed.Mesh` class, which offers access to `Mesh.control_points`, `Mesh.polygons`, `Mesh.edges`, `Mesh.polygon_count`, `Mesh.get_polygon_size`, `Mesh.get_bounding_box`, `Mesh.triangulate`, `Mesh.to_mesh`, `Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, `Mesh.intersect`, `Mesh.optimize`, `Mesh.is_manifold`, `Mesh.create_polygon`, and `Mesh.get_entity_renderer_key`.
-- `aspose.threed.FileFormat`: Identify and configure supported file formats with the `aspose.threed.FileFormat` class, which includes constants like `FileFormat.WAVEFRONT_OBJ`, `FileFormat.FBX7400ASCII`, `FileFormat.GLTF2`, `FileFormat.MICROSOFT_3MF_FORMAT`, and methods such as `FileFormat.can_import`, `FileFormat.can_export`, `FileFormat.content_type`, `FileFormat.get_format_by_extension`, `FileFormat.create_load_options`, and member `create_save_options`.
-- `aspose.threed.shading`: Define material properties and appearance using the `aspose.threed.shading` module, which provides classes and attributes such as member `diffuse_color`, member `metallic_factor`, and member `roughness_factor`.
-- `aspose.threed.entities`: Create and modify geometric primitives and shapes using the `aspose.threed.entities` module, which includes utilities like member entity, member `control_points`, member `create_polygon`, and member `create_child_node`.
-- `aspose.threed.animation`: Work with animation data using the `aspose.threed.animation` module, which integrates with `Scene.animation_clips` and `Scene.current_animation_clip` to manage time-based transformations and keyframes.
-- `aspose.threed.utilities`: Perform common utility operations using the `aspose.threed.utilities` module, which includes helper classes and methods such as member decode, member read, member seek, member getvalue, member loads, member add, member `binary_mode`, and member `BytesIO`.
-- `aspose.threed.formats`: Load and save 3D models in various formats using the `aspose.threed.formats` module, which provides format-specific loaders and savers for OBJ, GLTF, and other supported types.
-- `aspose.threed.render`: Render 3D scenes to images or video using the `aspose.threed.render` module, which supports rendering from `Scene.render` and integrates with the scene graph and camera configuration.
-- `aspose.threed.deformers`: Apply mesh deformation effects using the `aspose.threed.deformers` module, which provides tools for modifying geometry through procedural or skeletal influences.
-- `aspose.threed.profiles`: Define and manage cross-section profiles for extrusion and sweep operations using the `aspose.threed.profiles` module.
+- `aspose.threed.Scene`: Create, open, and save 3D scenes with the `aspose.threed.Scene` class, which holds a hierarchy of nodes, materials, and animation clips, and provides methods like `Scene.open`, `Scene.save`, and `Scene.create_animation_clip`.
+- `aspose.threed.Node`: Manage scene hierarchy and spatial transforms with the `aspose.threed.Node` class, which supports adding child nodes, attaching entities, evaluating global transforms, and storing materials via `Node.create_child_node`, `Node.global_transform`, and `Node.materials`.
+- `aspose.threed.Mesh`: Represent geometry with the `aspose.threed.Mesh` class, which stores control points and polygon definitions, and can be created from primitives or modified using utilities like `PolygonBuilder`.
+- `aspose.threed.shading`: Define surface appearance with the `aspose.threed.shading` module, which includes the `Material` class for properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor`.
+- `aspose.threed.animation`: Create and manage animations using the `aspose.threed.animation` module, which provides `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations and properties.
+- `aspose.threed.entities`: Construct and manipulate geometric primitives with the `aspose.threed.entities` module, which includes `Box`, `Sphere`, and `Primitive` classes that can be converted to `Mesh` instances.
+- `aspose.threed.formats`: Import and export 3D files using the `aspose.threed.formats` module, which exposes `FileFormat` classes for formats like OBJ, GLTF2, FBX7400ASCII, and 3MF, with support for detection, load options, and save options.
+- `aspose.threed.utilities`: Perform common calculations and conversions with the `aspose.threed.utilities` module, which includes `MathUtils` for helper functions and types like `Vector3` used in geometry and transforms.
 
 </details>
 
@@ -254,27 +251,41 @@ print(f"Control points: {len(mesh.control_points)}")
 
 - **[Getting started guide](https://docs.aspose.org/3d/python/)** — The getting started guide covers installation, walkthroughs, and feature guides for this library.
 - **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — The how-to guides and FAQ provide task-focused answers for common 3D-processing questions.
-- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference is the complete, browsable reference for all 305 public types. It covers all 652 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference offers the complete, browsable reference for all 305 public types. It covers all 652 verified public types; the [API Reference](#api-reference) section above covers the essentials.
 - **[Implementation progress notes](docs/foss-python-progress.md)** — The implementation progress notes describe the current FOSS-edition porting status.
-- **[Release process](docs/releasing.md)** — The release process explains how a version of aspose-3d-foss is tagged and published to PyPI.
-- **[Scene/Node/Entity/Transform](docs/IMPLEMENTATION_SUMMARY.md)** — The internal format-implementation notes cover `Scene`, `Node`, `Entity`, and `Transform` development history.
+- **[Release process](docs/releasing.md)** — The release process document explains how a version of aspose-3d-foss is tagged and published to PyPI.
+- **[Scene/Node/Entity/Transform](docs/IMPLEMENTATION_SUMMARY.md)** — The implementation summary covers `Scene`, `Node`, `Entity`, and `Transform` internals.
 - **[OBJ importer](docs/OBJ_IMPORTER_IMPLEMENTATION.md)** — The OBJ importer implementation notes describe the historical development of OBJ support.
-- **[STL import/export](docs/STL_IMPORT_IMPLEMENTATION.md)** — The STL import implementation notes cover the historical development of STL import and export.
-- **[FBX parser](docs/FBX_IMPLEMENTATION_SUMMARY.md)** — The FBX parser implementation notes describe the historical development of FBX support.
-- **[PyPI packaging readiness](docs/PYPI_READINESS.md)** — The PyPI packaging readiness notes cover the historical development of PyPI packaging.
+- **[STL import/export](docs/STL_IMPORT_IMPLEMENTATION.md)** — The STL import implementation notes describe the historical development of STL import and export.
+- **[FBX parser](docs/FBX_IMPLEMENTATION_SUMMARY.md)** — The FBX implementation summary describes the historical development of the FBX parser.
+- **[PyPI packaging readiness](docs/PYPI_READINESS.md)** — The PyPI readiness notes describe packaging requirements and status for distribution.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues).
 
 ## Scope and Limitations
 
-Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.
+Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the `Scene`, `Node`, and `Entity` APIs.
 
-- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco, and attempts to use these formats raise an error. FBX import is experimental and lightly verified, while FBX export is not supported. COLLADA import works but COLLADA export is unreachable through `Scene.save`() due to exporter lookup failure. Load and save options for OBJ, STL, glTF, and COLLADA must be imported from their format-specific submodules, not from the shared top-level `aspose.threed.formats` package. The `aspose.threed.render` module and `Scene.render`() are not supported. `Texture` and `TextureBase` cannot be constructed, so image-backed textures cannot be created. `Watermark.encode_watermark`(), `Watermark.decode_watermark`(), and all `TransformBuilder` methods are not supported. `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` are not supported. `NurbsCurve.evaluate`(), `NurbsCurve.evaluate_at`(), and `NurbsSurface.to_mesh`() are not supported. `PointCloud.from_geometry`(), `PointCloud.from_geometry_with_density`(), and `AxisSystem` are not supported.
+- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`()/`Scene.save`() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try.
+- FBX support is experimental: `FbxImporter` has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and `FbxExporter.save`()/`save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.
+- COLLADA import works, but COLLADA export is not reachable through `Scene.save`() because `IOService`'s exporter lookup walks its registered exporters in order and reaches `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working `ColladaExporter` is ever consulted.
+- The entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raises NotImplementedError, so this library does not render scenes to images.
+- Boolean/CSG mesh operations are not implemented: `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` raise NotImplementedError, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.
+- NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`() raise NotImplementedError.
 
 ## Development and Testing
 
-Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with python -m unittest discover tests/; there are 33 real test files.
+Install the package in editable mode and run the test suite using the discover command against the tests directory.
 
 The suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).
+
+```bash
+python3 -m pip install -e .
+python3 -m unittest discover tests/
+```
+
+```bash
+python -m unittest tests.test_obj_importer
+```
 
 ## License
 

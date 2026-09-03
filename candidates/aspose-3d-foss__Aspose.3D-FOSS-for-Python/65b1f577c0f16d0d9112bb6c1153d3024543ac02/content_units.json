@@ -1,118 +1,246 @@
 {
   "coherence": {
     "applied": true,
-    "revised": []
+    "revised": [
+      "key_capabilities/capability:2",
+      "api_reference/hub:public_symbol:aspose.threed.node"
+    ]
   },
   "omitted": [
     {
+      "fact_id": "identity:repository",
+      "reason": "repository name is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "revision hash is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "family identifier is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "platform identifier is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "ecosystem identifier is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "package name is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "version is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "license:spdx",
+      "reason": "license identifier is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "example is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "example is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:012",
+      "reason": "example is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.animationclip",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.animationnode",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.fileformat",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.mesh",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.shading",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.node",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.transform",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.polygonbuilder",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.keyframesequence",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.threed.pose",
+      "reason": "symbol is not used in prose",
+      "section": "opening"
+    },
+    {
       "fact_id": "example:001",
-      "reason": "example is unresolved and not used in any verified example",
+      "reason": "unresolved example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is unresolved and not used in any verified example",
+      "reason": "unresolved example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is unresolved and not used in any verified example",
+      "reason": "unresolved example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is unresolved and not used in any verified example",
+      "reason": "unresolved example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is contradicted and not used in any verified example",
+      "reason": "contradicted example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is unresolved and not used in any verified example",
+      "reason": "unresolved example is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "format is unresolved and not used in any verified example",
+      "reason": "unresolved format is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "format is unresolved and not used in any verified example",
+      "reason": "unresolved format is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "format is unresolved and not used in any verified example",
+      "reason": "unresolved format is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "format is unresolved and not used in any verified example",
+      "reason": "unresolved format is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "format is unresolved and not used in any verified example",
+      "reason": "unresolved format is not used in prose",
       "section": "opening"
     },
     {
       "fact_id": "example:001",
-      "reason": "unresolved example, not used in any verified capability",
+      "reason": "unresolved example referencing .dae format and ColladaLoadOptions not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "example:003",
-      "reason": "unresolved example, not used in any verified capability",
+      "reason": "unresolved example referencing .glb format not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "example:006",
-      "reason": "unresolved example, not used in any verified capability",
+      "reason": "unresolved example referencing PolygonModifier.triangulate not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "example:007",
-      "reason": "unresolved example, not used in any verified capability",
+      "reason": "unresolved example referencing .gltf import only, not core capability",
       "section": "key_capabilities"
     },
     {
       "fact_id": "example:008",
-      "reason": "contradicted example, not used in any verified capability",
+      "reason": "contradicted example referencing Cylinder not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "example:011",
-      "reason": "unresolved example, not used in any verified capability",
+      "reason": "unresolved example referencing .dae format and ColladaLoadOptions not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "unresolved format, not used in any verified capability",
+      "reason": "unresolved format not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "unresolved format, not used in any verified capability",
+      "reason": "unresolved format not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "unresolved format, not used in any verified capability",
+      "reason": "unresolved format not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "unresolved format, not used in any verified capability",
+      "reason": "unresolved format not in accepted facts",
       "section": "key_capabilities"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "unresolved format, not used in any verified capability",
+      "reason": "unresolved format not in accepted facts",
       "section": "key_capabilities"
+    },
+    {
+      "fact_id": "inherited_unit:027.paragraph",
+      "reason": "pertains to a different example (importing OBJ) not covered in this lead-in unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:030.code_block",
+      "reason": "provides the code block itself, not the lead-in sentence",
+      "section": "quick_start"
     },
     {
       "fact_id": "example:001",
@@ -170,59 +298,324 @@
       "section": "quick_start"
     },
     {
+      "fact_id": "inherited_unit:033.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:036.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:037.code_block",
+      "reason": "code block not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:038.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:039.paragraph",
+      "reason": "paragraph not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:040.code_block",
+      "reason": "code block not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:041.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:043.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:047.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:048.code_block",
+      "reason": "code block not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:049.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:050.code_block",
+      "reason": "code block not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:051.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:053.heading",
+      "reason": "heading not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:054.code_block",
+      "reason": "code block not used in this section slot",
+      "section": "additional_examples"
+    },
+    {
       "fact_id": "example:001",
-      "reason": "example is UNRESOLVED and not used for prose",
+      "reason": "example not in accepted set for this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "example not in accepted set for this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example not in accepted set for this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example not in accepted set for this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "example contradicted and not used",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "example not in accepted set for this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "format:input.dae",
+      "reason": "format not used in this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "format:input.gltf",
+      "reason": "format not used in this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "format:input.obj",
+      "reason": "format not used in this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "format:output.glb",
+      "reason": "format not used in this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "format:output.obj",
+      "reason": "format not used in this section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:001",
+      "reason": "example is unresolved and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is UNRESOLVED and not used for prose",
+      "reason": "example is unresolved and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is UNRESOLVED and not used for prose",
+      "reason": "example is unresolved and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is UNRESOLVED and not used for prose",
+      "reason": "example is unresolved and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is CONTRADICTED and not used for prose",
+      "reason": "example is contradicted and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is UNRESOLVED and not used for prose",
+      "reason": "example is unresolved and not used to assert behavior",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "format is UNRESOLVED and not used for prose",
+      "reason": "format is unresolved and not listed in allowed identifiers",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "format is UNRESOLVED and not used for prose",
+      "reason": "format is unresolved and not listed in allowed identifiers",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "format is UNRESOLVED and not used for prose",
+      "reason": "format is unresolved and not listed in allowed identifiers",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "format is UNRESOLVED and not used for prose",
+      "reason": "format is unresolved and not listed in allowed identifiers",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "format is UNRESOLVED and not used for prose",
+      "reason": "format is unresolved and not listed in allowed identifiers",
       "section": "api_reference"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Not needed in prose; the section title and package name already identify the repository.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is internal provenance and not used in user-facing documentation.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family-level identity is implied by the product name and not stated explicitly.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform identity is implied by the product name and not stated explicitly.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem identity is implied by the product name and not stated explicitly.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is implied by the product name and not stated explicitly.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Version is stated by the renderer and not needed in this unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:python_requires",
+      "reason": "Python version requirement is stated by the renderer and not needed in this unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:python_versions",
+      "reason": "Python version list is stated by the renderer and not needed in this unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:tests",
+      "reason": "Test directory path is implied by the command and not needed in prose.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:ci",
+      "reason": "CI directory path is not referenced in this unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "Docs directory path is not referenced in this unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:072.paragraph",
+      "reason": "This paragraph introduces a separate command not included in the single-unit budget.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:073.code_block",
+      "reason": "This code block introduces a separate command not included in the single-unit budget.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:074.paragraph",
+      "reason": "This paragraph describes test coverage and AGENTS.md, which are outside the scope of this summary unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:075.paragraph",
+      "reason": "This paragraph describes release procedures, which are outside the scope of this summary unit.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:001",
+      "reason": "Unresolved example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "Unresolved example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "Unresolved example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "Unresolved example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "Contradicted example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "Unresolved example not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "format:input.dae",
+      "reason": "Format identifier not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "format:input.gltf",
+      "reason": "Format identifier not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "format:input.obj",
+      "reason": "Format identifier not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "format:output.glb",
+      "reason": "Format identifier not used in this section.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "format:output.obj",
+      "reason": "Format identifier not used in this section.",
+      "section": "development_testing"
     }
   ],
   "schema_version": 1,
@@ -235,116 +628,117 @@
         "format:output.gltf",
         "format:output.stl",
         "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.sphere"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials from aspose.threed.shading, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
+      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
     },
     {
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:009",
-        "example:012",
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.shading"
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "example:010"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials."
+      "text": "Create and edit mesh geometry by adding control points and polygons with Mesh.control_points and Mesh.create_polygon, or convert primitives like Box and Sphere to editable Mesh objects with to_mesh."
     },
     {
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:009",
-        "example:012",
-        "format:output.gltf",
-        "format:output.stl",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform",
+        "example:002"
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Export scenes to .gltf and .stl formats using FileFormat and format-specific save options, including binary and ASCII modes."
+      "text": "Build a scene graph by attaching entities to nodes with Node.create_child_node, and inspect or modify each node's position and orientation through its Transform property."
     },
     {
       "fact_ids": [
-        "example:010",
-        "public_symbol:aspose.threed.mesh"
+        "public_symbol:aspose.threed.shading",
+        "example:002",
+        "example:004"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Inspect mesh geometry by accessing control points, polygon count, and bounding boxes through the Mesh API."
+      "text": "Assign materials such as LambertMaterial or PbrMaterial to nodes, setting diffuse color, metallic factor, and roughness factor to control how light interacts with the geometry."
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.threed.fileformat",
+        "format:output.gltf",
+        "format:output.stl",
         "example:002",
         "example:004",
-        "example:005",
-        "public_symbol:aspose.threed.shading"
+        "example:009",
+        "example:012"
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Apply physically based rendering materials with configurable albedo, metallic factor, and roughness factor via the shading module."
+      "text": "Import and export scenes to formats including OBJ, STL, glTF/GLB, and 3MF using FileFormat.get_format_by_extension and format-specific save options like GltfSaveOptions and ThreeMfSaveOptions."
     },
     {
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "example:010"
       ],
       "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Manage scene hierarchy by creating child nodes, setting transforms, and assigning materials to individual entities."
+      "text": "Construct parameterized primitives such as Box and Sphere, then call their to_mesh method to produce editable Mesh geometry with control points and polygons."
     },
     {
       "fact_ids": [
-        "example:009",
-        "example:012",
-        "public_symbol:aspose.threed.polygonbuilder"
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
       ],
       "section": "key_capabilities",
       "slot": "capability:6",
-      "text": "Build polygonal meshes programmatically using PolygonBuilder-style operations to add control points and create polygons."
+      "text": "Build keyframe animations using AnimationClip, AnimationNode, and KeyframeSequence to define time-based transformations, and store skeletal bind-pose data with Pose."
     },
     {
       "fact_ids": [
-        "example:009",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.mesh",
+        "example:010"
       ],
       "section": "key_capabilities",
       "slot": "capability:7",
-      "text": "Support for 3D formats includes detection, import, and export via FileFormat.formats, FileFormat.get_format_by_extension, and FileFormat.create_save_options."
+      "text": "Inspect mesh properties such as control points, polygon count, and bounding box with Mesh.control_points, Mesh.polygon_count, and Mesh.get_bounding_box to analyze geometry structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.node",
+        "example:002"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Traverse the scene graph by accessing Node.child_nodes and Node.parent_node, and query global transformations with Node.evaluate_global_transform to understand spatial relationships."
     },
     {
       "fact_ids": [
         "identity:repository",
         "package:name",
         "package:version",
-        "package:python_requires"
+        "package:python_requires",
+        "package:python_versions",
+        "inherited_unit:029.paragraph",
+        "example:002"
       ],
       "section": "quick_start",
       "slot": "lead_in",
-      "text": "Create a scene, add a box entity with a Lambert material, and save it as a GLTF file using Aspose.3D FOSS for Python version 26.1.0 on Python 3.7 or later."
+      "text": "Create a scene with a textured box and save it as glTF using Aspose.3D FOSS for Python 26.1.0 on Python 3.7 through 3.12."
     },
     {
       "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:012",
-        "example:010"
+        "inherited_unit:032.paragraph"
       ],
       "section": "additional_examples",
       "slot": "preview",
-      "text": "The following examples demonstrate creating meshes, assigning materials, and saving scenes to various 3D formats using aspose-3d-foss."
+      "text": "The following examples demonstrate core workflows in Aspose.3D FOSS for Python, including mesh construction, material assignment, and format conversion."
     },
     {
       "fact_ids": [
@@ -352,7 +746,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:004",
-      "text": "Create a sphere with a metallic red material and save it as STL."
+      "text": "Create a sphere with a PBR material and save it as STL."
     },
     {
       "fact_ids": [
@@ -360,7 +754,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:005",
-      "text": "Build a triangle mesh, apply a PBR material, and export to text-based GLTF."
+      "text": "Build a mesh, assign a PBR material, and export to glTF JSON."
     },
     {
       "fact_ids": [
@@ -368,15 +762,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:009",
-      "text": "Construct a triangle mesh and export it as ASCII STL using a StringIO stream."
-    },
-    {
-      "fact_ids": [
-        "example:012"
-      ],
-      "section": "additional_examples",
-      "slot": "workflow:example:012",
-      "text": "Build a cube mesh and save it as uncompressed 3MF to a BytesIO stream."
+      "text": "Construct a triangle mesh and export it to ASCII STL."
     },
     {
       "fact_ids": [
@@ -384,107 +770,95 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:010",
-      "text": "Generate a box mesh and inspect its control point count."
+      "text": "Convert a Box primitive to a mesh and count control points."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animation"
+        "example:012"
       ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.animation",
-      "text": "Work with animation data using the aspose.threed.animation module, which integrates with Scene.animation_clips and Scene.current_animation_clip to manage time-based transformations and keyframes."
+      "section": "additional_examples",
+      "slot": "workflow:example:012",
+      "text": "Build a cube mesh and export it to uncompressed 3MF."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.deformers"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.deformers",
-      "text": "Apply mesh deformation effects using the aspose.threed.deformers module, which provides tools for modifying geometry through procedural or skeletal influences."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.entities"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.entities",
-      "text": "Create and modify geometric primitives and shapes using the aspose.threed.entities module, which includes utilities like member entity, member control_points, member create_polygon, and member create_child_node."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.formats"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.formats",
-      "text": "Load and save 3D models in various formats using the aspose.threed.formats module, which provides format-specific loaders and savers for OBJ, GLTF, and other supported types."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.profiles"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.profiles",
-      "text": "Define and manage cross-section profiles for extrusion and sweep operations using the aspose.threed.profiles module."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.render"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.render",
-      "text": "Render 3D scenes to images or video using the aspose.threed.render module, which supports rendering from Scene.render and integrates with the scene graph and camera configuration."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.shading"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "Define material properties and appearance using the aspose.threed.shading module, which provides classes and attributes such as member diffuse_color, member metallic_factor, and member roughness_factor."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "Perform common utility operations using the aspose.threed.utilities module, which includes helper classes and methods such as member decode, member read, member seek, member getvalue, member loads, member add, member binary_mode, and member BytesIO."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.fileformat",
-      "text": "Identify and configure supported file formats with the aspose.threed.FileFormat class, which includes constants like FileFormat.WAVEFRONT_OBJ, FileFormat.FBX7400ASCII, FileFormat.GLTF2, FileFormat.MICROSOFT_3MF_FORMAT, and methods such as FileFormat.can_import, FileFormat.can_export, FileFormat.content_type, FileFormat.get_format_by_extension, FileFormat.create_load_options, and member create_save_options."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.mesh"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.mesh",
-      "text": "Construct and modify polygonal geometry using the aspose.threed.Mesh class, which offers access to Mesh.control_points, Mesh.polygons, Mesh.edges, Mesh.polygon_count, Mesh.get_polygon_size, Mesh.get_bounding_box, Mesh.triangulate, Mesh.to_mesh, Mesh.do_boolean, Mesh.union, Mesh.difference, Mesh.intersect, Mesh.optimize, Mesh.is_manifold, Mesh.create_polygon, and Mesh.get_entity_renderer_key."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.node"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.node",
-      "text": "Navigate and manipulate the scene hierarchy with the aspose.threed.Node class, which supports operations such as Node.add_child_node, Node.create_child_node, Node.add_entity, Node.get_child, Node.get_entity, Node.child_nodes, Node.parent_node, Node.entities, Node.global_transform, Node.evaluate_global_transform, Node.get_bounding_box, Node.material, Node.materials, Node.transform, Node.visible, Node.excluded, Node.meta_datas, Node.select_objects, Node.select_single_object, and Node.merge."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.scene",
+        "inherited_unit:057.paragraph"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "Create, open, and manage 3D scenes using the aspose.threed.Scene class, which provides methods like Scene.open, Scene.save, Scene.root_node, Scene.create_animation_clip, Scene.get_animation_clip, Scene.clear, Scene.sub_scenes, Scene.library, Scene.asset_info, Scene.poses, and Scene.render."
+      "text": "Create, open, and save 3D scenes with the aspose.threed.Scene class, which holds a hierarchy of nodes, materials, and animation clips, and provides methods like Scene.open, Scene.save, and Scene.create_animation_clip."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "public_symbol:aspose.threed.node",
+        "inherited_unit:057.paragraph"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.node",
+      "text": "Manage scene hierarchy and spatial transforms with the aspose.threed.Node class, which supports adding child nodes, attaching entities, evaluating global transforms, and storing materials via Node.create_child_node, Node.global_transform, and Node.materials."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "inherited_unit:057.paragraph"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.mesh",
+      "text": "Represent geometry with the aspose.threed.Mesh class, which stores control points and polygon definitions, and can be created from primitives or modified using utilities like PolygonBuilder."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.shading.material"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.shading",
+      "text": "Define surface appearance with the aspose.threed.shading module, which includes the Material class for properties such as diffuse_color, metallic_factor, and roughness_factor."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.animation",
+      "text": "Create and manage animations using the aspose.threed.animation module, which provides AnimationClip, AnimationNode, and KeyframeSequence to define time-based transformations and properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.primitive"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.entities",
+      "text": "Construct and manipulate geometric primitives with the aspose.threed.entities module, which includes Box, Sphere, and Primitive classes that can be converted to Mesh instances."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.formats",
+      "text": "Import and export 3D files using the aspose.threed.formats module, which exposes FileFormat classes for formats like OBJ, GLTF2, FBX7400ASCII, and 3MF, with support for detection, load options, and save options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.mathutils"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.utilities",
+      "text": "Perform common calculations and conversions with the aspose.threed.utilities module, which includes MathUtils for helper functions and types like Vector3 used in geometry and transforms."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
@@ -492,7 +866,7 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:023"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
@@ -500,15 +874,15 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:024"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference is the complete, browsable reference for all 305 public types."
+      "text": "The full API reference offers the complete, browsable reference for all 305 public types."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:025"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:025",
@@ -516,23 +890,23 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:026"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:026",
-      "text": "The release process explains how a version of aspose-3d-foss is tagged and published to PyPI."
+      "text": "The release process document explains how a version of aspose-3d-foss is tagged and published to PyPI."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:027"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:027",
-      "text": "The internal format-implementation notes cover Scene, Node, Entity, and Transform development history."
+      "text": "The implementation summary covers Scene, Node, Entity, and Transform internals."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:028"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:028",
@@ -540,47 +914,45 @@
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:029"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:029",
-      "text": "The STL import implementation notes cover the historical development of STL import and export."
+      "text": "The STL import implementation notes describe the historical development of STL import and export."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:030"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:030",
-      "text": "The FBX parser implementation notes describe the historical development of FBX support."
+      "text": "The FBX implementation summary describes the historical development of the FBX parser."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:031"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:031",
-      "text": "The PyPI packaging readiness notes cover the historical development of PyPI packaging."
+      "text": "The PyPI readiness notes describe packaging requirements and status for distribution."
     },
     {
       "fact_ids": [
-        "inherited_unit:065.list"
+        "link_target:032"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:032",
-      "text": "The issues page is where users can report bugs or request features."
+      "text": "The issues page allows users to report bugs or request features."
     },
     {
       "fact_ids": [
         "package:name",
         "package:version",
-        "package:python_requires",
-        "package:python_versions",
         "inherited_unit:067.list"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities."
+      "text": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the Scene, Node, and Entity APIs."
     },
     {
       "fact_ids": [
@@ -588,18 +960,56 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco, and attempts to use these formats raise an error. FBX import is experimental and lightly verified, while FBX export is not supported. COLLADA import works but COLLADA export is unreachable through Scene.save() due to exporter lookup failure. Load and save options for OBJ, STL, glTF, and COLLADA must be imported from their format-specific submodules, not from the shared top-level aspose.threed.formats package. The aspose.threed.render module and Scene.render() are not supported. Texture and TextureBase cannot be constructed, so image-backed textures cannot be created. Watermark.encode_watermark(), Watermark.decode_watermark(), and all TransformBuilder methods are not supported. Mesh.do_boolean(), union(), difference(), and intersect() are not supported. NurbsCurve.evaluate(), NurbsCurve.evaluate_at(), and NurbsSurface.to_mesh() are not supported. PointCloud.from_geometry(), PointCloud.from_geometry_with_density(), and AxisSystem are not supported."
+      "text": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — PdfSaveOptions, PlyLoadOptions, DracoSaveOptions, and similar option classes exist as public types, but Scene.open()/Scene.save() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try."
     },
     {
       "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "package:python_requires",
-        "package:python_versions"
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "FBX support is experimental: FbxImporter has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and FbxExporter.save()/save_to_stream() both raise NotImplementedError outright, so FBX is import-only at best."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup walks its registered exporters in order and reaches FbxExporter (whose supports_format() is unimplemented and raises unconditionally) before it ever reaches ColladaExporter, so the lookup itself fails before a real, working ColladaExporter is ever consulted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "The entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raises NotImplementedError, so this library does not render scenes to images."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Boolean/CSG mesh operations are not implemented: Mesh.do_boolean(), union(), difference(), and intersect() raise NotImplementedError, even though BooleanOperator and BooleanOperand exist as configuration holders."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:070.paragraph",
+        "inherited_unit:071.code_block"
       ],
       "section": "development_testing",
       "slot": "summary",
-      "text": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with python -m unittest discover tests/; there are 33 real test files."
+      "text": "Install the package in editable mode and run the test suite using the discover command against the tests directory."
     }
   ]
 }

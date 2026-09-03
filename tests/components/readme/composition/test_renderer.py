@@ -489,3 +489,18 @@ def test_development_and_testing_states_the_suite_size_and_links_the_release_wor
         "The suite covers 34 test files under `tests/`. "
         "Releases run through the [publish workflow](.github/workflows/publish.yml)."
     ) in section
+
+
+def test_every_limitation_unit_renders_as_its_own_bullet() -> None:
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("scope_limitations", "limitation:2", "FBX export is not implemented."),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, FACTS, PLAN, units, DISPOSITIONS)
+    lines = readme.splitlines()
+    assert lines.index("- OBJ import is unverified.") + 1 == lines.index(
+        "- FBX export is not implemented."
+    )

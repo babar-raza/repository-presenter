@@ -43,7 +43,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "6"  # the template component version dependencies.json records
+RENDERER_VERSION = "7"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
@@ -484,11 +484,15 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.extend(_documentation_resources(context))
     elif sid == "scope_limitations":
         lines.append(context.unit(sid, "scope"))
-        limitations = plan.get("material_limitations", [])
-        if limitations:
+        # Every authored limitation is its own bullet, in slot order (row 16).
+        slots = sorted(
+            (int(slot.split(":", 1)[1]), slot)
+            for (section, slot) in context.units
+            if section == sid and slot.startswith("limitation:") and slot[11:].isdigit()
+        )
+        if slots:
             lines.append("")
-            for index in range(1, len(limitations) + 1):
-                lines.append(f"- {context.unit(sid, f'limitation:{index}')}")
+            lines.extend(f"- {context.unit(sid, slot)}" for _, slot in slots)
     elif sid == "development_testing":
         lines.append(context.unit(sid, "summary"))
         facts_sentences = _development_sentences(context)
