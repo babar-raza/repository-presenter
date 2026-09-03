@@ -342,11 +342,20 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
             # Executed code proves every name it uses, a standard-library stream type included.
             allowed.update(identifier_tokens(fact.value))
         if fact.kind in {"public_symbol", "import_path"}:
-            parts = fact.value.split(".")
-            for start in range(len(parts)):
-                allowed.add(".".join(parts[start:]))
-            allowed.add(parts[-1] + "()")
-            allowed.add(fact.value + "()")
+            spellings = [fact.value]
+            attributes = fact.attributes or {}
+            spellings.extend(
+                path.strip()
+                for key in ("defined_at", "public_paths")
+                for path in attributes.get(key, "").split(",")
+                if path.strip()
+            )
+            for spelling in spellings:
+                parts = spelling.split(".")
+                for start in range(len(parts)):
+                    allowed.add(".".join(parts[start:]))
+                allowed.add(parts[-1] + "()")
+                allowed.add(spelling + "()")
     return frozenset(allowed)
 
 

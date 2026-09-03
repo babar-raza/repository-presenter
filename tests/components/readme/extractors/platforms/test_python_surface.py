@@ -185,13 +185,50 @@ def test_symbols_carry_their_kind_signature_and_docstring_as_structured_attribut
     # A re-export carries its origin's evidence.
     assert by_name["lib.Kind"].kind == "enum" and by_name["lib.Kind"].docstring == "Which shape."
     facts = {fact.value: fact for fact in public_symbol_facts(surface)}
-    assert facts["lib.shapes.Shape"].attributes == {
+    assert facts["lib.Shape"].attributes == {
         "symbol_kind": "class",
         "signature": "class Shape(Base)",
         "docstring": "A shape in a scene.",
+        "defined_at": "lib.shapes.Shape",
+        "public_paths": "lib.shapes.Shape",
     }
-    assert facts["lib.shapes.Kind"].attributes["symbol_kind"] == "enum"
+    assert facts["lib.Kind"].attributes["symbol_kind"] == "enum"
     assert facts["lib"].attributes == {
         "symbol_kind": "module",
         "docstring": "Lib: scenes and shapes.",
     }
+    assert "lib.shapes.Shape" not in facts
+    assert facts["lib.Shape.area"].attributes["defined_at"] == "lib.shapes.Shape.area"
+
+
+def test_reexport_paths_collapse_to_one_fact_named_by_the_shortest_public_path(
+    tmp_path: Path,
+) -> None:
+    surface = inspect_public_surface(_package(tmp_path), ["pkg"])
+    facts = public_symbol_facts(surface)
+    assert [fact.value for fact in facts] == [
+        "pkg",
+        "pkg.Widget",
+        "pkg.Widget.render",
+        "pkg.Widget.size",
+        "pkg.factory",
+        "pkg.factory.other",
+        "pkg.make",
+        "pkg.sub",
+        "pkg.sub.Leaf",
+        "pkg.sub.leaf",
+        "pkg.widget",
+    ]
+    widget = next(fact for fact in facts if fact.value == "pkg.Widget")
+    assert widget.id == "public_symbol:pkg.widget"
+    assert widget.attributes["defined_at"] == "pkg.widget.Widget"
+    assert widget.attributes["public_paths"] == "pkg.widget.Widget"
+    assert [(e.path, e.detail) for e in widget.evidence] == [
+        ("pkg/widget.py", "line 1; class; public by name"),
+        ("pkg/__init__.py", "line 1; re-exported as pkg.Widget"),
+    ]
+    make = next(fact for fact in facts if fact.value == "pkg.make")
+    assert make.attributes["symbol_kind"] == "function"
+    assert make.attributes["defined_at"] == "pkg.factory.make"
+    sub = next(fact for fact in facts if fact.value == "pkg.sub")
+    assert sub.attributes["symbol_kind"] == "module"

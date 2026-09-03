@@ -849,7 +849,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "Perform common mathematical and utility operations with aspose.threed.utilities, which includes aspose.threed.MathUtils and helper members such as member decode, member getvalue, member seek, member read, member binary_mode, member BytesIO, member StringIO, and member control_points."
+      "text": "Perform common mathematical and utility operations with aspose.threed.utilities, which includes aspose.threed.MathUtils and helper members such as member decode, member getvalue, member seek, member read, member binary_mode, member BytesIO, and member StringIO."
     },
     {
       "fact_ids": [

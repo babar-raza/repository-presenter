@@ -627,7 +627,7 @@
 +- `aspose.threed.entities`: Create and modify geometric primitives and polygonal data using `aspose.threed.entities`, which includes `aspose.threed.Primitive` and `PolygonBuilder` with member `create_polygon` and member add.
 +- `aspose.threed.animation`: Handle time-based motion with `aspose.threed.animation`, which provides `aspose.threed.AnimationClip` and `Scene.animation_clips` for managing clip-based animations.
 +- `aspose.threed.formats`: Discover, detect, and convert between file formats with `FileFormat`, which supports `FileFormat.FBX7400ASCII`, `FileFormat.GLTF2`, `FileFormat.MICROSOFT_3MF_FORMAT`, `FileFormat.WAVEFRONT_OBJ`, `FileFormat.detect`, `FileFormat.get_format_by_extension`, `FileFormat.formats`, `FileFormat.can_import`, `FileFormat.can_export`, `FileFormat.extension`, `FileFormat.extensions`, `FileFormat.file_format_type`, `FileFormat.version`, `FileFormat.content_type`, `FileFormat.create_load_options`, and `FileFormat.create_save_options`.
-+- `aspose.threed.utilities`: Perform common mathematical and utility operations with `aspose.threed.utilities`, which includes `aspose.threed.MathUtils` and helper members such as member decode, member getvalue, member seek, member read, member `binary_mode`, member `BytesIO`, member `StringIO`, and member `control_points`.
++- `aspose.threed.utilities`: Perform common mathematical and utility operations with `aspose.threed.utilities`, which includes `aspose.threed.MathUtils` and helper members such as member decode, member getvalue, member seek, member read, member `binary_mode`, member `BytesIO`, and member `StringIO`.
  
  </details>
  
@@ -642,7 +642,7 @@
 -- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues) on GitHub.
 +- **[Getting started guide](https://docs.aspose.org/3d/python/)** — The getting started guide covers installation, walkthroughs, and feature guides for this library.
 +- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — The how-to guides and FAQ provide task-focused answers for common 3D-processing questions.
-+- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference offers the complete, browsable reference for all 305 public types. It covers all 652 verified public types; the [API Reference](#api-reference) section above covers the essentials.
++- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference offers the complete, browsable reference for all 305 public types. It covers all 343 verified public types; the [API Reference](#api-reference) section above covers the essentials.
 +- **[Implementation progress notes](docs/foss-python-progress.md)** — The implementation progress notes describe the current FOSS-edition porting status.
 +- **[Release process](docs/releasing.md)** — The release process document explains how a version of aspose-3d-foss is tagged and published to PyPI.
 +- **[Scene/Node/Entity/Transform](docs/IMPLEMENTATION_SUMMARY.md)** — The implementation summary covers `Scene`, `Node`, `Entity`, and `Transform` internals.

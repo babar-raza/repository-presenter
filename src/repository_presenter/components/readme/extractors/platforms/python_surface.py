@@ -304,31 +304,129 @@ def inspect_public_surface(repository_root: Path, package_dirs: Sequence[str]) -
     )
 
 
+def _definition_of(symbol: PublicSymbol, by_name: dict[str, PublicSymbol]) -> str | None:
+    """The qualified name of the definition a re-export chain ends at; None when unknown."""
+    seen: set[str] = set()
+    current = symbol
+    while current.reexported_from is not None:
+        if current.qualified_name in seen:
+            return None
+        seen.add(current.qualified_name)
+        origin = by_name.get(current.reexported_from)
+        if origin is None:
+            return None
+        current = origin
+    return current.qualified_name
+
+
 def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
-    """One ``public_symbol`` fact per symbol; IDs stay unique when names differ only by case."""
+    """One ``public_symbol`` fact per definition, named by its shortest public import path.
+
+    A class, enum, function, or module defined once and re-exported from a package is one
+    symbol, not one fact per path (docs/RESEARCH_AND_GUIDELINES.md section 25): the fact's value
+    is the shortest path a visitor imports it by, ``defined_at`` names the defining location
+    when that differs, ``public_paths`` lists the other public paths, and each path is an
+    evidence entry. A method follows its class's public path. A re-export whose origin cannot
+    be read stays its own UNRESOLVED fact. IDs stay unique when names differ only by case.
+    """
+    by_name = {symbol.qualified_name: symbol for symbol in surface.symbols}
+    aliases: dict[str, list[PublicSymbol]] = {}
+    loose: list[PublicSymbol] = []
+    for symbol in surface.symbols:
+        if symbol.reexported_from is None:
+            continue
+        definition = _definition_of(symbol, by_name)
+        if definition is None or definition == symbol.qualified_name:
+            loose.append(symbol)
+        else:
+            aliases.setdefault(definition, []).append(symbol)
+
+    def canonical(definition: PublicSymbol) -> str:
+        paths = [
+            definition.qualified_name,
+            *(a.qualified_name for a in aliases.get(definition.qualified_name, [])),
+        ]
+        return min(paths, key=lambda p: (len(p), p))
+
+    canonical_paths = {
+        symbol.qualified_name: canonical(symbol)
+        for symbol in surface.symbols
+        if symbol.reexported_from is None and symbol.kind != "method"
+    }
     facts: list[Fact] = []
     seen: dict[str, int] = {}
-    for symbol in surface.symbols:
-        base = fact_id("public_symbol", symbol.qualified_name)
+
+    def emit(
+        symbol: PublicSymbol, value: str, evidence: list[Evidence], extra: dict[str, str]
+    ) -> None:
+        base = fact_id("public_symbol", value)
         seen[base] = seen.get(base, 0) + 1
         identifier = base if seen[base] == 1 else f"{base}-{seen[base]}"
-        detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
-        if symbol.reexported_from is not None:
-            detail += f"; re-export of {symbol.reexported_from}"
         attributes: dict[str, str] = {"symbol_kind": symbol.kind}
         if symbol.signature:
             attributes["signature"] = symbol.signature
         if symbol.docstring:
             attributes["docstring"] = symbol.docstring
+        attributes.update(extra)
         facts.append(
             Fact(
                 identifier,
                 "public_symbol",
-                symbol.qualified_name,
-                (Evidence(symbol.source_path, detail),),
+                value,
+                tuple(evidence),
                 polarity="SUPPORTED" if symbol.kind != "unknown" else "UNRESOLVED",
                 confidence=1.0 if symbol.kind != "unknown" else 0.5,
                 attributes=attributes,
             )
         )
+
+    entries: list[tuple[str, PublicSymbol, str, list[Evidence], dict[str, str]]] = []
+    for symbol in surface.symbols:
+        if symbol.reexported_from is not None:
+            if symbol in loose:
+                detail = (
+                    f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}; "
+                    f"re-export of {symbol.reexported_from}"
+                )
+                entries.append(
+                    (
+                        symbol.qualified_name,
+                        symbol,
+                        symbol.qualified_name,
+                        [Evidence(symbol.source_path, detail)],
+                        {},
+                    )
+                )
+            continue
+        if symbol.kind == "method":
+            class_name = symbol.qualified_name.rsplit(".", 1)[0]
+            value = f"{canonical_paths.get(class_name, class_name)}.{symbol.name}"
+            detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
+            extra = {"defined_at": symbol.qualified_name} if value != symbol.qualified_name else {}
+            entries.append((value, symbol, value, [Evidence(symbol.source_path, detail)], extra))
+            continue
+        value = canonical_paths[symbol.qualified_name]
+        detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
+        evidence = [Evidence(symbol.source_path, detail)]
+        others: list[str] = []
+        for alias in sorted(
+            aliases.get(symbol.qualified_name, []),
+            key=lambda a: (len(a.qualified_name), a.qualified_name),
+        ):
+            evidence.append(
+                Evidence(
+                    alias.source_path, f"line {alias.line}; re-exported as {alias.qualified_name}"
+                )
+            )
+            if alias.qualified_name != value:
+                others.append(alias.qualified_name)
+        extra = {}
+        if value != symbol.qualified_name:
+            extra["defined_at"] = symbol.qualified_name
+            others.insert(0, symbol.qualified_name)
+        if others:
+            extra["public_paths"] = ", ".join(others)
+        entries.append((value, symbol, value, evidence, extra))
+    for _, symbol, value, evidence, extra in sorted(entries, key=lambda e: e[0]):
+        emit(symbol, value, evidence, extra)
     return facts

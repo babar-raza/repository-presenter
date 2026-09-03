@@ -444,3 +444,32 @@ def test_quick_start_gets_a_second_lead_in_slot_only_when_the_plan_selected_one(
         "quick_start", {"quick_start_example_id": "example:001"}, {}, {}, FACTS
     )
     assert single == ("lead_in",)
+
+
+def test_every_public_path_of_a_collapsed_symbol_may_be_spelled() -> None:
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "public_symbol:pkg.widget",
+                "public_symbol",
+                "pkg.Widget",
+                (Evidence("pkg/widget.py", "line 1; class; public by name"),),
+                attributes={
+                    "symbol_kind": "class",
+                    "defined_at": "pkg.widget.Widget",
+                    "public_paths": "pkg.widget.Widget, pkg.ui.Widget",
+                },
+            ),
+        ),
+    )
+    allowed = allowed_identifiers(facts, NAME)
+    assert {
+        "pkg.Widget",
+        "pkg.widget.Widget",
+        "widget.Widget",
+        "pkg.ui.Widget",
+        "Widget",
+    } <= allowed
