@@ -250,3 +250,59 @@ def test_an_omitted_command_block_folds_to_installation_or_development_and_testi
         "development_testing",
     )
     assert second["fact_ids"] == ["build_test_asset:tests"]
+
+
+def _verified_banner_facts() -> FactsDocument:
+    image_url = "https://products.aspose.org/media/widget/python/banner-readme.png"
+    homepage_url = "https://products.aspose.org/widget/python/"
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "link_target:product.banner",
+                "link_target",
+                image_url,
+                (Evidence(image_url, "HTTP 200"),),
+            ),
+            Fact(
+                "link_target:product.homepage",
+                "link_target",
+                homepage_url,
+                (Evidence(homepage_url, "HTTP 200"),),
+            ),
+        ),
+    )
+
+
+def _banner_placements() -> dict[str, object]:
+    return {
+        "dispositions": [
+            _entry(
+                "inherited_unit:003.badge_row",
+                "VERIFIED_MOVE",
+                "enterprise_relationship",
+                "link_target:product.banner",
+                "link_target:product.homepage",
+            ),
+            _entry("inherited_unit:009.image", "VERIFIED_PRESERVE", "banner"),
+        ]
+    }
+
+
+def test_a_placed_banner_row_is_superseded_by_row_3_or_deferred_while_unresolved() -> None:
+    # README_CONTRACT.md row 3 is shell-rendered from the verified illustration and homepage
+    # facts; the inherited banner row, wherever the reconciler places it, is superseded by it.
+    folded = _banner_placements()
+    assert normalize(folded, _verified_banner_facts()) == []
+    row, image = folded["dispositions"]  # type: ignore[misc]
+    assert (row["disposition"], row["destination_section"]) == ("SUPERSEDE_REDUNDANT", "banner")
+    assert row["fact_ids"] == ["link_target:product.banner", "link_target:product.homepage"]
+    assert (image["disposition"], image["destination_section"]) == ("SUPERSEDE_REDUNDANT", "banner")
+    # The folded output is what the store keeps and re-judges on reuse: it must hold again.
+    assert normalize(folded, _verified_banner_facts()) == []
+    deferred = _banner_placements()
+    assert normalize(deferred, FACTS) == []
+    entries = deferred["dispositions"]  # type: ignore[misc]
+    assert [entry["disposition"] for entry in entries] == ["DEFER_UNRESOLVED"] * 2

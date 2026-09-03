@@ -9,102 +9,75 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh"
+        "public_symbol:aspose.threed.scene"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.globaltransform"
+        "public_symbol:aspose.threed.node"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.node"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.node.material",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.phongmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.cylinder"
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animationnode"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.threed.keyframesequence"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+      "symbol_fact_id": "public_symbol:aspose.threed.keyframesequence"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.vector4"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.entities.polygonmodifier"
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.polygonbuilder"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.entities.skeleton"
+        "public_symbol:aspose.threed.transform"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.pose"
+      "symbol_fact_id": "public_symbol:aspose.threed.transform"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.render.renderer",
-        "public_symbol:aspose.threed.render.viewport"
+        "public_symbol:aspose.threed.entities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.render"
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.deformers.skindeformer",
-        "public_symbol:aspose.threed.deformers.morphtargetdeformer"
+        "public_symbol:aspose.threed.utilities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     }
   ],
   "at_a_glance": null,
@@ -239,87 +212,92 @@
   "sections": [
     {
       "include": true,
-      "reason": "Required section; the H1 product name matches the verified product identity.",
+      "reason": "Required section; the H1 product name matches the verified repository identity.",
       "section_id": "identity"
     },
     {
       "include": true,
-      "reason": "Required section; the badge row contains verified badges for Python version, MIT license, contributors, and PyPI version.",
+      "reason": "Required section; all badges in the row have verified targets.",
       "section_id": "badges"
     },
     {
       "include": true,
-      "reason": "Required section; captures what the library does, problems it solves, and who uses it.",
+      "reason": "A verified product illustration and homepage exist.",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "Required section; the product summary and opening requirements are supported by verified facts.",
       "section_id": "opening"
     },
     {
       "include": true,
-      "reason": "Required section; rendered deterministically to visible headed sections.",
+      "reason": "Required section; the navigation list renders the same in-page links.",
       "section_id": "navigation"
     },
     {
       "include": false,
-      "reason": "Condition 'at least one verified input format and one capability' is false; no SUPPORTED input format facts exist.",
+      "reason": "No SUPPORTED input format exists; the At a Glance section is omitted.",
       "section_id": "at_a_glance"
     },
     {
       "include": true,
-      "reason": "Required section; grounded in verified examples and public symbols.",
+      "reason": "Required section; the Key Capabilities heading is supported by verified public symbols and examples.",
       "section_id": "key_capabilities"
     },
     {
       "include": true,
-      "reason": "Required section; the verified install command for the ecosystem.",
+      "reason": "Required section; the Installation heading is supported by the verified pip install command.",
       "section_id": "installation"
     },
     {
       "include": true,
-      "reason": "Required section; the dependency snapshot in four subsections; verified-zero is stated.",
+      "reason": "Required section; the Dependencies heading is supported by verified dependency facts.",
       "section_id": "dependencies"
     },
     {
       "include": true,
-      "reason": "Required section; one minimal example executed in isolation.",
+      "reason": "Required section; the Quick Start heading is supported by the verified example.",
       "section_id": "quick_start"
     },
     {
       "include": true,
-      "reason": "Condition 'at least one further verified example' is true; multiple verified examples exist.",
+      "reason": "At least one further verified example exists.",
       "section_id": "additional_examples"
     },
     {
       "include": true,
-      "reason": "Required section; the complete verified public surface is available.",
+      "reason": "Required section; the API Reference heading is supported by verified public symbols.",
       "section_id": "api_reference"
     },
     {
       "include": true,
-      "reason": "Condition 'verified relevant targets exist' is true; verified documentation links exist.",
+      "reason": "Verified relevant targets exist.",
       "section_id": "documentation_resources"
     },
     {
       "include": true,
-      "reason": "Required section; every material limitation from evidence and inherited units.",
+      "reason": "Required section; the Scope and Limitations heading is supported by verified limitations.",
       "section_id": "scope_limitations"
     },
     {
       "include": true,
-      "reason": "Condition 'build or test assets exist' is true; tests and CI assets are verified.",
+      "reason": "Build or test assets exist.",
       "section_id": "development_testing"
     },
     {
       "include": true,
-      "reason": "Condition 'a verified aspose.com product target exists in policy' is true; product.enterprise link_target exists.",
+      "reason": "A verified aspose.com product target exists in policy.",
       "section_id": "enterprise_relationship"
     },
     {
       "include": false,
-      "reason": "Condition 'the file exists' is false; no LICENSE file fact is provided.",
+      "reason": "The LICENSE file exists but no third-party notices file is referenced in facts.",
       "section_id": "third_party_notices"
     },
     {
       "include": true,
-      "reason": "Required section; prose declaration from the license fact.",
+      "reason": "Required section; the License heading is supported by verified license facts.",
       "section_id": "license"
     }
   ]

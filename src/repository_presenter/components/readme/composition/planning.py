@@ -28,7 +28,10 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
     policy_packet,
 )
-from repository_presenter.components.readme.evidence.facts.product_pages import enterprise_target
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    banner_target,
+    enterprise_target,
+)
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -52,6 +55,7 @@ def section_conditions(
         if fact.polarity == "SUPPORTED" and fact.value.startswith(("http://", "https://"))
     ]
     evaluated: dict[str, bool | None] = {
+        "banner": banner_target(facts.facts) is not None,  # README_CONTRACT.md row 3
         "at_a_glance": bool(input_formats),
         "dependencies": bool(_supported(facts, "dependency")),
         "additional_examples": len(_supported(facts, "example")) >= 2,

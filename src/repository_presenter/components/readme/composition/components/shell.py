@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-SHELL_VERSION = "3"
+SHELL_VERSION = "4"
 # Fixed subheadings a shell row prescribes (README_CONTRACT.md section 2 rows 9 and 14),
 # at level three or four as the row states.
 SUBSECTION_HEADINGS = frozenset(
@@ -60,6 +60,16 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
         "D",
         None,
         "One badge row in stable order; a badge whose target is unavailable is omitted.",
+    ),
+    Section(
+        "banner",
+        None,
+        False,
+        "visible",
+        "D",
+        "a verified product illustration and homepage",
+        "Linked image immediately below the badge row, [![alt](image_url)](homepage_url), the alt "
+        "text naming the product; omitted entirely when either fact is unresolved.",
     ),
     Section(
         "opening",

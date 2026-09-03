@@ -32,7 +32,10 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
 )
 from repository_presenter.components.readme.evidence.facts.product_pages import (
+    BANNER_FACT_ID,
     ENTERPRISE_FACT_ID,
+    HOMEPAGE_FACT_ID,
+    banner_target,
     enterprise_target,
 )
 from repository_presenter.core.facts import FactsDocument, bounded_records
@@ -69,6 +72,7 @@ def command_block_units(facts: FactsDocument) -> set[str]:
 RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
     "identity": ("identity", "package"),
     "badges": ("link_target",),
+    "banner": ("link_target",),  # the verified product illustration and homepage pair only
     "navigation": ("identity",),
     "installation": ("install_command",),
     "dependencies": ("dependency",),
@@ -118,6 +122,10 @@ def contradicted_code_units(facts: FactsDocument) -> frozenset[str]:
 
 def rendering_fact_ids(section: str, facts: FactsDocument) -> list[str]:
     """The SUPPORTED facts a deterministic section renders for this repository, by ID."""
+    if section == "banner":
+        # README_CONTRACT.md row 3 renders exactly the verified illustration and homepage.
+        pair = banner_target(facts.facts)
+        return sorted(fact.id for fact in pair) if pair is not None else []
     kinds = RENDERING_FACT_KINDS.get(section, ())
     return sorted(
         fact.id for fact in facts.facts if fact.kind in kinds and fact.polarity == "SUPPORTED"
@@ -180,6 +188,19 @@ def normalize(
             entry["disposition"] = "OMIT_UNSUPPORTED"
             entry["destination_section"] = None
             entry["fact_ids"] = sorted(cited | {contradicted[unit]})
+            continue
+        if disposition in PLACING and (
+            destination == "banner" or (unit.endswith(".badge_row") and BANNER_FACT_ID in cited)
+        ):
+            # Row 3 is shell-rendered from the verified illustration and homepage facts: a
+            # placed banner row is superseded by it, or deferred while either is unresolved.
+            if banner_target(facts.facts) is None:
+                entry["disposition"] = "DEFER_UNRESOLVED"
+                entry["destination_section"] = None
+            else:
+                entry["disposition"] = "SUPERSEDE_REDUNDANT"
+                entry["destination_section"] = "banner"
+                entry["fact_ids"] = sorted(cited | {BANNER_FACT_ID, HOMEPAGE_FACT_ID})
             continue
         if disposition in PLACING and destination == "enterprise_relationship":
             # Row 18 is the shell's closing paragraph of Scope and Limitations, rendered from

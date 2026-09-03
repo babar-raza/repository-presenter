@@ -1,8 +1,8 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "11",
-    "shell": "3"
+    "renderer": "12",
+    "shell": "4"
   },
   "contract_version": "readme-contract-v1-draft",
   "facts": {
@@ -1761,7 +1761,7 @@
       "version": "3"
     }
   },
-  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
+  "protected_content_fingerprint": "ba4b168ad77633e61e962d565fc3f621982f2662a115f89f68728b5b37f80afd",
   "schema_version": 1,
   "source": {
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",

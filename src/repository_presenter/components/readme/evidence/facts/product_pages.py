@@ -150,3 +150,14 @@ def enterprise_target(facts: tuple[Fact, ...] | list[Fact]) -> Fact | None:
         if fact.id == ENTERPRISE_FACT_ID and fact.polarity == "SUPPORTED":
             return fact
     return None
+
+
+def banner_target(facts: tuple[Fact, ...] | list[Fact]) -> tuple[Fact, Fact] | None:
+    """The SUPPORTED banner illustration and homepage facts (README_CONTRACT.md row 3), or None
+    when either is unresolved: the banner is then omitted entirely, never unlinked or broken."""
+    supported = {fact.id: fact for fact in facts if fact.polarity == "SUPPORTED"}
+    banner = supported.get(BANNER_FACT_ID)
+    homepage = supported.get(HOMEPAGE_FACT_ID)
+    if banner is None or homepage is None:
+        return None
+    return banner, homepage

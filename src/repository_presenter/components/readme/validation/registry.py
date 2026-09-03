@@ -50,6 +50,7 @@ from repository_presenter.components.readme.evidence.facts.links import (
     extract_links,
     heading_slugs,
 )
+from repository_presenter.components.readme.evidence.facts.product_pages import banner_target
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -578,6 +579,14 @@ def _check_links(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
     slugs = heading_slugs(candidate.readme)
     by_value = {fact.value: fact for fact in candidate.facts.by_kind("link_target")}
+    # The ceiling (README_CONTRACT.md row 15) bounds the contextual Aspose links the plan
+    # assigns; the rows the contract itself mandates, the banner (row 3) and the Enterprise
+    # target (row 18), are shell-rendered from the verified product facts and stand outside it.
+    mandated = {
+        fact.value
+        for fact in candidate.facts.by_kind("link_target")
+        if fact.id.startswith("link_target:product.") and fact.polarity == "SUPPORTED"
+    }
     aspose = 0
     for target in extract_links(candidate.readme):
         if target.kind == "anchor":
@@ -590,7 +599,7 @@ def _check_links(candidate: Candidate) -> list[Failure]:
                 failures.append(Failure("EXTRACTING", f"{target.href}: {result.detail}"))
         elif target.kind == "external":
             host = (urlsplit(target.href).hostname or "").lower()
-            if _is_aspose(host):
+            if _is_aspose(host) and target.href not in mandated:
                 aspose += 1
             fact = by_value.get(target.href)
             if fact is not None:
@@ -660,7 +669,15 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         failures.append(
             Failure("COMPOSING", f"expected exactly one H1 {'# ' + name!r}; found {len(h1)}")
         )
-    badge_rows = [line for line in outside if _BADGE_ROW.fullmatch(line.strip())]
+    # README_CONTRACT.md row 3: the banner is one linked image from the verified illustration
+    # and homepage facts, immediately below the badge row; it is not a second badge row.
+    banner = ""
+    pair = banner_target(candidate.facts.facts)
+    if pair is not None:
+        banner = f"[![{name}]({pair[0].value})]({pair[1].value})"
+    badge_rows = [
+        line for line in outside if _BADGE_ROW.fullmatch(line.strip()) and line.strip() != banner
+    ]
     if len(badge_rows) != 1:
         failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
     headings = {section.heading for section in SEMANTIC_SHELL if section.heading}

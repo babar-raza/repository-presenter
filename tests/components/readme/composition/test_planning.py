@@ -59,6 +59,7 @@ FACTS = FactsDocument(
 ALL_SECTIONS = [
     "identity",
     "badges",
+    "banner",
     "opening",
     "navigation",
     "at_a_glance",
@@ -75,7 +76,7 @@ ALL_SECTIONS = [
     "third_party_notices",
     "license",
 ]
-EXCLUDED = {"at_a_glance", "enterprise_relationship", "third_party_notices"}
+EXCLUDED = {"banner", "at_a_glance", "enterprise_relationship", "third_party_notices"}
 
 
 def _plan(**overrides: Any) -> dict[str, Any]:
@@ -118,6 +119,7 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     assert packet["repository"] == ENTRY.repository
     by_id = {section["id"]: section for section in packet["shell"]}
     assert by_id["at_a_glance"]["condition_holds"] is False
+    assert by_id["banner"]["condition_holds"] is False  # no verified illustration
     assert by_id["api_reference"]["condition_holds"] is True  # row 14: Required
     assert by_id["license"]["condition_holds"] is True
     assert packet["policy"]["capabilities_max"] == 8 and packet["policy"]["version"] == "1"
@@ -130,13 +132,13 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS) == []
     assert summarize_plan(_plan()) == (
-        "sections 14/17, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
+        "sections 14/18, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
     )
 
     sections = [dict(entry) for entry in _plan()["sections"]]
     sections[0]["include"] = False  # identity
-    sections[4]["include"] = True  # at_a_glance
-    sections[9]["include"] = False  # additional_examples
+    sections[5]["include"] = True  # at_a_glance
+    sections[10]["include"] = False  # additional_examples
     errors = plan_checks(_plan(sections=sections), FACTS)
     assert "section identity is required and cannot be omitted" in errors
     assert "section at_a_glance: its condition does not hold, so it is omitted" in errors
@@ -221,3 +223,23 @@ def test_the_enterprise_condition_follows_the_live_target_fact() -> None:
         ),
     )
     assert section_conditions(with_target)["enterprise_relationship"] is True
+
+
+def _product_fact(fact_id: str, url: str) -> Fact:
+    return Fact(fact_id, "link_target", url, (Evidence(url, "HTTP 200"),), attributes={"role": "x"})
+
+
+def test_the_banner_condition_needs_both_verified_product_facts() -> None:
+    # README_CONTRACT.md row 3: a verified illustration and a verified homepage, never one alone.
+    image = _product_fact(
+        "link_target:product.banner",
+        "https://products.aspose.org/media/widget/python/banner-readme.png",
+    )
+    homepage = _product_fact(
+        "link_target:product.homepage", "https://products.aspose.org/widget/python/"
+    )
+    assert section_conditions(FACTS)["banner"] is False
+    only_image = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, image))
+    assert section_conditions(only_image)["banner"] is False
+    both = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, image, homepage))
+    assert section_conditions(both)["banner"] is True

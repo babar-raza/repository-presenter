@@ -40,11 +40,14 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
     renders_verbatim,
 )
-from repository_presenter.components.readme.evidence.facts.product_pages import enterprise_target
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    banner_target,
+    enterprise_target,
+)
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "11"  # the template component version dependencies.json records
+RENDERER_VERSION = "12"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -312,13 +315,16 @@ def _development_sentences(context: RenderContext) -> list[str]:
 def _symbol_description(context: RenderContext, fact: Fact) -> str:
     """The docstring first line when the source has one, else the sentence authored from the
     signature in a bounded batch, else the verified signature; never an invented sentence.
-    Table-safe: no pipes, no code spans of its own."""
+    Table-safe: no pipes; a bare signature is rendered as one code span."""
     attributes = fact.attributes or {}
     text = attributes.get("docstring") or ""
     if not text:
         text = context.units.get(("api_reference", f"type:{fact.id}"), "")
     if not text and attributes.get("signature"):
-        text = f"Defined as {attributes['signature']}."
+        # A signature is code, not prose: in a code span its parameter names (obj, prop) are
+        # never judged as abbreviations or claims by the prose checks.
+        signature = attributes["signature"].replace("|", "/").replace("`", "")
+        return f"Defined as `{signature}`."
     if not text:
         text = f"Public {attributes.get('symbol_kind', 'symbol')}."
     return text.replace("|", "/").replace("`", "")
@@ -517,6 +523,13 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.append(f"# {context.name}")
     elif sid == "badges":
         lines.append(" ".join(_badges(context)))
+    elif sid == "banner":
+        # README_CONTRACT.md row 3: both URLs come from verified facts and the alt text names
+        # the product; when either fact is unresolved the row is omitted entirely.
+        pair = banner_target(context.facts.facts)
+        if pair is not None:
+            image, homepage = pair
+            lines.append(f"[![{context.name}]({image.value})]({homepage.value})")
     elif sid == "opening":
         lines.append(context.unit(sid, "opening"))
     elif sid == "navigation":

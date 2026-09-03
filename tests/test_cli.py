@@ -267,6 +267,7 @@ LOCAL_DISPOSITIONS: dict[str, Any] = {
     ]
 }
 LOCAL_PLAN_INCLUDED = {
+    "banner",
     "identity",
     "badges",
     "opening",
@@ -286,6 +287,7 @@ LOCAL_PLAN: dict[str, Any] = {
         for section in [
             "identity",
             "badges",
+            "banner",
             "opening",
             "navigation",
             "at_a_glance",
@@ -609,7 +611,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert written_dispositions == LOCAL_DISPOSITIONS
     plan_line = next(line for line in captured.out.splitlines() if line.startswith("plan: "))
     assert plan_line.startswith(
-        f"plan: {facts_dir}/plan.json (sections 12/17, capabilities 3, hubs 1, examples 1+0, "
+        f"plan: {facts_dir}/plan.json (sections 13/18, capabilities 3, hubs 1, examples 1+0, "
         "links 1, limitations 0; provider calls 1, model qwen3-next; digest "
     )
     written_plan = json.loads((project_with_registry / facts_dir / "plan.json").read_text("utf-8"))
@@ -766,8 +768,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "targeted_repair",
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
-        "shell": "3",
-        "renderer": "11",
+        "shell": "4",
+        "renderer": "12",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

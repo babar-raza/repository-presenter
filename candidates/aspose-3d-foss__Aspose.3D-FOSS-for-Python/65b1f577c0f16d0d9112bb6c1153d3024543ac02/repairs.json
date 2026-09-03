@@ -71,13 +71,24 @@
       "label": "F02",
       "outcome": "repaired",
       "re_raised": [
-        "F03"
+        "F03",
+        "F04"
       ],
       "reason": null,
       "request_sha256": "6d2f27caefcc9e5fd3f0e8f97f04192952f98f0d3322426f31a2f270852655e8",
       "section_id": "api_reference",
       "source": "review",
       "stage": "S6"
+    },
+    "3e13589b302c747588d7605a": {
+      "changes": [],
+      "label": "BC-07",
+      "outcome": "unrepairable",
+      "reason": "the failing detail names no LLM-owned section",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
     },
     "45c3bdac56f5d15212e448e8": {
       "changes": [
@@ -98,7 +109,8 @@
       "label": "F04",
       "outcome": "repaired",
       "re_raised": [
-        "F04"
+        "F04",
+        "F05"
       ],
       "reason": null,
       "request_sha256": "5a2fa7ae095a544721c30d4fa1db5e4a5bf817cd6e7df8de51fc99f0162e89f0",
@@ -127,6 +139,36 @@
       "section_id": "development_testing",
       "source": "review",
       "stage": "S6"
+    },
+    "53aa2aa8e78e7e70f2d94312": {
+      "changes": [
+        {
+          "after": "11 links in the links array, including 10 documentation links (link_target:022 through link_target:031) plus the enterprise link (link_target:product.enterprise)",
+          "before": "12 links in the links array, including 11 documentation links (link_target:022 through link_target:032) plus the enterprise link (link_target:product.enterprise)",
+          "fact_ids": [
+            "link_target:022",
+            "link_target:023",
+            "link_target:024",
+            "link_target:025",
+            "link_target:026",
+            "link_target:027",
+            "link_target:028",
+            "link_target:029",
+            "link_target:030",
+            "link_target:031",
+            "link_target:product.enterprise"
+          ],
+          "id": "R01",
+          "path": "links"
+        }
+      ],
+      "label": "BC-06",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "2c400a94743ba8dda48f5508def291f089834266a9833c8378bd2794fa032079",
+      "section_id": null,
+      "source": "validation",
+      "stage": "S5"
     },
     "59b6b55ad57422e04bdf76e6": {
       "changes": [

@@ -71,6 +71,7 @@ def _plan(**overrides: Any) -> dict[str, Any]:
             for s in [
                 "identity",
                 "badges",
+                "banner",
                 "opening",
                 "navigation",
                 "at_a_glance",

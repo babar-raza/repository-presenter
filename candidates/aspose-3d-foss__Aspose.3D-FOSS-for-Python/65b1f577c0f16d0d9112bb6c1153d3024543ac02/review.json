@@ -5,53 +5,40 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "install_command:pip"
+        "inherited_unit:016.paragraph",
+        "inherited_unit:017.code_block"
       ],
       "id": "F02",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```",
-      "repair": "Restore the original installation commands, including the editable install (`pip install -e .`) and the verification command (`python3 -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'`), and use the exact verified pip command.",
+      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"",
+      "repair": "Include the verification step as present in the original README to confirm a successful installation.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the verification step and the editable install command, and uses an incomplete pip command that does not match the verified install command."
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the verification step present in the original README, which is important for confirming a successful installation."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.polygonbuilder"
+        "inherited_unit:010.list"
       ],
       "id": "F01",
-      "quote": "- **Load multiple 3D formats.** Create scenes and save them to `.gltf` or `.stl` files using `Scene.save`() with `FileFormat.GLTF2` or `FileFormat.WAVEFRONT_OBJ`, each format backed by its own `SaveOptions` subclass for coordinate flipping, unit scaling, and compression settings.\n- **Export to common 3D formats.** Read OBJ, STL, glTF/GLB, COLLADA, and 3MF files with `Scene.open`(), which auto-detects the format from the file extension or an explicit `FileFormat` instance.\n- **Construct and manipulate meshes.** Build and traverse a scene graph with `Node.create_child_node`(), `Node.add_entity`(), and `Node.child_nodes`, where every node carries its own `Transform` (translation, rotation, scale, and pivots) independent of the attached entity or material.\n- **Assign materials to geometry.** Author and edit mesh data directly through `Mesh.control_points`, `Mesh.create_polygon`(), and `Mesh.polygons`, or convert parameterized primitives like `Box` and `Sphere` into editable `Mesh` geometry by calling their `to_mesh()` method.\n- **Build and traverse scene graphs.** Assign `LambertMaterial`, `PhongMaterial`, or `PbrMaterial` to a node, setting diffuse, specular, emissive, and PBR albedo/metallic/roughness color and factor properties directly.\n- **Triangulate arbitrary polygons.** Triangulate arbitrary polygon data into triangle fans with `Mesh.triangulate`(), a real ear-clipping triangulation implementation rather than a naive fan split.\n- **Create keyframe animations.** Build keyframe animation with `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and store skeletal bind-pose data with `Pose`.",
-      "repair": "Restore the original ordering and phrasing of the Key Capabilities list, ensuring each bullet explicitly names the relevant methods (e.g., `Mesh.create_polygon()`, `Node.add_entity()`, `Node.create_child_node()`, `PolygonModifier.triangulate()`, `Scene.open()`, `Scene.save()`), and separate the 'Load' and 'Export' capabilities into distinct bullets as in the original README.",
+      "quote": "- **Load multiple 3D formats.** Read OBJ, STL, glTF/GLB, COLLADA, and 3MF files with `Scene.open`(), which auto-detects the format from the file extension or an explicit `FileFormat`.\n- **Export to common 3D formats.** Write scenes to OBJ, STL, glTF/GLB, or 3MF with `Scene.save`(), each format backed by its own `SaveOptions` subclass for coordinate flipping, unit scaling, and compression settings.\n- **Construct and manipulate meshes.** Build and traverse a scene graph with `Node.create_child_node`(), `Node.add_entity`(), and `Node.child_nodes`; every node carries its own `Transform` (translation, rotation, scale, and pivots) independent of whatever entity or material is attached to it.\n- **Assign materials to geometry.** Author and edit mesh data directly through `Mesh.control_points`, `Mesh.create_polygon`(), and `Mesh.polygons`, or convert an existing mesh with `PolygonModifier.triangulate`().\n- **Build and traverse scene graphs.** Construct parameterized primitives — `Box`, `Sphere`, `Cylinder`, `Torus`, `Dish`, `Pyramid`, and more — and call their own `to_mesh()` to turn them into editable `Mesh` geometry.\n- **Triangulate arbitrary polygons.** Assign `LambertMaterial`, `PhongMaterial`, or `PbrMaterial` to a node, setting diffuse, specular, emissive, and PBR albedo/metallic/roughness color and factor properties directly.\n- **Create keyframe animations.** Build keyframe animation with `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and store skeletal bind-pose data with `Skeleton`, `Bone`, and `Pose`.",
+      "repair": "Restore the original Key Capabilities list items in their original order and wording to preserve the direct mapping to the product's documented capabilities.",
       "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section reorders and conflates distinct capabilities, losing specific method names and misrepresenting the triangulation API."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section reorders and rewords the original list items in a way that obscures the direct mapping to the product's capabilities and introduces ambiguity."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed"
+        "inherited_unit:057.paragraph"
       ],
       "id": "F03",
-      "quote": "The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.Node` as the fundamental building block that holds transforms, entities, and materials.\n\nThe verified public surface has 343 types.",
-      "repair": "Restore the original public API table with all verified public symbols, including format-specific classes like `ObjLoadOptions`, `GltfSaveOptions`, `ColladaLoadOptions`, and `ThreeMfSaveOptions`, and ensure the count matches the verified 343 types.",
+      "quote": "The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading and saving 3D scenes, and `aspose.threed.Node` as the core container for scene graph elements, transforms, and entities.\n\nThe verified public surface has 343 types.",
+      "repair": "Remove the redundant summary paragraph and retain only the structured table of public symbols with detailed descriptions as in the original README.",
       "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section replaces the original comprehensive public API table with a truncated and incomplete list, omitting many verified public symbols and format-specific classes."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section includes a redundant and unstructured list of public symbols that duplicates the table and lacks the detailed descriptions present in the original README."
     },
     {
       "causal_stage": "unclear",
@@ -61,10 +48,10 @@
         "inherited_unit:067.list"
       ],
       "id": "F04",
-      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the `Scene`, `Node`, and `Entity` APIs.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`()/`Scene.save`() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try.\n- FBX support is experimental: `FbxImporter` has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and `FbxExporter.save`()/`save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.\n- COLLADA import works, but COLLADA export is not reachable through `Scene.save`() because `IOService`'s exporter lookup walks its registered exporters in order and reaches `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working `ColladaExporter` is ever consulted.\n- The entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raises NotImplementedError, so this library does not render scenes to images.\n- Boolean/CSG mesh operations are not implemented: `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` raise NotImplementedError, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.\n- NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`() raise NotImplementedError.",
-      "repair": "Restore the original Scope and Limitations list, including the `TransformBuilder` and `Watermark` NotImplementedError facts, and ensure all limitations from the original README are preserved.",
+      "quote": "- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`()/`Scene.save`() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try.\n- FBX support is experimental: `FbxImporter` has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and `FbxExporter.save`()/`save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.\n- COLLADA import works, but COLLADA export is not reachable through `Scene.save`() because `IOService`'s exporter lookup walks its registered exporters in order and reaches `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working `ColladaExporter` is ever consulted.\n- The `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) and `Scene.render`() raise NotImplementedError, and `Texture` and `TextureBase` raise NotImplementedError on construction, so an image-backed texture cannot be created.\n- Boolean/CSG mesh operations (`Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()`) raise NotImplementedError, and NURBS curves and surfaces (`NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`()) raise NotImplementedError, so they can be configured but not sampled or converted to a `Mesh`.\n- `Watermark` encoding/decoding (`Watermark.encode_watermark`()/`decode_watermark()`) and every `TransformBuilder` method raise NotImplementedError, and `PointCloud.from_geometry`()/`from_geometry_with_density()` and `AxisSystem` raise NotImplementedError on every method, including construction.",
+      "repair": "Restore the original Scope and Limitations list items in their original order and wording to preserve the direct mapping to the product's documented limitations.",
       "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits several critical limitations present in the original, including the FBX exporter limitation, COLLADA export unreachability, and the `TransformBuilder` and `Watermark` NotImplementedError facts."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section reorders and rewords the original list items in a way that obscures the direct mapping to the product's limitations and introduces ambiguity."
     }
   ],
   "authoring": {
@@ -75,7 +62,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "c78ba2809c14500afbe48888a5f00d2870185e76a82a853884a51150608efcd1",
+  "readme_sha256": "81a177bdaa9f6a23fd7c7953a8898d4e02004ce44beacbf423eea5baf2b9b2b7",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

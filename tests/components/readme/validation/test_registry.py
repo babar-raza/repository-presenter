@@ -13,6 +13,7 @@ from repository_presenter.components.readme.composition.renderer import render_r
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
+    _check_links,
     blocking_failures,
     summarize_validation,
     validate_candidate,
@@ -409,3 +410,30 @@ def test_example_headings_are_real_unique_task_names(tmp_path: Path) -> None:
     assert "example heading 'Example 2' is reused" in details
     assert "example heading 'Example 2' names no task" in details
     assert not any("Save a scene" in detail for detail in details)
+
+
+def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> None:
+    # README_CONTRACT.md row 15 bounds the contextual Aspose links; the banner (row 3) and the
+    # Enterprise target (row 18) are mandated rows rendered from verified product facts.
+    def fact(name: str, url: str) -> Fact:
+        return Fact(f"link_target:{name}", "link_target", url, (Evidence(url, "HTTP 200"),))
+
+    docs = [fact(f"doc{n}", f"https://docs.aspose.org/3d/python/page-{n}/") for n in range(5)]
+    banner = fact("product.banner", "https://products.aspose.org/media/3d/python/banner-readme.png")
+    homepage = fact("product.homepage", "https://products.aspose.org/3d/python/")
+    enterprise = fact("product.enterprise", "https://products.aspose.com/3d/python-net/")
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *docs, banner, homepage, enterprise)
+    )
+    base = _candidate().readme
+    nl = chr(10)
+    mandated = (
+        f"[![Aspose.3D FOSS for Python]({banner.value})]({homepage.value})"
+        f"{nl}{nl}[Enterprise Edition]({enterprise.value}){nl}"
+    )
+    four = " ".join(f"[page {n}]({docs[n].value})" for n in range(4))
+    within = _candidate(readme=nl.join([base, mandated, four, ""]), facts=facts)
+    assert not any("exceed the ceiling" in str(failure) for failure in _check_links(within))
+    five = f"{four} [page 4]({docs[4].value})"
+    over = _candidate(readme=nl.join([base, mandated, five, ""]), facts=facts)
+    assert any("5 Aspose links exceed the ceiling of 4" in str(f) for f in _check_links(over))

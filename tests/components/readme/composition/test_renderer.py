@@ -87,12 +87,14 @@ PLAN: dict[str, Any] = {
     "sections": [
         {
             "section_id": s,
-            "include": s not in {"dependencies", "enterprise_relationship", "third_party_notices"},
+            "include": s
+            not in {"banner", "dependencies", "enterprise_relationship", "third_party_notices"},
             "reason": "r",
         }
         for s in [
             "identity",
             "badges",
+            "banner",
             "opening",
             "navigation",
             "at_a_glance",
@@ -570,9 +572,9 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "<summary>View the Complete Public API Surface</summary>\n\n### Core API\n\n"
         "| Class | Description |\n| --- | --- |\n| `Scene` | The root of a scene graph. |\n\n"
         "#### Enumerations\n\n| Enumeration | Description |\n| --- | --- |\n"
-        "| `Axis` | Defined as class Axis(Enum). |\n\n#### Detailed Member Reference\n\n"
+        "| `Axis` | Defined as `class Axis(Enum)`. |\n\n#### Detailed Member Reference\n\n"
         "### Scene\n\n`Scene` holds the scene graph.\n\n"
-        "- `save`: Defined as def save(self, path).\n"
+        "- `save`: Defined as `def save(self, path)`.\n"
     )
     assert section.rstrip("\n").endswith("</details>")
 
@@ -604,7 +606,7 @@ def test_a_type_without_a_docstring_takes_its_batch_authored_description() -> No
     readme = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
     assert "| `Scene` | Holds a scene graph. |" in readme.splitlines()
     without = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
-    assert "| `Scene` | Defined as class Scene(ANode). |" in without.splitlines()
+    assert "| `Scene` | Defined as `class Scene(ANode)`. |" in without.splitlines()
 
 
 def test_the_enterprise_paragraph_closes_scope_and_limitations_from_the_live_target() -> None:
@@ -657,3 +659,39 @@ def test_the_enterprise_paragraph_closes_scope_and_limitations_from_the_live_tar
         "[Aspose.3D \u2014 Enterprise Edition](https://products.aspose.com/3d/)"
         in render_readme(ENTRY, family, plan, units, DISPOSITIONS)
     )
+
+
+def test_the_banner_is_a_linked_image_from_both_verified_facts_or_absent() -> None:
+    image_url = "https://products.aspose.org/media/3d/python/banner-readme.png"
+    homepage_url = "https://products.aspose.org/3d/python/"
+    image = Fact(
+        "link_target:product.banner",
+        "link_target",
+        image_url,
+        (Evidence(image_url, "HTTP 200; banner illustration"),),
+        attributes={"role": "banner illustration"},
+    )
+    homepage = Fact(
+        "link_target:product.homepage",
+        "link_target",
+        homepage_url,
+        (Evidence(homepage_url, "HTTP 200; product homepage"),),
+        attributes={"role": "product homepage"},
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True} if entry["section_id"] == "banner" else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, image, homepage))
+    readme = render_readme(ENTRY, facts, plan, UNITS, DISPOSITIONS)
+    lines = readme.split(chr(10))
+    banner = f"[![Aspose.3D FOSS for Python]({image_url})]({homepage_url})"
+    assert banner in lines
+    assert lines[lines.index(banner) - 2].startswith("[![PyPI]")  # immediately below the badges
+    assert readme.count("banner-readme.png") == 1
+    # One fact alone renders nothing: never an unlinked image, never a broken link.
+    one = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, image))
+    assert "banner-readme.png" not in render_readme(ENTRY, one, plan, UNITS, DISPOSITIONS)

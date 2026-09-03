@@ -10,10 +10,11 @@ from repository_presenter.components.readme.composition.components.shell import 
 )
 
 
-def test_the_shell_lists_the_seventeen_sections_in_contract_order() -> None:
+def test_the_shell_lists_the_eighteen_sections_in_contract_order() -> None:
     assert section_ids() == (
         "identity",
         "badges",
+        "banner",
         "opening",
         "navigation",
         "at_a_glance",
@@ -30,7 +31,7 @@ def test_the_shell_lists_the_seventeen_sections_in_contract_order() -> None:
         "third_party_notices",
         "license",
     )
-    assert len(set(section_ids())) == 17
+    assert len(set(section_ids())) == 18
     required = [section.id for section in SEMANTIC_SHELL if section.required]
     assert required == [
         "identity",
@@ -67,7 +68,7 @@ def test_only_llm_and_mixed_sections_can_hold_inherited_units() -> None:
 def test_the_packet_form_carries_every_field_the_jobs_read() -> None:
     packet = shell_packet()
     assert [entry["id"] for entry in packet] == list(section_ids())
-    assert packet[6] == {
+    assert packet[7] == {  # banner sits at 2
         "id": "installation",
         "heading": "Installation",
         "required": True,
