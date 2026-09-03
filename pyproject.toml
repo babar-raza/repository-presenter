@@ -46,6 +46,8 @@ packages = ["src/repository_presenter"]
 line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
+# Sealed bundles are content-addressed evidence, never source: a formatter must not touch them.
+extend-exclude = ["candidates"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
