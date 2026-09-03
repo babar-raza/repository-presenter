@@ -29,21 +29,22 @@ content: `D` deterministic renderer from facts, `L` LLM content units bound to f
 |---|---|---|---|---|---|---|
 | 1 | `identity` | complete canonical product name | Required | visible | D | Exactly one H1, the full product name (for example `Aspose.3D FOSS for Python`), never a package or namespace shorthand. |
 | 2 | `badges` | none | Required | visible | D | One row in stable order: package or release, platform or runtime, real build status, license, contributors. Omit a badge whose target is unavailable; never duplicate, split into two rows, or fabricate. |
-| 3 | `opening` | none | Required | visible | L | Two to four sentences: what it does, problems it solves, who uses it. No Aspose promotion, no marketing superlatives. |
-| 4 | `navigation` | none | Required | visible | D | Compact list of in-page links to the visible sections actually present. |
-| 5 | `at_a_glance` | At a Glance | Conditional: at least one verified input format and one capability | visible | M | Mermaid typed capability graph (§2.1). |
-| 6 | `key_capabilities` | Key Capabilities | Required | visible | L | Three to eight items. Each title is an action-led natural phrase grounded in facts; each description is one sentence. At most one search-intent keyword per title, with an output-lineage record; no keyword repeats across titles. |
-| 7 | `installation` | Installation | Required | visible | D | Verified install command for the ecosystem from manifest plus package-registry observation, or the verified source install when no package exists. Never an unverified command. |
-| 8 | `dependencies` | Dependencies | Conditional: non-trivial runtime dependencies | visible | D | From manifests and lock files. |
-| 9 | `quick_start` | Quick Start | Required | visible | M | One minimal example that was executed or compiled in isolation, correct fence language, normalized spacing; LLM supplies one lead-in sentence. |
-| 10 | `additional_examples` | Additional Examples | Conditional: at least one further verified example | collapsible | M | Prose preview naming the workflows, then one `<details>` per workflow with a meaningful task name. Never a duplicated generic heading with a numeric suffix. |
-| 11 | `api_reference` | API Reference | Conditional: the plan finds it useful | collapsible | M | At most twelve curated hub APIs from the verified public surface, each name in a code span with a one-sentence evidence-backed description. Never a generated inventory. |
-| 12 | `documentation_resources` | Documentation and Resources | Conditional: verified relevant targets exist | visible | M | Verified documentation, reference, and knowledge-base links that explain material shown nearby; Aspose links within the configured or derived ceilings. |
-| 13 | `scope_limitations` | Scope and Limitations | Required | visible | L | Every material limitation from evidence and inherited units; at least one honest scope statement. |
-| 14 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | How to build and test from the actual build files and CI; representative assets shown openly, ending with a repository-relative complete-inventory link when items are omitted. Never collapsed. |
-| 15 | `enterprise_relationship` | none (prose paragraph) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | One or two sentences relating the FOSS scope to the **full-featured ... Enterprise Edition**, with that anchor to the verified product page. "Enterprise Edition" is the only edition name anywhere in the document. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the section entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
-| 16 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
-| 17 | `license` | License | Required | visible | D | Prose declaration from the license fact. For a permissive license such as MIT, a brief statement of practical permissions and the notice condition. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
+| 3 | `banner` | none | Conditional: a verified product illustration and homepage exist | visible | D | Linked image immediately below the badge row: `[![alt](image_url)](homepage_url)`, alt text naming the product. Both `image_url` and `homepage_url` come from verified facts, never a guess or a placeholder graphic. Omit entirely when either is unresolved — never an unlinked image, never a broken link. |
+| 4 | `opening` | none | Required | visible | L | Two to four sentences: what it does, problems it solves, who uses it. No Aspose promotion, no marketing superlatives. |
+| 5 | `navigation` | none | Required | visible | D | Compact list of in-page links to the visible sections actually present. |
+| 6 | `at_a_glance` | At a Glance | Conditional: at least one verified input format and one capability | visible | M | Mermaid typed capability graph (§2.1). |
+| 7 | `key_capabilities` | Key Capabilities | Required | visible | L | Three to eight items. Each title is an action-led natural phrase grounded in facts; each description is one sentence. At most one search-intent keyword per title, with an output-lineage record; no keyword repeats across titles. |
+| 8 | `installation` | Installation | Required | visible | D | Verified install command for the ecosystem from manifest plus package-registry observation, or the verified source install when no package exists. Never an unverified command. State plainly when the package-registry observation shows the package is not yet published, rather than presenting an unqualified install command the registry itself contradicts. |
+| 9 | `dependencies` | Dependencies | Required | visible | D | From the dependency snapshot, in four subsections in this order — Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. Optional, Native and System, and Development omit silently when their own bucket is genuinely empty; Required omits only its bullet list, rendering the fixed sentence "No required third-party package dependencies." instead of vanishing, so a reader can never mistake verified-zero for generation forgetting the section. Never a flat, unstructured list; never merged into Installation. |
+| 10 | `quick_start` | Quick Start | Required | visible | M | One minimal example that was executed or compiled in isolation, correct fence language, normalized spacing; LLM supplies one lead-in sentence. |
+| 11 | `additional_examples` | Additional Examples | Conditional: at least one further verified example | collapsible | M | Prose preview naming the workflows, then one `<details>` per workflow with a meaningful task name. Never a duplicated generic heading with a numeric suffix. |
+| 12 | `api_reference` | API Reference | Conditional: the plan finds it useful | collapsible | M | At most twelve curated hub APIs from the verified public surface, each name in a code span with a one-sentence evidence-backed description. Never a generated inventory. |
+| 13 | `documentation_resources` | Documentation and Resources | Conditional: verified relevant targets exist | visible | M | Verified documentation, reference, and knowledge-base links that explain material shown nearby; Aspose links within the configured or derived ceilings. |
+| 14 | `scope_limitations` | Scope and Limitations | Required | visible | L | Every material limitation from evidence and inherited units; at least one honest scope statement. Every limitation names the precise mechanism a fact records (an exact exception type, a named unimplemented class) — never a vaguer paraphrase ("raises an exception") when the fact itself is more precise ("raises `NotImplementedError`"). |
+| 15 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | How to build and test from the actual build files and CI; representative assets shown openly, ending with a repository-relative complete-inventory link when items are omitted. Never collapsed. A single-file or single-target test command is a verified example, not a paraphrase of one — copy it from its fact value exactly, never approximate it. |
+| 16 | `enterprise_relationship` | none (prose paragraph) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | One or two sentences relating the FOSS scope to the **full-featured ... Enterprise Edition**, with that anchor to the verified product page. "Enterprise Edition" is the only edition name anywhere in the document. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the section entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
+| 17 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
+| 18 | `license` | License | Required | visible | D | Prose declaration from the license fact. For a permissive license such as MIT, a brief statement of practical permissions and the notice condition. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
 
 Headings use title case. Technical abbreviations use their canonical uppercase forms (PDF, XLSX,
 HTML, PS, EPS, XPS). Exact package names, paths, imports, namespaces, API members, commands, and
@@ -108,6 +109,20 @@ Inherited units at S7: `VERIFIED_PRESERVE`, `VERIFIED_REWRITE`, `VERIFIED_MOVE`,
 `OMIT_UNSUPPORTED` carry evidence in the dispositions file; `DEFER_UNRESOLVED` units are listed for
 owner resolution and never rendered; `NON_CONTENT` is ignored. A material unit with no safe
 destination fails the transaction closed instead of being dumped.
+
+**Placement is exclusive, never additive, on fact-ID overlap (a real, confirmed defect: the G1
+canary's own `scope_limitations` rendered three `VERIFIED_PRESERVE`d inherited paragraphs in full
+*and* three independently-authored `material_limitations` bullets covering the identical facts —
+caught by `independent_review`, survived one `targeted_repair` attempt because the defect is in
+render placement, not in either unit's own prose, so no content revision could ever fix it).
+Reconciliation (S4) decides a unit's disposition before planning (S5) exists, so it cannot know in
+advance whether planning will independently select the same `fact_ids` for fresh authoring — S7 is
+the first point both are known simultaneously, and owns the conflict: before placing a
+`VERIFIED_PRESERVE`/`VERIFIED_MOVE`/`CORRECT_WITH_EVIDENCE` unit into a section, the renderer drops
+it if its `fact_ids` intersect the `fact_ids` of that section's own plan-driven content
+(`material_limitations`, `links`, or any future such field) for the same section; the planned,
+freshly-authored content wins, since it is what evidence-bound content-unit validation (§3) already
+checked. No section may show the same material twice regardless of which stage produced each copy.
 
 ## 4. Agentic decisions
 

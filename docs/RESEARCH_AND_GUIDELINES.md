@@ -1278,3 +1278,97 @@ by the real Aspose.Email FOSS for .NET `CS1929` case) and G7 item 4 (automated c
 own authorization and deduplication ledger) already match this shape — this section grounds that
 plan in a working reference, it does not change it.
 
+## 22. The G1 canary candidate against a live comparable (2026-09-03)
+
+**Why this matters more than a normal quality review**: `aspose-3d-foss/Aspose.3D-FOSS-for-Python`'s
+live, currently-published `README.md` was confirmed byte-identical (`diff -B -b`) to aspose.org's
+own regenerated candidate for the same product. That candidate cannot be rolled back and a reduced
+version cannot be pushed over it. This project's own candidate for the same repository is therefore
+not competing against an abstract quality bar — it is competing against what a real visitor already
+sees today, and it currently loses on several fronts.
+
+### 22.1 Confirmed defects in the sealed G1 bundle, with cause
+
+- **Duplicated `scope_limitations` and `documentation_resources`.** `renderer.py` placed disposed
+  inherited units after the section's own plan-driven content with no overlap check. Fixed as a
+  contract rule in §3 above (placement is exclusive on fact-ID overlap); the code fix is
+  `components/readme/composition/renderer.py`.
+- **Missing Enterprise Edition link.** `plan.json` correctly omitted it — `enterprise_target_url`
+  was `null` because nothing has ever computed it. §20 above already scopes the fix (a live
+  `products.aspose.com/{family}/{platform}/` check); it was never built during G1-W04.
+- **Missing banner image.** No fact kind, no shell row existed for it at all — not a deferred
+  visual-asset decision (that's GitHub's social-preview surface, genuinely out of scope per
+  `plans/idea.md`); a verified image-plus-homepage link is the same kind of fact as the Enterprise
+  link and was simply never modeled. Added as shell row 3 above.
+- **Missing At a Glance.** Every *input*-direction format fact (`.dae`, `.obj`, `.stl`) was
+  `UNRESOLVED` while *output* formats (`.gltf`, `.stl`) were `SUPPORTED` — the bundled verification
+  examples only build-and-save, never load an existing file, so input formats never get corroborating
+  evidence even though the product genuinely reads them (the candidate's own opening sentence says
+  so). A facts/verification-coverage gap, not a shell-rule gap; first relevant work: whichever future
+  iteration extends example verification or adds static corroboration for a format claim, matching
+  the "2-of-3 corroboration" pattern aspose.org already uses for exactly this problem.
+- **Dependencies omitted entirely rather than stating verified-zero.** Fixed as a contract rule
+  (row 9 above, `Required` not `Conditional`, four subsections, explicit-zero sentence).
+
+### 22.2 The candidate's own review already caught three of these — and one repair attempt failed for a structural reason
+
+`review.json` for the sealed bundle records `verdict_as_returned: REJECT_FACTUAL`, downgraded to
+`ACCEPT` with seven advisory findings after `targeted_repair` (S11) re-raised on each. Three of the
+seven (F04, F05, F06) are exactly the duplication defect above. **The repair attempt could not have
+fixed it**: `targeted_repair` revises LLM-owned content units; this defect's cause is in the
+deterministic renderer's placement logic, a layer no content revision touches. The process followed
+its own rule correctly (one repair attempt per fingerprint, then advisory, never a second block) —
+the gap is that an advisory finding caused by a code defect needs to reach that code, not just stay
+advisory forever. §23 below makes this a durable rule. The other four advisory findings, also still
+live in the sealed bundle and worth folding into the same repair pass:
+
+- **F02** (`installation`): the candidate's install command doesn't disclose that the original
+  README flagged the package as not yet published on PyPI — now covered by shell row 8's addition
+  above.
+- **F07** (`development_testing`): the shipped candidate still reads "run... a single test file with
+  `python -m unittest tests`" — an incomplete command; the verified example fact names
+  `python -m unittest tests.test_obj_importer`. Now covered by shell row 15's addition above.
+- **F01** and **F03** are narrower wording judgment calls (a "current version" phrasing nuance; the
+  non-standard "Hub APIs" sub-heading) — real, but lower priority than the five above; leave for the
+  same repair pass to triage, not a contract change.
+
+### 22.3 Portfolio-wide, from aspose.org's own operational reference
+
+`docs/readme-refresh/current-operational-reference.md` §11 lists genuinely open items across their
+31-product portfolio, current as of their last snapshot (2026-08-20) — useful both as things to
+avoid and as evidence of where this project can concretely do better, not just avoid regressing:
+
+- **Real per-language example verification exists only for Python** (partial for TypeScript);
+  Java/.NET/Go/Rust/C++ get an honest `BLOCKED-WITH-REASON` stub, never an executed example. This
+  project's own G3 (one verified representative per ecosystem, each with a negative control) is
+  already scoped to do better across all seven ecosystems — this is independent confirmation the
+  gate is pointed at a real, currently-unsolved gap in the comparable system, not a redundant one.
+- **Fabricated API claims reached published candidates before being caught**: a hallucinated
+  `SheetVisibility` API (`cells/java`), a hallucinated public `FontRepository` type (`pdf/go`), a
+  false "PDF/X out of scope" claim (`pdf/java`), a stale fabricated dev-dependency claim
+  (`words/python`, `slides/python`) — all found and fixed 2026-08-20, all real, all shipped for some
+  period first. This is the concrete cautionary evidence for why this project's own
+  fact-ID-binding-checked-before-render design (§3 above; `binding_errors` in
+  `core/llm/jobs.py::_parse`) exists — the failure mode is real and has happened to a system that
+  otherwise works well. Never weaken that binding check for convenience.
+- **"Local ahead of live" has no general detection** (`W5`, open, blocked on design): their
+  byte-compare `published` check can tell local-differs-from-live but not local-is-strictly-ahead.
+  Worth remembering once this project's own G2 dependency-invalidation and eventual G5
+  publish-vs-live reconciliation are designed, so the same structural gap isn't reintroduced.
+- A specific, named, still-open content-quality defect: `pdf/cpp` carries "182 filler descriptions"
+  in its API Reference (P4, deferred) — a reminder that "collapsed in `<details>`" (this project's
+  own rule, §2 row 12) bounds visible length but says nothing about whether what's inside is
+  curated or mechanically generated filler; `key_capabilities`/`api_reference`'s existing
+  evidence-backed-description requirement already guards against this, worth keeping in mind as a
+  review question when G2's acceptance profile is written.
+
+## 23. Advisory review findings are deferred work, not resolved work (2026-09-03)
+
+An advisory finding is not "done" because it stopped blocking. `EXECUTION_STATE_MACHINE.md` §9
+already says a reviewer rejection routes to its causal stage, or — if unrepairable within
+`targeted_repair`'s scope — becomes advisory and the *reviewer scope* gets fixed. §22.2 above is a
+concrete case where the second half of that rule didn't happen: the finding went advisory and
+nothing then routed it to the renderer. Any work item that touches a candidate's sealed bundle reads
+that bundle's `review.json` `advisory` list first; a finding whose cause is a deterministic-code
+defect (not a prose-quality judgment call) is real, tracked repair work, not accepted permanently.
+
