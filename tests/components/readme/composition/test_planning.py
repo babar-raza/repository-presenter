@@ -300,3 +300,12 @@ def test_a_missing_conditional_decision_is_filled_from_the_shell() -> None:
     assert "sections must carry exactly one decision for every shell section" in plan_checks(
         duplicated, FACTS
     )
+
+
+def test_the_flagship_is_one_of_the_additional_examples_or_null() -> None:
+    # README_CONTRACT.md row 12: the flagship is one further example shown visibly.
+    assert plan_checks(_plan(flagship_example_id=None), FACTS) == []
+    assert plan_checks(_plan(flagship_example_id="example:002"), FACTS) == []
+    assert plan_checks(_plan(flagship_example_id="example:001"), FACTS) == [
+        "flagship_example_id must be one of additional_example_ids; got 'example:001'"
+    ]

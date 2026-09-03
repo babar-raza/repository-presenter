@@ -1,7 +1,9 @@
 {
   "coherence": {
     "applied": true,
-    "revised": []
+    "revised": [
+      "opening/opening"
+    ]
   },
   "omitted": [
     {
@@ -366,57 +368,57 @@
     },
     {
       "fact_id": "example:001",
-      "reason": "example is unresolved and not used by any verified example in accepted_facts",
+      "reason": "example is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is unresolved and not used by any verified example in accepted_facts",
+      "reason": "example is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is unresolved and not used by any verified example in accepted_facts",
+      "reason": "example is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is unresolved and not used by any verified example in accepted_facts",
+      "reason": "example is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is contradicted and not used by any verified example in accepted_facts",
+      "reason": "example is CONTRADICTED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is unresolved and not used by any verified example in accepted_facts",
+      "reason": "example is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "format is unresolved and not referenced by any verified example in accepted_facts",
+      "reason": "format is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "format is unresolved and not referenced by any verified example in accepted_facts",
+      "reason": "format is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "format is unresolved and not referenced by any verified example in accepted_facts",
+      "reason": "format is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "format is unresolved and not referenced by any verified example in accepted_facts",
+      "reason": "format is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "format is unresolved and not referenced by any verified example in accepted_facts",
+      "reason": "format is UNRESOLVED and not used to support any prose claim",
       "section": "api_reference"
     },
     {
@@ -454,7 +456,7 @@
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
+      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
     },
     {
       "fact_ids": [
@@ -598,12 +600,11 @@
     {
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh"
+        "public_symbol:aspose.threed.node"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "The entry point for working with 3D scenes in Aspose.3D FOSS for Python is the aspose.threed.Scene class, which manages the scene graph, materials, and animations; the aspose.threed.Node class represents individual nodes in the scene hierarchy, and the aspose.threed.Mesh class holds the geometric data for rendering."
+      "text": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies."
     },
     {
       "fact_ids": [
@@ -611,7 +612,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "The aspose.threed.Scene class provides methods such as Scene.open, Scene.from_file, Scene.save, Scene.create_animation_clip, Scene.get_animation_clip, Scene.render, and Scene.clear to load, manipulate, and export 3D content."
+      "text": "Scene provides methods such as open, from_file, and save to load and persist 3D models, and exposes properties like root_node, sub_scenes, library, animation_clips, poses, and asset_info to inspect and modify scene contents."
     },
     {
       "fact_ids": [
@@ -619,7 +620,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.node",
-      "text": "The aspose.threed.Node class supports scene graph traversal and manipulation through methods like Node.add_child_node, Node.create_child_node, Node.get_child, Node.select_objects, Node.evaluate_global_transform, and Node.get_bounding_box."
+      "text": "Node represents an element in the scene graph and supports child node management via create_child_node and add_child_node, entity attachment through add_entity and entity, transform inspection via global_transform and transform, visibility control with visible and excluded, and object selection with select_objects and select_single_object."
     },
     {
       "fact_ids": [
@@ -627,15 +628,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.mesh",
-      "text": "The aspose.threed.Mesh class exposes control points and polygon data via Mesh.control_points, Mesh.create_polygon, Mesh.polygons, Mesh.polygon_count, Mesh.get_polygon_size, and Mesh.to_mesh, and supports boolean operations such as Mesh.union, Mesh.intersect, and Mesh.difference."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.shading"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "The aspose.threed.shading module provides material classes like LambertMaterial and PbrMaterial that expose properties such as diffuse_color, metallic_factor, and roughness_factor for realistic rendering."
+      "text": "Mesh provides access to geometry data through control_points and polygons, supports polygon construction with create_polygon, offers boolean operations such as union, difference, and intersect, and includes utilities like triangulate, optimize, and is_manifold for mesh processing."
     },
     {
       "fact_ids": [
@@ -643,7 +636,15 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.fileformat",
-      "text": "The aspose.threed.FileFormat class enables format detection and options creation through FileFormat.get_format_by_extension, FileFormat.can_import, FileFormat.can_export, and FileFormat.content_type."
+      "text": "FileFormat exposes constants for supported formats including FBX7400ASCII, GLTF2, MICROSOFT_3MF_FORMAT, and WAVEFRONT_OBJ, and provides methods like can_import, can_export, content_type, get_format_by_extension, create_load_options, and create_save_options to inspect and configure format support."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.shading",
+      "text": "The shading module supports material definitions with properties such as diffuse_color, metallic_factor, and roughness_factor, and integrates with Node.material and Node.materials to assign visual appearance to scene entities."
     },
     {
       "fact_ids": [
@@ -651,15 +652,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.entities",
-      "text": "The aspose.threed.entities module includes primitive builders such as Box and Sphere that generate Mesh instances via their to_mesh method."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "The aspose.threed.utilities module provides vector and utility types like Vector3 and Vector4 used for control points, colors, and transformations."
+      "text": "The entities module provides geometric primitives and modifiers, including PolygonModifier for operations like triangulate, and exposes entity types that can be attached to Node instances."
     },
     {
       "fact_ids": [
@@ -667,7 +660,31 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.animationclip",
-      "text": "The aspose.threed.AnimationClip class, accessible via Scene.animation_clips and Scene.current_animation_clip, represents a sequence of keyframe data for animating scene nodes."
+      "text": "AnimationClip defines a container for animation data and is managed by Scene through methods like create_animation_clip, get_animation_clip, and the current_animation_clip and animation_clips properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.animationnode",
+      "text": "AnimationNode represents a node in the animation hierarchy and supports keyframe sequences via KeyframeSequence to drive animated properties over time."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.keyframesequence",
+      "text": "KeyframeSequence holds a series of keyframes that define how an animated property changes over time and is used by AnimationNode to express motion and transformation animations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.pose"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.pose",
+      "text": "Pose defines a static transformation relative to a reference coordinate system and is stored in Scene.poses for use in animation and rigging workflows."
     },
     {
       "fact_ids": [
@@ -675,31 +692,15 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.polygonbuilder",
-      "text": "The aspose.threed.PolygonBuilder class helps construct polygonal meshes programmatically by accumulating control points and polygon definitions before producing a final Mesh."
+      "text": "PolygonBuilder simplifies the creation of polygonal meshes by providing a fluent interface to accumulate control points and polygon definitions before producing a Mesh instance."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.formats"
+        "public_symbol:aspose.threed.utilities"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.formats",
-      "text": "The aspose.threed.formats module contains format-specific save and load options such as GltfSaveOptions and ThreeMfSaveOptions that control export behavior."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.render"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.render",
-      "text": "The aspose.threed.render module provides rendering capabilities, including Scene.render, which allows exporting the scene to image or other visual outputs."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.deformers"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.deformers",
-      "text": "The aspose.threed.deformers module supports mesh deformation operations that modify geometry based on control parameters or animation data."
+      "slot": "hub:public_symbol:aspose.threed.utilities",
+      "text": "The utilities module provides helper types such as Vector3 and stream wrappers like BytesIO and StringIO, along with methods like decode, loads, getvalue, seek, read, and save to support common data processing tasks."
     },
     {
       "fact_ids": [

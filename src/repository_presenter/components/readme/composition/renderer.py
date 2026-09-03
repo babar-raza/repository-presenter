@@ -47,7 +47,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "13"  # the template component version dependencies.json records
+RENDERER_VERSION = "14"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -565,6 +565,14 @@ def _at_a_glance(context: RenderContext) -> list[str]:
     return lines
 
 
+def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[str]:
+    """One further example: its authored task heading, then the verified code verbatim."""
+    example = context.fact(example_id)
+    assert example is not None
+    task = context.unit(sid, f"workflow:{example_id}").strip().rstrip(".")
+    return ["", f"### {task}", "", *_code_block(context.entry.ecosystem, example.value)]
+
+
 def _section_body(context: RenderContext, section: Section) -> list[str]:
     sid = section.id
     plan = context.plan
@@ -608,23 +616,27 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
             lines.append("")
             lines.extend(_code_block(context.entry.ecosystem, second.value))
     elif sid == "additional_examples":
-        # README_CONTRACT.md section 2 row 12: one lead-in, then a single details block
+        # README_CONTRACT.md section 2 row 12: one lead-in; one flagship example visible under
+        # its own task-named heading when the plan selects one; then a single details block
         # holding every further verified example under its own task-named heading.
         lines.append(context.unit(sid, "preview"))
-        lines.append("")
-        lines.append("<details>")
-        lines.append(f"<summary>{ADDITIONAL_EXAMPLES_SUMMARY}</summary>")
-        for example_id in plan.get("additional_example_ids", []):
-            example = context.fact(example_id)
-            if example is None:
-                continue
-            task = context.unit(sid, f"workflow:{example_id}").strip().rstrip(".")
+        additional = [
+            example_id
+            for example_id in plan.get("additional_example_ids", [])
+            if context.fact(example_id) is not None
+        ]
+        flagship = plan.get("flagship_example_id")
+        if isinstance(flagship, str) and flagship in additional:
+            lines.extend(_example_entry(context, sid, flagship))
+            additional.remove(flagship)
+        if additional:
             lines.append("")
-            lines.append(f"### {task}")
+            lines.append("<details>")
+            lines.append(f"<summary>{ADDITIONAL_EXAMPLES_SUMMARY}</summary>")
+            for example_id in additional:
+                lines.extend(_example_entry(context, sid, example_id))
             lines.append("")
-            lines.extend(_code_block(context.entry.ecosystem, example.value))
-        lines.append("")
-        lines.append("</details>")
+            lines.append("</details>")
     elif sid == "api_reference":
         lines.extend(_api_reference(context))
     elif sid == "documentation_resources":

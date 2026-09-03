@@ -4,7 +4,7 @@
 
 [![Aspose.3D FOSS for Python](https://products.aspose.org/media/3d/python/banner-readme.png)](https://products.aspose.org/3d/python/)
 
-Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
+Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
 
 ## Navigation
 
@@ -119,27 +119,6 @@ scene.save("crate.gltf")
 
 The following examples demonstrate creating geometry, applying materials, and saving to various formats using Aspose.3D FOSS for Python.
 
-<details>
-<summary>View Additional Examples</summary>
-
-### Create a sphere with a metallic red material and save it as STL
-
-```python
-from aspose.threed import Scene
-from aspose.threed.entities import Sphere
-from aspose.threed.shading import PbrMaterial
-from aspose.threed.utilities import Vector3
-
-scene = Scene()
-sphere = Sphere()
-material = PbrMaterial(albedo=Vector3(0.8, 0.1, 0.1))
-material.metallic_factor = 0.9
-material.roughness_factor = 0.2
-
-scene.root_node.create_child_node("Ball", entity=sphere.to_mesh(), material=material)
-scene.save("ball.stl")
-```
-
 ### Build a triangle mesh with a PBR material and export to GLTF text format
 
 ```python
@@ -179,6 +158,27 @@ scene.save(stream, options)
 stream.seek(0)
 gltf_data = json.loads(stream.read().decode("utf-8"))
 print(gltf_data["materials"][0]["pbrMetallicRoughness"])
+```
+
+<details>
+<summary>View Additional Examples</summary>
+
+### Create a sphere with a metallic red material and save it as STL
+
+```python
+from aspose.threed import Scene
+from aspose.threed.entities import Sphere
+from aspose.threed.shading import PbrMaterial
+from aspose.threed.utilities import Vector3
+
+scene = Scene()
+sphere = Sphere()
+material = PbrMaterial(albedo=Vector3(0.8, 0.1, 0.1))
+material.metallic_factor = 0.9
+material.roughness_factor = 0.2
+
+scene.root_node.create_child_node("Ball", entity=sphere.to_mesh(), material=material)
+scene.save("ball.stl")
 ```
 
 ### Generate a triangle mesh and save it as ASCII STL using a `StringIO` stream
@@ -263,7 +263,7 @@ scene.save(stream, options)
 
 ## API Reference
 
-The entry point for working with 3D scenes in Aspose.3D FOSS for Python is the `aspose.threed.Scene` class, which manages the scene graph, materials, and animations; the `aspose.threed.Node` class represents individual nodes in the scene hierarchy, and the `aspose.threed.Mesh` class holds the geometric data for rendering.
+The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.Node` as the fundamental building block for constructing scene hierarchies.
 
 The verified public surface has 343 types.
 
@@ -627,7 +627,7 @@ The verified public surface has 343 types.
 
 ### Scene
 
-The `aspose.threed.Scene` class provides methods such as `Scene.open`, `Scene.from_file`, `Scene.save`, `Scene.create_animation_clip`, `Scene.get_animation_clip`, `Scene.render`, and `Scene.clear` to load, manipulate, and export 3D content.
+`Scene` provides methods such as open, `from_file`, and save to load and persist 3D models, and exposes properties like `root_node`, `sub_scenes`, library, `animation_clips`, poses, and `asset_info` to inspect and modify scene contents.
 
 - `animation_clips`: Defined as `def animation_clips(self) -> List['AnimationClip']`.
 - `asset_info`: Defined as `def asset_info(self) -> AssetInfo`.
@@ -646,7 +646,7 @@ The `aspose.threed.Scene` class provides methods such as `Scene.open`, `Scene.fr
 
 ### Node
 
-The `aspose.threed.Node` class supports scene graph traversal and manipulation through methods like `Node.add_child_node`, `Node.create_child_node`, `Node.get_child`, `Node.select_objects`, `Node.evaluate_global_transform`, and `Node.get_bounding_box`.
+`Node` represents an element in the scene graph and supports child node management via `create_child_node` and `add_child_node`, entity attachment through `add_entity` and entity, transform inspection via `global_transform` and transform, visibility control with visible and excluded, and object selection with `select_objects` and `select_single_object`.
 
 - `add_child_node`: Defined as `def add_child_node(self, node: 'Node')`.
 - `add_entity`: Defined as `def add_entity(self, entity: 'Entity')`.
@@ -673,7 +673,7 @@ The `aspose.threed.Node` class supports scene graph traversal and manipulation t
 
 ### Mesh
 
-The `aspose.threed.Mesh` class exposes control points and polygon data via `Mesh.control_points`, `Mesh.create_polygon`, `Mesh.polygons`, `Mesh.polygon_count`, `Mesh.get_polygon_size`, and `Mesh.to_mesh`, and supports boolean operations such as `Mesh.union`, `Mesh.intersect`, and `Mesh.difference`.
+`Mesh` provides access to geometry data through `control_points` and polygons, supports polygon construction with `create_polygon`, offers boolean operations such as union, difference, and intersect, and includes utilities like triangulate, optimize, and `is_manifold` for mesh processing.
 
 - `control_points`: Defined as `def control_points(self) -> ArrayListAdapter[Vector4]`.
 - `create_polygon`: Defined as `def create_polygon(self, *args)`.
@@ -692,13 +692,9 @@ The `aspose.threed.Mesh` class exposes control points and polygon data via `Mesh
 - `triangulate`: Defined as `def triangulate(self) -> 'Mesh'`.
 - `union`: Defined as `def union(a: 'Mesh', b: 'Mesh') -> 'Mesh'`.
 
-### shading
-
-The `aspose.threed.shading` module provides material classes like `LambertMaterial` and `PbrMaterial` that expose properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor` for realistic rendering.
-
 ### FileFormat
 
-The `aspose.threed.FileFormat` class enables format detection and options creation through `FileFormat.get_format_by_extension`, `FileFormat.can_import`, `FileFormat.can_export`, and `FileFormat.content_type`.
+`FileFormat` exposes constants for supported formats including FBX7400ASCII, GLTF2, MICROSOFT_3MF_FORMAT, and WAVEFRONT_OBJ, and provides methods like `can_import`, `can_export`, `content_type`, `get_format_by_extension`, `create_load_options`, and `create_save_options` to inspect and configure format support.
 
 - `FBX7400ASCII`: Defined as `def FBX7400ASCII()`.
 - `GLTF2`: Defined as `def GLTF2()`.
@@ -717,17 +713,17 @@ The `aspose.threed.FileFormat` class enables format detection and options creati
 - `get_format_by_extension`: Defined as `def get_format_by_extension(extension_name: str) -> Optional['FileFormat']`.
 - `version`: Defined as `def version(self) -> str`.
 
+### shading
+
+The shading module supports material definitions with properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor`, and integrates with `Node.material` and `Node.materials` to assign visual appearance to scene entities.
+
 ### entities
 
-The `aspose.threed.entities` module includes primitive builders such as `Box` and `Sphere` that generate `Mesh` instances via their `to_mesh` method.
-
-### utilities
-
-The `aspose.threed.utilities` module provides vector and utility types like `Vector3` and `Vector4` used for control points, colors, and transformations.
+The entities module provides geometric primitives and modifiers, including `PolygonModifier` for operations like triangulate, and exposes entity types that can be attached to `Node` instances.
 
 ### AnimationClip
 
-The `aspose.threed.AnimationClip` class, accessible via `Scene.animation_clips` and `Scene.current_animation_clip`, represents a sequence of keyframe data for animating scene nodes.
+`AnimationClip` defines a container for animation data and is managed by `Scene` through methods like `create_animation_clip`, `get_animation_clip`, and the `current_animation_clip` and `animation_clips` properties.
 
 - `animations`: Defined as `def animations(self) -> List['AnimationNode']`.
 - `create_animation_node`: Defined as `def create_animation_node(self, node_name: str) -> 'AnimationNode'`.
@@ -737,25 +733,51 @@ The `aspose.threed.AnimationClip` class, accessible via `Scene.animation_clips` 
 - `start`: Defined as `def start(self) -> float`.
 - `stop`: Defined as `def stop(self) -> float`.
 
+### AnimationNode
+
+`AnimationNode` represents a node in the animation hierarchy and supports keyframe sequences via `KeyframeSequence` to drive animated properties over time.
+
+- `bind_points`: Defined as `def bind_points(self) -> List['BindPoint']`.
+- `create_bind_point`: Defined as `def create_bind_point(self, obj: 'A3DObject', prop_name: str) -> 'BindPoint'`.
+- `find_bind_point`: Defined as `def find_bind_point(self, target: 'A3DObject', name: str) -> 'BindPoint'`.
+- `get_bind_point`: Defined as `def get_bind_point(self, target: 'A3DObject', prop_name: str, create: bool) -> 'BindPoint'`.
+- `get_keyframe_sequence`: Defined as `def get_keyframe_sequence(self, target: 'A3DObject', prop_name: str, channel_name: str=None, create: bool=True) -> 'KeyframeSequence'`.
+- `name`: Defined as `def name(self) -> str`.
+- `properties`: Defined as `def properties(self)`.
+- `sub_animations`: Defined as `def sub_animations(self) -> List['AnimationNode']`.
+
+### KeyframeSequence
+
+`KeyframeSequence` holds a series of keyframes that define how an animated property changes over time and is used by `AnimationNode` to express motion and transformation animations.
+
+- `add`: Defined as `def add(self, time: float, value: float, interpolation: Interpolation=Interpolation.LINEAR)`.
+- `bind_point`: Defined as `def bind_point(self) -> 'BindPoint'`.
+- `key_frames`: Defined as `def key_frames(self) -> List['KeyFrame']`.
+- `name`: Defined as `def name(self) -> str`.
+- `post_behavior`: Defined as `def post_behavior(self) -> Extrapolation`.
+- `pre_behavior`: Defined as `def pre_behavior(self) -> Extrapolation`.
+- `properties`: Defined as `def properties(self)`.
+- `reset`: Defined as `def reset(self)`.
+
+### Pose
+
+`Pose` defines a static transformation relative to a reference coordinate system and is stored in `Scene.poses` for use in animation and rigging workflows.
+
+- `add_bone_pose`: Defined as `def add_bone_pose(self, node: Node, matrix: Matrix4, local_matrix: bool=False)`.
+- `bone_poses`: Defined as `def bone_poses(self)`.
+- `pose_type`: Defined as `def pose_type(self) -> PoseType`.
+
 ### PolygonBuilder
 
-The `aspose.threed.PolygonBuilder` class helps construct polygonal meshes programmatically by accumulating control points and polygon definitions before producing a final `Mesh`.
+`PolygonBuilder` simplifies the creation of polygonal meshes by providing a fluent interface to accumulate control points and polygon definitions before producing a `Mesh` instance.
 
 - `add_vertex`: Defined as `def add_vertex(self, index: int)`.
 - `begin`: Defined as `def begin(self)`.
 - `end`: Defined as `def end(self)`.
 
-### formats
+### utilities
 
-The `aspose.threed.formats` module contains format-specific save and load options such as `GltfSaveOptions` and `ThreeMfSaveOptions` that control export behavior.
-
-### render
-
-The `aspose.threed.render` module provides rendering capabilities, including `Scene.render`, which allows exporting the scene to image or other visual outputs.
-
-### deformers
-
-The `aspose.threed.deformers` module supports mesh deformation operations that modify geometry based on control parameters or animation data.
+The utilities module provides helper types such as `Vector3` and stream wrappers like `BytesIO` and `StringIO`, along with methods like decode, loads, getvalue, seek, read, and save to support common data processing tasks.
 
 </details>
 

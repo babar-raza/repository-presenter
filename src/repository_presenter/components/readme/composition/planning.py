@@ -257,6 +257,12 @@ def plan_checks(
         errors.append(
             "additional_example_ids are given exactly when additional_examples is included"
         )
+    flagship = output.get("flagship_example_id")
+    if flagship is not None and flagship not in additional:
+        # README_CONTRACT.md row 12: the flagship is one further example shown visibly.
+        errors.append(
+            f"flagship_example_id must be one of additional_example_ids; got {flagship!r}"
+        )
 
     hubs = output.get("api_hubs", [])
     symbols = {i for i in supported if i.startswith("public_symbol:")}

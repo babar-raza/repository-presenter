@@ -319,6 +319,7 @@ LOCAL_PLAN: dict[str, Any] = {
     "quick_start_example_id": "example:001",
     "second_quick_start_example_id": None,
     "additional_example_ids": [],
+    "flagship_example_id": None,
     "api_hubs": [
         {
             "symbol_fact_id": "public_symbol:aspose.threed.scene",
@@ -777,7 +778,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "5",
-        "renderer": "13",
+        "renderer": "14",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

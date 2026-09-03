@@ -741,3 +741,23 @@ def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities()
     assert '    subgraph capl[" "]' in readme and '    subgraph capr[" "]' in readme
     assert '      c3["Read OBJ"]' in readme and '      c4["Write STL"]' in readme
     assert "~~~" not in readme
+
+
+def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> None:
+    collapsed = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert "<details>" + chr(10) + "<summary>View Additional Examples</summary>" in collapsed
+    assert collapsed.index("<details>") < collapsed.index("### Print a number")
+    flagship = {**PLAN, "flagship_example_id": "example:002"}
+    readme = render_readme(ENTRY, FACTS, flagship, UNITS, DISPOSITIONS)
+    section = readme.split("## Additional Examples" + chr(10), 1)[1].split(chr(10) + "## ", 1)[0]
+    # The one further example is the flagship, so nothing remains for a collapsed block.
+    assert section.strip().splitlines() == [
+        "One more workflow follows.",
+        "",
+        "### Print a number",
+        "",
+        "```python",
+        "print(2)",
+        "```",
+    ]
+    assert "View Additional Examples" not in section
