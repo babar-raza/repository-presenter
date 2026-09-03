@@ -10,6 +10,7 @@ from repository_presenter.components.readme.evidence.facts.formats import format
 from repository_presenter.components.readme.evidence.facts.inherited import inherited_unit_facts
 from repository_presenter.components.readme.evidence.facts.license import license_facts
 from repository_presenter.components.readme.evidence.facts.links import link_facts
+from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
 from repository_presenter.core.examples import (
@@ -65,6 +66,7 @@ def extract_facts(
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     facts.extend(license_facts(clone_path, snapshot.license_path, snapshot.notices_path))
     facts.extend(asset_facts(tree_paths))
+    facts.extend(product_page_facts(entry))
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
         facts.extend(inherited_unit_facts(snapshot.readme_path, readme_bytes))

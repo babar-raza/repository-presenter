@@ -1,84 +1,86 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-03T18:24:59Z",
+    "adopted_at": "2026-09-03T19:56:01Z",
     "changed": [
       "README.md",
       "README.patch",
       "content_units.json",
       "dependencies.json",
+      "dispositions.json",
+      "plan.json",
       "review.json",
       "validation.json"
     ],
-    "classification": "presentation",
-    "earliest_affected_stage": "COMPOSING",
+    "classification": "factual",
+    "earliest_affected_stage": "NONE",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-03T17:45:02Z",
+      "proven_at": "2026-09-03T19:49:46Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-03T18:22:20Z"
+    "recorded_at": "2026-09-03T19:55:25Z"
   },
   "files": {
     "README.md": {
-      "bytes": 50810,
-      "sha256": "778fe61e7bcc2e617b635e0bb0e55bea4790acfa2c0e0c9687d011fee095c86d"
+      "bytes": 51446,
+      "sha256": "c78ba2809c14500afbe48888a5f00d2870185e76a82a853884a51150608efcd1"
     },
     "README.patch": {
-      "bytes": 86627,
-      "sha256": "ff27e682f0fd35e742fe9a0e04344ffbc2cf1e2534f6c35c68d8f144047c6cbb"
+      "bytes": 87288,
+      "sha256": "753b9751a734da2af7472da19f6f5b47e41d3cbc213510a99167ee9e9c38feda"
     },
     "calls.jsonl": {
-      "bytes": 717508,
-      "sha256": "28deee7ac7e526279fe09c7bdbb24b337e6ab7593d50c060610ed509c5c198e2"
+      "bytes": 865338,
+      "sha256": "da7cbb72ee8730c38d88b12493e6a184af68f55f3267b9c115b62e4c21bc5145"
     },
     "content_units.json": {
-      "bytes": 82891,
-      "sha256": "ccb84d80810ca0f9bccc01692047d272c06ac3c552a3ef9ba989cd5095f34e00"
+      "bytes": 82782,
+      "sha256": "2ed5b8e35fe47b0d5dcdf5f7aacf8c21704c489bbb14c429372f5192505d93e7"
     },
     "dependencies.json": {
-      "bytes": 222272,
-      "sha256": "5944fd3fd312fe1781fda97ab60141cbdd846ad977d711b277b9ea16e9ef130c"
+      "bytes": 222584,
+      "sha256": "7543bf999b1a4b216de51cd455bf048e4c57f2c18e47190d6bffd32074a3581e"
     },
     "dispositions.json": {
-      "bytes": 28506,
-      "sha256": "caf487111efe535ddad04c5195f8aeed34ae7b495406f6302343ed3e097d4cef"
+      "bytes": 26996,
+      "sha256": "e8dc4f89fb0b68f3bba18a094a9a80b060b6f57705119a7242173715db00af17"
     },
     "facts.json": {
-      "bytes": 1124115,
-      "sha256": "35ffc1b5655be9e19b2e4748eb49b918a706368c2ccbed4c0ceb0c1ebb4f02fa"
+      "bytes": 1125655,
+      "sha256": "55203cb5a33de1e709a332e5ca8bbded3ef84899d080e6372b7340fb18b4c3e2"
     },
     "investigation.json": {
       "bytes": 8377,
       "sha256": "010f5fbb71fbae24723c346a09253aaff27318e3cee42ff5578df281bb359aaa"
     },
     "plan.json": {
-      "bytes": 8113,
-      "sha256": "d6a3e578a24237ee275db5027b3775168e84800458a7584dd62a2aa02af475c2"
+      "bytes": 9498,
+      "sha256": "56ad79cfb9d0bc3a1bcb3ce98110505b2e7ecf291d733e0604fdd6f256e0e061"
     },
     "repairs.json": {
-      "bytes": 24622,
-      "sha256": "3493e93783ff5397cbb9387d0ae7e3ce02ee5567423285d8703e6bbc8ff54eeb"
+      "bytes": 26545,
+      "sha256": "b4d2deeaf916e7dea40b865afa22456c158b5183d10e30680793b95daf1a59e6"
     },
     "review.json": {
-      "bytes": 9188,
-      "sha256": "9c59d53ce1dd2583491af12bf4ce18e77c39d8a6f2db901bb2fa7e3efacdd589"
+      "bytes": 8431,
+      "sha256": "fff9d35f19843accd11d43809332c71d04b3ccf300688e755cf35df30f1a8e39"
     },
     "validation.json": {
-      "bytes": 4373,
-      "sha256": "02de2e7f625814c8cb5233fdaa90303340a3d5af60c8852fa7969ea88142e5cc"
+      "bytes": 4347,
+      "sha256": "b97e09ae67abcf419ab11d123818f39a9effe3a5ba44641cbeb62a496a04dd20"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-03T18:24:59Z",
+    "proven_at": "2026-09-03T19:56:01Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
-  "sealed_at": "2026-09-03T18:24:59Z",
+  "sealed_at": "2026-09-03T19:56:01Z",
   "state": "READY_FOR_PROPOSAL"
 }

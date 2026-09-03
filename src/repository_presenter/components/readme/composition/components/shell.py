@@ -136,11 +136,11 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
     Section(
         "api_reference",
         "API Reference",
-        False,
+        True,
         "collapsible",
         "M",
-        "the plan finds it useful",
-        "At most twelve curated hub APIs from the verified public surface.",
+        None,
+        "The complete verified public surface: intro, Core API table by kind, member reference.",
     ),
     Section(
         "documentation_resources",

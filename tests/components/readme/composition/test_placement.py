@@ -203,7 +203,8 @@ def test_planning_refuses_to_exclude_a_section_a_supersession_relies_on() -> Non
     assert plan_checks(plan, FACTS, dispositions=dispositions, ecosystem="python") == [
         "section api_reference is excluded but the reconciliation relies on its content to "
         "supersede inherited_unit:012.paragraph; include it, or the transaction fails closed "
-        "naming the unit"
+        "naming the unit",
+        "section api_reference is required and cannot be omitted",  # row 14: Required
     ]
 
 

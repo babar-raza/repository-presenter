@@ -2355,6 +2355,56 @@
       "value": ".github/workflows/publish.yml"
     },
     {
+      "attributes": {
+        "role": "banner illustration"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; banner illustration; resolved to https://products.aspose.org/media/3d/python/banner-readme.png",
+          "path": "https://products.aspose.org/media/3d/python/banner-readme.png"
+        }
+      ],
+      "id": "link_target:product.banner",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/media/3d/python/banner-readme.png"
+    },
+    {
+      "attributes": {
+        "level": "platform",
+        "platform": "python",
+        "role": "enterprise"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; enterprise target; platform level; slug python-net",
+          "path": "https://products.aspose.com/3d/python-net/"
+        }
+      ],
+      "id": "link_target:product.enterprise",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.com/3d/python-net/"
+    },
+    {
+      "attributes": {
+        "role": "product homepage"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; product homepage; resolved to https://products.aspose.org/3d/python/",
+          "path": "https://products.aspose.org/3d/python/"
+        }
+      ],
+      "id": "link_target:product.homepage",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/3d/python/"
+    },
+    {
       "attributes": null,
       "confidence": 1.0,
       "evidence": [

@@ -31,6 +31,10 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
+from repository_presenter.components.readme.evidence.facts.product_pages import (
+    ENTERPRISE_FACT_ID,
+    enterprise_target,
+)
 from repository_presenter.core.facts import FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -43,6 +47,13 @@ PLACING = frozenset(
 _SHELL_OWNED = frozenset({"heading", "badge_row"})
 # Fence languages that mark a block of commands the maintainers run, never a product claim.
 _COMMAND_FENCES = frozenset({"bash", "sh", "shell", "console", "zsh", "powershell", "pwsh", "cmd"})
+# A block that installs or fetches the package belongs to the Installation row, which renders
+# the verified install itself; any other command block is the maintainers' build or test path.
+_INSTALL_COMMAND = re.compile(
+    r"^\s*(?:[$>]\s*)?(?:python3?\s+-m\s+)?(?:pip3?\s+install|npm\s+install|dotnet\s+add|"
+    r"cargo\s+add|go\s+get|git\s+clone)",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def command_block_units(facts: FactsDocument) -> set[str]:
@@ -127,6 +138,13 @@ def normalize(
     """
     deterministic = set(section_ids()) - placeable_section_ids()
     unresolved = code_units_by_polarity(facts, "UNRESOLVED")
+    contradicted = code_units_by_polarity(facts, "CONTRADICTED")
+    commands = command_block_units(facts)
+    units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    install_ids = sorted(
+        f.id for f in facts.by_kind("install_command") if f.polarity == "SUPPORTED"
+    )
+    build_ids = sorted(f.id for f in facts.by_kind("build_test_asset") if f.polarity == "SUPPORTED")
     absent = {
         section for section, holds in section_conditions(facts, policy).items() if holds is False
     }
@@ -141,10 +159,42 @@ def normalize(
             entry["destination_section"] = None
             entry["fact_ids"] = sorted(cited | {unresolved[unit]})
             continue
+        if disposition == "OMIT_UNSUPPORTED" and unit in commands and (install_ids or build_ids):
+            # A command block is the maintainers' own command, not a claim: an install command
+            # is rendered by the Installation row, any other block is kept where it was.
+            block = units_by_id[unit]
+            heading = " ".join(e.detail or "" for e in block.evidence)
+            installing = "> Installation" in heading or bool(_INSTALL_COMMAND.search(block.value))
+            if installing and install_ids:
+                entry["disposition"] = "SUPERSEDE_REDUNDANT"
+                entry["destination_section"] = "installation"
+                entry["fact_ids"] = sorted(cited | set(install_ids))
+            else:
+                entry["disposition"] = "VERIFIED_PRESERVE"
+                entry["destination_section"] = "development_testing"
+                entry["fact_ids"] = sorted(cited | set(build_ids or install_ids))
+            continue
+        if disposition in PLACING and unit in contradicted:
+            # The example failed at this revision: the block is never placed (README_CONTRACT.md
+            # section 3), so the placement folds into an omission citing the contradiction.
+            entry["disposition"] = "OMIT_UNSUPPORTED"
+            entry["destination_section"] = None
+            entry["fact_ids"] = sorted(cited | {contradicted[unit]})
+            continue
         if disposition in PLACING and destination == "enterprise_relationship":
-            if policy.enterprise_target_url is None:
+            # Row 18 is the shell's closing paragraph of Scope and Limitations, rendered from
+            # the live target; inherited Enterprise prose is superseded by it, and anything
+            # else placed there (a banner row, an image) has no row yet and is deferred.
+            if enterprise_target(facts.facts) is None or unit.rsplit(".", 1)[-1] not in {
+                "paragraph",
+                "heading",
+            }:
                 entry["disposition"] = "DEFER_UNRESOLVED"
                 entry["destination_section"] = None
+            else:
+                entry["disposition"] = "SUPERSEDE_REDUNDANT"
+                entry["destination_section"] = "scope_limitations"
+                entry["fact_ids"] = sorted(cited | {ENTERPRISE_FACT_ID})
             continue
         if disposition in PLACING and destination == "at_a_glance" and unit.endswith(".code_block"):
             entry["disposition"] = "SUPERSEDE_REDUNDANT" if cited else "DEFER_UNRESOLVED"

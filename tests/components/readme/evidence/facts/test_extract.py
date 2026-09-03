@@ -9,6 +9,7 @@ import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
@@ -16,6 +17,12 @@ from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.snapshot.capture import capture_snapshot, list_tree_paths
 from support import REPO_ROOT, commit_all, init_git_repository
+
+
+@pytest.fixture(autouse=True)
+def _no_live_product_pages(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(links, "fetch_status", lambda url: (404, url))
+
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -80,6 +87,9 @@ def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.Mo
         "install_command:pip",
         "license:file",
         "license:spdx",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage",
         "package:name",
         "package:python_requires",
         "package:version",
@@ -117,6 +127,11 @@ def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Pa
 
     document = extract_facts(ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin, None)
 
-    assert {fact.kind for fact in document.facts} == {"identity", "inherited_unit", "public_symbol"}
+    assert {fact.kind for fact in document.facts} == {
+        "identity",
+        "inherited_unit",
+        "link_target",  # the product-page lookup, unresolved offline
+        "public_symbol",
+    }
     assert [f.value for f in document.by_kind("inherited_unit")] == ["# Example"]
     assert [f.value for f in document.by_kind("public_symbol")] == ["pkg"]

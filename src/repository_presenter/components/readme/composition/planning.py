@@ -28,6 +28,7 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
     policy_packet,
 )
+from repository_presenter.components.readme.evidence.facts.product_pages import enterprise_target
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -54,10 +55,10 @@ def section_conditions(
         "at_a_glance": bool(input_formats),
         "dependencies": bool(_supported(facts, "dependency")),
         "additional_examples": len(_supported(facts, "example")) >= 2,
-        "api_reference": None if _supported(facts, "public_symbol") else False,
+        "api_reference": True,  # README_CONTRACT.md row 14: Required
         "documentation_resources": bool(links),
         "development_testing": bool(facts.by_kind("build_test_asset")),
-        "enterprise_relationship": policy.enterprise_target_url is not None,
+        "enterprise_relationship": enterprise_target(facts.facts) is not None,
         "third_party_notices": bool(facts.by_kind("third_party_notices")),
     }
     return {

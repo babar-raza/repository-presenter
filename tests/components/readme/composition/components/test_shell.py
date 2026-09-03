@@ -41,6 +41,7 @@ def test_the_shell_lists_the_seventeen_sections_in_contract_order() -> None:
         "installation",
         "dependencies",
         "quick_start",
+        "api_reference",
         "scope_limitations",
         "license",
     ]

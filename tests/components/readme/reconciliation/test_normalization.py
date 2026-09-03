@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from repository_presenter.components.readme.composition.policy import PlanningPolicy
 from repository_presenter.components.readme.reconciliation.dispositions import (
     code_units_by_polarity,
     normalize,
@@ -87,7 +86,10 @@ def test_unrenderable_placements_are_deferred_or_superseded() -> None:
     assert placement_errors(output, FACTS) == []
 
 
-def test_an_enterprise_placement_stands_once_the_policy_carries_a_target() -> None:
+def test_enterprise_prose_is_superseded_by_row_18_once_the_live_target_is_verified() -> None:
+    # Row 18 is the shell's closing paragraph of Scope and Limitations: inherited Enterprise
+    # prose placed there is superseded by it citing the target, and a banner row placed there
+    # has no row yet at this revision, so it is deferred rather than rendered headless.
     output = {
         "dispositions": [
             _entry(
@@ -95,13 +97,25 @@ def test_an_enterprise_placement_stands_once_the_policy_carries_a_target() -> No
                 "VERIFIED_MOVE",
                 "enterprise_relationship",
                 "link_target:001",
-            )
+            ),
+            _entry("inherited_unit:003.badge_row", "VERIFIED_MOVE", "enterprise_relationship"),
         ]
     }
-    policy = PlanningPolicy(enterprise_target_url="https://products.aspose.com/widget/python/")
-    assert normalize(output, FACTS, policy) == []
-    assert output["dispositions"][0]["disposition"] == "VERIFIED_MOVE"
-    assert output["dispositions"][0]["destination_section"] == "enterprise_relationship"
+    target = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        "https://products.aspose.com/widget/python/",
+        (Evidence("https://products.aspose.com/widget/python/", "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform"},
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, target))
+    assert normalize(output, facts) == []
+    prose, banner = output["dispositions"]
+    assert prose["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert prose["destination_section"] == "scope_limitations"
+    assert prose["fact_ids"] == ["link_target:001", "link_target:product.enterprise"]
+    assert banner["disposition"] == "DEFER_UNRESOLVED"
+    assert banner["destination_section"] is None
 
 
 def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing() -> None:
@@ -167,3 +181,72 @@ def test_a_command_block_is_never_omitted_while_build_facts_exist() -> None:
         "development_testing, or SUPERSEDE_REDUNDANT by installation for an install command"
     ]
     assert placement_errors(omitted, without) == []
+
+
+def test_a_placed_code_block_whose_example_is_contradicted_folds_into_an_omission() -> None:
+    failed = Fact(
+        "example:002",
+        "example",
+        "boom()",
+        (Evidence("README.md", "lines 9-9; python fence; unit inherited_unit:009.code_block"),),
+        polarity="CONTRADICTED",
+    )
+    block = Fact(
+        "inherited_unit:009.code_block",
+        "inherited_unit",
+        "```python" + chr(10) + "boom()" + chr(10) + "```",
+        (Evidence("README.md"),),
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, failed, block))
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:009.code_block", "VERIFIED_PRESERVE", "quick_start")
+        ]
+    }
+    assert normalize(output, facts) == []
+    assert output["dispositions"][0]["disposition"] == "OMIT_UNSUPPORTED"
+    assert output["dispositions"][0]["destination_section"] is None
+    assert output["dispositions"][0]["fact_ids"] == ["example:002"]
+
+
+def test_an_omitted_command_block_folds_to_installation_or_development_and_testing() -> None:
+    install = Fact(
+        "inherited_unit:015.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "pip install aspose-x-foss" + chr(10) + "```",
+        (Evidence("README.md", "lines 20-22; code_block; under X > Installation"),),
+    )
+    tests_block = Fact(
+        "inherited_unit:071.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "python -m unittest discover tests/" + chr(10) + "```",
+        (Evidence("README.md", "lines 80-82; code_block; under X > Development and Testing"),),
+    )
+    pip = Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-x-foss",
+        (Evidence("setup.py", "manifest"), Evidence("pypi", "package registry: found")),
+    )
+    assets = Fact("build_test_asset:tests", "build_test_asset", "tests/", (Evidence("tests/"),))
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, install, tests_block, pip, assets)
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:015.code_block", "OMIT_UNSUPPORTED", None),
+            _entry("inherited_unit:071.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    assert normalize(output, facts) == []
+    first, second = output["dispositions"]
+    assert (first["disposition"], first["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "installation",
+    )
+    assert first["fact_ids"] == ["install_command:pip"]
+    assert (second["disposition"], second["destination_section"]) == (
+        "VERIFIED_PRESERVE",
+        "development_testing",
+    )
+    assert second["fact_ids"] == ["build_test_asset:tests"]

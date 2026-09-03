@@ -106,13 +106,11 @@ def test_conditions_are_evaluated_from_the_facts() -> None:
     assert conditions["at_a_glance"] is False
     assert conditions["dependencies"] is True
     assert conditions["additional_examples"] is True
-    assert conditions["api_reference"] is None
+    assert conditions["api_reference"] is True  # row 14: Required
     assert conditions["documentation_resources"] is True
     assert conditions["development_testing"] is True
     assert conditions["enterprise_relationship"] is False
     assert conditions["third_party_notices"] is False
-    with_target = PlanningPolicy(enterprise_target_url="https://products.aspose.com/widget/")
-    assert section_conditions(FACTS, with_target)["enterprise_relationship"] is True
 
 
 def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None:
@@ -120,7 +118,7 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     assert packet["repository"] == ENTRY.repository
     by_id = {section["id"]: section for section in packet["shell"]}
     assert by_id["at_a_glance"]["condition_holds"] is False
-    assert by_id["api_reference"]["condition_holds"] is None
+    assert by_id["api_reference"]["condition_holds"] is True  # row 14: Required
     assert by_id["license"]["condition_holds"] is True
     assert packet["policy"]["capabilities_max"] == 8 and packet["policy"]["version"] == "1"
     ids = {record["id"] for record in packet["facts"]}
@@ -200,3 +198,26 @@ def test_a_second_quick_start_example_is_supported_distinct_and_kept_out_of_addi
             entry["include"] = False  # both verified examples are quick starts now
     assert plan_checks(plan, FACTS) == []
     assert "example:002" not in plan["additional_example_ids"]
+
+
+def test_the_enterprise_condition_follows_the_live_target_fact() -> None:
+    assert section_conditions(FACTS)["enterprise_relationship"] is False
+    with_target = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "link_target:product.enterprise",
+                "link_target",
+                "https://products.aspose.com/3d/python/",
+                (
+                    Evidence(
+                        "https://products.aspose.com/3d/python/", "HTTP 200; enterprise target"
+                    ),
+                ),
+                attributes={"role": "enterprise", "level": "platform"},
+            ),
+        ),
+    )
+    assert section_conditions(with_target)["enterprise_relationship"] is True

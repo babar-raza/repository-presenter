@@ -605,3 +605,55 @@ def test_a_type_without_a_docstring_takes_its_batch_authored_description() -> No
     assert "| `Scene` | Holds a scene graph. |" in readme.splitlines()
     without = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
     assert "| `Scene` | Defined as class Scene(ANode). |" in without.splitlines()
+
+
+def test_the_enterprise_paragraph_closes_scope_and_limitations_from_the_live_target() -> None:
+    target = Fact(
+        "link_target:product.enterprise",
+        "link_target",
+        "https://products.aspose.com/3d/python-net/",
+        (Evidence("https://products.aspose.com/3d/python-net/", "HTTP 200; enterprise target"),),
+        attributes={"role": "enterprise", "level": "platform", "platform": "python"},
+    )
+    facts = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, target))
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True}
+            if entry["section_id"] == "enterprise_relationship"
+            else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("enterprise_relationship", "context", "It adds FBX export and rendering."),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, plan, units, DISPOSITIONS)
+    scope = readme.split("## Scope and Limitations\n\n", 1)[1].split("\n## ", 1)[0]
+    assert scope.rstrip("\n").endswith(
+        "These limitations don't apply to [Aspose.3D for Python \u2014 Enterprise Edition]"
+        "(https://products.aspose.com/3d/python-net/). It adds FBX export and rendering."
+    )
+    assert readme.count("Enterprise Edition") == 1
+    family = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                target.id,
+                target.kind,
+                "https://products.aspose.com/3d/",
+                target.evidence,
+                attributes={"role": "enterprise", "level": "family"},
+            ),
+        ),
+    )
+    assert (
+        "[Aspose.3D \u2014 Enterprise Edition](https://products.aspose.com/3d/)"
+        in render_readme(ENTRY, family, plan, units, DISPOSITIONS)
+    )

@@ -566,6 +566,11 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert {f["value"]: f["polarity"] for f in facts["facts"] if f["kind"] == "link_target"} == {
         "LICENSE": "SUPPORTED",
         "https://docs.example.com/3d": "SUPPORTED",
+        # The stub answers 200 everywhere: every platform slug is live, so the Enterprise
+        # target is ambiguous and stays unresolved; the homepage and banner resolve.
+        "https://products.aspose.com/3d/": "UNRESOLVED",
+        "https://products.aspose.org/3d/python/": "SUPPORTED",
+        "https://products.aspose.org/media/3d/python/banner-readme.png": "SUPPORTED",
     }
     assert by_id["install_command:pip"]["evidence"][1]["path"] == (
         "https://pypi.org/pypi/aspose-3d-foss/json"
@@ -762,7 +767,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "3",
-        "renderer": "10",
+        "renderer": "11",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

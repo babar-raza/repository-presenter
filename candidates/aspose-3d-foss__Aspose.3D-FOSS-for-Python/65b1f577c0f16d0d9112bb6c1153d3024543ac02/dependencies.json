@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "10",
+    "renderer": "11",
     "shell": "3"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -153,6 +153,9 @@
     "link_target:033": "3eda255c14bd8e98c887e51677640a97fb9bf4354778f0a59fedb497acf09df6",
     "link_target:034": "1f99128adebd463559c7bd8191f4ada7e6e7364f83703571c0e2b1a469f3d02b",
     "link_target:035": "18cd564d51debed0d5c4961b9a70a0ad41bbc91f00035bee759765e7741508b9",
+    "link_target:product.banner": "c6fe0e9afc1448fbe696fdf05670bb75f27c03bdf6efa5d5afc8d3fe2f0f64d1",
+    "link_target:product.enterprise": "09ca374c80b7722f1ecfdc0c080c9333598d3e6cad428356c3550eb8c90985e7",
+    "link_target:product.homepage": "8f09135400387f5a85df25f2d80e4e5e3f9f610a7ab123717c0db916c27dc8a1",
     "package:name": "e5d1d569684227dc468bde57e35d476589d0f3dc8662ace975534a515b7e01af",
     "package:python_requires": "29bdf02eb439e8a3ca55af93cab29462425b85c01af07b274a8984815591a56d",
     "package:python_versions": "ea3b21a3bdaafc46bef9f21dd7aa769a854ae8229cdfdda62bba2c331235f2e9",

@@ -1,5 +1,15 @@
 {
   "attempts": {
+    "0343f12d596a07114c4815e2": {
+      "changes": [],
+      "label": "BC-03",
+      "outcome": "unrepairable",
+      "reason": "the failing detail names no LLM-owned section",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
+    },
     "193691ef7ee0524fd7ab85c6": {
       "changes": [
         {
@@ -109,7 +119,8 @@
       "label": "F05",
       "outcome": "repaired",
       "re_raised": [
-        "F05"
+        "F05",
+        "F04"
       ],
       "reason": null,
       "request_sha256": "cbb370a3e3dbc0288eca9e931a86ad476f854dcf06603cf856b10b3ceaffffb3",
@@ -145,6 +156,56 @@
       "reason": null,
       "request_sha256": "d4c44667a41ce93413f25a58831fe8f8c1c4106676d7d5c86b9f54f4103b4a64",
       "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "687c901fe25c2a9ca087492c": {
+      "changes": [
+        {
+          "after": "Build a scene from scratch using a Box entity with a LambertMaterial and export it to glTF format.",
+          "before": "Open an existing OBJ file and inspect its geometry by reading the control_points and polygon_count from each entity.",
+          "fact_ids": [
+            "example:002"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        },
+        {
+          "after": "Import an OBJ file and inspect its geometry.",
+          "before": "Build a scene from scratch using a Box entity with a LambertMaterial and export it to glTF format.",
+          "fact_ids": [
+            "example:004"
+          ],
+          "id": "R02",
+          "path": "units.1.text"
+        },
+        {
+          "after": "inherited_unit:027.paragraph,example:002",
+          "before": "inherited_unit:027.paragraph",
+          "fact_ids": [
+            "example:002"
+          ],
+          "id": "R03",
+          "path": "units.0.fact_ids"
+        },
+        {
+          "after": "inherited_unit:029.paragraph,example:004",
+          "before": "inherited_unit:029.paragraph,example:002",
+          "fact_ids": [
+            "example:004"
+          ],
+          "id": "R04",
+          "path": "units.1.fact_ids"
+        }
+      ],
+      "label": "F02",
+      "outcome": "repaired",
+      "re_raised": [
+        "F02"
+      ],
+      "reason": null,
+      "request_sha256": "229513bf07f3d1f39f0aa98d5b81eef77d4ec66377d18df8b0e710f0ba51686c",
+      "section_id": "quick_start",
       "source": "review",
       "stage": "S6"
     },

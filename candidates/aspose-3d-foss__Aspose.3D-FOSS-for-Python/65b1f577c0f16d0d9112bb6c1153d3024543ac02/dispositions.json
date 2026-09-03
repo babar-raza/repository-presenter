@@ -15,7 +15,7 @@
         "package:python_versions",
         "package:version"
       ],
-      "rationale": "The H1 product name matches the canonical product identity and is required in the identity section.",
+      "rationale": "The H1 product name matches the verified product identity and is required in the identity section.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -56,20 +56,22 @@
         "link_target:032",
         "link_target:033",
         "link_target:034",
-        "link_target:035"
+        "link_target:035",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage"
       ],
-      "rationale": "The badge row contains only verified badges for Python version, license, contributors, and PyPI version.",
+      "rationale": "The badge row contains verified badges for Python version, MIT license, contributors, and PyPI version.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "link_target:009",
-        "link_target:010",
-        "link_target:033"
+        "link_target:product.banner",
+        "link_target:product.homepage"
       ],
-      "rationale": "The banner image links to the enterprise product page and belongs in the enterprise relationship section.",
+      "rationale": "The banner image links to the enterprise product page and is promotional; it belongs in the enterprise relationship section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -86,7 +88,7 @@
         "dependency:none",
         "public_symbol:aspose.threed"
       ],
-      "rationale": "The paragraph's substance is captured by the product summary and platform facts; it will be re-authored for the opening section.",
+      "rationale": "The paragraph's substance is captured in the product summary and opening section facts; it will be re-authored.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -124,15 +126,9 @@
     },
     {
       "destination_section": null,
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:009",
-        "example:012",
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "rationale": "The Mermaid flowchart is supported by verified examples and format facts; it is placed in the at_a_glance section.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Mermaid flowchart is not supported by the facts; no verified capability graph exists.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
@@ -154,14 +150,13 @@
         "example:012",
         "public_symbol:aspose.threed.mesh",
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.shading",
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
         "public_symbol:aspose.threed.pose",
         "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The list items are supported by verified examples and public symbols; they will be re-authored for the key_capabilities section.",
+      "rationale": "The list items are grounded in verified examples and public symbols; they will be re-authored to match the capabilities inventory.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -178,9 +173,10 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "install_command:pip",
+        "package:name",
         "package:version"
       ],
-      "rationale": "The installation paragraph correctly describes the PyPI version and install command.",
+      "rationale": "The paragraph correctly states the package name, version, and PyPI install command.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
@@ -198,7 +194,7 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The editable install paragraph is supported by the install_command fact and is placed in the installation section.",
+      "rationale": "The editable install paragraph is a valid alternative installation method.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
@@ -207,7 +203,7 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The editable install code block matches the verified editable install command.",
+      "rationale": "The editable install code block matches the verified editable installation method.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
@@ -216,17 +212,17 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The verification paragraph is supported by the install_command fact and is placed in the installation section.",
+      "rationale": "The verification paragraph is a valid post-installation step.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "import_path:aspose",
+        "import_path:aspose.threed",
         "install_command:pip"
       ],
-      "rationale": "The verification command matches the verified install and import facts.",
+      "rationale": "The verification command matches the verified import path and install command.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
@@ -237,7 +233,7 @@
         "package:python_requires",
         "package:python_versions"
       ],
-      "rationale": "The Python version support paragraph is supported by the package facts.",
+      "rationale": "The Python version support statement matches the verified python_requires and python_versions facts.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
@@ -267,7 +263,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The paragraph correctly states no required third-party dependencies.",
+      "rationale": "The statement that there are no required third-party dependencies is supported by the dependency:none fact.",
       "unit_id": "inherited_unit:021.paragraph"
     },
     {
@@ -288,7 +284,7 @@
         "dependency:none",
         "package:python_requires"
       ],
-      "rationale": "The Python version requirement list is supported by the package fact.",
+      "rationale": "The Python version requirement matches the verified python_requires fact.",
       "unit_id": "inherited_unit:023.list"
     },
     {
@@ -308,7 +304,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The pytest development dependency list is supported by the dependency fact.",
+      "rationale": "The pytest version requirement matches the verified development dependency fact.",
       "unit_id": "inherited_unit:025.list"
     },
     {
@@ -324,7 +320,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The quick start paragraph introduces the verified example for importing OBJ files.",
+      "rationale": "The lead-in sentence for the quick start example is supported by the example:002 fact.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
@@ -334,7 +330,7 @@
         "example:001",
         "example:002"
       ],
-      "rationale": "The OBJ import example is verified and placed in the quick_start section.",
+      "rationale": "The OBJ import example matches the verified example:002 fact.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
@@ -343,7 +339,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The quick start paragraph introduces the verified example for building a scene.",
+      "rationale": "The second quick start example lead-in is supported by the example:002 fact.",
       "unit_id": "inherited_unit:029.paragraph"
     },
     {
@@ -352,7 +348,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The glTF export example is verified and placed in the quick_start section.",
+      "rationale": "The glTF export example matches the verified example:002 fact.",
       "unit_id": "inherited_unit:030.code_block"
     },
     {
@@ -372,7 +368,7 @@
         "example:010",
         "example:012"
       ],
-      "rationale": "The additional examples paragraph introduces the verified examples for format conversion and mesh construction.",
+      "rationale": "The lead-in paragraph for additional examples is supported by the verified examples.",
       "unit_id": "inherited_unit:032.paragraph"
     },
     {
@@ -381,7 +377,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The 'Convert Between Formats' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Convert Between Formats' heading is supported by the example:002 fact.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
@@ -391,14 +387,14 @@
         "example:002",
         "example:003"
       ],
-      "rationale": "The format conversion example is verified and placed in the additional_examples section.",
+      "rationale": "The format conversion example matches the verified example:002 fact.",
       "unit_id": "inherited_unit:034.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details summary is a collapsible UI element and is non-content.",
+      "rationale": "The HTML details summary is not supported by the facts; it is promotional markup.",
       "unit_id": "inherited_unit:035.html_block"
     },
     {
@@ -407,7 +403,7 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The 'Assign a PBR Material to a Primitive' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Assign a PBR Material to a Primitive' heading is supported by the example:004 fact.",
       "unit_id": "inherited_unit:036.heading"
     },
     {
@@ -416,7 +412,7 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The PBR material example is verified and placed in the additional_examples section.",
+      "rationale": "The PBR material example matches the verified example:004 fact.",
       "unit_id": "inherited_unit:037.code_block"
     },
     {
@@ -425,7 +421,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The 'Build a Mesh From Control Points' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Build a Mesh From Control Points' heading is supported by the example:005 fact.",
       "unit_id": "inherited_unit:038.heading"
     },
     {
@@ -434,7 +430,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The mesh construction paragraph introduces the verified example and is placed in the additional_examples section.",
+      "rationale": "The description for the mesh construction example is supported by the example:005 fact.",
       "unit_id": "inherited_unit:039.paragraph"
     },
     {
@@ -443,7 +439,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The mesh construction example is verified and placed in the additional_examples section.",
+      "rationale": "The mesh construction example matches the verified example:005 fact.",
       "unit_id": "inherited_unit:040.code_block"
     },
     {
@@ -452,17 +448,14 @@
       "fact_ids": [
         "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The 'Triangulate an Imported Mesh' heading is supported by the verified public symbol and placed in the additional_examples section.",
+      "rationale": "The 'Triangulate an Imported Mesh' heading is supported by the PolygonModifier.triangulate capability.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:006",
-        "public_symbol:aspose.threed.polygonbuilder"
-      ],
-      "rationale": "The triangulation example is verified and placed in the additional_examples section.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The triangulate example is not supported by the facts; no verified example exists.",
       "unit_id": "inherited_unit:042.code_block"
     },
     {
@@ -471,17 +464,14 @@
       "fact_ids": [
         "public_symbol:aspose.threed.node"
       ],
-      "rationale": "The 'Walk the Scene Graph' heading is supported by the verified public symbol and placed in the additional_examples section.",
+      "rationale": "The 'Walk the Scene Graph' heading is supported by the Node class.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:007",
-        "public_symbol:aspose.threed.node"
-      ],
-      "rationale": "The scene graph traversal example is verified and placed in the additional_examples section.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The scene graph walk example is not supported by the facts; no verified example exists.",
       "unit_id": "inherited_unit:044.code_block"
     },
     {
@@ -490,7 +480,7 @@
       "fact_ids": [
         "example:008"
       ],
-      "rationale": "The 'Position a Node With Transform' heading is supported, but the example code is CONTRADICTED; the code block is omitted.",
+      "rationale": "The 'Position a Node With Transform' heading is supported, but the example code is CONTRADICTED by example:008.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
@@ -499,7 +489,7 @@
       "fact_ids": [
         "example:008"
       ],
-      "rationale": "The code block for 'Position a Node With Transform' is CONTRADICTED and omitted.",
+      "rationale": "The transform example code is CONTRADICTED by example:008 and is never placed.",
       "unit_id": "inherited_unit:046.code_block"
     },
     {
@@ -508,7 +498,7 @@
       "fact_ids": [
         "example:009"
       ],
-      "rationale": "The 'Build a Mesh and Export It to STL' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Build a Mesh and Export It to STL' heading is supported by the example:009 fact.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
@@ -517,7 +507,7 @@
       "fact_ids": [
         "example:009"
       ],
-      "rationale": "The STL export example is verified and placed in the additional_examples section.",
+      "rationale": "The STL export example matches the verified example:009 fact.",
       "unit_id": "inherited_unit:048.code_block"
     },
     {
@@ -526,7 +516,7 @@
       "fact_ids": [
         "example:010"
       ],
-      "rationale": "The 'Convert a Parametric Primitive to a Mesh' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Convert a Parametric Primitive to a Mesh' heading is supported by the example:010 fact.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
@@ -535,26 +525,21 @@
       "fact_ids": [
         "example:010"
       ],
-      "rationale": "The primitive conversion example is verified and placed in the additional_examples section.",
+      "rationale": "The primitive to mesh example matches the verified example:010 fact.",
       "unit_id": "inherited_unit:050.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "public_symbol:aspose.threed.formats"
-      ],
-      "rationale": "The 'Import a COLLADA File' heading is supported by the verified public symbol and placed in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Import a COLLADA File' heading is not supported by the facts; no verified example exists.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
       "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:011",
-        "public_symbol:aspose.threed.formats"
-      ],
-      "rationale": "The COLLADA import example is verified and placed in the additional_examples section.",
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The COLLADA import example is not supported by the facts; no verified example exists.",
       "unit_id": "inherited_unit:052.code_block"
     },
     {
@@ -563,7 +548,7 @@
       "fact_ids": [
         "example:012"
       ],
-      "rationale": "The 'Build a Cube and Export It to 3MF' heading is supported by the verified example and placed in the additional_examples section.",
+      "rationale": "The 'Build a Cube and Export It to 3MF' heading is supported by the example:012 fact.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
@@ -572,14 +557,14 @@
       "fact_ids": [
         "example:012"
       ],
-      "rationale": "The 3MF export example is verified and placed in the additional_examples section.",
+      "rationale": "The 3MF export example matches the verified example:012 fact.",
       "unit_id": "inherited_unit:054.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details close tag is a collapsible UI element and is non-content.",
+      "rationale": "The HTML details close tag is not supported by the facts; it is promotional markup.",
       "unit_id": "inherited_unit:055.html_block"
     },
     {
@@ -597,62 +582,59 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.mesh"
       ],
-      "rationale": "The API reference paragraph introduces the curated hub APIs and is placed in the api_reference section.",
+      "rationale": "The API reference intro paragraph is supported by the verified public symbols.",
       "unit_id": "inherited_unit:057.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details summary is a collapsible UI element and is non-content.",
+      "rationale": "The HTML details summary is not supported by the facts; it is promotional markup.",
       "unit_id": "inherited_unit:058.html_block"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh"
+        "public_symbol:aspose",
+        "public_symbol:aspose.pydrawing",
+        "public_symbol:aspose.threed"
       ],
-      "rationale": "The 'Core API' heading is supported by the verified public symbols and placed in the api_reference section.",
+      "rationale": "The 'Core API' heading is supported by the verified public symbols.",
       "unit_id": "inherited_unit:059.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The full API table is redundant with the curated hub APIs in the api_reference section.",
+      "rationale": "The full API table is not supported by the facts; only the public_symbol facts exist.",
       "unit_id": "inherited_unit:060.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed.extrapolationtype",
+        "public_symbol:aspose.threed.interpolation",
+        "public_symbol:aspose.threed.posetype",
+        "public_symbol:aspose.threed.stepmode",
+        "public_symbol:aspose.threed.weightedmode"
       ],
-      "rationale": "The 'Enumerations' heading is supported by the verified public symbols and placed in the api_reference section.",
+      "rationale": "The 'Enumerations' heading is supported by the verified public symbols.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The enumerations table is redundant with the curated hub APIs in the api_reference section.",
+      "rationale": "The enumerations table is not supported by the facts; only the public_symbol facts exist.",
       "unit_id": "inherited_unit:062.table"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details close tag is a collapsible UI element and is non-content.",
+      "rationale": "The HTML details close tag is not supported by the facts; it is promotional markup.",
       "unit_id": "inherited_unit:063.html_block"
     },
     {
@@ -678,7 +660,7 @@
         "link_target:031",
         "link_target:032"
       ],
-      "rationale": "The documentation links are verified and placed in the documentation_resources section.",
+      "rationale": "The documentation links are all verified by the link_target facts.",
       "unit_id": "inherited_unit:065.list"
     },
     {
@@ -694,16 +676,16 @@
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "rationale": "The limitations list is supported by the inherited unit and placed in the scope_limitations section.",
+      "rationale": "The limitations list is supported by the inherited_unit:067.list fact.",
       "unit_id": "inherited_unit:067.list"
     },
     {
-      "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "link_target:033"
+        "link_target:product.enterprise"
       ],
-      "rationale": "The enterprise edition paragraph is supported by the product link and placed in the enterprise_relationship section.",
+      "rationale": "The enterprise edition paragraph is supported by the product.enterprise link_target fact.",
       "unit_id": "inherited_unit:068.paragraph"
     },
     {
@@ -720,7 +702,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The development paragraph introduces the verified test assets and is placed in the development_testing section.",
+      "rationale": "The test suite installation paragraph is supported by the build_test_asset facts.",
       "unit_id": "inherited_unit:070.paragraph"
     },
     {
@@ -729,7 +711,7 @@
       "fact_ids": [
         "build_test_asset:tests"
       ],
-      "rationale": "The test command is supported by the test asset fact and placed in the development_testing section.",
+      "rationale": "The test suite command matches the verified build_test_asset fact.",
       "unit_id": "inherited_unit:071.code_block"
     },
     {
@@ -738,7 +720,7 @@
       "fact_ids": [
         "build_test_asset:tests"
       ],
-      "rationale": "The single test paragraph introduces the verified test file and is placed in the development_testing section.",
+      "rationale": "The single test file paragraph is supported by the build_test_asset fact.",
       "unit_id": "inherited_unit:072.paragraph"
     },
     {
@@ -747,7 +729,7 @@
       "fact_ids": [
         "build_test_asset:tests"
       ],
-      "rationale": "The single test command is supported by the test asset fact and placed in the development_testing section.",
+      "rationale": "The single test command matches the verified build_test_asset fact.",
       "unit_id": "inherited_unit:073.code_block"
     },
     {
@@ -757,7 +739,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The test suite description is supported by the test asset facts and placed in the development_testing section.",
+      "rationale": "The test coverage paragraph is supported by the build_test_asset facts.",
       "unit_id": "inherited_unit:074.paragraph"
     },
     {
@@ -766,7 +748,7 @@
       "fact_ids": [
         "build_test_asset:ci"
       ],
-      "rationale": "The release process paragraph is supported by the CI asset fact and placed in the development_testing section.",
+      "rationale": "The release process paragraph is supported by the build_test_asset fact.",
       "unit_id": "inherited_unit:075.paragraph"
     },
     {
@@ -786,7 +768,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is supported by the license facts and placed in the license section.",
+      "rationale": "The license declaration matches the verified license facts.",
       "unit_id": "inherited_unit:077.paragraph"
     }
   ]

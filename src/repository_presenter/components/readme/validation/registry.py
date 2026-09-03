@@ -406,7 +406,11 @@ def _check_examples(candidate: Candidate) -> list[Failure]:
     plan = candidate.plan
     planned = [
         fact_id
-        for fact_id in [plan.get("quick_start_example_id"), *plan.get("additional_example_ids", [])]
+        for fact_id in [
+            plan.get("quick_start_example_id"),
+            plan.get("second_quick_start_example_id"),  # row 10: up to two quick starts
+            *plan.get("additional_example_ids", []),
+        ]
         if fact_id
     ]
     for fact_id in planned:

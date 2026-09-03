@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T00:02:19+05:00"
+updated_at: "2026-09-04T00:15:33+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W04
-  status: READY
+  status: IN_PROGRESS
   purpose: "The remaining shell rows for the canary: the banner (row 3) and the Enterprise Edition closing paragraph (row 18) from new verified-link facts resolved by a live products.aspose.org and products.aspose.com check (RESEARCH_AND_GUIDELINES.md section 20 - one lookup per candidate, family/platform/unresolved, omit when unresolved); At a Glance under its revised condition (row 6: three capabilities, Starting Points optional) with single listing nodes, one edge per hop, and geometry-safe labels; the visible flagship in Additional Examples and preservation of verified repository-owned images with alt text (row 12); the optional Project Structure and Feature Showcase rows and the deliberate-additions rule (rows 11, 13). Acceptance: a section-by-section diff against the live README shows no section, image, or link it has that this candidate lacks; the eleven checks pass; the sealed bundle supersedes G2-W03's."
   prerequisites:
     - G2-W03 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.

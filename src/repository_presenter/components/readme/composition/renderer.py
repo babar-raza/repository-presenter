@@ -40,10 +40,11 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
     renders_verbatim,
 )
+from repository_presenter.components.readme.evidence.facts.product_pages import enterprise_target
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "10"  # the template component version dependencies.json records
+RENDERER_VERSION = "11"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -370,6 +371,26 @@ def _api_reference(context: RenderContext) -> list[str]:
     return lines
 
 
+def _enterprise_paragraph(context: RenderContext) -> str:
+    """README_CONTRACT.md section 2 row 18: the closing paragraph of Scope and Limitations,
+    from the live verified Enterprise target; a family-level target names no platform, and
+    Enterprise Edition appears exactly once, here."""
+    if not any(section.id == "enterprise_relationship" for section in context.included):
+        return ""
+    target = enterprise_target(context.facts.facts)
+    if target is None:
+        return ""
+    level = (target.attributes or {}).get("level", "platform")
+    name = context.name.replace(" FOSS", "")
+    if level == "family":
+        name = name.split(" for ", 1)[0]
+    sentence = (
+        f"These limitations don't apply to [{name} \u2014 Enterprise Edition]({target.value})."
+    )
+    adds = context.unit("enterprise_relationship", "context").strip()
+    return f"{sentence} {adds}" if adds else sentence
+
+
 def _oxford(items: list[str]) -> str:
     if len(items) <= 2:
         return " and ".join(items)
@@ -563,7 +584,7 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
             lines.append("")
             lines.append(" ".join(facts_sentences))
     elif sid == "enterprise_relationship":
-        lines.append(context.unit(sid, "context"))
+        pass  # rendered as the closing paragraph of Scope and Limitations (row 18)
     elif sid == "third_party_notices":
         notices = context.supported("third_party_notices")
         for fact in notices:
@@ -590,6 +611,13 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         for verbatim in placed:
             lines.append("")
             lines.append(verbatim.rstrip("\n"))
+    if sid == "scope_limitations":
+        # Row 18: the Enterprise paragraph is the section's closing paragraph, after every
+        # bullet and every placed unit, separated by a blank line and never inside a bullet.
+        closing = _enterprise_paragraph(context)
+        if closing:
+            lines.append("")
+            lines.append(closing)
     return [line for line in lines if line is not None]
 
 

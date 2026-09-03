@@ -105,8 +105,10 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit of one or two sentences",
     ),
     "enterprise_relationship": (
-        "One or two sentences relating the FOSS scope to the Enterprise Edition.",
-        "one unit of one or two sentences",
+        "At most one sentence on what the commercial edition adds beyond this package, only "
+        "from the accepted facts (the existing README's own statements); never the words "
+        "Enterprise Edition, which the renderer names exactly once; empty when no fact says.",
+        "one unit of at most one sentence",
     ),
 }
 

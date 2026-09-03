@@ -19,14 +19,13 @@ Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, co
 
 ## Key Capabilities
 
-- **Load multiple 3D formats.** Create and edit mesh geometry by adding control points and polygons with `Mesh.control_points` and `Mesh.create_polygon`, or convert primitives like `Box` and `Sphere` to editable `Mesh` objects with `to_mesh`.
-- **Export to common 3D formats.** Build a scene graph by attaching entities to nodes with `Node.add_entity` and `Node.create_child_node`, and inspect or modify each node's position and orientation through its `Transform` property.
-- **Construct and manipulate meshes.** Assign materials such as `LambertMaterial` or `PbrMaterial` to nodes, setting diffuse color, metallic factor, and roughness factor to control how light interacts with the geometry.
-- **Assign materials to geometry.** Import and export scenes to formats including OBJ, STL, glTF/GLB, and 3MF using `FileFormat.get_format_by_extension` and format-specific save options like `GltfSaveOptions` and `ThreeMfSaveOptions`.
-- **Build and traverse scene graphs.** Construct parameterized primitives such as `Box` and `Sphere`, then call their `to_mesh` method to produce editable `Mesh` geometry with control points and polygons.
-- **Triangulate arbitrary polygons.** Build keyframe animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations, and store skeletal bind-pose data with `Pose`.
-- **Create keyframe animations.** Inspect mesh properties such as control points, polygon count, and bounding box with `Mesh.control_points`, `Mesh.polygon_count`, and `Mesh.get_bounding_box` to analyze geometry structure.
-- **Convert primitives to editable meshes.** Traverse the scene graph by accessing `Node.child_nodes` and `Node.parent_node`, and query global transformations with `Node.evaluate_global_transform` to understand spatial relationships.
+- **Load multiple 3D formats.** Create scenes and save them to `.gltf` or `.stl` files using `Scene.save`() with `FileFormat.GLTF2` or `FileFormat.WAVEFRONT_OBJ`, each format backed by its own `SaveOptions` subclass for coordinate flipping, unit scaling, and compression settings.
+- **Export to common 3D formats.** Read OBJ, STL, glTF/GLB, COLLADA, and 3MF files with `Scene.open`(), which auto-detects the format from the file extension or an explicit `FileFormat` instance.
+- **Construct and manipulate meshes.** Build and traverse a scene graph with `Node.create_child_node`(), `Node.add_entity`(), and `Node.child_nodes`, where every node carries its own `Transform` (translation, rotation, scale, and pivots) independent of the attached entity or material.
+- **Assign materials to geometry.** Author and edit mesh data directly through `Mesh.control_points`, `Mesh.create_polygon`(), and `Mesh.polygons`, or convert parameterized primitives like `Box` and `Sphere` into editable `Mesh` geometry by calling their `to_mesh()` method.
+- **Build and traverse scene graphs.** Assign `LambertMaterial`, `PhongMaterial`, or `PbrMaterial` to a node, setting diffuse, specular, emissive, and PBR albedo/metallic/roughness color and factor properties directly.
+- **Triangulate arbitrary polygons.** Triangulate arbitrary polygon data into triangle fans with `Mesh.triangulate`(), a real ear-clipping triangulation implementation rather than a naive fan split.
+- **Create keyframe animations.** Build keyframe animation with `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and store skeletal bind-pose data with `Pose`.
 
 ## Installation
 
@@ -87,7 +86,7 @@ scene.save("crate.gltf")
 
 ## Additional Examples
 
-The following examples demonstrate core workflows in Aspose.3D FOSS for Python, including mesh construction, material assignment, and format conversion.
+The following examples demonstrate core workflows: creating primitives with materials, building meshes from control points, and exporting to various 3D formats.
 
 <details>
 <summary>View Additional Examples</summary>
@@ -110,7 +109,7 @@ scene.root_node.create_child_node("Ball", entity=sphere.to_mesh(), material=mate
 scene.save("ball.stl")
 ```
 
-### Build a mesh, assign a PBR material, and export to glTF JSON
+### Build a mesh, assign a PBR material, and export to glTF
 
 ```python
 import io
@@ -151,7 +150,7 @@ gltf_data = json.loads(stream.read().decode("utf-8"))
 print(gltf_data["materials"][0]["pbrMetallicRoughness"])
 ```
 
-### Construct a triangle mesh and export it to ASCII STL
+### Build a triangle mesh and export it to ASCII STL
 
 ```python
 import io
@@ -180,7 +179,7 @@ scene.save(stream, options)
 print(stream.getvalue())
 ```
 
-### Convert a `Box` primitive to a mesh and count control points
+### Convert a `Box` primitive to a mesh and inspect control points
 
 ```python
 from aspose.threed.entities import Box
@@ -190,7 +189,7 @@ mesh = box.to_mesh()
 print(f"Control points: {len(mesh.control_points)}")
 ```
 
-### Build a cube mesh and export it to uncompressed 3MF
+### Build a cube mesh and export it to 3MF without compression
 
 ```python
 import io
@@ -233,7 +232,7 @@ scene.save(stream, options)
 
 ## API Reference
 
-The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.FileFormat` for working with supported file formats. `Scene` provides methods like `Scene.open` and `Scene.save` to handle 3D content, while `FileFormat` exposes format-specific capabilities such as `FileFormat.detect` and `FileFormat.get_format_by_extension`.
+The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.Node` as the fundamental building block that holds transforms, entities, and materials.
 
 The verified public surface has 343 types.
 
@@ -597,7 +596,7 @@ The verified public surface has 343 types.
 
 ### Scene
 
-`Scene` serves as the root container for a 3D scene graph, offering `Scene.root_node` to access the top-level `Node`, `Scene.animation_clips` to manage animation data, `Scene.sub_scenes` for hierarchical organization, and `Scene.render` for exporting to supported formats.
+`Scene` provides `Scene.open`() and `Scene.save`() to load and write 3D scenes, `Scene.root_node` to access the top-level node, `Scene.animation_clips` to manage animation data, `Scene.poses` for skeletal poses, and `Scene.render` to trigger rendering.
 
 - `animation_clips`: Defined as def animation_clips(self) -> List['AnimationClip'].
 - `asset_info`: Defined as def asset_info(self) -> AssetInfo.
@@ -614,9 +613,30 @@ The verified public surface has 343 types.
 - `save`: Defined as def save(self, file_or_stream, format_or_options=None).
 - `sub_scenes`: Defined as def sub_scenes(self) -> List['Scene'].
 
+### Mesh
+
+`Mesh` exposes `Mesh.control_points` for vertex positions, `Mesh.polygons` for face definitions, `Mesh.polygon_count` for topology statistics, and `Mesh.to_mesh`() to convert entities into mesh representations.
+
+- `control_points`: Defined as def control_points(self) -> ArrayListAdapter[Vector4].
+- `create_polygon`: Defined as def create_polygon(self, *args).
+- `difference`: Defined as def difference(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
+- `do_boolean`: Defined as def do_boolean(op: BooleanOperation, a: 'Mesh', transform_a: Optional[Matrix4], b: 'Mesh', transform_b: Optional[Matrix4]) -> 'Mesh'.
+- `edges`: Defined as def edges(self) -> ArrayListAdapter[int].
+- `get_bounding_box`: Defined as def get_bounding_box(self).
+- `get_entity_renderer_key`: Defined as def get_entity_renderer_key(self).
+- `get_polygon_size`: Defined as def get_polygon_size(self, index: int) -> int.
+- `intersect`: Defined as def intersect(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
+- `is_manifold`: Defined as def is_manifold(self) -> bool.
+- `optimize`: Defined as def optimize(self, vertex_elements: bool=False, tolerance_control_point: float=1e-09, tolerance_normal: float=1e-09, tolerance_uv: float=1e-09) -> 'Mesh'.
+- `polygon_count`: Defined as def polygon_count(self) -> int.
+- `polygons`: Defined as def polygons(self) -> List[List[int]].
+- `to_mesh`: Defined as def to_mesh(self) -> 'Mesh'.
+- `triangulate`: Defined as def triangulate(self) -> 'Mesh'.
+- `union`: Defined as def union(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
+
 ### Node
 
-`Node` represents an element in the scene hierarchy, exposing `Node.transform` for position and orientation, `Node.entities` for holding `Mesh`-derived objects, `Node.child_nodes` for tree traversal, and `Node.material` for assigning visual properties.
+`Node` holds `Node.transform` for local positioning, `Node.material` for surface appearance, `Node.child_nodes` for hierarchy traversal, and `Node.add_entity` to attach `Mesh`-derived geometry.
 
 - `add_child_node`: Defined as def add_child_node(self, node: 'Node').
 - `add_entity`: Defined as def add_entity(self, entity: 'Entity').
@@ -641,46 +661,49 @@ The verified public surface has 343 types.
 - `transform`: Defined as def transform(self) -> Transform.
 - `visible`: Defined as def visible(self) -> bool.
 
-### Mesh
-
-`Mesh` stores geometric data such as `control_points` and polygon definitions, and supports conversion from primitives via methods like `to_mesh`, enabling procedural geometry creation and manipulation.
-
-- `control_points`: Defined as def control_points(self) -> ArrayListAdapter[Vector4].
-- `create_polygon`: Defined as def create_polygon(self, *args).
-- `difference`: Defined as def difference(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
-- `do_boolean`: Defined as def do_boolean(op: BooleanOperation, a: 'Mesh', transform_a: Optional[Matrix4], b: 'Mesh', transform_b: Optional[Matrix4]) -> 'Mesh'.
-- `edges`: Defined as def edges(self) -> ArrayListAdapter[int].
-- `get_bounding_box`: Defined as def get_bounding_box(self).
-- `get_entity_renderer_key`: Defined as def get_entity_renderer_key(self).
-- `get_polygon_size`: Defined as def get_polygon_size(self, index: int) -> int.
-- `intersect`: Defined as def intersect(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
-- `is_manifold`: Defined as def is_manifold(self) -> bool.
-- `optimize`: Defined as def optimize(self, vertex_elements: bool=False, tolerance_control_point: float=1e-09, tolerance_normal: float=1e-09, tolerance_uv: float=1e-09) -> 'Mesh'.
-- `polygon_count`: Defined as def polygon_count(self) -> int.
-- `polygons`: Defined as def polygons(self) -> List[List[int]].
-- `to_mesh`: Defined as def to_mesh(self) -> 'Mesh'.
-- `triangulate`: Defined as def triangulate(self) -> 'Mesh'.
-- `union`: Defined as def union(a: 'Mesh', b: 'Mesh') -> 'Mesh'.
-
 ### shading
 
-The shading module provides `Material` definitions for surface appearance, including properties like `diffuse_color`, `metallic_factor`, and `roughness_factor` to control rendering behavior.
+The shading module provides `LambertMaterial`, `PhongMaterial`, and `PbrMaterial` to define surface properties, with `PbrMaterial` exposing `metallic_factor` and `roughness_factor` for physically based rendering.
 
 ### entities
 
-The entities module includes `Primitive` classes and `PolygonBuilder` to construct geometry programmatically, supporting operations like `create_polygon` and add to build meshes from scratch.
+The entities module supplies geometric primitives such as `Box`, `Sphere`, and `Cylinder`, and `PolygonModifier` to modify mesh topology, for example by triangulating faces.
 
 ### animation
 
-The animation module supports keyframe-based animation through `AnimationClip`, with `Scene.current_animation_clip` and `Scene.create_animation_clip` enabling scene-level animation management.
+The animation module supports keyframe-based animation through `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-varying transforms and properties.
 
 ### formats
 
-The formats module exposes `FileFormat` instances for supported 3D formats, including `FileFormat.FBX7400ASCII`, `FileFormat.GLTF2`, `FileFormat.WAVEFRONT_OBJ`, and `FileFormat.MICROSOFT_3MF_FORMAT`, with `FileFormat.can_import` and `FileFormat.can_export` indicating format capabilities.
+The formats module exposes `FileFormat` and `FileFormatType` to query supported file formats, and format-specific loaders and savers to handle input and output of 3D assets.
 
 ### utilities
 
-The utilities module provides helper classes like `MathUtils` for common operations and supports in-memory I/O via members such as `BytesIO` and `StringIO` for streaming operations.
+The utilities module provides `Vector3` and `Vector4` for 3D and 4D vector math used in transforms, geometry, and rendering operations.
+
+### PolygonBuilder
+
+`PolygonBuilder` assists in constructing polygonal meshes by providing methods to define vertices and connect them into faces.
+
+- `add_vertex`: Defined as def add_vertex(self, index: int).
+- `begin`: Defined as def begin(self).
+- `end`: Defined as def end(self).
+
+### Pose
+
+`Pose` and `BonePose` represent skeletal poses, and `Skeleton` provides the structure for skinning deformations.
+
+- `add_bone_pose`: Defined as def add_bone_pose(self, node: Node, matrix: Matrix4, local_matrix: bool=False).
+- `bone_poses`: Defined as def bone_poses(self).
+- `pose_type`: Defined as def pose_type(self) -> PoseType.
+
+### render
+
+The render module supplies `Renderer` and `Viewport` to configure and execute rendering of 3D scenes.
+
+### deformers
+
+Deformers such as `SkinDeformer` and `MorphTargetDeformer` enable skeletal animation and shape blending on mesh geometry.
 
 </details>
 
@@ -708,6 +731,8 @@ Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, 
 - The entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raises NotImplementedError, so this library does not render scenes to images.
 - Boolean/CSG mesh operations are not implemented: `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` raise NotImplementedError, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.
 - NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`() raise NotImplementedError.
+
+These limitations don't apply to [Aspose.3D for Python — Enterprise Edition](https://products.aspose.com/3d/python-net/). Aspose.3D FOSS for Python provides open-source 3D processing capabilities, while Aspose.3D Enterprise Edition adds advanced features such as support for additional file formats, enhanced performance, and commercial licensing.
 
 ## Development and Testing
 

@@ -67,6 +67,7 @@ src/repository_presenter/
       evaluation.py            dependency evaluation: changed inputs and the stage they reopen
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
+        product_pages.py        live product-page facts: Enterprise target, homepage, banner (RESEARCH §20)
 
 prompts/                     one governed manifest per job (README_CONTRACT.md §3), flat, six files at G1
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
