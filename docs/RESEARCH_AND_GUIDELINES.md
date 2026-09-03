@@ -1465,3 +1465,16 @@ batches keyed to the deduplicated type list, or derive the description determini
 docstring first line where one exists and reserve the LLM for types without one — either is
 consistent with §3's "renderer owns structure, LLM owns bound prose"; a single oversized call is not.
 
+**Gaps G2-W02 recorded (2026-09-03), for the rows it owned.** Neither is a contract change; both are
+report lines under the revision hold:
+
+1. Row 17's "single-target run copied exactly from its verified example fact": the facts stage
+   executes example code, not build or test commands, so no fact verifies
+   `python -m unittest tests.test_obj_importer`. The candidate keeps the inherited README's command
+   block verbatim (reconciliation refuses to omit a shell-fenced block while build or install facts
+   exist) rather than claiming verification. Executing one test target in the isolated workspace
+   belongs with G2-W03's facts-stage work.
+2. "A new sealed bundle supersedes 65b1f577 per `superseded_by`": a bundle is addressed by source
+   revision, so a re-composition at the same revision cannot supersede itself by directory. The seal
+   adopts a proven update in place and keeps the previous proof under `adopted`; that is the
+   equivalent the evidence manifest records, and `superseded_by` stays for a newer source revision.

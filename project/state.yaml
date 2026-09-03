@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-03T21:28:25+05:00"
+updated_at: "2026-09-03T21:46:22+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,13 +29,13 @@ accepted_gates:
   - G1_FIRST_VALID_CANDIDATE
 
 active_work_item:
-  id: G2-W02
-  status: IN_PROGRESS
-  purpose: "Seal a strictly better canary on the deterministic part of README_CONTRACT.md's revised shell - narrowed on 2026-09-03 from one item covering the whole shell to three (this, G2-W03, G2-W04) so each converges; RESEARCH_AND_GUIDELINES.md section 25 records why. Already landed under this item: the three placement rules (a1b267b), Navigation, Installation, Dependencies, License (fb4094c), Additional Examples in one details block (9eeb770), Documentation & Resources as the described-link list (2cb74c7), and the adopt-on-proof seal (037ede6). Remaining here: Quick Start allowing two examples; Scope and Limitations as precise bullets with at most one scope sentence and no restated paragraph; Development and Testing in prose with the exact single-target command and the release-workflow link when a workflow exists; review.json F02 and F07 resolved; then re-compose the canary at its pinned revision and seal a bundle that supersedes 65b1f577c0f16d0d9112bb6c1153d3024543ac02. Explicitly not this item: banner, At a Glance, the Enterprise paragraph, images, Project Structure, Feature Showcase (G2-W04) and the complete API Reference (G2-W03) - the sealed candidate here keeps the current hub-list API Reference as an interim, and G2-W03 supersedes it."
+  id: G2-W03
+  status: READY
+  purpose: "API Reference as the complete verified public surface (README_CONTRACT.md row 14), with the facts-stage work it needs done first and deliberately (RESEARCH_AND_GUIDELINES.md section 25): the public_symbol extractor emits a structured symbol kind (module, class, enum, function, member) instead of a free-text detail, collapses re-export paths to one fact at the canonical defining location (the canary's 1,918 presence-only facts are about 300 real types once collapsed - the live README's own table has 305 rows), and records the symbol's own docstring first line and signature as evidence so a description can be evidence-backed; then the renderer emits the visible entry-point intro with the type count, the standard details summary, the Core API table over every verified public type split by kind, and the Detailed Member Reference grouped by topic, with descriptions authored in bounded batches from that evidence - a type with no docstring or signature evidence gets its verified signature summary, never an invented sentence. Acceptance: a diff against the live README shows every verified public type it lists is present here with an evidence-backed or signature-derived description and no mechanical filler; the eleven checks pass; the sealed bundle supersedes G2-W02's."
   prerequisites:
-    - G2-W01 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - docs/README_CONTRACT.md sections 2, 2.1, and 3 and docs/RESEARCH_AND_GUIDELINES.md sections 22 to 25 are read in full before shell.py, renderer.py, or planning.py changes; the sealed canary bundle's review.json advisory list is read first. The contract is frozen at its current revision until this item seals (README_CONTRACT.md status line).
-    - The sealed bundle at candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02 is the baseline the new bundle supersedes; the live README of aspose-3d-foss/Aspose.3D-FOSS-for-Python is fetched once for the section-by-section comparison, scoped to the rows this item owns.
+    - G2-W02 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - docs/RESEARCH_AND_GUIDELINES.md section 25 (the API Reference extraction gap) and docs/README_CONTRACT.md row 14 and section 3 are read in full before the facts stage, the planning or authoring prompts, or renderer.py change; the facts-stage work (structured symbol kind, re-export collapse, docstring and signature evidence) lands and is proven on the canary before any rendering change.
+    - The sealed bundle at candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02 is the baseline; the live README of aspose-3d-foss/Aspose.3D-FOSS-for-Python is fetched once for the type-by-type comparison its acceptance requires.
   owned_paths:
     - src/repository_presenter/
     - tests/
@@ -45,22 +45,19 @@ active_work_item:
     - migration/reuse-manifest.yaml
     - project/state.yaml
   acceptance:
-    - "Regression tests prove each of the three placement rules of docs/README_CONTRACT.md section 3: a placed unit is exclusive on fact-ID overlap with content covering the same facts, a placed unit inherits its destination section's visibility (inside the details block of a collapsible section), and a placed unit whose destination the plan excluded fails closed or is re-routed, never dropped silently."
-    - "The rows this item owns match their shell text in docs/README_CONTRACT.md section 2: Navigation (row 5), Installation (row 8), Dependencies (row 9), Quick Start with up to two examples (row 10), Additional Examples as one details block with task-named headings (row 12, images excepted), Documentation & Resources (row 15), Scope and Limitations as precise bullets with at most one scope sentence and no restated paragraph (row 16, the Enterprise paragraph excepted), Development and Testing in prose with the exact single-target command (row 17), License (row 20); the visible-length budget holds over lines outside details."
-    - "All eleven blocking checks pass on the re-composed canary; the independent review returns ACCEPT with zero advisory findings whose cause is deterministic code; review.json findings F02 and F07 of the previous bundle do not reproduce."
-    - "The new sealed bundle supersedes candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02 per manifest.json's superseded_by field, with a byte-identical zero-call rerun, and status still counts the repository once."
+    - "The public_symbol extractor records a structured symbol kind (module, class, enum, function, member), collapses re-export paths to one fact at the canonical defining location with the public re-export paths as evidence, and records the symbol's docstring first line and signature as evidence; the canary's facts.json shows the collapsed type count and every type carries that evidence or an explicit absence."
+    - "The renderer emits API Reference as README_CONTRACT.md row 14: a visible intro naming the entry-point classes and the verified public type count, the details block titled View the Complete Public API Surface, a Core API table over every verified public type split by kind where warranted, and a Detailed Member Reference grouped by topic; descriptions are authored in bounded batches from the recorded evidence, and a type without docstring or signature evidence gets its verified signature summary, never an invented sentence or mechanical filler."
+    - "A type-by-type comparison against the live README shows every verified public type it lists present here with an evidence-backed or signature-derived description, recorded in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json."
+    - "All eleven blocking checks pass on the canary, the independent review returns ACCEPT with zero advisory findings whose cause is deterministic code, and the sealed bundle carries the result through the adopt-on-proof seal with a byte-identical zero-call rerun; status still counts the repository once."
     - "Every pulled legacy file has one manifest file record with its SHA-256 at the frozen revision, a cut import closure, and ported tests; every new module has a production importer exercised by present."
     - "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion."
   evidence_required:
-    - The new sealed bundle for the canary with its manifest, validation.json, and review.json, the superseded manifest of the previous revision, and the replay ledger showing zero provider calls.
-    - The row-scoped comparison record against the live README for the rows this item owns.
+    - The canary's facts.json with the collapsed, evidence-carrying public_symbol facts, and the sealed bundle with its manifest, validation.json, and review.json after adoption.
+    - The type-by-type comparison record against the live README.
     - Manifest file records for every pulled legacy file.
   blocker: null
 
 next_ready_items:
-  - id: G2-W03
-    status: PENDING
-    purpose: "API Reference as the complete verified public surface (README_CONTRACT.md row 14), with the facts-stage work it needs done first and deliberately (RESEARCH_AND_GUIDELINES.md section 25): the public_symbol extractor emits a structured symbol kind (module, class, enum, function, member) instead of a free-text detail, collapses re-export paths to one fact at the canonical defining location (the canary's 1,918 presence-only facts are about 300 real types once collapsed - the live README's own table has 305 rows), and records the symbol's own docstring first line and signature as evidence so a description can be evidence-backed; then the renderer emits the visible entry-point intro with the type count, the standard details summary, the Core API table over every verified public type split by kind, and the Detailed Member Reference grouped by topic, with descriptions authored in bounded batches from that evidence - a type with no docstring or signature evidence gets its verified signature summary, never an invented sentence. Acceptance: a diff against the live README shows every verified public type it lists is present here with an evidence-backed or signature-derived description and no mechanical filler; the eleven checks pass; the sealed bundle supersedes G2-W02's."
   - id: G2-W04
     status: PENDING
     purpose: "The remaining shell rows for the canary: the banner (row 3) and the Enterprise Edition closing paragraph (row 18) from new verified-link facts resolved by a live products.aspose.org and products.aspose.com check (RESEARCH_AND_GUIDELINES.md section 20 - one lookup per candidate, family/platform/unresolved, omit when unresolved); At a Glance under its revised condition (row 6: three capabilities, Starting Points optional) with single listing nodes, one edge per hop, and geometry-safe labels; the visible flagship in Additional Examples and preservation of verified repository-owned images with alt text (row 12); the optional Project Structure and Feature Showcase rows and the deliberate-additions rule (rows 11, 13). Acceptance: a section-by-section diff against the live README shows no section, image, or link it has that this candidate lacks; the eleven checks pass; the sealed bundle supersedes G2-W03's."

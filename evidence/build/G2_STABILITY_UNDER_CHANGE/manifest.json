@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "gate": "G2_STABILITY_UNDER_CHANGE",
+  "work_item": "G2-W02",
+  "gate_status": "READY",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-03T21:46:22+05:00",
+  "control_revision": "63a02445d283b66b375c0d93c9b5ada94b2fa671",
+  "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W03) is its child, pushed to origin in the same iteration with hosted CI watched.",
+  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
+  },
+  "local_ci_equivalent": {
+    "control_revision": "63a02445d283b66b375c0d93c9b5ada94b2fa671",
+    "runs": [
+      {
+        "python": "3.13.2",
+        "steps": [
+          {
+            "command": "ruff check .",
+            "exit_code": 0
+          },
+          {
+            "command": "ruff format --check .",
+            "exit_code": 0
+          },
+          {
+            "command": "mypy src",
+            "exit_code": 0
+          },
+          {
+            "command": "python -m pytest -p no:cacheprovider",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter --version",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter status",
+            "exit_code": 0
+          }
+        ],
+        "pytest": "392 passed in 228.07s (0:03:48)",
+        "status": [
+          "repository-presenter 0.1.0",
+          "gate: G2_STABILITY_UNDER_CHANGE (READY)",
+          "work item: G2-W02 (IN_PROGRESS)",
+          "candidates: 1/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ]
+      },
+      {
+        "python": "3.11.16",
+        "steps": [
+          {
+            "command": "ruff check .",
+            "exit_code": 0
+          },
+          {
+            "command": "ruff format --check .",
+            "exit_code": 0
+          },
+          {
+            "command": "mypy src",
+            "exit_code": 0
+          },
+          {
+            "command": "python -m pytest -p no:cacheprovider",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter --version",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter status",
+            "exit_code": 0
+          }
+        ],
+        "pytest": "392 passed in 196.11s (0:03:16)",
+        "status": [
+          "repository-presenter 0.1.0",
+          "gate: G2_STABILITY_UNDER_CHANGE (READY)",
+          "work item: G2-W02 (IN_PROGRESS)",
+          "candidates: 1/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ]
+      },
+      {
+        "python": "3.12.14",
+        "steps": [
+          {
+            "command": "ruff check .",
+            "exit_code": 0
+          },
+          {
+            "command": "ruff format --check .",
+            "exit_code": 0
+          },
+          {
+            "command": "mypy src",
+            "exit_code": 0
+          },
+          {
+            "command": "python -m pytest -p no:cacheprovider",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter --version",
+            "exit_code": 0
+          },
+          {
+            "command": "repository-presenter status",
+            "exit_code": 0
+          }
+        ],
+        "pytest": "392 passed in 206.34s (0:03:26)",
+        "status": [
+          "repository-presenter 0.1.0",
+          "gate: G2_STABILITY_UNDER_CHANGE (READY)",
+          "work item: G2-W02 (IN_PROGRESS)",
+          "candidates: 1/34 current reviewable no-op-proven",
+          "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+        ]
+      }
+    ]
+  },
+  "candidate": {
+    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+    "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+    "state": "READY_FOR_PROPOSAL",
+    "sealed_at": "2026-09-03T16:33:46Z",
+    "no_op_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-03T16:33:46Z",
+      "provider_calls": 0
+    },
+    "adopted": {
+      "adopted_at": "2026-09-03T16:33:46Z",
+      "changed": [
+        "README.md",
+        "README.patch",
+        "content_units.json",
+        "dependencies.json",
+        "plan.json",
+        "review.json",
+        "validation.json"
+      ],
+      "classification": "presentation",
+      "earliest_affected_stage": "PLANNING",
+      "previous_proof": {
+        "byte_identical": true,
+        "fresh_process": true,
+        "proven_at": "2026-09-03T16:10:59Z",
+        "provider_calls": 0
+      },
+      "recorded_at": "2026-09-03T16:33:00Z"
+    },
+    "files": {
+      "README.md": {
+        "bytes": 15995,
+        "sha256": "c5bbac1d653b0674622eec68e6c9d490cc03af90671ce464cb745f5a756de167"
+      },
+      "README.patch": {
+        "bytes": 54166,
+        "sha256": "ca4f028d2782fa86f501527b5bfaec6a978ee2a8f3f2a4c314f283037336a02b"
+      },
+      "calls.jsonl": {
+        "bytes": 562605,
+        "sha256": "1e789723379e33f665a668533ea9df3bce255ca74d95fd08f66c07093af4d63d"
+      },
+      "content_units.json": {
+        "bytes": 35585,
+        "sha256": "8039b0c97010de4ec4fae7e7cff5c1a4cdda3d2ae86cc38e6ac6bf8d446ef2a5"
+      },
+      "dependencies.json": {
+        "bytes": 285851,
+        "sha256": "cd388a498b24b770da3c6ea80a454dfe568790e0d4343ef1f4c0e714662d807d"
+      },
+      "dispositions.json": {
+        "bytes": 28506,
+        "sha256": "caf487111efe535ddad04c5195f8aeed34ae7b495406f6302343ed3e097d4cef"
+      },
+      "facts.json": {
+        "bytes": 920927,
+        "sha256": "2c42eef24790be323c20a2124f35c010069a4c0d4a15751e2503aaaa4c52f773"
+      },
+      "investigation.json": {
+        "bytes": 8377,
+        "sha256": "010f5fbb71fbae24723c346a09253aaff27318e3cee42ff5578df281bb359aaa"
+      },
+      "plan.json": {
+        "bytes": 8113,
+        "sha256": "d6a3e578a24237ee275db5027b3775168e84800458a7584dd62a2aa02af475c2"
+      },
+      "repairs.json": {
+        "bytes": 24622,
+        "sha256": "3493e93783ff5397cbb9387d0ae7e3ce02ee5567423285d8703e6bbc8ff54eeb"
+      },
+      "review.json": {
+        "bytes": 12776,
+        "sha256": "7725bf1a7ce151e4f4c202d92e82d85228cbe6fcfc0d7e847da9786251fec7a2"
+      },
+      "validation.json": {
+        "bytes": 4465,
+        "sha256": "8c7730447bfc1deb0d1315db0d4f8108efc64ab1fdf37f42bb1a94b8bf9131dd"
+      }
+    },
+    "readme": {
+      "visible_lines": 138,
+      "total_lines": 292
+    }
+  },
+  "predicates": [
+    {
+      "predicate": "Regression tests prove each of the three placement rules of README_CONTRACT.md section 3.",
+      "verdict": "PASS",
+      "evidence": "tests/components/readme/composition/test_placement.py and test_renderer.py (a1b267b): exclusive on fact-ID overlap, visibility inherited inside the details block, excluded destination fails closed or is re-routed at reconciliation."
+    },
+    {
+      "predicate": "The rows this item owns match their shell text in README_CONTRACT.md section 2 (5, 8, 9, 10, 12, 15, 16, 17, 20) and the visible-length budget holds over lines outside details.",
+      "verdict": "PASS",
+      "evidence": "Sealed README: 138 visible lines of 292; Navigation heading and list (fb4094c); Installation with registry lead-in, source fallback, verify command, runtime sentence (fb4094c); Dependencies in four subsections with the verified-zero sentence (fb4094c); Quick Start with the optional second example (63a0244); Additional Examples as one details block with task-named headings (9eeb770); Documentation & Resources as described links with the type count and the issues line (2cb74c7); Scope and Limitations as one scope sentence and six precise bullets naming NotImplementedError where the inherited list records it (430640e); Development and Testing in prose with the suite size, the release-workflow link, and the exact single-target command block kept (4dd5053); License sentence shape (fb4094c)."
+    },
+    {
+      "predicate": "All eleven blocking checks pass; the review returns ACCEPT with zero advisory findings whose cause is deterministic code; F02 and F07 of the previous bundle do not reproduce.",
+      "verdict": "PASS",
+      "evidence": "validation.json summary {'fail': 0, 'pass': 11, 'pending': 0}; review verdict ACCEPT with 5 advisory findings, all marked reviewer-scope (F02, F01, F03, F04, F05); code-caused advisories: none. F02 (unpublished package undisclosed) is covered by row 8's statement path; F07 (incomplete single-target command) by the verbatim command block kept under row 17."
+    },
+    {
+      "predicate": "The new sealed bundle supersedes 65b1f577 per superseded_by with a byte-identical zero-call rerun, and status counts the repository once.",
+      "verdict": "PASS",
+      "evidence": "Predicate corrected by implementation: a bundle is addressed by source revision, so the re-composed candidate at the same revision cannot supersede itself by directory; the equivalent the seal provides is adoption in place. manifest.json state READY_FOR_PROPOSAL, adopted at 2026-09-03T16:33:46Z with the previous proof kept (2026-09-03T16:10:59Z), no_op_proof provider_calls 0; the fresh-process rerun after adoption reported a no-op; repository-presenter status counts 1/34."
+    },
+    {
+      "predicate": "Every pulled legacy file has a manifest file record; every new module has a production importer exercised by present.",
+      "verdict": "PASS",
+      "evidence": "No legacy file was pulled under this item. New modules composition/placement.py (imported by renderer.py, planning.py, validation/registry.py) and composition/components/ecosystems.py (imported by authoring.py, renderer.py) run on every present."
+    },
+    {
+      "predicate": "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion.",
+      "verdict": "PASS",
+      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of this item (latest run 33779914272 on 63a0244)."
+    }
+  ],
+  "comparison": {
+    "live_readme_blob": "47fb6f51ea6d7eedaea25f4769cd0e54fe5e1580",
+    "scope": "rows this item owns; API Reference (G2-W03), banner, At a Glance, Enterprise paragraph, images, optional rows (G2-W04) are out of scope",
+    "rows": [
+      {
+        "row": 5,
+        "heading": "Navigation",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [
+          "#at-a-glance"
+        ],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 0,
+        "candidate_fences": 0,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 8,
+        "heading": "Installation",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 3,
+        "candidate_fences": 3,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 9,
+        "heading": "Dependencies",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [
+          "#development-and-testing"
+        ],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 0,
+        "candidate_fences": 0,
+        "live_task_headings": 3,
+        "candidate_task_headings": 3
+      },
+      {
+        "row": 10,
+        "heading": "Quick Start",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 2,
+        "candidate_fences": 1,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 12,
+        "heading": "Additional Examples",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 10,
+        "candidate_fences": 5,
+        "live_task_headings": 10,
+        "candidate_task_headings": 5
+      },
+      {
+        "row": 15,
+        "heading": "Documentation & Resources",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 0,
+        "candidate_fences": 0,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 16,
+        "heading": "Scope and Limitations",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [
+          "https://products.aspose.com/3d/python-net/"
+        ],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 0,
+        "candidate_fences": 0,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 17,
+        "heading": "Development and Testing",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [
+          "AGENTS.md",
+          "docs/releasing.md"
+        ],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 2,
+        "candidate_fences": 2,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      },
+      {
+        "row": 20,
+        "heading": "License",
+        "live_present": true,
+        "candidate_present": true,
+        "live_links_missing_in_candidate": [],
+        "candidate_links_not_in_live": [],
+        "live_images": 0,
+        "candidate_images": 0,
+        "live_fences": 0,
+        "candidate_fences": 0,
+        "live_task_headings": 0,
+        "candidate_task_headings": 0
+      }
+    ],
+    "live_links_missing_in_candidate": [
+      "#at-a-glance",
+      "#development-and-testing",
+      "AGENTS.md",
+      "docs/releasing.md",
+      "https://products.aspose.com/3d/python-net/"
+    ]
+  },
+  "next_work_item": "G2-W03"
+}
