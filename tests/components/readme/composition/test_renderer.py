@@ -761,3 +761,31 @@ def test_the_flagship_example_stands_visible_before_the_collapsed_block() -> Non
         "```",
     ]
     assert "View Additional Examples" not in section
+
+
+def test_two_verified_types_sharing_a_name_keep_distinct_table_rows() -> None:
+    # README_CONTRACT.md row 14: the complete verified surface, so both types stay, under the
+    # shortest dotted suffixes that tell them apart (the canary ships two ColladaLoadOptions).
+    def symbol(value: str, docstring: str) -> Fact:
+        return Fact(
+            f"public_symbol:{value.lower()}",
+            "public_symbol",
+            value,
+            (Evidence("aspose/threed/formats.py", "line 1; class; public by name"),),
+            attributes={"symbol_kind": "class", "docstring": docstring},
+        )
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            symbol("aspose.threed.formats.ColladaLoadOptions", "Options for COLLADA loading."),
+            symbol("aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions", "Load options."),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "| `formats.ColladaLoadOptions` | Options for COLLADA loading. |" in readme
+    assert "| `ColladaLoadOptions.ColladaLoadOptions` | Load options. |" in readme
+    assert readme.count("| `ColladaLoadOptions` |") == 0
+    assert "| `Scene` |" in readme  # an unshared name keeps its final segment

@@ -12,7 +12,7 @@
 -and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus
 -imports FBX, through a `Scene`/`Node`/`Mesh` object graph, with no native runtime or external
 -SDK to install.
-+Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
++Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a `Scene`, `Node`, and `Mesh` object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like `Box` or `Sphere`, assigning materials, and saving to formats such as `.gltf` or `.stl`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
  
  ## Navigation
  
@@ -346,13 +346,14 @@
 -| `AnimationNode` | AnimationNode.find_bind_point returns the BindPoint matching the given target object and name. |
 -| `ApertureMode` | Camera aperture modes. |
 -| `ArbitraryProfile` | This class allows you to construct a 2D profile directly from arbitrary curve. |
+-| `ArrayListAdapter` | Adapter class that wraps List[T] and implements IArrayList[T]. |
+-| `AssetInfo` | AssetInfo.title stores the title of the 3D asset. |
 +| --- | --- |
 +| `A3DObject` | The A3DObject class represents a base object in Aspose.3D FOSS for Python that supports named properties and can be queried for property values. |
 +| `AnimationChannel` | The AnimationChannel class represents a channel that stores keyframe data for animating a specific component of a property. |
 +| `AnimationClip` | The AnimationClip class represents a container for animation data that defines a sequence of keyframes over a time range. |
 +| `AnimationNode` | The AnimationNode class represents a node in an animation hierarchy that can hold bind points and sub-animations. |
- | `ArrayListAdapter` | Adapter class that wraps List[T] and implements IArrayList[T]. |
--| `AssetInfo` | AssetInfo.title stores the title of the 3D asset. |
++| `threed.ArrayListAdapter` | Adapter class that wraps List[T] and implements IArrayList[T]. |
 +| `AssetInfo` | The AssetInfo class holds metadata about a 3D asset such as author, creation time, coordinate system, and unit scale factor. |
  | `Axis` | The coordinate axis. |
  | `AxisSystem` | Axis system is an combination of coordinate system, up vector and front vector. |
@@ -488,27 +489,27 @@
  | `BasicLoadOptions` | Simple LoadOptions subclass for basic loading options. |
 -| `BinaryTokenizer` | BinaryTokenizer.tokenize() parses the binary data stream and advances the cursor accordingly. |
 -| `BindPoint` | BindPoint.add_channel adds a new animation channel with the specified name, value and type, returning True on success. |
-+| `ColladaLoadOptions` | The ColladaLoadOptions class specifies options for loading COLLADA files in Aspose.3D FOSS for Python. |
-+| `ColladaLoadOptions` | Load options for Collada |
-+| `ColladaSaveOptions` | The ColladaSaveOptions class specifies options for saving COLLADA files in Aspose.3D FOSS for Python. |
-+| `ColladaSaveOptions` | Save options for collada |
-+| `ColladaTransformStyle` | The node's transformation style of node |
++| `formats.ColladaLoadOptions` | The ColladaLoadOptions class specifies options for loading COLLADA files in Aspose.3D FOSS for Python. |
++| `ColladaLoadOptions.ColladaLoadOptions` | Load options for Collada |
++| `formats.ColladaSaveOptions` | The ColladaSaveOptions class specifies options for saving COLLADA files in Aspose.3D FOSS for Python. |
++| `ColladaSaveOptions.ColladaSaveOptions` | Save options for collada |
++| `formats.ColladaTransformStyle` | The node's transformation style of node |
 +| `Discreet3dsLoadOptions` | Load options for Discreet 3DS |
 +| `Discreet3dsSaveOptions` | Save options for Discreet 3DS |
 +| `DracoCompressionLevel` | Compression level for draco file |
 +| `DracoFormat` | Google Draco format |
 +| `DracoSaveOptions` | Save options for Draco |
 +| `Exporter` | The Exporter class provides methods to export 3D scenes to various formats in Aspose.3D FOSS for Python. |
-+| `FbxLoadOptions` | The FbxLoadOptions class specifies options for loading FBX files in Aspose.3D FOSS for Python. |
-+| `FbxLoadOptions` | Load options for FBX |
-+| `FbxSaveOptions` | The FbxSaveOptions class specifies options for saving FBX files in Aspose.3D FOSS for Python. |
-+| `FbxSaveOptions` | Save options for FBX |
++| `formats.FbxLoadOptions` | The FbxLoadOptions class specifies options for loading FBX files in Aspose.3D FOSS for Python. |
++| `FbxLoadOptions.FbxLoadOptions` | Load options for FBX |
++| `formats.FbxSaveOptions` | The FbxSaveOptions class specifies options for saving FBX files in Aspose.3D FOSS for Python. |
++| `FbxSaveOptions.FbxSaveOptions` | Save options for FBX |
 +| `FormatDetector` | The FormatDetector class provides functionality to detect the file format of a 3D scene file. |
 +| `GltfEmbeddedImageFormat` | Embedded image format for GLTF |
-+| `GltfLoadOptions` | The GltfLoadOptions class holds configuration options specific to loading glTF files, including flipping texture coordinates vertically. |
-+| `GltfLoadOptions` | Load options for glTF |
-+| `GltfSaveOptions` | The GltfSaveOptions class holds configuration options specific to saving glTF files, including binary mode and flipping texture coordinates vertically. |
-+| `GltfSaveOptions` | Save options for glTF |
++| `formats.GltfLoadOptions` | The GltfLoadOptions class holds configuration options specific to loading glTF files, including flipping texture coordinates vertically. |
++| `GltfLoadOptions.GltfLoadOptions` | Load options for glTF |
++| `formats.GltfSaveOptions` | The GltfSaveOptions class holds configuration options specific to saving glTF files, including binary mode and flipping texture coordinates vertically. |
++| `GltfSaveOptions.GltfSaveOptions` | Save options for glTF |
 +| `Html5SaveOptions` | Save options for HTML5 |
 +| `IOConfig` | The IOConfig class provides common configuration properties for input and output operations, such as encoding, file name, file system, and lookup paths. |
 +| `IOService` | The IOService class serves as the central service for registering plugins, detecting formats, and creating importers and exporters. |
@@ -517,10 +518,10 @@
 +| `LoadOptions` | The LoadOptions class provides base configuration options for loading 3D scene files. |
 +| `Microsoft3MFFormat` | Microsoft 3MF format |
 +| `Microsoft3MFSaveOptions` | Save options for Microsoft 3MF |
-+| `ObjLoadOptions` | The ObjLoadOptions class holds configuration options specific to loading OBJ files, including enabling materials, flipping the coordinate system, normalizing normals, and scaling. |
-+| `ObjLoadOptions` | Load options for OBJ |
-+| `ObjSaveOptions` | The ObjSaveOptions class holds configuration options specific to saving OBJ files, including applying unit scale, setting the axis system, enabling materials, flipping the coordinate system, point cloud mode, serializing w components, and verbose output. |
-+| `ObjSaveOptions` | Save options for OBJ |
++| `formats.ObjLoadOptions` | The ObjLoadOptions class holds configuration options specific to loading OBJ files, including enabling materials, flipping the coordinate system, normalizing normals, and scaling. |
++| `ObjLoadOptions.ObjLoadOptions` | Load options for OBJ |
++| `formats.ObjSaveOptions` | The ObjSaveOptions class holds configuration options specific to saving OBJ files, including applying unit scale, setting the axis system, enabling materials, flipping the coordinate system, point cloud mode, serializing w components, and verbose output. |
++| `ObjSaveOptions.ObjSaveOptions` | Save options for OBJ |
 +| `PdfFormat` | Adobe's Portable Document Format |
 +| `PdfLightingScheme` | Lighting scheme for PDF export |
 +| `PdfLoadOptions` | Load options for PDF |
@@ -534,10 +535,10 @@
 +| `RvmLoadOptions` | Load options for RVM |
 +| `RvmSaveOptions` | Save options for RVM |
 +| `SaveOptions` | The SaveOptions class provides base configuration options for saving 3D scene files, including exporting textures. |
-+| `StlLoadOptions` | The StlLoadOptions class holds configuration options specific to loading STL files, including flipping the coordinate system and scaling. |
-+| `StlLoadOptions` | Load options for STL |
-+| `StlSaveOptions` | The StlSaveOptions class holds configuration options specific to saving STL files, including binary mode, flipping the coordinate system, and scaling. |
-+| `StlSaveOptions` | Save options for STL |
++| `formats.StlLoadOptions` | The StlLoadOptions class holds configuration options specific to loading STL files, including flipping the coordinate system and scaling. |
++| `StlLoadOptions.StlLoadOptions` | Load options for STL |
++| `formats.StlSaveOptions` | The StlSaveOptions class holds configuration options specific to saving STL files, including binary mode, flipping the coordinate system, and scaling. |
++| `StlSaveOptions.StlSaveOptions` | Save options for STL |
 +| `ThreeMfFormat` | The ThreeMfFormat class represents the 3MF file format and provides methods to check import/export support, get format metadata, and manage build and object properties. |
 +| `ThreeMfLoadOptions` | The ThreeMfLoadOptions class holds configuration options specific to loading 3MF files. |
 +| `ThreeMfSaveOptions` | The ThreeMfSaveOptions class holds configuration options specific to saving 3MF files. |
@@ -550,21 +551,21 @@
 +| `ColladaFormatDetector` | The ColladaFormatDetector class provides functionality to detect COLLADA files. |
 +| `ColladaImporter` | The ColladaImporter class provides functionality to import scenes from the COLLADA file format. |
 +| `ColladaPlugin` | The ColladaPlugin class provides plugin support for the COLLADA file format, including importers, exporters, and format detectors. |
-+| `ColladaTransformStyle` | The ColladaTransformStyle class defines the style used for coordinate system transformations in COLLADA files. |
++| `ColladaTransformStyle.ColladaTransformStyle` | The ColladaTransformStyle class defines the style used for coordinate system transformations in COLLADA files. |
 +| `FbxExporter` | The FbxExporter class provides functionality to export scenes to the FBX file format. |
 +| `FbxFormat` | The FbxFormat class represents the FBX file format and provides format-specific metadata and capabilities. |
 +| `FbxFormatDetector` | The FbxFormatDetector class provides functionality to detect FBX files. |
 +| `FbxImporter` | The FbxImporter class provides functionality to import scenes from the FBX file format. |
 +| `FbxPlugin` | The FbxPlugin class provides plugin support for the FBX file format, including importers, exporters, and format detectors. |
 +| `BinaryTokenizer` | The BinaryTokenizer class provides tokenization support for parsing binary FBX files. |
-+| `Token` | The Token class represents a single token in a binary FBX file stream. |
-+| `TokenType` | The TokenType class defines the type of a token in a binary FBX file stream. |
++| `binary_tokenizer.Token` | The Token class represents a single token in a binary FBX file stream. |
++| `binary_tokenizer.TokenType` | The TokenType class defines the type of a token in a binary FBX file stream. |
 +| `FbxElement` | The FbxElement class represents a parsed element in an FBX file structure. |
 +| `FbxParser` | The FbxParser class provides functionality to parse FBX file content. |
 +| `FbxScope` | The FbxScope class represents a scope or context during FBX file parsing. |
 +| `FbxTokenizer` | The FbxTokenizer class provides tokenization support for parsing text-based FBX files. |
-+| `Token` | The Token class represents a single token in a text-based FBX file stream. |
-+| `TokenType` | The TokenType class defines the type of a token in a text-based FBX file stream. |
++| `tokenizer.Token` | The Token class represents a single token in a text-based FBX file stream. |
++| `tokenizer.TokenType` | The TokenType class defines the type of a token in a text-based FBX file stream. |
 +| `GltfExporter` | The GltfExporter class provides functionality to export scenes to the glTF file format. |
 +| `GltfFormat` | The GltfFormat class represents the glTF file format and provides format-specific metadata and capabilities. |
 +| `GltfFormatDetector` | The GltfFormatDetector class provides functionality to detect glTF files. |
@@ -912,7 +913,7 @@
 -| `VertexFieldSemantic` | The semantic of the vertex field. |
 -| `Viewport` | Viewport for rendering. |
 +| `WrapMode` | Wrap mode for texture coordinates. |
-+| `ArrayListAdapter` | Adapter class that wraps List[T] and implements IList[T] compatible interface. |
++| `ArrayListAdapter.ArrayListAdapter` | Adapter class that wraps List[T] and implements IList[T] compatible interface. |
 +| `BoundingBox` | BoundingBox represents an axis-aligned bounding box used to enclose 3D geometry for spatial queries and culling operations. |
 +| `FVector2` | FVector2 stores a pair of single-precision floating-point values representing a 2D vector or point. |
 +| `FVector3` | FVector3 stores a triplet of single-precision floating-point values representing a 3D vector or point. |

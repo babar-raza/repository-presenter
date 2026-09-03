@@ -512,3 +512,34 @@ def test_undocumented_types_are_authored_in_bounded_batches_bound_to_their_signa
     assert "never a count" in first.packet["objective"]
     merged = merge_units([(t.section_id, {"units": [{"slot": s} for s in t.slots]}) for t in tasks])
     assert len(merged["units"]) == len(tasks[0].slots) + 81
+
+
+def test_a_unit_for_a_slot_the_task_never_asked_for_is_dropped_not_rejected() -> None:
+    # The plan owns the slot set: an extra limitation a repair invents is dropped before the
+    # exact-slot rule judges what remains, while a missing slot still fails.
+    task = SectionTask(
+        "scope_limitations", {}, frozenset({"identity:repository"}), ("scope", "limitation:1")
+    )
+
+    def unit(slot: str, text: str) -> dict[str, object]:
+        return {
+            "section": "scope_limitations",
+            "slot": slot,
+            "text": text,
+            "fact_ids": ["identity:repository"],
+        }
+
+    output = {
+        "units": [
+            unit("scope", "It reads files."),
+            unit("limitation:1", "NURBS cannot be sampled."),
+            unit("limitation:2", "Rendering is not available."),
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(output, task, FACTS, NAME) == []
+    assert [entry["slot"] for entry in output["units"]] == ["scope", "limitation:1"]
+    short = {"units": [unit("scope", "It reads files.")], "omitted": []}
+    assert unit_checks(short, task, FACTS, NAME) == [
+        "units must fill exactly these slots once each: scope, limitation:1; got scope"
+    ]

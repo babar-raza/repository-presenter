@@ -479,8 +479,12 @@ def unit_checks(
     members = verified_members(facts)
     methods = surface_members(facts)
     merge_repeated_slots(output)
-    slots_seen = [unit.get("slot") for unit in output.get("units", [])]
     expected = list(task.slots)
+    # The plan owns the slot set: a unit for a slot the task never asked for (a repair adding
+    # a limitation the plan does not carry, twice on the canary) is dropped rather than
+    # rejected, while a missing or repeated slot still fails.
+    output["units"] = [unit for unit in output.get("units", []) if unit.get("slot") in expected]
+    slots_seen = [unit.get("slot") for unit in output.get("units", [])]
     if sorted(slots_seen) != sorted(expected):
         errors.append(
             f"units must fill exactly these slots once each: {', '.join(expected)}; "

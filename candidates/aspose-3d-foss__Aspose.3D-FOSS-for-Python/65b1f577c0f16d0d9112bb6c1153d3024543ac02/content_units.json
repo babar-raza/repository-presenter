@@ -1,9 +1,7 @@
 {
   "coherence": {
     "applied": true,
-    "revised": [
-      "opening/opening"
-    ]
+    "revised": []
   },
   "omitted": [
     {
@@ -422,6 +420,11 @@
       "section": "api_reference"
     },
     {
+      "fact_id": "public_symbol:aspose.threed.render",
+      "reason": "The entire aspose.threed.render module raises NotImplementedError and is not usable for rendering scenes to images.",
+      "section": "scope_limitations"
+    },
+    {
       "fact_id": "build_test_asset:tests",
       "reason": "The test directory path is referenced by the code block in inherited_unit:071.code_block and inherited_unit:073.code_block, and the renderer handles test asset references.",
       "section": "development_testing"
@@ -456,7 +459,7 @@
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
+      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a Scene, Node, and Mesh object graph, with no native runtime or external SDK to install. Developers use it to build 3D content programmatically, for example by creating primitives like Box or Sphere, assigning materials, and saving to formats such as .gltf or .stl. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
     },
     {
       "fact_ids": [

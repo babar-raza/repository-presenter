@@ -34,6 +34,27 @@
       "source": "review",
       "stage": "S6"
     },
+    "29adb47fd59d09c8ef9d0ccf": {
+      "changes": [
+        {
+          "after": "The aspose-3d-foss package exposes 305 public types including aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
+          "before": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "re_raised": [
+        "F04"
+      ],
+      "reason": null,
+      "request_sha256": "11b1c280ede280e09c12dadd4780ae1becd0878262d0e3c5b238495302d8b085",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
     "2c4addae57ffac38ecfb93fa": {
       "changes": [
         {
@@ -251,6 +272,56 @@
       "source": "review",
       "stage": "S6"
     },
+    "6b3882f14828b4d6208ddb7e": {
+      "changes": [
+        {
+          "after": "limitation:6",
+          "before": "limitation:6",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R01",
+          "path": "revised_output.units.6.slot"
+        },
+        {
+          "after": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
+          "before": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R02",
+          "path": "revised_output.units.6.text"
+        },
+        {
+          "after": "public_symbol:aspose.threed.render",
+          "before": "",
+          "fact_ids": [
+            "public_symbol:aspose.threed.render"
+          ],
+          "id": "R03",
+          "path": "revised_output.omitted.0.fact_id"
+        },
+        {
+          "after": "The entire aspose.threed.render module raises NotImplementedError and is not usable for rendering scenes to images.",
+          "before": "",
+          "fact_ids": [
+            "public_symbol:aspose.threed.render"
+          ],
+          "id": "R04",
+          "path": "revised_output.omitted.0.reason"
+        }
+      ],
+      "label": "F05",
+      "outcome": "repaired",
+      "re_raised": [
+        "F05"
+      ],
+      "reason": null,
+      "request_sha256": "a5e863aafbdf694b6090cccb4a8c607358e06060794fb6a8d94566ca49ec076c",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
     "74a472b3fbbdbca34e3a2853": {
       "changes": [],
       "label": "F07",
@@ -450,6 +521,35 @@
       "reason": null,
       "request_sha256": "9ebb5435da1b6ea5559a585dc1849c10aa420cf82d5a8b95cdfb3be1c8e9c381",
       "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "bf780ac61b4beed879c23655": {
+      "changes": [
+        {
+          "after": "Read and write multiple 3D formats including .gltf and .stl using the FileFormat class and its format-specific save options.",
+          "before": "Read and write multiple 3D formats including .gltf and .stl using the FileFormat class and its format-specific save options.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.fileformat",
+            "format:output.gltf",
+            "format:output.stl",
+            "example:002",
+            "example:004",
+            "example:009",
+            "example:012"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[1].text"
+        }
+      ],
+      "label": "F02",
+      "outcome": "repaired",
+      "re_raised": [
+        "F02"
+      ],
+      "reason": null,
+      "request_sha256": "aad831f177a9380ba3b3f15492bdb4842e589ae63ab510adf85c2b38bc709dd2",
+      "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"
     },

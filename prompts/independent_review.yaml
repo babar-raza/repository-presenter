@@ -1,12 +1,12 @@
 prompt_id: independent_review
-version: "4"
+version: "5"
 stage: S10
 purpose: Judge, under a separate identity from authoring, whether the candidate README is factually sound, complete, specific, and visitor-useful; return one verdict and findings that each name a section and a causal stage.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output and for narrow forced judgments; review needs reasoning depth and a strict JSON verdict, so it routes to qwen3-next. The reviewer identity is separate from authoring by prompt and by ledger attribution, not by model. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 3000
+  max_output_tokens: 6000
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

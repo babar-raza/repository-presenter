@@ -47,7 +47,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "14"  # the template component version dependencies.json records
+RENDERER_VERSION = "15"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -330,6 +330,26 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
     return text.replace("|", "/").replace("`", "")
 
 
+def _table_names(values: list[str]) -> dict[str, str]:
+    """The name each type takes in the table: its final segment, or the shortest dotted suffix
+    that tells it apart when two verified types share that segment (README_CONTRACT.md row 14
+    lists the complete verified surface, so both stay, under names a visitor can import)."""
+    names: dict[str, str] = {}
+    for value in values:
+        segments = value.split(".")
+        for depth in range(1, len(segments) + 1):
+            suffix = ".".join(segments[-depth:])
+            rivals = [
+                other
+                for other in values
+                if other != value and ".".join(other.split(".")[-depth:]) == suffix
+            ]
+            if not rivals:
+                break
+        names[value] = suffix
+    return names
+
+
 def _api_reference(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 14: a visible intro with the verified public type
     count, then one details block holding the Core API table over every verified public type,
@@ -342,17 +362,14 @@ def _api_reference(context: RenderContext) -> list[str]:
     classes = sorted(by_kind.get("class", []), key=lambda f: f.value)
     enums = sorted(by_kind.get("enum", []), key=lambda f: f.value)
     count = len(classes) + len(enums)
+    names = _table_names([f.value for f in (*classes, *enums)])
     lines = [context.unit(sid, "intro"), "", f"The verified public surface has {count} types."]
     lines += ["", "<details>", f"<summary>{API_SURFACE_SUMMARY}</summary>", ""]
     lines += ["### Core API", "", "| Class | Description |", "| --- | --- |"]
-    lines += [
-        f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(context, f)} |" for f in classes
-    ]
+    lines += [f"| `{names[f.value]}` | {_symbol_description(context, f)} |" for f in classes]
     if enums:
         lines += ["", "#### Enumerations", "", "| Enumeration | Description |", "| --- | --- |"]
-        lines += [
-            f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(context, f)} |" for f in enums
-        ]
+        lines += [f"| `{names[f.value]}` | {_symbol_description(context, f)} |" for f in enums]
     members: dict[str, list[Fact]] = {}
     for fact in by_kind.get("method", []):
         members.setdefault(fact.value.rsplit(".", 1)[0], []).append(fact)
@@ -364,7 +381,7 @@ def _api_reference(context: RenderContext) -> list[str]:
     if hubs:
         lines += ["", "#### Detailed Member Reference"]
         for hub, symbol in hubs:
-            lines += ["", f"### {symbol.value.rsplit('.', 1)[-1]}", ""]
+            lines += ["", f"### {names.get(symbol.value, symbol.value.rsplit('.', 1)[-1])}", ""]
             lines.append(context.unit(sid, f"hub:{hub['symbol_fact_id']}"))
             owned = sorted(members.get(symbol.value, []), key=lambda f: f.value)
             if owned:
