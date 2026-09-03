@@ -9,8 +9,10 @@ files, never from memory of a previous iteration.
   any work on facts, composition, validation, or review), `docs/REPOSITORY_LAYOUT.md` (before
   creating any file or directory), `docs/RESEARCH_AND_GUIDELINES.md` §18 (before writing any new
   mechanism — check its library registry first), §7.4 (before touching any platform extractor
-  module), and §7.2.1 (before pulling any profile, policy, or link-catalog asset), `plans/idea.md`,
-  `migration/reuse-manifest.yaml`. Read only what the current work item needs.
+  module), §7.2.1 (before pulling any profile, policy, or link-catalog asset), and §24 (before any
+  composition or rendering change — the section-by-section record of what the live portfolio does
+  and which of its conventions this contract matches, exceeds, or deliberately declines),
+  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite.

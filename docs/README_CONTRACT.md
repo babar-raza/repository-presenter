@@ -28,27 +28,31 @@ content: `D` deterministic renderer from facts, `L` LLM content units bound to f
 | # | Section id | Heading | Required | Visibility | Owner | Content |
 |---|---|---|---|---|---|---|
 | 1 | `identity` | complete canonical product name | Required | visible | D | Exactly one H1, the full product name (for example `Aspose.3D FOSS for Python`), never a package or namespace shorthand. |
-| 2 | `badges` | none | Required | visible | D | One row in stable order: package or release, platform or runtime, real build status, license, contributors. Omit a badge whose target is unavailable; never duplicate, split into two rows, or fabricate. |
+| 2 | `badges` | none | Required | visible | D | One row, from a badge registry keyed by ecosystem — never a Python-only hardcode. In order, each only when its target is verified: package-registry version (PyPI, Maven Central, NuGet, npm, crates.io; pkg.go.dev reference for Go), language or runtime floor from the manifest, real CI status when a workflow badge target resolves, license, contributors. Floor: the license badge whenever a license file exists plus at least one more verified badge when any is available. Omit a badge whose target is unavailable; never duplicate, split into two rows, or fabricate. |
 | 3 | `banner` | none | Conditional: a verified product illustration and homepage exist | visible | D | Linked image immediately below the badge row: `[![alt](image_url)](homepage_url)`, alt text naming the product. Both `image_url` and `homepage_url` come from verified facts, never a guess or a placeholder graphic. Omit entirely when either is unresolved — never an unlinked image, never a broken link. |
 | 4 | `opening` | none | Required | visible | L | Two to four sentences: what it does, problems it solves, who uses it. No Aspose promotion, no marketing superlatives. |
-| 5 | `navigation` | none | Required | visible | D | Compact list of in-page links to the visible sections actually present. |
-| 6 | `at_a_glance` | At a Glance | Conditional: at least one verified input format and one capability | visible | M | Mermaid typed capability graph (§2.1). |
-| 7 | `key_capabilities` | Key Capabilities | Required | visible | L | Three to eight items. Each title is an action-led natural phrase grounded in facts; each description is one sentence. At most one search-intent keyword per title, with an output-lineage record; no keyword repeats across titles. |
-| 8 | `installation` | Installation | Required | visible | D | Verified install command for the ecosystem from manifest plus package-registry observation, or the verified source install when no package exists. Never an unverified command. State plainly when the package-registry observation shows the package is not yet published, rather than presenting an unqualified install command the registry itself contradicts. |
-| 9 | `dependencies` | Dependencies | Required | visible | D | From the dependency snapshot, in four subsections in this order — Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. Optional, Native and System, and Development omit silently when their own bucket is genuinely empty; Required omits only its bullet list, rendering the fixed sentence "No required third-party package dependencies." instead of vanishing, so a reader can never mistake verified-zero for generation forgetting the section. Never a flat, unstructured list; never merged into Installation. |
-| 10 | `quick_start` | Quick Start | Required | visible | M | One minimal example that was executed or compiled in isolation, correct fence language, normalized spacing; LLM supplies one lead-in sentence. |
-| 11 | `additional_examples` | Additional Examples | Conditional: at least one further verified example | collapsible | M | Prose preview naming the workflows, then one `<details>` per workflow with a meaningful task name. Never a duplicated generic heading with a numeric suffix. |
-| 12 | `api_reference` | API Reference | Conditional: the plan finds it useful | collapsible | M | At most twelve curated hub APIs from the verified public surface, each name in a code span with a one-sentence evidence-backed description. Never a generated inventory. |
-| 13 | `documentation_resources` | Documentation and Resources | Conditional: verified relevant targets exist | visible | M | Verified documentation, reference, and knowledge-base links that explain material shown nearby; Aspose links within the configured or derived ceilings. |
-| 14 | `scope_limitations` | Scope and Limitations | Required | visible | L | Every material limitation from evidence and inherited units; at least one honest scope statement. Every limitation names the precise mechanism a fact records (an exact exception type, a named unimplemented class) — never a vaguer paraphrase ("raises an exception") when the fact itself is more precise ("raises `NotImplementedError`"). |
-| 15 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | How to build and test from the actual build files and CI; representative assets shown openly, ending with a repository-relative complete-inventory link when items are omitted. Never collapsed. A single-file or single-target test command is a verified example, not a paraphrase of one — copy it from its fact value exactly, never approximate it. |
-| 16 | `enterprise_relationship` | none (prose paragraph) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | One or two sentences relating the FOSS scope to the **full-featured ... Enterprise Edition**, with that anchor to the verified product page. "Enterprise Edition" is the only edition name anywhere in the document. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the section entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
-| 17 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
-| 18 | `license` | License | Required | visible | D | Prose declaration from the license fact. For a permissive license such as MIT, a brief statement of practical permissions and the notice condition. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
+| 5 | `navigation` | Navigation | Required | visible | D | An explicit `## Navigation` heading, then a compact list of in-page links to the visible headed sections actually present, in document order. |
+| 6 | `at_a_glance` | At a Glance | Conditional: at least three verified core capabilities | visible | M | Exactly one Mermaid fence and nothing else (§2.1). Starting Points appear only when a verified input format exists; a product that creates from scratch still gets the diagram, without them. |
+| 7 | `key_capabilities` | Key Capabilities | Required | visible | L | Three to eight items. Each title is an action-led natural phrase grounded in facts; each description is one sentence naming the real classes or members it rests on. A capability with a known limitation says so inline with a link to Scope and Limitations rather than overstating. At most one search-intent keyword per title, with an output-lineage record; no keyword repeats across titles. |
+| 8 | `installation` | Installation | Required | visible | D | Verified install for the ecosystem's package manager from manifest plus package-registry observation, in every idiomatic form the ecosystem uses, each in its own fenced block (Maven and Gradle for Java; pip for Python; `go get`; `cargo add`; `dotnet add package`; npm); then the verified source install as a fallback (clone, then build or editable install); then a one-line verify command when the ecosystem has an idiomatic one (an import or version print); then one sentence on supported runtimes from manifest facts. Never an unverified command. State plainly when the package-registry observation shows the package is not yet published, rather than presenting an unqualified install command the registry itself contradicts. |
+| 9 | `dependencies` | Dependencies | Required | visible | D | From the dependency snapshot, in four subsections in this order — Required Package Dependencies, Optional Dependencies, Native and System Requirements, Development Dependencies. Optional, Native and System, and Development omit silently when their own bucket is genuinely empty; Required omits only its bullet list, rendering the fixed sentence "No required third-party package dependencies." plus the manifest evidence in one clause, instead of vanishing, so a reader can never mistake verified-zero for generation forgetting the section. Never a flat, unstructured list; never merged into Installation. |
+| 10 | `quick_start` | Quick Start | Required | visible | M | One or two minimal examples, each executed or compiled in isolation and each introduced by one lead-in sentence: when the product reads files, the first opens an existing input; when it creates them, one builds from scratch. Correct fence language, normalized spacing. |
+| 11 | `additional_examples` | Additional Examples | Conditional: at least one further verified example | collapsible | M | One lead-in sentence; one flagship example visible under its own task-named `###` heading; then a single `<details><summary>View Additional Examples</summary>` block holding every further verified example, each under its own real, unique, task-named `###` heading — never "Example N", never a heading reused. A one-sentence explanation may precede a block when the code alone would not make the task obvious. A code comment that records a real, verified API gotcha is kept, not stripped. |
+| 12 | `project_structure` | Project Structure | Conditional: the existing README carries a repository tree the plan preserves | visible | D | The preserved tree rendered with canonical box-drawing characters (`├──`, `└──`, `│`) regardless of the source's own style; every path resolves against the snapshot tree or the unit is corrected with evidence, never carried stale. |
+| 13 | `api_reference` | API Reference | Conditional: the plan finds it useful | collapsible | M | A visible one-to-two-sentence intro naming the real entry-point classes and how they relate; then a single `<details><summary>View the Public API Surface</summary>` block holding at most twelve curated hub APIs from the verified public surface, grouped by module, each in a code span with a one-sentence evidence-backed description. Inherited API content the plan places here renders inside that same block, deduplicated against the hubs, never outside it. Never a generated class inventory and never a mechanically derived description ("class with N methods", "extends Exception") — a deliberate divergence from the comparable live README, whose full-surface table is exactly the inventory `plans/idea.md` rules out (`RESEARCH_AND_GUIDELINES.md` §24). |
+| 14 | `documentation_resources` | Documentation & Resources | Conditional: verified relevant targets exist | visible | M | One list, each item a bold link, an em dash, and one sentence on what it covers: the verified documentation, knowledge-base, and reference targets (the reference item states the verified public type count and points to the in-page API Reference for the essentials); repository-relative links to verified tracked docs when they exist (a publishing or contributor guide, implementation notes, labeled as such); and a closing "Found a bug or have a feature request? Open an issue" line to the repository's issues page. Aspose links within the configured or derived ceilings. Never the same target twice. |
+| 15 | `scope_limitations` | Scope and Limitations | Required | visible | L | A bulleted list of designed or declared limitations, each naming the precise mechanism a fact records (an exact exception type, a named unimplemented class or method) — never a vaguer paraphrase ("raises an exception") when the fact is more precise ("raises `NotImplementedError`"). At most one scope sentence before the list, only when it says something the bullets do not; never a prose paragraph restating them. When nothing traces to a public source, omit the list rather than invent filler. Transient defects (a package that fails to import at this commit, a broken build backend) are never limitations. The section closes with the Enterprise Edition paragraph (row 17). |
+| 16 | `development_testing` | Development and Testing | Conditional: build or test assets exist | visible | M | Prose with fenced commands from the actual build files and CI: install or build and run the suite; a single-target run when the ecosystem has one, copied exactly from its verified example fact, never approximated; one sentence sizing what the suite covers when a test-file count is verified; a release sentence linking the repository's release or publish workflow file when one exists. Representative assets are named in prose, never as a bare directory list. Never collapsed. |
+| 17 | `enterprise_relationship` | none (closing paragraph of Scope and Limitations) | Conditional: a verified aspose.com product target exists in policy | visible, below the fold | M | The final paragraph of Scope and Limitations, separated from the bullets by a blank line, never inside a bullet: one or two sentences of the shape "These limitations don't apply to [Aspose.{Family} for {Platform} — Enterprise Edition](url), which adds …", naming what the Enterprise Edition adds from verified facts or policy, never invented. "Enterprise Edition" is the only edition name anywhere in the document, and it appears exactly once. A family-level target names no platform at all; a platform-level target names exactly the one real platform and never the resolved URL's own implementation detail (a compound or bridge slug never surfaces in the anchor or surrounding prose). Omit the paragraph entirely on an unresolved target — never guess a platform or fall back to a family link for convenience. |
+| 18 | `third_party_notices` | Third-Party Notices | Conditional: the file exists | visible | D | Repository-relative link with normal link text, not code styling. |
+| 19 | `license` | License | Required | visible | D | Prose declaration from the license fact: "This project is licensed under the [<name>](<path>)." then, for a permissive license such as MIT, one sentence of practical permissions and the notice condition, and that the software is provided without warranty. Never a bare link, no README-level copyright line unless portfolio policy enables it. |
 
-Headings use title case. Technical abbreviations use their canonical uppercase forms (PDF, XLSX,
-HTML, PS, EPS, XPS). Exact package names, paths, imports, namespaces, API members, commands, and
-link destinations keep their source spelling inside code spans.
+Headings use title case, with the exact strings in the table above (including the ampersand in
+"Documentation & Resources"), so anchors stay stable across the portfolio. Technical abbreviations
+use their canonical forms, uppercase where the standard is uppercase (PDF, XLSX, HTML, PS, EPS, XPS)
+and mixed where the standard is mixed (glTF, npm) — never "Gltf" or "GLTF" in a heading. Exact
+package names, paths, imports, namespaces, API members, commands, and link destinations keep their
+source spelling inside code spans.
 
 Never present: an "Other platforms" or promotional section, internal assurance narration (source
 revisions, provider calls, validators, evidence, isolated-build conditions), the label "Preserved
@@ -63,13 +67,18 @@ dependency class it excludes and the `dependencies` fact record actually proves 
 ### 2.1 At a Glance topology
 
 Inputs are verified input formats, never selector parameters. Outputs are verified output formats,
-never intermediate structures or delivery methods. Inputs connect to the product node. Exactly one
-undirected relationship connects the product to the `Core capabilities` group, and exactly one
-connects `Core capabilities` to `Outputs` when outputs exist. Individual capabilities never fan out
-to the product or to outputs. Up to five capability nodes form one vertical column; six to eight
-form two balanced columns. Endpoint labels wrap deterministically to a common width. The LLM chooses
-which verified formats and which core capabilities appear; the renderer owns every node, edge, and
-label.
+never intermediate structures or delivery methods. The diagram is one chain: a `Starting Points`
+group holding a single node that lists the verified input formats ("An existing OBJ, STL, or 3MF
+file"), the product node, the `Core Capabilities` group, and an `Outputs` group holding a single
+node that lists the verified output formats — connected by exactly one edge per hop
+(`StartingPoints --> PRODUCT --> Capabilities --> Outputs`); `Starting Points` is omitted, with its
+edge, when no input format is verified, and `Outputs` likewise. Individual capabilities never fan
+out to the product or to outputs; no per-format node edges. Up to five capability nodes form one
+column; six to eight form two balanced columns. Every label is geometry-safe: no unbroken token over
+28 characters, and no label wrapping past three lines at Mermaid's default node width — a longer
+title is shortened at planning, never clipped at render. No custom styling directives. The LLM
+chooses which verified formats and which core capabilities appear; the renderer owns every node,
+edge, and label.
 
 ## 3. Assembly pipeline
 
@@ -124,6 +133,15 @@ it if its `fact_ids` intersect the `fact_ids` of that section's own plan-driven 
 freshly-authored content wins, since it is what evidence-bound content-unit validation (§3) already
 checked. No section may show the same material twice regardless of which stage produced each copy.
 
+Two more placement rules, both from the same G1 canary bundle: a placed unit inherits its section's
+visibility — in a `collapsible` section it renders inside the section's `<details>` block after the
+composed content, never appended outside it (17 inherited API units landed visible below a closed
+`</details>`, turning a curated hub list into a 58-line inventory). And a placed unit whose
+destination section the plan excludes is not silently dropped: reconciliation re-routes it to a
+destination the plan includes, or the transaction fails closed naming the unit — the same standard
+as a unit with no safe destination (one `VERIFIED_PRESERVE` unit was routed to `at_a_glance` while
+the plan excluded that section, and vanished).
+
 ## 4. Agentic decisions
 
 Judgment belongs to the LLM where a fixed rule cannot decide. Every decision is bounded by a typed
@@ -166,7 +184,11 @@ Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per titl
 accuracy against the `dependencies` fact record (the unscoped-claim rule above names the shape;
 this is its check), a fidelity score naming missing words for a `VERIFIED_REWRITE` disposition
 (never just its category — `RESEARCH_AND_GUIDELINES.md` §19), development section inventory link,
-30-point criterion profile.
+the three placement rules of §3 (exclusive on fact-ID overlap, section visibility inherited, excluded
+destination never dropped — each a confirmed G1 defect, so each gets a regression test now and a
+blocking check at v1), the banner present whenever a verified illustration and homepage exist, the
+Enterprise Edition paragraph present and exactly once whenever a target resolves, 30-point
+criterion profile.
 
 ## 6. Repair scope
 

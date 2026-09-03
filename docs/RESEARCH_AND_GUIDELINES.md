@@ -1372,3 +1372,40 @@ nothing then routed it to the renderer. Any work item that touches a candidate's
 that bundle's `review.json` `advisory` list first; a finding whose cause is a deterministic-code
 defect (not a prose-quality judgment call) is real, tracked repair work, not accepted permanently.
 
+## 24. Systematic shell comparison against the live portfolio (2026-09-03)
+
+**Method.** Five aspose.org candidates read in full or by structure — `3d/python` (793 lines, live
+byte-identical), `cells/java`, `barcode/python` (generative archetype), `pdf/go` (hybrid), `cells/rust`
+— plus their machine-readable contract (`data/readme_template_contract.json`: ten required sections,
+`Additional Examples` optional, six section-body invariants each tied to an enforcing check, 117
+checks at snapshot). Compared section by section against `README_CONTRACT.md` §2 and against what
+`renderer.py` and `shell.py` actually emit for the G1 canary. Every row below is now either matched
+in the contract, exceeded, or recorded as a deliberate divergence with its reason.
+
+| Aspect | Live portfolio convention | Was in this project | Decision |
+|---|---|---|---|
+| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G2-W07's second ecosystem |
+| Banner | `[![Name](products.aspose.org/media/{f}/{p}/banner-readme.png)](products.aspose.org/{f}/{p}/)` on all 5 | absent, unmodeled | Matched (row 3) |
+| Navigation | explicit `## Navigation` heading | headerless list | Matched (row 5) |
+| At a Glance | present on all 5, including the generative one (no Starting Points); `flowchart TD`; one Starting Points node listing formats; single chain edge; ≤28-char tokens (hard gate) | condition required an input format, so the canary got none; `graph LR` with one node per input format and per-format edges | Matched and simplified: condition is three capabilities, inputs optional; single listing nodes; one edge per hop; label-geometry rule (§2.1) |
+| Key Capabilities | 6–8 dense bullets naming real members; a limited capability says so inline with a link | bold title + one sentence | Kept ours, added the inline-limitation cross-reference (row 7) |
+| Installation | registry install in every idiomatic form (Maven **and** Gradle), source-install fallback, verify command, runtime sentence | one `pip install` line | Matched (row 8) |
+| Dependencies | always present, four subsections, explicit verified-zero sentence with manifest evidence | omitted when zero deps | Matched (row 9; §22) |
+| Quick Start | one or two examples, each with a lead-in | one | Matched (row 10) |
+| Additional Examples | lead-in, one visible flagship under a `###` heading, then one `<details>` holding the rest under task-named `###` headings | one `<details>` per example | Matched (row 11) — a visible flagship aids scanning; the live anchors follow this shape |
+| Project Structure | optional, when the old README had a tree; canonical box-drawing characters | no section id — a preserved tree would have no destination | Added (row 12) |
+| API Reference | visible intro naming entry-point classes, then a collapsed **full public class table** (~300 rows for 3d/python) + enumerations, with mechanical filler rows ("Class with 9 methods and 8 properties and 49 members"; "Class extending Exception") | ≤12 curated hubs; no visible intro; summary "Hub APIs"; **bug**: 17 inherited units rendered visible below the closed `</details>` | **Deliberate divergence, with the fix**: visible hub-naming intro adopted, standard summary text, inherited API content inside the collapse and deduplicated. The full-surface table is kept out: `plans/idea.md` names a generated inventory as a failure, aspose.org's own tracker carries "182 filler descriptions" on `pdf/cpp` as an open item, and the 793-line comparable is the number this project's own governance already treats as the failure case. Curated, evidence-backed hubs are the differentiator here, not a gap |
+| Documentation & Resources | `&` in the heading; bold link — em dash — one sentence; reference item states the public type count; repository-relative tracked docs; "Open an issue" line | "and"; LLM intro sentence; compact link list **and** a preserved descriptive list (duplication bug) | Matched: heading, item shape, type count, tracked docs, issues line, one list (row 14) |
+| Scope and Limitations | bullets only, precise mechanism per bullet (`NotImplementedError`, `RuntimeError`, exact class); **Enterprise paragraph is the section's closing paragraph** | LLM scope sentence + bullets + duplicated preserved paragraphs; Enterprise as a separate later section | Matched: bullets with one optional scope sentence, precision rule, Enterprise paragraph moved to close the section (rows 15, 17). The owner's own reading — "the missing Enterprise link in the limitations section" — confirms this is where a reader expects it |
+| Development and Testing | prose + fenced commands, suite-size sentence, release-workflow link | summary + bare asset list (`tests/`, `.github/workflows/`, `docs/`) + commands | Matched (row 16): assets named in prose, release link, exact single-target command |
+| License | fixed sentence + permissions + "provided without warranty" | prose from the license fact | Matched (row 19) |
+| Length | 793 total lines, most inside `<details>` | 300 visible / 600 total budget | Kept ours — the budget is a differentiator, and every added section above fits inside it because the inventory is not adopted |
+| Preserved-unit placement | disposition sidecars + retention report + gates | trailing append, no overlap check, no collapse awareness, excluded destination dropped silently | Three rules added (§3): exclusive on fact-ID overlap, inherits section visibility, excluded destination fails closed or re-routes |
+
+**Where this project is already ahead, and should stay ahead**: fact-ID binding checked before render
+(no fabricated API claim can reach a candidate — the failure class §22.3 shows reached production
+in the comparable); a fresh-process zero-call no-op proof; per-candidate `dependencies.json`; a
+visible-length budget; and, once G3 lands, executed example verification for every ecosystem rather
+than Python alone. Matching the live portfolio's shape is the floor; these are the reasons a reader
+should prefer this project's candidate.
+
