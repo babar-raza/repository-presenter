@@ -43,8 +43,9 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "8"  # the template component version dependencies.json records
+RENDERER_VERSION = "9"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
+API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
@@ -307,6 +308,60 @@ def _development_sentences(context: RenderContext) -> list[str]:
     return sentences
 
 
+def _symbol_description(fact: Fact) -> str:
+    """The docstring first line when the source has one, else the verified signature; never
+    an invented sentence. Table-safe: no pipes, no code spans of its own."""
+    attributes = fact.attributes or {}
+    text = attributes.get("docstring") or ""
+    if not text and attributes.get("signature"):
+        text = f"Defined as {attributes['signature']}."
+    if not text:
+        text = f"Public {attributes.get('symbol_kind', 'symbol')}."
+    return text.replace("|", "/").replace("`", "")
+
+
+def _api_reference(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2 row 14: a visible intro with the verified public type
+    count, then one details block holding the Core API table over every verified public type,
+    split by kind, and the Detailed Member Reference grouped by the plan's hub types."""
+    sid = "api_reference"
+    symbols = context.supported("public_symbol")
+    by_kind: dict[str, list[Fact]] = {}
+    for fact in symbols:
+        by_kind.setdefault((fact.attributes or {}).get("symbol_kind", ""), []).append(fact)
+    classes = sorted(by_kind.get("class", []), key=lambda f: f.value)
+    enums = sorted(by_kind.get("enum", []), key=lambda f: f.value)
+    count = len(classes) + len(enums)
+    lines = [context.unit(sid, "intro"), "", f"The verified public surface has {count} types."]
+    lines += ["", "<details>", f"<summary>{API_SURFACE_SUMMARY}</summary>", ""]
+    lines += ["### Core API", "", "| Class | Description |", "| --- | --- |"]
+    lines += [f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(f)} |" for f in classes]
+    if enums:
+        lines += ["", "#### Enumerations", "", "| Enumeration | Description |", "| --- | --- |"]
+        lines += [f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(f)} |" for f in enums]
+    members: dict[str, list[Fact]] = {}
+    for fact in by_kind.get("method", []):
+        members.setdefault(fact.value.rsplit(".", 1)[0], []).append(fact)
+    hubs: list[tuple[dict[str, Any], Fact]] = []
+    for hub in context.plan.get("api_hubs", []):
+        symbol = context.fact(hub.get("symbol_fact_id", ""))
+        if symbol is not None:
+            hubs.append((hub, symbol))
+    if hubs:
+        lines += ["", "#### Detailed Member Reference"]
+        for hub, symbol in hubs:
+            lines += ["", f"### {symbol.value.rsplit('.', 1)[-1]}", ""]
+            lines.append(context.unit(sid, f"hub:{hub['symbol_fact_id']}"))
+            owned = sorted(members.get(symbol.value, []), key=lambda f: f.value)
+            if owned:
+                lines.append("")
+                lines += [
+                    f"- `{f.value.rsplit('.', 1)[-1]}`: {_symbol_description(f)}" for f in owned
+                ]
+    lines += ["", "</details>"]
+    return lines
+
+
 def _oxford(items: list[str]) -> str:
     if len(items) <= 2:
         return " and ".join(items)
@@ -479,17 +534,7 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         lines.append("")
         lines.append("</details>")
     elif sid == "api_reference":
-        lines.append("<details>")
-        lines.append("<summary>Hub APIs</summary>")
-        lines.append("")
-        for hub in plan.get("api_hubs", []):
-            symbol = context.fact(hub.get("symbol_fact_id", ""))
-            if symbol is None:
-                continue
-            slot = f"hub:{hub['symbol_fact_id']}"
-            lines.append(f"- `{symbol.value}`: {context.unit(sid, slot)}")
-        lines.append("")
-        lines.append("</details>")
+        lines.extend(_api_reference(context))
     elif sid == "documentation_resources":
         lines.extend(_documentation_resources(context))
     elif sid == "scope_limitations":

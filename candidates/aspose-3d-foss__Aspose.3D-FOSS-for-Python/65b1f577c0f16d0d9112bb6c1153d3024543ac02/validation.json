@@ -1,6 +1,6 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names Bone, Cylinder, Dish, Mesh.create_polygon(), Mesh.polygons, Node.add_entity(), Node.create_child_node(), ObjSaveOptions, PhongMaterial, PolygonModifier.triangulate(), Pyramid, SaveOptions, Scene.open(), Scene.save(), Skeleton, Torus, to_mesh()"
+    "inherited_unit:010.list: the rewrite no longer names Mesh.create_polygon(), Mesh.polygons, Node.add_entity(), Node.create_child_node(), PolygonModifier.triangulate(), Scene.open(), Scene.save(), to_mesh()"
   ],
   "checks": [
     {
@@ -93,7 +93,7 @@
         "structure"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -147,7 +147,7 @@
     }
   ],
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
-  "readme_sha256": "7d3e7ad1b951121275732fa9b94203bb2554575757093b180c200f642dd05bfa",
+  "readme_sha256": "3ddf72fed5586495ae114f0280f12d4fc63aaf79bea375223ad10eb0d33e1395",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",

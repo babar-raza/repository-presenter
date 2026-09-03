@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "8",
+    "renderer": "9",
     "shell": "3"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -1772,7 +1772,7 @@
     "BC-04": "1",
     "BC-05": "1",
     "BC-06": "1",
-    "BC-07": "1",
+    "BC-07": "2",
     "BC-08": "1",
     "BC-09": "1",
     "BC-10": "1",

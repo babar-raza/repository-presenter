@@ -51,17 +51,19 @@ FACTS = FactsDocument(
         _fact("install_command:pip", "install_command", "pip install aspose-3d-foss"),
         _fact("license:spdx", "license", "MIT"),
         _fact("license:file", "license", "LICENSE"),
-        _fact(
+        Fact(
             "public_symbol:aspose.threed.scene",
             "public_symbol",
             "aspose.threed.Scene",
-            "line 1; class; public by name",
+            (Evidence("x", "line 1; class; public by name"),),
+            attributes={"symbol_kind": "class"},
         ),
-        _fact(
-            "public_symbol:aspose.threed.scene.scene.save",
+        Fact(
+            "public_symbol:aspose.threed.scene.save",
             "public_symbol",
-            "aspose.threed.Scene.Scene.save",
-            "line 9; method; public by name",
+            "aspose.threed.Scene.save",
+            (Evidence("x", "line 9; method; public by name"),),
+            attributes={"symbol_kind": "method"},
         ),
         _fact("format:output.glb", "format", ".glb"),
         _fact("format:input.obj", "format", ".obj"),
@@ -146,6 +148,7 @@ UNITS = {
         _unit("quick_start", "lead_in", "Create a scene and save it."),
         _unit("additional_examples", "preview", "One more workflow follows."),
         _unit("additional_examples", "workflow:example:002", "Print a number"),
+        _unit("api_reference", "intro", "Scene is the entry point; Node hangs off it."),
         _unit(
             "api_reference", "hub:public_symbol:aspose.threed.scene", "Scene holds the scene graph."
         ),
@@ -227,7 +230,10 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     ]
     assert "<summary>View Additional Examples</summary>" in lines
     assert "### Print a number" in lines and lines.count("<details>") == 2
-    assert "- `aspose.threed.Scene`: `Scene` holds the scene graph." in lines
+    assert "<summary>View the Complete Public API Surface</summary>" in lines
+    assert "| `Scene` | Public class. |" in lines and "### Scene" in lines
+    assert "`Scene` holds the scene graph." in lines
+    assert "- `save`: Public method. |" not in lines and "- `save`: Public method." in lines
     assert "- **[Docs](https://docs.example.com/3d)** — The docs explain the API." in lines
     assert (
         "- Found a bug or have a feature request? [Open an issue]"
@@ -521,3 +527,51 @@ def test_a_second_quick_start_example_renders_with_its_own_lead_in() -> None:
         "Build a scene from scratch."
     )
     assert section.count("```python") == 2
+
+
+def test_the_api_reference_follows_row_fourteen_with_docstring_first_descriptions() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith("public_symbol:")),
+            Fact(
+                "public_symbol:aspose.threed.scene",
+                "public_symbol",
+                "aspose.threed.Scene",
+                (Evidence("aspose/threed/scene.py", "line 1; class; public by name"),),
+                attributes={
+                    "symbol_kind": "class",
+                    "signature": "class Scene(ANode)",
+                    "docstring": "The root of a scene graph.",
+                },
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.save",
+                "public_symbol",
+                "aspose.threed.Scene.save",
+                (Evidence("aspose/threed/scene.py", "line 9; method; public by name"),),
+                attributes={"symbol_kind": "method", "signature": "def save(self, path)"},
+            ),
+            Fact(
+                "public_symbol:aspose.threed.axis",
+                "public_symbol",
+                "aspose.threed.Axis",
+                (Evidence("aspose/threed/axis.py", "line 1; enum; public by name"),),
+                attributes={"symbol_kind": "enum", "signature": "class Axis(Enum)"},
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    section = readme.split("## API Reference\n\n", 1)[1].split("\n## ", 1)[0]
+    assert section.startswith(
+        "`Scene` is the entry point; Node hangs off it.\n\n"
+        "The verified public surface has 2 types.\n\n<details>\n"
+        "<summary>View the Complete Public API Surface</summary>\n\n### Core API\n\n"
+        "| Class | Description |\n| --- | --- |\n| `Scene` | The root of a scene graph. |\n\n"
+        "#### Enumerations\n\n| Enumeration | Description |\n| --- | --- |\n"
+        "| `Axis` | Defined as class Axis(Enum). |\n\n#### Detailed Member Reference\n\n"
+        "### Scene\n\n`Scene` holds the scene graph.\n\n"
+        "- `save`: Defined as def save(self, path).\n"
+    )
+    assert section.rstrip("\n").endswith("</details>")

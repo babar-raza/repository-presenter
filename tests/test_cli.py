@@ -386,10 +386,16 @@ LOCAL_UNITS: dict[str, dict[str, Any]] = {
         "units": [
             _unit(
                 "api_reference",
+                "intro",
+                "Scene is the entry point for every workflow.",
+                "public_symbol:aspose.threed.scene",
+            ),
+            _unit(
+                "api_reference",
                 "hub:public_symbol:aspose.threed.scene",
                 "Scene holds the scene graph and saves it.",
                 "public_symbol:aspose.threed.scene",
-            )
+            ),
         ],
         "omitted": [],
     },
@@ -623,6 +629,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "capability:2",
         "capability:3",
         "lead_in",
+        "intro",
         "hub:public_symbol:aspose.threed.scene",
         "link:link_target:002",
         "scope",
@@ -737,7 +744,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "3",
-        "renderer": "8",
+        "renderer": "9",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

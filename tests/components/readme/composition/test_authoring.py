@@ -153,7 +153,7 @@ def test_tasks_cover_the_included_authored_sections_with_closed_fact_sets() -> N
     assert by_section["key_capabilities"].slots == ("capability:1", "capability:2", "capability:3")
     assert by_section["quick_start"].accepted_ids >= {"example:001"}
     assert by_section["additional_examples"].slots == ("preview", "workflow:example:002")
-    assert by_section["api_reference"].slots == ("hub:public_symbol:aspose.threed.scene",)
+    assert by_section["api_reference"].slots == ("intro", "hub:public_symbol:aspose.threed.scene")
     assert by_section["documentation_resources"].accepted_ids >= {"link_target:002"}
     assert by_section["scope_limitations"].slots == ("scope", "limitation:1")
     assert by_section["development_testing"].accepted_ids >= {"build_test_asset:tests"}

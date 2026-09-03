@@ -12,13 +12,20 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 SHELL_VERSION = "3"
-# Fixed level-three subheadings a shell row prescribes (README_CONTRACT.md section 2 row 9).
+# Fixed subheadings a shell row prescribes (README_CONTRACT.md section 2 rows 9 and 14),
+# at level three or four as the row states.
 SUBSECTION_HEADINGS = frozenset(
     {
         "Required Package Dependencies",
         "Optional Dependencies",
         "Native and System Requirements",
         "Development Dependencies",
+        "Core API",
+        "Enumerations",
+        "Interfaces",
+        "Structs",
+        "Traits",
+        "Detailed Member Reference",
     }
 )
 Owner = Literal["D", "L", "M"]

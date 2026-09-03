@@ -79,8 +79,10 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "example",
     ),
     "api_reference": (
-        "One evidence-backed sentence per hub API a visitor starts from.",
-        "one unit per hub, one sentence each",
+        "One or two intro sentences naming the real entry-point classes and how they relate "
+        "(never a count, which the renderer states), then one evidence-backed sentence per "
+        "hub API a visitor starts from.",
+        "one intro unit of one or two sentences, then one unit per hub, one sentence each",
     ),
     "documentation_resources": (
         "One sentence per verified target on what it covers, in the reader's terms; never a "
@@ -168,6 +170,7 @@ def section_selections(
         ids.extend(additional)
         slots = ["preview", *(f"workflow:{example}" for example in additional)]
     elif section == "api_reference":
+        slots = ["intro"]
         for hub in plan.get("api_hubs", []):
             ids.append(hub.get("symbol_fact_id", ""))
             ids.extend(hub.get("fact_ids", []))

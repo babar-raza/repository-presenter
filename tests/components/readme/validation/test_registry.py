@@ -162,6 +162,7 @@ UNITS: dict[str, Any] = {
             for i in range(1, 7)
         ),
         _unit("quick_start", "lead_in", "Create a scene and save it."),
+        _unit("api_reference", "intro", "Scene is the entry point."),
         _unit("api_reference", "hub:public_symbol:aspose.threed.scene", "Scene holds the graph."),
         _unit("documentation_resources", "link:link_target:001", "The docs explain the API."),
         _unit("scope_limitations", "scope", "The package writes GLB only."),
@@ -205,7 +206,7 @@ TASKS = [
     SectionTask("opening", {}, ACCEPTED, ("opening",)),
     SectionTask("key_capabilities", {}, ACCEPTED, tuple(f"capability:{i}" for i in range(1, 7))),
     SectionTask("quick_start", {}, ACCEPTED, ("lead_in",)),
-    SectionTask("api_reference", {}, ACCEPTED, ("hub:public_symbol:aspose.threed.scene",)),
+    SectionTask("api_reference", {}, ACCEPTED, ("intro", "hub:public_symbol:aspose.threed.scene")),
     SectionTask("documentation_resources", {}, ACCEPTED, ("link:link_target:001",)),
     SectionTask("scope_limitations", {}, ACCEPTED, ("scope",)),
 ]

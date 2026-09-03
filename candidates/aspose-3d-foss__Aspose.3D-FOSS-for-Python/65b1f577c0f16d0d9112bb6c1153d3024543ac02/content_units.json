@@ -4,8 +4,9 @@
     "revised": [
       "key_capabilities/capability:2",
       "quick_start/lead_in",
-      "api_reference/hub:public_symbol:aspose.threed.node",
-      "api_reference/hub:public_symbol:aspose.threed.utilities"
+      "api_reference/intro",
+      "documentation_resources/link:link_target:024",
+      "documentation_resources/link:link_target:032"
     ]
   },
   "omitted": [
@@ -421,67 +422,12 @@
     },
     {
       "fact_id": "inherited_unit:059.heading",
-      "reason": "heading text is not a prose unit and is excluded from prose generation",
+      "reason": "heading text is not prose and is excluded from units",
       "section": "api_reference"
     },
     {
       "fact_id": "inherited_unit:061.heading",
-      "reason": "heading text is not a prose unit and is excluded from prose generation",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:001",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:003",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:006",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:007",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:008",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "example:011",
-      "reason": "example is not cited in this section and is not used to generate prose",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "format:input.dae",
-      "reason": "format extension is not used in any fact cited for this section",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "format:input.gltf",
-      "reason": "format extension is not used in any fact cited for this section",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "format:input.obj",
-      "reason": "format extension is not used in any fact cited for this section",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "format:output.glb",
-      "reason": "format extension is not used in any fact cited for this section",
-      "section": "api_reference"
-    },
-    {
-      "fact_id": "format:output.obj",
-      "reason": "format extension is not used in any fact cited for this section",
+      "reason": "heading text is not prose and is excluded from units",
       "section": "api_reference"
     },
     {
@@ -780,11 +726,21 @@
     {
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat",
+        "inherited_unit:057.paragraph"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.FileFormat for working with supported file formats. Scene provides methods like Scene.open and Scene.save to handle 3D content, while FileFormat exposes format-specific capabilities such as FileFormat.get_format_by_extension."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
         "inherited_unit:057.paragraph"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "Create, open, and save 3D scenes with aspose.threed.Scene, which provides Scene.open, Scene.save, Scene.from_file, Scene.root_node, Scene.animation_clips, Scene.sub_scenes, Scene.library, Scene.clear, Scene.get_animation_clip, Scene.create_animation_clip, Scene.current_animation_clip, Scene.poses, Scene.asset_info, and Scene.render."
+      "text": "Scene serves as the root container for a 3D scene graph, offering Scene.root_node to access the top-level Node, Scene.animation_clips to manage animation data, Scene.sub_scenes for hierarchical organization, and Scene.render for exporting to supported formats."
     },
     {
       "fact_ids": [
@@ -793,7 +749,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.node",
-      "text": "Manage scene hierarchy and transform with aspose.threed.Node, which supports Node.create_child_node, Node.child_nodes, Node.parent_node, Node.entities, Node.entity, Node.add_entity, Node.transform, Node.global_transform, Node.evaluate_global_transform, Node.material, Node.materials, Node.visible, Node.excluded, Node.get_bounding_box, Node.get_child, Node.select_objects, Node.select_single_object, Node.meta_datas, Node.asset_info, and Node.merge."
+      "text": "Node represents an element in the scene hierarchy, exposing Node.transform for position and orientation, Node.entities for holding Mesh-derived objects, Node.child_nodes for tree traversal, and Node.material for assigning visual properties."
     },
     {
       "fact_ids": [
@@ -802,17 +758,16 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.mesh",
-      "text": "Construct and inspect polygonal geometry with aspose.threed.Mesh, which exposes Mesh.control_points, Mesh.to_mesh, and Mesh.polygon_count."
+      "text": "Mesh stores geometric data such as control_points and polygon definitions, and supports conversion from primitives via methods like to_mesh, enabling procedural geometry creation and manipulation."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.shading.material",
-        "inherited_unit:057.paragraph"
+        "public_symbol:aspose.threed.shading.material"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "Define surface appearance with aspose.threed.shading.Material, which supports Material.diffuse_color, Material.metallic_factor, and Material.roughness_factor."
+      "text": "The shading module provides Material definitions for surface appearance, including properties like diffuse_color, metallic_factor, and roughness_factor to control rendering behavior."
     },
     {
       "fact_ids": [
@@ -822,7 +777,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.entities",
-      "text": "Create and modify geometric primitives and polygonal data using aspose.threed.entities, which includes aspose.threed.Primitive and PolygonBuilder with member create_polygon and member add."
+      "text": "The entities module includes Primitive classes and PolygonBuilder to construct geometry programmatically, supporting operations like create_polygon and add to build meshes from scratch."
     },
     {
       "fact_ids": [
@@ -831,16 +786,15 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.animation",
-      "text": "Handle time-based motion with aspose.threed.animation, which provides aspose.threed.AnimationClip and Scene.animation_clips for managing clip-based animations."
+      "text": "The animation module supports keyframe-based animation through AnimationClip, with Scene.current_animation_clip and Scene.create_animation_clip enabling scene-level animation management."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.formats"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.formats",
-      "text": "Discover, detect, and convert between file formats with FileFormat, which supports FileFormat.FBX7400ASCII, FileFormat.GLTF2, FileFormat.MICROSOFT_3MF_FORMAT, FileFormat.WAVEFRONT_OBJ, FileFormat.detect, FileFormat.get_format_by_extension, FileFormat.formats, FileFormat.can_import, FileFormat.can_export, FileFormat.extension, FileFormat.extensions, FileFormat.file_format_type, FileFormat.version, FileFormat.content_type, FileFormat.create_load_options, and FileFormat.create_save_options."
+      "text": "The formats module exposes FileFormat instances for supported 3D formats, including FileFormat.FBX7400ASCII, FileFormat.GLTF2, FileFormat.WAVEFRONT_OBJ, and FileFormat.MICROSOFT_3MF_FORMAT, with FileFormat.can_import and FileFormat.can_export indicating format capabilities."
     },
     {
       "fact_ids": [
@@ -849,7 +803,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "Perform common mathematical and utility operations with aspose.threed.utilities, which includes aspose.threed.MathUtils and helper members such as member decode, member getvalue, member seek, member read, member binary_mode, member BytesIO, and member StringIO."
+      "text": "The utilities module provides helper classes like MathUtils for common operations and supports in-memory I/O via members such as BytesIO and StringIO for streaming operations."
     },
     {
       "fact_ids": [
@@ -873,7 +827,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference offers the complete, browsable reference for all 305 public types."
+      "text": "The full API reference offers the complete, browsable reference for all 343 verified public types."
     },
     {
       "fact_ids": [
@@ -937,7 +891,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:032",
-      "text": "The issues page allows users to report bugs or request features."
+      "text": "Found a bug or have a feature request? Open an issue in the repository."
     },
     {
       "fact_ids": [

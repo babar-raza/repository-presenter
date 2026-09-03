@@ -133,7 +133,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-07",
-        "1",
+        "2",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -187,7 +187,7 @@ _PLACING = frozenset(
 )
 _EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
 # (level, is a shell heading, is a prescribed subheading) combinations a heading may take
-_HEADING_OK = frozenset({(2, True, False), (3, False, True)})
+_HEADING_OK = frozenset({(2, True, False), (3, False, True), (4, False, True)})
 _EXAMPLE_N = re.compile(r"(?i)example\s*\d+")
 _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
@@ -475,12 +475,19 @@ def _check_units(candidate: Candidate) -> list[Failure]:
     # A deterministic section's spans come from facts and their evidence (a manifest path, a
     # declaration key), so the identifier rule judges authored prose only.
     owners = {section.id: section.owner for section in SEMANTIC_SHELL}
+    section_texts = _section_texts(candidate.readme)
     renderer_lines = {
         line
-        for section_id, text in _section_texts(candidate.readme).items()
+        for section_id, text in section_texts.items()
         if owners.get(section_id) == "D"
         for line in text.splitlines()
     }
+    # The API Reference table rows and member bullets are rendered from the symbol facts.
+    renderer_lines.update(
+        line
+        for line in section_texts.get("api_reference", "").splitlines()
+        if line.startswith(("| ", "- `"))
+    )
     seen: set[str] = set()
     for line in _outside_fences(candidate.readme):
         if line in placed_lines or line in renderer_lines:
@@ -664,11 +671,20 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
             failures.append(Failure("COMPOSING", f"example heading {task!r} is reused"))
         if _EXAMPLE_N.fullmatch(task):
             failures.append(Failure("COMPOSING", f"example heading {task!r} names no task"))
+    # The Detailed Member Reference groups members under the hub types' own names (row 14).
+    topics = {
+        fact.value.rsplit(".", 1)[-1]
+        for fact in candidate.facts.by_kind("public_symbol")
+        if fact.polarity == "SUPPORTED"
+    }
+    api_lines = set(_section_texts(candidate.readme).get("api_reference", "").splitlines())
     for line in outside:
         if line.startswith("#") and not line.startswith("# "):
             level = len(line) - len(line.lstrip("#"))
             text = line.lstrip("#").strip()
             if level == 3 and text in tasks:
+                continue
+            if level == 3 and line in api_lines and text in topics:
                 continue
             if (level, text in headings, text in SUBSECTION_HEADINGS) not in _HEADING_OK:
                 failures.append(
@@ -699,12 +715,13 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
             failures.append(Failure("COMPOSING", f"internal narration {phrase!r}"))
     visible, total = line_counts(candidate.readme)
     policy = candidate.policy
-    if visible > policy.visible_lines_budget or total > policy.total_lines_budget:
+    # Check 7 judges the visible-length budget; collapsed content is unbounded (contract row 14).
+    if visible > policy.visible_lines_budget:
         failures.append(
             Failure(
                 "PLANNING",
-                f"{visible} visible lines of {total} exceed the budget "
-                f"{policy.visible_lines_budget}/{policy.total_lines_budget}",
+                f"{visible} visible lines of {total} exceed the visible budget "
+                f"{policy.visible_lines_budget}",
             )
         )
     return failures
