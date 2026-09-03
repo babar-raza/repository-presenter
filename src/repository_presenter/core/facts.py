@@ -79,6 +79,9 @@ class Fact:
     evidence: tuple[Evidence, ...]
     polarity: Polarity = "SUPPORTED"
     confidence: float = 1.0
+    # Structured, kind-specific attributes a consumer reads without parsing evidence text
+    # (a public symbol's kind, signature, and docstring first line); None for most kinds.
+    attributes: dict[str, str] | None = None
 
     def __post_init__(self) -> None:
         if self.kind not in FACT_KINDS:
@@ -95,6 +98,11 @@ class Fact:
             raise ValueError(f"fact {self.id} has unknown polarity {self.polarity!r}")
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"fact {self.id} confidence must be between 0 and 1")
+        if self.attributes is not None and not all(
+            isinstance(k, str) and isinstance(v, str) and k and v
+            for k, v in self.attributes.items()
+        ):
+            raise ValueError(f"fact {self.id} attributes must map non-empty strings to strings")
 
 
 @dataclass(frozen=True)

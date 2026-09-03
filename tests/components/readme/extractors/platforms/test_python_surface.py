@@ -63,7 +63,14 @@ def test_definitions_all_and_reexports_are_inventoried_without_importing(tmp_pat
         "pkg.widget.Widget.size",
     ]
     assert by_name["pkg.widget.Widget.render"] == PublicSymbol(
-        "pkg.widget.Widget.render", "pkg.widget", "render", "method", "pkg/widget.py", 2, "name"
+        "pkg.widget.Widget.render",
+        "pkg.widget",
+        "render",
+        "method",
+        "pkg/widget.py",
+        2,
+        "name",
+        signature="def render(self)",
     )
     assert by_name["pkg.widget.Widget.size"].kind == "method"
     assert "pkg.widget.Widget._hide" not in by_name
@@ -77,6 +84,7 @@ def test_definitions_all_and_reexports_are_inventoried_without_importing(tmp_pat
         1,
         "reexport",
         "pkg.widget.Widget",
+        signature="class Widget",
     )
     assert by_name["pkg.make"].kind == "function"
     assert by_name["pkg.make"].reexported_from == "pkg.factory.make"
@@ -144,3 +152,46 @@ def test_nested_package_dirs_are_walked_once_and_facts_are_unique(tmp_path: Path
     assert [f.value for f in facts][2:] == ["pkg.sub.Item", "pkg.sub.item"]
     assert facts[2].evidence[0].detail == "line 1; class; public by name"
     assert public_symbol_facts(inspect_public_surface(tmp_path, ["pkg", "pkg/sub"])) == facts
+
+
+def test_symbols_carry_their_kind_signature_and_docstring_as_structured_attributes(
+    tmp_path: Path,
+) -> None:
+    _write(
+        tmp_path,
+        "lib/__init__.py",
+        '"""Lib: scenes and shapes.\n\nMore."""\nfrom .shapes import Shape, Kind\n',
+    )
+    _write(
+        tmp_path,
+        "lib/shapes.py",
+        "from enum import Enum\n\n\nclass Kind(Enum):\n"
+        '    """Which shape."""\n\n    BOX = 1\n\n\nclass Shape(Base):\n'
+        '    """A shape in a scene.\n\n    Longer text.\n    """\n\n'
+        "    def area(self, scale: float = 1.0) -> float:\n"
+        '        """The area, scaled."""\n        return 0.0\n\n\n'
+        "async def load(path: str) -> Shape:\n    return Shape()\n",
+    )
+    surface = inspect_public_surface(tmp_path, ["lib"])
+    by_name = {symbol.qualified_name: symbol for symbol in surface.symbols}
+    assert by_name["lib"].docstring == "Lib: scenes and shapes."
+    assert by_name["lib.shapes.Kind"].kind == "enum"
+    assert by_name["lib.shapes.Kind"].signature == "class Kind(Enum)"
+    assert by_name["lib.shapes.Shape"].docstring == "A shape in a scene."
+    assert by_name["lib.shapes.Shape"].signature == "class Shape(Base)"
+    assert by_name["lib.shapes.Shape.area"].signature == "def area(self, scale: float=1.0) -> float"
+    assert by_name["lib.shapes.Shape.area"].docstring == "The area, scaled."
+    assert by_name["lib.shapes.load"].signature == "async def load(path: str) -> Shape"
+    # A re-export carries its origin's evidence.
+    assert by_name["lib.Kind"].kind == "enum" and by_name["lib.Kind"].docstring == "Which shape."
+    facts = {fact.value: fact for fact in public_symbol_facts(surface)}
+    assert facts["lib.shapes.Shape"].attributes == {
+        "symbol_kind": "class",
+        "signature": "class Shape(Base)",
+        "docstring": "A shape in a scene.",
+    }
+    assert facts["lib.shapes.Kind"].attributes["symbol_kind"] == "enum"
+    assert facts["lib"].attributes == {
+        "symbol_kind": "module",
+        "docstring": "Lib: scenes and shapes.",
+    }

@@ -107,7 +107,8 @@ class RenderContext:
             if fact.polarity == "SUPPORTED"
             and fact.evidence
             and any(
-                f"; {kind};" in (fact.evidence[0].detail or "") for kind in ("class", "function")
+                f"; {kind};" in (fact.evidence[0].detail or "")
+                for kind in ("class", "enum", "function")
             )
         )
 
@@ -244,7 +245,8 @@ def _public_type_count(context: RenderContext) -> int:
     return sum(
         1
         for fact in context.supported("public_symbol")
-        if fact.evidence and "; class;" in (fact.evidence[0].detail or "")
+        if fact.evidence
+        and any(f"; {kind};" in (fact.evidence[0].detail or "") for kind in ("class", "enum"))
     )
 
 

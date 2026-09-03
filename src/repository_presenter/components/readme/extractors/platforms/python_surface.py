@@ -20,7 +20,8 @@ from typing import Literal
 
 from repository_presenter.core.facts import Evidence, Fact, fact_id
 
-SymbolKind = Literal["module", "class", "function", "method", "unknown"]
+SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
+_ENUM_BASES = frozenset({"Enum", "IntEnum", "StrEnum", "Flag", "IntFlag", "ReprEnum"})
 PublicBy = Literal["name", "__all__", "reexport"]
 
 _EXCLUDED_PARTS = frozenset({"__pycache__", "build", "dist", "tests", "test", "docs", "examples"})
@@ -38,6 +39,37 @@ class PublicSymbol:
     line: int
     public_by: PublicBy
     reexported_from: str | None = None
+    docstring: str | None = None  # the first line of the symbol's own docstring
+    signature: str | None = None  # the definition line as the source states it
+
+
+def _first_docstring_line(node: ast.AST) -> str | None:
+    text = (
+        ast.get_docstring(node, clean=True)
+        if isinstance(node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef)
+        else None
+    )
+    if not text:
+        return None
+    first = text.strip().splitlines()[0].strip()
+    return first or None
+
+
+def _signature(node: ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef) -> str:
+    if isinstance(node, ast.ClassDef):
+        bases = ", ".join(ast.unparse(base) for base in node.bases)
+        return f"class {node.name}({bases})" if bases else f"class {node.name}"
+    prefix = "async def" if isinstance(node, ast.AsyncFunctionDef) else "def"
+    returns = f" -> {ast.unparse(node.returns)}" if node.returns is not None else ""
+    return f"{prefix} {node.name}({ast.unparse(node.args)}){returns}"
+
+
+def _class_kind(node: ast.ClassDef) -> SymbolKind:
+    for base in node.bases:
+        name = ast.unparse(base).rsplit(".", 1)[-1]
+        if name in _ENUM_BASES:
+            return "enum"
+    return "class"
 
 
 @dataclass(frozen=True)
@@ -115,14 +147,25 @@ def _module_symbols(
         return [], [f"{module}:{exc.lineno or 0}:syntax-error:{relative}:{exc.msg}"]
     explicit = _literal_all(tree)
     symbols = [
-        PublicSymbol(module, module, module.rsplit(".", 1)[-1], "module", relative, 1, "name")
+        PublicSymbol(
+            module,
+            module,
+            module.rsplit(".", 1)[-1],
+            "module",
+            relative,
+            1,
+            "name",
+            docstring=_first_docstring_line(tree),
+        )
     ]
     unresolved: list[str] = []
     for node in tree.body:
         if isinstance(node, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef):
             public, public_by = _public_name(node.name, explicit)
             if public:
-                kind: SymbolKind = "class" if isinstance(node, ast.ClassDef) else "function"
+                kind: SymbolKind = (
+                    _class_kind(node) if isinstance(node, ast.ClassDef) else "function"
+                )
                 symbols.append(
                     PublicSymbol(
                         f"{module}.{node.name}",
@@ -132,6 +175,8 @@ def _module_symbols(
                         relative,
                         node.lineno,
                         public_by,
+                        docstring=_first_docstring_line(node),
+                        signature=_signature(node),
                     )
                 )
                 if isinstance(node, ast.ClassDef):
@@ -180,6 +225,8 @@ def _methods(
                 relative,
                 item.lineno,
                 public_by,
+                docstring=_first_docstring_line(item),
+                signature=_signature(item),
             )
         )
     return found
@@ -201,7 +248,7 @@ def _origin_kind(origin: str, source_root: Path) -> SymbolKind | None:
             return None
         for item in tree.body:
             if isinstance(item, ast.ClassDef) and item.name == name:
-                return "class"
+                return _class_kind(item)
             if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef) and item.name == name:
                 return "function"
         return None
@@ -244,7 +291,13 @@ def inspect_public_surface(repository_root: Path, package_dirs: Sequence[str]) -
                     f"{symbol.module}:{symbol.line}:unresolved-reexport:{symbol.reexported_from}"
                 )
             else:
-                symbols[name] = replace(symbol, kind=kind)
+                # A re-export carries its origin's own docstring and signature as evidence.
+                symbols[name] = replace(
+                    symbol,
+                    kind=kind,
+                    docstring=origin.docstring if origin is not None else None,
+                    signature=origin.signature if origin is not None else None,
+                )
     return PublicSurface(
         symbols=tuple(symbols[name] for name in sorted(symbols)),
         unresolved=tuple(sorted(set(unresolved))),
@@ -262,6 +315,11 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
         detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
         if symbol.reexported_from is not None:
             detail += f"; re-export of {symbol.reexported_from}"
+        attributes: dict[str, str] = {"symbol_kind": symbol.kind}
+        if symbol.signature:
+            attributes["signature"] = symbol.signature
+        if symbol.docstring:
+            attributes["docstring"] = symbol.docstring
         facts.append(
             Fact(
                 identifier,
@@ -270,6 +328,7 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
                 (Evidence(symbol.source_path, detail),),
                 polarity="SUPPORTED" if symbol.kind != "unknown" else "UNRESOLVED",
                 confidence=1.0 if symbol.kind != "unknown" else 0.5,
+                attributes=attributes,
             )
         )
     return facts

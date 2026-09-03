@@ -119,3 +119,27 @@ def test_by_kind_filters() -> None:
     document = sample_document()
     assert [fact.id for fact in document.by_kind("package")] == ["package:name"]
     assert document.by_kind("example") == ()
+
+
+def test_structured_attributes_round_trip_through_json_and_the_schema() -> None:
+    import json as _json
+
+    import jsonschema as _jsonschema
+
+    fact = Fact(
+        "public_symbol:pkg.widget",
+        "public_symbol",
+        "pkg.Widget",
+        (Evidence("pkg/widget.py", "line 1; class; public by name"),),
+        attributes={"symbol_kind": "class", "signature": "class Widget"},
+    )
+    document = FactsDocument("org/repo", "a" * 40, (fact,))
+    payload = _json.loads(document.to_json())
+    schema = _json.loads(Path("schemas/facts.schema.json").read_text(encoding="utf-8"))
+    _jsonschema.Draft202012Validator(schema).validate(payload)
+    assert payload["facts"][0]["attributes"] == {
+        "symbol_kind": "class",
+        "signature": "class Widget",
+    }
+    with pytest.raises(ValueError, match="attributes must map"):
+        Fact("identity:x", "identity", "x", (Evidence("p"),), attributes={"k": ""})
