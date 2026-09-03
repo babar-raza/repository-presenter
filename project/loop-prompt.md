@@ -150,8 +150,11 @@ files, never from memory of a previous iteration.
    cursor, committed, and pushed. Never close an item for code nothing calls.
 7. One CLI, one entry point per workflow. No compatibility facades, no parallel runtime paths, no
    legacy mission graph, trusted lane, or proof runner.
-8. Candidates stay concise and product-first within the policy length budget, with no generated
-   API inventory. A 793-line candidate is a failure even if every check passes.
+8. Candidates stay concise and product-first within the visible-length budget (lines outside
+   `<details>`); the complete public API surface lives inside the collapsed reference, verified and
+   filler-free, and is required — most FOSS repositories have no other reference. A long collapsed
+   reference is not a failure; a split identifier ("A3 D Object"), an unverified or mechanically
+   generated description, or visible-length bloat is, even if every check passes.
 9. Never treat evidence volume, transition count, or closed items as progress.
 10. Never create documents to describe work; the commit message and the report describe it.
 11. Never write a product repository, never widen a credential, never wait for the owner on

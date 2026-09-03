@@ -1327,7 +1327,7 @@ live in the sealed bundle and worth folding into the same repair pass:
   above.
 - **F07** (`development_testing`): the shipped candidate still reads "run... a single test file with
   `python -m unittest tests`" — an incomplete command; the verified example fact names
-  `python -m unittest tests.test_obj_importer`. Now covered by shell row 15's addition above.
+  `python -m unittest tests.test_obj_importer`. Now covered by shell row 17's addition above.
 - **F01** and **F03** are narrower wording judgment calls (a "current version" phrasing nuance; the
   non-standard "Hub APIs" sub-heading) — real, but lower priority than the five above; leave for the
   same repair pass to triage, not a contract change.
@@ -1374,13 +1374,19 @@ defect (not a prose-quality judgment call) is real, tracked repair work, not acc
 
 ## 24. Systematic shell comparison against the live portfolio (2026-09-03)
 
-**Method.** Five aspose.org candidates read in full or by structure — `3d/python` (793 lines, live
-byte-identical), `cells/java`, `barcode/python` (generative archetype), `pdf/go` (hybrid), `cells/rust`
-— plus their machine-readable contract (`data/readme_template_contract.json`: ten required sections,
-`Additional Examples` optional, six section-body invariants each tied to an enforcing check, 117
-checks at snapshot). Compared section by section against `README_CONTRACT.md` §2 and against what
-`renderer.py` and `shell.py` actually emit for the G1 canary. Every row below is now either matched
-in the contract, exceeded, or recorded as a deliberate divergence with its reason.
+**Method.** A scripted structural census of **all 32** aspose.org candidates under
+`reports/repo-presenter-regen-full/` (headings, badges, banner, Enterprise link count and section,
+Mermaid fences, per-section fence and bullet counts, API table rows, `<details>` summaries, images,
+visible-versus-total lines), plus full reads of `3d/python` (live byte-identical), `cells/java`,
+`barcode/python`, `pdf/go`, `cells/rust`, and their machine-readable contract
+(`data/readme_template_contract.json`: ten required sections, six section-body invariants each tied
+to an enforcing check, 117 checks). Compared section by section against `README_CONTRACT.md` §2 and
+against what `renderer.py` and `shell.py` actually emit for the G1 canary. A first pass on five
+candidates reached a wrong conclusion on the API Reference (below); the census and the owner's
+product decision corrected it. Portfolio-wide constants, all 32/32: banner present; exactly one
+Enterprise link, always the closing paragraph of Scope and Limitations; exactly one Mermaid fence
+with nothing else in At a Glance; every one of the twelve standard sections present. Visible lines
+115–310; total lines 272–3,172; API table rows 11 (`tex/python`) to 1,026 (`pdf/java`).
 
 | Aspect | Live portfolio convention | Was in this project | Decision |
 |---|---|---|---|
@@ -1392,14 +1398,16 @@ in the contract, exceeded, or recorded as a deliberate divergence with its reaso
 | Installation | registry install in every idiomatic form (Maven **and** Gradle), source-install fallback, verify command, runtime sentence | one `pip install` line | Matched (row 8) |
 | Dependencies | always present, four subsections, explicit verified-zero sentence with manifest evidence | omitted when zero deps | Matched (row 9; §22) |
 | Quick Start | one or two examples, each with a lead-in | one | Matched (row 10) |
-| Additional Examples | lead-in, one visible flagship under a `###` heading, then one `<details>` holding the rest under task-named `###` headings | one `<details>` per example | Matched (row 11) — a visible flagship aids scanning; the live anchors follow this shape |
-| Project Structure | optional, when the old README had a tree; canonical box-drawing characters | no section id — a preserved tree would have no destination | Added (row 12) |
-| API Reference | visible intro naming entry-point classes, then a collapsed **full public class table** (~300 rows for 3d/python) + enumerations, with mechanical filler rows ("Class with 9 methods and 8 properties and 49 members"; "Class extending Exception") | ≤12 curated hubs; no visible intro; summary "Hub APIs"; **bug**: 17 inherited units rendered visible below the closed `</details>` | **Deliberate divergence, with the fix**: visible hub-naming intro adopted, standard summary text, inherited API content inside the collapse and deduplicated. The full-surface table is kept out: `plans/idea.md` names a generated inventory as a failure, aspose.org's own tracker carries "182 filler descriptions" on `pdf/cpp` as an open item, and the 793-line comparable is the number this project's own governance already treats as the failure case. Curated, evidence-backed hubs are the differentiator here, not a gap |
-| Documentation & Resources | `&` in the heading; bold link — em dash — one sentence; reference item states the public type count; repository-relative tracked docs; "Open an issue" line | "and"; LLM intro sentence; compact link list **and** a preserved descriptive list (duplication bug) | Matched: heading, item shape, type count, tracked docs, issues line, one list (row 14) |
-| Scope and Limitations | bullets only, precise mechanism per bullet (`NotImplementedError`, `RuntimeError`, exact class); **Enterprise paragraph is the section's closing paragraph** | LLM scope sentence + bullets + duplicated preserved paragraphs; Enterprise as a separate later section | Matched: bullets with one optional scope sentence, precision rule, Enterprise paragraph moved to close the section (rows 15, 17). The owner's own reading — "the missing Enterprise link in the limitations section" — confirms this is where a reader expects it |
-| Development and Testing | prose + fenced commands, suite-size sentence, release-workflow link | summary + bare asset list (`tests/`, `.github/workflows/`, `docs/`) + commands | Matched (row 16): assets named in prose, release link, exact single-target command |
-| License | fixed sentence + permissions + "provided without warranty" | prose from the license fact | Matched (row 19) |
-| Length | 793 total lines, most inside `<details>` | 300 visible / 600 total budget | Kept ours — the budget is a differentiator, and every added section above fits inside it because the inventory is not adopted |
+| Additional Examples | lead-in, one visible flagship under a `###` heading, then one `<details>` holding the rest under task-named `###` headings | one `<details>` per example | Matched (row 12) — a visible flagship aids scanning (22 of 32 have one); the live anchors follow this shape |
+| Project Structure | optional, when the old README had a tree; canonical box-drawing characters | no section id — a preserved tree would have no destination | Added (row 13) |
+| API Reference | 32/32 present. Visible intro naming entry-point classes and the public type count; one `<details>` (summary text varies across nine wordings — "View the Supported Public API Surface" 13, "View the Core API Surface" 9, …); `### Core API` table on 22, module-grouped `###` tables on the rest; `#### Enumerations` (71 occurrences), `#### Interfaces` (22), `#### Structs`/`#### Traits` (Rust); `#### Detailed Member Reference` on 24/32 with `### Topic` groups of nested member bullets. Rows: 11 to 1,026. Quality gap, not a design gap: mechanical filler rows exist ("Class with 9 methods and 8 properties and 49 members"; "Class extending Exception"), and their own tracker carries "182 filler descriptions" on `pdf/cpp` | ≤12 curated hubs; no visible intro; summary "Hub APIs"; **bug**: 17 inherited units rendered visible below the closed `</details>` | **Matched and exceeded — the first-pass "deliberate divergence" was wrong and is withdrawn.** The owner's product decision: most FOSS repositories have no dedicated reference, so the README's complete API reference is required. `plans/idea.md` never forbade it (its line 107 names API Reference as a canonical destination for preserved APIs; line 117's "not a fact inventory" is about the composer's prose); the "no generated API inventory" phrase was this project's own governance overreach, now removed from the contract and loop prompt. Row 14: required, complete verified surface, standard summary text, kind-split tables, Detailed Member Reference — and the exceed: every description evidence-backed, filler rows structurally impossible because the table is deterministic from `public_symbol` facts |
+| Documentation & Resources | `&` in the heading; bold link — em dash — one sentence; reference item states the public type count; repository-relative tracked docs; "Open an issue" line | "and"; LLM intro sentence; compact link list **and** a preserved descriptive list (duplication bug) | Matched: heading, item shape, type count, tracked docs, issues line, one list (row 15) |
+| Scope and Limitations | bullets only, precise mechanism per bullet (`NotImplementedError`, `RuntimeError`, exact class); **Enterprise paragraph is the section's closing paragraph** | LLM scope sentence + bullets + duplicated preserved paragraphs; Enterprise as a separate later section | Matched: bullets with one optional scope sentence, precision rule, Enterprise paragraph moved to close the section (rows 16, 18). The owner's own reading — "the missing Enterprise link in the limitations section" — confirms this is where a reader expects it |
+| Development and Testing | prose + fenced commands, suite-size sentence, release-workflow link | summary + bare asset list (`tests/`, `.github/workflows/`, `docs/`) + commands | Matched (row 17): assets named in prose, release link (8 of 32 carry one — conditional, not required), exact single-target command |
+| License | fixed sentence + permissions + "provided without warranty" | prose from the license fact | Matched (row 20); 31 of 32 use the linked form |
+| Length | Visible 115–310 lines across all 32; total 272–3,172, the difference almost entirely the collapsed reference | 300 visible / 600 total budget | Visible budget kept and set to 320 (the portfolio's own ceiling); the total cap was wrong once the complete reference is required and is removed — what is read stays short, what is looked up is complete. Also corrected: the "793-line candidate" this project's governance named as the failure was an *old* 3D/Python candidate (§3, line 114) whose defects were a split identifier and unverified filler; the live 3d/python being the same length is coincidence, not the failure |
+| Images | `font/python` 5 (generated SVG/PNG previews), `page/python` 3 (rendered outputs), `words/python` 1 (embedded data-URI PNG), all inside Additional Examples under their own headings; `pdf/go` 1 preview in a Feature Showcase section linking the full asset. Their own history records excluding screenshots "because no template section exists" as a real defect (MT051) | no image handling beyond the banner; a preserved image unit would have had no destination | Matched: row 12 preserves verified repository-owned images inside Additional Examples with alt text and snapshot-resolved paths; row 11 adds Feature Showcase |
+| Deliberate additional sections | Across all 32: Project Structure (4: `cells/go`, `cells/java`, `cells/rust`, `pdf/cpp`), Third-Party Notices (2: `pdf/cpp`, `pdf/go`), Feature Showcase (1: `pdf/go`). Nothing else. Every one exists because the repository genuinely carries that material | closed shell; a material inherited section with no row failed closed or was dumped | Matched: the deliberate-additions rule (§2, after the table) — a plan `deviation` naming the units or assets it rests on, at the row's position; the observed set is exactly the three rows added |
 | Preserved-unit placement | disposition sidecars + retention report + gates | trailing append, no overlap check, no collapse awareness, excluded destination dropped silently | Three rules added (§3): exclusive on fact-ID overlap, inherits section visibility, excluded destination fails closed or re-routes |
 
 **Where this project is already ahead, and should stay ahead**: fact-ID binding checked before render
