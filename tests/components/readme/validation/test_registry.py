@@ -394,3 +394,17 @@ def test_validation_json_is_deterministic_and_sorted(tmp_path: Path) -> None:
     assert first == second == hashlib.sha256(data).hexdigest()
     assert data.endswith(b"}\n") and b"\r" not in data
     assert list(json.loads(data)) == sorted(json.loads(data))
+
+
+def test_example_headings_are_real_unique_task_names(tmp_path: Path) -> None:
+    section = (
+        "## Additional Examples\n\nLead-in.\n\n<details>\n"
+        "<summary>View Additional Examples</summary>\n\n"
+        "### Example 2\n\n```python\nprint(1)\n```\n\n### Example 2\n\n```python\nprint(1)\n```\n\n"
+        "### Save a scene\n\n```python\nprint(1)\n```\n\n</details>\n"
+    )
+    document = validate_candidate(_candidate(_candidate().readme + "\n" + section), tmp_path, ())
+    details = _failed(document, "BC-07")["details"]
+    assert "example heading 'Example 2' is reused" in details
+    assert "example heading 'Example 2' names no task" in details
+    assert not any("Save a scene" in detail for detail in details)

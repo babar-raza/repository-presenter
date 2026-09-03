@@ -188,6 +188,7 @@ _PLACING = frozenset(
 _EXECUTION_MARKERS = (": EXECUTED", ": COMPILED")
 # (level, is a shell heading, is a prescribed subheading) combinations a heading may take
 _HEADING_OK = frozenset({(2, True, False), (3, False, True)})
+_EXAMPLE_N = re.compile(r"(?i)example\s*\d+")
 _SPAN = re.compile(r"`([^`]+)`")
 _BADGE_TOKEN = r"(?:\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\))"
 _BADGE_ROW = re.compile(rf"{_BADGE_TOKEN}(?: {_BADGE_TOKEN})*")
@@ -651,10 +652,24 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     if len(badge_rows) != 1:
         failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
     headings = {section.heading for section in SEMANTIC_SHELL if section.heading}
+    # Additional Examples holds every further example under its own real, unique, task-named
+    # level-three heading (README_CONTRACT.md section 2 row 12): never "Example N", never reused.
+    tasks = [
+        line[4:].strip()
+        for line in _section_texts(candidate.readme).get("additional_examples", "").splitlines()
+        if line.startswith("### ")
+    ]
+    for task, count in Counter(tasks).items():
+        if count > 1:
+            failures.append(Failure("COMPOSING", f"example heading {task!r} is reused"))
+        if _EXAMPLE_N.fullmatch(task):
+            failures.append(Failure("COMPOSING", f"example heading {task!r} names no task"))
     for line in outside:
         if line.startswith("#") and not line.startswith("# "):
             level = len(line) - len(line.lstrip("#"))
             text = line.lstrip("#").strip()
+            if level == 3 and text in tasks:
+                continue
             if (level, text in headings, text in SUBSECTION_HEADINGS) not in _HEADING_OK:
                 failures.append(
                     Failure("COMPOSING", f"heading {line!r} is not a shell heading in title case")

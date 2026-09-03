@@ -15,7 +15,8 @@
       "label": "F09",
       "outcome": "repaired",
       "re_raised": [
-        "F04"
+        "F04",
+        "F05"
       ],
       "reason": null,
       "request_sha256": "e092b9c653bf982266ca15ab7e0933e617bb8a91c76f64de7b12f5b4dfc87523",

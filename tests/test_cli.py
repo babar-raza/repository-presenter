@@ -727,8 +727,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "targeted_repair",
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
-        "shell": "2",
-        "renderer": "2",
+        "shell": "3",
+        "renderer": "3",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

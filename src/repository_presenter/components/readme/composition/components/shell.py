@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-SHELL_VERSION = "2"
+SHELL_VERSION = "3"
 # Fixed level-three subheadings a shell row prescribes (README_CONTRACT.md section 2 row 9).
 SUBSECTION_HEADINGS = frozenset(
     {
@@ -124,7 +124,7 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
         "collapsible",
         "M",
         "at least one further verified example",
-        "A prose preview, then one details block per workflow.",
+        "A lead-in, then one details block: every further example under a task-named heading.",
     ),
     Section(
         "api_reference",
@@ -137,7 +137,7 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
     ),
     Section(
         "documentation_resources",
-        "Documentation and Resources",
+        "Documentation & Resources",
         False,
         "visible",
         "M",

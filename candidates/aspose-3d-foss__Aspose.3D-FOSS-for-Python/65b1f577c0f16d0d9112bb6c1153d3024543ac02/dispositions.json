@@ -57,7 +57,7 @@
         "link_target:034",
         "link_target:035"
       ],
-      "rationale": "The badge row contains verified links to Python versions, MIT license, contributors, and PyPI version.",
+      "rationale": "The badge row contains verified links for Python versions, MIT license, contributors, and PyPI version.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -68,7 +68,7 @@
         "link_target:010",
         "link_target:033"
       ],
-      "rationale": "The banner image links to the enterprise product page, which is supported by the aspose.com product target fact.",
+      "rationale": "The banner image links to the enterprise product page; this promotional material is placed in enterprise_relationship.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -84,7 +84,7 @@
         "package:python_versions",
         "dependency:none"
       ],
-      "rationale": "The paragraph's substance is covered by the product_summary and opening requirements; facts support a pure-Python, MIT-licensed library with no native runtime.",
+      "rationale": "The paragraph's substance is captured by the product summary and opening requirements; it will be re-authored from facts.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -96,19 +96,9 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "link_target:011",
-        "link_target:012",
-        "link_target:013",
-        "link_target:014",
-        "link_target:015",
-        "link_target:016",
-        "link_target:017",
-        "link_target:018",
-        "link_target:019",
-        "link_target:020",
-        "link_target:021"
+        "inherited_unit:006.list"
       ],
-      "rationale": "The navigation heading and list are rendered from facts in the navigation section; the list items match the destination section IDs.",
+      "rationale": "The Navigation heading and list are rendered from the navigation section facts; the heading is redundant.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
@@ -132,7 +122,7 @@
         "link_target:020",
         "link_target:021"
       ],
-      "rationale": "The navigation list is rendered from facts in the navigation section; the list items match the destination section IDs.",
+      "rationale": "The navigation list is rendered from the navigation section facts; the list is redundant.",
       "unit_id": "inherited_unit:006.list"
     },
     {
@@ -141,11 +131,22 @@
       "fact_ids": [
         "example:002",
         "example:004",
+        "example:005",
         "example:009",
+        "example:010",
         "example:012",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose",
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The At a Glance heading and Mermaid graph are rendered from facts in the at_a_glance section.",
+      "rationale": "The At a Glance heading and Mermaid graph are rendered from the at_a_glance section facts; the heading is redundant.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
@@ -154,11 +155,22 @@
       "fact_ids": [
         "example:002",
         "example:004",
+        "example:005",
         "example:009",
+        "example:010",
         "example:012",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose",
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The Mermaid flowchart is rendered from facts in the at_a_glance section.",
+      "rationale": "The Mermaid graph is rendered from the at_a_glance section facts; the code block is redundant.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
@@ -167,7 +179,9 @@
       "fact_ids": [
         "example:002",
         "example:004",
+        "example:005",
         "example:009",
+        "example:010",
         "example:012",
         "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.mesh",
@@ -177,9 +191,10 @@
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose",
         "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The Key Capabilities heading and list are rendered from facts in the key_capabilities section.",
+      "rationale": "The Key Capabilities heading and list are rendered from the key_capabilities section facts; the heading is redundant.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -188,7 +203,9 @@
       "fact_ids": [
         "example:002",
         "example:004",
+        "example:005",
         "example:009",
+        "example:010",
         "example:012",
         "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.mesh",
@@ -198,9 +215,10 @@
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose",
         "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "rationale": "The Key Capabilities list is rendered from facts in the key_capabilities section.",
+      "rationale": "The Key Capabilities list is rendered from the key_capabilities section facts; the list is redundant.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -209,7 +227,7 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The Installation heading and commands are rendered from facts in the installation section.",
+      "rationale": "The Installation heading is rendered from the installation section facts; the heading is redundant.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
@@ -218,7 +236,7 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The Installation paragraph is rendered from facts in the installation section.",
+      "rationale": "The installation paragraph is rendered from the installation section facts; the paragraph is redundant.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
@@ -227,43 +245,35 @@
       "fact_ids": [
         "install_command:pip"
       ],
-      "rationale": "The pip install command is rendered from facts in the installation section.",
+      "rationale": "The pip install command matches the verified install command and is required in the installation section.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The editable install paragraph is rendered from facts in the installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The editable install instructions are not supported by any fact; they are omitted.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The editable install command is rendered from facts in the installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The editable install code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The verification paragraph is rendered from facts in the installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The verify install paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "rationale": "The verification command is rendered from facts in the installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The verify install code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
@@ -274,7 +284,7 @@
         "package:python_requires",
         "package:python_versions"
       ],
-      "rationale": "The Python version support paragraph is rendered from facts in the installation section.",
+      "rationale": "The Python version support statement matches the verified python_requires and python_versions facts.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
@@ -282,10 +292,9 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
-        "dependency:none",
-        "package:python_requires"
+        "dependency:none"
       ],
-      "rationale": "The Dependencies heading and subsections are rendered from facts in the dependencies section.",
+      "rationale": "The Dependencies heading is rendered from the dependencies section facts; the heading is redundant.",
       "unit_id": "inherited_unit:019.heading"
     },
     {
@@ -293,10 +302,9 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
-        "dependency:none",
-        "package:python_requires"
+        "dependency:none"
       ],
-      "rationale": "The Required Package Dependencies heading is rendered from facts in the dependencies section.",
+      "rationale": "The Required Package Dependencies heading is rendered from the dependencies section facts; the heading is redundant.",
       "unit_id": "inherited_unit:020.heading"
     },
     {
@@ -306,7 +314,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The no third-party dependencies paragraph is rendered from facts in the dependencies section.",
+      "rationale": "The statement about no required third-party dependencies matches the verified dependency:none fact.",
       "unit_id": "inherited_unit:021.paragraph"
     },
     {
@@ -315,9 +323,10 @@
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none",
-        "package:python_requires"
+        "package:python_requires",
+        "package:python_versions"
       ],
-      "rationale": "The Native and System Requirements heading is rendered from facts in the dependencies section.",
+      "rationale": "The Native and System Requirements heading is rendered from the dependencies section facts; the heading is redundant.",
       "unit_id": "inherited_unit:022.heading"
     },
     {
@@ -326,9 +335,10 @@
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none",
-        "package:python_requires"
+        "package:python_requires",
+        "package:python_versions"
       ],
-      "rationale": "The Python version requirement list is rendered from facts in the dependencies section.",
+      "rationale": "The Python version requirement list matches the verified python_requires and python_versions facts.",
       "unit_id": "inherited_unit:023.list"
     },
     {
@@ -336,10 +346,9 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
-        "dependency:none",
-        "package:python_requires"
+        "dependency:none"
       ],
-      "rationale": "The Development Dependencies heading is rendered from facts in the dependencies section.",
+      "rationale": "The Development Dependencies heading is rendered from the dependencies section facts; the heading is redundant.",
       "unit_id": "inherited_unit:024.heading"
     },
     {
@@ -347,10 +356,9 @@
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "dependency:development.dev.pytest-7.0.0",
-        "dependency:none",
-        "package:python_requires"
+        "dependency:none"
       ],
-      "rationale": "The pytest development dependency list is rendered from facts in the dependencies section.",
+      "rationale": "The pytest development dependency list matches the verified dependency fact.",
       "unit_id": "inherited_unit:025.list"
     },
     {
@@ -359,43 +367,38 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The Quick Start heading and examples are rendered from facts in the quick_start section.",
+      "rationale": "The Quick Start heading is rendered from the quick_start section facts; the heading is redundant.",
       "unit_id": "inherited_unit:026.heading"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The Quick Start paragraph is rendered from facts in the quick_start section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The quick start paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
+        "example:001",
         "example:002"
       ],
-      "rationale": "The OBJ import example is rendered from facts in the quick_start section.",
+      "rationale": "The quick start code block matches the verified example:002 fact.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The Quick Start paragraph is rendered from facts in the quick_start section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The additional quick start paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:029.paragraph"
     },
     {
-      "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The glTF export example is rendered from facts in the quick_start section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The second quick start code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:030.code_block"
     },
     {
@@ -408,473 +411,243 @@
         "example:010",
         "example:012"
       ],
-      "rationale": "The Additional Examples heading and subsections are rendered from facts in the additional_examples section.",
+      "rationale": "The Additional Examples Heading is rendered from the additional_examples section facts; the heading is redundant.",
       "unit_id": "inherited_unit:031.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Additional Examples paragraph is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:032.paragraph"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Convert Between Formats heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:033.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The format conversion example is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:034.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The View Additional Examples HTML block is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:035.html_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Assign a PBR Material heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:036.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The PBR material example is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:037.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Build a Mesh From Control Points heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:038.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Build a Mesh From Control Points paragraph is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:039.paragraph"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The glTF export example is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:040.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Triangulate an Imported Mesh heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:041.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The triangulation example is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:042.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Walk the Scene Graph heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:043.heading"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The scene graph traversal example is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:044.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Position a Node With Transform heading is rendered from facts in the additional_examples section.",
-      "unit_id": "inherited_unit:045.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The Position a Node With Transform example is contradicted by example:008, which raises NotImplementedError for TransformBuilder.",
-      "unit_id": "inherited_unit:046.code_block"
+      "rationale": "The additional examples paragraph is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:032.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Convert Between Formats Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:033.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The convert code block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:034.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The View Additional Examples HTML block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:035.html_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Assign a PBR Material to a Primitive Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:036.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
+        "example:004"
       ],
-      "rationale": "The Build a Mesh and Export It to STL heading is rendered from facts in the additional_examples section.",
+      "rationale": "The PBR material code block matches the verified example:004 fact.",
+      "unit_id": "inherited_unit:037.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Build a Mesh From Control Points Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:038.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Build a Mesh From Control Points paragraph is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:039.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:005"
+      ],
+      "rationale": "The Build a Mesh From Control Points code block matches the verified example:005 fact.",
+      "unit_id": "inherited_unit:040.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Triangulate an Imported Mesh Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:041.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Triangulate an Imported Mesh code block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:042.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Walk the Scene Graph Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:043.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Walk the Scene Graph code block is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:044.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Position a Node With Transform Heading is not supported by any fact; it is omitted.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [
+        "example:008"
+      ],
+      "rationale": "The Position a Node With Transform code block is CONTRADICTED by example:008; it is omitted.",
+      "unit_id": "inherited_unit:046.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Build a Mesh and Export It to STL Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
+        "example:009"
       ],
-      "rationale": "The STL export example is rendered from facts in the additional_examples section.",
+      "rationale": "The Build a Mesh and Export It to STL code block matches the verified example:009 fact.",
       "unit_id": "inherited_unit:048.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Convert a Parametric Primitive to a Mesh heading is rendered from facts in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Convert a Parametric Primitive to a Mesh Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
+        "example:010"
       ],
-      "rationale": "The primitive conversion example is rendered from facts in the additional_examples section.",
+      "rationale": "The Convert a Parametric Primitive to a Mesh code block matches the verified example:010 fact.",
       "unit_id": "inherited_unit:050.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Import a COLLADA File heading is rendered from facts in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Import a COLLADA File Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The COLLADA import example is rendered from facts in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Import a COLLADA File code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:052.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The Build a Cube and Export It to 3MF heading is rendered from facts in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Build a Cube and Export It to 3MF Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
         "example:012"
       ],
-      "rationale": "The 3MF export example is rendered from facts in the additional_examples section.",
+      "rationale": "The Build a Cube and Export It to 3MF code block matches the verified example:012 fact.",
       "unit_id": "inherited_unit:054.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "rationale": "The View Additional Examples HTML block is rendered from facts in the additional_examples section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The </details> HTML block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:055.html_block"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The API Reference heading and tables are rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The API Reference Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:056.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The API Reference paragraph is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The API Reference paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:057.paragraph"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The View the Supported Public API Surface HTML block is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The View the Supported Public API Surface HTML block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:058.html_block"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The Core API heading is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Core API Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:059.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The Core API table is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Core API table is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:060.table"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The Enumerations heading is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Enumerations Heading is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The Enumerations table is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Enumerations table is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:062.table"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The View the Supported Public API Surface HTML block is rendered from facts in the api_reference section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The </details> HTML block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:063.html_block"
     },
     {
@@ -893,12 +666,12 @@
         "link_target:031",
         "link_target:032"
       ],
-      "rationale": "The Documentation & Resources heading and list are rendered from facts in the documentation_resources section.",
+      "rationale": "The Documentation & Resources heading is rendered from the documentation_resources section facts; the heading is redundant.",
       "unit_id": "inherited_unit:064.heading"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "link_target:022",
         "link_target:023",
@@ -912,7 +685,7 @@
         "link_target:031",
         "link_target:032"
       ],
-      "rationale": "The Documentation & Resources list is rendered from facts in the documentation_resources section.",
+      "rationale": "The documentation links list matches the verified link_target facts.",
       "unit_id": "inherited_unit:065.list"
     },
     {
@@ -921,16 +694,16 @@
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "rationale": "The Scope and Limitations heading and list are rendered from facts in the scope_limitations section.",
+      "rationale": "The Scope and Limitations heading is rendered from the scope_limitations section facts; the heading is redundant.",
       "unit_id": "inherited_unit:066.heading"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "SUPERSEDE_REDUNDANT",
+      "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "rationale": "The Scope and Limitations list is rendered from facts in the scope_limitations section.",
+      "rationale": "The limitations list matches the inherited limitations and is supported by the facts.",
       "unit_id": "inherited_unit:067.list"
     },
     {
@@ -939,7 +712,7 @@
       "fact_ids": [
         "link_target:033"
       ],
-      "rationale": "The Enterprise Edition reference paragraph is supported by the aspose.com product target fact.",
+      "rationale": "The Enterprise Edition paragraph is placed in enterprise_relationship as it relates to the enterprise product.",
       "unit_id": "inherited_unit:068.paragraph"
     },
     {
@@ -950,73 +723,49 @@
         "build_test_asset:ci",
         "build_test_asset:docs"
       ],
-      "rationale": "The Development and Testing heading and content are rendered from facts in the development_testing section.",
+      "rationale": "The Development and Testing heading is rendered from the development_testing section facts; the heading is redundant.",
       "unit_id": "inherited_unit:069.heading"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The Development and Testing paragraph is rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Development and Testing paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:070.paragraph"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The test commands are rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Development and Testing code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:071.code_block"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The single test file paragraph is rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Run a single test file paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:072.paragraph"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The single test file command is rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Run a single test file code block is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:073.code_block"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The test suite coverage paragraph is rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The test suite coverage paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:074.paragraph"
     },
     {
-      "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci",
-        "build_test_asset:docs"
-      ],
-      "rationale": "The release process paragraph is rendered from facts in the development_testing section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The releases paragraph is not supported by any fact; it is omitted.",
       "unit_id": "inherited_unit:075.paragraph"
     },
     {
@@ -1026,7 +775,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The License heading and paragraph are rendered from facts in the license section.",
+      "rationale": "The License heading is rendered from the license section facts; the heading is redundant.",
       "unit_id": "inherited_unit:076.heading"
     },
     {
@@ -1036,7 +785,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is rendered from facts in the license section.",
+      "rationale": "The license paragraph matches the verified license facts.",
       "unit_id": "inherited_unit:077.paragraph"
     }
   ]

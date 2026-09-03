@@ -39,7 +39,8 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "2"  # the template component version dependencies.json records
+RENDERER_VERSION = "3"  # the template component version dependencies.json records
+ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
@@ -378,18 +379,23 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
             lines.append("")
             lines.extend(_code_block(context.entry.ecosystem, example.value))
     elif sid == "additional_examples":
+        # README_CONTRACT.md section 2 row 12: one lead-in, then a single details block
+        # holding every further verified example under its own task-named heading.
         lines.append(context.unit(sid, "preview"))
+        lines.append("")
+        lines.append("<details>")
+        lines.append(f"<summary>{ADDITIONAL_EXAMPLES_SUMMARY}</summary>")
         for example_id in plan.get("additional_example_ids", []):
             example = context.fact(example_id)
             if example is None:
                 continue
+            task = context.unit(sid, f"workflow:{example_id}").strip().rstrip(".")
             lines.append("")
-            lines.append("<details>")
-            lines.append(f"<summary>{context.unit(sid, f'workflow:{example_id}')}</summary>")
+            lines.append(f"### {task}")
             lines.append("")
             lines.extend(_code_block(context.entry.ecosystem, example.value))
-            lines.append("")
-            lines.append("</details>")
+        lines.append("")
+        lines.append("</details>")
     elif sid == "api_reference":
         lines.append("<details>")
         lines.append("<summary>Hub APIs</summary>")

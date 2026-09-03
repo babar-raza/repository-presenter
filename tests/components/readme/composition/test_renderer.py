@@ -225,7 +225,8 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
         "Scene().save('a.glb')",
         "```",
     ]
-    assert "<summary>Print a number</summary>" in lines
+    assert "<summary>View Additional Examples</summary>" in lines
+    assert "### Print a number" in lines and lines.count("<details>") == 2
     assert "- `aspose.threed.Scene`: `Scene` holds the scene graph." in lines
     assert "- [Docs](https://docs.example.com/3d)" in lines
     assert "- OBJ import is unverified." in lines
@@ -244,7 +245,7 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
 
 
 def test_headings_anchor_like_github_and_line_counts_skip_details() -> None:
-    assert anchor("Documentation and Resources") == "documentation-and-resources"
+    assert anchor("Documentation & Resources") == "documentation--resources"
     readme = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     visible, total = line_counts(readme)
     assert total == readme.count("\n")
