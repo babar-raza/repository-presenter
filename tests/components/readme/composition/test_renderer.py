@@ -504,3 +504,20 @@ def test_every_limitation_unit_renders_as_its_own_bullet() -> None:
     assert lines.index("- OBJ import is unverified.") + 1 == lines.index(
         "- FBX export is not implemented."
     )
+
+
+def test_a_second_quick_start_example_renders_with_its_own_lead_in() -> None:
+    plan = {**PLAN, "second_quick_start_example_id": "example:002", "additional_example_ids": []}
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit("quick_start", "lead_in:2", "Build a scene from scratch."),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, FACTS, plan, units, DISPOSITIONS)
+    section = readme.split("## Quick Start", 1)[1].split("## ", 1)[0]
+    assert section.index("Create a scene and save it.") < section.index(
+        "Build a scene from scratch."
+    )
+    assert section.count("```python") == 2

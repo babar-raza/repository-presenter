@@ -37,19 +37,17 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animation"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.entities",
         "public_symbol:aspose.threed.primitive"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
     },
     {
       "fact_ids": [
@@ -198,15 +196,16 @@
     }
   ],
   "quick_start_example_id": "example:002",
+  "second_quick_start_example_id": null,
   "sections": [
     {
       "include": true,
-      "reason": "Required section; H1 product name matches canonical identity.",
+      "reason": "Required section; H1 product name is present and matches the canonical identity.",
       "section_id": "identity"
     },
     {
       "include": true,
-      "reason": "Required section; verified badges for Python version, license, contributors, and PyPI version.",
+      "reason": "Required section; verified badge row with Python version, license, contributors, and PyPI version.",
       "section_id": "badges"
     },
     {
@@ -216,12 +215,12 @@
     },
     {
       "include": true,
-      "reason": "Required section; deterministic navigation list is rendered.",
+      "reason": "Required section; navigation list is rendered deterministically.",
       "section_id": "navigation"
     },
     {
       "include": false,
-      "reason": "No SUPPORTED input format exists; the Mermaid flowchart requires verified input formats.",
+      "reason": "Condition 'at least one verified input format and one capability' is false; no SUPPORTED input format facts exist.",
       "section_id": "at_a_glance"
     },
     {
@@ -231,57 +230,57 @@
     },
     {
       "include": true,
-      "reason": "Required section; verified install command and Python version support are present.",
+      "reason": "Required section; verified install command and Python version facts are present.",
       "section_id": "installation"
     },
     {
       "include": true,
-      "reason": "Required section; verified zero required dependencies and pytest dev dependency are present.",
+      "reason": "Required section; dependency facts confirm zero required third-party packages and one development dependency.",
       "section_id": "dependencies"
     },
     {
       "include": true,
-      "reason": "Required section; example:002 is the best quick-start example.",
+      "reason": "Required section; example:002 is a verified minimal example for scene import and export.",
       "section_id": "quick_start"
     },
     {
       "include": true,
-      "reason": "Condition holds: multiple further verified examples exist (example:004, example:005, example:009, example:010, example:012).",
+      "reason": "Condition 'at least one further verified example' holds; examples:004, 005, 009, 010, 012 are additional verified workflows.",
       "section_id": "additional_examples"
     },
     {
       "include": true,
-      "reason": "Condition null: visitor benefits from curated hub APIs; hubs are listed.",
+      "reason": "Condition 'the plan finds it useful' is null; visitor benefits from curated hub APIs with hubs listed.",
       "section_id": "api_reference"
     },
     {
       "include": true,
-      "reason": "Condition holds: verified documentation and reference links exist.",
+      "reason": "Condition 'verified relevant targets exist' holds; verified link_target facts support documentation links.",
       "section_id": "documentation_resources"
     },
     {
       "include": true,
-      "reason": "Required section; material limitations from inherited_unit:067.list are present.",
+      "reason": "Required section; inherited_unit:067.list provides verified material limitations.",
       "section_id": "scope_limitations"
     },
     {
       "include": true,
-      "reason": "Condition holds: build_test_asset facts for tests/ and .github/workflows/ exist.",
+      "reason": "Condition 'build or test assets exist' holds; tests/ and .github/workflows/ assets are present.",
       "section_id": "development_testing"
     },
     {
       "include": false,
-      "reason": "Condition fails: no verified aspose.com product target exists in policy.",
+      "reason": "Condition 'a verified aspose.com product target exists in policy' is false; no enterprise target URL is policy-compliant.",
       "section_id": "enterprise_relationship"
     },
     {
       "include": false,
-      "reason": "Condition fails: no third-party notices file is verified.",
+      "reason": "Condition 'the file exists' is false; no LICENSE fact beyond SPDX ID is provided.",
       "section_id": "third_party_notices"
     },
     {
       "include": true,
-      "reason": "Required section; license facts support the prose declaration.",
+      "reason": "Required section; license facts (file and SPDX) are present.",
       "section_id": "license"
     }
   ]

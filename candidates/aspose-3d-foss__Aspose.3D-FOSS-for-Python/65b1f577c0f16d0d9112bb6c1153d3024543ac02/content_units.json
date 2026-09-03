@@ -3,7 +3,9 @@
     "applied": true,
     "revised": [
       "key_capabilities/capability:2",
-      "api_reference/hub:public_symbol:aspose.threed.node"
+      "quick_start/lead_in",
+      "api_reference/hub:public_symbol:aspose.threed.node",
+      "api_reference/hub:public_symbol:aspose.threed.utilities"
     ]
   },
   "omitted": [
@@ -233,68 +235,58 @@
       "section": "key_capabilities"
     },
     {
-      "fact_id": "inherited_unit:027.paragraph",
-      "reason": "pertains to a different example (importing OBJ) not covered in this lead-in unit",
-      "section": "quick_start"
-    },
-    {
-      "fact_id": "inherited_unit:030.code_block",
-      "reason": "provides the code block itself, not the lead-in sentence",
-      "section": "quick_start"
-    },
-    {
       "fact_id": "example:001",
-      "reason": "unresolved example not used in this section",
+      "reason": "example is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "example:003",
-      "reason": "unresolved example not used in this section",
+      "reason": "example is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "example:006",
-      "reason": "unresolved example not used in this section",
+      "reason": "example is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "example:007",
-      "reason": "unresolved example not used in this section",
+      "reason": "example is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "example:008",
-      "reason": "contradicted example not used in this section",
+      "reason": "example is contradicted and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "example:011",
-      "reason": "unresolved example not used in this section",
+      "reason": "example is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "unresolved format not used in this section",
+      "reason": "format is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "unresolved format not used in this section",
+      "reason": "format is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "unresolved format not used in this section",
+      "reason": "format is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "unresolved format not used in this section",
+      "reason": "format is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "unresolved format not used in this section",
+      "reason": "format is unresolved and not used in any verified example",
       "section": "quick_start"
     },
     {
@@ -428,58 +420,68 @@
       "section": "additional_examples"
     },
     {
+      "fact_id": "inherited_unit:059.heading",
+      "reason": "heading text is not a prose unit and is excluded from prose generation",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:061.heading",
+      "reason": "heading text is not a prose unit and is excluded from prose generation",
+      "section": "api_reference"
+    },
+    {
       "fact_id": "example:001",
-      "reason": "example is unresolved and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is unresolved and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is unresolved and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is unresolved and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is contradicted and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is unresolved and not used to assert behavior",
+      "reason": "example is not cited in this section and is not used to generate prose",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.dae",
-      "reason": "format is unresolved and not listed in allowed identifiers",
+      "reason": "format extension is not used in any fact cited for this section",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.gltf",
-      "reason": "format is unresolved and not listed in allowed identifiers",
+      "reason": "format extension is not used in any fact cited for this section",
       "section": "api_reference"
     },
     {
       "fact_id": "format:input.obj",
-      "reason": "format is unresolved and not listed in allowed identifiers",
+      "reason": "format extension is not used in any fact cited for this section",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.glb",
-      "reason": "format is unresolved and not listed in allowed identifiers",
+      "reason": "format extension is not used in any fact cited for this section",
       "section": "api_reference"
     },
     {
       "fact_id": "format:output.obj",
-      "reason": "format is unresolved and not listed in allowed identifiers",
+      "reason": "format extension is not used in any fact cited for this section",
       "section": "api_reference"
     },
     {
@@ -720,17 +722,12 @@
     },
     {
       "fact_ids": [
-        "identity:repository",
-        "package:name",
-        "package:version",
-        "package:python_requires",
-        "package:python_versions",
-        "inherited_unit:029.paragraph",
-        "example:002"
+        "inherited_unit:027.paragraph",
+        "inherited_unit:029.paragraph"
       ],
       "section": "quick_start",
       "slot": "lead_in",
-      "text": "Create a scene with a textured box and save it as glTF using Aspose.3D FOSS for Python 26.1.0 on Python 3.7 through 3.12."
+      "text": "Import an OBJ file and inspect its geometry, or build a scene from scratch and export it to glTF."
     },
     {
       "fact_ids": [
@@ -787,7 +784,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "Create, open, and save 3D scenes with the aspose.threed.Scene class, which holds a hierarchy of nodes, materials, and animation clips, and provides methods like Scene.open, Scene.save, and Scene.create_animation_clip."
+      "text": "Create, open, and save 3D scenes with aspose.threed.Scene, which provides Scene.open, Scene.save, Scene.from_file, Scene.root_node, Scene.animation_clips, Scene.sub_scenes, Scene.library, Scene.clear, Scene.get_animation_clip, Scene.create_animation_clip, Scene.current_animation_clip, Scene.poses, Scene.asset_info, and Scene.render."
     },
     {
       "fact_ids": [
@@ -796,7 +793,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.node",
-      "text": "Manage scene hierarchy and spatial transforms with the aspose.threed.Node class, which supports adding child nodes, attaching entities, evaluating global transforms, and storing materials via Node.create_child_node, Node.global_transform, and Node.materials."
+      "text": "Manage scene hierarchy and transform with aspose.threed.Node, which supports Node.create_child_node, Node.child_nodes, Node.parent_node, Node.entities, Node.entity, Node.add_entity, Node.transform, Node.global_transform, Node.evaluate_global_transform, Node.material, Node.materials, Node.visible, Node.excluded, Node.get_bounding_box, Node.get_child, Node.select_objects, Node.select_single_object, Node.meta_datas, Node.asset_info, and Node.merge."
     },
     {
       "fact_ids": [
@@ -805,38 +802,36 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.mesh",
-      "text": "Represent geometry with the aspose.threed.Mesh class, which stores control points and polygon definitions, and can be created from primitives or modified using utilities like PolygonBuilder."
+      "text": "Construct and inspect polygonal geometry with aspose.threed.Mesh, which exposes Mesh.control_points, Mesh.to_mesh, and Mesh.polygon_count."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.shading.material"
+        "public_symbol:aspose.threed.shading.material",
+        "inherited_unit:057.paragraph"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "Define surface appearance with the aspose.threed.shading module, which includes the Material class for properties such as diffuse_color, metallic_factor, and roughness_factor."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.animation",
-      "text": "Create and manage animations using the aspose.threed.animation module, which provides AnimationClip, AnimationNode, and KeyframeSequence to define time-based transformations and properties."
+      "text": "Define surface appearance with aspose.threed.shading.Material, which supports Material.diffuse_color, Material.metallic_factor, and Material.roughness_factor."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.primitive"
+        "public_symbol:aspose.threed.primitive",
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.entities",
-      "text": "Construct and manipulate geometric primitives with the aspose.threed.entities module, which includes Box, Sphere, and Primitive classes that can be converted to Mesh instances."
+      "text": "Create and modify geometric primitives and polygonal data using aspose.threed.entities, which includes aspose.threed.Primitive and PolygonBuilder with member create_polygon and member add."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.animation",
+      "text": "Handle time-based motion with aspose.threed.animation, which provides aspose.threed.AnimationClip and Scene.animation_clips for managing clip-based animations."
     },
     {
       "fact_ids": [
@@ -845,7 +840,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.formats",
-      "text": "Import and export 3D files using the aspose.threed.formats module, which exposes FileFormat classes for formats like OBJ, GLTF2, FBX7400ASCII, and 3MF, with support for detection, load options, and save options."
+      "text": "Discover, detect, and convert between file formats with FileFormat, which supports FileFormat.FBX7400ASCII, FileFormat.GLTF2, FileFormat.MICROSOFT_3MF_FORMAT, FileFormat.WAVEFRONT_OBJ, FileFormat.detect, FileFormat.get_format_by_extension, FileFormat.formats, FileFormat.can_import, FileFormat.can_export, FileFormat.extension, FileFormat.extensions, FileFormat.file_format_type, FileFormat.version, FileFormat.content_type, FileFormat.create_load_options, and FileFormat.create_save_options."
     },
     {
       "fact_ids": [
@@ -854,7 +849,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "Perform common calculations and conversions with the aspose.threed.utilities module, which includes MathUtils for helper functions and types like Vector3 used in geometry and transforms."
+      "text": "Perform common mathematical and utility operations with aspose.threed.utilities, which includes aspose.threed.MathUtils and helper members such as member decode, member getvalue, member seek, member read, member binary_mode, member BytesIO, member StringIO, and member control_points."
     },
     {
       "fact_ids": [

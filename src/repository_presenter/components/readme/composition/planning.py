@@ -116,8 +116,13 @@ def plan_checks(
         fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
     )
     quick = output.get("quick_start_example_id")
-    additional = [i for i in output.get("additional_example_ids", []) if i != quick]
-    missing = [i for i in verified_examples if i != quick and i not in additional]
+    second = output.get("second_quick_start_example_id")
+    starts = {quick, second} - {None}
+    additional = [i for i in output.get("additional_example_ids", []) if i not in starts]
+    missing = [i for i in verified_examples if i not in starts and i not in additional]
+    # The facts-only condition counts every verified example; the plan's quick starts consume
+    # some, so Additional Examples holds only when a further example remains.
+    conditions["additional_examples"] = bool(set(verified_examples) - starts)
     if missing:
         output["additional_example_ids"] = additional + missing
         entry = decisions.get("additional_examples")
@@ -201,8 +206,14 @@ def plan_checks(
     quick = output.get("quick_start_example_id")
     if quick not in examples:
         errors.append(f"quick_start_example_id must be a SUPPORTED example; got {quick!r}")
+    second = output.get("second_quick_start_example_id")
+    if second is not None and (second not in examples or second == quick):
+        errors.append(
+            "second_quick_start_example_id must be a SUPPORTED example other than the first; "
+            f"got {second!r}"
+        )
     additional = output.get("additional_example_ids", [])
-    if quick in additional or len(set(additional)) != len(additional):
+    if quick in additional or second in additional or len(set(additional)) != len(additional):
         errors.append("additional_example_ids must be distinct and exclude the quick start")
     if ("additional_examples" in included) != bool(additional):
         errors.append(

@@ -434,3 +434,13 @@ def test_every_investigated_limitation_gets_its_own_slot_and_recorded_exceptions
     assert errors == [
         "unit limitation:2: identifiers that are not accepted fact values: ValueError"
     ]
+
+
+def test_quick_start_gets_a_second_lead_in_slot_only_when_the_plan_selected_one() -> None:
+    plan = {"quick_start_example_id": "example:001", "second_quick_start_example_id": "example:002"}
+    ids, slots = section_selections("quick_start", plan, {}, {}, FACTS)
+    assert slots == ("lead_in", "lead_in:2") and "example:002" in ids
+    _, single = section_selections(
+        "quick_start", {"quick_start_example_id": "example:001"}, {}, {}, FACTS
+    )
+    assert single == ("lead_in",)

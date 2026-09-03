@@ -43,7 +43,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "7"  # the template component version dependencies.json records
+RENDERER_VERSION = "8"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
@@ -445,11 +445,19 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
     elif sid == "dependencies":
         lines.extend(_dependencies(context))
     elif sid == "quick_start":
+        # README_CONTRACT.md section 2 row 10: one or two minimal examples, each introduced by
+        # one lead-in sentence.
         lines.append(context.unit(sid, "lead_in"))
         example = context.fact(plan.get("quick_start_example_id", ""))
         if example is not None:
             lines.append("")
             lines.extend(_code_block(context.entry.ecosystem, example.value))
+        second = context.fact(plan.get("second_quick_start_example_id") or "")
+        if second is not None:
+            lines.append("")
+            lines.append(context.unit(sid, "lead_in:2"))
+            lines.append("")
+            lines.extend(_code_block(context.entry.ecosystem, second.value))
     elif sid == "additional_examples":
         # README_CONTRACT.md section 2 row 12: one lead-in, then a single details block
         # holding every further verified example under its own task-named heading.

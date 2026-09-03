@@ -185,3 +185,18 @@ def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
     assert raw.endswith(b"}\n") and b"\r\n" not in raw
     assert json.loads(raw) == _plan()
     assert write_plan(_plan(), path) == digest
+
+
+def test_a_second_quick_start_example_is_supported_distinct_and_kept_out_of_additional() -> None:
+    assert plan_checks(_plan(second_quick_start_example_id=None), FACTS) == []
+    twice = plan_checks(_plan(second_quick_start_example_id="example:001"), FACTS)
+    assert twice == [
+        "second_quick_start_example_id must be a SUPPORTED example other than the first; "
+        "got 'example:001'"
+    ]
+    plan = _plan(second_quick_start_example_id="example:002", additional_example_ids=[])
+    for entry in plan["sections"]:
+        if entry["section_id"] == "additional_examples":
+            entry["include"] = False  # both verified examples are quick starts now
+    assert plan_checks(plan, FACTS) == []
+    assert "example:002" not in plan["additional_example_ids"]

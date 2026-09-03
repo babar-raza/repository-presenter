@@ -68,8 +68,10 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit per capability, one sentence each",
     ),
     "quick_start": (
-        "One lead-in sentence for the minimal example the renderer shows next.",
-        "one unit of one sentence",
+        "One lead-in sentence per minimal example the renderer shows next: the first opens an "
+        "existing input when the product reads files, a second builds from scratch when the "
+        "plan selected one.",
+        "one unit of one sentence per example",
     ),
     "additional_examples": (
         "A short preview naming the workflows, then one meaningful task name per example.",
@@ -157,6 +159,10 @@ def section_selections(
     elif section == "quick_start":
         ids.append(plan.get("quick_start_example_id", ""))
         slots = ["lead_in"]
+        second = plan.get("second_quick_start_example_id")
+        if second:
+            ids.append(second)
+            slots.append("lead_in:2")
     elif section == "additional_examples":
         additional = plan.get("additional_example_ids", [])
         ids.extend(additional)

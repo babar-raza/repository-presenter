@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "1"
+version: "2"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -38,7 +38,7 @@ output:
   binding: selection_ids
   schema:
     type: object
-    required: [sections, core_capabilities, at_a_glance, quick_start_example_id, additional_example_ids, api_hubs, material_limitations, links, deviations]
+    required: [sections, core_capabilities, at_a_glance, quick_start_example_id, second_quick_start_example_id, additional_example_ids, api_hubs, material_limitations, links, deviations]
     additionalProperties: false
     properties:
       sections:
@@ -74,6 +74,7 @@ output:
               output_format_ids: { type: array, items: { type: string } }
               capability_titles: { type: array, minItems: 1, maxItems: 8, items: { type: string } }
       quick_start_example_id: { type: string, minLength: 1 }
+      second_quick_start_example_id: { type: [string, "null"] }
       additional_example_ids: { type: array, items: { type: string } }
       api_hubs:
         type: array
@@ -137,8 +138,11 @@ system: |
   excluded with that reason.
 
   Examples. quick_start_example_id is the one SUPPORTED example fact that best shows the primary
-  workflow in the fewest lines; additional_example_ids are other SUPPORTED examples, each a
-  distinct workflow. A CONTRADICTED or UNRESOLVED example is never selected.
+  workflow in the fewest lines. second_quick_start_example_id is a second minimal SUPPORTED
+  example only when the product both reads and creates files and the two together show both
+  paths (one opens an existing input, one builds from scratch); otherwise it is null.
+  additional_example_ids are the other SUPPORTED examples, each a distinct workflow. A
+  CONTRADICTED or UNRESOLVED example is never selected.
 
   Hub APIs. At most twelve public_symbol facts a visitor starts from, never an inventory; each with
   the facts that justify its description. Material limitations cite limitation facts or deferred

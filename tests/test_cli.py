@@ -310,6 +310,7 @@ LOCAL_PLAN: dict[str, Any] = {
     ],
     "at_a_glance": None,
     "quick_start_example_id": "example:001",
+    "second_quick_start_example_id": None,
     "additional_example_ids": [],
     "api_hubs": [
         {
@@ -736,7 +737,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "3",
-        "renderer": "7",
+        "renderer": "8",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

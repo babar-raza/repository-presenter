@@ -162,7 +162,7 @@
 -```
 -
 -Build a scene from scratch and export it to glTF:
-+Create a scene with a textured box and save it as glTF using Aspose.3D FOSS for Python 26.1.0 on Python 3.7 through 3.12.
++Import an OBJ file and inspect its geometry, or build a scene from scratch and export it to glTF.
  
  ```python
  from aspose.threed import Scene
@@ -620,14 +620,14 @@
 -| `WeightedMode` | WeightedMode enum values NONE, OUT_WEIGHT, NEXT_IN_WEIGHT, and BOTH let developers specify how vertex weights are applied during mesh processing. |
 +<summary>Hub APIs</summary>
 +
-+- `aspose.threed.Scene`: Create, open, and save 3D scenes with the `aspose.threed.Scene` class, which holds a hierarchy of nodes, materials, and animation clips, and provides methods like `Scene.open`, `Scene.save`, and `Scene.create_animation_clip`.
-+- `aspose.threed.Node`: Manage scene hierarchy and spatial transforms with the `aspose.threed.Node` class, which supports adding child nodes, attaching entities, evaluating global transforms, and storing materials via `Node.create_child_node`, `Node.global_transform`, and `Node.materials`.
-+- `aspose.threed.Mesh`: Represent geometry with the `aspose.threed.Mesh` class, which stores control points and polygon definitions, and can be created from primitives or modified using utilities like `PolygonBuilder`.
-+- `aspose.threed.shading`: Define surface appearance with the `aspose.threed.shading` module, which includes the `Material` class for properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor`.
-+- `aspose.threed.animation`: Create and manage animations using the `aspose.threed.animation` module, which provides `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations and properties.
-+- `aspose.threed.entities`: Construct and manipulate geometric primitives with the `aspose.threed.entities` module, which includes `Box`, `Sphere`, and `Primitive` classes that can be converted to `Mesh` instances.
-+- `aspose.threed.formats`: Import and export 3D files using the `aspose.threed.formats` module, which exposes `FileFormat` classes for formats like OBJ, GLTF2, FBX7400ASCII, and 3MF, with support for detection, load options, and save options.
-+- `aspose.threed.utilities`: Perform common calculations and conversions with the `aspose.threed.utilities` module, which includes `MathUtils` for helper functions and types like `Vector3` used in geometry and transforms.
++- `aspose.threed.Scene`: Create, open, and save 3D scenes with `aspose.threed.Scene`, which provides `Scene.open`, `Scene.save`, `Scene.from_file`, `Scene.root_node`, `Scene.animation_clips`, `Scene.sub_scenes`, `Scene.library`, `Scene.clear`, `Scene.get_animation_clip`, `Scene.create_animation_clip`, `Scene.current_animation_clip`, `Scene.poses`, `Scene.asset_info`, and `Scene.render`.
++- `aspose.threed.Node`: Manage scene hierarchy and transform with `aspose.threed.Node`, which supports `Node.create_child_node`, `Node.child_nodes`, `Node.parent_node`, `Node.entities`, `Node.entity`, `Node.add_entity`, `Node.transform`, `Node.global_transform`, `Node.evaluate_global_transform`, `Node.material`, `Node.materials`, `Node.visible`, `Node.excluded`, `Node.get_bounding_box`, `Node.get_child`, `Node.select_objects`, `Node.select_single_object`, `Node.meta_datas`, `Node.asset_info`, and `Node.merge`.
++- `aspose.threed.Mesh`: Construct and inspect polygonal geometry with `aspose.threed.Mesh`, which exposes `Mesh.control_points`, `Mesh.to_mesh`, and `Mesh.polygon_count`.
++- `aspose.threed.shading`: Define surface appearance with `aspose.threed.shading.Material`, which supports `Material.diffuse_color`, `Material.metallic_factor`, and `Material.roughness_factor`.
++- `aspose.threed.entities`: Create and modify geometric primitives and polygonal data using `aspose.threed.entities`, which includes `aspose.threed.Primitive` and `PolygonBuilder` with member `create_polygon` and member add.
++- `aspose.threed.animation`: Handle time-based motion with `aspose.threed.animation`, which provides `aspose.threed.AnimationClip` and `Scene.animation_clips` for managing clip-based animations.
++- `aspose.threed.formats`: Discover, detect, and convert between file formats with `FileFormat`, which supports `FileFormat.FBX7400ASCII`, `FileFormat.GLTF2`, `FileFormat.MICROSOFT_3MF_FORMAT`, `FileFormat.WAVEFRONT_OBJ`, `FileFormat.detect`, `FileFormat.get_format_by_extension`, `FileFormat.formats`, `FileFormat.can_import`, `FileFormat.can_export`, `FileFormat.extension`, `FileFormat.extensions`, `FileFormat.file_format_type`, `FileFormat.version`, `FileFormat.content_type`, `FileFormat.create_load_options`, and `FileFormat.create_save_options`.
++- `aspose.threed.utilities`: Perform common mathematical and utility operations with `aspose.threed.utilities`, which includes `aspose.threed.MathUtils` and helper members such as member decode, member getvalue, member seek, member read, member `binary_mode`, member `BytesIO`, member `StringIO`, and member `control_points`.
  
  </details>
  

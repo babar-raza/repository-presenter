@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "7",
+    "renderer": "8",
     "shell": "3"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -2088,8 +2088,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "2d66060c4562933d0caca0a339d46cfc57608f05f7e87346ad0d9fa62292ee7e",
-      "version": "1"
+      "sha256": "b35742868e5a4b14b816d8a8ce38fb21cc053970503573b54dcea73d6cc2db9d",
+      "version": "2"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",

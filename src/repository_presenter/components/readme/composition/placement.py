@@ -69,6 +69,7 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
             ids.update(hub.get("fact_ids", []))
     elif section == "quick_start":
         ids.add(str(plan.get("quick_start_example_id") or ""))
+        ids.add(str(plan.get("second_quick_start_example_id") or ""))
     elif section == "additional_examples":
         ids.update(plan.get("additional_example_ids", []))
     elif section == "at_a_glance":
