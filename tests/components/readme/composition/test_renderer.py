@@ -575,3 +575,33 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "- `save`: Defined as def save(self, path).\n"
     )
     assert section.rstrip("\n").endswith("</details>")
+
+
+def test_a_type_without_a_docstring_takes_its_batch_authored_description() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith("public_symbol:")),
+            Fact(
+                "public_symbol:aspose.threed.scene",
+                "public_symbol",
+                "aspose.threed.Scene",
+                (Evidence("aspose/threed/scene.py", "line 1; class; public by name"),),
+                attributes={"symbol_kind": "class", "signature": "class Scene(ANode)"},
+            ),
+        ),
+    )
+    units = {
+        "units": [
+            *UNITS["units"],
+            _unit(
+                "api_reference", "type:public_symbol:aspose.threed.scene", "Holds a scene graph."
+            ),
+        ],
+        "omitted": [],
+    }
+    readme = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
+    assert "| `Scene` | Holds a scene graph. |" in readme.splitlines()
+    without = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "| `Scene` | Defined as class Scene(ANode). |" in without.splitlines()

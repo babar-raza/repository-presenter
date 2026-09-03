@@ -448,7 +448,24 @@ class _ChatGateway:
                 existing = existing.rsplit("\n\nReturn the units", 1)[0]
                 content = json.dumps({"units": json.loads(existing), "omitted": []})
             else:
-                content = json.dumps(LOCAL_UNITS[section])
+                batch = [m.rstrip(".") for m in re.findall(r"type:(public_symbol:[\w.\-]+)", user)]
+                if batch:
+                    content = json.dumps(
+                        {
+                            "units": [
+                                {
+                                    "section": section,
+                                    "slot": f"type:{fact_id}",
+                                    "text": "A verified public type of the package.",
+                                    "fact_ids": [fact_id],
+                                }
+                                for fact_id in batch
+                            ],
+                            "omitted": [],
+                        }
+                    )
+                else:
+                    content = json.dumps(LOCAL_UNITS[section])
         else:
             content = json.dumps(SCRIPTED_OUTPUTS[job])
         body = {
@@ -567,7 +584,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 11
+    assert len(gateway_ready.requests) == 12
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -596,7 +613,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "repository_investigation",
         "source_reconciliation",
         "presentation_planning",
-        *(["section_authoring"] * 7),
+        *(["section_authoring"] * 8),
         "independent_review",
     ]
     shell_packet = json.loads(
@@ -610,14 +627,14 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 11 and all('"disposition":"provider_call"' in line for line in ledger)
-    assert "coherence: 0 of 9 units revised; provider calls 1, model qwen3-next" in captured.out
+    assert len(ledger) == 12 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert "coherence: 0 of 10 units revised; provider calls 1, model qwen3-next" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
     assert units_line.startswith(
-        f"units: {facts_dir}/content_units.json (9 units across 6 sections: opening, "
+        f"units: {facts_dir}/content_units.json (10 units across 6 sections: opening, "
         "key_capabilities, quick_start, api_reference, documentation_resources, "
-        "scope_limitations; provider calls 6; digest "
+        "scope_limitations; provider calls 7; digest "
     )
     written_units = json.loads(
         (project_with_registry / facts_dir / "content_units.json").read_text("utf-8")
@@ -631,6 +648,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "lead_in",
         "intro",
         "hub:public_symbol:aspose.threed.scene",
+        "type:public_symbol:aspose.threed.scene",
         "link:link_target:002",
         "scope",
     ]
@@ -639,9 +657,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         for r in gateway_ready.requests
         if r["response_format"]["json_schema"]["name"] == "section_authoring"
     ]
-    assert len(authoring_requests) == 7
-    assert "Mode: coherence" in authoring_requests[6]["messages"][1]["content"]
-    assert "# Aspose.3D FOSS for Python" in authoring_requests[6]["messages"][1]["content"]
+    assert len(authoring_requests) == 8
+    assert "Mode: coherence" in authoring_requests[7]["messages"][1]["content"]
+    assert "# Aspose.3D FOSS for Python" in authoring_requests[7]["messages"][1]["content"]
     assert (
         "Product name (preserve exactly): Aspose.3D FOSS for Python"
         in (authoring_requests[0]["messages"][1]["content"])
@@ -698,20 +716,20 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     assert written_review["identity_separate"] is True
     assert written_review["reviewer"]["job"] == "independent_review"
-    review_request = gateway_ready.requests[10]
+    review_request = gateway_ready.requests[11]
     assert review_request["response_format"]["json_schema"]["name"] == "independent_review"
     assert "# Aspose.3D FOSS for Python" in review_request["messages"][1]["content"]
     assert "Original bytes." in review_request["messages"][1]["content"]
     assert code == EXIT_OK and captured.err == ""
     bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
     assert (
-        f"bundle: {bundle_dir} (state ACCEPTED, 11 files, provider calls 11; sealed; "
+        f"bundle: {bundle_dir} (state ACCEPTED, 11 files, provider calls 12; sealed; "
         "the no-op proof needs a rerun in a fresh process)"
     ) in captured.out
     bundle = project_with_registry / bundle_dir
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "ACCEPTED" and manifest["no_op_proof"] is None
-    assert manifest["revision"] == revision and manifest["provider_calls"] == 11
+    assert manifest["revision"] == revision and manifest["provider_calls"] == 12
     assert sorted(manifest["files"]) == sorted(
         [
             "README.md",
@@ -744,7 +762,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "3",
-        "renderer": "9",
+        "renderer": "10",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -795,14 +813,16 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     assert "evaluation: " in first and "no sealed bundle" in first and "NONE; 0 changes" in second
     assert first.count("provider calls 1, model qwen3-next") == 5
     assert second.count("provider calls 0, model stored output reused") == 5
-    assert len(gateway_ready.requests) == 11
-    assert "provider calls 6; digest" in first and "provider calls 0; digest" in second
-    assert "coherence: 0 of 9 units revised; provider calls 0, model stored output reused" in second
+    assert len(gateway_ready.requests) == 12
+    assert "provider calls 7; digest" in first and "provider calls 0; digest" in second
+    assert (
+        "coherence: 0 of 10 units revised; provider calls 0, model stored output reused" in second
+    )
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 11 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 12 + [
         "cache_reuse"
-    ] * 11
+    ] * 12
 
 
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
@@ -890,8 +910,8 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 2"
     ) in captured.out
     names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
-    assert names[11:] == ["targeted_repair", "section_authoring", "independent_review"]
-    repair_request = gateway_ready.requests[11]["messages"][1]["content"]
+    assert names[12:] == ["targeted_repair", "section_authoring", "independent_review"]
+    repair_request = gateway_ready.requests[12]["messages"][1]["content"]
     assert "Causal stage: S6" in repair_request and OPENING_QUOTE in repair_request
     assert '"equivalent_findings"' in repair_request and '"F02"' in repair_request
     assert '"the quick start"' in repair_request
@@ -938,7 +958,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     bundle_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
     assert bundle_validation["summary"] == {"pass": 11, "fail": 0, "pending": 0}
     assert (bundle / "README.md").read_bytes() == (transaction / "README.md").read_bytes()
-    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 14
+    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 15
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
     assert (
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 1"
@@ -948,9 +968,9 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     # calls only coherence and the review; the rerun reuses everything.
     dispositions = [json.loads(line)["disposition"] for line in ledger]
     assert dispositions[:12] == ["provider_call"] * 12
-    assert dispositions[12:21] == ["cache_reuse"] * 9
-    assert dispositions[21:23] == ["provider_call"] * 2
-    assert dispositions[23:] == ["cache_reuse"] * 11
+    assert dispositions[13:23] == ["cache_reuse"] * 10
+    assert dispositions[23:25] == ["provider_call"] * 2
+    assert dispositions[25:] == ["cache_reuse"] * 12
 
 
 def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
@@ -975,7 +995,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
         "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory, "
         "1 re-raised after repair recorded advisory; rounds 2"
     ) in captured.out
-    assert len(gateway_ready.requests) == 14
+    assert len(gateway_ready.requests) == 15
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     review = json.loads((transaction / "review.json").read_text("utf-8"))
     assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
@@ -991,7 +1011,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     rerun = capsys.readouterr()
     assert again == EXIT_OK and "state READY_FOR_PROPOSAL" in rerun.out
-    assert len(gateway_ready.requests) == 14
+    assert len(gateway_ready.requests) == 15
     assert json.loads((transaction / "review.json").read_text("utf-8")) == review
 
 
@@ -1019,7 +1039,7 @@ def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
     assert code == EXIT_INCONSISTENT
     assert "BC-10 failed at EXTRACTING: REJECT_FACTUAL; no repair could act on it" in captured.err
     assert "repair: 0 repaired, 1 unrepairable recorded advisory; rounds 1" in captured.out
-    assert len(gateway_ready.requests) == 11
+    assert len(gateway_ready.requests) == 12
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
     (attempt,) = repairs["attempts"].values()
@@ -1058,11 +1078,11 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         "(earliest affected stage COMPOSING; 1 changes (prompts.section_authoring -> COMPOSING)"
     ) in out
     # Only authoring and coherence asked again; every upstream stage and the review reused.
-    assert len(gateway_ready.requests) - requests_before == 7
+    assert len(gateway_ready.requests) - requests_before == 8
     assert "provider calls 0, model stored output reused; digest" in next(
         line for line in out.splitlines() if line.startswith("plan: ")
     )
-    assert "provider calls 6; digest" in next(
+    assert "provider calls 7; digest" in next(
         line for line in out.splitlines() if line.startswith("units: ")
     )
     assert "review: " in out and "provider calls 0, model stored output reused" in next(
@@ -1073,7 +1093,7 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
         assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
     # review.json names the authoring prompt's hash, so it changes with the prompt too.
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    assert "(state READY_FOR_PROPOSAL, 11 files, provider calls 7; " in bundle_line
+    assert "(state READY_FOR_PROPOSAL, 11 files, provider calls 8; " in bundle_line
     assert (
         "valid update available (presentation): dependencies.json, review.json changed at "
         "COMPOSING; the proven candidate stays valid and the update waits in the transaction)"

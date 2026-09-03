@@ -34,6 +34,9 @@ def coherence_packet(
 ) -> dict[str, Any]:
     """The packet for the one coherence call: the document, the units, and their closed facts."""
     by_id = {fact.id: fact for fact in facts.facts}
+    # Batch-authored type descriptions are per-type sentences, not narrative: the coherence
+    # pass neither receives nor returns them, so its output stays within the budget.
+    tasks = [task for task in tasks if not task.is_batch]
     accepted_ids: list[str] = []
     for task in tasks:
         accepted_ids.extend(fact_id for fact_id in sorted(task.accepted_ids))
@@ -65,7 +68,11 @@ def coherence_packet(
         ),
         "length_budget": "each unit within its own section's budget; never longer than before",
         "rendered_document": readme,
-        "existing_units": list(units_document.get("units", [])),
+        "existing_units": [
+            unit
+            for unit in units_document.get("units", [])
+            if not str(unit.get("slot", "")).startswith("type:")
+        ],
     }
 
 
@@ -77,12 +84,13 @@ def coherence_checks(
     by_section: dict[str, list[dict[str, Any]]] = {}
     for unit in output.get("units", []):
         by_section.setdefault(str(unit.get("section", "")), []).append(unit)
+    tasks = [task for task in tasks if not task.is_batch]
     known = {task.section_id for task in tasks}
     for section in sorted(set(by_section) - known):
         errors.append(f"units name a section the plan did not author: {section}")
     for task in tasks:
-        partial = {"units": by_section.get(task.section_id, []), "omitted": []}
-        errors.extend(unit_checks(partial, task, facts, name))
+        owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
+        errors.extend(unit_checks({"units": owned, "omitted": []}, task, facts, name))
     return errors
 
 

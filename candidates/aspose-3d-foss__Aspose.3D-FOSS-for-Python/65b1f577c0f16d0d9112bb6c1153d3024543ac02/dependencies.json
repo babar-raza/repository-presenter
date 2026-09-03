@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "9",
+    "renderer": "10",
     "shell": "3"
   },
   "contract_version": "readme-contract-v1-draft",

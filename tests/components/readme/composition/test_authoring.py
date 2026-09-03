@@ -473,3 +473,42 @@ def test_every_public_path_of_a_collapsed_symbol_may_be_spelled() -> None:
         "pkg.ui.Widget",
         "Widget",
     } <= allowed
+
+
+def test_undocumented_types_are_authored_in_bounded_batches_bound_to_their_signatures() -> None:
+    def _type(index: int, docstring: str | None) -> Fact:
+        attributes = {"symbol_kind": "class", "signature": f"class T{index}(Base)"}
+        if docstring:
+            attributes["docstring"] = docstring
+        return Fact(
+            f"public_symbol:pkg.t{index}",
+            "public_symbol",
+            f"pkg.T{index}",
+            (Evidence("pkg/t.py", f"line {index}; class; public by name"),),
+            attributes=attributes,
+        )
+
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*FACTS.facts, *(_type(i, "Documented." if i % 10 == 0 else None) for i in range(1, 91))),
+    )
+    plan = {
+        "sections": [{"section_id": "api_reference", "include": True, "reason": "r"}],
+        "api_hubs": [{"symbol_fact_id": "public_symbol:pkg.t1", "fact_ids": []}],
+    }
+    tasks = authoring_tasks(ENTRY, facts, {}, {"dispositions": []}, plan)
+    batches = [task for task in tasks if task.is_batch]
+    assert [task.label for task in batches] == [
+        "api_reference#types-1",
+        "api_reference#types-2",
+        "api_reference#types-3",
+    ]
+    assert sum(len(task.slots) for task in batches) == 81  # nine documented types need none
+    assert all(len(task.slots) <= 40 and task.section_id == "api_reference" for task in batches)
+    first = batches[0]
+    assert first.slots[0] == "type:public_symbol:pkg.t1"
+    assert first.packet["accepted_facts"][0]["signature"] == "class T1(Base)"
+    assert "never a count" in first.packet["objective"]
+    merged = merge_units([(t.section_id, {"units": [{"slot": s} for s in t.slots]}) for t in tasks])
+    assert len(merged["units"]) == len(tasks[0].slots) + 81

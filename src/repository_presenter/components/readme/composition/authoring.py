@@ -30,7 +30,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     section_ids,
 )
-from repository_presenter.core.facts import FactsDocument, bounded_records
+from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
 from repository_presenter.core.registry.models import RegistryEntry
 
 CONTENT_UNITS_FILENAME = "content_units.json"
@@ -42,6 +42,12 @@ _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
 _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
 _MEMBER_CAP = 60
+_TYPE_BATCH = 40  # types described per authoring call: within the manifest's output budget
+_TYPE_OBJECTIVE = (
+    "One sentence per public type in this batch, from its verified signature (its bases) and "
+    "its name: what it represents or does for a visitor. Never mechanical filler such as a "
+    "member count or 'extends X', never a count, never a claim the signature does not carry."
+)
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 _FORBIDDEN = (
     ("```", "a code fence"),
@@ -113,6 +119,15 @@ class SectionTask:
     packet: dict[str, Any]
     accepted_ids: frozenset[str]
     slots: tuple[str, ...]
+    key: str = ""  # distinguishes a bounded batch task from its section's main task
+
+    @property
+    def label(self) -> str:
+        return self.key or self.section_id
+
+    @property
+    def is_batch(self) -> bool:
+        return bool(self.key) and self.key != self.section_id
 
 
 def _cited(payload: Any) -> list[str]:
@@ -204,6 +219,72 @@ def section_selections(
     return ordered, tuple(slots)
 
 
+def undocumented_types(facts: FactsDocument) -> list[Fact]:
+    """SUPPORTED public types (classes and enums) whose source carries no docstring, in
+    value order: the types whose description must be authored from their signature."""
+    return sorted(
+        (
+            fact
+            for fact in facts.by_kind("public_symbol")
+            if fact.polarity == "SUPPORTED"
+            and (fact.attributes or {}).get("symbol_kind") in {"class", "enum"}
+            and not (fact.attributes or {}).get("docstring")
+        ),
+        key=lambda fact: fact.value,
+    )
+
+
+def _type_batches(
+    entry: RegistryEntry, facts: FactsDocument, do_not_claim: list[dict[str, str]]
+) -> list[SectionTask]:
+    """One bounded task per batch of undocumented types (README_CONTRACT.md row 14): the
+    descriptions are authored from the signature evidence, never in one oversized call."""
+    types = undocumented_types(facts)
+    name = product_name(entry)
+    tasks: list[SectionTask] = []
+    for index in range(0, len(types), _TYPE_BATCH):
+        batch = types[index : index + _TYPE_BATCH]
+        ids = [fact.id for fact in batch]
+        slots = tuple(f"type:{fact.id}" for fact in batch)
+        accepted = [
+            {
+                "id": fact.id,
+                "kind": fact.kind,
+                "value": fact.value,
+                **(
+                    {"signature": (fact.attributes or {})["signature"]}
+                    if (fact.attributes or {}).get("signature")
+                    else {}
+                ),
+            }
+            for fact in batch
+        ]
+        spellings = section_spellings(ids, facts)
+        packet = {
+            "repository": entry.repository,
+            "product_name": name,
+            "mode": "author",
+            "section_id": "api_reference",
+            "objective": (
+                f"{_TYPE_OBJECTIVE} Slots to fill, each exactly once: {', '.join(slots)}. "
+                f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
+                "any other API name, member, attribute, or parameter is rejected."
+            ),
+            "accepted_facts": accepted,
+            "do_not_claim": do_not_claim,
+            "length_budget": "one unit per type, one sentence each",
+            "rendered_document": "",
+            "existing_units": [],
+        }
+        number = index // _TYPE_BATCH + 1
+        tasks.append(
+            SectionTask(
+                "api_reference", packet, frozenset(ids), slots, key=f"api_reference#types-{number}"
+            )
+        )
+    return tasks
+
+
 def authoring_tasks(
     entry: RegistryEntry,
     facts: FactsDocument,
@@ -248,6 +329,8 @@ def authoring_tasks(
             "existing_units": [],
         }
         tasks.append(SectionTask(section, packet, frozenset(ids), slots))
+        if section == "api_reference":
+            tasks.extend(_type_batches(entry, facts, do_not_claim))
     return tasks
 
 
@@ -440,14 +523,19 @@ def unit_checks(
     return errors
 
 
-def merge_units(outputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    """Every accepted section output merged in shell order into one document."""
+def merge_units(
+    outputs: list[tuple[str, dict[str, Any]]] | dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Every accepted task output merged in shell order into one document; a section's batch
+    outputs follow its main output in task order. A mapping keyed by section is one output
+    per section."""
+    pairs = list(outputs.items()) if isinstance(outputs, dict) else list(outputs)
     order = {section: index for index, section in enumerate(section_ids())}
     units: list[dict[str, Any]] = []
     omitted: list[dict[str, Any]] = []
-    for section in sorted(outputs, key=lambda s: order.get(s, len(order))):
-        units.extend(outputs[section].get("units", []))
-        omitted.extend({"section": section, **item} for item in outputs[section].get("omitted", []))
+    for section, output in sorted(pairs, key=lambda pair: order.get(pair[0], len(order))):
+        units.extend(output.get("units", []))
+        omitted.extend({"section": section, **item} for item in output.get("omitted", []))
     return {"schema_version": 1, "units": units, "omitted": omitted}
 
 

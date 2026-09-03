@@ -43,7 +43,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "9"  # the template component version dependencies.json records
+RENDERER_VERSION = "10"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -308,11 +308,14 @@ def _development_sentences(context: RenderContext) -> list[str]:
     return sentences
 
 
-def _symbol_description(fact: Fact) -> str:
-    """The docstring first line when the source has one, else the verified signature; never
-    an invented sentence. Table-safe: no pipes, no code spans of its own."""
+def _symbol_description(context: RenderContext, fact: Fact) -> str:
+    """The docstring first line when the source has one, else the sentence authored from the
+    signature in a bounded batch, else the verified signature; never an invented sentence.
+    Table-safe: no pipes, no code spans of its own."""
     attributes = fact.attributes or {}
     text = attributes.get("docstring") or ""
+    if not text:
+        text = context.units.get(("api_reference", f"type:{fact.id}"), "")
     if not text and attributes.get("signature"):
         text = f"Defined as {attributes['signature']}."
     if not text:
@@ -335,10 +338,14 @@ def _api_reference(context: RenderContext) -> list[str]:
     lines = [context.unit(sid, "intro"), "", f"The verified public surface has {count} types."]
     lines += ["", "<details>", f"<summary>{API_SURFACE_SUMMARY}</summary>", ""]
     lines += ["### Core API", "", "| Class | Description |", "| --- | --- |"]
-    lines += [f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(f)} |" for f in classes]
+    lines += [
+        f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(context, f)} |" for f in classes
+    ]
     if enums:
         lines += ["", "#### Enumerations", "", "| Enumeration | Description |", "| --- | --- |"]
-        lines += [f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(f)} |" for f in enums]
+        lines += [
+            f"| `{f.value.rsplit('.', 1)[-1]}` | {_symbol_description(context, f)} |" for f in enums
+        ]
     members: dict[str, list[Fact]] = {}
     for fact in by_kind.get("method", []):
         members.setdefault(fact.value.rsplit(".", 1)[0], []).append(fact)
@@ -356,7 +363,8 @@ def _api_reference(context: RenderContext) -> list[str]:
             if owned:
                 lines.append("")
                 lines += [
-                    f"- `{f.value.rsplit('.', 1)[-1]}`: {_symbol_description(f)}" for f in owned
+                    f"- `{f.value.rsplit('.', 1)[-1]}`: {_symbol_description(context, f)}"
+                    for f in owned
                 ]
     lines += ["", "</details>"]
     return lines

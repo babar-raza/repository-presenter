@@ -6,13 +6,13 @@
       "criterion": "presentation",
       "fact_ids": [
         "install_command:pip",
-        "import_path:aspose"
+        "package:version"
       ],
       "id": "F02",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the verification command `python -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'` to match the original README and ensure users can confirm the library is correctly installed.",
+      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Replace `pip install` with `python3 -m pip install` in all install commands to match the verified command and original README. Restore the verification command `python3 -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'` from the original README.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the verification command from the original README, which is a critical step for users to confirm the library is correctly installed."
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the verification command from the original README and uses a generic `pip install` instead of the specific `python3 -m pip install` command used in the original and supported by the facts."
     },
     {
       "causal_stage": "unclear",
@@ -35,10 +35,10 @@
         "public_symbol:aspose.threed.polygonbuilder"
       ],
       "id": "F01",
-      "quote": "- **Load multiple 3D formats.** Create and edit mesh geometry by adding control points and polygons with `Mesh.control_points` and `Mesh.create_polygon`, or convert primitives like `Box` and `Sphere` to editable `Mesh` objects with `to_mesh`.\n- **Export to common 3D formats.** Build a scene graph by attaching entities to nodes with `Node.create_child_node`, and inspect or modify each node's position and orientation through its `Transform` property.\n- **Construct and manipulate meshes.** Assign materials such as `LambertMaterial` or `PbrMaterial` to nodes, setting diffuse color, metallic factor, and roughness factor to control how light interacts with the geometry.\n- **Assign materials to geometry.** Import and export scenes to formats including OBJ, STL, glTF/GLB, and 3MF using `FileFormat.get_format_by_extension` and format-specific save options like `GltfSaveOptions` and `ThreeMfSaveOptions`.\n- **Build and traverse scene graphs.** Construct parameterized primitives such as `Box` and `Sphere`, then call their `to_mesh` method to produce editable `Mesh` geometry with control points and polygons.\n- **Triangulate arbitrary polygons.** Build keyframe animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations, and store skeletal bind-pose data with `Pose`.\n- **Create keyframe animations.** Inspect mesh properties such as control points, polygon count, and bounding box with `Mesh.control_points`, `Mesh.polygon_count`, and `Mesh.get_bounding_box` to analyze geometry structure.\n- **Convert primitives to editable meshes.** Traverse the scene graph by accessing `Node.child_nodes` and `Node.parent_node`, and query global transformations with `Node.evaluate_global_transform` to understand spatial relationships.",
-      "repair": "Reorder the capabilities to follow a logical user journey: (1) load and inspect, (2) build and edit, (3) assign materials, (4) export. Merge overlapping items (e.g., 'Construct and manipulate meshes' and 'Convert primitives to editable meshes') and remove redundant or vague headings (e.g., 'Triangulate arbitrary polygons' and 'Create keyframe animations' are not core workflows in the quick start or additional examples).",
+      "quote": "- **Load multiple 3D formats.** Create and edit mesh geometry by adding control points and polygons with `Mesh.control_points` and `Mesh.create_polygon`, or convert primitives like `Box` and `Sphere` to editable `Mesh` objects with `to_mesh`.\n- **Export to common 3D formats.** Build a scene graph by attaching entities to nodes with `Node.add_entity` and `Node.create_child_node`, and inspect or modify each node's position and orientation through its `Transform` property.\n- **Construct and manipulate meshes.** Assign materials such as `LambertMaterial` or `PbrMaterial` to nodes, setting diffuse color, metallic factor, and roughness factor to control how light interacts with the geometry.\n- **Assign materials to geometry.** Import and export scenes to formats including OBJ, STL, glTF/GLB, and 3MF using `FileFormat.get_format_by_extension` and format-specific save options like `GltfSaveOptions` and `ThreeMfSaveOptions`.\n- **Build and traverse scene graphs.** Construct parameterized primitives such as `Box` and `Sphere`, then call their `to_mesh` method to produce editable `Mesh` geometry with control points and polygons.\n- **Triangulate arbitrary polygons.** Build keyframe animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence` to define time-based transformations, and store skeletal bind-pose data with `Pose`.\n- **Create keyframe animations.** Inspect mesh properties such as control points, polygon count, and bounding box with `Mesh.control_points`, `Mesh.polygon_count`, and `Mesh.get_bounding_box` to analyze geometry structure.\n- **Convert primitives to editable meshes.** Traverse the scene graph by accessing `Node.child_nodes` and `Node.parent_node`, and query global transformations with `Node.evaluate_global_transform` to understand spatial relationships.",
+      "repair": "Reorder and reword the capabilities to follow a logical developer workflow: (1) Load and inspect scenes, (2) Build and edit geometry, (3) Assign materials, (4) Export scenes, (5) Traverse and transform the scene graph, (6) Triangulate and animate. Ensure each capability is specific, uses consistent terminology, and directly maps to at least one verified example or public symbol.",
       "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section lists eight action-led capabilities, but the ordering and phrasing obscure the library's primary workflow and misrepresent the relationship between features."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section lists eight action-led capabilities, but the ordering and grouping do not follow a coherent developer journey and some entries are vague or misaligned with the verified examples."
     },
     {
       "causal_stage": "unclear",
@@ -46,33 +46,31 @@
       "criterion": "presentation",
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed.mesh"
       ],
       "id": "F03",
       "quote": "The verified public surface has 343 types.",
-      "repair": "Replace the vague 'curated hub APIs' description with a concise list of the most critical classes and methods used in the quick start and additional examples, such as `Scene`, `Scene.open`, `Scene.save`, `Node`, `Mesh`, `Mesh.control_points`, `Mesh.create_polygon`, `Box`, `Sphere`, `LambertMaterial`, `PbrMaterial`, and `FileFormat`.",
+      "repair": "Correct the type count to 305 to match the original README and the public_symbol facts, and ensure the table lists only verified public symbols.",
       "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section's curated hub APIs are not aligned with the public symbol facts and omit critical classes like `Scene.open`, `Scene.save`, `Mesh.control_points`, and `Mesh.create_polygon` that are central to the quick start and additional examples."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section states the verified public surface has 343 types, but the original README and facts indicate 305 public types, and the candidate's own table lists fewer than 343 unique public symbols."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "inherited_unit:067.list"
+        "public_symbol:aspose.threed.shading.texture",
+        "public_symbol:aspose.threed.shading.texturebase",
+        "public_symbol:aspose.threed.utilities.watermark",
+        "public_symbol:aspose.threed.transformbuilder",
+        "public_symbol:aspose.threed.axissystem"
       ],
       "id": "F04",
-      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the `Scene`, `Node`, and `Entity` APIs.",
-      "repair": "Restore the full list of limitations from the original README, including COLLADA export unreachability, texture construction limitations, TransformBuilder and Watermark limitations, and any other critical unimplemented features.",
+      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the `Scene`, `Node`, and `Entity` APIs.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`()/`Scene.save`() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try.\n- FBX support is experimental: `FbxImporter` has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and `FbxExporter.save`()/`save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.\n- COLLADA import works, but COLLADA export is not reachable through `Scene.save`() because `IOService`'s exporter lookup walks its registered exporters in order and reaches `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working `ColladaExporter` is ever consulted.\n- The entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raises NotImplementedError, so this library does not render scenes to images.\n- Boolean/CSG mesh operations are not implemented: `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` raise NotImplementedError, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.\n- NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`() raise NotImplementedError.",
+      "repair": "Add the missing limitations: `Texture` and `TextureBase` raise NotImplementedError on construction; `Watermark.encode_watermark()`/`decode_watermark()` and every `TransformBuilder` method raise NotImplementedError; `AxisSystem` raises NotImplementedError on every method, including construction.",
       "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits several critical limitations from the original README, including the fact that COLLADA export is not reachable through `Scene.save()`, that `Texture` and `TextureBase` raise `NotImplementedError` on construction, and that `Watermark.encode_watermark()`/`decode_watermark()` and every `TransformBuilder` method raise `NotImplementedError`."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits several critical limitations present in the original README and supported by facts, including the `Texture` and `TextureBase` construction limitation, the `Watermark` and `TransformBuilder` limitations, and the `AxisSystem` limitation."
     }
   ],
   "authoring": {
@@ -83,7 +81,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "3ddf72fed5586495ae114f0280f12d4fc63aaf79bea375223ad10eb0d33e1395",
+  "readme_sha256": "778fe61e7bcc2e617b635e0bb0e55bea4790acfa2c0e0c9687d011fee095c86d",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

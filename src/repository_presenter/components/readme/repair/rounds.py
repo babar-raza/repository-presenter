@@ -179,13 +179,13 @@ def run_round(tx: TransactionInputs) -> Round:
     tasks = authoring_tasks(entry, facts, investigation.output, reconciled.output, planned.output)
     authored: dict[str, JobResult] = {}
     for task in tasks:
-        authored[task.section_id] = run_job(
+        authored[task.label] = run_job(
             loaded,
             task.packet,
             checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
             **common,
         )
-    units = merge_units({section: result.output for section, result in authored.items()})
+    units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
     readme = render_readme(entry, facts, planned.output, units, reconciled.output)
     coherent = run_job(
         loaded,
@@ -296,7 +296,7 @@ def _stage_target(
         )
     task = next(task for task in current.tasks if task.section_id == defect.section_id)
     return (
-        current.authored[task.section_id],
+        current.authored[task.label],
         functools.partial(unit_checks, task=task, facts=facts, name=name),
     )
 

@@ -2,11 +2,7 @@
   "coherence": {
     "applied": true,
     "revised": [
-      "key_capabilities/capability:2",
-      "quick_start/lead_in",
-      "api_reference/intro",
-      "documentation_resources/link:link_target:024",
-      "documentation_resources/link:link_target:032"
+      "quick_start/lead_in"
     ]
   },
   "omitted": [
@@ -601,7 +597,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Build a scene graph by attaching entities to nodes with Node.create_child_node, and inspect or modify each node's position and orientation through its Transform property."
+      "text": "Build a scene graph by attaching entities to nodes with Node.add_entity and Node.create_child_node, and inspect or modify each node's position and orientation through its Transform property."
     },
     {
       "fact_ids": [
@@ -731,7 +727,7 @@
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.FileFormat for working with supported file formats. Scene provides methods like Scene.open and Scene.save to handle 3D content, while FileFormat exposes format-specific capabilities such as FileFormat.get_format_by_extension."
+      "text": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.FileFormat for working with supported file formats. Scene provides methods like Scene.open and Scene.save to handle 3D content, while FileFormat exposes format-specific capabilities such as FileFormat.detect and FileFormat.get_format_by_extension."
     },
     {
       "fact_ids": [
@@ -807,6 +803,1190 @@
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.threed.a3dobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.a3dobject",
+      "text": "The A3DObject class represents a base object in Aspose.3D FOSS for Python that supports named properties and can be queried for property values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationchannel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animationchannel",
+      "text": "The AnimationChannel class represents a channel that stores keyframe data for animating a specific component of a property."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animationclip",
+      "text": "The AnimationClip class represents a container for animation data that defines a sequence of keyframes over a time range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animationnode",
+      "text": "The AnimationNode class represents a node in an animation hierarchy that can hold bind points and sub-animations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.assetinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.assetinfo",
+      "text": "The AssetInfo class holds metadata about a 3D asset such as author, creation time, coordinate system, and unit scale factor."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.bindpoint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.bindpoint",
+      "text": "The BindPoint class represents a binding point that associates animation channels with a specific property of a node."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.bonepose"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.bonepose",
+      "text": "The BonePose class represents the transformation pose of a bone in a skeleton during animation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.box"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.box",
+      "text": "The Box class represents a box primitive with configurable dimensions and segmentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.camera"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.camera",
+      "text": "The Camera class represents a camera entity used for rendering or scene navigation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.circle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.circle",
+      "text": "The Circle class represents a circular primitive defined by radius and segmentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.curve"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.curve",
+      "text": "The Curve class represents a parametric curve entity in three-dimensional space."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.customobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.customobject",
+      "text": "The CustomObject class represents a user-defined object that extends the base A3DObject functionality."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.cylinder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.cylinder",
+      "text": "The Cylinder class represents a cylindrical primitive with configurable height, radius, and segmentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.dish"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.dish",
+      "text": "The Dish class represents a dish-shaped primitive defined by radius and angular extent."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.ellipse"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.ellipse",
+      "text": "The Ellipse class represents an elliptical primitive defined by radii and segmentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entity",
+      "text": "The Entity class represents a renderable or manipulable object in a scene, such as a mesh or curve."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.extrapolation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.extrapolation",
+      "text": "The Extrapolation class defines how animation values are extended beyond the defined keyframe range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.extrapolationtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.extrapolationtype",
+      "text": "The ExtrapolationType class specifies the method used to extrapolate animation values outside the keyframe range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.fileformat",
+      "text": "The FileFormat class provides utilities for identifying and working with supported 3D file formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.frustum"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.frustum",
+      "text": "The Frustum class represents a truncated pyramid primitive used for viewing volumes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.geometry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.geometry",
+      "text": "The Geometry class represents geometric data such as vertices and polygons used by renderable entities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.globaltransform"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.globaltransform",
+      "text": "The GlobalTransform class represents a transformation matrix applied to an object in world space."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.inamedobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.inamedobject",
+      "text": "The INamedObject class defines an interface for objects that can be identified by a name."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.imagerenderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.imagerenderoptions",
+      "text": "The ImageRenderOptions class holds settings that control how a scene is rendered to an image."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.interpolation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.interpolation",
+      "text": "The Interpolation class specifies the method used to compute intermediate values between keyframes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.keyframe"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.keyframe",
+      "text": "The KeyFrame class represents a single keyframe containing a value and its associated time."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.keyframesequence",
+      "text": "The KeyframeSequence class represents a sequence of keyframes used to define animation data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.light"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.light",
+      "text": "The Light class represents a light source entity that illuminates objects in a scene."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.linearextrusion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.linearextrusion",
+      "text": "The LinearExtrusion class represents a 3D shape created by extruding a 2D profile along a straight path."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.mesh",
+      "text": "The Mesh class represents a polygonal mesh geometry composed of vertices and polygons."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.node"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.node",
+      "text": "The Node class represents a transformable object in a scene hierarchy that can contain entities and child nodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.plane"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.plane",
+      "text": "The Plane class represents an infinite planar primitive used for geometric construction."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.polygonbuilder",
+      "text": "The PolygonBuilder class provides utilities for constructing polygonal meshes from vertex data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.pose"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.pose",
+      "text": "The Pose class represents a snapshot of transformation data for a set of nodes in a skeleton."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.posetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.posetype",
+      "text": "The PoseType class specifies the kind of pose represented, such as bind pose or animation pose."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.primitive"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.primitive",
+      "text": "The Primitive class represents a basic geometric shape such as a box, cylinder, or sphere."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.property"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.property",
+      "text": "The Property class represents a named value that can be attached to an object for metadata or configuration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.propertycollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.propertycollection",
+      "text": "The PropertyCollection class manages a collection of properties associated with an object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.scene",
+      "text": "The Scene class represents a complete 3D scene containing nodes, entities, and animation data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.sceneobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.sceneobject",
+      "text": "The SceneObject class represents an object that belongs to a scene and participates in its hierarchy."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.sphere"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.sphere",
+      "text": "The Sphere class represents a sphere primitive in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.stepmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.stepmode",
+      "text": "The StepMode class defines enumeration values for step mode settings in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.transform"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.transform",
+      "text": "The Transform class represents transformation properties such as translation, rotation, and scaling for 3D objects in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.weightedmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.weightedmode",
+      "text": "The WeightedMode class defines enumeration values for weighted mode settings in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.bone"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.bone",
+      "text": "The Bone class represents a bone used in skeletal animation within Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.bonelinkmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.bonelinkmode",
+      "text": "The BoneLinkMode class defines enumeration values for bone linking modes in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.deformer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.deformer",
+      "text": "The Deformer class serves as a base class for mesh deformation operations in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.morphtargetchannel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.morphtargetchannel",
+      "text": "The MorphTargetChannel class manages weights and targets for morph target animation in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.morphtargetdeformer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.morphtargetdeformer",
+      "text": "The MorphTargetDeformer class applies morph target deformation to a mesh in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers.skindeformer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.deformers.skindeformer",
+      "text": "The SkinDeformer class applies skinning deformation to a mesh using bone influences in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.booleanoperation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.booleanoperation",
+      "text": "The BooleanOperation class performs boolean operations such as union, intersection, and difference on 3D entities in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.curvedimension"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.curvedimension",
+      "text": "The CurveDimension class specifies the dimensionality of curves in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.iindexedvertexelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.iindexedvertexelement",
+      "text": "The IIndexedVertexElement interface defines indexed vertex element behavior in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.mappingmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.mappingmode",
+      "text": "The MappingMode class defines enumeration values for texture mapping modes in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.nurbscurve"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.nurbscurve",
+      "text": "The NurbsCurve class represents a non-uniform rational B-spline curve in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.nurbsdirection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.nurbsdirection",
+      "text": "The NurbsDirection class defines properties for a NURBS direction in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.nurbssurface"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.nurbssurface",
+      "text": "The NurbsSurface class represents a non-uniform rational B-spline surface in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.nurbstype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.nurbstype",
+      "text": "The NurbsType class defines enumeration values for NURBS types in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.patch"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.patch",
+      "text": "The Patch class represents a patch geometry in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.patchdirection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.patchdirection",
+      "text": "The PatchDirection class defines direction properties for patches in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.patchdirectiontype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.patchdirectiontype",
+      "text": "The PatchDirectionType class defines enumeration values for patch direction types in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.pointcloud"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.pointcloud",
+      "text": "The PointCloud class represents a collection of 3D points in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.polygonbuilder.invalidoperationexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.polygonbuilder.invalidoperationexception",
+      "text": "The InvalidOperationException class is raised when an invalid operation is performed during polygon building in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.polygonmodifier"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.polygonmodifier",
+      "text": "The PolygonModifier class provides static methods to modify polygonal meshes in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.referencemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.referencemode",
+      "text": "The ReferenceMode class defines enumeration values for reference modes in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.texturemapping"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.texturemapping",
+      "text": "The TextureMapping class defines texture mapping properties in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelement",
+      "text": "The VertexElement class represents a generic vertex element in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementbinormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementbinormal",
+      "text": "The VertexElementBinormal class represents binormal data for vertices in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementfvector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementfvector",
+      "text": "The VertexElementFVector class represents floating-point vector vertex data in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementnormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementnormal",
+      "text": "The VertexElementNormal class represents normal vector data for vertices in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementsmoothinggroup"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementsmoothinggroup",
+      "text": "The VertexElementSmoothingGroup class represents smoothing group data for vertices in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementtangent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementtangent",
+      "text": "The VertexElementTangent class represents tangent vector data for vertices in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementtype",
+      "text": "The VertexElementType class defines enumeration values for vertex element types in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementuv"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementuv",
+      "text": "The VertexElementUV class represents UV coordinate data for vertices in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementvertexcolor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementvertexcolor",
+      "text": "The VertexElementVertexColor class represents vertex color data in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.colladaloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.colladaloadoptions",
+      "text": "The ColladaLoadOptions class specifies options for loading COLLADA files in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.colladasaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.colladasaveoptions",
+      "text": "The ColladaSaveOptions class specifies options for saving COLLADA files in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.exporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.exporter",
+      "text": "The Exporter class provides methods to export 3D scenes to various formats in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbxloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbxloadoptions",
+      "text": "The FbxLoadOptions class specifies options for loading FBX files in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbxsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbxsaveoptions",
+      "text": "The FbxSaveOptions class specifies options for saving FBX files in Aspose.3D FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.formatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.formatdetector",
+      "text": "The FormatDetector class provides functionality to detect the file format of a 3D scene file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltfloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltfloadoptions",
+      "text": "The GltfLoadOptions class holds configuration options specific to loading glTF files, including flipping texture coordinates vertically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltfsaveoptions",
+      "text": "The GltfSaveOptions class holds configuration options specific to saving glTF files, including binary mode and flipping texture coordinates vertically."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.ioconfig"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.ioconfig",
+      "text": "The IOConfig class provides common configuration properties for input and output operations, such as encoding, file name, file system, and lookup paths."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.ioservice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.ioservice",
+      "text": "The IOService class serves as the central service for registering plugins, detecting formats, and creating importers and exporters."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.importer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.importer",
+      "text": "The Importer class provides methods to import 3D scenes from supported file formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.loadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.loadoptions",
+      "text": "The LoadOptions class provides base configuration options for loading 3D scene files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.objloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.objloadoptions",
+      "text": "The ObjLoadOptions class holds configuration options specific to loading OBJ files, including enabling materials, flipping the coordinate system, normalizing normals, and scaling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.objsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.objsaveoptions",
+      "text": "The ObjSaveOptions class holds configuration options specific to saving OBJ files, including applying unit scale, setting the axis system, enabling materials, flipping the coordinate system, point cloud mode, serializing w components, and verbose output."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.plugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.plugin",
+      "text": "The Plugin class serves as an abstract base for plugins that provide support for specific 3D file formats, including importers, exporters, and format detectors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.saveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.saveoptions",
+      "text": "The SaveOptions class provides base configuration options for saving 3D scene files, including exporting textures."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stlloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stlloadoptions",
+      "text": "The StlLoadOptions class holds configuration options specific to loading STL files, including flipping the coordinate system and scaling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stlsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stlsaveoptions",
+      "text": "The StlSaveOptions class holds configuration options specific to saving STL files, including binary mode, flipping the coordinate system, and scaling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemfformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemfformat",
+      "text": "The ThreeMfFormat class represents the 3MF file format and provides methods to check import/export support, get format metadata, and manage build and object properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemfloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemfloadoptions",
+      "text": "The ThreeMfLoadOptions class holds configuration options specific to loading 3MF files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemfsaveoptions",
+      "text": "The ThreeMfSaveOptions class holds configuration options specific to saving 3MF files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladaexporter.colladaexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladaexporter.colladaexporter",
+      "text": "The ColladaExporter class provides functionality to export scenes to the COLLADA file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladaformat.colladaformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladaformat.colladaformat",
+      "text": "The ColladaFormat class represents the COLLADA file format and provides format-specific metadata and capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladaformatdetector.colladaformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladaformatdetector.colladaformatdetector",
+      "text": "The ColladaFormatDetector class provides functionality to detect COLLADA files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladaimporter.colladaimporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladaimporter.colladaimporter",
+      "text": "The ColladaImporter class provides functionality to import scenes from the COLLADA file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladaplugin.colladaplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladaplugin.colladaplugin",
+      "text": "The ColladaPlugin class provides plugin support for the COLLADA file format, including importers, exporters, and format detectors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle",
+      "text": "The ColladaTransformStyle class defines the style used for coordinate system transformations in COLLADA files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.fbxexporter.fbxexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxexporter.fbxexporter",
+      "text": "The FbxExporter class provides functionality to export scenes to the FBX file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.fbxformat.fbxformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxformat.fbxformat",
+      "text": "The FbxFormat class represents the FBX file format and provides format-specific metadata and capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.fbxformatdetector.fbxformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxformatdetector.fbxformatdetector",
+      "text": "The FbxFormatDetector class provides functionality to detect FBX files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.fbximporter.fbximporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.fbximporter.fbximporter",
+      "text": "The FbxImporter class provides functionality to import scenes from the FBX file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.fbxplugin.fbxplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxplugin.fbxplugin",
+      "text": "The FbxPlugin class provides plugin support for the FBX file format, including importers, exporters, and format detectors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.binary_tokenizer.binarytokenizer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.binarytokenizer",
+      "text": "The BinaryTokenizer class provides tokenization support for parsing binary FBX files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.binary_tokenizer.token"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.token",
+      "text": "The Token class represents a single token in a binary FBX file stream."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.binary_tokenizer.tokentype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.tokentype",
+      "text": "The TokenType class defines the type of a token in a binary FBX file stream."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.parser.fbxelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxelement",
+      "text": "The FbxElement class represents a parsed element in an FBX file structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.parser.fbxparser"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxparser",
+      "text": "The FbxParser class provides functionality to parse FBX file content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.parser.fbxscope"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxscope",
+      "text": "The FbxScope class represents a scope or context during FBX file parsing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.tokenizer.fbxtokenizer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.fbxtokenizer",
+      "text": "The FbxTokenizer class provides tokenization support for parsing text-based FBX files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.tokenizer.token"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.token",
+      "text": "The Token class represents a single token in a text-based FBX file stream."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.fbx.tokenizer.tokentype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.tokentype",
+      "text": "The TokenType class defines the type of a token in a text-based FBX file stream."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.gltfexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfexporter",
+      "text": "The GltfExporter class provides functionality to export scenes to the glTF file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.gltfformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfformat",
+      "text": "The GltfFormat class represents the glTF file format and provides format-specific metadata and capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.gltfformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfformatdetector",
+      "text": "The GltfFormatDetector class provides functionality to detect glTF files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.gltfimporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfimporter",
+      "text": "The GltfImporter class provides functionality to import scenes from the glTF file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.gltfplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfplugin",
+      "text": "GltfPlugin provides support for the GL Transmission Format, enabling import and export of GLTF files through its exporter, importer, and format detector components."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.obj.objexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.obj.objexporter",
+      "text": "ObjExporter converts 3D scenes into the OBJ format by writing geometry and material data to text-based files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.obj.objformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.obj.objformat",
+      "text": "ObjFormat represents the OBJ file format and defines its properties such as extension, content type, and supported operations for import and export."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.obj.objformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.obj.objformatdetector",
+      "text": "ObjFormatDetector identifies OBJ files by inspecting file content and returning a match when the format is detected."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.obj.objimporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.obj.objimporter",
+      "text": "ObjImporter reads OBJ files and constructs a 3D scene from the geometry, materials, and texture references contained within."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.obj.objplugin.objplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.obj.objplugin.objplugin",
+      "text": "ObjPlugin serves as the main entry point for handling OBJ files, exposing methods to create importers, exporters, and format detectors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stl.stlexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stl.stlexporter",
+      "text": "StlExporter writes 3D scenes to STL files, supporting both ASCII and binary representations of triangle mesh geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stl.stlformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stl.stlformat",
+      "text": "StlFormat describes the STL file format, including its extension, content type, and whether it supports import and export operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stl.stlformatdetector.stlformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stl.stlformatdetector.stlformatdetector",
+      "text": "StlFormatDetector determines if a file is in STL format by analyzing its header and structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stl.stlimporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stl.stlimporter",
+      "text": "StlImporter loads STL files into a 3D scene, parsing triangle mesh data and constructing the corresponding node hierarchy."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.stl.stlplugin.stlplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.stl.stlplugin.stlplugin",
+      "text": "StlPlugin acts as the central interface for working with STL files, providing access to importers, exporters, and format detection capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemf.threemfexporter.threemfexporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfexporter.threemfexporter",
+      "text": "ThreeMfExporter exports 3D scenes to the 3MF format, preserving geometry, materials, and scene structure in a modern packaging standard."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemf.threemfformatdetector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfformatdetector",
+      "text": "ThreeMfFormatDetector identifies 3MF files by checking for the presence of required internal package structure and metadata."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemf.threemfimporter.threemfimporter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfimporter.threemfimporter",
+      "text": "ThreeMfImporter reads 3MF files and reconstructs the 3D scene, including meshes, materials, and scene graph relationships."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.threemf.threemfplugin.threemfplugin"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfplugin.threemfplugin",
+      "text": "ThreeMfPlugin provides the primary interface for handling 3MF files, offering methods to create importers, exporters, and format detectors."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading.lambertmaterial"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.shading.lambertmaterial",
+      "text": "LambertMaterial defines a non-shiny material model using ambient and diffuse color properties for realistic lighting simulation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading.material"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.shading.material",
+      "text": "Material serves as the base class for all shading models, providing common properties and behavior for 3D surface appearance."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading.pbrmaterial"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.shading.pbrmaterial",
+      "text": "PbrMaterial implements physically based rendering using metallic and roughness factors to simulate realistic light interaction."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading.phongmaterial"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.shading.phongmaterial",
+      "text": "PhongMaterial extends LambertMaterial by adding specular highlights to simulate shiny surfaces using a shininess exponent."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.boundingbox"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.boundingbox",
+      "text": "BoundingBox represents an axis-aligned bounding box used to enclose 3D geometry for spatial queries and culling operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fvector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fvector2",
+      "text": "FVector2 stores a pair of single-precision floating-point values representing a 2D vector or point."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fvector3"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fvector3",
+      "text": "FVector3 stores a triplet of single-precision floating-point values representing a 3D vector or point."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fvector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fvector4",
+      "text": "FVector4 stores a quadruplet of single-precision floating-point values, commonly used for homogeneous coordinates or quaternions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.matrix4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.matrix4",
+      "text": "Matrix4 represents a 4x4 transformation matrix used for 3D geometry operations such as translation, rotation, and scaling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.quaternion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.quaternion",
+      "text": "Quaternion stores a four-component value used to represent 3D rotations without gimbal lock."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector2",
+      "text": "Vector2 stores a pair of double-precision floating-point values representing a 2D vector or point."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector3"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector3",
+      "text": "Vector3 stores a triplet of double-precision floating-point values representing a 3D vector or point."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector4",
+      "text": "Vector4 stores a quadruplet of double-precision floating-point values, commonly used for homogeneous coordinates or quaternions."
+    },
+    {
+      "fact_ids": [
         "link_target:022"
       ],
       "section": "documentation_resources",
@@ -827,7 +2007,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference offers the complete, browsable reference for all 343 verified public types."
+      "text": "The full API reference offers the complete, browsable reference for all 305 public types."
     },
     {
       "fact_ids": [
@@ -891,7 +2071,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:032",
-      "text": "Found a bug or have a feature request? Open an issue in the repository."
+      "text": "The issues page allows users to report bugs or request features."
     },
     {
       "fact_ids": [

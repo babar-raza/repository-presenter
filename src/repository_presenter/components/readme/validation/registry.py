@@ -457,7 +457,8 @@ def _check_units(candidate: Candidate) -> list[Failure]:
                     Failure("COMPOSING", f"{label} cites {fact_id}, which is {fact.polarity}")
                 )
     for task in candidate.tasks:
-        partial = {"units": by_section.get(task.section_id, []), "omitted": []}
+        owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
+        partial = {"units": owned, "omitted": []}
         failures.extend(
             Failure("COMPOSING", f"{task.section_id}: {error}")
             for error in unit_checks(partial, task, facts, name)

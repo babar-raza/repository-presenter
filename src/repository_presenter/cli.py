@@ -441,9 +441,10 @@ def _print_round(root: Path, transaction: Path, final: Round) -> None:
         f"{served(final.planned)}; digest {final.digests['plan']})"
     )
     authoring_calls = sum(result.provider_calls for result in final.authored.values())
+    sections = list(dict.fromkeys(task.section_id for task in final.tasks))  # batches share one
     print(
         f"units: {where(CONTENT_UNITS_FILENAME)} ({len(final.units['units'])} units across "
-        f"{len(final.authored)} sections: {', '.join(final.authored)}; "
+        f"{len(sections)} sections: {', '.join(sections)}; "
         f"provider calls {authoring_calls}; digest {final.digests['units']})"
     )
     print(
