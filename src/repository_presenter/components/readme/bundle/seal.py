@@ -103,31 +103,44 @@ def bundle_directory(candidates: Path, entry: RegistryEntry, revision: str) -> P
     return candidates / f"{entry.owner}__{entry.name}" / revision
 
 
-def dependencies_document(inputs: SealInputs) -> dict[str, Any]:
-    """Exactly the inputs the candidate consumed, each by a hash that reopens a stage when it
-    changes (docs/STATE_MACHINE.md section 9); nothing else can invalidate the candidate."""
+def upstream_dependencies(
+    source_revision: str, tree_sha256: str, facts: FactsDocument, prompts: PromptRegistry
+) -> dict[str, Any]:
+    """The inputs a run consumes before any agentic stage, each by a hash that reopens a stage
+    when it changes (docs/STATE_MACHINE.md section 9): known before the first call, so an
+    evaluation can name the earliest affected stage without running anything."""
     return {
         "schema_version": 1,
-        "source": {"revision": inputs.source_revision, "tree_sha256": inputs.tree_sha256},
+        "source": {"revision": source_revision, "tree_sha256": tree_sha256},
         "facts": {
             fact.id: canonical_hash(asdict(fact))
-            for fact in sorted(inputs.facts.facts, key=lambda fact: fact.id)
+            for fact in sorted(facts.facts, key=lambda fact: fact.id)
         },
         "prompts": {
             name: {
-                "sha256": inputs.prompts[name].sha256,
-                "version": inputs.prompts[name].manifest.version,
-                "model_route": inputs.prompts[name].manifest.model_route,
+                "sha256": prompts[name].sha256,
+                "version": prompts[name].manifest.version,
+                "model_route": prompts[name].manifest.model_route,
             }
-            for name in sorted(inputs.prompts.hashes())
+            for name in sorted(prompts.hashes())
         },
         "contract_version": CONTRACT_VERSION,
         "components": {"shell": SHELL_VERSION, "renderer": RENDERER_VERSION},
         "validators": {check.id: check.version for check in BLOCKING_CHECKS},
         "validator_version": VALIDATOR_VERSION,
         "acceptance_profile_version": ACCEPTANCE_PROFILE_VERSION,
-        "protected_content_fingerprint": inputs.validation.get("protected_content_fingerprint"),
         "policy": {"version": POLICY_VERSION, "sha256": canonical_hash(policy_packet())},
+    }
+
+
+def dependencies_document(inputs: SealInputs) -> dict[str, Any]:
+    """Exactly the inputs the candidate consumed: the upstream inputs plus the protected-content
+    fingerprint the accepted dispositions produced; nothing else can invalidate the candidate."""
+    return {
+        **upstream_dependencies(
+            inputs.source_revision, inputs.tree_sha256, inputs.facts, inputs.prompts
+        ),
+        "protected_content_fingerprint": inputs.validation.get("protected_content_fingerprint"),
     }
 
 

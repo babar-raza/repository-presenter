@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-03T11:33:43+05:00"
+updated_at: "2026-09-03T12:01:38+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W01
-  status: READY
+  status: IN_PROGRESS
   purpose: "Dependency evaluation from dependencies.json - a changed component reopens only the candidates that consumed it, at the earliest affected stage of docs/STATE_MACHINE.md section 9, reusing every unaffected artifact; a presentation-only change yields VALID_UPDATE_AVAILABLE, a factual, safety, or protected-content failure invalidates, and a corrupt or missing bundle artifact fails closed."
   prerequisites:
     - G1_FIRST_VALID_CANDIDATE is accepted with evidence/build/G1_FIRST_VALID_CANDIDATE/manifest.json, and its pushed main has a green hosted CI run, checked at the start of the iteration.

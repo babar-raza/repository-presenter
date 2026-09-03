@@ -62,6 +62,7 @@ src/repository_presenter/
       rounds.py                one composition round (S3 to S10) and the bounded repair loop
     bundle/
       seal.py                  the sealed bundle, dependencies.json, and the no-op proof (S12)
+      evaluation.py            dependency evaluation: changed inputs and the stage they reopen
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
 

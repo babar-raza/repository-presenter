@@ -771,6 +771,7 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
+    assert "evaluation: " in first and "no sealed bundle" in first and "NONE; 0 changes" in second
     assert first.count("provider calls 1, model qwen3-next") == 5
     assert second.count("provider calls 0, model stored output reused") == 5
     assert len(gateway_ready.requests) == 11
@@ -889,7 +890,12 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     )
 
     def digests(text: str) -> list[str]:
-        return [line.rsplit("digest ", 1)[1] for line in text.splitlines() if "digest " in line]
+        # The evaluation records this run's basis (no bundle, then the sealed one) by design.
+        return [
+            line.rsplit("digest ", 1)[1]
+            for line in text.splitlines()
+            if "digest " in line and not line.startswith("evaluation: ")
+        ]
 
     first_digests = digests(captured.out)
 
@@ -899,6 +905,11 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     assert digests(rerun) == first_digests and len(first_digests) == 10
     # The rerun is the fresh-process no-op proof: the bundle moves to READY_FOR_PROPOSAL.
     assert "state READY_FOR_PROPOSAL" in rerun and "check 11 judged" in rerun
+    assert "(no sealed bundle for this revision; every stage runs; digest " in captured.out
+    assert "(earliest affected stage NONE; 0 changes; digest " in rerun
+    evaluation = json.loads((transaction / "evaluation.json").read_text("utf-8"))
+    assert evaluation["earliest_affected_stage"] == "NONE" and evaluation["changes"] == []
+    assert evaluation["sealed_bundle"] == transaction.name
     bundle = next((project_with_registry / "candidates").glob("*/*/manifest.json")).parent
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "READY_FOR_PROPOSAL"

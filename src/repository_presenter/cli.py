@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import sys
 from collections import Counter
@@ -11,7 +12,20 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
-from repository_presenter.components.readme.bundle.seal import SealInputs, seal_candidate
+from repository_presenter.components.readme.bundle.evaluation import (
+    EVALUATION_FILENAME,
+    evaluate,
+    evaluation_document,
+    summarize_evaluation,
+    write_evaluation,
+)
+from repository_presenter.components.readme.bundle.seal import (
+    DEPENDENCIES_FILENAME,
+    SealInputs,
+    bundle_directory,
+    seal_candidate,
+    upstream_dependencies,
+)
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
 )
@@ -296,6 +310,25 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         print(
             f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
             f"({len(document.facts)} records: {counts}; digest {facts_digest})"
+        )
+        # Dependency evaluation: the sealed bundle's consumed inputs against this run's, class
+        # by class, naming the earliest stage that reopens - derived from the candidate's own
+        # record alone, never from a global hash.
+        sealed_dependencies = (
+            bundle_directory(root / CANDIDATES_DIRNAME, entry, clone.revision)
+            / DEPENDENCIES_FILENAME
+        )
+        evaluation = None
+        if sealed_dependencies.is_file():
+            evaluation = evaluate(
+                json.loads(sealed_dependencies.read_text(encoding="utf-8")),
+                upstream_dependencies(clone.revision, snapshot.tree_sha256, document, prompts),
+            )
+        evaluated = evaluation_document(clone.revision if evaluation else None, evaluation)
+        evaluation_digest = write_evaluation(evaluated, transaction / EVALUATION_FILENAME)
+        print(
+            f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
+            f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
         original_bytes: bytes | None = None
         original = ""
