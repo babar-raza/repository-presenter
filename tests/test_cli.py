@@ -1005,6 +1005,114 @@ def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
     assert attempt["outcome"] == "unrepairable" and attempt["reason"].startswith("evidence defect")
 
 
+def _seal_and_prove(project: Path, capsys: pytest.CaptureFixture[str]) -> Path:
+    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+    capsys.readouterr()
+    bundle = next((project / "candidates").glob("*/*/manifest.json")).parent
+    assert json.loads((bundle / "manifest.json").read_text("utf-8"))["state"] == (
+        "READY_FOR_PROPOSAL"
+    )
+    return bundle
+
+
+def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    before = {name: (bundle / name).read_bytes() for name in ("README.md", "plan.json")}
+    manifest_path = project_with_registry / "prompts" / "section_authoring.yaml"
+    manifest_path.write_text(
+        manifest_path.read_text("utf-8") + "\n# revised wording\n", encoding="utf-8", newline="\n"
+    )
+    requests_before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert (
+        "(earliest affected stage COMPOSING; 1 changes (prompts.section_authoring -> COMPOSING)"
+    ) in out
+    # Only authoring and coherence asked again; every upstream stage and the review reused.
+    assert len(gateway_ready.requests) - requests_before == 7
+    assert "provider calls 0, model stored output reused; digest" in next(
+        line for line in out.splitlines() if line.startswith("plan: ")
+    )
+    assert "provider calls 6; digest" in next(
+        line for line in out.splitlines() if line.startswith("units: ")
+    )
+    assert "review: " in out and "provider calls 0, model stored output reused" in next(
+        line for line in out.splitlines() if line.startswith("review: ")
+    )
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    for name in ("investigation.json", "dispositions.json", "plan.json"):
+        assert (transaction / name).read_bytes() == (bundle / name).read_bytes()
+    # review.json names the authoring prompt's hash, so it changes with the prompt too.
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state READY_FOR_PROPOSAL, 11 files, provider calls 7; " in bundle_line
+    assert (
+        "valid update available (presentation): dependencies.json, review.json changed at "
+        "COMPOSING; the proven candidate stays valid and the update waits in the transaction)"
+    ) in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["update"]["changed"] == ["dependencies.json", "review.json"]
+    assert {name: (bundle / name).read_bytes() for name in before} == before
+
+
+def test_a_factual_failure_invalidates_the_proven_candidate(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.repair import rounds
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    genuine = rounds.validate_candidate
+
+    def contradicted(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        document = genuine(*args, **kwargs)
+        for check in document["checks"]:
+            if check["id"] == "BC-02":
+                check["verdict"] = "FAIL"
+                check["causal_stage"] = "EXTRACTING"
+                check["details"] = ["install_command:pip is CONTRADICTED: registry: not found"]
+        document["summary"] = {"pass": 9, "fail": 1, "pending": 1}
+        return document
+
+    monkeypatch.setattr(rounds, "validate_candidate", contradicted)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "BC-02 failed at EXTRACTING" in captured.err
+    assert "(state INVALIDATED; BC-02 failed at EXTRACTING)" in captured.out
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "INVALIDATED" and manifest["invalidated"]["check"] == "BC-02"
+    assert main(["status", "--root", str(project_with_registry)]) == EXIT_OK
+    assert "candidates: 0/34" in capsys.readouterr().out
+
+
+def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    (bundle / "README.md").unlink()
+    requests_before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "bundle artifact README.md is missing from" in captured.err
+    assert len(gateway_ready.requests) == requests_before
+
+
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(
     project_with_registry: Path,
     readme_only_upstream: Path,

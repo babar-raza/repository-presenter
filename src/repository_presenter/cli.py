@@ -23,8 +23,11 @@ from repository_presenter.components.readme.bundle.seal import (
     DEPENDENCIES_FILENAME,
     SealInputs,
     bundle_directory,
+    invalidate_bundle,
+    invalidates,
     seal_candidate,
     upstream_dependencies,
+    verify_bundle,
 )
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
@@ -314,10 +317,9 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         # Dependency evaluation: the sealed bundle's consumed inputs against this run's, class
         # by class, naming the earliest stage that reopens - derived from the candidate's own
         # record alone, never from a global hash.
-        sealed_dependencies = (
-            bundle_directory(root / CANDIDATES_DIRNAME, entry, clone.revision)
-            / DEPENDENCIES_FILENAME
-        )
+        bundle = bundle_directory(root / CANDIDATES_DIRNAME, entry, clone.revision)
+        verify_bundle(bundle)  # a corrupt or missing artifact fails closed before any call
+        sealed_dependencies = bundle / DEPENDENCIES_FILENAME
         evaluation = None
         if sealed_dependencies.is_file():
             evaluation = evaluate(
@@ -371,6 +373,12 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             if attempted
             else "no repair could act on it"
         )
+        if invalidates(first) and invalidate_bundle(bundle, first) is not None:
+            # A factual, safety, or protected-content failure invalidates the accepted candidate.
+            print(
+                f"bundle: {bundle.relative_to(root).as_posix()} (state INVALIDATED; "
+                f"{first['id']} failed at {first['causal_stage'] or 'the bundle'})"
+            )
         _fail(
             f"validation: {first['id']} failed at {first['causal_stage'] or 'the bundle'}: "
             f"{first['details'][0]}; {standing}"
@@ -391,6 +399,7 @@ def run_present(repository: str, root_argument: Path | None) -> int:
                 candidates=root / CANDIDATES_DIRNAME,
                 provider_calls=ledger.provider_calls_made,
                 secrets=configured_secrets(os.environ),
+                earliest_affected_stage=evaluated["earliest_affected_stage"],
             )
         )
     except PresenterError as exc:

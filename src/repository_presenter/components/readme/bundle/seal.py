@@ -87,6 +87,7 @@ class SealInputs:
     candidates: Path
     provider_calls: int
     secrets: Sequence[ConfiguredSecret]
+    earliest_affected_stage: str | None = None
 
 
 @dataclass(frozen=True)
@@ -238,6 +239,89 @@ def _write_bundle(
     return files
 
 
+def verify_bundle(bundle: Path) -> dict[str, Any] | None:
+    """The bundle's manifest, after every file it lists is present with its recorded digest;
+    a missing or corrupt artifact fails closed naming the file. None when there is no bundle."""
+    manifest = _read_manifest(bundle / BUNDLE_MANIFEST_NAME)
+    if manifest is None:
+        return None
+    for name, digest in sorted(dict(manifest.get("files", {})).items()):
+        path = bundle / name
+        if not path.is_file():
+            raise SealError(f"bundle artifact {name} is missing from {bundle.name}")
+        data = path.read_bytes()
+        if _sha256(data) != digest.get("sha256") or len(data) != digest.get("bytes"):
+            raise SealError(f"bundle artifact {name} is corrupt in {bundle.name}")
+    return manifest
+
+
+FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})
+EARLY_STATES = frozenset({"EXTRACTING", "INVESTIGATING", "RECONCILING"})
+
+
+def _record_update(
+    bundle: Path, manifest: dict[str, Any], differing: list[str], inputs: SealInputs
+) -> SealResult:
+    factual = bool(FACTUAL_ARTIFACTS & set(differing)) or (
+        inputs.earliest_affected_stage in EARLY_STATES
+    )
+    update = {
+        "available": True,
+        "classification": "factual" if factual else "presentation",
+        "earliest_affected_stage": inputs.earliest_affected_stage,
+        "changed": differing,
+        "transaction": inputs.transaction.name,
+    }
+    existing = {k: v for k, v in dict(manifest.get("update") or {}).items() if k != "recorded_at"}
+    changed = existing != update
+    if changed:
+        (bundle / BUNDLE_MANIFEST_NAME).write_bytes(
+            _canonical_json({**manifest, "update": {**update, "recorded_at": _now()}})
+        )
+    return SealResult(
+        bundle,
+        STATE_READY,
+        dict(manifest.get("files", {})),
+        manifest.get("no_op_proof"),
+        changed,
+        f"valid update available ({update['classification']}): {', '.join(differing)} changed "
+        f"at {inputs.earliest_affected_stage or 'an unknown stage'}; the proven candidate stays "
+        "valid and the update waits in the transaction",
+    )
+
+
+INVALIDATING_CHECKS = frozenset(
+    {"BC-01", "BC-02", "BC-03", "BC-04", "BC-05", "BC-06", "BC-08", "BC-09"}
+)
+INVALIDATING_VERDICTS = frozenset({"REJECT_FACTUAL", "REJECT_PRESERVATION"})
+
+
+def invalidates(check: Mapping[str, Any]) -> bool:
+    """Whether a failing check is a factual, safety, or protected-content failure, the only
+    failures that invalidate an accepted candidate (docs/STATE_MACHINE.md section 9)."""
+    if check.get("id") in INVALIDATING_CHECKS:
+        return True
+    details = list(check.get("details", []))
+    return check.get("id") == "BC-10" and bool(details) and details[0] in INVALIDATING_VERDICTS
+
+
+def invalidate_bundle(bundle: Path, check: Mapping[str, Any]) -> dict[str, Any] | None:
+    """Record INVALIDATED on the bundle's manifest for a failing check; None without a bundle."""
+    manifest = _read_manifest(bundle / BUNDLE_MANIFEST_NAME)
+    if manifest is None:
+        return None
+    details = list(check.get("details", []))
+    record = {
+        "check": check.get("id"),
+        "causal_stage": check.get("causal_stage"),
+        "detail": str(details[0]) if details else "",
+        "recorded_at": _now(),
+    }
+    updated = {**manifest, "state": "INVALIDATED", "invalidated": record}
+    (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(updated))
+    return updated
+
+
 def seal_candidate(inputs: SealInputs) -> SealResult:
     """Seal the transaction, prove the no-op when this fresh process reproduced a sealed bundle
     with zero provider calls, or leave a proven bundle untouched."""
@@ -261,6 +345,7 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             True,
             "sealed; the no-op proof needs a rerun in a fresh process",
         )
+    verify_bundle(bundle)
     differing = sorted(
         name
         for name, data in staged.items()
@@ -270,6 +355,10 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             or not _identical(name, data, (bundle / name).read_bytes())
         )
     )
+    if differing and manifest.get("state") == STATE_READY and manifest.get("no_op_proof"):
+        # The proven candidate stays valid; the run produced a valid update, recorded on the
+        # manifest and left in the transaction (docs/STATE_MACHINE.md section 9).
+        return _record_update(bundle, manifest, differing, inputs)
     if differing:
         files = _write_bundle(
             bundle,

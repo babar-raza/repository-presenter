@@ -40,6 +40,30 @@
       "additionalProperties": { "$ref": "#/$defs/file_digest" }
     },
     "provider_calls": { "type": "integer", "minimum": 0 },
+    "update": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "classification", "earliest_affected_stage", "changed", "transaction", "recorded_at"],
+      "properties": {
+        "available": { "const": true },
+        "classification": { "enum": ["presentation", "factual"] },
+        "earliest_affected_stage": { "type": ["string", "null"] },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "transaction": { "type": "string" },
+        "recorded_at": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "invalidated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "causal_stage", "detail", "recorded_at"],
+      "properties": {
+        "check": { "type": "string" },
+        "causal_stage": { "type": ["string", "null"] },
+        "detail": { "type": "string" },
+        "recorded_at": { "$ref": "#/$defs/timestamp" }
+      }
+    },
     "no_op_proof": {
       "oneOf": [
         { "type": "null" },

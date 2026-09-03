@@ -15,7 +15,10 @@ from repository_presenter.components.readme.bundle.seal import (
     SealError,
     SealInputs,
     dependencies_document,
+    invalidate_bundle,
+    invalidates,
     seal_candidate,
+    verify_bundle,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.prompts import load_manifests
@@ -87,7 +90,10 @@ def _transaction(tmp_path: Path, readme: str = "# Doc\n") -> Path:
 
 
 def _inputs(
-    tmp_path: Path, provider_calls: int, secrets: tuple[ConfiguredSecret, ...] = ()
+    tmp_path: Path,
+    provider_calls: int,
+    secrets: tuple[ConfiguredSecret, ...] = (),
+    stage: str | None = None,
 ) -> SealInputs:
     return SealInputs(
         entry=ENTRY,
@@ -100,6 +106,7 @@ def _inputs(
         candidates=tmp_path / "candidates",
         provider_calls=provider_calls,
         secrets=secrets,
+        earliest_affected_stage=stage,
     )
 
 
@@ -142,6 +149,15 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     assert withheld.state == "ACCEPTED" and not withheld.changed
     assert "proof withheld" in withheld.note
 
+    # An unproven seal that differs is simply replaced.
+    _transaction(tmp_path, readme="# Draft\n")
+    replaced = seal_candidate(_inputs(tmp_path, provider_calls=2))
+    assert replaced.state == "ACCEPTED" and replaced.proof is None and replaced.changed
+    assert replaced.note.startswith("re-sealed: README.md changed")
+    _transaction(tmp_path)
+    restored = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    assert restored.state == "ACCEPTED" and restored.note.startswith("re-sealed")
+
     (tmp_path / "runs" / "transactions" / "owner__name" / REVISION / "calls.jsonl").write_text(
         '{"call_id": "one"}\n{"call_id": "two"}\n', encoding="utf-8", newline="\n"
     )
@@ -162,13 +178,66 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     assert again.note.startswith("no-op:")
     assert (bundle / "manifest.json").read_bytes() == before
 
+    # A proven candidate stays valid: a differing run records an update and touches no file.
     _transaction(tmp_path, readme="# Changed\n")
-    resealed = seal_candidate(_inputs(tmp_path, provider_calls=0))
-    assert resealed.state == "ACCEPTED" and resealed.proof is None and resealed.changed
-    assert resealed.note.startswith("re-sealed: README.md changed")
+    updated = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
+    assert updated.state == "READY_FOR_PROPOSAL" and updated.proof is not None and updated.changed
+    assert updated.note.startswith("valid update available (presentation): README.md changed")
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "ACCEPTED" and manifest["no_op_proof"] is None
-    assert (bundle / "README.md").read_text("utf-8") == "# Changed\n"
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert manifest["state"] == "READY_FOR_PROPOSAL"
+    assert manifest["update"]["classification"] == "presentation"
+    assert manifest["update"]["changed"] == ["README.md"]
+    assert manifest["update"]["earliest_affected_stage"] == "COMPOSING"
+    assert (bundle / "README.md").read_text("utf-8") == "# Doc\n"
+    again = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
+    assert not again.changed  # the same update is not recorded twice
+    (tmp_path / "runs" / "transactions" / "owner__name" / REVISION / "facts.json").write_text(
+        '{"facts": ["new"]}\n', encoding="utf-8", newline="\n"
+    )
+    factual = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING"))
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert factual.changed and manifest["update"]["classification"] == "factual"
+    assert manifest["update"]["changed"] == ["README.md", "facts.json"]
+
+
+def test_a_corrupt_bundle_fails_closed_and_a_factual_failure_invalidates(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    sealed = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    bundle = sealed.bundle
+    assert verify_bundle(bundle) is not None
+    assert verify_bundle(tmp_path / "nowhere") is None
+    (bundle / "plan.json").write_text('{"sections": ["x"]}\n', encoding="utf-8", newline="\n")
+    with pytest.raises(SealError, match=r"bundle artifact plan\.json is corrupt in c{40}"):
+        verify_bundle(bundle)
+    with pytest.raises(SealError, match=r"plan\.json is corrupt"):
+        seal_candidate(_inputs(tmp_path, provider_calls=0))
+    (bundle / "plan.json").unlink()
+    with pytest.raises(SealError, match=r"bundle artifact plan\.json is missing"):
+        verify_bundle(bundle)
+
+    transaction = _transaction(tmp_path)
+    with pytest.raises(SealError, match=r"plan\.json is missing"):
+        seal_candidate(_inputs(tmp_path, provider_calls=0))  # a bundle never self-heals
+    (bundle / "plan.json").write_bytes((transaction / "plan.json").read_bytes())
+    assert verify_bundle(bundle) is not None
+    failing = {
+        "id": "BC-02",
+        "verdict": "FAIL",
+        "causal_stage": "EXTRACTING",
+        "details": ["install_command:pip is CONTRADICTED: package registry: not found"],
+    }
+    assert invalidates(failing)
+    assert not invalidates({"id": "BC-07", "verdict": "FAIL", "details": ["h1"]})
+    assert invalidates({"id": "BC-10", "verdict": "FAIL", "details": ["REJECT_FACTUAL"]})
+    assert not invalidates({"id": "BC-10", "verdict": "FAIL", "details": ["REJECT_PRESENTATION"]})
+    manifest = invalidate_bundle(bundle, failing)
+    assert manifest is not None and manifest["state"] == "INVALIDATED"
+    stored = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(stored)
+    assert stored["invalidated"]["check"] == "BC-02"
+    assert stored["invalidated"]["causal_stage"] == "EXTRACTING"
+    assert invalidate_bundle(tmp_path / "nowhere", failing) is None
 
 
 def test_a_missing_artifact_or_a_leaked_secret_fails_the_seal_closed(tmp_path: Path) -> None:
