@@ -191,15 +191,28 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     assert manifest["update"]["changed"] == ["README.md"]
     assert manifest["update"]["earliest_affected_stage"] == "COMPOSING"
     assert (bundle / "README.md").read_text("utf-8") == "# Doc\n"
-    again = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
-    assert not again.changed  # the same update is not recorded twice
+    assert manifest["update"]["files"]["README.md"] == hashlib.sha256(b"# Changed\n").hexdigest()
+    withheld = seal_candidate(_inputs(tmp_path, provider_calls=1, stage="COMPOSING"))
+    assert not withheld.changed  # the same update is not recorded twice, nor adopted unproven
+    assert (bundle / "README.md").read_text("utf-8") == "# Doc\n"
+    # A fresh zero-call process reproducing the waiting update proves it; the bundle adopts it.
+    adopted = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="COMPOSING"))
+    assert adopted.state == "READY_FOR_PROPOSAL" and adopted.changed
+    assert adopted.note.startswith("update adopted (presentation): a fresh process reproduced")
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert "update" not in manifest and manifest["adopted"]["changed"] == ["README.md"]
+    assert manifest["adopted"]["previous_proof"]["provider_calls"] == 0
+    assert manifest["no_op_proof"]["provider_calls"] == 0 and manifest["provider_calls"] == 0
+    assert (bundle / "README.md").read_text("utf-8") == "# Changed\n"
+    assert json.loads((bundle / "validation.json").read_text("utf-8"))["summary"]["pending"] == 0
     (tmp_path / "runs" / "transactions" / "owner__name" / REVISION / "facts.json").write_text(
         '{"facts": ["new"]}\n', encoding="utf-8", newline="\n"
     )
     factual = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING"))
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert factual.changed and manifest["update"]["classification"] == "factual"
-    assert manifest["update"]["changed"] == ["README.md", "facts.json"]
+    assert manifest["update"]["changed"] == ["facts.json"] and "adopted" in manifest
 
 
 def test_a_newer_proven_revision_supersedes_the_older_one(tmp_path: Path) -> None:

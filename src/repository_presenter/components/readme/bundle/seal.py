@@ -7,7 +7,11 @@ digest for every file. The first seal records state ACCEPTED with no proof. A la
 fresh process that reproduces every artifact byte for byte with zero provider calls is the no-op
 proof: it judges check 11, records the proof in the manifest, and moves the bundle to
 READY_FOR_PROPOSAL, the only state progress counts. A run that reproduces a proven bundle writes
-nothing. A run whose artifacts differ re-seals at ACCEPTED and withdraws the proof.
+nothing. A run whose artifacts differ re-seals an unproven bundle at ACCEPTED and withdraws the
+proof; on a proven bundle it records a valid update instead and touches no artifact
+(docs/STATE_MACHINE.md section 5), and a later fresh process that reproduces that exact update
+with zero provider calls proves it, so the bundle adopts it as its proven content and keeps the
+previous proof on the manifest for the record.
 
 Two files carry timestamps by design and are exempt from the byte comparison: the ledger and the
 manifest itself. validation.json is compared with check 11 blanked, since the proof is what
@@ -210,6 +214,7 @@ def _write_bundle(
     proof: dict[str, Any] | None,
     provider_calls: int,
     inputs: SealInputs,
+    extra: Mapping[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     bundle.mkdir(parents=True, exist_ok=True)
     for name, data in staged.items():
@@ -226,6 +231,7 @@ def _write_bundle(
         "files": files,
         "provider_calls": provider_calls,
         "no_op_proof": proof,
+        **dict(extra or {}),
     }
     (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(manifest))
     current = bundle.parent / CURRENT_FILENAME
@@ -259,8 +265,22 @@ FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})
 EARLY_STATES = frozenset({"EXTRACTING", "INVESTIGATING", "RECONCILING"})
 
 
+def _update_digests(staged: Mapping[str, bytes]) -> dict[str, str]:
+    """The replay identity of the staged artifacts: every non-exempt file's digest, with check
+    11 blanked in validation.json so a judged and an unjudged copy compare equal."""
+    return {
+        name: _sha256(_blank_check_eleven(data) if name == "validation.json" else data)
+        for name, data in sorted(staged.items())
+        if name not in REPLAY_EXEMPT
+    }
+
+
 def _record_update(
-    bundle: Path, manifest: dict[str, Any], differing: list[str], inputs: SealInputs
+    bundle: Path,
+    manifest: dict[str, Any],
+    differing: list[str],
+    staged: Mapping[str, bytes],
+    inputs: SealInputs,
 ) -> SealResult:
     factual = bool(FACTUAL_ARTIFACTS & set(differing)) or (
         inputs.earliest_affected_stage in EARLY_STATES
@@ -271,6 +291,7 @@ def _record_update(
         "earliest_affected_stage": inputs.earliest_affected_stage,
         "changed": differing,
         "transaction": inputs.transaction.name,
+        "files": _update_digests(staged),
     }
     existing = {k: v for k, v in dict(manifest.get("update") or {}).items() if k != "recorded_at"}
     changed = existing != update
@@ -287,6 +308,53 @@ def _record_update(
         f"valid update available ({update['classification']}): {', '.join(differing)} changed "
         f"at {inputs.earliest_affected_stage or 'an unknown stage'}; the proven candidate stays "
         "valid and the update waits in the transaction",
+    )
+
+
+def _adopt_update(
+    bundle: Path,
+    manifest: dict[str, Any],
+    waiting: dict[str, Any],
+    staged: Mapping[str, bytes],
+    inputs: SealInputs,
+) -> SealResult:
+    proof = {
+        "proven_at": _now(),
+        "fresh_process": True,
+        "byte_identical": True,
+        "provider_calls": 0,
+    }
+    proven = {
+        **staged,
+        "validation.json": _canonical_json(record_replay_verdict(inputs.validation)),
+    }
+    changed = [str(name) for name in waiting.get("changed", [])]
+    adopted = {
+        "classification": waiting.get("classification"),
+        "earliest_affected_stage": waiting.get("earliest_affected_stage"),
+        "changed": changed,
+        "recorded_at": waiting.get("recorded_at"),
+        "previous_proof": manifest.get("no_op_proof"),
+        "adopted_at": proof["proven_at"],
+    }
+    files = _write_bundle(
+        bundle,
+        proven,
+        state=STATE_READY,
+        proof=proof,
+        provider_calls=0,
+        inputs=inputs,
+        extra={"adopted": adopted},
+    )
+    return SealResult(
+        bundle,
+        STATE_READY,
+        files,
+        proof,
+        True,
+        f"update adopted ({waiting.get('classification')}): a fresh process reproduced the "
+        f"waiting update byte for byte with zero provider calls; "
+        f"{', '.join(changed)} replaced; check 11 judged",
     )
 
 
@@ -374,9 +442,16 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
         )
     )
     if differing and manifest.get("state") == STATE_READY and manifest.get("no_op_proof"):
+        waiting = dict(manifest.get("update") or {})
+        if inputs.provider_calls == 0 and waiting.get("files") == _update_digests(staged):
+            # The waiting update is proven the way a first seal is: a fresh process reproduced
+            # it byte for byte with zero provider calls, so the bundle adopts it as its proven
+            # content and keeps the previous proof for the record. Scheduling that rerun is
+            # the policy decision docs/STATE_MACHINE.md section 5 leaves to the operator.
+            return _adopt_update(bundle, manifest, waiting, staged, inputs)
         # The proven candidate stays valid; the run produced a valid update, recorded on the
         # manifest and left in the transaction (docs/STATE_MACHINE.md section 9).
-        return _record_update(bundle, manifest, differing, inputs)
+        return _record_update(bundle, manifest, differing, staged, inputs)
     if differing:
         files = _write_bundle(
             bundle,

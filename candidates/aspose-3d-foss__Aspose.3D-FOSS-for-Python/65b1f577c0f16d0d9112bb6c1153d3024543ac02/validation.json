@@ -144,8 +144,8 @@
       "version": "1"
     }
   ],
-  "protected_content_fingerprint": "3b908bb38f81c5102aaf99661d68cf80040316a8ad0bd1d3c5c0323593c7258e",
-  "readme_sha256": "fbc448e00ce2698253dfa3390702ad1bdccd1d2077e5e92966a2b6d94c272cc3",
+  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
+  "readme_sha256": "28b11ee61172233e2da2ff9aa5287e2a5e9497cf3f1855f223a3a4300798c0d1",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",

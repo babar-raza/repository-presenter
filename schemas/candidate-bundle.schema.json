@@ -50,7 +50,24 @@
         "earliest_affected_stage": { "type": ["string", "null"] },
         "changed": { "type": "array", "items": { "type": "string" } },
         "transaction": { "type": "string" },
-        "recorded_at": { "$ref": "#/$defs/timestamp" }
+        "recorded_at": { "$ref": "#/$defs/timestamp" },
+        "files": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "adopted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "earliest_affected_stage", "changed", "recorded_at", "previous_proof", "adopted_at"],
+      "properties": {
+        "classification": { "enum": ["presentation", "factual"] },
+        "earliest_affected_stage": { "type": ["string", "null"] },
+        "changed": { "type": "array", "items": { "type": "string" } },
+        "recorded_at": { "$ref": "#/$defs/timestamp" },
+        "previous_proof": { "type": ["object", "null"] },
+        "adopted_at": { "$ref": "#/$defs/timestamp" }
       }
     },
     "superseded_by": { "type": "string", "pattern": "^[0-9a-f]{40}$" },

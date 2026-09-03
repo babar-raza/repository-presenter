@@ -1,14 +1,16 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "1",
-    "shell": "1"
+    "renderer": "2",
+    "shell": "2"
   },
   "contract_version": "readme-contract-v1-draft",
   "facts": {
     "build_test_asset:ci": "05fe0a87f80a1207216fb549a82a7e9d9cbb23d262d2d8942ea01968a4545377",
     "build_test_asset:docs": "59b3f1f36ce5b6b83f9a0b164f90ab4d780c13e328224099f6b5b1da56ac9640",
     "build_test_asset:tests": "c45a137fdc51f218fd1b4843a12d1a3863651c165011021f8cdbaf1267e27b5c",
+    "dependency:development.dev.pytest-7.0.0": "4ecab3815fd9b9b24f1fbd4d6dbdee386f32694189d82929e9f8e85c8c79c1b0",
+    "dependency:none": "1a23a8fa60c0f447bb30d95a7006733697708383dfe1a03c0f8b4de1e2c71931",
     "example:001": "e00f8e5d46b696645da79aef737d28a3354499f5cf49828dd25ba65bd95f0c86",
     "example:002": "04ff25addb14caff573fb6ae099e486d8e2a02d7506de32c54caff76a20242b1",
     "example:003": "6765bdfc4f964eb838ac700a537f166438223d6458d345ad1f7cf4f77b6f4b0e",
@@ -2081,8 +2083,8 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "1096e72d8935e3e29308a331e472c0e198d8abaf9de5610e7aebfe982ae261e0",
-      "version": "2"
+      "sha256": "35fed321efe2bbd9db415236a5c3fe63a026c11782ef58d3d9bb10819ebcd828",
+      "version": "3"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
@@ -2096,13 +2098,13 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "cc3972d0a1c7300acd3c76e4fbe99ff9a5f01faccfc2d3a48f30fcefbfcb8f47",
-      "version": "2"
+      "sha256": "558afa36d617e3600e7e1f30b6d6049f35bb2795da7d72cd1aa72c23893aecd3",
+      "version": "3"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "e7a274c5eeec7bea1d5e1a4ac0f0fdd46a008031fd951dca9359771253893fa8",
-      "version": "1"
+      "sha256": "090b0756b19746822274251189f5e9eb1030220fbc0329f94963f01986e63091",
+      "version": "2"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
@@ -2110,7 +2112,7 @@
       "version": "2"
     }
   },
-  "protected_content_fingerprint": "3b908bb38f81c5102aaf99661d68cf80040316a8ad0bd1d3c5c0323593c7258e",
+  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
   "schema_version": 1,
   "source": {
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
