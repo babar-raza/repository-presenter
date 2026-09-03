@@ -68,8 +68,8 @@ def _validation(pending: bool = True) -> dict[str, Any]:
     }
 
 
-def _transaction(tmp_path: Path, readme: str = "# Doc\n") -> Path:
-    transaction = tmp_path / "runs" / "transactions" / "owner__name" / REVISION
+def _transaction(tmp_path: Path, readme: str = "# Doc\n", revision: str = REVISION) -> Path:
+    transaction = tmp_path / "runs" / "transactions" / "owner__name" / revision
     transaction.mkdir(parents=True, exist_ok=True)
     artifacts = {
         "README.md": readme,
@@ -94,15 +94,16 @@ def _inputs(
     provider_calls: int,
     secrets: tuple[ConfiguredSecret, ...] = (),
     stage: str | None = None,
+    revision: str = REVISION,
 ) -> SealInputs:
     return SealInputs(
         entry=ENTRY,
-        source_revision=REVISION,
+        source_revision=revision,
         tree_sha256="t" * 64,
         facts=FACTS,
         prompts=PROMPTS,
         validation=_validation(),
-        transaction=tmp_path / "runs" / "transactions" / "owner__name" / REVISION,
+        transaction=tmp_path / "runs" / "transactions" / "owner__name" / revision,
         candidates=tmp_path / "candidates",
         provider_calls=provider_calls,
         secrets=secrets,
@@ -199,6 +200,25 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert factual.changed and manifest["update"]["classification"] == "factual"
     assert manifest["update"]["changed"] == ["README.md", "facts.json"]
+
+
+def test_a_newer_proven_revision_supersedes_the_older_one(tmp_path: Path) -> None:
+    _transaction(tmp_path)
+    seal_candidate(_inputs(tmp_path, provider_calls=3))
+    older = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    assert older.state == "READY_FOR_PROPOSAL"
+    newer_revision = "d" * 40
+    _transaction(tmp_path, readme="# Newer\n", revision=newer_revision)
+    seal_candidate(_inputs(tmp_path, provider_calls=5, revision=newer_revision))
+    manifest = json.loads((older.bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL"  # an unproven newer seal supersedes nothing
+    newer = seal_candidate(_inputs(tmp_path, provider_calls=0, revision=newer_revision))
+    assert newer.state == "READY_FOR_PROPOSAL"
+    manifest = json.loads((older.bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert manifest["state"] == "SUPERSEDED" and manifest["superseded_by"] == newer_revision
+    assert manifest["no_op_proof"] is not None  # history stays in place
+    assert (older.bundle.parent / "CURRENT").read_text("utf-8") == f"{newer_revision}\n"
 
 
 def test_a_corrupt_bundle_fails_closed_and_a_factual_failure_invalidates(tmp_path: Path) -> None:

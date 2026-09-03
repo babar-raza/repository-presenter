@@ -53,6 +53,7 @@
         "recorded_at": { "$ref": "#/$defs/timestamp" }
       }
     },
+    "superseded_by": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "invalidated": {
       "type": "object",
       "additionalProperties": false,

@@ -305,7 +305,9 @@ def identifier_tokens(text: str) -> set[str]:
     found: set[str] = set()
     for pattern in (_DOTTED, _SNAKE, _CAMEL, _CALL):
         found.update(match.group(0) for match in pattern.finditer(text))
-    return found
+    # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
+    # as the contract's canonical abbreviations are, never an identifier.
+    return {token for token in found if not (token.isupper() and token.isalnum())}
 
 
 def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
@@ -328,6 +330,29 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
     return frozenset(allowed)
 
 
+def merge_repeated_slots(output: dict[str, Any]) -> list[str]:
+    """Fold units that repeat one slot into a single unit, in place: the plan allots each slot
+    once, and a job that split its prose across several units of the same slot wrote one unit's
+    worth of content in pieces. Texts join in order; citations keep their first appearance.
+    Returns the slots that were folded."""
+    merged: dict[tuple[str, str], dict[str, Any]] = {}
+    folded: list[str] = []
+    for unit in output.get("units", []):
+        key = (str(unit.get("section", "")), str(unit.get("slot", "")))
+        first = merged.get(key)
+        if first is None:
+            merged[key] = unit
+            continue
+        first["text"] = f"{first.get('text', '')} {unit.get('text', '')}".strip()
+        first["fact_ids"] = list(
+            dict.fromkeys([*first.get("fact_ids", []), *unit.get("fact_ids", [])])
+        )
+        if key[1] not in folded:
+            folded.append(key[1])
+    output["units"] = list(merged.values())
+    return folded
+
+
 def unit_checks(
     output: dict[str, Any], task: SectionTask, facts: FactsDocument, name: str
 ) -> list[str]:
@@ -336,6 +361,7 @@ def unit_checks(
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
     methods = surface_members(facts)
+    merge_repeated_slots(output)
     slots_seen = [unit.get("slot") for unit in output.get("units", [])]
     expected = list(task.slots)
     if sorted(slots_seen) != sorted(expected):

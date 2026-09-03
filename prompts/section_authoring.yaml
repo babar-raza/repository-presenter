@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "1"
+version: "2"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -88,7 +88,12 @@ system: |
   that verified examples call (listed as "member name", spelled in prose as Class.member or
   member). Any other class member, method, attribute, parameter, or option name is never written
   - describe what the API does in words instead. Never split CamelCase or pad an identifier with
-  spaces.
+  spaces. Exception class names (RuntimeError, NotImplementedError, ValueError) are API names
+  too: never write one; say that a call raises an error. Format acronyms (OBJ, STL, U3D, A3DW)
+  are plain words in their canonical uppercase form. Fact IDs, fact kinds, and packet field
+  names (link_target, package:python_requires, accepted_facts) are provenance, never words in
+  prose. Each slot the objective lists is exactly one unit; a list of points belongs in that one
+  unit's sentences, never in several units of the same slot.
 
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact

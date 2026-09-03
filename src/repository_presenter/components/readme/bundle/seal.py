@@ -322,6 +322,24 @@ def invalidate_bundle(bundle: Path, check: Mapping[str, Any]) -> dict[str, Any] 
     return updated
 
 
+STATE_SUPERSEDED = "SUPERSEDED"
+
+
+def _supersede_siblings(bundle: Path) -> list[str]:
+    """Older proven revisions of the same repository stay in place as SUPERSEDED once a newer
+    revision is proven (docs/README_CONTRACT.md section 7); returns the revisions marked."""
+    marked: list[str] = []
+    for sibling in sorted(p for p in bundle.parent.iterdir() if p.is_dir() and p != bundle):
+        manifest = _read_manifest(sibling / BUNDLE_MANIFEST_NAME)
+        if manifest is None or manifest.get("state") != STATE_READY:
+            continue
+        (sibling / BUNDLE_MANIFEST_NAME).write_bytes(
+            _canonical_json({**manifest, "state": STATE_SUPERSEDED, "superseded_by": bundle.name})
+        )
+        marked.append(sibling.name)
+    return marked
+
+
 def seal_candidate(inputs: SealInputs) -> SealResult:
     """Seal the transaction, prove the no-op when this fresh process reproduced a sealed bundle
     with zero provider calls, or leave a proven bundle untouched."""
@@ -406,6 +424,7 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
     files = _write_bundle(
         bundle, proven, state=STATE_READY, proof=proof, provider_calls=0, inputs=inputs
     )
+    _supersede_siblings(bundle)
     return SealResult(
         bundle,
         STATE_READY,

@@ -13,6 +13,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     identifier_allowed,
     identifier_tokens,
+    merge_repeated_slots,
     merge_units,
     section_spellings,
     surface_members,
@@ -165,6 +166,10 @@ def test_identifier_tokens_and_the_allowed_set() -> None:
         "control_points",
         "PbrMaterial",
         "save()",
+    }
+    # Format acronyms are prose words; an exception class name is still an identifier.
+    assert identifier_tokens("Neither U3D, A3DW nor 3MF loads; save raises RuntimeError.") == {
+        "RuntimeError"
     }
     allowed = allowed_identifiers(FACTS, NAME)
     assert {
@@ -324,3 +329,28 @@ def test_public_methods_recorded_on_the_surface_may_be_spelled() -> None:
         "Scene",
         "Scene.open",
     ]
+
+
+def test_units_that_repeat_a_slot_fold_into_one() -> None:
+    def unit(slot: str, text: str, *fact_ids: str) -> dict[str, Any]:
+        return {
+            "section": "scope_limitations",
+            "slot": slot,
+            "text": text,
+            "fact_ids": list(fact_ids),
+        }
+
+    output = {
+        "units": [
+            unit("scope", "The scope.", "identity:repository"),
+            unit("limitation:1", "First point.", "format:input.obj"),
+            unit("limitation:1", "Second point.", "identity:repository"),
+            unit("limitation:1", "Third point.", "format:input.obj"),
+        ],
+        "omitted": [],
+    }
+    assert merge_repeated_slots(output) == ["limitation:1"]
+    assert [u["slot"] for u in output["units"]] == ["scope", "limitation:1"]
+    assert output["units"][1]["text"] == "First point. Second point. Third point."
+    assert output["units"][1]["fact_ids"] == ["format:input.obj", "identity:repository"]
+    assert merge_repeated_slots(output) == []
