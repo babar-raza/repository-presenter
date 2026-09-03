@@ -1,0 +1,273 @@
+{
+  "attempts": {
+    "21353df1e0cf27783c508e2f": {
+      "changes": [],
+      "label": "F01",
+      "outcome": "unrepairable",
+      "reason": "evidence defect: extraction reopens only when the source or the extractor changes, and neither has",
+      "request_sha256": null,
+      "section_id": "identity",
+      "source": "review",
+      "stage": null
+    },
+    "2c4addae57ffac38ecfb93fa": {
+      "changes": [
+        {
+          "after": "COLLADA import works, but COLLADA export is not currently reachable through the public Scene.save() API — the exporter dispatcher registers FbxExporter ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree.",
+          "before": "COLLADA import works, but COLLADA export is not currently reachable through the public Scene.save() API — the exporter dispatcher registers FbxExporter ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[1].text"
+        },
+        {
+          "after": "FBX support is more limited than the other formats: the FBX tokenizer and parser are exercised by the test suite, but FbxExporter.save() and FbxExporter.save_to_stream() raise an exception, and full round-trip FBX import/export is not covered by the bundled tests the way OBJ, STL, glTF, COLLADA, and 3MF are.",
+          "before": "FBX support is more limited than the other formats: the FBX tokenizer and parser are exercised by the test suite, but FbxExporter.save() and FbxExporter.save_to_stream() raise an exception, and full round-trip FBX import/export is not covered by the bundled tests the way OBJ, STL, glTF, COLLADA, and 3MF are.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "units[2].text"
+        },
+        {
+          "after": "The aspose.threed.render module (Renderer, IRenderWindow, IBuffer, ICommandList, ITexture2D, and related classes) is not implemented, Mesh boolean operations (union, difference, intersect, do_boolean) and NURBS curve/surface evaluation (NurbsCurve.evaluate, NurbsSurface.to_mesh) also raise an exception.",
+          "before": "The aspose.threed.render module (Renderer, IRenderWindow, IBuffer, ICommandList, ITexture2D, and related classes) is not implemented, Mesh boolean operations (union, difference, intersect, do_boolean) and NURBS curve/surface evaluation (NurbsCurve.evaluate, NurbsSurface.to_mesh) also raise an exception.",
+          "fact_ids": [],
+          "id": "R03",
+          "path": "units[3].text"
+        }
+      ],
+      "label": "F04+F05+F06",
+      "outcome": "repaired",
+      "re_raised": [
+        "F04",
+        "F05",
+        "F06"
+      ],
+      "reason": null,
+      "request_sha256": "be73e3f7283d57a4ce374181291dca09942502e9d35268194c68b5b64c935d3d",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "38f7dfcb1a2be6b972687d8e": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF format pipelines, reading, building, and writing 3D scene data without rendering or rasterizing scenes, and does not implement the aspose.threed.render module or its related classes, nor does it support Mesh boolean operations or NURBS curve/surface evaluation.",
+          "before": "Aspose.3D FOSS for Python focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF format pipelines, reading, building, and writing 3D scene data without rendering or rasterizing scenes, and does not implement the aspose.threed.render module or its related classes, nor does it support Mesh boolean operations or NURBS curve/surface evaluation.",
+          "fact_ids": [
+            "package:name",
+            "package:version"
+          ],
+          "id": "R01",
+          "path": "revised_output.units.0"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "003a711f091c76fb7d229df7fa27d438d54b3ab422cca42e312706f92ac14320",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "407661531ba88b86ad0f0d66": {
+      "changes": [],
+      "label": "F02",
+      "outcome": "unrepairable",
+      "reason": "evidence defect: extraction reopens only when the source or the extractor changes, and neither has",
+      "request_sha256": null,
+      "section_id": "installation",
+      "source": "review",
+      "stage": null
+    },
+    "64cc2e33eea28f461b83f4e5": {
+      "changes": [
+        {
+          "after": "COLLADA import works, but COLLADA export is not currently reachable through the public Scene.save() API — the exporter dispatcher registers FbxExporter ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree.",
+          "before": "COLLADA import works, but COLLADA export is not currently reachable through the public Scene.save() API — the exporter dispatcher registers FbxExporter ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree.",
+          "fact_ids": [
+            "inherited_unit:057.paragraph"
+          ],
+          "id": "R01",
+          "path": "units[1].text"
+        }
+      ],
+      "label": "F09",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "be2cc054a117bf85375b45e5c2c7419bf5c19e9ce1f8ec156faab966c39808df",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "76ae22b9844cefc39f27e688": {
+      "changes": [
+        {
+          "after": "Clone the repository, install it in editable mode, and run the test suite with python -m unittest discover tests/ or a single test file with python -m unittest tests.",
+          "before": "Clone the repository, install it in editable mode, and run the test suite with python -m unittest discover tests/ or a single test file with python -m unittest tests.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F07",
+      "outcome": "repaired",
+      "re_raised": [
+        "F07"
+      ],
+      "reason": null,
+      "request_sha256": "5940d56864e86d3d50d8cfffcfa44ecc913998c448d40733500dea468e11e755",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "82bea0d3e165ccc2147728b3": {
+      "changes": [
+        {
+          "after": "public_symbol:aspose.threed",
+          "before": "hub:public_symbol:aspose.threed",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.entities",
+          "before": "hub:public_symbol:aspose.threed.entities",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "units.1.slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.shading",
+          "before": "hub:public_symbol:aspose.threed.shading",
+          "fact_ids": [],
+          "id": "R03",
+          "path": "units.2.slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.formats",
+          "before": "hub:public_symbol:aspose.threed.formats",
+          "fact_ids": [],
+          "id": "R04",
+          "path": "units.3.slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.utilities",
+          "before": "hub:public_symbol:aspose.threed.utilities",
+          "fact_ids": [],
+          "id": "R05",
+          "path": "units.4.slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.animation",
+          "before": "hub:public_symbol:aspose.threed.animation",
+          "fact_ids": [],
+          "id": "R06",
+          "path": "units.5.slot"
+        }
+      ],
+      "label": "F03",
+      "outcome": "repaired",
+      "re_raised": [
+        "F03"
+      ],
+      "reason": null,
+      "request_sha256": "e83cc2a22ce82c34e0a360a8aa1b45741eea26cf9b8658faed144a6e918dd168",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "89c5b32eab2a3e1d496d5194": {
+      "changes": [
+        {
+          "after": "public_symbol:aspose.threed",
+          "before": "hub:public_symbol:aspose.threed",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units[0].slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.entities",
+          "before": "hub:public_symbol:aspose.threed.entities",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.units[1].slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.shading",
+          "before": "hub:public_symbol:aspose.threed.shading",
+          "fact_ids": [],
+          "id": "R03",
+          "path": "revised_output.units[2].slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.formats",
+          "before": "hub:public_symbol:aspose.threed.formats",
+          "fact_ids": [],
+          "id": "R04",
+          "path": "revised_output.units[3].slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.utilities",
+          "before": "hub:public_symbol:aspose.threed.utilities",
+          "fact_ids": [],
+          "id": "R05",
+          "path": "revised_output.units[4].slot"
+        },
+        {
+          "after": "public_symbol:aspose.threed.animation",
+          "before": "hub:public_symbol:aspose.threed.animation",
+          "fact_ids": [],
+          "id": "R06",
+          "path": "revised_output.units[5].slot"
+        }
+      ],
+      "label": "F03",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "0f8a9efcadc384436d1661dc3a659db562879596d064c66329448a13db94c015",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "b4f19a62e515689bbcdfde23": {
+      "changes": [
+        {
+          "after": "Clone the repository, install it in editable mode, and run the test suite with python -m unittest discover tests/ or a single test file with python -m unittest tests.test_obj_importer.",
+          "before": "Clone the repository, install it in editable mode, and run the test suite with python -m unittest discover tests/ or a single test file with python -m unittest tests.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F07",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "86a03f2eb029c39565d98f0e4081631bb29ac5c0b0ca3bf97029a4997aa2dc12",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "d00f3e57e5bf3fa45e28fd0d": {
+      "changes": [
+        {
+          "after": "The aspose.threed module provides core scene graph types including Scene, Node, and Mesh, with Scene.open() and Scene.save() handling file I/O using format-specific options such as ObjLoadOptions and GltfSaveOptions, and Scene.animation_clips exposing a list of AnimationClip objects.",
+          "before": "The aspose.threed module provides core scene graph types including Scene, Node, and Mesh, with Scene.open() and Scene.save() handling file I/O and Scene.animation_clips exposing animation data.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.scene",
+            "public_symbol:aspose.threed.animationclip",
+            "public_symbol:aspose.threed.formats"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F03",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "f6a6c26efdcfae0257c88a94b235f4403ebb5a98fa9b69b8f7703628c1267349",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "schema_version": 1
+}

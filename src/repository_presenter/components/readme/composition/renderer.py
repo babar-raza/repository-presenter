@@ -34,6 +34,7 @@ from repository_presenter.components.readme.composition.components.shell import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
+RENDERER_VERSION = "1"  # the template component version dependencies.json records
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 _PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})

@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-03T11:02:52+05:00"
+updated_at: "2026-09-03T11:19:45+05:00"
 
 authority:
   product: plans/idea.md
@@ -14,7 +14,7 @@ authority:
 
 progress:
   unit: current reviewable no-op-proven README candidates
-  current_candidates: 0
+  current_candidates: 1
   denominator: 34
   denominator_status: observed at the legacy freeze; frozen as a registry revision at G4
   canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python
@@ -29,7 +29,7 @@ accepted_gates:
 
 active_work_item:
   id: G1-W06
-  status: READY
+  status: IN_PROGRESS
   purpose: "Bundle, seal, and no-op - README.md, README.patch, facts.json, investigation.json, dispositions.json, plan.json, content_units.json, validation.json, review.json, repairs.json, calls.jsonl, dependencies.json with exact hashes of every consumed input, and manifest.json with checksums at candidates/<owner>__<name>/<revision>/ with CURRENT naming the revision; a fresh process on the same inputs reproduces the same bytes with zero calls and the ledger records cache reuse per job, which judges check 11; status prints 1/34; consumes OWNER-02 through the G1-W03 jobs."
   prerequisites:
     - G1-W05 is accepted and its pushed main has a green hosted CI run, checked at the start of the iteration.

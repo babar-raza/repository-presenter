@@ -1,0 +1,111 @@
+{
+  "advisory": [
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "and its current version is 26.1.0",
+      "repair": "Remove the claim about the current version being 26.1.0, as the version fact only confirms the package version is 26.1.0 but does not verify it is the current version in the repository.",
+      "section_id": "identity",
+      "text": "[reviewer-scope defect at S2: the quote contains the literal value of SUPPORTED fact package:version ('26.1.0'); literal fact text is supported] The package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12, and its current version is 26.1.0."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F02",
+      "quote": "pip install aspose-3d-foss",
+      "repair": "The installation command is factually correct, but the candidate omits the fact that the package is not yet published on PyPI, which is contradicted by the original README. Add a note clarifying that the package must be installed from source or a local clone if not yet published on PyPI.",
+      "section_id": "installation",
+      "text": "[reviewer-scope defect at S2: the quote contains the literal value of SUPPORTED fact install_command:pip ('pip install aspose-3d-foss'); literal fact text is supported] pip install aspose-3d-foss"
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "Hub APIs",
+      "repair": "Remove the 'Hub APIs' heading and integrate the hub API descriptions directly into the API reference section, as the original README does not use this terminology and it introduces non-standard, promotional phrasing.",
+      "section_id": "api_reference",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] Hub APIs"
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "id": "F04",
+      "quote": "Aspose.3D FOSS for Python focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF format pipelines, reading, building, and writing 3D scene data without rendering or rasterizing scenes, and does not implement the `aspose.threed.render` module or its related classes, nor does it support `Mesh` boolean operations or NURBS curve/surface evaluation.",
+      "repair": "The scope and limitations section duplicates content already present in the original README. Remove the duplicated paragraph to avoid redundancy and preserve the original structure and clarity.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] Aspose.3D FOSS for Python focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF format pipelines, reading, building, and writing 3D scene data without rendering or rasterizing scenes, and does not implement the `aspose.threed.render` module or its related classes, nor does it support `Mesh` boolean operations or NURBS curve/surface evaluation."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "id": "F05",
+      "quote": "COLLADA import works, but COLLADA export is not currently reachable through the public `Scene.save`() API — the exporter dispatcher registers `FbxExporter` ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree.",
+      "repair": "Replace 'raises an exception' with the precise `NotImplementedError` as used in the original README to maintain technical accuracy and consistency.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] COLLADA import works, but COLLADA export is not currently reachable through the public `Scene.save`() API — the exporter dispatcher registers `FbxExporter` ahead of the Collada plugin and raises an exception before the real Collada exporter is ever reached, even though a working implementation exists in the source tree."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "id": "F06",
+      "quote": "raise an exception",
+      "repair": "Replace 'raises an exception' with the precise `NotImplementedError` as used in the original README to maintain technical accuracy and consistency.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] FBX support is more limited than the other formats: the FBX tokenizer and parser are exercised by the test suite, but `FbxExporter.save`() and `FbxExporter.save_to_stream`() raise an exception, and full round-trip FBX import/export is not covered by the bundled tests the way OBJ, STL, glTF, COLLADA, and 3MF are."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F07",
+      "quote": "python -m unittest tests",
+      "repair": "Correct the incomplete command: use `python -m unittest tests.test_obj_importer` (or similar) to match the original README and the verified example fact.",
+      "section_id": "development_testing",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] Clone the repository, install it in editable mode, and run the test suite with python -m unittest discover tests/ or a single test file with python -m unittest tests."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "68c30172306bca26e69c821fa60635139411eb23d68cec23d0a9cbd4ec4a82ff",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "feb37d53f2e20e1c93ecd72777136230d7c4a4b9089cbfadc7f2e3a8c6f33b99",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "1096e72d8935e3e29308a331e472c0e198d8abaf9de5610e7aebfe982ae261e0",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_FACTUAL"
+}

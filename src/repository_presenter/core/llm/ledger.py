@@ -84,11 +84,20 @@ class Ledger:
 
     def __init__(self, path: Path) -> None:
         self.path = path
+        # The records this process appended, so a run can account for its own calls without
+        # re-reading a ledger that older runs may have written.
+        self.appended: list[CallRecord] = []
 
     def append(self, record: CallRecord) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8", newline="\n") as stream:
             stream.write(record.to_line() + "\n")
+        self.appended.append(record)
+
+    @property
+    def provider_calls_made(self) -> int:
+        """Provider calls this process made, across every job of the transaction."""
+        return sum(1 for record in self.appended if record.disposition == "provider_call")
 
     def records(self) -> list[CallRecord]:
         return load_records(self.path)

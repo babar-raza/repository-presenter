@@ -11,6 +11,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter import __version__
+from repository_presenter.components.readme.bundle.seal import SealInputs, seal_candidate
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
 )
@@ -52,7 +53,11 @@ from repository_presenter.components.readme.validation.registry import (
     blocking_failures,
     summarize_validation,
 )
-from repository_presenter.core.candidates import BundleError, count_current_candidates
+from repository_presenter.core.candidates import (
+    CANDIDATES_DIRNAME,
+    BundleError,
+    count_current_candidates,
+)
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.examples import (
@@ -300,13 +305,14 @@ def run_present(repository: str, root_argument: Path | None) -> int:
         # Stages S3 to S10 run as rounds: a blocking defect is repaired once at its causal
         # stage and the downstream stages re-run; a second equivalent failure is reported,
         # never retried.
+        ledger = Ledger(transaction / LEDGER_FILENAME)
         final, repairs, rounds = run_transaction(
             TransactionInputs(
                 entry=entry,
                 facts=document,
                 prompts=prompts,
                 config=config,
-                ledger=Ledger(transaction / LEDGER_FILENAME),
+                ledger=ledger,
                 store=CallStore(transaction / CALLS_DIRNAME),
                 context=JobContext(entry.repository, clone.revision),
                 original=original,
@@ -337,8 +343,31 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"{first['details'][0]}; {standing}"
         )
         return EXIT_INCONSISTENT
-    _fail("present: the seal stage is not implemented at this revision")
-    return EXIT_INCONSISTENT
+    # Stage S12: seal the accepted transaction; a fresh process that reproduces it byte for
+    # byte with zero provider calls is the no-op proof that judges check 11.
+    try:
+        sealed = seal_candidate(
+            SealInputs(
+                entry=entry,
+                source_revision=clone.revision,
+                tree_sha256=snapshot.tree_sha256,
+                facts=document,
+                prompts=prompts,
+                validation=final.validation,
+                transaction=transaction,
+                candidates=root / CANDIDATES_DIRNAME,
+                provider_calls=ledger.provider_calls_made,
+                secrets=configured_secrets(os.environ),
+            )
+        )
+    except PresenterError as exc:
+        _fail(redact(str(exc), live_values))
+        return exc.exit_code
+    print(
+        f"bundle: {sealed.bundle.relative_to(root).as_posix()} (state {sealed.state}, "
+        f"{len(sealed.files)} files, provider calls {ledger.provider_calls_made}; {sealed.note})"
+    )
+    return EXIT_OK
 
 
 def _print_round(root: Path, transaction: Path, final: Round) -> None:

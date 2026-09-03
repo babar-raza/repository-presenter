@@ -1,0 +1,669 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:python_requires",
+        "package:python_versions",
+        "package:version"
+      ],
+      "rationale": "The H1 product name is rendered deterministically from the identity section.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:spdx",
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021"
+      ],
+      "rationale": "The badge row is rendered deterministically from the badges section.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "public_symbol:aspose.threed",
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "rationale": "The paragraph's substance is supported and matches the opening section's required content.",
+      "unit_id": "inherited_unit:003.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016"
+      ],
+      "rationale": "The navigation heading and list are rendered deterministically from the navigation section.",
+      "unit_id": "inherited_unit:004.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016"
+      ],
+      "rationale": "The navigation list is rendered deterministically from the navigation section.",
+      "unit_id": "inherited_unit:005.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the at_a_glance section and is supported by the mermaid graph.",
+      "unit_id": "inherited_unit:006.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light",
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "rationale": "The mermaid graph is supported by the investigation's capabilities and workflows.",
+      "unit_id": "inherited_unit:007.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the key_capabilities section.",
+      "unit_id": "inherited_unit:008.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light",
+        "public_symbol:aspose.threed.fileformat",
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.keyframe"
+      ],
+      "rationale": "The list items are supported by the investigation's capabilities and workflows.",
+      "unit_id": "inherited_unit:009.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The installation heading is rendered deterministically from the installation section.",
+      "unit_id": "inherited_unit:010.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The paragraph claims no PyPI package is published, but the fact shows a pip install command exists.",
+      "unit_id": "inherited_unit:011.paragraph"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "rationale": "The editable install code block is contradicted by the verified pip install command.",
+      "unit_id": "inherited_unit:012.code_block"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip",
+        "package:python_requires",
+        "package:python_versions"
+      ],
+      "rationale": "The paragraph's Python version support claim is supported by the package facts.",
+      "unit_id": "inherited_unit:013.paragraph"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the quick_start section.",
+      "unit_id": "inherited_unit:014.heading"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The paragraph's quick start example is supported by the verified example fact.",
+      "unit_id": "inherited_unit:015.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "example:003"
+      ],
+      "rationale": "The code block is the verified example for quick start.",
+      "unit_id": "inherited_unit:016.code_block"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The paragraph's second quick start example is supported by the verified example fact.",
+      "unit_id": "inherited_unit:017.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:002",
+        "example:004"
+      ],
+      "rationale": "The code block is the verified example for quick start.",
+      "unit_id": "inherited_unit:018.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:019.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "example:006",
+        "example:007"
+      ],
+      "rationale": "The paragraph's preview text is supported by the additional verified examples.",
+      "unit_id": "inherited_unit:020.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:021.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The code block is the verified example for additional examples.",
+      "unit_id": "inherited_unit:022.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML block is a collapsible toggle and not material content.",
+      "unit_id": "inherited_unit:023.html_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:024.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The code block is the verified example for additional examples.",
+      "unit_id": "inherited_unit:025.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:026.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "COLLADA import is not covered by the investigation's workflows and is marked as unsupported.",
+      "unit_id": "inherited_unit:027.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:028.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:006"
+      ],
+      "rationale": "The code block is the verified example for additional examples.",
+      "unit_id": "inherited_unit:029.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the additional_examples section.",
+      "unit_id": "inherited_unit:030.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:007"
+      ],
+      "rationale": "The code block is the verified example for additional examples.",
+      "unit_id": "inherited_unit:031.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML block is a collapsible toggle and not material content.",
+      "unit_id": "inherited_unit:032.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:033.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "public_symbol:aspose.threed",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.animation"
+      ],
+      "rationale": "The paragraph's API organization is supported by the verified public symbols.",
+      "unit_id": "inherited_unit:034.paragraph"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "CORRECT_WITH_EVIDENCE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats"
+      ],
+      "rationale": "The blockquote warns about import pitfalls, but the fact shows formats is a verified public symbol.",
+      "unit_id": "inherited_unit:035.blockquote"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML block is a collapsible toggle and not material content.",
+      "unit_id": "inherited_unit:036.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:037.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entity",
+        "public_symbol:aspose.threed.transform",
+        "public_symbol:aspose.threed.globaltransform"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:038.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:039.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.cylinder",
+        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:040.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:041.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:042.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:043.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:044.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:046.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:047.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:048.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the api_reference section.",
+      "unit_id": "inherited_unit:049.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.importexception",
+        "public_symbol:aspose.threed.exportexception",
+        "public_symbol:aspose.threed.parseexception"
+      ],
+      "rationale": "The list items are supported by the verified public symbols.",
+      "unit_id": "inherited_unit:050.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML block is a collapsible toggle and not material content.",
+      "unit_id": "inherited_unit:051.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the documentation_resources section.",
+      "unit_id": "inherited_unit:052.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020"
+      ],
+      "rationale": "The list items are supported by the verified link targets.",
+      "unit_id": "inherited_unit:053.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the scope_limitations section.",
+      "unit_id": "inherited_unit:054.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "rationale": "The paragraph's limitations are supported by the investigation's limitations.",
+      "unit_id": "inherited_unit:055.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "rationale": "The paragraph's FBX limitations are supported by the investigation's limitations.",
+      "unit_id": "inherited_unit:056.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "rationale": "The paragraph's COLLADA export limitation is supported by the investigation's limitations.",
+      "unit_id": "inherited_unit:057.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "rationale": "The paragraph's enterprise edition link is supported and moved to the enterprise_relationship section.",
+      "unit_id": "inherited_unit:058.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [],
+      "rationale": "The heading matches the development_testing section.",
+      "unit_id": "inherited_unit:059.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_REWRITE",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "rationale": "The paragraph's development instructions are supported by the build_test_asset facts.",
+      "unit_id": "inherited_unit:060.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "rationale": "The code block is the verified test command.",
+      "unit_id": "inherited_unit:061.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "rationale": "The paragraph's single test file command is supported by the build_test_asset facts.",
+      "unit_id": "inherited_unit:062.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "rationale": "The code block is the verified single test command.",
+      "unit_id": "inherited_unit:063.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The dev extra is not supported by the build_test_asset facts.",
+      "unit_id": "inherited_unit:064.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The license heading is rendered deterministically from the license section.",
+      "unit_id": "inherited_unit:065.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph's license declaration is supported by the license facts.",
+      "unit_id": "inherited_unit:066.paragraph"
+    }
+  ]
+}

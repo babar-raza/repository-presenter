@@ -1,0 +1,239 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:006",
+    "example:007"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.keyframe",
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+    }
+  ],
+  "at_a_glance": null,
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light"
+      ],
+      "title": "Build 3D scenes programmatically"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "title": "Import multiple 3D formats"
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "title": "Export to common 3D formats"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "title": "Assign materials to scene entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "title": "Work with math utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.keyframe"
+      ],
+      "title": "Support animation with keyframes"
+    }
+  ],
+  "deviations": [],
+  "links": [
+    {
+      "link_fact_id": "link_target:017",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:018",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:003",
+  "sections": [
+    {
+      "include": true,
+      "reason": "Required section; H1 product name is rendered deterministically from identity facts.",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "Required section; badge row is rendered deterministically from license and version facts.",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "Required section; supported by repository, platform, ecosystem, and package facts.",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "Required section; navigation list is rendered deterministically from link targets.",
+      "section_id": "navigation"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'at least one verified input format and one capability' is false; no SUPPORTED input format facts exist.",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "Required section; supported by verified capabilities and workflows.",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "Required section; pip install command is verified.",
+      "section_id": "installation"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'non-trivial runtime dependencies' is false; package declares no third-party dependencies.",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "Required section; example:003 and example:004 are verified and support quick start.",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'at least one further verified example' holds; example:006 and example:007 are additional verified examples.",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'the plan finds it useful' is null; visitor benefits from curated hub APIs with hubs listed.",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'verified relevant targets exist' holds; link_target facts are verified.",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "Required section; material limitations are supported by inherited units and investigation.",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "Condition 'build or test assets exist' holds; tests/ and .github/workflows/ assets are verified.",
+      "section_id": "development_testing"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'a verified aspose.com product target exists in policy' is false; enterprise_target_url is null.",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "Condition 'the file exists' is false; no license file fact supports this section.",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "Required section; license facts are verified.",
+      "section_id": "license"
+    }
+  ]
+}

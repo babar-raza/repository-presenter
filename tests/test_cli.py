@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -680,8 +681,51 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert review_request["response_format"]["json_schema"]["name"] == "independent_review"
     assert "# Aspose.3D FOSS for Python" in review_request["messages"][1]["content"]
     assert "Original bytes." in review_request["messages"][1]["content"]
-    assert code == EXIT_INCONSISTENT
-    assert "seal stage is not implemented" in captured.err
+    assert code == EXIT_OK and captured.err == ""
+    bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
+    assert (
+        f"bundle: {bundle_dir} (state ACCEPTED, 11 files, provider calls 11; sealed; "
+        "the no-op proof needs a rerun in a fresh process)"
+    ) in captured.out
+    bundle = project_with_registry / bundle_dir
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "ACCEPTED" and manifest["no_op_proof"] is None
+    assert manifest["revision"] == revision and manifest["provider_calls"] == 11
+    assert sorted(manifest["files"]) == sorted(
+        [
+            "README.md",
+            "README.patch",
+            "calls.jsonl",
+            "content_units.json",
+            "dependencies.json",
+            "dispositions.json",
+            "facts.json",
+            "investigation.json",
+            "plan.json",
+            "review.json",
+            "validation.json",
+        ]
+    )  # repairs.json exists only once a repair loop ran
+    for name, digest in manifest["files"].items():
+        data = (bundle / name).read_bytes()
+        assert digest == {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+    assert (bundle / "README.md").read_bytes() == readme_text.encode("utf-8")
+    assert (bundle.parent / "CURRENT").read_text("utf-8") == f"{revision}\n"
+    dependencies = json.loads((bundle / "dependencies.json").read_text("utf-8"))
+    assert dependencies["source"]["revision"] == revision
+    assert set(dependencies["prompts"]) == {
+        "repository_investigation",
+        "source_reconciliation",
+        "presentation_planning",
+        "section_authoring",
+        "independent_review",
+        "targeted_repair",
+    }
+    assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
+        "shell": "1",
+        "renderer": "1",
+    }
+    assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
         {
             "clone_url": f"https://github.com/{CANARY}.git",
@@ -819,7 +863,7 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     }
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     captured = capsys.readouterr()
-    assert code == EXIT_INCONSISTENT and "seal stage is not implemented" in captured.err
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
     assert (
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 2"
     ) in captured.out
@@ -851,8 +895,17 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
 
     again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     rerun = capsys.readouterr().out
-    assert again == EXIT_INCONSISTENT
+    assert again == EXIT_OK
     assert digests(rerun) == first_digests and len(first_digests) == 10
+    # The rerun is the fresh-process no-op proof: the bundle moves to READY_FOR_PROPOSAL.
+    assert "state READY_FOR_PROPOSAL" in rerun and "check 11 judged" in rerun
+    bundle = next((project_with_registry / "candidates").glob("*/*/manifest.json")).parent
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL"
+    assert manifest["no_op_proof"]["provider_calls"] == 0 and manifest["provider_calls"] == 0
+    bundle_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
+    assert bundle_validation["summary"] == {"pass": 11, "fail": 0, "pending": 0}
+    assert (bundle / "README.md").read_bytes() == (transaction / "README.md").read_bytes()
     assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 14
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
     assert (
@@ -885,7 +938,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     captured = capsys.readouterr()
     # The re-raised finding had its one attempt: it is recorded advisory and never blocks
     # again, so the candidate proceeds on the blocking findings that remain, which is none.
-    assert code == EXIT_INCONSISTENT and "seal stage is not implemented" in captured.err
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
     assert (
         "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory, "
         "1 re-raised after repair recorded advisory; rounds 2"
@@ -905,7 +958,7 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     # The rerun reaches the same outcome from the stored outputs with no call.
     again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     rerun = capsys.readouterr()
-    assert again == EXIT_INCONSISTENT and "seal stage is not implemented" in rerun.err
+    assert again == EXIT_OK and "state READY_FOR_PROPOSAL" in rerun.out
     assert len(gateway_ready.requests) == 14
     assert json.loads((transaction / "review.json").read_text("utf-8")) == review
 

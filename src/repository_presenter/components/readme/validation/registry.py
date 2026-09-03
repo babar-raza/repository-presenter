@@ -898,6 +898,34 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
     }
 
 
+def record_replay_verdict(document: dict[str, Any]) -> dict[str, Any]:
+    """validation.json with check 11 judged PASS by the fresh-process no-op proof."""
+    checks = [
+        {
+            **check,
+            "verdict": "PASS",
+            "causal_stage": None,
+            "details": [
+                "judged by the fresh-process replay: every artifact byte-identical, zero "
+                "provider calls"
+            ],
+        }
+        if check.get("id") == "BC-11"
+        else check
+        for check in document.get("checks", [])
+    ]
+    verdicts = Counter(check["verdict"] for check in checks)
+    return {
+        **document,
+        "checks": checks,
+        "summary": {
+            "pass": verdicts.get("PASS", 0),
+            "fail": verdicts.get("FAIL", 0),
+            "pending": verdicts.get("PENDING", 0),
+        },
+    }
+
+
 def blocking_failures(document: dict[str, Any]) -> list[dict[str, Any]]:
     return [check for check in document.get("checks", []) if check.get("verdict") == "FAIL"]
 

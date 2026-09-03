@@ -1,0 +1,192 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:python_requires"
+    ],
+    "text": "Python developers who need to programmatically create, inspect, and convert 3D scene data without native dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.camera",
+        "public_symbol:aspose.threed.light"
+      ],
+      "text": "Construct hierarchical scene graphs using Scene, Node, Mesh, Camera, and Light objects.",
+      "title": "Build 3D scenes programmatically"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "text": "Import OBJ (with .mtl materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (.dae), and 3MF files into a common Scene model.",
+      "title": "Import multiple 3D formats"
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "text": "Export Scene objects to OBJ, STL, glTF/GLB, and 3MF using Scene.save() with appropriate save options.",
+      "title": "Export to common 3D formats"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "text": "Assign PbrMaterial and other material types to nodes with properties like albedo, metallic_factor, and roughness_factor.",
+      "title": "Assign materials to scene entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.mathutils"
+      ],
+      "text": "Use Vector2/3/4, Matrix4, Quaternion, and BoundingBox types for transforms and spatial queries.",
+      "title": "Work with math utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.keyframe"
+      ],
+      "text": "Define animations using AnimationClip, KeyframeSequence, KeyFrame, and AnimationNode to bind keyframes to node or material properties.",
+      "title": "Support animation with keyframes"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "text": "COLLADA export is not reachable through the public Scene.save() API; the exporter dispatcher raises NotImplementedError before the Collada exporter is invoked."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "text": "FBX export via FbxExporter.save() and FbxExporter.save_to_stream() raises NotImplementedError; FBX support is experimental and not covered by full round-trip tests."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "text": "Mesh boolean operations (union, difference, intersect) and NURBS evaluation raise NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "text": "The aspose.threed.render module (Renderer, IRenderWindow, etc.) is not implemented; this library does not render or rasterize scenes."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "example:006",
+        "example:007"
+      ],
+      "text": "Enables programmatic construction and manipulation of 3D scene graphs using high-level Python objects like Scene, Node, Mesh, and primitives."
+    },
+    {
+      "fact_ids": [
+        "format:output.gltf",
+        "format:output.stl",
+        "example:003",
+        "example:004",
+        "example:007"
+      ],
+      "text": "Supports round-trip import and export of common 3D formats—OBJ, STL, glTF, COLLADA, and 3MF—without requiring external native libraries."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.cylinder",
+        "public_symbol:aspose.threed.sphere"
+      ],
+      "text": "Provides built-in parametric primitives (Box, Cylinder, Sphere, etc.) that can be converted to triangulated meshes for further processing."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "text": "Supports PBR and legacy material assignment (Lambert, Phong) with glTF-compatible properties for realistic rendering workflows."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name"
+    ],
+    "text": "Aspose.3D FOSS for Python is a pure-Python, open-source library for building, importing, and exporting 3D scenes using an Aspose.3D-compatible API."
+  },
+  "uncertainties": [
+    "Whether COLLADA import fully supports all material and texture features beyond what the examples demonstrate.",
+    "Whether the Scene.from_file() method behaves identically to Scene.open() for all supported formats.",
+    "Whether the Scene.animation_clips property is populated automatically during import or only when explicitly created.",
+    "Whether the Scene.clear() method resets animation clips or only the scene graph nodes."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Create a mesh from control points and export to STL",
+      "text": "Construct a Mesh by adding Vector4 control points and polygons, attach it to a Node in a Scene, and save to STL using FileFormat.get_format_by_extension and StlSaveOptions."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "name": "Assign PBR material and export to glTF",
+      "text": "Create a Mesh, assign a PbrMaterial with albedo, metallic_factor, and roughness_factor to a Node, and save to glTF using GltfSaveOptions with explicit FileFormat."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.cylinder",
+        "public_symbol:aspose.threed.sphere"
+      ],
+      "name": "Convert a primitive to a mesh",
+      "text": "Instantiate a Box, Cylinder, Sphere, or other primitive and call to_mesh() to obtain a triangulated Mesh."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "public_symbol:aspose.threed.formats"
+      ],
+      "name": "Build a cube and export to 3MF",
+      "text": "Manually construct a cube mesh with 8 control points and 12 polygons, attach it to a Node, and save using ThreeMfSaveOptions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "name": "Inspect or convert loaded scenes",
+      "text": "Load OBJ, STL, glTF, COLLADA, or 3MF files using Scene.open() and inspect or modify the resulting node graph before saving to another format."
+    }
+  ]
+}
