@@ -740,8 +740,14 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
 
 
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
-REVIEWER_SHA = load_manifests(REPO_ROOT / "prompts")["independent_review"].sha256
-OPENING_FINGERPRINT = defect_fingerprint("review", "opening", "S6", "factuality", REVIEWER_SHA)
+_PROMPTS = load_manifests(REPO_ROOT / "prompts")
+OPENING_FINGERPRINT = defect_fingerprint(
+    "review",
+    "opening",
+    "S6",
+    "factuality",
+    f"{_PROMPTS['independent_review'].sha256}|{_PROMPTS['targeted_repair'].sha256}",
+)
 REVISED_OPENING = (
     "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
     "Python developers use it to write GLB files from code."
@@ -801,9 +807,12 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    sibling = _rejection("F02", "builds scenes in memory")["findings"][0]
+    first_review = _rejection("F01")
+    first_review["findings"].append(sibling)
     gateway_ready.queues = {
         "independent_review": [
-            _rejection("F01"),
+            first_review,
             {"verdict": "ACCEPT", "findings": [], "preserve": []},
         ],
         "targeted_repair": [_opening_repair()],
@@ -811,13 +820,14 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     captured = capsys.readouterr()
     assert code == EXIT_INCONSISTENT and "seal stage is not implemented" in captured.err
-    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 2" in (
-        captured.out
-    )
+    assert (
+        "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 2"
+    ) in captured.out
     names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
     assert names[11:] == ["targeted_repair", "section_authoring", "independent_review"]
     repair_request = gateway_ready.requests[11]["messages"][1]["content"]
     assert "Causal stage: S6" in repair_request and OPENING_QUOTE in repair_request
+    assert '"equivalent_findings"' in repair_request and '"F02"' in repair_request
     assert '"the quick start"' in repair_request
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     readme = (transaction / "README.md").read_text("utf-8")
@@ -845,9 +855,9 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     assert digests(rerun) == first_digests and len(first_digests) == 10
     assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 14
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
-    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 1" in (
-        rerun
-    )
+    assert (
+        "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 1"
+    ) in rerun
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
     # Round one and the repair call the provider; round two reuses every unchanged stage and
     # calls only coherence and the review; the rerun reuses everything.
@@ -873,15 +883,31 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     }
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     captured = capsys.readouterr()
-    assert code == EXIT_INCONSISTENT
+    # The re-raised finding had its one attempt: it is recorded advisory and never blocks
+    # again, so the candidate proceeds on the blocking findings that remain, which is none.
+    assert code == EXIT_INCONSISTENT and "seal stage is not implemented" in captured.err
     assert (
-        "validation: BC-10 failed at COMPOSING: REJECT_PRESENTATION; "
-        "after one repair attempt the equivalent failure stands"
-    ) in captured.err
-    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 2" in (
-        captured.out
-    )
+        "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory, "
+        "1 re-raised after repair recorded advisory; rounds 2"
+    ) in captured.out
     assert len(gateway_ready.requests) == 14
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
+    assert [f["id"] for f in review["advisory"]] == ["F02"]
+    assert review["advisory"][0]["text"].startswith(
+        "[reviewer-scope defect at S6: re-raised after the one repair attempt"
+    )
+    validation = json.loads((transaction / "validation.json").read_text("utf-8"))
+    assert validation["summary"] == {"pass": 10, "fail": 0, "pending": 1}
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    assert repairs["attempts"][OPENING_FINGERPRINT]["re_raised"] == ["F02"]
+    # The rerun reaches the same outcome from the stored outputs with no call.
+    again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    rerun = capsys.readouterr()
+    assert again == EXIT_INCONSISTENT and "seal stage is not implemented" in rerun.err
+    assert len(gateway_ready.requests) == 14
+    assert json.loads((transaction / "review.json").read_text("utf-8")) == review
 
 
 def test_present_records_an_unrepairable_finding_as_advisory_and_stops(

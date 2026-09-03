@@ -12,6 +12,7 @@ from repository_presenter.components.readme.repair.targeted import (
     Defect,
     RepairLedger,
     defect_fingerprint,
+    merge_equivalent,
     repair_checks,
     repair_packet,
     review_defects,
@@ -89,15 +90,31 @@ def test_review_findings_route_to_the_stage_a_repair_may_revise() -> None:
     # Equivalent targets share a fingerprint; the label and the named stage do not matter.
     assert defects["F01"].fingerprint == defects["F02"].fingerprint == defects["F03"].fingerprint
     assert defects["F01"].fingerprint != defects["F07"].fingerprint
-    assert defects["F01"].fingerprint == defect_fingerprint("review", "opening", "S6", "factuality")
+    assert defects["F01"].fingerprint == defect_fingerprint(
+        "review", "opening", "S6", "factuality", "|"
+    )
     # A changed reviewer prompt is a changed mechanism: the same target may be attempted again.
     rejudged = review_defects(
         {**review, "reviewer": {"prompt_sha256": "x" * 64}}, FACTS, LLM_SECTIONS
     )
     assert rejudged[0].fingerprint != defects["F01"].fingerprint
     assert rejudged[0].fingerprint == defect_fingerprint(
-        "review", "opening", "S6", "factuality", "x" * 64
+        "review", "opening", "S6", "factuality", "x" * 64 + "|"
     )
+    # So is a changed repair prompt.
+    repaired_differently = review_defects(review, FACTS, LLM_SECTIONS, repairer="r" * 64)
+    assert repaired_differently[0].fingerprint == defect_fingerprint(
+        "review", "opening", "S6", "factuality", "|" + "r" * 64
+    )
+    # Equivalent defects of one round fold into one repair that sees every finding.
+    folded = {d.fingerprint: d for d in merge_equivalent(list(defects.values()))}
+    opening = folded[defects["F01"].fingerprint]
+    assert opening.label == "F01+F02+F03+F04+F05"
+    assert [f["id"] for f in opening.record["equivalent_findings"]] == ["F02", "F03", "F04", "F05"]
+    assert (
+        opening.record["id"] == "F01" and defects["F01"].record.get("equivalent_findings") is None
+    )
+    assert len(folded) == len({d.fingerprint for d in defects.values()})
 
 
 def test_validation_failures_route_by_causal_state_and_named_section() -> None:
@@ -148,6 +165,13 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
         "changes": [],
     }
     assert reloaded.summary() == "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory"
+    reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
+    reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
+    assert RepairLedger(tmp_path / "repairs.json").attempts["abc"]["re_raised"] == ["F03"]
+    assert reloaded.summary() == (
+        "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory, "
+        "1 re-raised after repair recorded advisory"
+    )
     data = (tmp_path / "repairs.json").read_bytes()
     assert data.endswith(b"}\n") and list(json.loads(data)) == ["attempts", "schema_version"]
 

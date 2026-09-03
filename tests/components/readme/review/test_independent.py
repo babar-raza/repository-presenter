@@ -8,6 +8,7 @@ from typing import Any
 
 from repository_presenter.components.readme.review.independent.review import (
     CAUSAL_STATES,
+    demote_findings,
     review_checks,
     review_document,
     review_packet,
@@ -205,6 +206,17 @@ def test_the_document_splits_advisory_findings_and_records_both_identities(
     assert unfounded["verdict"] == "ACCEPT"
     assert unfounded["verdict_as_returned"] == "REJECT_PRESENTATION"
     assert [f["id"] for f in unfounded["advisory"]] == ["F02", "F03"]
+    # A blocking finding re-raised after its one repair attempt is demoted the same way.
+    demoted = demote_findings(document, ["F01"])
+    assert demoted["verdict"] == "ACCEPT" and demoted["findings"] == []
+    assert [f["id"] for f in demoted["advisory"]] == ["F02", "F03", "F01"]
+    assert demoted["advisory"][2]["causal_stage"] == "unclear"
+    assert demoted["advisory"][2]["causal_state"] is None
+    assert demoted["advisory"][2]["text"].startswith(
+        "[reviewer-scope defect at S4: re-raised after the one repair attempt its fingerprint "
+        "allows] A claim"
+    )
+    assert demote_findings(document, ["F09"]) == document
     assert document["findings"][0]["causal_state"] == "RECONCILING"
     assert [f["id"] for f in document["advisory"]] == ["F02", "F03"]
     assert document["reviewer"]["job"] == "independent_review"

@@ -61,6 +61,7 @@ from repository_presenter.components.readme.repair.targeted import (
     STAGE_JOBS,
     Defect,
     RepairLedger,
+    merge_equivalent,
     repair_checks,
     repair_packet,
     review_defects,
@@ -68,6 +69,7 @@ from repository_presenter.components.readme.repair.targeted import (
 )
 from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
+    demote_findings,
     review_checks,
     review_document,
     review_packet,
@@ -250,8 +252,9 @@ def run_round(tx: TransactionInputs) -> Round:
     return current
 
 
-def round_defects(current: Round, facts: FactsDocument) -> list[Defect]:
+def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
     """The blocking defects of a round: failing checks first, then the review's findings."""
+    repairer = tx.prompts["targeted_repair"].sha256
     review_failed = any(
         check.get("id") == "BC-10" and check.get("verdict") == "FAIL"
         for check in current.validation.get("checks", [])
@@ -264,9 +267,10 @@ def round_defects(current: Round, facts: FactsDocument) -> list[Defect]:
     defects = validation_defects(
         {"checks": checks, "validator_version": current.validation.get("validator_version")},
         current.llm_sections,
+        repairer,
     )
     if review_failed:
-        defects.extend(review_defects(current.review, facts, current.llm_sections))
+        defects.extend(review_defects(current.review, tx.facts, current.llm_sections, repairer))
     return defects
 
 
@@ -319,6 +323,22 @@ def repair_defect(
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
 
+def demote_re_raised(
+    tx: TransactionInputs, current: Round, repeated: Sequence[Defect], repairs: RepairLedger
+) -> Round:
+    """Record the re-raised findings and rewrite review.json and validation.json so the
+    verdict follows the blocking findings that remain."""
+    for defect in repeated:
+        repairs.note_re_raised(defect)
+    current.review = demote_findings(current.review, [d.label for d in repeated])
+    current.digests["review"] = write_review(current.review, tx.directory / REVIEW_FILENAME)
+    current.validation = record_review_verdict(current.validation, current.review)
+    current.digests["validation"] = write_validation(
+        current.validation, tx.directory / VALIDATION_FILENAME
+    )
+    return current
+
+
 def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:
     """Rounds until the candidate is accepted, a defect cannot be repaired, or a fingerprint
     would be attempted twice; returns the last round, the attempts, and the round count."""
@@ -326,21 +346,29 @@ def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:
     current = run_round(tx)
     rounds = 1
     while rounds < MAX_ROUNDS:
-        defects = round_defects(current, tx.facts)
+        defects = round_defects(current, tx)
         if not defects:
             break
         for defect in defects:
             if not defect.repairable and not repairs.attempted(defect.fingerprint):
                 repairs.record(defect, "unrepairable")
         repeated = [d for d in defects if d.repairable and repairs.attempted(d.fingerprint)]
-        # One attempt per fingerprint: equivalent defects of one round share the first's repair.
-        fresh: dict[str, Defect] = {}
-        for defect in defects:
-            if defect.repairable and not repairs.attempted(defect.fingerprint):
-                fresh.setdefault(defect.fingerprint, defect)
-        if repeated or not fresh:
+        if any(d.source == "validation" for d in repeated):
+            break  # a blocking check failed again after its one repair: reported, never retried
+        if repeated:
+            # A review finding re-raised after its one attempt is a reviewer-scope defect:
+            # recorded advisory, it never blocks a second time (README_CONTRACT.md section 6).
+            current = demote_re_raised(tx, current, repeated, repairs)
+            defects = round_defects(current, tx)
+            if not defects:
+                break
+        # One attempt per fingerprint: the round's equivalent defects fold into one repair.
+        fresh = merge_equivalent(
+            [d for d in defects if d.repairable and not repairs.attempted(d.fingerprint)]
+        )
+        if not fresh:
             break
-        for defect in fresh.values():
+        for defect in fresh:
             repair_defect(tx, current, defect, repairs)
         current = run_round(tx)
         rounds += 1

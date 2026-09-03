@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -87,10 +87,11 @@ def defect_fingerprint(
 
 
 def review_defects(
-    review: dict[str, Any], facts: FactsDocument, llm_sections: set[str]
+    review: dict[str, Any], facts: FactsDocument, llm_sections: set[str], repairer: str = ""
 ) -> list[Defect]:
-    """The review's blocking findings routed to the stage a repair may revise."""
-    context = str(review.get("reviewer", {}).get("prompt_sha256", ""))
+    """The review's blocking findings routed to the stage a repair may revise; ``repairer`` is
+    the repair prompt's hash, part of the fingerprint like the reviewer's own."""
+    context = f"{review.get('reviewer', {}).get('prompt_sha256', '')}|{repairer}"
     defects: list[Defect] = []
     for finding in review.get("findings", []):
         section = str(finding.get("section_id") or "") or None
@@ -127,10 +128,12 @@ def review_defects(
     return defects
 
 
-def validation_defects(validation: dict[str, Any], llm_sections: set[str]) -> list[Defect]:
+def validation_defects(
+    validation: dict[str, Any], llm_sections: set[str], repairer: str = ""
+) -> list[Defect]:
     """The failing blocking checks routed to the stage a repair may revise."""
     defects: list[Defect] = []
-    context = str(validation.get("validator_version", ""))
+    context = f"{validation.get('validator_version', '')}|{repairer}"
     for check in validation.get("checks", []):
         if check.get("verdict") != "FAIL":
             continue
@@ -169,6 +172,24 @@ def validation_defects(validation: dict[str, Any], llm_sections: set[str]) -> li
     return defects
 
 
+def merge_equivalent(defects: Sequence[Defect]) -> list[Defect]:
+    """One defect per fingerprint, carrying every equivalent finding of the round, so the one
+    repair the fingerprint allows sees the whole set rather than the first alone."""
+    merged: dict[str, Defect] = {}
+    for defect in defects:
+        first = merged.get(defect.fingerprint)
+        if first is None:
+            merged[defect.fingerprint] = defect
+            continue
+        equivalent = [*first.record.get("equivalent_findings", []), defect.record]
+        merged[defect.fingerprint] = replace(
+            first,
+            label=f"{first.label}+{defect.label}",
+            record={**first.record, "equivalent_findings": equivalent},
+        )
+    return list(merged.values())
+
+
 @dataclass
 class RepairLedger:
     """repairs.json: every attempt by fingerprint; a second equivalent failure is never retried."""
@@ -203,6 +224,15 @@ class RepairLedger:
         }
         self.write()
 
+    def note_re_raised(self, defect: Defect) -> None:
+        """A finding re-raised after its fingerprint's one attempt: recorded, never retried."""
+        attempt = self.attempts[defect.fingerprint]
+        re_raised = list(attempt.get("re_raised", []))
+        if defect.label not in re_raised:
+            re_raised.append(defect.label)
+        attempt["re_raised"] = re_raised
+        self.write()
+
     def write(self) -> None:
         document = {"schema_version": 1, "attempts": self.attempts}
         data = json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
@@ -216,8 +246,11 @@ class RepairLedger:
             if a["outcome"] == "repaired"
         )
         advisory = sum(1 for a in self.attempts.values() if a["outcome"] == "unrepairable")
+        re_raised = sum(len(a.get("re_raised", [])) for a in self.attempts.values())
         parts = [f"{len(repaired)} repaired" + (f" ({', '.join(repaired)})" if repaired else "")]
         parts.append(f"{advisory} unrepairable recorded advisory")
+        if re_raised:
+            parts.append(f"{re_raised} re-raised after repair recorded advisory")
         return ", ".join(parts)
 
 
