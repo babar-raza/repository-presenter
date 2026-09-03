@@ -146,3 +146,24 @@ def test_a_supersession_by_an_absent_section_is_deferred_for_the_owner() -> None
     assert output["dispositions"][0]["disposition"] == "DEFER_UNRESOLVED"
     assert output["dispositions"][0]["destination_section"] is None
     assert output["dispositions"][1]["disposition"] == "SUPERSEDE_REDUNDANT"
+
+
+def test_a_command_block_is_never_omitted_while_build_facts_exist() -> None:
+    block = Fact(
+        "inherited_unit:071.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "python -m unittest discover tests/" + chr(10) + "```",
+        (Evidence("README.md", "lines 1-3; code_block"),),
+    )
+    assets = Fact("build_test_asset:tests", "build_test_asset", "tests/", (Evidence("tests/"),))
+    omitted = {"dispositions": [_entry("inherited_unit:071.code_block", "OMIT_UNSUPPORTED", None)]}
+    with_assets = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, block, assets)
+    )
+    without = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, block))
+    assert placement_errors(omitted, with_assets) == [
+        "inherited_unit:071.code_block: a command block is never OMIT_UNSUPPORTED while build "
+        "or install facts exist (build_test_asset:tests); choose VERIFIED_PRESERVE into "
+        "development_testing, or SUPERSEDE_REDUNDANT by installation for an install command"
+    ]
+    assert placement_errors(omitted, without) == []

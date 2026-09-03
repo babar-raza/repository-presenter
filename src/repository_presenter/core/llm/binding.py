@@ -59,6 +59,49 @@ def collect_ids(payload: Any) -> CitedIds:
     return CitedIds(tuple(fact_ids), tuple(unit_ids))
 
 
+def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, str]]:
+    """Rewrite, in place, a cited public_symbol ID the facts do not carry to the shortest
+    SUPPORTED public_symbol ID with the same final name segment, and return the rewrites.
+
+    A job names a symbol by the path it reads (``aspose.threed.LambertMaterial``) while the
+    facts record it where it is defined (``aspose.threed.shading.LambertMaterial``) and again
+    at each re-export; the shortest ID is the package-level export. A name no fact carries
+    stays as cited and rejects the output as before.
+    """
+    known = {fact.id for fact in facts.facts}
+    by_name: dict[str, list[str]] = {}
+    for fact in facts.by_kind("public_symbol"):
+        if fact.polarity == "SUPPORTED":
+            by_name.setdefault(fact.id.rsplit(".", 1)[-1], []).append(fact.id)
+    rewrites: dict[str, str] = {}
+
+    def resolve(value: str) -> str:
+        if value in known or not value.startswith("public_symbol:"):
+            return value
+        candidates = by_name.get(value.rsplit(".", 1)[-1], [])
+        if not candidates:
+            return value
+        target = min(candidates, key=lambda i: (len(i), i))
+        rewrites[value] = target
+        return target
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if _is_fact_key(key) and isinstance(value, str):
+                    node[key] = resolve(value)
+                elif _is_fact_key(key) and isinstance(value, list):
+                    node[key] = [resolve(v) if isinstance(v, str) else v for v in value]
+                else:
+                    walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(payload)
+    return sorted(rewrites.items())
+
+
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:
     """Why the output may not be used, or an empty list when every citation holds."""
     known = {fact.id: fact for fact in facts.facts}

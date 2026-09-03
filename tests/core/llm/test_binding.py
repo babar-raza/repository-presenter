@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
-from repository_presenter.core.llm.binding import binding_errors, collect_ids
+from repository_presenter.core.llm.binding import binding_errors, collect_ids, resolve_symbol_ids
 
 
 def _fact(fact_id: str, kind: str, polarity: str = "SUPPORTED") -> Fact:
@@ -84,3 +84,46 @@ def test_unit_bindings_name_every_inherited_unit_exactly_once() -> None:
         "no disposition for inherited units: inherited_unit:002.paragraph",
         "more than one disposition for: inherited_unit:001.heading",
     ]
+
+
+def test_a_symbol_cited_by_its_read_path_binds_to_the_shortest_supported_fact() -> None:
+    facts = FactsDocument(
+        "org/repo",
+        "a" * 40,
+        (
+            _fact("public_symbol:aspose.threed.shading.lambertmaterial", "public_symbol"),
+            _fact(
+                "public_symbol:aspose.threed.shading.lambertmaterial.lambertmaterial",
+                "public_symbol",
+            ),
+            _fact("public_symbol:aspose.threed.scene", "public_symbol", "CONTRADICTED"),
+        ),
+    )
+    payload = {
+        "api_hubs": [{"symbol_fact_id": "public_symbol:aspose.threed.lambertmaterial"}],
+        "core_capabilities": [
+            {
+                "fact_ids": [
+                    "public_symbol:aspose.threed.lambertmaterial",
+                    "public_symbol:aspose.threed.nothing",
+                ]
+            }
+        ],
+    }
+    rewrites = resolve_symbol_ids(payload, facts)
+    assert rewrites == [
+        (
+            "public_symbol:aspose.threed.lambertmaterial",
+            "public_symbol:aspose.threed.shading.lambertmaterial",
+        )
+    ]
+    assert (
+        payload["api_hubs"][0]["symbol_fact_id"]
+        == "public_symbol:aspose.threed.shading.lambertmaterial"
+    )
+    assert binding_errors(payload, facts, "selection_ids") == [
+        "unknown fact ID public_symbol:aspose.threed.nothing"
+    ]
+    # A contradicted symbol is never a resolution target, and a known ID is left alone.
+    scene = {"fact_ids": ["public_symbol:aspose.threed.scene", "public_symbol:x.scene"]}
+    assert resolve_symbol_ids(scene, facts) == []

@@ -238,7 +238,7 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert "## Old limitations heading" not in lines
     assert lines.count("## Scope and Limitations") == 1
     assert readme.count("print(2)") == 1
-    assert "- `tests/`" in lines
+    assert "- `tests/`" not in lines  # assets are named in prose, never listed bare
     assert lines[-1] == (
         "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, "
         "copying, modification, distribution, sublicensing, and commercial use, provided its "
@@ -456,3 +456,36 @@ def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> 
 def test_a_package_registry_name_stays_plain_in_prose() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."
+
+
+def test_development_and_testing_states_the_suite_size_and_links_the_release_workflow() -> None:
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "build_test_asset:tests"),
+            Fact(
+                "build_test_asset:tests",
+                "build_test_asset",
+                "tests/",
+                (Evidence("tests/test_a.py"), Evidence("tests/", "34 files; test suite")),
+            ),
+            Fact(
+                "build_test_asset:ci",
+                "build_test_asset",
+                ".github/workflows/",
+                (
+                    Evidence(".github/workflows/ci.yml"),
+                    Evidence(".github/workflows/publish.yml"),
+                    Evidence(".github/workflows/", "2 files; GitHub Actions workflows"),
+                ),
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    section = readme.split("## Development and Testing\n\n", 1)[1].split("\n## ", 1)[0]
+    assert section.startswith("Run the tests with the standard runner.\n\n")
+    assert (
+        "The suite covers 34 test files under `tests/`. "
+        "Releases run through the [publish workflow](.github/workflows/publish.yml)."
+    ) in section

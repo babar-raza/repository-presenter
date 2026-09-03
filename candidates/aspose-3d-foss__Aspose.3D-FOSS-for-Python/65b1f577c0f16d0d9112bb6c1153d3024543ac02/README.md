@@ -252,19 +252,17 @@ print(f"Control points: {len(mesh.control_points)}")
 
 ## Documentation & Resources
 
-The verified documentation targets explain how to install and use Aspose.3D FOSS for Python 26.1.0 on Python 3.7 through 3.12, covering installation, basic workflows, and API usage for reading, converting, and inspecting 3D scenes, with links to the getting started guide, how-to guides, full API reference, and internal implementation notes.
-
-- [Getting started guide](https://docs.aspose.org/3d/python/)
-- [How-to guides & FAQ](https://kb.aspose.org/3d/python/)
-- [Full API reference](https://reference.aspose.org/3d/python/)
-- [Implementation progress notes](docs/foss-python-progress.md)
-- [Release process](docs/releasing.md)
-- [Scene/Node/Entity/Transform](docs/IMPLEMENTATION_SUMMARY.md)
-- [OBJ importer](docs/OBJ_IMPORTER_IMPLEMENTATION.md)
-- [STL import/export](docs/STL_IMPORT_IMPLEMENTATION.md)
-- [FBX parser](docs/FBX_IMPLEMENTATION_SUMMARY.md)
-- [PyPI packaging readiness](docs/PYPI_READINESS.md)
-- [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues)
+- **[Getting started guide](https://docs.aspose.org/3d/python/)** — The getting started guide covers installation, walkthroughs, and feature guides for this library.
+- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — The how-to guides and FAQ provide task-focused answers for common 3D-processing questions.
+- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference is the complete, browsable reference for all 305 public types. It covers all 652 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Implementation progress notes](docs/foss-python-progress.md)** — The implementation progress notes describe the current FOSS-edition porting status.
+- **[Release process](docs/releasing.md)** — The release process explains how a version of aspose-3d-foss is tagged and published to PyPI.
+- **[Scene/Node/Entity/Transform](docs/IMPLEMENTATION_SUMMARY.md)** — The internal format-implementation notes cover `Scene`, `Node`, `Entity`, and `Transform` development history.
+- **[OBJ importer](docs/OBJ_IMPORTER_IMPLEMENTATION.md)** — The OBJ importer implementation notes describe the historical development of OBJ support.
+- **[STL import/export](docs/STL_IMPORT_IMPLEMENTATION.md)** — The STL import implementation notes cover the historical development of STL import and export.
+- **[FBX parser](docs/FBX_IMPLEMENTATION_SUMMARY.md)** — The FBX parser implementation notes describe the historical development of FBX support.
+- **[PyPI packaging readiness](docs/PYPI_READINESS.md)** — The PyPI packaging readiness notes cover the historical development of PyPI packaging.
+- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues).
 
 ## Scope and Limitations
 
@@ -274,11 +272,9 @@ Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, 
 
 ## Development and Testing
 
-Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12.
+Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with python -m unittest discover tests/; there are 33 real test files.
 
-- `tests/`
-- `.github/workflows/`
-- `docs/`
+The suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).
 
 ## License
 

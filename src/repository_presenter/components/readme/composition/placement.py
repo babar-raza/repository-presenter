@@ -81,6 +81,21 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
     return frozenset(i for i in ids if i)
 
 
+_RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
+
+
+def renderer_fact_ids(section: str, facts: FactsDocument) -> frozenset[str]:
+    """The facts a mixed section's own deterministic sentences rest on: Development and
+    Testing states the suite size and links the release workflow from the build assets."""
+    if section != "development_testing":
+        return frozenset()
+    return frozenset(
+        fact.id
+        for fact in facts.by_kind("build_test_asset")
+        if fact.id in _RENDERER_OWNED_ASSETS and fact.polarity == "SUPPORTED"
+    )
+
+
 def placements(
     plan: dict[str, Any], dispositions: dict[str, Any], facts: FactsDocument, ecosystem: str
 ) -> list[Placement]:
@@ -104,8 +119,11 @@ def placements(
         if destination not in included:
             result.append(Placement(unit_id, destination, unit.value, "excluded"))
             continue
-        overlap = tuple(
-            sorted(set(entry.get("fact_ids") or []) & planned_fact_ids(plan, destination))
+        covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts)
+        overlap = (
+            ()
+            if unit_id.endswith(".code_block")  # a command block is content nothing else renders
+            else tuple(sorted(set(entry.get("fact_ids") or []) & covered))
         )
         outcome: Outcome = "overlap" if overlap else "placed"
         result.append(Placement(unit_id, destination, unit.value, outcome, overlap))

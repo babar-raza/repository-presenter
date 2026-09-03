@@ -43,7 +43,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "5"  # the template component version dependencies.json records
+RENDERER_VERSION = "6"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
@@ -63,6 +63,7 @@ _GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
 _IMPORT = r"(?m)^\s*(?:import|from)\s+{module}\b"
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
+_FILE_COUNT = re.compile(r"(\d+) files")
 
 
 class RenderContext:
@@ -278,6 +279,32 @@ def _documentation_resources(context: RenderContext) -> list[str]:
     return lines
 
 
+def _development_sentences(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2 row 17: the suite-size sentence when a test-file count is
+    verified, and the release sentence linking the publish workflow file when one exists;
+    representative assets are named in prose, never listed as bare directories."""
+    sentences: list[str] = []
+    tests = context.fact("build_test_asset:tests")
+    if tests is not None and tests.polarity == "SUPPORTED":
+        counts = [
+            m.group(1)
+            for evidence in tests.evidence
+            if (m := _FILE_COUNT.match(evidence.detail or "")) is not None
+        ]
+        if counts:
+            sentences.append(f"The suite covers {counts[-1]} test files under `{tests.value}`.")
+    ci = context.fact("build_test_asset:ci")
+    if ci is not None and ci.polarity == "SUPPORTED":
+        prefix = ci.value if ci.value.endswith("/") else ci.value + "/"
+        workflows = [e.path for e in ci.evidence if e.path.startswith(prefix) and e.path != prefix]
+        release = [w for w in workflows if any(k in w.lower() for k in ("publish", "release"))]
+        chosen = release[0] if release else workflows[0] if workflows else None
+        if chosen is not None:
+            stem = chosen.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            sentences.append(f"Releases run through the [{stem} workflow]({chosen}).")
+    return sentences
+
+
 def _oxford(items: list[str]) -> str:
     if len(items) <= 2:
         return " and ".join(items)
@@ -464,10 +491,10 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
                 lines.append(f"- {context.unit(sid, f'limitation:{index}')}")
     elif sid == "development_testing":
         lines.append(context.unit(sid, "summary"))
-        assets = context.supported("build_test_asset")
-        if assets:
+        facts_sentences = _development_sentences(context)
+        if facts_sentences:
             lines.append("")
-            lines.extend(f"- `{fact.value}`" for fact in assets)
+            lines.append(" ".join(facts_sentences))
     elif sid == "enterprise_relationship":
         lines.append(context.unit(sid, "context"))
     elif sid == "third_party_notices":

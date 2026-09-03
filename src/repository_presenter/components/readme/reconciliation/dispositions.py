@@ -41,6 +41,20 @@ PLACING = frozenset(
 )
 # The shell owns every heading and badge row; placing one anywhere renders nothing.
 _SHELL_OWNED = frozenset({"heading", "badge_row"})
+# Fence languages that mark a block of commands the maintainers run, never a product claim.
+_COMMAND_FENCES = frozenset({"bash", "sh", "shell", "console", "zsh", "powershell", "pwsh", "cmd"})
+
+
+def command_block_units(facts: FactsDocument) -> set[str]:
+    """Inherited code blocks fenced as shell commands (README_CONTRACT.md section 2 row 17)."""
+    found: set[str] = set()
+    for fact in facts.by_kind("inherited_unit"):
+        first = fact.value.splitlines()[0].strip().lower() if fact.value.strip() else ""
+        if fact.id.endswith(".code_block") and first[3:].strip() in _COMMAND_FENCES:
+            found.add(fact.id)
+    return found
+
+
 RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
     "identity": ("identity", "package"),
     "badges": ("link_target",),
@@ -178,12 +192,27 @@ def placement_errors(output: dict[str, Any], facts: FactsDocument) -> list[str]:
     """Why the dispositions may not be used, beyond schema and binding; empty when they hold."""
     placeable = placeable_section_ids()
     contradicted = contradicted_code_units(facts)
+    commands = command_block_units(facts)
+    build_facts = sorted(
+        fact.id
+        for fact in facts.facts
+        if fact.kind in {"build_test_asset", "install_command"} and fact.polarity == "SUPPORTED"
+    )
     errors: list[str] = []
     for entry in output.get("dispositions", []):
         unit = entry.get("unit_id", "?")
         disposition = entry.get("disposition")
         destination = entry.get("destination_section")
         cited = entry.get("fact_ids") or []
+        if disposition == "OMIT_UNSUPPORTED" and unit in commands and build_facts:
+            # A command block is the maintainers' own build, test, or install command, not a
+            # claim a fact could refute; with build or install facts recorded it is kept.
+            errors.append(
+                f"{unit}: a command block is never OMIT_UNSUPPORTED while build or install "
+                f"facts exist ({', '.join(build_facts)}); choose VERIFIED_PRESERVE into "
+                "development_testing, or SUPERSEDE_REDUNDANT by installation for an install "
+                "command"
+            )
         if disposition in PLACING:
             if destination not in placeable:
                 errors.append(

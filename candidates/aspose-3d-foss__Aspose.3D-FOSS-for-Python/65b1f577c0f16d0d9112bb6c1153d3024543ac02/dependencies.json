@@ -1,7 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "3",
+    "renderer": "6",
     "shell": "3"
   },
   "contract_version": "readme-contract-v1-draft",
@@ -2083,8 +2083,8 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "35fed321efe2bbd9db415236a5c3fe63a026c11782ef58d3d9bb10819ebcd828",
-      "version": "3"
+      "sha256": "6fb6463e2d69e0b2da8eeb5b02501fdceed573f54e54c14179ccb99cccc204d6",
+      "version": "4"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
@@ -2108,8 +2108,8 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "047070ef1a55b791c37354b2c5a22d78bb594e36fa438b91fc334eeeed0a52c6",
-      "version": "2"
+      "sha256": "f4f93d14652d2c2944b4f43a5373d59b3a4bca38191d59beced8605a90aeb4ac",
+      "version": "3"
     }
   },
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",

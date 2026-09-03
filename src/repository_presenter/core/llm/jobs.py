@@ -34,7 +34,7 @@ from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import ConfigError, JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm import transport
-from repository_presenter.core.llm.binding import binding_errors
+from repository_presenter.core.llm.binding import binding_errors, resolve_symbol_ids
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
@@ -312,6 +312,7 @@ def _parse(
         f"{error.json_path}: {error.message}"
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
     ]
+    resolve_symbol_ids(output, facts)  # a symbol cited by its read path binds to its fact
     errors.extend(binding_errors(output, facts, manifest.manifest.output.binding))
     if not errors and checks is not None:
         errors.extend(checks(output))

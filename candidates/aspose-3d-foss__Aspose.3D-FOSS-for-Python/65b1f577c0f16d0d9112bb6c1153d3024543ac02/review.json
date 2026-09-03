@@ -4,73 +4,56 @@
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F04",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"",
-      "repair": "Restore the verification step and editable install instructions from the original README to provide complete installation guidance.",
-      "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation instructions have been simplified and lost the verification step and editable install instructions that were present in the original README."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "link_target:011"
-      ],
-      "id": "F01",
-      "quote": "## Key Capabilities",
-      "repair": "Restore the Mermaid flowchart from the original README as a sub-section under Key Capabilities or as a separate At a Glance section before Key Capabilities to maintain the visual overview of the library's workflow.",
-      "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section is missing the 'At a Glance' Mermaid flowchart that was present in the original README and provides a visual summary of the library's workflow and capabilities."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.shading"
-      ],
+      "fact_ids": [],
       "id": "F02",
-      "quote": "## API Reference\n\n<details>\n<summary>Hub APIs</summary>",
-      "repair": "Restore the comprehensive API reference tables from the original README, including all public classes and enumerations with their descriptions, to provide complete API documentation.",
-      "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section has been drastically reduced to only hub APIs without the comprehensive class and enumeration tables from the original README, losing valuable reference information."
+      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"",
+      "repair": "Restore the verification step and the editable install instructions from the original README.",
+      "section_id": "installation",
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the verification step and the editable install instructions, which are present in the original README and supported by the repository structure."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "example:006",
-        "example:007",
-        "example:008",
-        "example:011"
-      ],
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "- **Load multiple 3D formats.** Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.\n- **Export to common 3D formats.** Export scenes to `.gltf` and `.stl` formats using `FileFormat` and format-specific save options, including binary and ASCII modes.\n- **Construct and manipulate meshes.** Inspect mesh geometry by accessing control points, polygon count, and bounding boxes through the `Mesh` API.\n- **Assign materials to geometry.** Apply physically based rendering materials with configurable albedo, metallic factor, and roughness factor via the shading module.\n- **Build and traverse scene graphs.** Manage scene hierarchy by creating child nodes, setting transforms, and assigning materials to individual entities.\n- **Triangulate arbitrary polygons.** Build polygonal meshes programmatically using `PolygonBuilder`-style operations to add control points and create polygons.\n- **Create keyframe animations.** Support for 3D formats includes detection, import, and export via `FileFormat.formats`, `FileFormat.get_format_by_extension`, and `FileFormat.create_save_options`.",
+      "repair": "Restore the At a Glance flowchart and expand the Key Capabilities list to include the specific format support (OBJ, STL, glTF, COLLADA, 3MF) and the explicit Scene/Node/Mesh object graph description from the original README.",
+      "section_id": "key_capabilities",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section omits the At a Glance flowchart and the original's detailed, format-specific capability descriptions, replacing them with a generic, high-level list that loses the specific format support details (OBJ, STL, glTF, COLLADA, 3MF) and the explicit Scene/Node/Mesh object graph description."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
       "id": "F03",
-      "quote": "### Build a cube mesh and save it as uncompressed 3MF to a `BytesIO` stream",
-      "repair": "Restore the omitted examples from the original README that are supported by verified facts, including Triangulate an Imported Mesh, Walk the Scene Graph, Position a Node With Transform, and Import a COLLADA File.",
-      "section_id": "additional_examples",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Additional Examples section has lost many verified examples from the original README, including important ones like triangulation, scene graph traversal, and primitive conversion."
+      "quote": "<details>\n<summary>Hub APIs</summary>\n\n- `aspose.threed.Scene`: Create, open, and manage 3D scenes using the `aspose.threed.Scene` class, which provides methods like `Scene.open`, `Scene.save`, `Scene.root_node`, `Scene.create_animation_clip`, `Scene.get_animation_clip`, `Scene.clear`, `Scene.sub_scenes`, `Scene.library`, `Scene.asset_info`, `Scene.poses`, and `Scene.render`.\n- `aspose.threed.Node`: Navigate and manipulate the scene hierarchy with the `aspose.threed.Node` class, which supports operations such as `Node.add_child_node`, `Node.create_child_node`, `Node.add_entity`, `Node.get_child`, `Node.get_entity`, `Node.child_nodes`, `Node.parent_node`, `Node.entities`, `Node.global_transform`, `Node.evaluate_global_transform`, `Node.get_bounding_box`, `Node.material`, `Node.materials`, `Node.transform`, `Node.visible`, `Node.excluded`, `Node.meta_datas`, `Node.select_objects`, `Node.select_single_object`, and `Node.merge`.\n- `aspose.threed.Mesh`: Construct and modify polygonal geometry using the `aspose.threed.Mesh` class, which offers access to `Mesh.control_points`, `Mesh.polygons`, `Mesh.edges`, `Mesh.polygon_count`, `Mesh.get_polygon_size`, `Mesh.get_bounding_box`, `Mesh.triangulate`, `Mesh.to_mesh`, `Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, `Mesh.intersect`, `Mesh.optimize`, `Mesh.is_manifold`, `Mesh.create_polygon`, and `Mesh.get_entity_renderer_key`.\n- `aspose.threed.FileFormat`: Identify and configure supported file formats with the `aspose.threed.FileFormat` class, which includes constants like `FileFormat.WAVEFRONT_OBJ`, `FileFormat.FBX7400ASCII`, `FileFormat.GLTF2`, `FileFormat.MICROSOFT_3MF_FORMAT`, and methods such as `FileFormat.can_import`, `FileFormat.can_export`, `FileFormat.content_type`, `FileFormat.get_format_by_extension`, `FileFormat.create_load_options`, and member `create_save_options`.\n- `aspose.threed.shading`: Define material properties and appearance using the `aspose.threed.shading` module, which provides classes and attributes such as member `diffuse_color`, member `metallic_factor`, and member `roughness_factor`.\n- `aspose.threed.entities`: Create and modify geometric primitives and shapes using the `aspose.threed.entities` module, which includes utilities like member entity, member `control_points`, member `create_polygon`, and member `create_child_node`.\n- `aspose.threed.animation`: Work with animation data using the `aspose.threed.animation` module, which integrates with `Scene.animation_clips` and `Scene.current_animation_clip` to manage time-based transformations and keyframes.\n- `aspose.threed.utilities`: Perform common utility operations using the `aspose.threed.utilities` module, which includes helper classes and methods such as member decode, member read, member seek, member getvalue, member loads, member add, member `binary_mode`, and member `BytesIO`.\n- `aspose.threed.formats`: Load and save 3D models in various formats using the `aspose.threed.formats` module, which provides format-specific loaders and savers for OBJ, GLTF, and other supported types.\n- `aspose.threed.render`: Render 3D scenes to images or video using the `aspose.threed.render` module, which supports rendering from `Scene.render` and integrates with the scene graph and camera configuration.\n- `aspose.threed.deformers`: Apply mesh deformation effects using the `aspose.threed.deformers` module, which provides tools for modifying geometry through procedural or skeletal influences.\n- `aspose.threed.profiles`: Define and manage cross-section profiles for extrusion and sweep operations using the `aspose.threed.profiles` module.\n\n</details>",
+      "repair": "Restore the original's comprehensive public class index with the detailed class-by-class documentation and the full enumeration list.",
+      "section_id": "api_reference",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section replaces the original's comprehensive public class index with a generic 'Hub APIs' list that omits the detailed class-by-class documentation and the full enumeration list, losing critical reference information."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:067.list"
-      ],
-      "id": "F05",
-      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
-      "repair": "Restore the detailed limitations list and explanations from the original README to provide comprehensive information about unsupported features and workarounds.",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco, and attempts to use these formats raise an error. FBX import is experimental and lightly verified, while FBX export is not supported. COLLADA import works but COLLADA export is unreachable through `Scene.save`() due to exporter lookup failure. Load and save options for OBJ, STL, glTF, and COLLADA must be imported from their format-specific submodules, not from the shared top-level `aspose.threed.formats` package. The `aspose.threed.render` module and `Scene.render`() are not supported. `Texture` and `TextureBase` cannot be constructed, so image-backed textures cannot be created. `Watermark.encode_watermark`(), `Watermark.decode_watermark`(), and all `TransformBuilder` methods are not supported. `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` are not supported. `NurbsCurve.evaluate`(), `NurbsCurve.evaluate_at`(), and `NurbsSurface.to_mesh`() are not supported. `PointCloud.from_geometry`(), `PointCloud.from_geometry_with_density`(), and `AxisSystem` are not supported.",
+      "repair": "Restore the original's detailed, format-specific limitations and implementation notes.",
       "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section has been condensed and lost the detailed explanations and context that were present in the original README."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits the original's detailed, format-specific limitations (e.g., PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, Draco) and the specific implementation notes (e.g., FBX import is experimental, COLLADA export unreachable, option import rules, render module not supported), replacing them with a generic summary that loses critical user guidance."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with python -m unittest discover tests/; there are 33 real test files.\n\nThe suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).",
+      "repair": "Restore the original's specific test file count (33 real test files) and the detailed test commands.",
+      "section_id": "development_testing",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Development and Testing section omits the original's specific test file count (33 real test files) and the detailed test commands, replacing them with a generic summary that loses actionable information."
     }
   ],
   "authoring": {
@@ -81,11 +64,11 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "89c76df2e3310b84f5413ee983e8746b609aaa2ac7f85eb9fd2f65835667b0eb",
+  "readme_sha256": "6a559997a38b090c0687b29069047bd3f530cafe4924a67d128a09c2e31f25a6",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "35fed321efe2bbd9db415236a5c3fe63a026c11782ef58d3d9bb10819ebcd828",
+    "prompt_sha256": "6fb6463e2d69e0b2da8eeb5b02501fdceed573f54e54c14179ccb99cccc204d6",
     "stage": "S10"
   },
   "schema_version": 1,

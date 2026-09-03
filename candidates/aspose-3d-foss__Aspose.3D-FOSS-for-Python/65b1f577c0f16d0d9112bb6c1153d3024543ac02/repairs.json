@@ -48,6 +48,75 @@
       "source": "review",
       "stage": "S6"
     },
+    "3d992c9874aaf2401f5c2e9d": {
+      "changes": [
+        {
+          "after": "The API Reference section now lists all public classes and modules in alphabetical order with concise descriptions of their purpose and key members.",
+          "before": "The API Reference section replaces the original comprehensive, alphabetically sorted public class index with a high-level, hub-style grouping that omits many public types and loses the detailed class descriptions, reducing utility for developers.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units"
+        }
+      ],
+      "label": "F02",
+      "outcome": "repaired",
+      "re_raised": [
+        "F03"
+      ],
+      "reason": null,
+      "request_sha256": "6d2f27caefcc9e5fd3f0e8f97f04192952f98f0d3322426f31a2f270852655e8",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "45c3bdac56f5d15212e448e8": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
+          "before": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
+          "fact_ids": [
+            "package:name",
+            "package:version",
+            "package:python_requires",
+            "package:python_versions",
+            "inherited_unit:067.list"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "re_raised": [
+        "F04"
+      ],
+      "reason": null,
+      "request_sha256": "5a2fa7ae095a544721c30d4fa1db5e4a5bf817cd6e7df8de51fc99f0162e89f0",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "4b098bfd66f542d6ce675dbd": {
+      "changes": [
+        {
+          "after": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with `python -m unittest discover tests/`; there are 33 real test files.",
+          "before": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F05",
+      "outcome": "repaired",
+      "re_raised": [
+        "F05"
+      ],
+      "reason": null,
+      "request_sha256": "cbb370a3e3dbc0288eca9e931a86ad476f854dcf06603cf856b10b3ceaffffb3",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
     "59b6b55ad57422e04bdf76e6": {
       "changes": [
         {
@@ -119,6 +188,35 @@
       "reason": null,
       "request_sha256": "0083151cbcdd8fda5a9a9f6af92dda40908da6810a95839b9a86b2c03f1ff2a4",
       "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "8bed3bcf2997b515f63a3c55": {
+      "changes": [
+        {
+          "after": "Load multiple 3D formats by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
+          "before": "Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
+          "fact_ids": [
+            "example:002",
+            "example:004",
+            "example:009",
+            "example:012",
+            "public_symbol:aspose.threed.mesh",
+            "public_symbol:aspose.threed.node",
+            "public_symbol:aspose.threed.shading"
+          ],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F01",
+      "outcome": "repaired",
+      "re_raised": [
+        "F01"
+      ],
+      "reason": null,
+      "request_sha256": "2e0d9d4c578ce1b98866157e3a3a9967e809e87ba4f06b2314cd7c039a512a2f",
+      "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"
     },
@@ -210,6 +308,37 @@
       "source": "review",
       "stage": "S6"
     },
+    "adf6e7b3ddec3bd6caa81ad2": {
+      "changes": [
+        {
+          "after": "[\"example:004\", \"example:005\", \"example:009\", \"example:012\", \"example:010\"]",
+          "before": "[\"example:004\", \"example:005\", \"example:009\", \"example:012\", \"example:010\"]",
+          "fact_ids": [
+            "example:004",
+            "example:005",
+            "example:009",
+            "example:012",
+            "example:010"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].fact_ids"
+        },
+        {
+          "after": "[]",
+          "before": "[{\"fact_id\": \"example:001\", \"reason\": \"example:001 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:003\", \"reason\": \"example:003 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:006\", \"reason\": \"example:006 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:007\", \"reason\": \"example:007 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:008\", \"reason\": \"example:008 is contradicted and not part of the accepted examples list\"}, {\"fact_id\": \"example:011\", \"reason\": \"example:011 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"format:input.dae\", \"reason\": \"format:input.dae is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:input.gltf\", \"reason\": \"format:input.gltf is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:input.obj\", \"reason\": \"format:input.obj is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:output.glb\", \"reason\": \"format:output.glb is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:output.obj\", \"reason\": \"format:output.obj is unresolved and not referenced in any accepted example\"}]",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.omitted"
+        }
+      ],
+      "label": "F03",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "9ebb5435da1b6ea5559a585dc1849c10aa420cf82d5a8b95cdfb3be1c8e9c381",
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
     "dcc16484d42adc112252f13b": {
       "changes": [
         {
@@ -228,6 +357,32 @@
       "reason": null,
       "request_sha256": "f561594d080ddbdb73c4d02e18b98fcabac79ac7aec9784fa89fce27d7832fdd",
       "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "e09a51db6287a22699970e93": {
+      "changes": [
+        {
+          "after": "Load multiple 3D formats by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
+          "before": "Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
+          "fact_ids": [
+            "example:002",
+            "example:004",
+            "example:009",
+            "example:012",
+            "public_symbol:aspose.threed.mesh",
+            "public_symbol:aspose.threed.node",
+            "public_symbol:aspose.threed.shading"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F01",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "c81b117b4506acb16926f82d68e70e771bfdcc8ea058a8a7b6f31c6ba4ac4117",
+      "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"
     },

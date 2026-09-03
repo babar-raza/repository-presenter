@@ -37,6 +37,13 @@ FACTS = FactsDocument(
         _fact("inherited_unit:012.paragraph", "inherited_unit", "Docs live at the site."),
         _fact("inherited_unit:013.code_block", "inherited_unit", "```python\nprint(2)\n```"),
         _fact("inherited_unit:014.paragraph", "inherited_unit", "Old glance prose."),
+        _fact("build_test_asset:tests", "build_test_asset", "tests/"),
+        _fact("inherited_unit:074.paragraph", "inherited_unit", "The suite covers 33 files."),
+        _fact(
+            "inherited_unit:071.code_block",
+            "inherited_unit",
+            "```bash" + chr(10) + "pytest" + chr(10) + "```",
+        ),
     ),
 )
 
@@ -50,6 +57,7 @@ def _plan(**overrides: Any) -> dict[str, Any]:
         "key_capabilities",
         "installation",
         "dependencies",
+        "development_testing",
         "quick_start",
         "additional_examples",
         "api_reference",
@@ -197,3 +205,18 @@ def test_planning_refuses_to_exclude_a_section_a_supersession_relies_on() -> Non
         "supersede inherited_unit:012.paragraph; include it, or the transaction fails closed "
         "naming the unit"
     ]
+
+
+def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:074.paragraph", "development_testing", "build_test_asset:tests"),
+            _entry(
+                "inherited_unit:071.code_block", "development_testing", "build_test_asset:tests"
+            ),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(_plan(), dispositions, FACTS, "python")}
+    assert decisions["inherited_unit:074.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:074.paragraph"].overlap == ("build_test_asset:tests",)
+    assert decisions["inherited_unit:071.code_block"].outcome == "placed"

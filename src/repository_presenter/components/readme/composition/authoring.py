@@ -89,7 +89,8 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one scope unit, then one unit per limitation, one sentence each",
     ),
     "development_testing": (
-        "One or two sentences on how to build and test from the repository's own assets.",
+        "One or two sentences on how to build and test from the repository's own assets; never "
+        "a file count or a release statement, which the renderer states from the facts.",
         "one unit of one or two sentences",
     ),
     "enterprise_relationship": (
