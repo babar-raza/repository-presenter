@@ -203,8 +203,10 @@ _COMMAND = re.compile(
     r"cargo|cmake|make|git)\b",
     re.IGNORECASE,
 )
-_CAPABILITY_NODE = re.compile(r"^\s*C(\d+)\[", re.MULTILINE)
-_CAPABILITY_EDGE = re.compile(r"^\s*C\d+\s*(?:-->|---)", re.MULTILINE)
+_CAPABILITY_NODE = re.compile(r"^\s*c(\d+)\[", re.MULTILINE)
+_GLANCE_LABEL = re.compile(r"\[\"([^\"]*)\"\]")
+_GLANCE_DIRECTIVE = re.compile(r"^(?:style|classDef|linkStyle|click)\b")
+_GLANCE_FENCE = re.compile(r"```mermaid\n.*?\n```", re.DOTALL)
 _ABBREVIATIONS = frozenset(
     {
         "PDF",
@@ -625,38 +627,85 @@ def _check_links(candidate: Candidate) -> list[Failure]:
     return failures
 
 
-def _topology_failures(body: str) -> list[Failure]:
+def _column_size(lines: list[str], name: str) -> int | None:
+    """How many capability nodes the named column subgraph holds; None when it is absent."""
+    try:
+        index = lines.index(f'subgraph {name}[" "]')
+    except ValueError:
+        return None
+    size = 0
+    for line in lines[index + 1 :]:
+        if line == "end":
+            break
+        if _CAPABILITY_NODE.match(line):
+            size += 1
+    return size
+
+
+def _topology_failures(body: str, has_inputs: bool) -> list[Failure]:
+    """README_CONTRACT.md section 2.1: one chain with one edge per hop, groups as single
+    listing nodes, Starting Points only with a verified input format, one column up to five
+    capabilities and two balanced columns from six, geometry-safe labels, no styling."""
     failures: list[Failure] = []
-    lines = [line.strip() for line in body.splitlines()]
-    if lines.count("P --- C") != 1:
-        failures.append(
-            Failure(
-                "COMPOSING",
-                "At a Glance needs exactly one relationship from the product to Core capabilities",
-            )
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    if not lines or lines[0] != "flowchart TD":
+        failures.append(Failure("COMPOSING", "At a Glance is a flowchart TD"))
+    starting = any(line.startswith("subgraph StartingPoints[") for line in lines)
+    outputs = any(line.startswith("subgraph Outputs[") for line in lines)
+    chain = " --> ".join(
+        group
+        for group, present in (
+            ("StartingPoints", starting),
+            ("PRODUCT", True),
+            ("Capabilities", True),
+            ("Outputs", outputs),
         )
-    if lines.count("C --- O") > 1:
+        if present
+    )
+    edges = [line for line in lines if "-->" in line or "---" in line or "~~~" in line]
+    if edges != [chain]:
         failures.append(
-            Failure("COMPOSING", "At a Glance needs at most one relationship to Outputs")
+            Failure("COMPOSING", f"At a Glance is the one chain {chain!r}; found {edges}")
         )
-    if _CAPABILITY_EDGE.search(body):
-        failures.append(Failure("COMPOSING", "At a Glance: a capability fans out"))
+    if starting and not has_inputs:
+        failures.append(
+            Failure("PLANNING", "At a Glance shows Starting Points without a verified input format")
+        )
+    if any(_GLANCE_DIRECTIVE.match(line) for line in lines):
+        failures.append(Failure("COMPOSING", "At a Glance carries a styling directive"))
     count = len(_CAPABILITY_NODE.findall(body))
-    invisible = sum(1 for line in lines if "~~~" in line)
+    columns = {name: _column_size(lines, name) for name in ("capl", "capr")}
+    present = [name for name, size in columns.items() if size is not None]
     if count > 8:
         failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at most 8"))
-    elif count <= 5 and invisible:
+    elif count < 3:
+        failures.append(Failure("PLANNING", f"At a Glance shows {count} capabilities; at least 3"))
+    elif count <= 5 and present:
         failures.append(
             Failure("COMPOSING", f"At a Glance: {count} capabilities form one column, not two")
         )
-    elif count >= 6 and invisible != count // 2:
+    elif count >= 6 and len(present) != 2:
         failures.append(
             Failure(
                 "COMPOSING",
                 f"At a Glance: {count} capabilities form two balanced columns; "
-                f"found {invisible} row links, expected {count // 2}",
+                f"found {len(present)} column(s)",
             )
         )
+    elif count >= 6 and abs((columns["capl"] or 0) - (columns["capr"] or 0)) > 1:
+        failures.append(
+            Failure(
+                "COMPOSING",
+                f"At a Glance: {count} capabilities form two balanced columns; "
+                f"found {columns['capl']} and {columns['capr']}",
+            )
+        )
+    for label in _GLANCE_LABEL.findall(body):
+        for token in label.split():
+            if len(token) > 28:
+                failures.append(
+                    Failure("COMPOSING", f"At a Glance label token over 28 characters: {token!r}")
+                )
     return failures
 
 
@@ -729,8 +778,18 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     graphs = [body for language, body in _fences(candidate.readme) if language == "mermaid"]
     if len(graphs) > 1:
         failures.append(Failure("COMPOSING", "more than one At a Glance graph"))
+    glance_text = _section_texts(candidate.readme).get("at_a_glance", "")
+    if glance_text.strip() and _GLANCE_FENCE.sub("", glance_text, count=1).strip():
+        # README_CONTRACT.md row 6: exactly one Mermaid fence and nothing else.
+        failures.append(
+            Failure("COMPOSING", "At a Glance holds exactly one Mermaid fence and nothing else")
+        )
+    has_inputs = any(
+        fact.id.startswith("format:input.") and fact.polarity == "SUPPORTED"
+        for fact in candidate.facts.by_kind("format")
+    )
     for body in graphs:
-        failures.extend(_topology_failures(body))
+        failures.extend(_topology_failures(body, has_inputs))
     lowered = prose.lower()
     for phrase in _NARRATION:
         if phrase in lowered:

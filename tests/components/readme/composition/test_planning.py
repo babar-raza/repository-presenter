@@ -76,7 +76,7 @@ ALL_SECTIONS = [
     "third_party_notices",
     "license",
 ]
-EXCLUDED = {"banner", "at_a_glance", "enterprise_relationship", "third_party_notices"}
+EXCLUDED = {"banner", "enterprise_relationship", "third_party_notices"}
 
 
 def _plan(**overrides: Any) -> dict[str, Any]:
@@ -89,7 +89,11 @@ def _plan(**overrides: Any) -> dict[str, Any]:
             {"title": "Export STL", "fact_ids": ["format:output.stl"]},
             {"title": "Run examples", "fact_ids": ["example:001"]},
         ],
-        "at_a_glance": None,
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        },
         "quick_start_example_id": "example:001",
         "additional_example_ids": ["example:002"],
         "api_hubs": [{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}],
@@ -104,7 +108,7 @@ def _plan(**overrides: Any) -> dict[str, Any]:
 def test_conditions_are_evaluated_from_the_facts() -> None:
     conditions = section_conditions(FACTS)
     assert conditions["identity"] is True and conditions["license"] is True
-    assert conditions["at_a_glance"] is False
+    assert conditions["at_a_glance"] is True  # row 6: the plan always carries three
     assert conditions["dependencies"] is True
     assert conditions["additional_examples"] is True
     assert conditions["api_reference"] is True  # row 14: Required
@@ -118,7 +122,7 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"d": 2}, MANIFEST)
     assert packet["repository"] == ENTRY.repository
     by_id = {section["id"]: section for section in packet["shell"]}
-    assert by_id["at_a_glance"]["condition_holds"] is False
+    assert by_id["at_a_glance"]["condition_holds"] is True
     assert by_id["banner"]["condition_holds"] is False  # no verified illustration
     assert by_id["api_reference"]["condition_holds"] is True  # row 14: Required
     assert by_id["license"]["condition_holds"] is True
@@ -132,18 +136,18 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS) == []
     assert summarize_plan(_plan()) == (
-        "sections 14/18, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
+        "sections 15/18, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
     )
 
     sections = [dict(entry) for entry in _plan()["sections"]]
     sections[0]["include"] = False  # identity
-    sections[5]["include"] = True  # at_a_glance
+    sections[5]["include"] = False  # at_a_glance
     sections[10]["include"] = False  # additional_examples
     errors = plan_checks(_plan(sections=sections), FACTS)
     assert "section identity is required and cannot be omitted" in errors
-    assert "section at_a_glance: its condition does not hold, so it is omitted" in errors
+    assert "section at_a_glance: its condition holds, so it is included" in errors
     assert "section additional_examples: its condition holds, so it is included" in errors
-    assert "at_a_glance is included, so its formats and capabilities are given" in errors
+    assert "at_a_glance is omitted, so it is null" in errors
     assert "additional_example_ids are given exactly when additional_examples is included" in errors
 
     errors = plan_checks(
@@ -163,6 +167,8 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     )
     assert errors == [
         "core_capabilities must number 3 to 8; got 1",
+        "at_a_glance capabilities are not core capabilities: "
+        "['Build scenes', 'Export STL', 'Run examples']",
         "quick_start_example_id must be a SUPPORTED example; got 'example:003'",
         "additional_example_ids must be distinct and exclude the quick start",
         "api_hubs must be distinct public_symbol facts",
@@ -243,3 +249,54 @@ def test_the_banner_condition_needs_both_verified_product_facts() -> None:
     assert section_conditions(only_image)["banner"] is False
     both = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, image, homepage))
     assert section_conditions(both)["banner"] is True
+
+
+def test_at_a_glance_labels_are_geometry_safe_and_number_three_to_eight() -> None:
+    # README_CONTRACT.md section 2.1: a longer title is shortened at planning, never clipped.
+    short = _plan(
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": [],
+            "capability_titles": ["Build scenes", "Export STL"],
+        }
+    )
+    assert "at_a_glance needs at least three capability titles" in plan_checks(short, FACTS)
+    long_token = "Build " + "x" * 29
+    wide = _plan(
+        core_capabilities=[
+            {"title": long_token, "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Run examples", "fact_ids": ["example:001"]},
+        ],
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": [long_token, "Export STL", "Run examples"],
+        },
+    )
+    assert any("unbroken token over 28 characters" in error for error in plan_checks(wide, FACTS))
+
+
+def test_a_missing_conditional_decision_is_filled_from_the_shell() -> None:
+    # A required or conditional section leaves the plan nothing to decide, so a decision the
+    # planner left out is filled rather than re-asked; a duplicate decision still fails.
+    plan = _plan()
+    plan["sections"] = [
+        entry
+        for entry in plan["sections"]
+        if entry["section_id"] not in {"identity", "third_party_notices"}
+    ]
+    assert plan_checks(plan, FACTS) == []
+    by_id = {entry["section_id"]: entry for entry in plan["sections"]}
+    assert [entry["section_id"] for entry in plan["sections"]] == ALL_SECTIONS
+    assert by_id["identity"]["include"] is True
+    assert by_id["third_party_notices"] == {
+        "section_id": "third_party_notices",
+        "include": False,
+        "reason": "filled from the shell: its condition does not hold",
+    }
+    duplicated = _plan()
+    duplicated["sections"].append(dict(duplicated["sections"][0]))
+    assert "sections must carry exactly one decision for every shell section" in plan_checks(
+        duplicated, FACTS
+    )

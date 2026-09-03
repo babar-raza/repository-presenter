@@ -1478,3 +1478,10 @@ report lines under the revision hold:
    revision, so a re-composition at the same revision cannot supersede itself by directory. The seal
    adopts a proven update in place and keeps the previous proof under `adopted`; that is the
    equivalent the evidence manifest records, and `superseded_by` stays for a newer source revision.
+3. Row 6's Starting Points on the canary (G2-W04, 2026-09-04): the diagram renders without them
+   because every `format:input.*` fact is UNRESOLVED, while the live README lists five inputs. The
+   examples that read a file (`example:001`, `:007`, `:011`) do not execute in the isolated
+   workspace, which has no fixture files, so no input format is verified; the outputs are verified
+   because the writing examples run. The section itself now renders under the revised condition,
+   as the contract requires for a product that creates from scratch. Provisioning fixtures for
+   file-reading examples belongs with the facts stage, not the contract.

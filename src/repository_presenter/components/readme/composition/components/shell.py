@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-SHELL_VERSION = "4"
+SHELL_VERSION = "5"
 # Fixed subheadings a shell row prescribes (README_CONTRACT.md section 2 rows 9 and 14),
 # at level three or four as the row states.
 SUBSECTION_HEADINGS = frozenset(
@@ -95,8 +95,10 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
         False,
         "visible",
         "M",
-        "at least one verified input format and one capability",
-        "Mermaid typed capability graph.",
+        "at least three verified core capabilities; Starting Points only with a verified "
+        "input format",
+        "Exactly one Mermaid fence and nothing else (section 2.1): one chain from Starting "
+        "Points through the product and Core Capabilities to Outputs.",
     ),
     Section(
         "key_capabilities",

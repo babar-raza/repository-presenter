@@ -217,7 +217,14 @@ def normalize(
                 entry["destination_section"] = "scope_limitations"
                 entry["fact_ids"] = sorted(cited | {ENTERPRISE_FACT_ID})
             continue
-        if disposition in PLACING and destination == "at_a_glance" and unit.endswith(".code_block"):
+        if (
+            disposition in PLACING
+            and destination == "at_a_glance"
+            and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+        ):
+            # README_CONTRACT.md row 6: the section is exactly one Mermaid fence and nothing
+            # else, so a unit placed there is covered by the diagram when it cites facts and
+            # deferred when it cites none.
             entry["disposition"] = "SUPERSEDE_REDUNDANT" if cited else "DEFER_UNRESOLVED"
             entry["destination_section"] = None
             continue

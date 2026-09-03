@@ -47,7 +47,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "12"  # the template component version dependencies.json records
+RENDERER_VERSION = "13"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -485,32 +485,82 @@ def _link_text(fact: Fact) -> str:
     return fact.value
 
 
+# Display names for format extensions whose canonical form is not the bare upper case.
+FORMAT_NAMES: dict[str, str] = {
+    "gltf": "glTF",
+    "dae": "COLLADA",
+    "wrl": "VRML",
+    "drc": "Draco",
+    "x": "DirectX X",
+}
+
+
+def format_name(value: str) -> str:
+    """The canonical display name of a format fact value such as ``.gltf``."""
+    extension = value.lstrip(".").lower()
+    return FORMAT_NAMES.get(extension, extension.upper())
+
+
+def _or_list(items: list[str]) -> str:
+    if len(items) <= 2:
+        return " or ".join(items)
+    return ", ".join(items[:-1]) + f", or {items[-1]}"
+
+
+def _label(text: str) -> str:
+    return text.replace(chr(34), "'")
+
+
 def _at_a_glance(context: RenderContext) -> list[str]:
+    """README_CONTRACT.md section 2.1: one chain, StartingPoints --> PRODUCT --> Capabilities
+    --> Outputs, each group a single listing node; Starting Points and Outputs are omitted with
+    their hop when nothing is verified; up to five capabilities form one column, six to eight
+    two balanced columns; the renderer owns every node, edge, and label."""
     glance = context.plan.get("at_a_glance") or {}
-    inputs = [context.fact(i) for i in glance.get("input_format_ids", [])]
-    outputs = [context.fact(i) for i in glance.get("output_format_ids", [])]
-    titles = list(glance.get("capability_titles", []))
-    lines = ["```mermaid", "graph LR"]
-    for index, fact in enumerate(f for f in inputs if f is not None):
-        lines.append(f'  I{index + 1}["{fact.value.lstrip(".").upper()}"] --> P')
-    lines.append(f'  P["{context.name}"]')
-    lines.append("  P --- C")
-    lines.append('  subgraph C["Core capabilities"]')
-    for index, title in enumerate(titles):
-        lines.append(f'    C{index + 1}["{title}"]')
-    # Up to five capabilities form one column; six to eight form two balanced columns, the
-    # rows held side by side by invisible links (README_CONTRACT.md section 2.1).
-    if len(titles) >= 6:
-        left = (len(titles) + 1) // 2
-        for row in range(len(titles) - left):
-            lines.append(f"    C{row + 1} ~~~ C{left + row + 1}")
-    lines.append("  end")
-    if any(f is not None for f in outputs):
-        lines.append("  C --- O")
-        lines.append('  subgraph O["Outputs"]')
-        for index, fact in enumerate(f for f in outputs if f is not None):
-            lines.append(f'    O{index + 1}["{fact.value.lstrip(".").upper()}"]')
+    inputs = [
+        format_name(fact.value)
+        for fact in (context.fact(i) for i in glance.get("input_format_ids", []))
+        if fact is not None
+    ]
+    outputs = [
+        format_name(fact.value)
+        for fact in (context.fact(i) for i in glance.get("output_format_ids", []))
+        if fact is not None
+    ]
+    titles = [_label(title) for title in glance.get("capability_titles", [])]
+    lines = ["```mermaid", "flowchart TD"]
+    chain: list[str] = []
+    if inputs:
+        lines.append('  subgraph StartingPoints["Starting Points"]')
+        lines.append("    direction LR")
+        lines.append(f'    i1["An existing {_or_list(inputs)} file"]')
         lines.append("  end")
+        chain.append("StartingPoints")
+    lines.append(f'  PRODUCT["{_label(context.name)}"]')
+    chain.append("PRODUCT")
+    lines.append('  subgraph Capabilities["Core Capabilities"]')
+    if len(titles) >= 6:
+        lines.append("    direction LR")
+        left = (len(titles) + 1) // 2
+        for name, first, column in (("capl", 1, titles[:left]), ("capr", left + 1, titles[left:])):
+            lines.append(f'    subgraph {name}[" "]')
+            lines.append("      direction TB")
+            for offset, title in enumerate(column):
+                lines.append(f'      c{first + offset}["{title}"]')
+            lines.append("    end")
+    else:
+        lines.append("    direction TB")
+        for index, title in enumerate(titles, start=1):
+            lines.append(f'    c{index}["{title}"]')
+    lines.append("  end")
+    chain.append("Capabilities")
+    if outputs:
+        lines.append('  subgraph Outputs["Outputs"]')
+        lines.append("    direction TB")
+        lines.append(f'    o1["{_or_list(outputs)} file"]')
+        lines.append("  end")
+        chain.append("Outputs")
+    lines.append("  " + " --> ".join(chain))
     lines.append("```")
     return lines
 

@@ -268,6 +268,7 @@ LOCAL_DISPOSITIONS: dict[str, Any] = {
 }
 LOCAL_PLAN_INCLUDED = {
     "banner",
+    "at_a_glance",
     "identity",
     "badges",
     "opening",
@@ -310,7 +311,11 @@ LOCAL_PLAN: dict[str, Any] = {
         {"title": "Save GLB", "fact_ids": ["format:output.glb"]},
         {"title": "Import the package", "fact_ids": ["import_path:aspose.threed"]},
     ],
-    "at_a_glance": None,
+    "at_a_glance": {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.glb"],
+        "capability_titles": ["Create scenes", "Save GLB", "Import the package"],
+    },
     "quick_start_example_id": "example:001",
     "second_quick_start_example_id": None,
     "additional_example_ids": [],
@@ -611,7 +616,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert written_dispositions == LOCAL_DISPOSITIONS
     plan_line = next(line for line in captured.out.splitlines() if line.startswith("plan: "))
     assert plan_line.startswith(
-        f"plan: {facts_dir}/plan.json (sections 13/18, capabilities 3, hubs 1, examples 1+0, "
+        f"plan: {facts_dir}/plan.json (sections 14/18, capabilities 3, hubs 1, examples 1+0, "
         "links 1, limitations 0; provider calls 1, model qwen3-next; digest "
     )
     written_plan = json.loads((project_with_registry / facts_dir / "plan.json").read_text("utf-8"))
@@ -628,7 +633,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         .split("Semantic shell:\n", 1)[1]
         .split("\n\nPolicy ceilings", 1)[0]
     )
-    assert {s["id"]: s["condition_holds"] for s in shell_packet}["at_a_glance"] is False
+    assert {s["id"]: s["condition_holds"] for s in shell_packet}["at_a_glance"] is True
     assert (
         '"id": "inherited_unit:004.code_block"'
         in gateway_ready.requests[1]["messages"][1]["content"]
@@ -673,7 +678,10 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     readme_text = (project_with_registry / facts_dir / "README.md").read_text("utf-8")
     assert readme_text.startswith("# Aspose.3D FOSS for Python\n\n[![PyPI]")
-    assert "## Navigation\n\n- [Key Capabilities](#key-capabilities)\n" in readme_text
+    assert (
+        "## Navigation\n\n- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n"
+        in readme_text
+    )
     assert "## Installation\n\nInstall the published package from PyPI (`aspose-3d-foss`" in (
         readme_text
     )
@@ -768,8 +776,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "targeted_repair",
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
-        "shell": "4",
-        "renderer": "12",
+        "shell": "5",
+        "renderer": "13",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [

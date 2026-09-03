@@ -48,7 +48,6 @@ def section_conditions(
     facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> dict[str, bool | None]:
     """Whether each section's condition holds: True, False, or None when the plan decides."""
-    input_formats = [i for i in _supported(facts, "format") if i.startswith("format:input.")]
     links = [
         fact.id
         for fact in facts.by_kind("link_target")
@@ -56,7 +55,10 @@ def section_conditions(
     ]
     evaluated: dict[str, bool | None] = {
         "banner": banner_target(facts.facts) is not None,  # README_CONTRACT.md row 3
-        "at_a_glance": bool(input_formats),
+        # README_CONTRACT.md row 6: a valid plan carries at least three verified core
+        # capabilities (the policy minimum), so the diagram always appears; Starting Points
+        # follow the verified input formats and are absent without one.
+        "at_a_glance": True,
         "dependencies": bool(_supported(facts, "dependency")),
         "additional_examples": len(_supported(facts, "example")) >= 2,
         "api_reference": True,  # README_CONTRACT.md row 14: Required
@@ -113,6 +115,24 @@ def plan_checks(
     conditions = section_conditions(facts, policy)
     required = {section.id for section in SEMANTIC_SHELL if section.required}
     decisions = {entry["section_id"]: entry for entry in output.get("sections", [])}
+    # A required or conditional section leaves the plan nothing to decide, so a decision the
+    # planner left out is filled from the shell rather than re-asked (the planner dropped
+    # third_party_notices twice in a row on the canary); a plan-decided section, condition
+    # None, must be given. One decision per shell section always stands after the fold.
+    order = {section_id: index for index, section_id in enumerate(section_ids())}
+    for shell_section in SEMANTIC_SHELL:
+        holds = conditions[shell_section.id]
+        if shell_section.id in decisions or holds is None:
+            continue
+        filled: dict[str, Any] = {
+            "section_id": shell_section.id,
+            "include": bool(holds),
+            "reason": "filled from the shell: its condition "
+            + ("holds" if holds else "does not hold"),
+        }
+        output.setdefault("sections", []).append(filled)
+        decisions[shell_section.id] = filled
+    output.get("sections", []).sort(key=lambda item: order.get(item["section_id"], 99))
     ids = [entry["section_id"] for entry in output.get("sections", [])]
     if sorted(ids) != sorted(section_ids()) or len(ids) != len(set(ids)):
         errors.append("sections must carry exactly one decision for every shell section")
@@ -206,6 +226,19 @@ def plan_checks(
                 )
     elif glance is not None:
         errors.append("at_a_glance is omitted, so it is null")
+    if glance is not None:
+        titles = glance.get("capability_titles", [])
+        if len(titles) < 3:
+            errors.append("at_a_glance needs at least three capability titles")
+        for title in titles:
+            # Geometry-safe labels (README_CONTRACT.md section 2.1): a longer title is
+            # shortened here at planning, never clipped at render.
+            for token in title.split():
+                if len(token) > 28:
+                    errors.append(
+                        "at_a_glance capability title carries an unbroken token over 28 "
+                        f"characters: {token!r}; shorten the title"
+                    )
 
     examples = {i for i in supported if i.startswith("example:")}
     quick = output.get("quick_start_example_id")

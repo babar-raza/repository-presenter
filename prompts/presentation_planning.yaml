@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "2"
+version: "3"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -70,9 +70,9 @@ output:
             required: [input_format_ids, output_format_ids, capability_titles]
             additionalProperties: false
             properties:
-              input_format_ids: { type: array, minItems: 1, items: { type: string } }
+              input_format_ids: { type: array, items: { type: string } }
               output_format_ids: { type: array, items: { type: string } }
-              capability_titles: { type: array, minItems: 1, maxItems: 8, items: { type: string } }
+              capability_titles: { type: array, minItems: 3, maxItems: 8, items: { type: string } }
       quick_start_example_id: { type: string, minLength: 1 }
       second_quick_start_example_id: { type: [string, "null"] }
       additional_example_ids: { type: array, items: { type: string } }
@@ -134,8 +134,11 @@ system: |
 
   At a Glance. Inputs are verified input formats (format facts with direction input, SUPPORTED)
   and outputs are verified output formats; never selector parameters, intermediate structures, or
-  delivery methods. When no SUPPORTED input format exists, at_a_glance is null and the section is
-  excluded with that reason.
+  delivery methods. The section holds whenever the plan carries three or more core
+  capabilities: input_format_ids lists the verified input formats and is empty when none is
+  SUPPORTED (the diagram then shows no Starting Points), output_format_ids the verified output
+  formats, and capability_titles three to eight of the core capability titles, no word over 28
+  characters.
 
   Examples. quick_start_example_id is the one SUPPORTED example fact that best shows the primary
   workflow in the fewest lines. second_quick_start_example_id is a second minimal SUPPORTED

@@ -1,10 +1,5 @@
 {
-  "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names Mesh.create_polygon(), Node.add_entity(), Node.create_child_node(), PolygonModifier.triangulate(), Scene.open(), Scene.save()",
-    "inherited_unit:057.paragraph: the rewrite no longer names Scene.open(), Scene.save()",
-    "inherited_unit:067.list: the rewrite no longer names .fbx, FbxExporter.save(), Mesh.do_boolean(), NurbsCurve.evaluate(), NurbsSurface.to_mesh(), PointCloud.from_geometry(), RuntimeError, Scene.open(), Scene.render(), Scene.save(), Watermark.encode_watermark(), albedo, aspose.threed.formats, aspose.threed.formats.collada.ColladaLoadOptions",
-    "inherited_unit:075.paragraph: the rewrite no longer names v<version>"
-  ],
+  "advisory": [],
   "checks": [
     {
       "causal_stage": null,
@@ -149,8 +144,8 @@
       "version": "1"
     }
   ],
-  "protected_content_fingerprint": "ba4b168ad77633e61e962d565fc3f621982f2662a115f89f68728b5b37f80afd",
-  "readme_sha256": "81a177bdaa9f6a23fd7c7953a8898d4e02004ce44beacbf423eea5baf2b9b2b7",
+  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
+  "readme_sha256": "7361e0498be24c0023f8a23d4e506ea77977620b35fb0830b878f2b70cb91273",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",

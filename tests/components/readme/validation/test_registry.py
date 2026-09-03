@@ -251,7 +251,7 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     tmp_path: Path,
 ) -> None:
     candidate = _candidate()
-    assert candidate.readme.count(" ~~~ ") == 3  # six capabilities: two columns of three
+    assert candidate.readme.count("subgraph cap") == 2  # six capabilities: two columns
     document = validate_candidate(candidate, tmp_path, ())
     assert [check.id for check in BLOCKING_CHECKS] == [c["id"] for c in document["checks"]]
     assert _verdicts(document) == {
@@ -281,12 +281,10 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     ]
 
     one_column = validate_candidate(
-        _candidate("\n".join(line for line in readme.splitlines() if " ~~~ " not in line) + "\n"),
-        tmp_path,
-        (),
+        _candidate(readme.replace('subgraph capr[" "]', 'subgraph capx[" "]')), tmp_path, ()
     )
     assert _failed(one_column, "BC-07")["details"] == [
-        "At a Glance: 6 capabilities form two balanced columns; found 0 row links, expected 3"
+        "At a Glance: 6 capabilities form two balanced columns; found 1 column(s)"
     ]
 
     lowercase = validate_candidate(

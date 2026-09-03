@@ -168,7 +168,8 @@ def test_planning_includes_every_verified_example_and_refuses_an_excluded_destin
     assert errors == [
         "section at_a_glance is excluded but the reconciliation placed "
         "inherited_unit:014.paragraph there; include it, or the transaction fails closed naming "
-        "the unit"
+        "the unit",
+        "section at_a_glance: its condition holds, so it is included",  # row 6
     ]
     omitted = _plan(additional_example_ids=[])
     for entry in omitted["sections"]:
@@ -205,6 +206,10 @@ def test_planning_refuses_to_exclude_a_section_a_supersession_relies_on() -> Non
         "section api_reference is excluded but the reconciliation relies on its content to "
         "supersede inherited_unit:012.paragraph; include it, or the transaction fails closed "
         "naming the unit",
+        "section at_a_glance is excluded but the reconciliation relies on its content to "
+        "supersede inherited_unit:014.paragraph; include it, or the transaction fails closed "
+        "naming the unit",
+        "section at_a_glance: its condition holds, so it is included",  # row 6
         "section api_reference is required and cannot be omitted",  # row 14: Required
     ]
 

@@ -294,6 +294,16 @@
       "source": "review",
       "stage": "S6"
     },
+    "8607d4375dbd20e43fbe525f": {
+      "changes": [],
+      "label": "F01",
+      "outcome": "unrepairable",
+      "reason": "section at_a_glance is deterministic; its blocks change only when facts change",
+      "request_sha256": null,
+      "section_id": "at_a_glance",
+      "source": "review",
+      "stage": null
+    },
     "8bed3bcf2997b515f63a3c55": {
       "changes": [
         {
@@ -315,7 +325,8 @@
       "label": "F01",
       "outcome": "repaired",
       "re_raised": [
-        "F01"
+        "F01",
+        "F02"
       ],
       "reason": null,
       "request_sha256": "2e0d9d4c578ce1b98866157e3a3a9967e809e87ba4f06b2314cd7c039a512a2f",

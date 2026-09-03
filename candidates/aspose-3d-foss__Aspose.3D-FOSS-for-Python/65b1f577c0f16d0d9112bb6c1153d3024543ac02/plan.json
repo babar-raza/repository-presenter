@@ -9,51 +9,79 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.scene",
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:012"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.node"
+        "public_symbol:aspose.threed.node",
+        "example:002",
+        "example:004"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.node"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh"
+        "public_symbol:aspose.threed.mesh",
+        "example:005",
+        "example:009",
+        "example:010"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.mesh"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading"
+        "public_symbol:aspose.threed.shading",
+        "example:002",
+        "example:004",
+        "example:005"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.fileformat",
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:012"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animationclip"
+        "public_symbol:aspose.threed.entities",
+        "example:002",
+        "example:004",
+        "example:010"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities",
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:012"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.animationnode"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animationnode"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.keyframesequence"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.keyframesequence"
     },
     {
       "fact_ids": [
@@ -63,24 +91,44 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.formats",
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:012"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.transform"
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities"
+        "public_symbol:aspose.threed.render"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+      "symbol_fact_id": "public_symbol:aspose.threed.render"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed.deformers"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
     }
   ],
-  "at_a_glance": null,
+  "at_a_glance": {
+    "capability_titles": [
+      "Load multiple 3D formats",
+      "Export to common 3D formats",
+      "Construct and manipulate meshes",
+      "Assign materials to geometry",
+      "Build and traverse scene graphs",
+      "Triangulate arbitrary polygons",
+      "Create keyframe animations"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": [
+      "format:output.gltf",
+      "format:output.stl"
+    ]
+  },
   "core_capabilities": [
     {
       "fact_ids": [
@@ -212,12 +260,12 @@
   "sections": [
     {
       "include": true,
-      "reason": "Required section; the H1 product name matches the verified repository identity.",
+      "reason": "Required section; the H1 product name matches the canonical identity.",
       "section_id": "identity"
     },
     {
       "include": true,
-      "reason": "Required section; all badges in the row have verified targets.",
+      "reason": "Required section; the badge row contains verified badges for Python version, license, contributors, and PyPI version.",
       "section_id": "badges"
     },
     {
@@ -227,37 +275,37 @@
     },
     {
       "include": true,
-      "reason": "Required section; the product summary and opening requirements are supported by verified facts.",
+      "reason": "Required section; describes the product, its license, and capabilities.",
       "section_id": "opening"
     },
     {
       "include": true,
-      "reason": "Required section; the navigation list renders the same in-page links.",
+      "reason": "Required section; the navigation list is rendered from facts.",
       "section_id": "navigation"
     },
     {
-      "include": false,
-      "reason": "No SUPPORTED input format exists; the At a Glance section is omitted.",
+      "include": true,
+      "reason": "At least three verified core capabilities exist; no verified input formats exist, so Starting Points are omitted.",
       "section_id": "at_a_glance"
     },
     {
       "include": true,
-      "reason": "Required section; the Key Capabilities heading is supported by verified public symbols and examples.",
+      "reason": "Required section; contains three to eight action-led items grounded in facts.",
       "section_id": "key_capabilities"
     },
     {
       "include": true,
-      "reason": "Required section; the Installation heading is supported by the verified pip install command.",
+      "reason": "Required section; the verified install command for Python is present.",
       "section_id": "installation"
     },
     {
       "include": true,
-      "reason": "Required section; the Dependencies heading is supported by verified dependency facts.",
+      "reason": "Required section; the dependency snapshot is fully supported.",
       "section_id": "dependencies"
     },
     {
       "include": true,
-      "reason": "Required section; the Quick Start heading is supported by the verified example.",
+      "reason": "Required section; one minimal verified example exists.",
       "section_id": "quick_start"
     },
     {
@@ -267,7 +315,7 @@
     },
     {
       "include": true,
-      "reason": "Required section; the API Reference heading is supported by verified public symbols.",
+      "reason": "Required section; the complete verified public surface is available.",
       "section_id": "api_reference"
     },
     {
@@ -277,12 +325,12 @@
     },
     {
       "include": true,
-      "reason": "Required section; the Scope and Limitations heading is supported by verified limitations.",
+      "reason": "Required section; every material limitation is supported.",
       "section_id": "scope_limitations"
     },
     {
       "include": true,
-      "reason": "Build or test assets exist.",
+      "reason": "Build and test assets exist.",
       "section_id": "development_testing"
     },
     {
@@ -292,12 +340,12 @@
     },
     {
       "include": false,
-      "reason": "The LICENSE file exists but no third-party notices file is referenced in facts.",
+      "reason": "filled from the shell: its condition does not hold",
       "section_id": "third_party_notices"
     },
     {
       "include": true,
-      "reason": "Required section; the License heading is supported by verified license facts.",
+      "reason": "Required section; the license declaration is supported.",
       "section_id": "license"
     }
   ]

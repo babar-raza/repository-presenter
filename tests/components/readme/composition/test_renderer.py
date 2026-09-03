@@ -208,7 +208,8 @@ def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> No
     assert "- [At a Glance](#at-a-glance)" in lines and "- [License](#license)" in lines
     assert "- [Dependencies](#dependencies)" not in lines
     assert "- [Navigation](#navigation)" not in lines
-    assert "```mermaid" in lines and '  I1["OBJ"] --> P' in lines and '    O1["GLB"]' in lines
+    assert "```mermaid" in lines and '    i1["An existing OBJ file"]' in lines
+    assert '    o1["GLB file"]' in lines
     assert "- **Build scenes.** Scenes are built from `aspose.threed.Scene` objects." in lines
     installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
     assert installation == (
@@ -695,3 +696,48 @@ def test_the_banner_is_a_linked_image_from_both_verified_facts_or_absent() -> No
     # One fact alone renders nothing: never an unlinked image, never a broken link.
     one = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, image))
     assert "banner-readme.png" not in render_readme(ENTRY, one, plan, UNITS, DISPOSITIONS)
+
+
+def test_at_a_glance_is_the_one_chain_of_section_2_1() -> None:
+    lines = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
+    start = lines.index("## At a Glance")
+    end = lines.index("## Key Capabilities")
+    section = [line for line in lines[start + 1 : end] if line.strip()]
+    assert section == [
+        "```mermaid",
+        "flowchart TD",
+        '  subgraph StartingPoints["Starting Points"]',
+        "    direction LR",
+        '    i1["An existing OBJ file"]',
+        "  end",
+        '  PRODUCT["Aspose.3D FOSS for Python"]',
+        '  subgraph Capabilities["Core Capabilities"]',
+        "    direction TB",
+        '    c1["Build scenes"]',
+        '    c2["Save GLB"]',
+        "  end",
+        '  subgraph Outputs["Outputs"]',
+        "    direction TB",
+        '    o1["GLB file"]',
+        "  end",
+        "  StartingPoints --> PRODUCT --> Capabilities --> Outputs",
+        "```",
+    ]
+
+
+def test_at_a_glance_drops_absent_groups_and_balances_six_or_more_capabilities() -> None:
+    titles = ["Build scenes", "Save GLB", "Read OBJ", "Write STL", "Merge meshes", "Bake lights"]
+    plan = {
+        **PLAN,
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": [],
+            "capability_titles": titles,
+        },
+    }
+    readme = render_readme(ENTRY, FACTS, plan, UNITS, DISPOSITIONS)
+    assert "StartingPoints" not in readme and 'subgraph Outputs["Outputs"]' not in readme
+    assert "  PRODUCT --> Capabilities" + chr(10) in readme
+    assert '    subgraph capl[" "]' in readme and '    subgraph capr[" "]' in readme
+    assert '      c3["Read OBJ"]' in readme and '      c4["Write STL"]' in readme
+    assert "~~~" not in readme

@@ -329,3 +329,18 @@ def test_an_ellipsis_in_a_quote_abbreviates_between_exact_fragments() -> None:
     assert quote_located("Load formats. … Save.", candidate)
     assert not quote_located("Load formats. ... Write PDF.", candidate)
     assert not quote_located("...", candidate)
+
+
+def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:
+    # README_CONTRACT.md section 2.1: the renderer owns every node, edge, and label of the
+    # diagram, so a reviewer asking for a group the facts do not verify is out of scope.
+    diagram = {
+        **_finding("F01", "at_a_glance", "S6", "It writes `.glb` files."),
+        "criterion": "presentation",
+    }
+    output = {"verdict": "REJECT_PRESENTATION", "findings": [diagram]}
+    assert review_checks(output, CANDIDATE, FACTS) == []
+    assert diagram["causal_stage"] == "unclear" and diagram["text"].startswith(
+        "[reviewer-scope defect at S6: section at_a_glance renders from facts under the "
+        "contract's own checks; its presentation is the renderer's"
+    )

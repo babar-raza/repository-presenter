@@ -186,8 +186,10 @@ def presentation_defect(finding: dict[str, Any]) -> str | None:
     )
 
 
+# At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,
+# and label (README_CONTRACT.md section 2.1), so its presentation is likewise the renderer's.
 _DETERMINISTIC_SECTIONS = frozenset(
-    section.id for section in SEMANTIC_SHELL if section.owner == "D"
+    {*(section.id for section in SEMANTIC_SHELL if section.owner == "D"), "at_a_glance"}
 )
 
 

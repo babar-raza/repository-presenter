@@ -118,20 +118,38 @@ def test_enterprise_prose_is_superseded_by_row_18_once_the_live_target_is_verifi
     assert banner["destination_section"] is None
 
 
-def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing() -> None:
-    # No verified input format, so At a Glance cannot appear at this revision: a paragraph placed
-    # there is re-routed by the reconciler (README_CONTRACT.md section 3), while a heading, which
-    # the shell owns and never renders verbatim, needs no re-routing.
+def test_a_placement_into_at_a_glance_is_covered_by_the_diagram_or_deferred() -> None:
+    # README_CONTRACT.md row 6: At a Glance is exactly one Mermaid fence and nothing else, so a
+    # paragraph placed there is superseded by the diagram when it cites facts and deferred when
+    # it cites none, while a heading, which the shell owns and never renders verbatim, stands.
     output = {
         "dispositions": [
             _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "at_a_glance"),
+            _entry(
+                "inherited_unit:004.paragraph", "VERIFIED_MOVE", "at_a_glance", "format:output.stl"
+            ),
             _entry("inherited_unit:007.heading", "VERIFIED_PRESERVE", "at_a_glance"),
         ]
     }
+    assert normalize(output, FACTS) == []
+    bare, cited, heading = output["dispositions"]
+    assert (bare["disposition"], bare["destination_section"]) == ("DEFER_UNRESOLVED", None)
+    assert (cited["disposition"], cited["destination_section"]) == ("SUPERSEDE_REDUNDANT", None)
+    assert heading["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing() -> None:
+    # No third-party notices are verified, so that section cannot appear at this revision: a
+    # paragraph placed there is re-routed by the reconciler (README_CONTRACT.md section 3).
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "third_party_notices"),
+        ]
+    }
     assert normalize(output, FACTS) == [
-        "inherited_unit:002.paragraph: section at_a_glance does not appear in this candidate "
-        "(its condition does not hold at this revision); place the unit in another section or "
-        "choose DEFER_UNRESOLVED"
+        "inherited_unit:002.paragraph: section third_party_notices does not appear in this "
+        "candidate (its condition does not hold at this revision); place the unit in another "
+        "section or choose DEFER_UNRESOLVED"
     ]
     assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
 
@@ -152,8 +170,10 @@ def test_a_unit_may_be_superseded_by_a_planned_sections_own_content() -> None:
 def test_a_supersession_by_an_absent_section_is_deferred_for_the_owner() -> None:
     output = {
         "dispositions": [
-            _entry("inherited_unit:002.paragraph", "SUPERSEDE_REDUNDANT", "at_a_glance"),
-            _entry("inherited_unit:007.heading", "SUPERSEDE_REDUNDANT", "at_a_glance"),
+            _entry(
+                "inherited_unit:002.paragraph", "SUPERSEDE_REDUNDANT", "enterprise_relationship"
+            ),
+            _entry("inherited_unit:007.heading", "SUPERSEDE_REDUNDANT", "enterprise_relationship"),
         ]
     }
     assert normalize(output, FACTS) == []

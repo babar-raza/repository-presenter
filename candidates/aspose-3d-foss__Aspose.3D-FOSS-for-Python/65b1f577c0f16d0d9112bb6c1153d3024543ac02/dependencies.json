@@ -1,8 +1,8 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "renderer": "12",
-    "shell": "4"
+    "renderer": "13",
+    "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
   "facts": {
@@ -1737,8 +1737,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "b35742868e5a4b14b816d8a8ce38fb21cc053970503573b54dcea73d6cc2db9d",
-      "version": "2"
+      "sha256": "ec4068fb50e573ac86db8d4ba3fcb6b054930aa1be3d0d323ddafd73c22183eb",
+      "version": "3"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -1761,7 +1761,7 @@
       "version": "3"
     }
   },
-  "protected_content_fingerprint": "ba4b168ad77633e61e962d565fc3f621982f2662a115f89f68728b5b37f80afd",
+  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
   "schema_version": 1,
   "source": {
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
