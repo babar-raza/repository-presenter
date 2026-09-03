@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,34 @@ CAUSAL_STATES: dict[str, str] = {
     "S8": "COMPOSING",
 }
 _STRUCTURAL_SECTIONS = frozenset({"structure", "document"})
+# Em dash, en dash, figure dash, non-breaking hyphen, no-break space, and curly quotes: the
+# typography a model or a maintainer may spell differently from the candidate.
+_TYPOGRAPHY = str.maketrans(
+    {
+        "\u2014": "-",
+        "\u2013": "-",
+        "\u2012": "-",
+        "\u2011": "-",
+        "\u00a0": " ",
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+    }
+)
+
+
+def _normalized(text: str) -> str:
+    """Text as a reader compares it: no code spans, plain dashes and quotes, single spaces."""
+    plain = text.translate(_TYPOGRAPHY).replace("`", "")
+    return re.sub(r"\s+", " ", plain).strip().lower()
+
+
+def quote_located(quote: str, candidate_readme: str) -> bool:
+    """A quote locates candidate text when its normalized form occurs in the candidate; a quote
+    that exists nowhere in any spelling is invented and rejects the finding."""
+    wanted = _normalized(quote)
+    return not wanted or wanted in _normalized(candidate_readme)
 
 
 def review_packet(
@@ -92,10 +121,10 @@ def review_checks(output: dict[str, Any], candidate_readme: str) -> list[str]:
                 f"finding {label}: section_id must be a shell section or 'structure'; "
                 f"got {section!r}"
             )
-        quote = str(finding.get("quote", "")).strip()
-        if quote and quote not in candidate_readme:
+        quote = str(finding.get("quote", ""))
+        if not quote_located(quote, candidate_readme):
             errors.append(
-                f"finding {label}: quote is not the candidate's text verbatim: {quote[:60]!r}"
+                f"finding {label}: quote is not the candidate's text: {quote.strip()[:60]!r}"
             )
     verdict = output.get("verdict")
     if verdict != ACCEPT and not any(blocking(f) for f in findings):

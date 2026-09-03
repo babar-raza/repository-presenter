@@ -17,6 +17,7 @@ from repository_presenter import __version__, cli
 from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
 from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.extractors.platforms import python_registry
+from repository_presenter.components.readme.repair.targeted import defect_fingerprint
 from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
@@ -418,18 +419,24 @@ class _ChatGateway:
 
     def __init__(self) -> None:
         self.requests: list[dict[str, Any]] = []
+        # Per-job queues consumed in order before the canned output applies.
+        self.queues: dict[str, list[dict[str, Any]]] = {}
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/chat/completions")
         payload = json.loads(request.content)
         self.requests.append(payload)
         job = payload["response_format"]["json_schema"]["name"]
-        if job == "section_authoring":
-            user = payload["messages"][1]["content"]
+        user = payload["messages"][1]["content"]
+        if self.queues.get(job):
+            content = json.dumps(self.queues[job].pop(0))
+        elif job == "section_authoring":
             section = re.search(r"^Section: (\S+)$", user, re.M).group(1)  # type: ignore[union-attr]
             if section == "all":
-                every = [unit for scripted in LOCAL_UNITS.values() for unit in scripted["units"]]
-                content = json.dumps({"units": every, "omitted": []})
+                # Coherence returns every unit as it stands, revising nothing.
+                existing = user.split("Existing LLM-owned units (coherence mode only):\n", 1)[1]
+                existing = existing.rsplit("\n\nReturn the units", 1)[0]
+                content = json.dumps({"units": json.loads(existing), "omitted": []})
             else:
                 content = json.dumps(LOCAL_UNITS[section])
         else:
@@ -729,6 +736,179 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 11 + [
         "cache_reuse"
     ] * 11
+
+
+OPENING_QUOTE = "Developers using Python use it to write GLB from code."
+REVISED_OPENING = (
+    "Aspose.3D for Python builds scenes in memory and saves them as GLB files. "
+    "Python developers use it to write GLB files from code."
+)
+
+
+def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
+    return {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [
+            {
+                "id": label,
+                "section_id": "opening",
+                "causal_stage": "S6",
+                "criterion": "factuality",
+                "text": "The audience sentence is generic.",
+                "quote": quote,
+                "fact_ids": ["identity:repository"],
+                "repair": "Name the developers concretely.",
+            }
+        ],
+        "preserve": ["the quick start"],
+    }
+
+
+def _opening_repair() -> dict[str, Any]:
+    return {
+        "fingerprint": defect_fingerprint("review", "opening", "S6", "factuality"),
+        "causal_stage": "S6",
+        "revised_output": {
+            "units": [
+                _unit(
+                    "opening",
+                    "opening",
+                    REVISED_OPENING,
+                    "identity:repository",
+                    "format:output.glb",
+                )
+            ],
+            "omitted": [],
+        },
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.units[0].text",
+                "before": OPENING_QUOTE,
+                "after": "Python developers use it to write GLB files from code.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+    }
+
+
+def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    gateway_ready.queues = {
+        "independent_review": [
+            _rejection("F01"),
+            {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        ],
+        "targeted_repair": [_opening_repair()],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT and "seal stage is not implemented" in captured.err
+    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 2" in (
+        captured.out
+    )
+    names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
+    assert names[11:] == ["targeted_repair", "section_authoring", "independent_review"]
+    repair_request = gateway_ready.requests[11]["messages"][1]["content"]
+    assert "Causal stage: S6" in repair_request and OPENING_QUOTE in repair_request
+    assert '"the quick start"' in repair_request
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    readme = (transaction / "README.md").read_text("utf-8")
+    assert "Python developers use it to write GLB files from code." in readme
+    assert OPENING_QUOTE not in readme
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "ACCEPT"
+    validation = json.loads((transaction / "validation.json").read_text("utf-8"))
+    assert validation["summary"] == {"pass": 10, "fail": 0, "pending": 1}
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    attempt = repairs["attempts"][defect_fingerprint("review", "opening", "S6", "factuality")]
+    assert attempt["outcome"] == "repaired" and attempt["changes"][0]["id"] == "R01"
+    assert "provider calls 1, model qwen3-next; digest" in next(
+        line for line in captured.out.splitlines() if line.startswith("review: ")
+    )
+
+    def digests(text: str) -> list[str]:
+        return [line.rsplit("digest ", 1)[1] for line in text.splitlines() if "digest " in line]
+
+    first_digests = digests(captured.out)
+
+    again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    rerun = capsys.readouterr().out
+    assert again == EXIT_INCONSISTENT
+    assert digests(rerun) == first_digests and len(first_digests) == 10
+    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 14
+    # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
+    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 1" in (
+        rerun
+    )
+    ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
+    # Round one and the repair call the provider; round two reuses every unchanged stage and
+    # calls only coherence and the review; the rerun reuses everything.
+    dispositions = [json.loads(line)["disposition"] for line in ledger]
+    assert dispositions[:12] == ["provider_call"] * 12
+    assert dispositions[12:21] == ["cache_reuse"] * 9
+    assert dispositions[21:23] == ["provider_call"] * 2
+    assert dispositions[23:] == ["cache_reuse"] * 11
+
+
+def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    gateway_ready.queues = {
+        "independent_review": [
+            _rejection("F01"),
+            _rejection("F02", "Python developers use it to write GLB files from code."),
+        ],
+        "targeted_repair": [_opening_repair()],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert (
+        "validation: BC-10 failed at COMPOSING: REJECT_PRESENTATION; "
+        "after one repair attempt the equivalent failure stands"
+    ) in captured.err
+    assert "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 2" in (
+        captured.out
+    )
+    assert len(gateway_ready.requests) == 14
+
+
+def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    evidence_finding = {
+        **_rejection("F01")["findings"][0],
+        "section_id": "installation",
+        "causal_stage": "S2",
+        "quote": "pip install aspose-3d-foss",
+        "fact_ids": [],
+    }
+    gateway_ready.queues = {
+        "independent_review": [
+            {"verdict": "REJECT_FACTUAL", "findings": [evidence_finding], "preserve": []}
+        ]
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "BC-10 failed at EXTRACTING: REJECT_FACTUAL; no repair could act on it" in captured.err
+    assert "repair: 0 repaired, 1 unrepairable recorded advisory; rounds 1" in captured.out
+    assert len(gateway_ready.requests) == 11
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    (attempt,) = repairs["attempts"].values()
+    assert attempt["outcome"] == "unrepairable" and attempt["reason"].startswith("evidence defect")
 
 
 def test_present_reports_a_readme_only_placeholder_as_insufficient_evidence(

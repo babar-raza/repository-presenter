@@ -3,43 +3,25 @@
 from __future__ import annotations
 
 import argparse
-import functools
 import hashlib
 import os
 import sys
 from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
 
 from repository_presenter import __version__
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
-    authoring_tasks,
-    merge_units,
-    unit_checks,
-    write_content_units,
 )
-from repository_presenter.components.readme.composition.coherence import (
-    apply_coherence,
-    coherence_checks,
-    coherence_packet,
-)
-from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
-    plan_checks,
-    planning_packet,
     summarize_plan,
-    write_plan,
 )
 from repository_presenter.components.readme.composition.renderer import (
     PATCH_FILENAME,
     README_FILENAME,
     line_counts,
-    render_patch,
-    render_readme,
-    write_text,
 )
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
 from repository_presenter.components.readme.evidence.processability import (
@@ -51,32 +33,24 @@ from repository_presenter.components.readme.extractors.examples.selection import
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
-    investigation_packet,
-    write_investigation,
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
-    reconcile_checks,
-    reconciliation_packet,
     summarize,
-    write_dispositions,
+)
+from repository_presenter.components.readme.repair.rounds import (
+    Round,
+    TransactionInputs,
+    run_transaction,
 )
 from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
-    review_checks,
-    review_document,
-    review_packet,
     summarize_review,
-    write_review,
 )
 from repository_presenter.components.readme.validation.registry import (
     VALIDATION_FILENAME,
-    Candidate,
     blocking_failures,
-    record_review_verdict,
     summarize_validation,
-    validate_candidate,
-    write_validation,
 )
 from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
@@ -92,7 +66,7 @@ from repository_presenter.core.facts import (
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
-from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, run_job
+from repository_presenter.core.llm.jobs import CALLS_DIRNAME, CallStore, JobContext, JobResult
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, Ledger
 from repository_presenter.core.llm.prompts import PROMPTS_DIRNAME, load_manifests, validate_routes
 from repository_presenter.core.preflight import (
@@ -318,200 +292,108 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"facts: {(transaction / FACTS_FILENAME).relative_to(root).as_posix()} "
             f"({len(document.facts)} records: {counts}; digest {facts_digest})"
         )
-        ledger = Ledger(transaction / LEDGER_FILENAME)
-        store = CallStore(transaction / CALLS_DIRNAME)
-        context = JobContext(entry.repository, clone.revision)
-        loaded = prompts["repository_investigation"]
-        result = run_job(
-            loaded,
-            investigation_packet(entry, document, loaded.manifest),
-            config=config,
-            facts=document,
-            ledger=ledger,
-            store=store,
-            context=context,
-        )
-        investigation_digest = write_investigation(
-            result.output, transaction / INVESTIGATION_FILENAME
-        )
-        output = result.output
-        print(
-            f"investigation: {(transaction / INVESTIGATION_FILENAME).relative_to(root).as_posix()} "
-            f"(capabilities {len(output.get('capabilities', []))}, "
-            f"workflows {len(output.get('workflows', []))}, "
-            f"limitations {len(output.get('limitations', []))}; "
-            f"provider calls {result.provider_calls}, "
-            f"model {result.model_served or 'stored output reused'}; "
-            f"digest {investigation_digest})"
-        )
-        loaded = prompts["source_reconciliation"]
-        reconciled = run_job(
-            loaded,
-            reconciliation_packet(entry, document, output, loaded.manifest),
-            config=config,
-            facts=document,
-            ledger=ledger,
-            store=store,
-            context=context,
-            checks=lambda candidate: reconcile_checks(candidate, document),
-        )
-        dispositions_digest = write_dispositions(
-            reconciled.output, transaction / DISPOSITIONS_FILENAME
-        )
-        disposition_counts = summarize(reconciled.output)
-        tally = ", ".join(f"{name} {count}" for name, count in sorted(disposition_counts.items()))
-        print(
-            f"dispositions: {(transaction / DISPOSITIONS_FILENAME).relative_to(root).as_posix()} "
-            f"({sum(disposition_counts.values())} units: {tally}; "
-            f"provider calls {reconciled.provider_calls}, "
-            f"model {reconciled.model_served or 'stored output reused'}; "
-            f"digest {dispositions_digest})"
-        )
-        loaded = prompts["presentation_planning"]
-        planned = run_job(
-            loaded,
-            planning_packet(entry, document, output, reconciled.output, loaded.manifest),
-            config=config,
-            facts=document,
-            ledger=ledger,
-            store=store,
-            context=context,
-            checks=lambda candidate: plan_checks(candidate, document),
-        )
-        plan_digest = write_plan(planned.output, transaction / PLAN_FILENAME)
-        print(
-            f"plan: {(transaction / PLAN_FILENAME).relative_to(root).as_posix()} "
-            f"({summarize_plan(planned.output)}; provider calls {planned.provider_calls}, "
-            f"model {planned.model_served or 'stored output reused'}; digest {plan_digest})"
-        )
-        loaded = prompts["section_authoring"]
-        name = product_name(entry)
-        authored: dict[str, dict[str, Any]] = {}
-        authoring_calls = 0
-        tasks = authoring_tasks(entry, document, output, reconciled.output, planned.output)
-        for task in tasks:
-            section_result = run_job(
-                loaded,
-                task.packet,
-                config=config,
-                facts=document,
-                ledger=ledger,
-                store=store,
-                context=context,
-                checks=functools.partial(unit_checks, task=task, facts=document, name=name),
-            )
-            authoring_calls += section_result.provider_calls
-            authored[task.section_id] = section_result.output
-        units_document = merge_units(authored)
-        readme = render_readme(entry, document, planned.output, units_document, reconciled.output)
-        coherent = run_job(
-            loaded,
-            coherence_packet(entry, readme, units_document, tasks, document),
-            config=config,
-            facts=document,
-            ledger=ledger,
-            store=store,
-            context=context,
-            checks=functools.partial(coherence_checks, tasks=tasks, facts=document, name=name),
-        )
-        units_document, revised = apply_coherence(units_document, coherent.output)
-        if revised:
-            readme = render_readme(
-                entry, document, planned.output, units_document, reconciled.output
-            )
-        units_digest = write_content_units(units_document, transaction / CONTENT_UNITS_FILENAME)
-        print(
-            f"units: {(transaction / CONTENT_UNITS_FILENAME).relative_to(root).as_posix()} "
-            f"({len(units_document['units'])} units across {len(authored)} sections: "
-            f"{', '.join(authored)}; provider calls {authoring_calls}; digest {units_digest})"
-        )
-        print(
-            f"coherence: {len(revised)} of {len(units_document['units'])} units revised; "
-            f"provider calls {coherent.provider_calls}, "
-            f"model {coherent.model_served or 'stored output reused'}"
-        )
         original_bytes: bytes | None = None
         original = ""
         if snapshot.readme_path is not None:
             original_bytes = (clone.path / snapshot.readme_path).read_bytes()
             original = original_bytes.decode("utf-8", errors="replace")
-        readme_digest = write_text(readme, transaction / README_FILENAME)
-        patch_digest = write_text(render_patch(original, readme), transaction / PATCH_FILENAME)
-        # Stage S9 runs exactly the contract's blocking checks over the written artifacts; a
-        # failure names its causal stage so repair reopens the cause, never the validation.
-        validation = validate_candidate(
-            Candidate(
-                entry,
-                document,
-                planned.output,
-                units_document,
-                reconciled.output,
-                readme,
-                original_bytes,
-                clone.revision,
-                snapshot.readme_sha256,
-                tree_paths,
-                tasks,
-            ),
-            transaction,
-            configured_secrets(os.environ),
-        )
-        validation_digest = write_validation(validation, transaction / VALIDATION_FILENAME)
-        reviewed = None
-        review: dict[str, Any] = {}
-        review_digest = ""
-        if not blocking_failures(validation):
-            # Stage S10 runs only over a candidate every deterministic check accepted, under
-            # its own prompt and identity, and writes its verdict into check 10.
-            loaded = prompts["independent_review"]
-            reviewed = run_job(
-                loaded,
-                review_packet(
-                    entry, document, original, readme, planned.output, reconciled.output, validation
-                ),
-                config=config,
+        # Stages S3 to S10 run as rounds: a blocking defect is repaired once at its causal
+        # stage and the downstream stages re-run; a second equivalent failure is reported,
+        # never retried.
+        final, repairs, rounds = run_transaction(
+            TransactionInputs(
+                entry=entry,
                 facts=document,
-                ledger=ledger,
-                store=store,
-                context=context,
-                checks=functools.partial(review_checks, candidate_readme=readme),
+                prompts=prompts,
+                config=config,
+                ledger=Ledger(transaction / LEDGER_FILENAME),
+                store=CallStore(transaction / CALLS_DIRNAME),
+                context=JobContext(entry.repository, clone.revision),
+                original=original,
+                original_bytes=original_bytes,
+                source_revision=clone.revision,
+                readme_sha256=snapshot.readme_sha256,
+                tree_paths=tree_paths,
+                directory=transaction,
+                secrets=configured_secrets(os.environ),
             )
-            review = review_document(
-                reviewed.output, loaded, prompts["section_authoring"], readme_digest
-            )
-            review_digest = write_review(review, transaction / REVIEW_FILENAME)
-            validation = record_review_verdict(validation, review)
-            validation_digest = write_validation(validation, transaction / VALIDATION_FILENAME)
+        )
     except PresenterError as exc:
         _fail(redact(str(exc), live_values))
         return exc.exit_code
-    visible, total = line_counts(readme)
-    print(
-        f"readme: {(transaction / README_FILENAME).relative_to(root).as_posix()} "
-        f"({visible} visible lines of {total}; digest {readme_digest})"
-    )
-    patch_path = (transaction / PATCH_FILENAME).relative_to(root).as_posix()
-    print(f"patch: {patch_path} (digest {patch_digest})")
-    print(
-        f"validation: {(transaction / VALIDATION_FILENAME).relative_to(root).as_posix()} "
-        f"({summarize_validation(validation)}; digest {validation_digest})"
-    )
-    if reviewed is not None:
-        print(
-            f"review: {(transaction / REVIEW_FILENAME).relative_to(root).as_posix()} "
-            f"({summarize_review(review)}; provider calls {reviewed.provider_calls}, "
-            f"model {reviewed.model_served or 'stored output reused'}; digest {review_digest})"
-        )
-    failed = blocking_failures(validation)
+    _print_round(root, transaction, final)
+    print(f"repair: {repairs.summary()}; rounds {rounds}")
+    failed = blocking_failures(final.validation)
     if failed:
         first = failed[0]
+        attempted = any(a["outcome"] == "repaired" for a in repairs.attempts.values())
+        standing = (
+            "after one repair attempt the equivalent failure stands"
+            if attempted
+            else "no repair could act on it"
+        )
         _fail(
             f"validation: {first['id']} failed at {first['causal_stage'] or 'the bundle'}: "
-            f"{first['details'][0]}; targeted repair is not implemented at this revision"
+            f"{first['details'][0]}; {standing}"
         )
         return EXIT_INCONSISTENT
     _fail("present: the seal stage is not implemented at this revision")
     return EXIT_INCONSISTENT
+
+
+def _print_round(root: Path, transaction: Path, final: Round) -> None:
+    """The stage lines of the round the bundle holds, in stage order."""
+
+    def where(name: str) -> str:
+        return (transaction / name).relative_to(root).as_posix()
+
+    def served(result: JobResult) -> str:
+        model = result.model_served or "stored output reused"
+        return f"provider calls {result.provider_calls}, model {model}"
+
+    output = final.investigation.output
+    print(
+        f"investigation: {where(INVESTIGATION_FILENAME)} "
+        f"(capabilities {len(output.get('capabilities', []))}, "
+        f"workflows {len(output.get('workflows', []))}, "
+        f"limitations {len(output.get('limitations', []))}; "
+        f"{served(final.investigation)}; digest {final.digests['investigation']})"
+    )
+    counts = summarize(final.reconciled.output)
+    tally = ", ".join(f"{name} {count}" for name, count in sorted(counts.items()))
+    print(
+        f"dispositions: {where(DISPOSITIONS_FILENAME)} ({sum(counts.values())} units: {tally}; "
+        f"{served(final.reconciled)}; digest {final.digests['dispositions']})"
+    )
+    print(
+        f"plan: {where(PLAN_FILENAME)} ({summarize_plan(final.planned.output)}; "
+        f"{served(final.planned)}; digest {final.digests['plan']})"
+    )
+    authoring_calls = sum(result.provider_calls for result in final.authored.values())
+    print(
+        f"units: {where(CONTENT_UNITS_FILENAME)} ({len(final.units['units'])} units across "
+        f"{len(final.authored)} sections: {', '.join(final.authored)}; "
+        f"provider calls {authoring_calls}; digest {final.digests['units']})"
+    )
+    print(
+        f"coherence: {len(final.revised)} of {len(final.units['units'])} units revised; "
+        f"{served(final.coherent)}"
+    )
+    visible, total = line_counts(final.readme)
+    print(
+        f"readme: {where(README_FILENAME)} ({visible} visible lines of {total}; "
+        f"digest {final.digests['readme']})"
+    )
+    print(f"patch: {where(PATCH_FILENAME)} (digest {final.digests['patch']})")
+    print(
+        f"validation: {where(VALIDATION_FILENAME)} ({summarize_validation(final.validation)}; "
+        f"digest {final.digests['validation']})"
+    )
+    if final.reviewed is not None:
+        print(
+            f"review: {where(REVIEW_FILENAME)} ({summarize_review(final.review)}; "
+            f"{served(final.reviewed)}; digest {final.digests['review']})"
+        )
 
 
 def _resolve_root(root_argument: Path | None) -> Path | None:

@@ -104,6 +104,15 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
         "preserve": ["the H1"],
     }
     assert review_checks(sound, CANDIDATE) == []
+    # A quote locates text as a reader would: spans, dashes, and spacing do not have to match.
+    respelled = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [_finding("F01", "opening", "S6", "It writes  .glb\nfiles.")],
+        "preserve": [],
+    }
+    assert review_checks(respelled, CANDIDATE) == []
+    assert review_checks(respelled, "Note — It writes `.glb`  files.") == []
+    assert review_checks(respelled, "It writes `.glb` files, always.") != []
     bad = {
         "verdict": "REJECT_FACTUAL",
         "findings": [
@@ -113,7 +122,7 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
         "preserve": [],
     }
     assert review_checks(bad, CANDIDATE) == [
-        "finding F01: quote is not the candidate's text verbatim: 'It writes PDF files.'",
+        "finding F01: quote is not the candidate's text: 'It writes PDF files.'",
         "finding F01: its ID repeats an earlier finding",
         "finding F01: section_id must be a shell section or 'structure'; got 'nowhere'",
         "verdict REJECT_FACTUAL needs at least one finding that names a section and a causal "

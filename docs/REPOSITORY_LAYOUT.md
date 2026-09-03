@@ -57,6 +57,9 @@ src/repository_presenter/
     review/
       independent/             independent_review job wiring
       acceptance/               30-point criterion profile (G2)
+    repair/
+      targeted.py              targeted_repair job wiring: defects, fingerprints, repairs.json
+      rounds.py                one composition round (S3 to S10) and the bounded repair loop
     evidence/
       facts/                    fact extraction (README_CONTRACT.md §3 S2)
 
