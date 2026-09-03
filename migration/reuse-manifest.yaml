@@ -379,13 +379,22 @@ expected_area_dispositions:
       to become a thin wrapper around the SDK rather than a requests-based reimplementation.
 
   - source_glob: src/readme_agent/llm/*_client.py
-    expected_disposition: EXTRACT_AND_REFACTOR
-    destination_area: src/repository_presenter/core/llm/jobs/
-    retained_behavior:
-      - Useful typed job adapters.
-    removed_behavior:
-      - Duplicate HTTP transports.
-      - Trusted-lane-specific clients.
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    note: >
+      Seeded EXTRACT_AND_REFACTOR before G1-W03 built core/llm/jobs.py; superseded, not merely
+      duplicated. analysis_client.py, planner_client.py, reviewer_client.py,
+      section_author_client.py, and verifier_client.py were one hand-written class per job role,
+      each wrapping call_transport.py separately; run_job() (core/llm/jobs.py, pulled and accepted
+      at G1-W03) is the one generic function every one of the six governed jobs already calls, so
+      no per-role adapter has anything left to extract. embeddings_client.py has no consumer at
+      all: none of the six jobs use embeddings, and the gateway's real model catalog (preflight,
+      G1-W03) lists no route any job needs one for. fixture_client.py's role (a fake transport for
+      tests) is served by this project's own test seam on core/llm/transport.py::build_client,
+      not a ported class. If a future ecosystem or job genuinely needs a distinct adapter shape
+      run_job() cannot express, that is a new, evidenced pull decided then, not a revival of this
+      glob's original seed.
 
   - source_glob: src/readme_agent/llm/prompt_registry.py
     expected_disposition: PORT_NEARLY_INTACT
@@ -398,6 +407,22 @@ expected_area_dispositions:
     destination_area: src/repository_presenter/core/llm/prompt_hygiene.py
     retained_behavior:
       - Unknown, duplicate, orphaned, or inline executable prompt rejection.
+
+  - source_glob: src/readme_agent/llm/*_prompts.py
+    expected_disposition: RETIRE
+    destination_area: null
+    retained_behavior: []
+    note: >
+      analysis_prompts.py, generation_prompts.py, planning_prompts.py, claim_disposition_prompts.py,
+      section_authoring_prompts.py, and verification_prompts.py (about 1,385 lines) hold prompt text
+      and prompt-assembly logic as Python code. This project's own design puts prompt content only in
+      prompts/*.yaml manifests, loaded by core/llm/prompts.py (pulled from prompt_registry.py/
+      prompt_schema.py) — never a string literal in code, per that module's own docstring and
+      prompt_hygiene.py's inline-literal rejection. Nothing here is portable without reintroducing
+      exactly what prompt_hygiene.py exists to forbid; every real job's prompt text is authored fresh
+      in its own manifest instead (repository_investigation.yaml and its five siblings), not derived
+      from these files. Named explicitly, not left to the manifest's unstated RETIRE default, since
+      the previous audit found no disposition recorded for this glob anywhere.
 
   - source_glob: src/readme_agent/gitsafety/**
     expected_disposition: PORT_NEARLY_INTACT
