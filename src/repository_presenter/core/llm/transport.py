@@ -64,6 +64,7 @@ def list_models(config: GatewayConfig) -> ModelCatalog:
         raise GatewayError(f"GET {config.base_url}/models listed no models")
     return ModelCatalog(config.base_url, tuple(entries))
 
+
 @dataclass(frozen=True)
 class SeedProbe:
     """Whether one model accepted a ``seed``, from a single bounded call."""
@@ -95,4 +96,3 @@ def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
     except APIConnectionError as exc:
         raise GatewayError(f"gateway {config.host} unreachable: {type(exc).__name__}") from None
     return SeedProbe(model, True, "accepted")
-
