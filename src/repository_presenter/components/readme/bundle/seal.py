@@ -28,6 +28,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.composition.authoring import (
+    NORMALISATION_VERSION,
+)
 from repository_presenter.components.readme.composition.components.shell import SHELL_VERSION
 from repository_presenter.components.readme.composition.policy import (
     POLICY_VERSION,
@@ -130,7 +133,11 @@ def upstream_dependencies(
             for name in sorted(prompts.hashes())
         },
         "contract_version": CONTRACT_VERSION,
-        "components": {"shell": SHELL_VERSION, "renderer": RENDERER_VERSION},
+        "components": {
+            "shell": SHELL_VERSION,
+            "renderer": RENDERER_VERSION,
+            "normalisation": NORMALISATION_VERSION,
+        },
         "validators": {check.id: check.version for check in BLOCKING_CHECKS},
         "validator_version": VALIDATOR_VERSION,
         "acceptance_profile_version": ACCEPTANCE_PROFILE_VERSION,

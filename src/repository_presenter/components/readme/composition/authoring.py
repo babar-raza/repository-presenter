@@ -51,6 +51,11 @@ _TYPE_OBJECTIVE = (
     "its name: what it represents or does for a visitor. Never mechanical filler such as a "
     "member count or 'extends X', never a count, never a claim the signature does not carry."
 )
+# The normalisation this package owns - canonical_abbreviations, which the renderer applies to
+# prose, and the rewrites unit_checks makes before judging - decides rendered bytes, so it is a
+# component dependencies.json records and a change to it reopens COMPOSING, exactly as the shell
+# and the renderer do (the gap recorded at d147b4a; docs/STATE_MACHINE.md section 9).
+NORMALISATION_VERSION = "1"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.

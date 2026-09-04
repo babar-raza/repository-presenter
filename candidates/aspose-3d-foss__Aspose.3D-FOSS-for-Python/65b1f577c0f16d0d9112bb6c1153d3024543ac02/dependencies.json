@@ -1,6 +1,7 @@
 {
   "acceptance_profile_version": null,
   "components": {
+    "normalisation": "1",
     "renderer": "16",
     "shell": "5"
   },

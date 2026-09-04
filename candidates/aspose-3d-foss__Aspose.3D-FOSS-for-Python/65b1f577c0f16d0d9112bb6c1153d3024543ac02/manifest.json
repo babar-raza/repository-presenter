@@ -1,26 +1,18 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-04T15:34:46Z",
+    "adopted_at": "2026-09-04T16:57:29Z",
     "changed": [
-      "README.md",
-      "README.patch",
-      "content_units.json",
-      "dependencies.json",
-      "dispositions.json",
-      "investigation.json",
-      "plan.json",
-      "review.json",
-      "validation.json"
+      "dependencies.json"
     ],
-    "classification": "factual",
-    "earliest_affected_stage": "INVESTIGATING",
+    "classification": "presentation",
+    "earliest_affected_stage": "COMPOSING",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-04T14:28:18Z",
+      "proven_at": "2026-09-04T15:34:46Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-04T15:34:08Z"
+    "recorded_at": "2026-09-04T16:56:55Z"
   },
   "composition": {
     "advisories": 2,
@@ -39,16 +31,16 @@
       "sha256": "2d5190c8298e2bf34119b1a69ec1983370b3733c84c91bad0cb44165d80732c8"
     },
     "calls.jsonl": {
-      "bytes": 115691,
-      "sha256": "28f3f86529ab0b1cc26d1ec288d5cd8f775735ded80140ef08c803e1430c3716"
+      "bytes": 183799,
+      "sha256": "25f963948c0b456aa8d9a515fd7b9493e50cb6ac4bb9dd4a041f4f0b272a2782"
     },
     "content_units.json": {
       "bytes": 70347,
       "sha256": "86c7b9a44d387d5c642f7a2eea6390c1500580105379045ee1c0bd5ca9d2d085"
     },
     "dependencies.json": {
-      "bytes": 223259,
-      "sha256": "3e8a9db944555025c7818d11de0e6cdbbed9a9de5f2f82964c489a5d5113cc17"
+      "bytes": 223285,
+      "sha256": "e4db6b372a3aa1133ead6a5ebccbeedf8d5b07d40503eae0ba88b30cbf770532"
     },
     "dispositions.json": {
       "bytes": 30318,
@@ -82,13 +74,13 @@
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-04T15:34:46Z",
+    "proven_at": "2026-09-04T16:57:29Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
-  "sealed_at": "2026-09-04T15:34:46Z",
+  "sealed_at": "2026-09-04T16:57:29Z",
   "state": "READY_FOR_PROPOSAL"
 }
