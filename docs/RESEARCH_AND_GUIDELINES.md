@@ -1728,7 +1728,8 @@ discipline (small commits, green CI, evidence per item).
 
 Execution order in `project/state.yaml` (list order is execution order; IDs are identities, not
 positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture,
-G2-W12 D1, G2-W13 D2, G2-W16 D5, G2-W17 D6; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+G2-W12 D1 (its prose-family predicate added 2026-09-04 evening, §27.10), G2-W19 sampling
+determinism probe, G2-W13 D2, G2-W16 D5, G2-W17 D6; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -1745,8 +1746,11 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 `G4_MULTI_LANGUAGE_COHORTS`.
 
 ```yaml
-# G2 entries already in state.yaml (G2-W11 is the active item and is not repeated here); an entry is
-# "absent" only if it is in neither next_ready_items, active_work_item, nor the accepted evidence
+# G2 entries already in state.yaml (the active item is not repeated here); an entry is "absent" only
+# if it is in neither next_ready_items, active_work_item, nor the accepted evidence
+- id: G2-W19
+  status: PENDING
+  purpose: "Sampling determinism probe (section 27.5 D4, pulled forward on the 2026-09-04 composition-variance measurement in 27.10): probe the gateway for seed support per section 18.4's discovery pattern with one bounded call per served model; if honoured, add seed to Sampling and to the request payload (the cache key rotates once, recorded) and prove by test that two identical requests return identical content, through the fake gateway and live on one canary job; if not honoured, record the finding in 27.10 and in the ledger. Either way, every sealed bundle's manifest records the composition's advisory count and blocking failures so variance is measured per composition rather than sampled by accident. Acceptance: the probe result is recorded; seed is adopted or its absence recorded; the canary re-seals byte-identically with zero calls; hosted CI green."
 - id: G2-W12
   status: PENDING
   purpose: "Make every LLM job's structural constraints constructive instead of post-hoc (section 27.5 D1; cause RC1 in 27.2). The code emits each call's skeleton and a per-call JSON schema: slots enumerated with their allowed fact IDs as enums, fixed-length slot arrays, additionalProperties false. Shell section decisions leave the planner's output (code already decides them in planning.py condition_holds). Dispositions a reconciliation rule forces are computed in code and only the free ones are asked. Allowed identifiers travel as a list. The repair packet carries the same skeleton, the section's fact set, and the slot's subject. Prose stays the model's. Acceptance: on a fresh canary composition, first-attempt acceptance is at least 95 percent for every job and the re-ask share at most 5 percent, measured from the sealed calls.jsonl by a test helper; the rejection families of 27.1 (outside-section citation, wrong slot set, missing shell decision, non-fact identifier) cannot be produced by a schema-valid reply, proven by tests; rerun byte-identical with zero calls."
@@ -1803,6 +1807,47 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   status: PENDING
   purpose: "Issue independent one-shot jobs concurrently within one candidate's transaction (27.1: 0 of 315 calls overlapped; a composition burst is latency-bound). This is not repository-level parallelism: one coordinator, one state owner, repository workers stay serial per plans/idea.md. Section authoring calls, type batches and review units run with bounded concurrency of four and backoff on 429; the ledger is written in logical-call order so calls.jsonl stays deterministic; the cache and the no-op proof are unchanged. Acceptance: the canary composes byte-identically to the serial run with the fake gateway; cold composition wall-clock falls by at least half, measured and recorded; the gateway's rate-limit behaviour is discovered and recorded (section 18.4)."
 ```
+
+### 27.10 Composition variance and the D3 question (2026-09-04, evening)
+
+**Measurement (the loop's, during G2-W12).** Four successive compositions of the canary at the
+same revision, while the per-call schemas cut re-asks from 20% to 15% (first-attempt acceptance
+80% → 85.3%), produced 10 advisories, then 7, then 0, then a blocking BC-07 failure
+(`abbreviation 'glb' is not in its canonical form GLB`, which the repair loop declared
+unrepairable), then 7. Re-ask rate and composition quality are close to independent; the second
+decides whether a candidate seals. The loop stopped and asked whether D3 (anchored plans, G5-W01)
+should move back ahead of the cohorts, and why a casing repair came back unrepairable.
+
+**Decisions (owner, 2026-09-04).**
+
+1. **D3 stays in G5.** Anchoring binds a plan to the *previous accepted plan of the same
+   repository*; a first candidate has none, so D3 cannot reduce first-candidate variance — the
+   thing the cohorts spend budget on. D3's canonical-ordering half reduces render variance for
+   semantically equal plans, which is not the variance observed.
+2. **The observed variance has three sources, each with an owner already in the queue.**
+   (a) Model sampling across identical requests — temperature 0 with no `seed` (§27.2 RC4).
+   → **G2-W19**, a small slice of D4 pulled forward: probe the gateway for `seed`, adopt it if
+   honoured, and record advisory count and blocking failures per composition in the manifest so
+   variance is measured, never sampled by accident. (b) Reviewer variance in advisory counts →
+   **D5 / G2-W16**: acceptance decided by content makes the reviewer's mood irrelevant to sealing.
+   (c) Deterministic prose faults the model produces and the repair loop cannot route — the
+   casing slip is the worked example: BC-07's detail carries no `section:` prefix, so
+   `targeted.py`'s `_DETAIL_SECTION` regex finds no section and the router answers "the failing
+   detail names no LLM-owned section" (§27.2 RC8, §29.2 F-notes). → **W12, now**: the code owns
+   `_ABBREVIATIONS`, so casing is normalised constructively in the renderer's prose path with the
+   check retained; the same treatment for URLs and hostnames in sentences, commands in sentences,
+   and the edition named twice — the four prose families the re-sealed ledger names. Structured
+   routing fields replace the regex in **W16**.
+3. **Land the reconciliation per-call schema now, with the casing normalisation.** The re-seal it
+   needs is W12's own acceptance; a seal blocked by a fault the code can normalise is not a reason
+   to hold verified work.
+4. **"Re-run until it seals" stays forbidden** (loop-prompt §5). The answer to variance is fewer
+   causes of variance and a deterministic seal, never more samples.
+
+**What this does not settle.** Whether `qwen3-next` honours `seed` is unknown until G2-W19 probes
+it. If it does not, first-candidate variance remains bounded only by (b) and (c), and the cohort
+items must budget for it honestly: a composition that fails a blocking check is a disposition with
+its cause, not a retry.
 
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
