@@ -1331,3 +1331,171 @@ def test_preflight_refusal_is_reported_by_status_with_nothing_else(
     )
     assert LIVE_KEY not in captured.out + captured.err
     assert not (project / "runs" / "preflight").exists()
+
+
+# The invalidation matrix at the transaction level (docs/STATE_MACHINE.md section 9, G2-W05):
+# a dependency class changed in isolation reopens only its stage, every unaffected stored
+# output is reused, and a presentation-only result is a valid update that keeps the proven
+# candidate. The factual invalidation and the corrupt artifact cases stand above.
+
+
+def _assert_presentation_update(
+    out: str, bundle: Path, stage: str, changed: list[str], reused: tuple[str, ...]
+) -> None:
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state READY_FOR_PROPOSAL," in bundle_line
+    assert f"changed at {stage}; the proven candidate stays valid" in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["update"]["changed"] == changed
+    for prefix in reused:
+        line = next(line for line in out.splitlines() if line.startswith(prefix))
+        assert "provider calls 0" in line, line
+
+
+def test_a_template_component_change_reopens_composing_and_reuses_every_call(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.bundle import seal
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    readme_before = (bundle / "README.md").read_bytes()
+    monkeypatch.setattr(seal, "RENDERER_VERSION", "999")
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert "(earliest affected stage COMPOSING; 1 changes (components.renderer -> COMPOSING)" in out
+    # Nothing an LLM produced depends on the component version: zero calls, every stage reused.
+    assert len(gateway_ready.requests) == before
+    _assert_presentation_update(
+        out, bundle, "COMPOSING", ["dependencies.json"], ("plan: ", "units: ", "review: ")
+    )
+    assert (bundle / "README.md").read_bytes() == readme_before
+
+
+def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.bundle import seal
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    monkeypatch.setattr(seal, "VALIDATOR_VERSION", "999")
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert "(earliest affected stage VALIDATING; 1 changes (validators -> VALIDATING)" in out
+    assert len(gateway_ready.requests) == before
+    # A validator change re-checks the accepted candidate; passing again, it stays valid.
+    _assert_presentation_update(
+        out, bundle, "VALIDATING", ["dependencies.json"], ("plan: ", "units: ", "review: ")
+    )
+
+
+def test_a_reviewer_rubric_change_reopens_reviewing_only(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    manifest_path = project_with_registry / "prompts" / "independent_review.yaml"
+    manifest_path.write_text(
+        manifest_path.read_text("utf-8") + "\n# revised rubric\n", encoding="utf-8", newline="\n"
+    )
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert (
+        "(earliest affected stage REVIEWING; 1 changes (prompts.independent_review -> REVIEWING)"
+    ) in out
+    # Only the review is asked again; the plan and every authored unit are reused.
+    assert len(gateway_ready.requests) == before + 1
+    assert gateway_ready.requests[-1]["response_format"]["json_schema"]["name"] == (
+        "independent_review"
+    )
+    _assert_presentation_update(
+        out, bundle, "REVIEWING", ["dependencies.json", "review.json"], ("plan: ", "units: ")
+    )
+
+
+def test_a_model_route_change_reopens_the_stage_that_used_it(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    catalog = project_with_registry / "runs" / "preflight" / "catalog.json"
+    catalog.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "models": [
+                    {"id": "qwen3-next", "owned_by": "org"},
+                    {"id": "other-route", "owned_by": "org"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    manifest_path = project_with_registry / "prompts" / "presentation_planning.yaml"
+    text = manifest_path.read_text("utf-8")
+    assert "model_route: qwen3-next" in text
+    manifest_path.write_text(
+        text.replace("model_route: qwen3-next", "model_route: other-route", 1),
+        encoding="utf-8",
+        newline="\n",
+    )
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK, captured.err
+    out = captured.out
+    assert (
+        "(earliest affected stage PLANNING; 1 changes (prompts.presentation_planning -> PLANNING)"
+    ) in out
+    # The plan is asked again on the new route; investigation and reconciliation stay reused,
+    # and the identical plan leaves every downstream artifact reused as well.
+    assert len(gateway_ready.requests) == before + 1
+    assert gateway_ready.requests[-1]["model"] == "other-route"
+    _assert_presentation_update(
+        out,
+        bundle,
+        "PLANNING",
+        ["dependencies.json"],
+        ("investigation: ", "dispositions: ", "units: ", "review: "),
+    )
+
+
+def test_a_planning_policy_change_reopens_planning(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.bundle import seal
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    monkeypatch.setattr(seal, "POLICY_VERSION", "999")
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert "(earliest affected stage PLANNING; 1 changes (policy -> PLANNING)" in out
+    # The plan is asked again at most once; the stored downstream outputs are reused.
+    assert len(gateway_ready.requests) - before <= 1
+    _assert_presentation_update(
+        out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: ")
+    )

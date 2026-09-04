@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme.bundle.evaluation import (
     Change,
     evaluate,
@@ -123,3 +125,70 @@ def test_changes_order_by_state_and_the_earliest_wins(tmp_path: Path) -> None:
     unsealed = evaluation_document(None, None)
     assert unsealed["sealed_bundle"] is None and unsealed["earliest_affected_stage"] == "EXTRACTING"
     assert summarize_evaluation(unsealed) == "no sealed bundle for this revision; every stage runs"
+
+
+# The invalidation matrix (docs/STATE_MACHINE.md section 9, G2-W05) against the sealed canary
+# bundle's own dependency record: one case per dependency class, as a path into the record and
+# the state its change reopens.
+SEALED_CANARY = (
+    Path(__file__).resolve().parents[4]
+    / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+    / "65b1f577c0f16d0d9112bb6c1153d3024543ac02/dependencies.json"
+)
+DEPENDENCY_CLASSES: dict[str, tuple[list[str], str]] = {
+    "source revision": (["source", "revision"], "EXTRACTING"),
+    "fact extractor (a fact record's digest)": (["facts", "identity:repository"], "EXTRACTING"),
+    "investigation prompt": (["prompts", "repository_investigation", "sha256"], "INVESTIGATING"),
+    "reconciliation prompt": (["prompts", "source_reconciliation", "sha256"], "RECONCILING"),
+    "planning prompt": (["prompts", "presentation_planning", "sha256"], "PLANNING"),
+    "model route": (["prompts", "section_authoring", "model_route"], "COMPOSING"),
+    "template component": (["components", "renderer"], "COMPOSING"),
+    "validator": (["validators", "BC-07"], "VALIDATING"),
+    "reviewer rubric": (["prompts", "independent_review", "sha256"], "REVIEWING"),
+    "link policy": (["policy", "sha256"], "PLANNING"),
+}
+
+
+def _sealed_canary() -> dict[str, Any]:
+    return json.loads(SEALED_CANARY.read_text("utf-8"))
+
+
+def _changed(document: dict[str, Any], path: list[str]) -> dict[str, Any]:
+    current = copy.deepcopy(document)
+    target: Any = current
+    for part in path[:-1]:
+        target = target[part]
+    assert path[-1] in target, path
+    target[path[-1]] = "changed"
+    return current
+
+
+def test_the_sealed_canary_reopens_nothing_when_nothing_changed() -> None:
+    sealed = _sealed_canary()
+    assert evaluate(sealed, copy.deepcopy(sealed)).earliest == "NONE"
+    # The record lists only what the candidate consumed: no global control-plane hash.
+    assert set(sealed) == {
+        "schema_version",
+        "source",
+        "facts",
+        "prompts",
+        "contract_version",
+        "components",
+        "validators",
+        "validator_version",
+        "acceptance_profile_version",
+        "policy",
+        "protected_content_fingerprint",
+    }
+
+
+@pytest.mark.parametrize(("label", "case"), sorted(DEPENDENCY_CLASSES.items()))
+def test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state(
+    label: str, case: tuple[list[str], str]
+) -> None:
+    path, state = case
+    sealed = _sealed_canary()
+    evaluation = evaluate(sealed, _changed(sealed, path))
+    assert evaluation.earliest == state, label
+    assert len(evaluation.changes) == 1, (label, evaluation.changes)
+    assert evaluation.changes[0].dependency.startswith(path[0]), label

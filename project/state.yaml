@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T04:27:26+05:00"
+updated_at: "2026-09-04T04:51:54+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W05
-  status: READY
+  status: IN_PROGRESS
   purpose: "Invalidation matrix - change each dependency class in isolation (source revision, fact extractor, prompt, model route, template component, validator, reviewer rubric, link policy) and prove the routing: presentation-only changes yield VALID_UPDATE_AVAILABLE, factual, safety, or protected-content failures invalidate, corrupt or missing bundle artifacts fail closed; unaffected artifacts are reused."
   prerequisites:
     - G2-W04 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
