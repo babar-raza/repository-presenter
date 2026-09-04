@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
   "gate": "G2_STABILITY_UNDER_CHANGE",
-  "work_item": "G2-W05",
+  "work_item": "G2-W06",
   "gate_status": "READY",
   "work_item_status": "ACCEPTED",
-  "recorded_at": "2026-09-04T05:47:03+05:00",
-  "control_revision": "7c75b75ff78df95da08fc414d5e867cb9d278df7",
-  "control_revision_note": "Revision verified. The acceptance commit (this manifest, the protected-content case, and the cursor advance to G2-W06) is its child, pushed to origin in the same iteration with hosted CI watched.",
+  "recorded_at": "2026-09-04T07:19:07+05:00",
+  "control_revision": "1289757429bdc397bad84142e5992b6e151cb6c1",
+  "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W07) is its child, pushed to origin in the same iteration with hosted CI watched.",
   "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
   },
   "local_ci_equivalent": {
-    "control_revision": "7c75b75ff78df95da08fc414d5e867cb9d278df7",
+    "control_revision": "1289757429bdc397bad84142e5992b6e151cb6c1",
     "runs": [
       {
         "python": "3.11.16",
@@ -43,7 +43,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W05 (IN_PROGRESS)",
+          "work item: G2-W06 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -76,7 +76,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W05 (IN_PROGRESS)",
+          "work item: G2-W06 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -109,7 +109,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W05 (IN_PROGRESS)",
+          "work item: G2-W06 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -121,33 +121,29 @@
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "state": "READY_FOR_PROPOSAL",
-    "sealed_at": "2026-09-03T23:14:31Z",
+    "sealed_at": "2026-09-04T01:23:47Z",
     "no_op_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-03T23:14:31Z",
+      "proven_at": "2026-09-04T01:23:47Z",
       "provider_calls": 0
     },
     "adopted": {
-      "adopted_at": "2026-09-03T23:14:31Z",
+      "adopted_at": "2026-09-04T01:23:47Z",
       "changed": [
-        "README.md",
-        "README.patch",
         "content_units.json",
         "dependencies.json",
-        "repairs.json",
-        "review.json",
-        "validation.json"
+        "repairs.json"
       ],
       "classification": "presentation",
-      "earliest_affected_stage": "COMPOSING",
+      "earliest_affected_stage": "REVIEWING",
       "previous_proof": {
         "byte_identical": true,
         "fresh_process": true,
-        "proven_at": "2026-09-03T22:45:43Z",
+        "proven_at": "2026-09-03T23:14:31Z",
         "provider_calls": 0
       },
-      "recorded_at": "2026-09-03T23:13:57Z"
+      "recorded_at": "2026-09-04T01:23:12Z"
     },
     "files": {
       "README.md": {
@@ -159,16 +155,16 @@
         "sha256": "95ac979a5f982c085cc3c236c706443b1c7b77815aa77f396eed8ea90d7ad38a"
       },
       "calls.jsonl": {
-        "bytes": 1311564,
-        "sha256": "be7dab670438301791dff50aedb22499cb9c5ef02d6aac6f47b24e46e8a28f85"
+        "bytes": 1467138,
+        "sha256": "a4b133d051d3f1a106d211dacc854f7b9259acc1dcc3e3c5371da19c9616f1c2"
       },
       "content_units.json": {
-        "bytes": 81223,
-        "sha256": "c52727f984563788ec40e4d26aaa5c8a5797e0c9f6457f96a09937128728e17d"
+        "bytes": 80911,
+        "sha256": "a18d12cf5964d5e1194a63281c722e0da809f142d0f96d4c78571815362ace42"
       },
       "dependencies.json": {
         "bytes": 222584,
-        "sha256": "5312d11b894176bf97c06dd9feb1e285f7618dc280602a6ad87ab0cf527bc873"
+        "sha256": "a1a0e57b7d90fefd3dd013b52f2a42a174cd4811adfc5e81b400806a4fb77859"
       },
       "dispositions.json": {
         "bytes": 33889,
@@ -187,8 +183,8 @@
         "sha256": "a4ff282cabe9d931ef89f3fa54b49e2927e6885250f95f723e684907a34050bb"
       },
       "repairs.json": {
-        "bytes": 32131,
-        "sha256": "19acbd421f550e22df8765020f1991612c996aa3df61e8db355e1bbf740a9433"
+        "bytes": 36175,
+        "sha256": "482302face00255ae3d3d15ab49f909fd66e9ba4ad56e48074505a884d6e6a3f"
       },
       "review.json": {
         "bytes": 9489,
@@ -198,70 +194,6 @@
         "bytes": 4159,
         "sha256": "0ba9b614903ca67bd1fc755832e6219a7dfc8116f3c4939405c53b7e0ed56def"
       }
-    },
-    "dependency_classes": {
-      "source": {
-        "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-        "tree_sha256": "fdcbf4e8113871f8d7cdeb2f761260041cd358b351ae7cb2bb5f4bef4f964b0d"
-      },
-      "facts": "1718 fact records by digest",
-      "prompts": {
-        "independent_review": {
-          "model_route": "qwen3-next",
-          "sha256": "79ac50f331e7",
-          "version": "5"
-        },
-        "presentation_planning": {
-          "model_route": "qwen3-next",
-          "sha256": "d0af643d7860",
-          "version": "4"
-        },
-        "repository_investigation": {
-          "model_route": "qwen3-next",
-          "sha256": "41c2cca07808",
-          "version": "1"
-        },
-        "section_authoring": {
-          "model_route": "qwen3-next",
-          "sha256": "0a94dd9befc5",
-          "version": "4"
-        },
-        "source_reconciliation": {
-          "model_route": "qwen3-next",
-          "sha256": "090b0756b197",
-          "version": "2"
-        },
-        "targeted_repair": {
-          "model_route": "qwen3-next",
-          "sha256": "f4f93d14652d",
-          "version": "3"
-        }
-      },
-      "components": {
-        "renderer": "15",
-        "shell": "5"
-      },
-      "validators": {
-        "BC-01": "1",
-        "BC-02": "1",
-        "BC-03": "1",
-        "BC-04": "1",
-        "BC-05": "1",
-        "BC-06": "1",
-        "BC-07": "2",
-        "BC-08": "1",
-        "BC-09": "1",
-        "BC-10": "1",
-        "BC-11": "1"
-      },
-      "validator_version": "1",
-      "contract_version": "readme-contract-v1-draft",
-      "acceptance_profile_version": null,
-      "policy": {
-        "sha256": "52cd7a97800a3df8fee21a2c99beb6f62f7d5dff45fb7cd8e6006f7e6b18d9b1",
-        "version": "1"
-      },
-      "protected_content_fingerprint": "e2b91421ffa6"
     },
     "no_op_runs": [
       {
@@ -283,46 +215,37 @@
   },
   "predicates": [
     {
-      "predicate": "A matrix test changes each dependency class in isolation against the sealed canary bundle with the gateway faked and proves the routing from dependencies.json: a changed component reopens only the stages that consumed it, every unaffected artifact is reused with zero provider calls, a presentation-only change records a valid update and keeps the proven candidate, a factual, safety, or protected-content failure invalidates it, and a corrupt or missing bundle artifact fails closed before any provider call.",
+      "predicate": "A test injects one factual defect into a proven local fixture transaction and proves rejection at its causal stage with one targeted repair that changes only the defective unit, every accepted unaffected unit and upstream artifact staying byte-identical, recorded in repairs.json.",
       "verdict": "PASS",
-      "evidence": "tests/components/readme/bundle/test_evaluation.py: ['test_the_sealed_canary_reopens_nothing_when_nothing_changed', 'test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state'] run against this bundle's committed dependencies.json for ten classes (source revision, a fact record, the investigation, reconciliation, and planning prompts, a model route, the template component, a validator, the reviewer rubric, the planning policy) and the unchanged record (NONE, no global hash key). tests/test_cli.py: ['test_a_changed_prompt_reopens_only_its_stage_and_records_an_update', 'test_a_factual_failure_invalidates_the_proven_candidate', 'test_a_corrupt_bundle_artifact_fails_closed_before_any_call', 'test_a_template_component_change_reopens_composing_and_reuses_every_call', 'test_a_validator_change_reopens_validating_and_rechecks_without_a_call', 'test_a_reviewer_rubric_change_reopens_reviewing_only', 'test_a_model_route_change_reopens_the_stage_that_used_it', 'test_a_planning_policy_change_reopens_planning', 'test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle', 'test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update', 'test_a_protected_content_failure_invalidates_the_proven_candidate'] on the local fixture: component and validator changes reuse every stored output with zero calls and record a presentation update; a rubric change asks only the review and a route change only the plan; a policy change re-plans at most once; a fact record change reopens EXTRACTING and reuses everything the packets do not carry as a factual update; a new source revision seals its own bundle and supersedes the older one on proof; a factual (BC-02) and a protected-content (BC-08) failure invalidate the proven candidate; a missing artifact fails closed with no call. Commits 297a371, 7c75b75, and the acceptance commit."
+      "evidence": "tests/test_cli.py::test_an_injected_factual_defect_is_repaired_at_composing_with_the_rest_retained: a REJECT_FACTUAL finding against the opening is repaired once at S6; the opening unit carries the revised text, every other authored unit equals the accepted canned unit, and the investigation, reconciliation, and plan were each asked once; repairs.json records the attempt as repaired with change R01 at $.units[0].text. Commit a251949."
     },
     {
-      "predicate": "The live canary stays no-op proven after the item: present run three times seals, adopts, and reproduces the bundle byte for byte with zero provider calls, and the bundle's dependencies.json names every dependency class the matrix covers with its version identifier.",
+      "predicate": "A test injects one preservation defect and proves rejection at RECONCILING or COMPOSING with the repair restoring it and the rest retained, recorded in repairs.json.",
       "verdict": "PASS",
-      "evidence": "Three runs at 7c75b75: ['(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ']; nothing under src/ changed during the item, so every run is the no-op. dependencies.json (dependency_classes above) carries source, facts, six prompt manifests with sha256, version, and model route, components shell 5 and renderer 15, ten validators with validator_version 1, the contract version, the acceptance profile version (none yet, frozen at G2-W08), the policy version and hash, and the protected-content fingerprint."
+      "evidence": "tests/test_cli.py::test_an_injected_preservation_defect_is_repaired_at_reconciling: a REJECT_PRESERVATION finding naming the inherited paragraph the reconciler rewrote is repaired once at S4; the revised dispositions preserve it verbatim into Scope and Limitations, the plan and sections are asked again on the restored dispositions, the investigation stands, and the review accepts. The case exposed and fixed a defect at its cause: the repair's own binding demanded SUPPORTED facts across revised_output, so a reconciliation repair keeping a legitimate omission of a CONTRADICTED example could never pass; the binding now judges only the repair's change citations (['test_a_repair_binds_its_own_changes_and_leaves_the_revised_output_to_its_stage']). Commit a251949."
     },
     {
-      "predicate": "Every new module has a production importer exercised by present, and any pulled legacy file has one manifest file record with its SHA-256 at the frozen revision.",
+      "predicate": "The two-attempt rule terminates honestly: a second equivalent failure after the one repair is reported with the fingerprint and never attempted a third time, the transaction failing closed with the proven candidate intact or invalidated only for a factual, safety, or protected-content failure.",
       "verdict": "PASS",
-      "evidence": "No new module and no legacy file: the item landed as tests in the two mirrored test modules the layout names."
+      "evidence": "tests/test_cli.py: ['test_present_repairs_a_rejected_candidate_once_and_re_reviews', 'test_present_reports_a_second_equivalent_failure_instead_of_retrying', 'test_present_records_an_unrepairable_finding_as_advisory_and_stops', 'test_an_injected_factual_defect_is_repaired_at_composing_with_the_rest_retained', 'test_an_injected_preservation_defect_is_repaired_at_reconciling', 'test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_candidate_intact']. On the validation path a blocking presentation check fails at COMPOSING, its one repair runs, the check fails again with the same fingerprint, the transaction stops reporting 'after one repair attempt the equivalent failure stands' with the repair asked exactly once and the proven candidate untouched; on the review path a re-raised finding is recorded advisory after its attempt; an evidence defect no repair can act on is recorded unrepairable; factual (BC-02) and protected-content (BC-08) failures invalidate the proven candidate (G2-W05's cases)."
+    },
+    {
+      "predicate": "The live canary stays no-op proven after the item (present three times: zero provider calls each) and no new module lacks a production importer.",
+      "verdict": "PASS",
+      "evidence": "Three runs at 1289757: ['(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reprod', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reprod', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reprod']; no new module was created."
     },
     {
       "predicate": "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion.",
       "verdict": "PASS",
-      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of the item (33820548387, 33822672735, and the acceptance commit's run recorded in its report)."
+      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of the item (33826718747 and the later runs recorded in the reports)."
     }
   ],
-  "matrix": {
-    "evaluation_against_sealed_canary": [
-      "test_the_sealed_canary_reopens_nothing_when_nothing_changed",
-      "test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state"
-    ],
-    "transaction_cases": [
-      "test_a_changed_prompt_reopens_only_its_stage_and_records_an_update",
-      "test_a_factual_failure_invalidates_the_proven_candidate",
-      "test_a_corrupt_bundle_artifact_fails_closed_before_any_call",
-      "test_a_template_component_change_reopens_composing_and_reuses_every_call",
-      "test_a_validator_change_reopens_validating_and_rechecks_without_a_call",
-      "test_a_reviewer_rubric_change_reopens_reviewing_only",
-      "test_a_model_route_change_reopens_the_stage_that_used_it",
-      "test_a_planning_policy_change_reopens_planning",
-      "test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle",
-      "test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update",
-      "test_a_protected_content_failure_invalidates_the_proven_candidate"
-    ]
-  },
   "previous_items": [
+    {
+      "work_item": "G2-W05",
+      "recorded_at": "2026-09-04T05:47:03+05:00",
+      "control_revision": "7c75b75ff78df95da08fc414d5e867cb9d278df7"
+    },
     {
       "work_item": "G2-W04",
       "recorded_at": "2026-09-04T04:27:26+05:00",
@@ -578,5 +501,5 @@
       }
     }
   ],
-  "next_work_item": "G2-W06"
+  "next_work_item": "G2-W07"
 }
