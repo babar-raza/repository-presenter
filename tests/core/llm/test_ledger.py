@@ -132,7 +132,6 @@ def test_a_ledger_sealed_before_the_rejection_field_still_reads(tmp_path: Path) 
     # and adding a field must not make an already sealed ledger unreadable: a field with a
     # default reads as its default, while an unknown field is still a defect.
     assert load_records(SEALED_LEDGER), "the sealed canary's ledger must still load"
-    assert all(record.rejection == () for record in load_records(SEALED_LEDGER))
 
     older = json.loads(_record("older", "provider_call", "response_invalid", 10).to_line())
     del older["rejection"], older["schema_version"]

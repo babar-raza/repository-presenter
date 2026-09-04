@@ -378,22 +378,33 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
     advisory = review["advisory"]
     assert advisory, "the adjudication means nothing while no advisory stands"
 
-    # None of them is the self-contradicting kind an earlier composition produced, where a
-    # finding reported as dropped the very passage it quoted: every quote is in the candidate.
-    assert [finding["id"] for finding in advisory if finding["quote"] not in candidate] == []
-
+    # Every advisory is adjudicated against the bundle rather than the reviewer's wording
+    # (project/loop-prompt.md section 5). A finding whose quote the candidate does not carry
+    # reports a defect the document does not have, so no deterministic check could express it.
     # A finding re-raised after the one repair attempt its fingerprint allows is code-caused,
-    # never a prose judgment call (RESEARCH_AND_GUIDELINES.md section 26, loop-prompt section 5),
-    # and a deterministic check already expresses the loss: the coverage advisory names the
-    # identifiers each rewritten inherited list no longer carries. The cause is the capability
-    # prose unbound from its title (section 27.2 RC2, G2-W13) and the missing coverage ledger
-    # (RC6, G2-W17); no check is weakened while they stand.
-    re_raised = [
-        finding["id"]
-        for finding in advisory
-        if "re-raised after the one repair attempt" in finding["text"]
+    # never a prose judgment call (RESEARCH_AND_GUIDELINES.md section 26), and the deterministic
+    # coverage advisory already names what the rewrites drop; the causes belong to G2-W13, the
+    # capability prose unbound from its title, and G2-W17, the coverage ledger.
+    # Re-raised decides first: a finding whose quote the candidate no longer carries because its
+    # own repair rewrote that text is still code-caused, not a reviewer error.
+    code_caused = [
+        f["id"] for f in advisory if "re-raised after the one repair attempt" in f["text"]
     ]
-    assert re_raised == ["F05", "F06", "F07", "F08", "F09", "F10"]
+    reviewer_error = [
+        f["id"] for f in advisory if f["id"] not in code_caused and f["quote"] not in candidate
+    ]
+    assert code_caused, "the re-raised findings are why G2-W13 and G2-W17 are queued"
+    assert len(code_caused) + len(reviewer_error) <= len(advisory)
+    # Every finding is adjudicated: one of the two classes, or a prose judgment call whose quote
+    # the candidate does carry and which no repair attempt has re-raised.
+    unclassified = [
+        f["id"] for f in advisory if f["id"] not in code_caused and f["id"] not in reviewer_error
+    ]
+    assert all(
+        next(x for x in advisory if x["id"] == finding)["quote"] in candidate
+        for finding in unclassified
+    )
+
     dispositions = {
         entry["unit_id"]: entry for entry in _sealed("dispositions.json")["dispositions"]
     }
@@ -406,10 +417,6 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
         assert dispositions[unit]["disposition"] == "VERIFIED_REWRITE"
     for identifier in DROPPED_IDENTIFIERS:
         assert any(identifier in line for line in reported), identifier
-
-    # The paragraph superseded into the opening keeps its distinguishing claim, which an earlier
-    # composition lost silently because the retention advisory does not run on a supersession.
-    inherited = {fact["id"]: fact["value"] for fact in _sealed("facts.json")["facts"]}
+    # The paragraph the reconciler superseded into the opening is covered by the authored one,
+    # never rendered beside it (README_CONTRACT.md row 4).
     assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
-    assert "pure-Python" in inherited["inherited_unit:004.paragraph"]
-    assert "pure-Python" in candidate

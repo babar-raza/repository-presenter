@@ -1,7 +1,7 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names Mesh.create_polygon(), Mesh.polygons, Node.add_entity(), Node.create_child_node(), ObjSaveOptions, PolygonModifier.triangulate(), Scene.open(), Scene.save(), to_mesh()",
-    "inherited_unit:067.list: the rewrite no longer names .fbx, FbxExporter.save(), Mesh.do_boolean(), NotImplementedError, NurbsCurve.evaluate(), NurbsSurface.to_mesh(), PointCloud.from_geometry(), RuntimeError, Scene.open(), Scene.render(), Scene.save(), Watermark.encode_watermark(), albedo, aspose.threed.formats, aspose.threed.formats.collada.ColladaLoadOptions, decode_watermark(), difference(), evaluate_at(), from_geometry_with_density(), intersect(), save_to_stream(), supports_format(), union()"
+    "inherited_unit:010.list: the rewrite no longer names GltfSaveOptions, Mesh.create_polygon(), Mesh.polygons, Node.add_entity(), Node.create_child_node(), ObjSaveOptions, PolygonModifier.triangulate(), Scene.open(), Scene.save()",
+    "inherited_unit:067.list: the rewrite no longer names FbxExporter.save(), Mesh.do_boolean(), NotImplementedError, NurbsCurve.evaluate(), NurbsSurface.to_mesh(), PointCloud.from_geometry(), RuntimeError, Scene.open(), Scene.render(), Scene.save(), Watermark.encode_watermark(), albedo, aspose.threed.formats, aspose.threed.formats.collada.ColladaLoadOptions, decode_watermark(), difference(), evaluate_at(), from_geometry_with_density(), intersect(), save_to_stream(), supports_format(), union()"
   ],
   "checks": [
     {
@@ -148,7 +148,7 @@
     }
   ],
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
-  "readme_sha256": "32d2ef36f3ec2dbd5783f95a0692eb1be0e1afc6022acb9445f4feda99fbc7d3",
+  "readme_sha256": "7391e7e5f019ca8710e4743dd69b47524d003728c730093007fb3432569f0643",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",

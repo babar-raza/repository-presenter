@@ -20,6 +20,7 @@ from typing import Any
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
     SectionTask,
+    authoring_schema,
     authoring_tasks,
     merge_units,
     unit_checks,
@@ -185,6 +186,7 @@ def run_round(tx: TransactionInputs) -> Round:
             loaded,
             task.packet,
             checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
+            call_schema=authoring_schema(loaded, task),
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])

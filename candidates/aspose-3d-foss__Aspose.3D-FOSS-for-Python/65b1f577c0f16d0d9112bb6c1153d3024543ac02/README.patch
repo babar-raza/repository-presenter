@@ -12,7 +12,7 @@
 -and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus
 -imports FBX, through a `Scene`/`Node`/`Mesh` object graph, with no native runtime or external
 -SDK to install.
-+Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for working with 3D documents. It supports reading and writing OBJ, STL, glTF/GLB, COLLADA, and 3MF files through a `Scene`/`Node`/`Mesh` object graph. The library requires no native runtime or external SDK and is compatible with Python versions 3.7 through 3.12.
++Aspose.3D FOSS for Python is a Python library for creating, reading, converting, and saving 3D scenes using formats such as `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, `.3mf`, and `.fbx`. It enables developers to programmatically build 3D geometry using primitives like `Box`, `Sphere`, and `Cylinder`, assign materials, and export scenes to supported formats. Users can inspect and manipulate scene hierarchies through classes like `Scene`, `Node`, `Entity`, and `Mesh`, and manage animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence`. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7.
  
  ## Navigation
  
@@ -77,12 +77,12 @@
 -  a real ear-clipping triangulation implementation rather than a naive fan split.
 -- Build keyframe animation with `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and
 -  store skeletal bind-pose data with `Skeleton`, `Bone`, and `Pose`.
-+- **Load multiple 3D formats.** Read `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, and `.3mf` files using `Scene.open`, which auto-detects the format from the file extension or an explicit `FileFormat` instance.
-+- **Export to common 3D formats.** Export scenes to `.obj`, `.stl`, `.gltf`, `.glb`, and `.3mf` using `Scene.save` with format-specific save options such as `GltfSaveOptions` and `ThreeMfSaveOptions`.
-+- **Build and traverse scene graphs.** Build and traverse a scene graph using `Node.create_child_node`, `Node.add_entity`, and `Node.child_nodes`, where each node carries an independent `Transform` and can hold an `Entity`.
-+- **Create and edit mesh geometry.** Create and edit mesh geometry directly through `Mesh.control_points` and `Mesh.create_polygon`, or generate editable meshes from primitives like `Box` and `Sphere` using their `to_mesh` method.
-+- **Assign and configure materials.** Assign `LambertMaterial`, `PhongMaterial`, or `PbrMaterial` to nodes and configure diffuse, metallic, and roughness properties to control rendering appearance.
-+- **Support keyframe animation.** Construct keyframe animations using `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and store skeletal bind-pose data with `Pose`.
++- **Load multiple 3D formats.** Aspose.3D FOSS for Python reads `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, and `.3mf` files using `Scene.open`() with automatic format detection from the file extension or an explicit `FileFormat` instance.
++- **Export to common 3D formats.** Aspose.3D FOSS for Python writes scenes to `.obj`, `.stl`, `.gltf`, `.glb`, and `.3mf` files using `Scene.save`() with dedicated save options for each format.
++- **Build and traverse scene graphs.** Aspose.3D FOSS for Python builds and traverses a scene graph using `Node` and `Entity` objects, where each `Node` carries an independent `Transform` describing translation, rotation, and scaling.
++- **Create and edit mesh geometry.** Aspose.3D FOSS for Python authoring and editing of mesh geometry is supported through `Mesh.control_points` and `Mesh.create_polygon`(), and parameterized primitives like `Box` and `Sphere` can be converted to `Mesh` using their `to_mesh()` method.
++- **Assign and configure materials.** Aspose.3D FOSS for Python assigns materials such as `LambertMaterial` and `PbrMaterial` to nodes, supporting diffuse color, metallic factor, and roughness factor properties for realistic rendering.
++- **Support keyframe animation.** Aspose.3D FOSS for Python supports keyframe animation through `AnimationClip`, `AnimationNode`, and `KeyframeSequence`, and stores skeletal bind-pose data using `Pose` objects.
  
  ## Installation
  
@@ -157,7 +157,7 @@
 -```
 -
 -Build a scene from scratch and export it to glTF:
-+Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.
++Import an OBJ file and inspect its geometry by reading the control points and polygon count for each entity.
  
  ```python
  from aspose.threed import Scene
@@ -184,7 +184,7 @@
 -<summary>View Additional Examples</summary>
 -
 -### Assign a PBR Material to a Primitive
-+Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format.
++Build a scene from scratch using a sphere with a PBR material and save it as an STL file.
  
  ```python
  from aspose.threed import Scene
@@ -198,9 +198,9 @@
 -stream, and read the exported material back out of the glTF JSON:
 +## Additional Examples
 +
-+The following examples demonstrate converting between formats, assigning materials, and exporting meshes to common 3D file formats.
++More real, verified snippets are collected below, each demonstrating one operation without obscuring the primary installation and quick-start path.
 +
-+### Export a mesh with a PBR material to text-based glTF and inspect the material JSON
++### Construct a mesh vertex by vertex, attach a PBR material, write the scene to an in-memory glTF stream, and read the exported material back out of the glTF JSON
  
  ```python
  import io
@@ -260,7 +260,7 @@
 +<details>
 +<summary>View Additional Examples</summary>
 +
-+### Export a triangle mesh to ASCII STL using an in-memory string stream
++### Build a triangle mesh and export it to ASCII STL using `FileFormat.get_format_by_extension`(...).create_save_options() to ensure the format is correctly inferred from the stream
  
  ```python
  import io
@@ -269,7 +269,7 @@
  ```
  
 -### Convert a Parametric Primitive to a Mesh
-+### Triangulate a `Box` primitive and count its control points
++### Convert a `Box` primitive to a mesh and count its control points using the `to_mesh()` method
  
  ```python
  from aspose.threed.entities import Box
@@ -291,7 +291,7 @@
 -```
 -
 -### Build a Cube and Export It to 3MF
-+### Build a cube mesh and export it to 3MF without compression
++### Construct a cube mesh and export it to 3MF without compression using `ThreeMfSaveOptions`
  
  ```python
  import io
@@ -303,7 +303,7 @@
 -built from `Node` objects, each of which holds a `Transform`, an optional `Mesh`-derived
 -`Entity`, and zero or more `Material` instances. The full public class index is listed below by
 -module.
-+The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.Node` as the core container for scene graph elements, transforms, and entities. `Scene` provides high-level operations like `Scene.open` and `Scene.save`, while `Node` exposes `Scene.root_node`, child nodes, and their associated `Transform` and `Mesh` components.
++The aspose-3d-foss package provides the `aspose.threed.Scene` class as the main entry point for loading, saving, and manipulating 3D scenes, and `aspose.threed.FileFormat` for format detection and options creation. `Scene` instances hold a hierarchy of `aspose.threed.Node` objects, each with a `Transform`, optional `Mesh` entities, and `Material` references.
 +
 +The verified public surface has 337 types.
  
@@ -325,67 +325,67 @@
 -| `ApertureMode` | Camera aperture modes. |
 -| `ArbitraryProfile` | This class allows you to construct a 2D profile directly from arbitrary curve. |
 +| --- | --- |
-+| `A3DObject` | The A3DObject class represents a base object in Aspose.3D FOSS for Python that supports named properties and can be queried for property values using its name, properties, get_property, set_property, find_property, and remove_property methods. |
-+| `AnimationChannel` | The AnimationChannel class represents a single channel of animation data in Aspose.3D FOSS for Python, defined by its keyframe_sequence, default_value, and component_type. |
-+| `AnimationClip` | The AnimationClip class represents a container for animation data in Aspose.3D FOSS for Python, holding multiple animations, a description, start and stop times, and supporting named properties. |
-+| `AnimationNode` | The AnimationNode class represents a node in an animation hierarchy in Aspose.3D FOSS for Python, supporting named properties, sub-animations, bind points, and keyframe sequences. |
++| `A3DObject` | The A3DObject class serves as the base for all objects in Aspose.3D FOSS for Python and provides property management through its name and properties members. |
++| `AnimationChannel` | The AnimationChannel class represents a single animated property channel and holds its keyframe sequence, default value, and component type. |
++| `AnimationClip` | The AnimationClip class defines a time-bounded animation sequence containing multiple animation nodes and supporting description and timing metadata. |
++| `AnimationNode` | The AnimationNode class represents a node in an animation hierarchy and manages bind points and sub-animations for skeletal or transform animation. |
  | `ArrayListAdapter` | Adapter class that wraps List[T] and implements IArrayList[T]. |
 -| `AssetInfo` | AssetInfo.title stores the title of the 3D asset. |
-+| `AssetInfo` | The AssetInfo class represents metadata about a 3D asset in Aspose.3D FOSS for Python, including author, title, creation time, coordinate system, and unit scale factor. |
++| `AssetInfo` | The AssetInfo class stores metadata about a 3D asset such as author, creation time, coordinate system, and unit scale factor. |
  | `Axis` | The coordinate axis. |
  | `AxisSystem` | Axis system is an combination of coordinate system, up vector and front vector. |
-+| `BindPoint` | The BindPoint class represents a binding point for animation channels in Aspose.3D FOSS for Python, associated with a property and supporting named properties and keyframe sequences. |
-+| `BonePose` | The BonePose class represents the pose of a bone in Aspose.3D FOSS for Python, defined by its transformation matrix, whether it is local, and its associated node. |
++| `BindPoint` | The BindPoint class defines how an animation channel is bound to a specific property of a scene object and manages associated keyframe sequences. |
++| `BonePose` | The BonePose class represents the pose of a bone during animation and stores its transformation matrix and local or world space flag. |
 +| `BoundingBox2D` | The axis-aligned bounding box for Vector2 |
 +| `BoundingBoxExtent` | The extent of the bounding box |
-+| `Box` | The Box class represents a box primitive in Aspose.3D FOSS for Python, defined by its length, height, and height segments. |
-+| `Camera` | The Camera class represents a camera entity in Aspose.3D FOSS for Python, inheriting from Entity and used for rendering views. |
-+| `Circle` | The Circle class represents a circle primitive in Aspose.3D FOSS for Python, defined as a planar closed curve. |
++| `Box` | The Box class represents a box primitive with configurable length, height, and segment counts for mesh generation. |
++| `Camera` | The Camera class defines a camera entity used for rendering and provides view and projection configuration. |
++| `Circle` | The Circle class represents a circular primitive with configurable resolution and radius for mesh generation. |
 +| `ComposeOrder` | The order to compose transform matrix |
 +| `CoordinateSystem` | The left handed or right handed coordinate system. |
-+| `Curve` | The Curve class represents a curve entity in Aspose.3D FOSS for Python, used to define parametric or piecewise linear geometry. |
-+| `CustomObject` | The CustomObject class represents a user-defined object in Aspose.3D FOSS for Python, extending A3DObject with custom behavior. |
-+| `Cylinder` | The Cylinder class represents a cylinder primitive in Aspose.3D FOSS for Python, defined by its radius and height. |
-+| `Dish` | The Dish class represents a dish primitive in Aspose.3D FOSS for Python, a portion of a sphere defined by its radius and angular extent. |
-+| `Ellipse` | The Ellipse class represents an ellipse primitive in Aspose.3D FOSS for Python, defined by its major and minor radii. |
-+| `Entity` | The Entity class represents a renderable or manipulable object in Aspose.3D FOSS for Python, such as a mesh or geometry, contained within a scene node. |
++| `Curve` | The Curve class represents a parametric curve entity in three-dimensional space. |
++| `CustomObject` | The CustomObject class allows embedding user-defined objects within a scene while inheriting common A3DObject behavior. |
++| `Cylinder` | The Cylinder class represents a cylindrical primitive with configurable radius, height, and segment counts. |
++| `Dish` | The Dish class represents a dish-shaped primitive with configurable radii and segment counts. |
++| `Ellipse` | The Ellipse class represents an elliptical primitive with configurable radii and resolution. |
++| `Entity` | The Entity class serves as the base for all renderable or geometric objects in a scene and inherits from SceneObject. |
 +| `ExportException` | Exceptions when Aspose.3D failed to export the scene to file. |
-+| `Extrapolation` | The Extrapolation class represents extrapolation behavior for animation curves in Aspose.3D FOSS for Python. |
++| `Extrapolation` | The Extrapolation class defines how animation values are extended beyond the keyframe range. |
 +| `FMatrix4` | Matrix 4x4 with all component in float type |
 +| `FileContentType` | File content type |
-+| `FileFormat` | The FileFormat class represents a 3D file format in Aspose.3D FOSS for Python, supporting format detection by extension and format-specific operations. |
++| `FileFormat` | The FileFormat class provides utilities for identifying and working with supported 3D file formats. |
 +| `FileFormatType` | File format type |
-+| `Frustum` | The Frustum class represents a frustum primitive in Aspose.3D FOSS for Python, commonly used for view volumes and clipping. |
-+| `Geometry` | The Geometry class represents geometric data in Aspose.3D FOSS for Python, such as vertices and polygons, used by renderable entities. |
-+| `GlobalTransform` | The GlobalTransform class represents a global transformation matrix in Aspose.3D FOSS for Python, used to position and orient objects in 3D space. |
++| `Frustum` | The Frustum class represents a truncated pyramid primitive commonly used for camera view volumes. |
++| `Geometry` | The Geometry class serves as the base for all geometric entities and provides mesh-like data structures. |
++| `GlobalTransform` | The GlobalTransform class encapsulates the combined transformation matrix applied to a scene object. |
 +| `Group` | A Group represents the logical relationships of Node. |
-+| `INamedObject` | The INamedObject class represents an object in Aspose.3D FOSS for Python that can be identified by a name. |
++| `INamedObject` | The INamedObject class defines an interface for objects that can be identified by a name. |
 +| `IOExtension` | Utilities to write matrix/vector to binary writer |
-+| `ImageRenderOptions` | The ImageRenderOptions class represents rendering options for image output in Aspose.3D FOSS for Python, supporting settings such as compression and material properties. |
++| `ImageRenderOptions` | The ImageRenderOptions class controls rendering settings for exporting a scene to image formats. |
 +| `ImportException` | Exception when Aspose.3D failed to open the specified source. |
-+| `KeyFrame` | The KeyFrame class represents a single keyframe in Aspose.3D FOSS for Python, containing a value and time stamp for animation. |
-+| `KeyframeSequence` | The KeyframeSequence class represents a sequence of keyframes in Aspose.3D FOSS for Python, used to define animation curves. |
-+| `Light` | The Light class represents a light entity in Aspose.3D FOSS for Python, inheriting from Camera and used to illuminate scenes. |
-+| `LinearExtrusion` | The LinearExtrusion class represents a linear extrusion entity in Aspose.3D FOSS for Python, created by extruding a profile along a straight path. |
++| `KeyFrame` | The KeyFrame class represents a single keyframe in an animation sequence with a time and value. |
++| `KeyframeSequence` | The KeyframeSequence class manages a collection of keyframes used for animating a property. |
++| `Light` | The Light class represents a light source entity that inherits from Camera and provides illumination configuration. |
++| `LinearExtrusion` | The LinearExtrusion class represents a 3D shape created by extruding a 2D profile along a straight path. |
 +| `MathUtils` | A set of useful mathematical utilities. |
-+| `Mesh` | The Mesh class represents a polygonal mesh in Aspose.3D FOSS for Python, containing vertices, polygons, and supporting operations such as to_mesh and control_points. |
-+| `Node` | The Node class represents a node in the scene hierarchy in Aspose.3D FOSS for Python, containing an entity, child nodes, and transformation data. |
++| `Mesh` | The Mesh class represents a polygonal mesh entity composed of vertices and polygons. |
++| `Node` | The Node class represents a transformable node in the scene hierarchy and can contain child nodes and an entity. |
 +| `ParseException` | Exception when Aspose.3D failed to parse the input. |
-+| `Plane` | The Plane class represents a plane primitive in Aspose.3D FOSS for Python, defined as an infinite flat surface. |
-+| `PolygonBuilder` | The PolygonBuilder class represents a utility in Aspose.3D FOSS for Python for constructing polygonal meshes programmatically. |
-+| `Pose` | The Pose class represents a named pose in Aspose.3D FOSS for Python, used to store and apply transformation states to nodes. |
-+| `Primitive` | The Primitive class represents a basic geometric primitive in Aspose.3D FOSS for Python, such as a box, cylinder, or sphere. |
-+| `Property` | The Property class represents a named property in Aspose.3D FOSS for Python, used to store metadata or configuration values. |
-+| `PropertyCollection` | The PropertyCollection class represents a collection of named properties in Aspose.3D FOSS for Python, used to manage object metadata. |
++| `Plane` | The Plane class represents a planar primitive with configurable size and segment counts. |
++| `PolygonBuilder` | The PolygonBuilder class provides utilities for constructing polygonal geometry programmatically. |
++| `Pose` | The Pose class represents a specific pose configuration of a scene object and supports named identification. |
++| `Primitive` | The Primitive class serves as the base for built-in geometric primitives such as box, cylinder, and sphere. |
++| `Property` | The Property class represents a single named property with a value and type information. |
++| `PropertyCollection` | The PropertyCollection class manages a collection of properties associated with an object. |
 +| `PropertyFlags` | Property's flags |
 +| `Rect` | A class to represent the rectangle |
 +| `RelativeRectangle` | Relative rectangle |
 +| `RotationOrder` | The order controls which rx ry rz are applied in the transformation matrix. |
-+| `Scene` | The Scene class represents a 3D scene in Aspose.3D FOSS for Python, containing nodes, entities, and animation data. |
-+| `SceneObject` | The SceneObject class represents an object in a 3D scene in Aspose.3D FOSS for Python, supporting named properties and scene hierarchy. |
++| `Scene` | The Scene class represents a complete 3D scene containing nodes, entities, animations, and asset metadata. |
++| `SceneObject` | The SceneObject class serves as the base for all objects that can be placed in a scene and inherits from A3DObject. |
 +| `SemanticAttribute` | Allow user to use their own structure for static declaration of VertexDeclaration |
 +| `Sphere` | The Sphere class represents a sphere primitive in Aspose.3D FOSS for Python. |
-+| `Transform` | The Transform class encapsulates geometric transformations such as translation, rotation, and scaling for nodes in Aspose.3D FOSS for Python. |
++| `Transform` | The Transform class represents transformation properties such as translation, rotation, and scaling for 3D objects in Aspose.3D FOSS for Python. |
 +| `TransformBuilder` | The TransformBuilder is used to build transform matrix by a chain of transformations. |
 +| `TrialException` | This is raised in Scene.Open/Scene.Save when no licenses are applied. |
 +| `Vertex` | Vertex reference, used to access the raw vertex in TriMesh. |
@@ -394,20 +394,20 @@
 +| `VertexFieldDataType` | Vertex field's data type |
 +| `VertexFieldSemantic` | The semantic of the vertex field |
 +| `Bone` | The Bone class represents a bone used in skeletal animation within Aspose.3D FOSS for Python. |
-+| `BoneLinkMode` | The BoneLinkMode class defines enumeration values for bone linking behavior in Aspose.3D FOSS for Python. |
-+| `Deformer` | The Deformer class serves as the base class for mesh deformation operations in Aspose.3D FOSS for Python. |
++| `BoneLinkMode` | The BoneLinkMode class defines enumeration values for bone linking modes in Aspose.3D FOSS for Python. |
++| `Deformer` | The Deformer class serves as a base class for mesh deformation operations in Aspose.3D FOSS for Python. |
 +| `MorphTargetChannel` | The MorphTargetChannel class manages weights and targets for morph target animation in Aspose.3D FOSS for Python. |
 +| `MorphTargetDeformer` | The MorphTargetDeformer class applies morph target deformations to meshes in Aspose.3D FOSS for Python. |
 +| `SkinDeformer` | The SkinDeformer class applies skinning deformations using bone weights in Aspose.3D FOSS for Python. |
 +| `ApertureMode` | Camera aperture modes. |
 +| `BooleanOperand` | This class encapsulates the transformed mesh as Boolean operation's operand. |
-+| `BooleanOperation` | The BooleanOperation class defines enumeration values for boolean operations on geometries in Aspose.3D FOSS for Python. |
++| `BooleanOperation` | The BooleanOperation class defines enumeration values for boolean operations on 3D entities in Aspose.3D FOSS for Python. |
 +| `BooleanOperator` | Boolean operator allows you to apply Boolean operation on two IMeshConvertible instances. |
 +| `CompositeCurve` | A CompositeCurve is consisting of several curve segments. |
 +| `CurveDimension` | The CurveDimension class specifies the dimensionality of curves in Aspose.3D FOSS for Python. |
 +| `EndPoint` | The end point to trim the curve, can be a parameter value or a Cartesian point. |
 +| `HalfSpace` | HalfSpace represents a infinity space which is split by a plane, this can be used with BooleanOperator |
-+| `IIndexedVertexElement` | The IIndexedVertexElement interface represents a vertex element with indexed data in Aspose.3D FOSS for Python. |
++| `IIndexedVertexElement` | The IIndexedVertexElement interface represents an indexed vertex element in Aspose.3D FOSS for Python. |
 +| `IMeshConvertible` | Entities that implemented this interface can be converted to Mesh |
 +| `IOrientable` | Orientable entities shall implement this interface. |
 +| `LightType` | Light types. |
@@ -416,13 +416,13 @@
 +| `NurbsCurve` | The NurbsCurve class represents a NURBS curve geometry in Aspose.3D FOSS for Python. |
 +| `NurbsDirection` | The NurbsDirection class defines properties for a NURBS direction in Aspose.3D FOSS for Python. |
 +| `NurbsSurface` | The NurbsSurface class represents a NURBS surface geometry in Aspose.3D FOSS for Python. |
-+| `NurbsType` | The NurbsType class defines enumeration values for NURBS curve types in Aspose.3D FOSS for Python. |
++| `NurbsType` | The NurbsType class defines enumeration values for NURBS types in Aspose.3D FOSS for Python. |
 +| `Patch` | The Patch class represents a patch geometry in Aspose.3D FOSS for Python. |
-+| `PatchDirection` | The PatchDirection class defines enumeration values for patch directions in Aspose.3D FOSS for Python. |
++| `PatchDirection` | The PatchDirection class defines properties for patch directions in Aspose.3D FOSS for Python. |
 +| `PatchDirectionType` | The PatchDirectionType class defines enumeration values for patch direction types in Aspose.3D FOSS for Python. |
-+| `PointCloud` | The PointCloud class represents a collection of points without connectivity in Aspose.3D FOSS for Python. |
-+| `InvalidOperationException` | The InvalidOperationException class is raised when an invalid operation is performed during polygon construction in Aspose.3D FOSS for Python. |
-+| `PolygonModifier` | The PolygonModifier class provides static methods to modify polygonal meshes in Aspose.3D FOSS for Python. |
++| `PointCloud` | The PointCloud class represents a collection of points in 3D space in Aspose.3D FOSS for Python. |
++| `InvalidOperationException` | The InvalidOperationException class is raised when an invalid operation occurs during polygon building in Aspose.3D FOSS for Python. |
++| `PolygonModifier` | The PolygonModifier class provides utilities for modifying polygonal meshes in Aspose.3D FOSS for Python. |
 +| `ProjectionType` | Camera's projection types. |
 +| `Pyramid` | Parameterized pyramid. |
 +| `RectangularTorus` | Parameterized rectangular torus entity. |
@@ -443,7 +443,7 @@
 +| `VertexElementBinormal` | The VertexElementBinormal class represents binormal data for vertices in Aspose.3D FOSS for Python. |
 +| `VertexElementDoublesTemplate` | A helper class for defining concrete implementations. |
 +| `VertexElementEdgeCrease` | Defines the edge crease values for specified components. |
-+| `VertexElementFVector` | The VertexElementFVector class represents a vertex element containing floating-point vectors in Aspose.3D FOSS for Python. |
++| `VertexElementFVector` | The VertexElementFVector class represents floating-point vector vertex data in Aspose.3D FOSS for Python. |
 +| `VertexElementHole` | Defines the hole information for specified components. |
 +| `VertexElementIntsTemplate` | A helper class for defining concrete implementations with int data. |
 +| `VertexElementMaterial` | Defines the material for specified components. |
@@ -457,7 +457,7 @@
 +| `VertexElementUV` | The VertexElementUV class represents UV texture coordinates for vertices in Aspose.3D FOSS for Python. |
 +| `VertexElementUserData` | Defines the user data for specified components. |
 +| `VertexElementVector4` | Defines the vector4 data for specified components. |
-+| `VertexElementVertexColor` | The VertexElementVertexColor class represents per-vertex color data in Aspose.3D FOSS for Python. |
++| `VertexElementVertexColor` | The VertexElementVertexColor class represents vertex color data in Aspose.3D FOSS for Python. |
 +| `VertexElementVertexCrease` | Defines the vertex crease values for specified components. |
 +| `VertexElementVisibility` | Defines the visibility for specified components. |
 +| `VertexElementWeight` | Defines the weight for specified components. |
@@ -474,7 +474,7 @@
 +| `DracoCompressionLevel` | Compression level for draco file |
 +| `DracoFormat` | Google Draco format |
 +| `DracoSaveOptions` | Save options for Draco |
-+| `Exporter` | The Exporter class provides functionality to export scenes to various 3D formats in Aspose.3D FOSS for Python. |
++| `Exporter` | The Exporter class provides functionality to export 3D scenes to various file formats in Aspose.3D FOSS for Python. |
 +| `FbxLoadOptions` | Load options for FBX |
 +| `FbxSaveOptions` | Save options for FBX |
 +| `FormatDetector` | The FormatDetector class detects the format of a 3D file in Aspose.3D FOSS for Python. |
@@ -483,10 +483,10 @@
 +| `formats.GltfSaveOptions` | Save options for glTF |
 +| `Html5SaveOptions` | Save options for HTML5 |
 +| `IOConfig` | The IOConfig class holds input/output configuration options for file operations in Aspose.3D FOSS for Python. |
-+| `IOService` | The IOService class provides core input and output services for file handling in Aspose.3D FOSS for Python. |
-+| `Importer` | The Importer class provides functionality to import scenes from various 3D formats in Aspose.3D FOSS for Python. |
++| `IOService` | The IOService class provides core input/output services for file handling in Aspose.3D FOSS for Python. |
++| `Importer` | The Importer class provides functionality to import 3D scenes from various file formats in Aspose.3D FOSS for Python. |
 +| `JtLoadOptions` | Load options for JT |
-+| `LoadOptions` | LoadOptions configures how 3D scenes are loaded from files or streams. |
++| `LoadOptions` | LoadOptions provides configuration options for loading 3D scenes in Aspose.3D FOSS for Python. |
 +| `Microsoft3MFFormat` | Microsoft 3MF format |
 +| `Microsoft3MFSaveOptions` | Save options for Microsoft 3MF |
 +| `formats.ObjLoadOptions` | Load options for OBJ |
@@ -496,67 +496,67 @@
 +| `PdfLoadOptions` | Load options for PDF |
 +| `PdfRenderMode` | Render mode for PDF export |
 +| `PdfSaveOptions` | Save options for PDF |
-+| `Plugin` | Plugin serves as the base class for format plugins that provide import, export, and format detection capabilities. |
++| `Plugin` | Plugin serves as an abstract base class for format plugins that support loading, saving, and detection of 3D file formats in Aspose.3D FOSS for Python. |
 +| `PlyFormat` | PLY format |
 +| `PlyLoadOptions` | Load options for PLY |
 +| `PlySaveOptions` | Save options for PLY |
 +| `RvmFormat` | RVM format |
 +| `RvmLoadOptions` | Load options for RVM |
 +| `RvmSaveOptions` | Save options for RVM |
-+| `SaveOptions` | SaveOptions configures how 3D scenes are saved to files or streams. |
++| `SaveOptions` | SaveOptions provides configuration options for saving 3D scenes in Aspose.3D FOSS for Python. |
 +| `formats.StlLoadOptions` | Load options for STL |
 +| `formats.StlSaveOptions` | Save options for STL |
-+| `ThreeMfFormat` | ThreeMfFormat represents the 3MF file format and supports importing and exporting 3D models with metadata. |
-+| `ThreeMfLoadOptions` | ThreeMfLoadOptions provides configuration options specific to loading 3MF files. |
-+| `ThreeMfSaveOptions` | ThreeMfSaveOptions provides configuration options specific to saving 3MF files, including compression and coordinate system settings. |
++| `ThreeMfFormat` | ThreeMfFormat represents the 3MF file format and supports importing and exporting 3D models with metadata in Aspose.3D FOSS for Python. |
++| `ThreeMfLoadOptions` | ThreeMfLoadOptions provides configuration options specific to loading 3MF files in Aspose.3D FOSS for Python. |
++| `ThreeMfSaveOptions` | ThreeMfSaveOptions provides configuration options specific to saving 3MF files in Aspose.3D FOSS for Python. |
 +| `U3dLoadOptions` | Load options for U3D |
 +| `U3dSaveOptions` | Save options for U3D |
 +| `UsdSaveOptions` | Save options for USD |
 +| `XLoadOptions` | Load options for X format |
-+| `ColladaExporter` | ColladaExporter writes 3D scenes to COLLADA files in the DAE format. |
-+| `ColladaFormat` | ColladaFormat defines the COLLADA file format and its supported properties such as extensions and content type. |
-+| `ColladaFormatDetector` | ColladaFormatDetector identifies whether a file is a valid COLLADA format by inspecting its content. |
-+| `ColladaImporter` | ColladaImporter reads 3D scenes from COLLADA files in the DAE format. |
-+| `ColladaPlugin` | ColladaPlugin provides access to COLLADA format support including importers, exporters, and format detectors. |
-+| `FbxExporter` | FbxExporter writes 3D scenes to Autodesk FBX files. |
-+| `FbxFormat` | FbxFormat defines the Autodesk FBX file format and its supported properties such as extensions and content type. |
-+| `FbxFormatDetector` | FbxFormatDetector identifies whether a file is a valid FBX format by inspecting its content. |
-+| `FbxImporter` | FbxImporter reads 3D scenes from Autodesk FBX files. |
-+| `FbxPlugin` | FbxPlugin provides access to FBX format support including importers, exporters, and format detectors. |
-+| `BinaryTokenizer` | BinaryTokenizer parses binary FBX files into structured tokens for further processing. |
-+| `binary_tokenizer.Token` | Token represents a single parsed element from a binary FBX file. |
-+| `binary_tokenizer.TokenType` | TokenType defines the categories of tokens that can appear in a binary FBX file. |
-+| `FbxElement` | FbxElement models a single element in the hierarchical structure of an FBX file. |
-+| `FbxParser` | FbxParser reads and interprets the internal structure of FBX files. |
-+| `FbxScope` | FbxScope defines a lexical scope within the FBX file structure for organizing elements. |
-+| `FbxTokenizer` | FbxTokenizer breaks down text-based FBX files into a sequence of tokens. |
-+| `tokenizer.Token` | Token represents a single lexical unit in a text-based FBX file. |
-+| `tokenizer.TokenType` | TokenType enumerates the possible kinds of tokens in a text-based FBX file. |
-+| `GltfExporter` | GltfExporter writes 3D scenes to glTF files in either JSON or binary format. |
-+| `GltfFormat` | GltfFormat defines the glTF file format and its supported properties such as extensions and content type. |
-+| `GltfFormatDetector` | GltfFormatDetector identifies whether a file is a valid glTF format by inspecting its content. |
-+| `GltfImporter` | GltfImporter reads 3D scenes from glTF files. |
-+| `gltf.GltfLoadOptions` | GltfLoadOptions provides configuration options specific to loading glTF files. |
-+| `GltfPlugin` | GltfPlugin provides access to glTF format support including importers, exporters, and format detectors. |
-+| `gltf.GltfSaveOptions` | GltfSaveOptions provides configuration options specific to saving glTF files. |
-+| `ObjExporter` | ObjExporter writes 3D scenes to Wavefront OBJ files. |
-+| `ObjFormat` | ObjFormat defines the Wavefront OBJ file format and its supported properties such as extensions and content type. |
-+| `ObjFormatDetector` | ObjFormatDetector identifies whether a file is a valid OBJ format by inspecting its content. |
-+| `ObjImporter` | ObjImporter reads 3D scenes from Wavefront OBJ files. |
-+| `obj.ObjLoadOptions` | ObjLoadOptions provides configuration options specific to loading OBJ files. |
-+| `ObjPlugin` | ObjPlugin provides access to OBJ format support including importers, exporters, and format detectors. |
-+| `obj.ObjSaveOptions` | ObjSaveOptions provides configuration options specific to saving OBJ files. |
-+| `StlExporter` | StlExporter writes 3D scenes to STL files for 3D printing and CAD applications. |
-+| `StlFormat` | StlFormat represents the STL file format and provides methods to detect, import, and export STL files, including support for binary and ASCII modes through its options. |
-+| `StlFormatDetector` | StlFormatDetector identifies whether a given input stream contains an STL file by inspecting its content. |
-+| `StlImporter` | StlImporter reads STL files and converts them into a scene graph representation. |
-+| `stl.StlLoadOptions` | StlLoadOptions configures how STL files are loaded, including options to flip the coordinate system and apply a uniform scale factor. |
-+| `StlPlugin` | StlPlugin acts as a plugin entry point for STL format support, providing access to importers, exporters, format detectors, and load/save options. |
-+| `stl.StlSaveOptions` | StlSaveOptions controls how STL files are saved, supporting binary mode, coordinate system flipping, and uniform scaling. |
-+| `ThreeMfExporter` | ThreeMfExporter writes scene graphs to 3MF format files. |
-+| `ThreeMfFormatDetector` | ThreeMfFormatDetector determines whether an input stream contains a 3MF file by analyzing its content. |
-+| `ThreeMfImporter` | ThreeMfImporter parses 3MF files and constructs an internal scene representation. |
-+| `ThreeMfPlugin` | ThreeMfPlugin serves as the plugin interface for 3MF format support, exposing importers, exporters, format detectors, and configuration options. |
++| `ColladaExporter` | ColladaExporter exports 3D scenes to the COLLADA format in Aspose.3D FOSS for Python. |
++| `ColladaFormat` | ColladaFormat represents the COLLADA file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python. |
++| `ColladaFormatDetector` | ColladaFormatDetector identifies COLLADA files by their content in Aspose.3D FOSS for Python. |
++| `ColladaImporter` | ColladaImporter imports 3D scenes from the COLLADA format in Aspose.3D FOSS for Python. |
++| `ColladaPlugin` | ColladaPlugin provides access to COLLADA format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python. |
++| `FbxExporter` | FbxExporter saves 3D scenes to the FBX format in Aspose.3D FOSS for Python. |
++| `FbxFormat` | FbxFormat represents the FBX file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python. |
++| `FbxFormatDetector` | FbxFormatDetector identifies FBX files by their content in Aspose.3D FOSS for Python. |
++| `FbxImporter` | FbxImporter loads 3D scenes from the FBX format in Aspose.3D FOSS for Python. |
++| `FbxPlugin` | FbxPlugin provides access to FBX format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python. |
++| `BinaryTokenizer` | BinaryTokenizer parses binary FBX files into tokens for further processing in Aspose.3D FOSS for Python. |
++| `binary_tokenizer.Token` | Token represents a parsed element from a binary FBX file in Aspose.3D FOSS for Python. |
++| `binary_tokenizer.TokenType` | TokenType defines the categories of tokens used in binary FBX parsing in Aspose.3D FOSS for Python. |
++| `FbxElement` | FbxElement represents a parsed FBX element with its properties and child elements in Aspose.3D FOSS for Python. |
++| `FbxParser` | FbxParser reads and interprets binary FBX data into structured elements in Aspose.3D FOSS for Python. |
++| `FbxScope` | FbxScope manages the hierarchical context during FBX parsing in Aspose.3D FOSS for Python. |
++| `FbxTokenizer` | FbxTokenizer breaks down text-based FBX files into tokens for parsing in Aspose.3D FOSS for Python. |
++| `tokenizer.Token` | Token represents a lexical unit extracted from a text-based FBX file in Aspose.3D FOSS for Python. |
++| `tokenizer.TokenType` | TokenType specifies the kinds of tokens produced during text-based FBX tokenization in Aspose.3D FOSS for Python. |
++| `GltfExporter` | GltfExporter exports 3D scenes to the glTF format in Aspose.3D FOSS for Python. |
++| `GltfFormat` | GltfFormat represents the glTF file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python. |
++| `GltfFormatDetector` | GltfFormatDetector identifies glTF files by their content in Aspose.3D FOSS for Python. |
++| `GltfImporter` | GltfImporter loads 3D scenes from the glTF format in Aspose.3D FOSS for Python. |
++| `gltf.GltfLoadOptions` | GltfLoadOptions provides configuration options specific to loading glTF files in Aspose.3D FOSS for Python. |
++| `GltfPlugin` | GltfPlugin provides access to glTF format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python. |
++| `gltf.GltfSaveOptions` | GltfSaveOptions provides configuration options specific to saving glTF files in Aspose.3D FOSS for Python. |
++| `ObjExporter` | ObjExporter saves 3D scenes to the OBJ format in Aspose.3D FOSS for Python. |
++| `ObjFormat` | ObjFormat represents the OBJ file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python. |
++| `ObjFormatDetector` | ObjFormatDetector identifies OBJ files by their content in Aspose.3D FOSS for Python. |
++| `ObjImporter` | ObjImporter loads 3D scenes from the OBJ format in Aspose.3D FOSS for Python. |
++| `obj.ObjLoadOptions` | ObjLoadOptions provides configuration options specific to loading OBJ files in Aspose.3D FOSS for Python. |
++| `ObjPlugin` | ObjPlugin provides access to OBJ format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python. |
++| `obj.ObjSaveOptions` | ObjSaveOptions provides configuration options specific to saving OBJ files in Aspose.3D FOSS for Python. |
++| `StlExporter` | StlExporter saves 3D scenes to the STL format in Aspose.3D FOSS for Python. |
++| `StlFormat` | The StlFormat class represents the STL file format and provides properties and methods for handling STL files in Aspose.3D FOSS for Python. |
++| `StlFormatDetector` | The StlFormatDetector class detects whether a given input stream contains an STL file format. |
++| `StlImporter` | The StlImporter class imports geometry data from STL files into a scene object. |
++| `stl.StlLoadOptions` | The StlLoadOptions class provides configuration options for loading STL files, including coordinate system flipping and scaling. |
++| `StlPlugin` | The StlPlugin class acts as a plugin for the STL file format, offering access to importers, exporters, and format detection capabilities. |
++| `stl.StlSaveOptions` | The StlSaveOptions class provides configuration options for saving scenes to STL files, including binary mode, coordinate system flipping, and scaling. |
++| `ThreeMfExporter` | The ThreeMfExporter class exports scene data to the 3MF file format. |
++| `ThreeMfFormatDetector` | The ThreeMfFormatDetector class detects whether a given input stream contains a 3MF file format. |
++| `ThreeMfImporter` | The ThreeMfImporter class imports geometry data from 3MF files into a scene object. |
++| `ThreeMfPlugin` | The ThreeMfPlugin class acts as a plugin for the 3MF file format, offering access to importers, exporters, and format detection capabilities. |
 +| `ArbitraryProfile` | This class allows you to construct a 2D profile directly from arbitrary curve. |
 +| `CShape` | IFC compatible C-shape profile that defined by parameters. |
 +| `CenterLineProfile` | IFC compatible center line profile. |
@@ -817,11 +817,11 @@
 +| `Viewport` | Viewport for rendering. |
 +| `WindowHandle` | Window handle for render window. |
 +| `AlphaSource` | Source of alpha channel for textures. |
-+| `LambertMaterial` | LambertMaterial defines a non-shiny material model with configurable ambient, diffuse, emissive, and transparency properties. |
-+| `Material` | Material is the base class for all shading models and supports texture assignment and retrieval. |
-+| `PbrMaterial` | PbrMaterial implements a physically based rendering model with albedo, metallic, roughness, emissive, normal, and occlusion properties. |
++| `LambertMaterial` | The LambertMaterial class represents a Lambertian material with properties for ambient, diffuse, emissive, and transparency colors. |
++| `Material` | The Material class serves as the base class for all shading materials in Aspose.3D FOSS for Python. |
++| `PbrMaterial` | The PbrMaterial class represents a physically based rendering material with properties such as albedo, metallic factor, roughness, and emissive color. |
 +| `PbrSpecularMaterial` | Material for physically based rendering based on diffuse color/specular/glossiness. |
-+| `PhongMaterial` | PhongMaterial extends LambertMaterial with specular reflection properties including shininess, specular color, and reflection factor. |
++| `PhongMaterial` | The PhongMaterial class represents a Phong shading material extending LambertMaterial with reflection and specular properties. |
 +| `ShaderMaterial` | A shader material allows to describe the material by external rendering engine or shader language. |
 +| `ShaderTechnique` | A technique in shader material describes the concrete rendering details. |
  | `Texture` | This class defines the texture from an external file. |
@@ -885,16 +885,16 @@
 -| `VertexFieldSemantic` | The semantic of the vertex field. |
 -| `Viewport` | Viewport for rendering. |
 +| `WrapMode` | Wrap mode for texture coordinates. |
-+| `BoundingBox` | BoundingBox represents an axis-aligned bounding box in 3D space with a center point and extent. |
-+| `FVector2` | FVector2 represents a two-dimensional vector of single-precision floating-point components. |
-+| `FVector3` | FVector3 represents a three-dimensional vector of single-precision floating-point components. |
-+| `FVector4` | FVector4 represents a four-dimensional vector of single-precision floating-point components. |
++| `BoundingBox` | The BoundingBox class represents an axis-aligned bounding box used to describe the spatial extent of geometry. |
++| `FVector2` | The FVector2 class represents a two-dimensional vector with single-precision floating-point components. |
++| `FVector3` | The FVector3 class represents a three-dimensional vector with single-precision floating-point components. |
++| `FVector4` | The FVector4 class represents a four-dimensional vector with single-precision floating-point components. |
 +| `FileSystem` | File system encapsulation. |
-+| `Matrix4` | Matrix4 represents a 4x4 transformation matrix used for 3D geometry operations. |
-+| `Quaternion` | Quaternion represents a unit quaternion used for 3D rotation operations. |
-+| `Vector2` | Vector2 represents a two-dimensional vector of double-precision floating-point components. |
-+| `Vector3` | Vector3 represents a three-dimensional vector of double-precision floating-point components. |
-+| `Vector4` | Vector4 represents a four-dimensional vector of double-precision floating-point components. |
++| `Matrix4` | The Matrix4 class represents a 4x4 transformation matrix used for 3D geometry operations. |
++| `Quaternion` | The Quaternion class represents a quaternion used for 3D rotation operations. |
++| `Vector2` | The Vector2 class represents a two-dimensional vector with double-precision floating-point components. |
++| `Vector3` | The Vector3 class represents a three-dimensional vector with double-precision floating-point components. |
++| `Vector4` | The Vector4 class represents a four-dimensional vector with double-precision floating-point components. |
  | `Watermark` | Utility to encode/decode blind watermark to/from a mesh. |
 -| `WindowHandle` | Window handle for render window. |
 -| `WrapMode` | Wrap mode for texture coordinates. |
@@ -912,9 +912,9 @@
 -| `WeightedMode` | WeightedMode enum values NONE, OUT_WEIGHT, NEXT_IN_WEIGHT, and BOTH let developers specify how vertex weights are applied during mesh processing. |
 +| Enumeration | Description |
 +| --- | --- |
-+| `ExtrapolationType` | The ExtrapolationType class represents the enumeration of extrapolation modes for animation curves in Aspose.3D FOSS for Python. |
-+| `Interpolation` | The Interpolation class represents the enumeration of interpolation modes for animation keyframes in Aspose.3D FOSS for Python. |
-+| `PoseType` | The PoseType class represents the enumeration of pose types in Aspose.3D FOSS for Python, such as bind pose or rest pose. |
++| `ExtrapolationType` | The ExtrapolationType class enumerates supported methods for extrapolating animation values outside the keyframe range. |
++| `Interpolation` | The Interpolation class enumerates supported methods for interpolating keyframe values over time. |
++| `PoseType` | The PoseType class enumerates the types of poses supported in the scene. |
 +| `StepMode` | The StepMode class defines enumeration values for step mode settings in Aspose.3D FOSS for Python. |
 +| `WeightedMode` | The WeightedMode class defines enumeration values for weighted mode settings in Aspose.3D FOSS for Python. |
 +
@@ -922,7 +922,7 @@
 +
 +### Scene
 +
-+`Scene` serves as the top-level container for 3D content, supporting `Scene.open` and `Scene.save` to load from or write to files, with `FileFormat` supporting formats like `FileFormat.WAVEFRONT_OBJ`, `FileFormat.GLTF2`, `FileFormat.FBX7400ASCII`, and `FileFormat.MICROSOFT_3MF_FORMAT`, and offering `Scene.create_animation_clip`, `Scene.animation_clips`, `Scene.sub_scenes`, `Scene.render`, and `Scene.clear` for scene management.
++The `aspose.threed.Scene` class provides `Scene.open`() and `Scene.save`() to load and write 3D scenes, `Scene.root_node` to access the top-level node, `Scene.animation_clips` to manage animation data, `Scene.library` for shared resources, `Scene.sub_scenes` for hierarchical organization, `Scene.render` for visualization, `Scene.clear` to reset the scene, `Scene.create_animation_clip`() and `Scene.get_animation_clip`() for animation handling, `Scene.current_animation_clip` to inspect active clips, `Scene.poses` for pose-based animation, and `Scene.asset_info` for metadata, supporting formats like `FileFormat.WAVEFRONT_OBJ`, `FileFormat.GLTF2`, `FileFormat.FBX7400ASCII`, and `FileFormat.MICROSOFT_3MF_FORMAT` via `FileFormat.detect`, `FileFormat.get_format_by_extension`, `FileFormat.can_import`, `FileFormat.can_export`, `FileFormat.extensions`, `FileFormat.extension`, `FileFormat.file_format_type`, `FileFormat.version`, `FileFormat.formats`, `FileFormat.create_load_options`, and `FileFormat.create_save_options`.
 +
 +- `animation_clips`: Defined as `def animation_clips(self) -> List['AnimationClip']`.
 +- `asset_info`: Defined as `def asset_info(self) -> AssetInfo`.
@@ -941,7 +941,7 @@
 +
 +### Node
 +
-+`Node` represents an element in the scene graph, holding a `Transform` via `Node.transform`, optional `Mesh`-derived entities via `Node.entity`, and zero or more `Material` instances via `Node.material`, with methods like `Node.add_child_node`, `Node.get_child`, `Node.select_objects`, and `Node.evaluate_global_transform` for scene traversal and manipulation.
++The `aspose.threed.Node` class provides `Node.add_child_node`() and `Node.create_child_node`() to build the scene hierarchy, `Node.transform` to access the `Node.transform`, `Node.material` and `Node.materials` to assign materials, `Node.entities` and `Node.entity` to manage `Mesh`-derived entities, `Node.child_nodes` and `Node.get_child`() to traverse children, `Node.parent_node` to navigate upward, `Node.global_transform` and `Node.evaluate_global_transform` for world-space transforms, `Node.get_bounding_box`() for spatial queries, `Node.select_objects`() and `Node.select_single_object`() for object selection, `Node.visible` and `Node.excluded` for visibility control, `Node.meta_datas` for custom data, and `Node.add_entity` and `Node.merge` for entity management.
 +
 +- `add_child_node`: Defined as `def add_child_node(self, node: 'Node')`.
 +- `add_entity`: Defined as `def add_entity(self, entity: 'Entity')`.
@@ -968,7 +968,7 @@
 +
 +### Mesh
 +
-+`Mesh` provides geometric data through `control_points` and polygon definitions, with `PolygonBuilder` enabling programmatic mesh construction via member `create_polygon` and member `to_mesh`, supporting direct integration with `Node` entities.
++The `aspose.threed.Mesh` class provides `control_points` to access vertex data, `to_mesh` to convert geometry, and `PolygonBuilder.create_polygon`() to construct polygonal faces, supporting mesh creation and modification through the `aspose.threed.PolygonBuilder` class.
 +
 +- `control_points`: Defined as `def control_points(self) -> ArrayListAdapter[Vector4]`.
 +- `create_polygon`: Defined as `def create_polygon(self, *args)`.
@@ -989,11 +989,11 @@
 +
 +### shading
 +
-+Shading support is exposed via `Node.material`, which holds material properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor`, and integrates with the `aspose.threed.shading` module for advanced material definitions.
++The `aspose.threed.shading` module provides material properties such as `diffuse_color`, `metallic_factor`, and `roughness_factor`, accessible via `Node.material` to assign shading characteristics to scene entities.
 +
 +### AnimationClip
 +
-+`AnimationClip` enables keyframe-based animation through `KeyframeSequence` and `AnimationNode`, with `Scene.create_animation_clip` and `Scene.current_animation_clip` managing animation state, and `AnimationClip` exposing member `KeyframeSequence` for time-based property interpolation.
++The `aspose.threed.AnimationClip` class provides animation data through `KeyframeSequence` and `AnimationNode`, accessible via `Scene.animation_clips`, `Scene.create_animation_clip`(), and `Scene.get_animation_clip`(), supporting keyframe-based animation via `KeyframeSequence` and `AnimationNode` hierarchies.
 +
 +- `animations`: Defined as `def animations(self) -> List['AnimationNode']`.
 +- `create_animation_node`: Defined as `def create_animation_node(self, node_name: str) -> 'AnimationNode'`.
@@ -1016,7 +1016,7 @@
 -- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues) on GitHub.
 +- **[Getting started guide](https://docs.aspose.org/3d/python/)** — The getting started guide covers installation, walkthroughs, and feature guides for this library.
 +- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — The how-to guides and FAQ provide task-focused answers for common 3D-processing questions.
-+- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference offers the complete, browsable reference for all 305 public types. It covers all 337 verified public types; the [API Reference](#api-reference) section above covers the essentials.
++- **[Full API reference](https://reference.aspose.org/3d/python/)** — The full API reference is the complete, browsable reference for all 305 public types. It covers all 337 verified public types; the [API Reference](#api-reference) section above covers the essentials.
 +- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues).
  
  ## Scope and Limitations
@@ -1065,21 +1065,21 @@
 -[Aspose.3D for Python — Enterprise Edition](https://products.aspose.com/3d/python-net/), which adds the
 -broader proprietary-format support (PDF, PLY, USD, and more), rendering, and advanced mesh
 -operations that this FOSS build leaves unimplemented.
-+Aspose.3D FOSS for Python supports reading and writing 3D models in formats such as OBJ, STL, glTF, and COLLADA, and provides core mesh and scene manipulation capabilities for the 3d family of formats.
++Aspose.3D FOSS for Python provides read and write support for OBJ, STL, glTF, and COLLADA (DAE) 3D formats in the 3d family, targeting Python 3.7 through 3.12, and is distributed as the aspose-3d-foss package at version 26.1.0.
 +
-+- This library is limited to the 3d family of formats and does not support importing or exporting PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco.
-+- COLLADA import works for `.dae` files, but COLLADA export is not reachable through `Scene.save`() because the exporter lookup fails before `ColladaExporter` is ever consulted.
-+- The `aspose.threed.render` module, including `Renderer`, `RenderFactory`, `Viewport`, and related classes, raises NotImplementedError — this library does not render scenes to images.
-+- `Texture` and `TextureBase` raise NotImplementedError on construction, so an image-backed texture cannot be created, although material color and factor properties work independently of texture assignment.
-+- `Mesh.do_boolean`(), `Mesh.union`(), `Mesh.difference`(), and `Mesh.intersect`() raise NotImplementedError — Boolean/CSG mesh operations are not implemented, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.
-+- NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`() and `NurbsSurface.to_mesh`() raise NotImplementedError.
++- The library supports only the 3d family of formats and does not provide importers or exporters for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco.
++- COLLADA (`.dae`) import works, but COLLADA export is not reachable through `Scene.save`() because the exporter lookup fails before `ColladaExporter` is consulted.
++- The `aspose.threed.render` module, including `Renderer`, `RenderFactory`, and `Viewport`, raises NotImplementedError and cannot render scenes to images.
++- `Texture` and `TextureBase` raise NotImplementedError on construction, so image-backed textures cannot be created, although material color and factor properties work independently.
++- `Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, and `Mesh.intersect` raise NotImplementedError, so Boolean or CSG mesh operations are not implemented.
++- NURBS curves and surfaces can be configured but cannot be sampled or converted to a `Mesh` because `NurbsCurve.evaluate` and `NurbsSurface.to_mesh` raise NotImplementedError.
 +
-+These limitations don't apply to [Aspose.3D for Python — Enterprise Edition](https://products.aspose.com/3d/python-net/). The commercial Aspose.3D FOSS for Python package extends this open-source offering with additional file format support, advanced rendering capabilities, and enterprise-grade support options.
++These limitations don't apply to [Aspose.3D for Python — Enterprise Edition](https://products.aspose.com/3d/python-net/). Aspose.3D FOSS for Python provides open-source access to core 3D file format capabilities, while the commercial edition extends this with additional formats, advanced rendering features, and commercial support.
  
  ## Development and Testing
  
 -Install the repository and run the test suite:
-+The test suite covers 33 test files under tests/ and exercises OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior.
++Install the package in editable mode and run the test suite using the repository's own assets.
 +
 +The suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).
  

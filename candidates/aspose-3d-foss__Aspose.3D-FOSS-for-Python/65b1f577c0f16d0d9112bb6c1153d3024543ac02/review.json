@@ -9,23 +9,22 @@
       ],
       "id": "F01",
       "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```",
-      "repair": "Change `pip install aspose-3d-foss` to `python3 -m pip install aspose-3d-foss` to match the deterministic command and original README.",
+      "repair": "Change `pip install aspose-3d-foss` to `python3 -m pip install aspose-3d-foss` to match the deterministic command specified in the facts.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses `pip install` in the installation section, while the original README and facts specify `python3 -m pip install` for consistency and to avoid ambiguity."
+      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses `pip install aspose-3d-foss` in the installation section, while the original README and facts specify `python3 -m pip install aspose-3d-foss`."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "install_command:pip",
-        "import_path:aspose"
+        "install_command:pip"
       ],
       "id": "F02",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the verification step using `python3 -c ",
+      "quote": "To work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```",
+      "repair": "Replace `pip install .` with `python3 -m pip install -e .` to match the editable install command specified in the facts and original README.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the verification step `python3 -c "
+      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the editable install command `python3 -m pip install -e .` and instead uses `pip install .`, which is inconsistent with the original README and facts."
     },
     {
       "causal_stage": "unclear",
@@ -35,119 +34,73 @@
         "install_command:pip"
       ],
       "id": "F03",
-      "quote": "To work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```",
-      "repair": "Change `pip install .` to `python3 -m pip install -e .` to match the deterministic command and original README.",
+      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Change `python -c` to `python3 -c` to match the verification command specified in the facts and original README.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses `pip install .` for editable installs, while the original README and facts specify `python3 -m pip install -e .`."
+      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses `python -c` in the verification command, while the original README and facts specify `python3 -c`."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "dependency:development.dev.pytest-7.0.0"
+        "build_test_asset:tests"
       ],
       "id": "F04",
-      "quote": "### Development Dependencies\n\n- `pytest>=7.0.0` (extra `dev`)",
-      "repair": "Add the command `pip install -e .[dev]` to clarify how to install the development dependencies.",
-      "section_id": "dependencies",
-      "text": "[reviewer-scope defect at S6: section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate lists `pytest>=7.0.0 (extra dev)` without clarifying how to install it, while the original README and facts specify `pip install -e .[dev]`."
+      "quote": "Install the package in editable mode and run the test suite using the repository's own assets.\n\nThe suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).\n\n```bash\npython3 -m pip install -e .\npython3 -m unittest discover tests/\n```",
+      "repair": "Ensure the exact command `python3 -m unittest discover tests/` is included in the development and testing section to match the original README and facts.",
+      "section_id": "development_testing",
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The candidate omits the `python3 -m unittest discover tests/` command and instead uses a generic description without the exact command from the original README and facts."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "example:002",
-        "example:004"
+        "format:input.dae"
       ],
       "id": "F05",
-      "quote": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.\n\n```python\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Box\nfrom aspose.threed.shading import LambertMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nbox = Box(length=2.0, width=1.0, height=1.0)\nmaterial = LambertMaterial()\nmaterial.diffuse_color = Vector3(0.2, 0.6, 0.9)\n\nscene.root_node.create_child_node(\"Crate\", entity=box.to_mesh(), material=material)\nscene.save(\"crate.gltf\")\n```\n\nBuild a 3D scene from scratch using primitives, assign materials, and export it to a standard format.\n\n```python\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Sphere\nfrom aspose.threed.shading import PbrMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nsphere = Sphere()\nmaterial = PbrMaterial(albedo=Vector3(0.8, 0.1, 0.1))\nmaterial.metallic_factor = 0.9\nmaterial.roughness_factor = 0.2\n\nscene.root_node.create_child_node(\"Ball\", entity=sphere.to_mesh(), material=material)\nscene.save(\"ball.stl\")\n```",
-      "repair": "Reorder the examples to match the original: first the Box/Lambert example, then the Sphere/PBR example.",
-      "section_id": "quick_start",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate's Quick Start examples are swapped in order: the second example in the original (Sphere/PBR) is presented first, and the first example (Box/Lambert) is presented second, which contradicts the original's logical progression."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F06",
-      "quote": "The following examples demonstrate converting between formats, assigning materials, and exporting meshes to common 3D file formats.",
-      "repair": "Restore the HTML details tag structure to match the original's collapsible section.",
-      "section_id": "additional_examples",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate omits the 'View Additional Examples' HTML details tag, which is a structural element in the original and affects the document's flow."
+      "quote": "COLLADA (`.dae`) import works, but COLLADA export is not reachable through `Scene.save`() because the exporter lookup fails before `ColladaExporter` is consulted.",
+      "repair": "Add the specific reason for the limitation: 'COLLADA export is not reachable through `Scene.save()` because the exporter lookup fails before `ColladaExporter` is consulted.'",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The candidate states 'COLLADA (`.dae`) import works, but COLLADA export is not reachable through `Scene.save`()' while the original README and facts specify that COLLADA export is not reachable through `Scene.save()` due to exporter lookup failure before `ColladaExporter` is consulted."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
+        "public_symbol:aspose.threed"
+      ],
+      "id": "F06",
+      "quote": "`Texture` and `TextureBase` raise NotImplementedError on construction, so image-backed textures cannot be created, although material color and factor properties work independently.\n\n`Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, and `Mesh.intersect` raise NotImplementedError, so Boolean or CSG mesh operations are not implemented.",
+      "repair": "Include the specific details about `Texture` and `TextureBase` raising `NotImplementedError` on construction, and `Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, and `Mesh.intersect` raising `NotImplementedError`.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The candidate omits the specific details about `Texture` and `TextureBase` raising `NotImplementedError` on construction, and `Mesh.do_boolean`, `Mesh.union`, `Mesh.difference`, and `Mesh.intersect` raising `NotImplementedError`."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
         "public_symbol:aspose.threed"
       ],
       "id": "F07",
       "quote": "The verified public surface has 337 types.",
-      "repair": "Change '337 types' to '305 types' to match the original README and facts.",
+      "repair": "Change 'The verified public surface has 337 types' to 'The full public API surface is listed below by module' with 305 public types to match the original README and facts.",
       "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate states the verified public surface has 337 types, while the original README and facts indicate 305 public types."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed"
-      ],
-      "id": "F08",
-      "quote": "The verified public surface has 337 types.\n\n<details>\n<summary>View the Complete Public API Surface</summary>",
-      "repair": "Restore the full API reference table with all 305 public types to match the original README.",
-      "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate's API reference table is truncated to 12 hubs, while the original README lists all 305 public types without truncation."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "format:input.dae",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.mesh"
-      ],
-      "id": "F09",
-      "quote": "Aspose.3D FOSS for Python supports reading and writing 3D models in formats such as OBJ, STL, glTF, and COLLADA, and provides core mesh and scene manipulation capabilities for the 3d family of formats.",
-      "repair": "Restore the detailed limitations list from the original README, including FBX export, COLLADA export, and specific NotImplementedError cases.",
-      "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate's Scope and Limitations section omits critical limitations present in the original README, such as FBX export not being implemented, COLLADA export being unreachable, and specific NotImplementedError cases."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci"
-      ],
-      "id": "F10",
-      "quote": "The test suite covers 33 test files under tests/ and exercises OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior.\n\nThe suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).",
-      "repair": "Restore the release process details and the publish workflow link from the original README.",
-      "section_id": "development_testing",
-      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate's Development and Testing section omits the release process details and the publish workflow link, which are present in the original README."
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The candidate states 'The verified public surface has 337 types' while the original README and facts specify 'The full public API surface is listed below by module' with 305 public types."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "938504979eceef9bbc9584486ce798e4f47f07c4c90a824b018a75d5018ef80c",
+    "prompt_sha256": "8f4f7160274935f5fe4774650cbb1e5cb3723a15a43a815720c799f0253dc1d2",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "32d2ef36f3ec2dbd5783f95a0692eb1be0e1afc6022acb9445f4feda99fbc7d3",
+  "readme_sha256": "7391e7e5f019ca8710e4743dd69b47524d003728c730093007fb3432569f0643",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

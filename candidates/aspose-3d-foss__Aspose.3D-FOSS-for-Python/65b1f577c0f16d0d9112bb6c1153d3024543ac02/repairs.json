@@ -24,7 +24,8 @@
       "label": "F05",
       "outcome": "repaired",
       "re_raised": [
-        "F05"
+        "F05",
+        "F04"
       ],
       "reason": null,
       "request_sha256": "ae601922bc56a98f9d4da4f84fe514ed8f9d9e52fb56dab4027692f335879a55",
@@ -96,7 +97,8 @@
       "label": "F06",
       "outcome": "repaired",
       "re_raised": [
-        "F06"
+        "F06",
+        "F07"
       ],
       "reason": null,
       "request_sha256": "98256bf5adda968b0d8cdf2ca97ff100fb673f5b506aa7984fd348adb563fe6f",
@@ -121,7 +123,25 @@
       "label": "F08",
       "outcome": "repaired",
       "re_raised": [
-        "F09"
+        "F09",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+        "F14",
+        "F15",
+        "F16",
+        "F17",
+        "F18",
+        "F19",
+        "F20",
+        "F21",
+        "F22",
+        "F23",
+        "F24",
+        "F25",
+        "F05",
+        "F06"
       ],
       "reason": null,
       "request_sha256": "a3eda8f467f40946484e1d247f854904f92bba2141469aebb262736a92dcca06",
@@ -144,7 +164,8 @@
       "label": "F09",
       "outcome": "repaired",
       "re_raised": [
-        "F10"
+        "F10",
+        "F04"
       ],
       "reason": null,
       "request_sha256": "9b6681f6a5f785941ababcd2dc4045c81aceebd3aea0ee9b51dc3c100929d43d",

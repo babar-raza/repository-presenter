@@ -12,6 +12,7 @@ units from every section merge into content_units.json in shell order.
 from __future__ import annotations
 
 import ast
+import copy
 import hashlib
 import json
 import re
@@ -32,6 +33,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     section_ids,
 )
 from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
+from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 CONTENT_UNITS_FILENAME = "content_units.json"
@@ -324,6 +326,27 @@ def _type_batches(
             )
         )
     return tasks
+
+
+def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, Any]:
+    """The authoring schema specialised for one task: its section and exactly its slots.
+
+    The code knows which section this call writes and which slots it must fill, so it says so
+    rather than asking the model to restate it and rejecting it for restating it wrongly
+    (RESEARCH_AND_GUIDELINES.md section 27.5 D1; cause RC1 in 27.2). The canary's rejected
+    replies show the shape this ends: seven slots required, six returned. Citations stay with
+    the binding and unit_checks, and prose stays the model's.
+    """
+    schema = copy.deepcopy(manifest.manifest.output.schema_)
+    if not task.slots:
+        return schema
+    units = schema["properties"]["units"]
+    units["minItems"] = len(task.slots)
+    units["maxItems"] = len(task.slots)
+    properties = units["items"]["properties"]
+    properties["section"] = {"const": task.section_id}
+    properties["slot"] = {"type": "string", "enum": list(task.slots)}
+    return schema
 
 
 def authoring_tasks(

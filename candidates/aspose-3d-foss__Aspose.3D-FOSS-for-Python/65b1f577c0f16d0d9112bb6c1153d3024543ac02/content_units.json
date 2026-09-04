@@ -1,267 +1,264 @@
 {
   "coherence": {
     "applied": true,
-    "revised": []
+    "revised": [
+      "quick_start/lead_in",
+      "additional_examples/preview",
+      "additional_examples/workflow:example:005",
+      "additional_examples/workflow:example:009",
+      "additional_examples/workflow:example:010",
+      "additional_examples/workflow:example:012"
+    ]
   },
   "omitted": [
     {
-      "fact_id": "example:001",
-      "reason": "unresolved example, not used in any verified capability",
+      "fact_id": "public_symbol:aspose.threed.transform",
+      "reason": "transform is not used in any verified example and is not mentioned in the prose of any accepted fact",
       "section": "opening"
     },
     {
-      "fact_id": "example:003",
-      "reason": "unresolved example, not used in any verified capability",
+      "fact_id": "public_symbol:aspose.threed.pose",
+      "reason": "Pose is not used in any verified example and is not mentioned in the prose of any accepted fact",
       "section": "opening"
     },
     {
-      "fact_id": "example:006",
-      "reason": "unresolved example, not used in any verified capability",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:007",
-      "reason": "unresolved example, not used in any verified capability",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:008",
-      "reason": "contradicted example, not used in any verified capability",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:011",
-      "reason": "unresolved example, not used in any verified capability",
+      "fact_id": "public_symbol:aspose.threed.fileformat",
+      "reason": "FileFormat is not used in any verified example and is not mentioned in the prose of any accepted fact",
       "section": "opening"
     },
     {
       "fact_id": "inherited_unit:026.heading",
-      "reason": "inherited heading, not a prose unit",
+      "reason": "heading is rendered by the deterministic renderer, not prose",
       "section": "quick_start"
     },
     {
       "fact_id": "inherited_unit:027.paragraph",
-      "reason": "inherited paragraph, not a prose unit",
+      "reason": "paragraph is rendered by the deterministic renderer, not prose",
       "section": "quick_start"
     },
     {
       "fact_id": "inherited_unit:029.paragraph",
-      "reason": "inherited paragraph, not a prose unit",
+      "reason": "paragraph is rendered by the deterministic renderer, not prose",
       "section": "quick_start"
     },
     {
       "fact_id": "inherited_unit:030.code_block",
-      "reason": "inherited code block, not a prose unit",
+      "reason": "code block is rendered by the deterministic renderer, not prose",
       "section": "quick_start"
     },
     {
       "fact_id": "inherited_unit:031.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:032.paragraph",
+      "reason": "introductory paragraph inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:033.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:036.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:037.code_block",
-      "reason": "code block is rendered by the deterministic renderer",
+      "reason": "code block inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:038.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:039.paragraph",
-      "reason": "paragraph is rendered by the deterministic renderer",
+      "reason": "introductory paragraph inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:040.code_block",
-      "reason": "code block is rendered by the deterministic renderer",
+      "reason": "code block inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:041.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:043.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:047.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:048.code_block",
-      "reason": "code block is rendered by the deterministic renderer",
+      "reason": "code block inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:049.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:050.code_block",
-      "reason": "code block is rendered by the deterministic renderer",
+      "reason": "code block inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:051.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:053.heading",
-      "reason": "heading is rendered by the deterministic renderer",
+      "reason": "heading inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:054.code_block",
-      "reason": "code block is rendered by the deterministic renderer",
+      "reason": "code block inherited from rendered document, not a fact about the product",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:001",
-      "reason": "example is unresolved and not part of the accepted set for this section",
+      "reason": "example marked UNRESOLVED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is unresolved and not part of the accepted set for this section",
+      "reason": "example marked UNRESOLVED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is unresolved and not part of the accepted set for this section",
+      "reason": "example marked UNRESOLVED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is unresolved and not part of the accepted set for this section",
+      "reason": "example marked UNRESOLVED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is contradicted and not part of the accepted set for this section",
+      "reason": "example marked CONTRADICTED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is unresolved and not part of the accepted set for this section",
+      "reason": "example marked UNRESOLVED, not used in any slot",
       "section": "additional_examples"
     },
     {
       "fact_id": "inherited_unit:056.heading",
-      "reason": "inherited_unit is not a product fact and is excluded from prose",
+      "reason": "inherited_unit:056.heading is a heading element managed by the renderer, not a prose fact",
       "section": "api_reference"
     },
     {
       "fact_id": "inherited_unit:057.paragraph",
-      "reason": "inherited_unit is not a product fact and is excluded from prose",
+      "reason": "inherited_unit:057.paragraph is a paragraph element managed by the renderer, not a prose fact",
       "section": "api_reference"
     },
     {
       "fact_id": "inherited_unit:059.heading",
-      "reason": "inherited_unit is not a product fact and is excluded from prose",
+      "reason": "inherited_unit:059.heading is a heading element managed by the renderer, not a prose fact",
       "section": "api_reference"
     },
     {
       "fact_id": "inherited_unit:061.heading",
-      "reason": "inherited_unit is not a product fact and is excluded from prose",
+      "reason": "inherited_unit:061.heading is a heading element managed by the renderer, not a prose fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:001",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:001 is an unresolved example, not a product fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:003",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:003 is an unresolved example, not a product fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:006",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:006 is an unresolved example, not a product fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:007",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:007 is an unresolved example, not a product fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:008",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:008 is a contradicted example, not a product fact",
       "section": "api_reference"
     },
     {
       "fact_id": "example:011",
-      "reason": "example is not a product fact and is excluded from prose",
+      "reason": "example:011 is an unresolved example, not a product fact",
       "section": "api_reference"
     },
     {
+      "fact_id": "inherited_unit:065.list",
+      "reason": "the list item for the implementation progress notes, release process, and internal format-implementation notes is not a user-facing documentation resource slot and is omitted per the objective",
+      "section": "documentation_resources"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "provenance only, not used in scope or limitation descriptions",
+      "section": "scope_limitations"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "provenance only, not used in scope or limitation descriptions",
+      "section": "scope_limitations"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "provenance only, not used in scope or limitation descriptions",
+      "section": "scope_limitations"
+    },
+    {
       "fact_id": "inherited_unit:066.heading",
-      "reason": "inherited_unit, not a product fact",
+      "reason": "inherited formatting, not used in prose",
       "section": "scope_limitations"
-    },
-    {
-      "fact_id": "inherited_unit:067.list",
-      "reason": "inherited_unit, not a product fact",
-      "section": "scope_limitations"
-    },
-    {
-      "fact_id": "build_test_asset:tests",
-      "reason": "The test directory path is referenced only in the inherited code block and paragraph, not as a standalone fact to describe.",
-      "section": "development_testing"
-    },
-    {
-      "fact_id": "build_test_asset:ci",
-      "reason": "CI workflow paths are mentioned only in the inherited paragraph about releases, not in the development/testing context.",
-      "section": "development_testing"
-    },
-    {
-      "fact_id": "build_test_asset:docs",
-      "reason": "Documentation paths are referenced only in the inherited paragraph about releases, not in the development/testing context.",
-      "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:071.code_block",
-      "reason": "The code block contains commands, which are excluded from prose units.",
+      "reason": "The code block contains a command, which violates the prose rule against including commands in the summary unit.",
       "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:072.paragraph",
-      "reason": "The single test file command is part of the inherited unit but not required for the summary slot.",
+      "reason": "The paragraph describes running a single test file, which is not required for the summary slot and is covered by the broader test suite instruction.",
       "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:073.code_block",
-      "reason": "The single test file command is part of the inherited unit but not required for the summary slot.",
+      "reason": "The code block is a specific example of running a single test file, omitted because the summary slot focuses on the general build and test workflow and must avoid commands.",
       "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:074.paragraph",
-      "reason": "The paragraph about test coverage and AGENTS.md is supplementary and not required for the summary slot.",
+      "reason": "The paragraph describes test coverage and AGENTS.md documentation, which are not needed for the summary slot.",
       "section": "development_testing"
     },
     {
       "fact_id": "inherited_unit:075.paragraph",
-      "reason": "The paragraph about releases is outside the development/testing scope and belongs to a different section.",
+      "reason": "The paragraph describes the release procedure, which is outside the scope of development and testing instructions.",
       "section": "development_testing"
     }
   ],
@@ -280,6 +277,7 @@
         "format:input.glb",
         "format:input.dae",
         "format:input.3mf",
+        "format:input.fbx",
         "format:output.obj",
         "format:output.stl",
         "format:output.gltf",
@@ -293,46 +291,42 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.entity",
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.fileformat",
-        "example:002",
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:012",
-        "license:spdx",
-        "identity:platform"
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.shading"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for working with 3D documents. It supports reading and writing OBJ, STL, glTF/GLB, COLLADA, and 3MF files through a Scene/Node/Mesh object graph. The library requires no native runtime or external SDK and is compatible with Python versions 3.7 through 3.12."
+      "text": "Aspose.3D FOSS for Python is a Python library for creating, reading, converting, and saving 3D scenes using formats such as .obj, .stl, .gltf, .glb, .dae, .3mf, and .fbx. It enables developers to programmatically build 3D geometry using primitives like Box, Sphere, and Cylinder, assign materials, and export scenes to supported formats. Users can inspect and manipulate scene hierarchies through classes like Scene, Node, Entity, and Mesh, and manage animations using AnimationClip, AnimationNode, and KeyframeSequence. The library supports Python versions 3.7 through 3.12 and requires Python >=3.7."
     },
     {
       "fact_ids": [
+        "format:input.3mf",
+        "format:input.dae",
+        "format:input.glb",
+        "format:input.gltf",
         "format:input.obj",
         "format:input.stl",
-        "format:input.gltf",
-        "format:input.glb",
-        "format:input.dae",
-        "format:input.3mf",
         "public_symbol:aspose.threed.fileformat",
         "public_symbol:aspose.threed.scene"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Read .obj, .stl, .gltf, .glb, .dae, and .3mf files using Scene.open, which auto-detects the format from the file extension or an explicit FileFormat instance."
+      "text": "Aspose.3D FOSS for Python reads .obj, .stl, .gltf, .glb, .dae, and .3mf files using Scene.open() with automatic format detection from the file extension or an explicit FileFormat instance."
     },
     {
       "fact_ids": [
+        "format:output.3mf",
+        "format:output.glb",
+        "format:output.gltf",
         "format:output.obj",
         "format:output.stl",
-        "format:output.gltf",
-        "format:output.glb",
-        "format:output.3mf",
         "public_symbol:aspose.threed.scene"
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Export scenes to .obj, .stl, .gltf, .glb, and .3mf using Scene.save with format-specific save options such as GltfSaveOptions and ThreeMfSaveOptions."
+      "text": "Aspose.3D FOSS for Python writes scenes to .obj, .stl, .gltf, .glb, and .3mf files using Scene.save() with dedicated save options for each format."
     },
     {
       "fact_ids": [
@@ -343,7 +337,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Build and traverse a scene graph using Node.create_child_node, Node.add_entity, and Node.child_nodes, where each node carries an independent Transform and can hold an Entity."
+      "text": "Aspose.3D FOSS for Python builds and traverses a scene graph using Node and Entity objects, where each Node carries an independent Transform describing translation, rotation, and scaling."
     },
     {
       "fact_ids": [
@@ -355,7 +349,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Create and edit mesh geometry directly through Mesh.control_points and Mesh.create_polygon, or generate editable meshes from primitives like Box and Sphere using their to_mesh method."
+      "text": "Aspose.3D FOSS for Python authoring and editing of mesh geometry is supported through Mesh.control_points and Mesh.create_polygon(), and parameterized primitives like Box and Sphere can be converted to Mesh using their to_mesh() method."
     },
     {
       "fact_ids": [
@@ -366,7 +360,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Assign LambertMaterial, PhongMaterial, or PbrMaterial to nodes and configure diffuse, metallic, and roughness properties to control rendering appearance."
+      "text": "Aspose.3D FOSS for Python assigns materials such as LambertMaterial and PbrMaterial to nodes, supporting diffuse color, metallic factor, and roughness factor properties for realistic rendering."
     },
     {
       "fact_ids": [
@@ -377,7 +371,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:6",
-      "text": "Construct keyframe animations using AnimationClip, AnimationNode, and KeyframeSequence, and store skeletal bind-pose data with Pose."
+      "text": "Aspose.3D FOSS for Python supports keyframe animation through AnimationClip, AnimationNode, and KeyframeSequence, and stores skeletal bind-pose data using Pose objects."
     },
     {
       "fact_ids": [
@@ -385,7 +379,7 @@
       ],
       "section": "quick_start",
       "slot": "lead_in",
-      "text": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes."
+      "text": "Import an OBJ file and inspect its geometry by reading the control points and polygon count for each entity."
     },
     {
       "fact_ids": [
@@ -393,15 +387,23 @@
       ],
       "section": "quick_start",
       "slot": "lead_in:2",
-      "text": "Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format."
+      "text": "Build a scene from scratch using a sphere with a PBR material and save it as an STL file."
     },
     {
       "fact_ids": [
-        "inherited_unit:032.paragraph"
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:python_versions"
       ],
       "section": "additional_examples",
       "slot": "preview",
-      "text": "The following examples demonstrate converting between formats, assigning materials, and exporting meshes to common 3D file formats."
+      "text": "More real, verified snippets are collected below, each demonstrating one operation without obscuring the primary installation and quick-start path."
     },
     {
       "fact_ids": [
@@ -409,7 +411,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:005",
-      "text": "Export a mesh with a PBR material to text-based glTF and inspect the material JSON."
+      "text": "Construct a mesh vertex by vertex, attach a PBR material, write the scene to an in-memory glTF stream, and read the exported material back out of the glTF JSON."
     },
     {
       "fact_ids": [
@@ -417,7 +419,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:009",
-      "text": "Export a triangle mesh to ASCII STL using an in-memory string stream."
+      "text": "Build a triangle mesh and export it to ASCII STL using FileFormat.get_format_by_extension(...).create_save_options() to ensure the format is correctly inferred from the stream."
     },
     {
       "fact_ids": [
@@ -425,7 +427,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:010",
-      "text": "Triangulate a Box primitive and count its control points."
+      "text": "Convert a Box primitive to a mesh and count its control points using the to_mesh() method."
     },
     {
       "fact_ids": [
@@ -433,16 +435,20 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:012",
-      "text": "Build a cube mesh and export it to 3MF without compression."
+      "text": "Construct a cube mesh and export it to 3MF without compression using ThreeMfSaveOptions."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.shading"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the core container for scene graph elements, transforms, and entities. Scene provides high-level operations like Scene.open and Scene.save, while Node exposes Scene.root_node, child nodes, and their associated Transform and Mesh components."
+      "text": "The aspose-3d-foss package provides the aspose.threed.Scene class as the main entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.FileFormat for format detection and options creation. Scene instances hold a hierarchy of aspose.threed.Node objects, each with a Transform, optional Mesh entities, and Material references."
     },
     {
       "fact_ids": [
@@ -451,7 +457,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "Scene serves as the top-level container for 3D content, supporting Scene.open and Scene.save to load from or write to files, with FileFormat supporting formats like FileFormat.WAVEFRONT_OBJ, FileFormat.GLTF2, FileFormat.FBX7400ASCII, and FileFormat.MICROSOFT_3MF_FORMAT, and offering Scene.create_animation_clip, Scene.animation_clips, Scene.sub_scenes, Scene.render, and Scene.clear for scene management."
+      "text": "The aspose.threed.Scene class provides Scene.open() and Scene.save() to load and write 3D scenes, Scene.root_node to access the top-level node, Scene.animation_clips to manage animation data, Scene.library for shared resources, Scene.sub_scenes for hierarchical organization, Scene.render for visualization, Scene.clear to reset the scene, Scene.create_animation_clip() and Scene.get_animation_clip() for animation handling, Scene.current_animation_clip to inspect active clips, Scene.poses for pose-based animation, and Scene.asset_info for metadata, supporting formats like FileFormat.WAVEFRONT_OBJ, FileFormat.GLTF2, FileFormat.FBX7400ASCII, and FileFormat.MICROSOFT_3MF_FORMAT via FileFormat.detect, FileFormat.get_format_by_extension, FileFormat.can_import, FileFormat.can_export, FileFormat.extensions, FileFormat.extension, FileFormat.file_format_type, FileFormat.version, FileFormat.formats, FileFormat.create_load_options, and FileFormat.create_save_options."
     },
     {
       "fact_ids": [
@@ -460,7 +466,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.node",
-      "text": "Node represents an element in the scene graph, holding a Transform via Node.transform, optional Mesh-derived entities via Node.entity, and zero or more Material instances via Node.material, with methods like Node.add_child_node, Node.get_child, Node.select_objects, and Node.evaluate_global_transform for scene traversal and manipulation."
+      "text": "The aspose.threed.Node class provides Node.add_child_node() and Node.create_child_node() to build the scene hierarchy, Node.transform to access the Node.transform, Node.material and Node.materials to assign materials, Node.entities and Node.entity to manage Mesh-derived entities, Node.child_nodes and Node.get_child() to traverse children, Node.parent_node to navigate upward, Node.global_transform and Node.evaluate_global_transform for world-space transforms, Node.get_bounding_box() for spatial queries, Node.select_objects() and Node.select_single_object() for object selection, Node.visible and Node.excluded for visibility control, Node.meta_datas for custom data, and Node.add_entity and Node.merge for entity management."
     },
     {
       "fact_ids": [
@@ -469,7 +475,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.mesh",
-      "text": "Mesh provides geometric data through control_points and polygon definitions, with PolygonBuilder enabling programmatic mesh construction via member create_polygon and member to_mesh, supporting direct integration with Node entities."
+      "text": "The aspose.threed.Mesh class provides control_points to access vertex data, to_mesh to convert geometry, and PolygonBuilder.create_polygon() to construct polygonal faces, supporting mesh creation and modification through the aspose.threed.PolygonBuilder class."
     },
     {
       "fact_ids": [
@@ -478,7 +484,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "Shading support is exposed via Node.material, which holds material properties such as diffuse_color, metallic_factor, and roughness_factor, and integrates with the aspose.threed.shading module for advanced material definitions."
+      "text": "The aspose.threed.shading module provides material properties such as diffuse_color, metallic_factor, and roughness_factor, accessible via Node.material to assign shading characteristics to scene entities."
     },
     {
       "fact_ids": [
@@ -488,7 +494,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.animationclip",
-      "text": "AnimationClip enables keyframe-based animation through KeyframeSequence and AnimationNode, with Scene.create_animation_clip and Scene.current_animation_clip managing animation state, and AnimationClip exposing member KeyframeSequence for time-based property interpolation."
+      "text": "The aspose.threed.AnimationClip class provides animation data through KeyframeSequence and AnimationNode, accessible via Scene.animation_clips, Scene.create_animation_clip(), and Scene.get_animation_clip(), supporting keyframe-based animation via KeyframeSequence and AnimationNode hierarchies."
     },
     {
       "fact_ids": [
@@ -496,7 +502,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.a3dobject",
-      "text": "The A3DObject class represents a base object in Aspose.3D FOSS for Python that supports named properties and can be queried for property values using its name, properties, get_property, set_property, find_property, and remove_property methods."
+      "text": "The A3DObject class serves as the base for all objects in Aspose.3D FOSS for Python and provides property management through its name and properties members."
     },
     {
       "fact_ids": [
@@ -504,7 +510,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.animationchannel",
-      "text": "The AnimationChannel class represents a single channel of animation data in Aspose.3D FOSS for Python, defined by its keyframe_sequence, default_value, and component_type."
+      "text": "The AnimationChannel class represents a single animated property channel and holds its keyframe sequence, default value, and component type."
     },
     {
       "fact_ids": [
@@ -512,7 +518,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.animationclip",
-      "text": "The AnimationClip class represents a container for animation data in Aspose.3D FOSS for Python, holding multiple animations, a description, start and stop times, and supporting named properties."
+      "text": "The AnimationClip class defines a time-bounded animation sequence containing multiple animation nodes and supporting description and timing metadata."
     },
     {
       "fact_ids": [
@@ -520,7 +526,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.animationnode",
-      "text": "The AnimationNode class represents a node in an animation hierarchy in Aspose.3D FOSS for Python, supporting named properties, sub-animations, bind points, and keyframe sequences."
+      "text": "The AnimationNode class represents a node in an animation hierarchy and manages bind points and sub-animations for skeletal or transform animation."
     },
     {
       "fact_ids": [
@@ -528,7 +534,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.assetinfo",
-      "text": "The AssetInfo class represents metadata about a 3D asset in Aspose.3D FOSS for Python, including author, title, creation time, coordinate system, and unit scale factor."
+      "text": "The AssetInfo class stores metadata about a 3D asset such as author, creation time, coordinate system, and unit scale factor."
     },
     {
       "fact_ids": [
@@ -536,7 +542,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.bindpoint",
-      "text": "The BindPoint class represents a binding point for animation channels in Aspose.3D FOSS for Python, associated with a property and supporting named properties and keyframe sequences."
+      "text": "The BindPoint class defines how an animation channel is bound to a specific property of a scene object and manages associated keyframe sequences."
     },
     {
       "fact_ids": [
@@ -544,7 +550,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.bonepose",
-      "text": "The BonePose class represents the pose of a bone in Aspose.3D FOSS for Python, defined by its transformation matrix, whether it is local, and its associated node."
+      "text": "The BonePose class represents the pose of a bone during animation and stores its transformation matrix and local or world space flag."
     },
     {
       "fact_ids": [
@@ -552,7 +558,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.box",
-      "text": "The Box class represents a box primitive in Aspose.3D FOSS for Python, defined by its length, height, and height segments."
+      "text": "The Box class represents a box primitive with configurable length, height, and segment counts for mesh generation."
     },
     {
       "fact_ids": [
@@ -560,7 +566,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.camera",
-      "text": "The Camera class represents a camera entity in Aspose.3D FOSS for Python, inheriting from Entity and used for rendering views."
+      "text": "The Camera class defines a camera entity used for rendering and provides view and projection configuration."
     },
     {
       "fact_ids": [
@@ -568,7 +574,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.circle",
-      "text": "The Circle class represents a circle primitive in Aspose.3D FOSS for Python, defined as a planar closed curve."
+      "text": "The Circle class represents a circular primitive with configurable resolution and radius for mesh generation."
     },
     {
       "fact_ids": [
@@ -576,7 +582,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.curve",
-      "text": "The Curve class represents a curve entity in Aspose.3D FOSS for Python, used to define parametric or piecewise linear geometry."
+      "text": "The Curve class represents a parametric curve entity in three-dimensional space."
     },
     {
       "fact_ids": [
@@ -584,7 +590,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.customobject",
-      "text": "The CustomObject class represents a user-defined object in Aspose.3D FOSS for Python, extending A3DObject with custom behavior."
+      "text": "The CustomObject class allows embedding user-defined objects within a scene while inheriting common A3DObject behavior."
     },
     {
       "fact_ids": [
@@ -592,7 +598,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.cylinder",
-      "text": "The Cylinder class represents a cylinder primitive in Aspose.3D FOSS for Python, defined by its radius and height."
+      "text": "The Cylinder class represents a cylindrical primitive with configurable radius, height, and segment counts."
     },
     {
       "fact_ids": [
@@ -600,7 +606,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.dish",
-      "text": "The Dish class represents a dish primitive in Aspose.3D FOSS for Python, a portion of a sphere defined by its radius and angular extent."
+      "text": "The Dish class represents a dish-shaped primitive with configurable radii and segment counts."
     },
     {
       "fact_ids": [
@@ -608,7 +614,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.ellipse",
-      "text": "The Ellipse class represents an ellipse primitive in Aspose.3D FOSS for Python, defined by its major and minor radii."
+      "text": "The Ellipse class represents an elliptical primitive with configurable radii and resolution."
     },
     {
       "fact_ids": [
@@ -616,7 +622,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entity",
-      "text": "The Entity class represents a renderable or manipulable object in Aspose.3D FOSS for Python, such as a mesh or geometry, contained within a scene node."
+      "text": "The Entity class serves as the base for all renderable or geometric objects in a scene and inherits from SceneObject."
     },
     {
       "fact_ids": [
@@ -624,7 +630,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.extrapolation",
-      "text": "The Extrapolation class represents extrapolation behavior for animation curves in Aspose.3D FOSS for Python."
+      "text": "The Extrapolation class defines how animation values are extended beyond the keyframe range."
     },
     {
       "fact_ids": [
@@ -632,7 +638,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.extrapolationtype",
-      "text": "The ExtrapolationType class represents the enumeration of extrapolation modes for animation curves in Aspose.3D FOSS for Python."
+      "text": "The ExtrapolationType class enumerates supported methods for extrapolating animation values outside the keyframe range."
     },
     {
       "fact_ids": [
@@ -640,7 +646,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.fileformat",
-      "text": "The FileFormat class represents a 3D file format in Aspose.3D FOSS for Python, supporting format detection by extension and format-specific operations."
+      "text": "The FileFormat class provides utilities for identifying and working with supported 3D file formats."
     },
     {
       "fact_ids": [
@@ -648,7 +654,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.frustum",
-      "text": "The Frustum class represents a frustum primitive in Aspose.3D FOSS for Python, commonly used for view volumes and clipping."
+      "text": "The Frustum class represents a truncated pyramid primitive commonly used for camera view volumes."
     },
     {
       "fact_ids": [
@@ -656,7 +662,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.geometry",
-      "text": "The Geometry class represents geometric data in Aspose.3D FOSS for Python, such as vertices and polygons, used by renderable entities."
+      "text": "The Geometry class serves as the base for all geometric entities and provides mesh-like data structures."
     },
     {
       "fact_ids": [
@@ -664,7 +670,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.globaltransform",
-      "text": "The GlobalTransform class represents a global transformation matrix in Aspose.3D FOSS for Python, used to position and orient objects in 3D space."
+      "text": "The GlobalTransform class encapsulates the combined transformation matrix applied to a scene object."
     },
     {
       "fact_ids": [
@@ -672,7 +678,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.inamedobject",
-      "text": "The INamedObject class represents an object in Aspose.3D FOSS for Python that can be identified by a name."
+      "text": "The INamedObject class defines an interface for objects that can be identified by a name."
     },
     {
       "fact_ids": [
@@ -680,7 +686,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.imagerenderoptions",
-      "text": "The ImageRenderOptions class represents rendering options for image output in Aspose.3D FOSS for Python, supporting settings such as compression and material properties."
+      "text": "The ImageRenderOptions class controls rendering settings for exporting a scene to image formats."
     },
     {
       "fact_ids": [
@@ -688,7 +694,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.interpolation",
-      "text": "The Interpolation class represents the enumeration of interpolation modes for animation keyframes in Aspose.3D FOSS for Python."
+      "text": "The Interpolation class enumerates supported methods for interpolating keyframe values over time."
     },
     {
       "fact_ids": [
@@ -696,7 +702,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.keyframe",
-      "text": "The KeyFrame class represents a single keyframe in Aspose.3D FOSS for Python, containing a value and time stamp for animation."
+      "text": "The KeyFrame class represents a single keyframe in an animation sequence with a time and value."
     },
     {
       "fact_ids": [
@@ -704,7 +710,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.keyframesequence",
-      "text": "The KeyframeSequence class represents a sequence of keyframes in Aspose.3D FOSS for Python, used to define animation curves."
+      "text": "The KeyframeSequence class manages a collection of keyframes used for animating a property."
     },
     {
       "fact_ids": [
@@ -712,7 +718,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.light",
-      "text": "The Light class represents a light entity in Aspose.3D FOSS for Python, inheriting from Camera and used to illuminate scenes."
+      "text": "The Light class represents a light source entity that inherits from Camera and provides illumination configuration."
     },
     {
       "fact_ids": [
@@ -720,7 +726,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.linearextrusion",
-      "text": "The LinearExtrusion class represents a linear extrusion entity in Aspose.3D FOSS for Python, created by extruding a profile along a straight path."
+      "text": "The LinearExtrusion class represents a 3D shape created by extruding a 2D profile along a straight path."
     },
     {
       "fact_ids": [
@@ -728,7 +734,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.mesh",
-      "text": "The Mesh class represents a polygonal mesh in Aspose.3D FOSS for Python, containing vertices, polygons, and supporting operations such as to_mesh and control_points."
+      "text": "The Mesh class represents a polygonal mesh entity composed of vertices and polygons."
     },
     {
       "fact_ids": [
@@ -736,7 +742,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.node",
-      "text": "The Node class represents a node in the scene hierarchy in Aspose.3D FOSS for Python, containing an entity, child nodes, and transformation data."
+      "text": "The Node class represents a transformable node in the scene hierarchy and can contain child nodes and an entity."
     },
     {
       "fact_ids": [
@@ -744,7 +750,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.plane",
-      "text": "The Plane class represents a plane primitive in Aspose.3D FOSS for Python, defined as an infinite flat surface."
+      "text": "The Plane class represents a planar primitive with configurable size and segment counts."
     },
     {
       "fact_ids": [
@@ -752,7 +758,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.polygonbuilder",
-      "text": "The PolygonBuilder class represents a utility in Aspose.3D FOSS for Python for constructing polygonal meshes programmatically."
+      "text": "The PolygonBuilder class provides utilities for constructing polygonal geometry programmatically."
     },
     {
       "fact_ids": [
@@ -760,7 +766,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.pose",
-      "text": "The Pose class represents a named pose in Aspose.3D FOSS for Python, used to store and apply transformation states to nodes."
+      "text": "The Pose class represents a specific pose configuration of a scene object and supports named identification."
     },
     {
       "fact_ids": [
@@ -768,7 +774,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.posetype",
-      "text": "The PoseType class represents the enumeration of pose types in Aspose.3D FOSS for Python, such as bind pose or rest pose."
+      "text": "The PoseType class enumerates the types of poses supported in the scene."
     },
     {
       "fact_ids": [
@@ -776,7 +782,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.primitive",
-      "text": "The Primitive class represents a basic geometric primitive in Aspose.3D FOSS for Python, such as a box, cylinder, or sphere."
+      "text": "The Primitive class serves as the base for built-in geometric primitives such as box, cylinder, and sphere."
     },
     {
       "fact_ids": [
@@ -784,7 +790,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.property",
-      "text": "The Property class represents a named property in Aspose.3D FOSS for Python, used to store metadata or configuration values."
+      "text": "The Property class represents a single named property with a value and type information."
     },
     {
       "fact_ids": [
@@ -792,7 +798,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.propertycollection",
-      "text": "The PropertyCollection class represents a collection of named properties in Aspose.3D FOSS for Python, used to manage object metadata."
+      "text": "The PropertyCollection class manages a collection of properties associated with an object."
     },
     {
       "fact_ids": [
@@ -800,7 +806,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.scene",
-      "text": "The Scene class represents a 3D scene in Aspose.3D FOSS for Python, containing nodes, entities, and animation data."
+      "text": "The Scene class represents a complete 3D scene containing nodes, entities, animations, and asset metadata."
     },
     {
       "fact_ids": [
@@ -808,7 +814,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.sceneobject",
-      "text": "The SceneObject class represents an object in a 3D scene in Aspose.3D FOSS for Python, supporting named properties and scene hierarchy."
+      "text": "The SceneObject class serves as the base for all objects that can be placed in a scene and inherits from A3DObject."
     },
     {
       "fact_ids": [
@@ -832,7 +838,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.transform",
-      "text": "The Transform class encapsulates geometric transformations such as translation, rotation, and scaling for nodes in Aspose.3D FOSS for Python."
+      "text": "The Transform class represents transformation properties such as translation, rotation, and scaling for 3D objects in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -856,7 +862,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.deformers.bonelinkmode",
-      "text": "The BoneLinkMode class defines enumeration values for bone linking behavior in Aspose.3D FOSS for Python."
+      "text": "The BoneLinkMode class defines enumeration values for bone linking modes in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -864,7 +870,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.deformers.deformer",
-      "text": "The Deformer class serves as the base class for mesh deformation operations in Aspose.3D FOSS for Python."
+      "text": "The Deformer class serves as a base class for mesh deformation operations in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -896,7 +902,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.booleanoperation",
-      "text": "The BooleanOperation class defines enumeration values for boolean operations on geometries in Aspose.3D FOSS for Python."
+      "text": "The BooleanOperation class defines enumeration values for boolean operations on 3D entities in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -912,7 +918,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.iindexedvertexelement",
-      "text": "The IIndexedVertexElement interface represents a vertex element with indexed data in Aspose.3D FOSS for Python."
+      "text": "The IIndexedVertexElement interface represents an indexed vertex element in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -952,7 +958,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.nurbstype",
-      "text": "The NurbsType class defines enumeration values for NURBS curve types in Aspose.3D FOSS for Python."
+      "text": "The NurbsType class defines enumeration values for NURBS types in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -968,7 +974,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.patchdirection",
-      "text": "The PatchDirection class defines enumeration values for patch directions in Aspose.3D FOSS for Python."
+      "text": "The PatchDirection class defines properties for patch directions in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -984,7 +990,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.pointcloud",
-      "text": "The PointCloud class represents a collection of points without connectivity in Aspose.3D FOSS for Python."
+      "text": "The PointCloud class represents a collection of points in 3D space in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -992,7 +998,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.polygonbuilder.invalidoperationexception",
-      "text": "The InvalidOperationException class is raised when an invalid operation is performed during polygon construction in Aspose.3D FOSS for Python."
+      "text": "The InvalidOperationException class is raised when an invalid operation occurs during polygon building in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1000,7 +1006,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.polygonmodifier",
-      "text": "The PolygonModifier class provides static methods to modify polygonal meshes in Aspose.3D FOSS for Python."
+      "text": "The PolygonModifier class provides utilities for modifying polygonal meshes in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1040,7 +1046,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.vertexelementfvector",
-      "text": "The VertexElementFVector class represents a vertex element containing floating-point vectors in Aspose.3D FOSS for Python."
+      "text": "The VertexElementFVector class represents floating-point vector vertex data in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1088,7 +1094,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.entities.vertexelementvertexcolor",
-      "text": "The VertexElementVertexColor class represents per-vertex color data in Aspose.3D FOSS for Python."
+      "text": "The VertexElementVertexColor class represents vertex color data in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1096,7 +1102,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.exporter",
-      "text": "The Exporter class provides functionality to export scenes to various 3D formats in Aspose.3D FOSS for Python."
+      "text": "The Exporter class provides functionality to export 3D scenes to various file formats in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1120,7 +1126,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.ioservice",
-      "text": "The IOService class provides core input and output services for file handling in Aspose.3D FOSS for Python."
+      "text": "The IOService class provides core input/output services for file handling in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1128,7 +1134,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.importer",
-      "text": "The Importer class provides functionality to import scenes from various 3D formats in Aspose.3D FOSS for Python."
+      "text": "The Importer class provides functionality to import 3D scenes from various file formats in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1136,7 +1142,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.loadoptions",
-      "text": "LoadOptions configures how 3D scenes are loaded from files or streams."
+      "text": "LoadOptions provides configuration options for loading 3D scenes in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1144,7 +1150,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.plugin",
-      "text": "Plugin serves as the base class for format plugins that provide import, export, and format detection capabilities."
+      "text": "Plugin serves as an abstract base class for format plugins that support loading, saving, and detection of 3D file formats in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1152,7 +1158,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.saveoptions",
-      "text": "SaveOptions configures how 3D scenes are saved to files or streams."
+      "text": "SaveOptions provides configuration options for saving 3D scenes in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1160,7 +1166,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemfformat",
-      "text": "ThreeMfFormat represents the 3MF file format and supports importing and exporting 3D models with metadata."
+      "text": "ThreeMfFormat represents the 3MF file format and supports importing and exporting 3D models with metadata in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1168,7 +1174,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemfloadoptions",
-      "text": "ThreeMfLoadOptions provides configuration options specific to loading 3MF files."
+      "text": "ThreeMfLoadOptions provides configuration options specific to loading 3MF files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1176,7 +1182,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemfsaveoptions",
-      "text": "ThreeMfSaveOptions provides configuration options specific to saving 3MF files, including compression and coordinate system settings."
+      "text": "ThreeMfSaveOptions provides configuration options specific to saving 3MF files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1184,7 +1190,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.collada.colladaexporter.colladaexporter",
-      "text": "ColladaExporter writes 3D scenes to COLLADA files in the DAE format."
+      "text": "ColladaExporter exports 3D scenes to the COLLADA format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1192,7 +1198,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.collada.colladaformat.colladaformat",
-      "text": "ColladaFormat defines the COLLADA file format and its supported properties such as extensions and content type."
+      "text": "ColladaFormat represents the COLLADA file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1200,7 +1206,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.collada.colladaformatdetector.colladaformatdetector",
-      "text": "ColladaFormatDetector identifies whether a file is a valid COLLADA format by inspecting its content."
+      "text": "ColladaFormatDetector identifies COLLADA files by their content in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1208,7 +1214,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.collada.colladaimporter.colladaimporter",
-      "text": "ColladaImporter reads 3D scenes from COLLADA files in the DAE format."
+      "text": "ColladaImporter imports 3D scenes from the COLLADA format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1216,7 +1222,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.collada.colladaplugin.colladaplugin",
-      "text": "ColladaPlugin provides access to COLLADA format support including importers, exporters, and format detectors."
+      "text": "ColladaPlugin provides access to COLLADA format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1224,7 +1230,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxexporter.fbxexporter",
-      "text": "FbxExporter writes 3D scenes to Autodesk FBX files."
+      "text": "FbxExporter saves 3D scenes to the FBX format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1232,7 +1238,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxformat.fbxformat",
-      "text": "FbxFormat defines the Autodesk FBX file format and its supported properties such as extensions and content type."
+      "text": "FbxFormat represents the FBX file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1240,7 +1246,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxformatdetector.fbxformatdetector",
-      "text": "FbxFormatDetector identifies whether a file is a valid FBX format by inspecting its content."
+      "text": "FbxFormatDetector identifies FBX files by their content in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1248,7 +1254,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.fbximporter.fbximporter",
-      "text": "FbxImporter reads 3D scenes from Autodesk FBX files."
+      "text": "FbxImporter loads 3D scenes from the FBX format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1256,7 +1262,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.fbxplugin.fbxplugin",
-      "text": "FbxPlugin provides access to FBX format support including importers, exporters, and format detectors."
+      "text": "FbxPlugin provides access to FBX format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1264,7 +1270,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.binarytokenizer",
-      "text": "BinaryTokenizer parses binary FBX files into structured tokens for further processing."
+      "text": "BinaryTokenizer parses binary FBX files into tokens for further processing in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1272,7 +1278,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.token",
-      "text": "Token represents a single parsed element from a binary FBX file."
+      "text": "Token represents a parsed element from a binary FBX file in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1280,7 +1286,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.binary_tokenizer.tokentype",
-      "text": "TokenType defines the categories of tokens that can appear in a binary FBX file."
+      "text": "TokenType defines the categories of tokens used in binary FBX parsing in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1288,7 +1294,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxelement",
-      "text": "FbxElement models a single element in the hierarchical structure of an FBX file."
+      "text": "FbxElement represents a parsed FBX element with its properties and child elements in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1296,7 +1302,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxparser",
-      "text": "FbxParser reads and interprets the internal structure of FBX files."
+      "text": "FbxParser reads and interprets binary FBX data into structured elements in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1304,7 +1310,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.parser.fbxscope",
-      "text": "FbxScope defines a lexical scope within the FBX file structure for organizing elements."
+      "text": "FbxScope manages the hierarchical context during FBX parsing in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1312,7 +1318,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.fbxtokenizer",
-      "text": "FbxTokenizer breaks down text-based FBX files into a sequence of tokens."
+      "text": "FbxTokenizer breaks down text-based FBX files into tokens for parsing in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1320,7 +1326,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.token",
-      "text": "Token represents a single lexical unit in a text-based FBX file."
+      "text": "Token represents a lexical unit extracted from a text-based FBX file in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1328,7 +1334,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.fbx.tokenizer.tokentype",
-      "text": "TokenType enumerates the possible kinds of tokens in a text-based FBX file."
+      "text": "TokenType specifies the kinds of tokens produced during text-based FBX tokenization in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1336,7 +1342,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfexporter",
-      "text": "GltfExporter writes 3D scenes to glTF files in either JSON or binary format."
+      "text": "GltfExporter exports 3D scenes to the glTF format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1344,7 +1350,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfformat",
-      "text": "GltfFormat defines the glTF file format and its supported properties such as extensions and content type."
+      "text": "GltfFormat represents the glTF file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1352,7 +1358,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfformatdetector",
-      "text": "GltfFormatDetector identifies whether a file is a valid glTF format by inspecting its content."
+      "text": "GltfFormatDetector identifies glTF files by their content in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1360,7 +1366,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfimporter",
-      "text": "GltfImporter reads 3D scenes from glTF files."
+      "text": "GltfImporter loads 3D scenes from the glTF format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1368,7 +1374,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfloadoptions",
-      "text": "GltfLoadOptions provides configuration options specific to loading glTF files."
+      "text": "GltfLoadOptions provides configuration options specific to loading glTF files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1376,7 +1382,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfplugin",
-      "text": "GltfPlugin provides access to glTF format support including importers, exporters, and format detectors."
+      "text": "GltfPlugin provides access to glTF format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1384,7 +1390,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.gltf.gltfsaveoptions",
-      "text": "GltfSaveOptions provides configuration options specific to saving glTF files."
+      "text": "GltfSaveOptions provides configuration options specific to saving glTF files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1392,7 +1398,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objexporter",
-      "text": "ObjExporter writes 3D scenes to Wavefront OBJ files."
+      "text": "ObjExporter saves 3D scenes to the OBJ format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1400,7 +1406,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objformat",
-      "text": "ObjFormat defines the Wavefront OBJ file format and its supported properties such as extensions and content type."
+      "text": "ObjFormat represents the OBJ file format and supports importing and exporting 3D models in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1408,7 +1414,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objformatdetector",
-      "text": "ObjFormatDetector identifies whether a file is a valid OBJ format by inspecting its content."
+      "text": "ObjFormatDetector identifies OBJ files by their content in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1416,7 +1422,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objimporter",
-      "text": "ObjImporter reads 3D scenes from Wavefront OBJ files."
+      "text": "ObjImporter loads 3D scenes from the OBJ format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1424,7 +1430,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objloadoptions",
-      "text": "ObjLoadOptions provides configuration options specific to loading OBJ files."
+      "text": "ObjLoadOptions provides configuration options specific to loading OBJ files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1432,7 +1438,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objplugin.objplugin",
-      "text": "ObjPlugin provides access to OBJ format support including importers, exporters, and format detectors."
+      "text": "ObjPlugin provides access to OBJ format capabilities including importers, exporters, and format detectors in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1440,7 +1446,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.obj.objsaveoptions",
-      "text": "ObjSaveOptions provides configuration options specific to saving OBJ files."
+      "text": "ObjSaveOptions provides configuration options specific to saving OBJ files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1448,7 +1454,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlexporter",
-      "text": "StlExporter writes 3D scenes to STL files for 3D printing and CAD applications."
+      "text": "StlExporter saves 3D scenes to the STL format in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1456,7 +1462,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlformat",
-      "text": "StlFormat represents the STL file format and provides methods to detect, import, and export STL files, including support for binary and ASCII modes through its options."
+      "text": "The StlFormat class represents the STL file format and provides properties and methods for handling STL files in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1464,7 +1470,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlformatdetector.stlformatdetector",
-      "text": "StlFormatDetector identifies whether a given input stream contains an STL file by inspecting its content."
+      "text": "The StlFormatDetector class detects whether a given input stream contains an STL file format."
     },
     {
       "fact_ids": [
@@ -1472,7 +1478,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlimporter",
-      "text": "StlImporter reads STL files and converts them into a scene graph representation."
+      "text": "The StlImporter class imports geometry data from STL files into a scene object."
     },
     {
       "fact_ids": [
@@ -1480,7 +1486,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlloadoptions",
-      "text": "StlLoadOptions configures how STL files are loaded, including options to flip the coordinate system and apply a uniform scale factor."
+      "text": "The StlLoadOptions class provides configuration options for loading STL files, including coordinate system flipping and scaling."
     },
     {
       "fact_ids": [
@@ -1488,7 +1494,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlplugin.stlplugin",
-      "text": "StlPlugin acts as a plugin entry point for STL format support, providing access to importers, exporters, format detectors, and load/save options."
+      "text": "The StlPlugin class acts as a plugin for the STL file format, offering access to importers, exporters, and format detection capabilities."
     },
     {
       "fact_ids": [
@@ -1496,7 +1502,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.stl.stlsaveoptions",
-      "text": "StlSaveOptions controls how STL files are saved, supporting binary mode, coordinate system flipping, and uniform scaling."
+      "text": "The StlSaveOptions class provides configuration options for saving scenes to STL files, including binary mode, coordinate system flipping, and scaling."
     },
     {
       "fact_ids": [
@@ -1504,7 +1510,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfexporter.threemfexporter",
-      "text": "ThreeMfExporter writes scene graphs to 3MF format files."
+      "text": "The ThreeMfExporter class exports scene data to the 3MF file format."
     },
     {
       "fact_ids": [
@@ -1512,7 +1518,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfformatdetector",
-      "text": "ThreeMfFormatDetector determines whether an input stream contains a 3MF file by analyzing its content."
+      "text": "The ThreeMfFormatDetector class detects whether a given input stream contains a 3MF file format."
     },
     {
       "fact_ids": [
@@ -1520,7 +1526,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfimporter.threemfimporter",
-      "text": "ThreeMfImporter parses 3MF files and constructs an internal scene representation."
+      "text": "The ThreeMfImporter class imports geometry data from 3MF files into a scene object."
     },
     {
       "fact_ids": [
@@ -1528,7 +1534,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.formats.threemf.threemfplugin.threemfplugin",
-      "text": "ThreeMfPlugin serves as the plugin interface for 3MF format support, exposing importers, exporters, format detectors, and configuration options."
+      "text": "The ThreeMfPlugin class acts as a plugin for the 3MF file format, offering access to importers, exporters, and format detection capabilities."
     },
     {
       "fact_ids": [
@@ -1536,7 +1542,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.shading.lambertmaterial",
-      "text": "LambertMaterial defines a non-shiny material model with configurable ambient, diffuse, emissive, and transparency properties."
+      "text": "The LambertMaterial class represents a Lambertian material with properties for ambient, diffuse, emissive, and transparency colors."
     },
     {
       "fact_ids": [
@@ -1544,7 +1550,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.shading.material",
-      "text": "Material is the base class for all shading models and supports texture assignment and retrieval."
+      "text": "The Material class serves as the base class for all shading materials in Aspose.3D FOSS for Python."
     },
     {
       "fact_ids": [
@@ -1552,7 +1558,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.shading.pbrmaterial",
-      "text": "PbrMaterial implements a physically based rendering model with albedo, metallic, roughness, emissive, normal, and occlusion properties."
+      "text": "The PbrMaterial class represents a physically based rendering material with properties such as albedo, metallic factor, roughness, and emissive color."
     },
     {
       "fact_ids": [
@@ -1560,7 +1566,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.shading.phongmaterial",
-      "text": "PhongMaterial extends LambertMaterial with specular reflection properties including shininess, specular color, and reflection factor."
+      "text": "The PhongMaterial class represents a Phong shading material extending LambertMaterial with reflection and specular properties."
     },
     {
       "fact_ids": [
@@ -1568,7 +1574,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.boundingbox",
-      "text": "BoundingBox represents an axis-aligned bounding box in 3D space with a center point and extent."
+      "text": "The BoundingBox class represents an axis-aligned bounding box used to describe the spatial extent of geometry."
     },
     {
       "fact_ids": [
@@ -1576,7 +1582,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.fvector2",
-      "text": "FVector2 represents a two-dimensional vector of single-precision floating-point components."
+      "text": "The FVector2 class represents a two-dimensional vector with single-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1584,7 +1590,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.fvector3",
-      "text": "FVector3 represents a three-dimensional vector of single-precision floating-point components."
+      "text": "The FVector3 class represents a three-dimensional vector with single-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1592,7 +1598,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.fvector4",
-      "text": "FVector4 represents a four-dimensional vector of single-precision floating-point components."
+      "text": "The FVector4 class represents a four-dimensional vector with single-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1600,7 +1606,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.matrix4",
-      "text": "Matrix4 represents a 4x4 transformation matrix used for 3D geometry operations."
+      "text": "The Matrix4 class represents a 4x4 transformation matrix used for 3D geometry operations."
     },
     {
       "fact_ids": [
@@ -1608,7 +1614,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.quaternion",
-      "text": "Quaternion represents a unit quaternion used for 3D rotation operations."
+      "text": "The Quaternion class represents a quaternion used for 3D rotation operations."
     },
     {
       "fact_ids": [
@@ -1616,7 +1622,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.vector2",
-      "text": "Vector2 represents a two-dimensional vector of double-precision floating-point components."
+      "text": "The Vector2 class represents a two-dimensional vector with double-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1624,7 +1630,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.vector3",
-      "text": "Vector3 represents a three-dimensional vector of double-precision floating-point components."
+      "text": "The Vector3 class represents a three-dimensional vector with double-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1632,7 +1638,7 @@
       ],
       "section": "api_reference",
       "slot": "type:public_symbol:aspose.threed.utilities.vector4",
-      "text": "Vector4 represents a four-dimensional vector of double-precision floating-point components."
+      "text": "The Vector4 class represents a four-dimensional vector with double-precision floating-point components."
     },
     {
       "fact_ids": [
@@ -1656,15 +1662,21 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference offers the complete, browsable reference for all 305 public types."
+      "text": "The full API reference is the complete, browsable reference for all 305 public types."
     },
     {
       "fact_ids": [
-        "identity:family"
+        "identity:family",
+        "identity:platform",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:python_versions",
+        "format:input.dae"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.3D FOSS for Python supports reading and writing 3D models in formats such as OBJ, STL, glTF, and COLLADA, and provides core mesh and scene manipulation capabilities for the 3d family of formats."
+      "text": "Aspose.3D FOSS for Python provides read and write support for OBJ, STL, glTF, and COLLADA (DAE) 3D formats in the 3d family, targeting Python 3.7 through 3.12, and is distributed as the aspose-3d-foss package at version 26.1.0."
     },
     {
       "fact_ids": [
@@ -1672,7 +1684,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "This library is limited to the 3d family of formats and does not support importing or exporting PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco."
+      "text": "The library supports only the 3d family of formats and does not provide importers or exporters for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco."
     },
     {
       "fact_ids": [
@@ -1680,7 +1692,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:2",
-      "text": "COLLADA import works for .dae files, but COLLADA export is not reachable through Scene.save() because the exporter lookup fails before ColladaExporter is ever consulted."
+      "text": "COLLADA (.dae) import works, but COLLADA export is not reachable through Scene.save() because the exporter lookup fails before ColladaExporter is consulted."
     },
     {
       "fact_ids": [
@@ -1688,7 +1700,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:3",
-      "text": "The aspose.threed.render module, including Renderer, RenderFactory, Viewport, and related classes, raises NotImplementedError — this library does not render scenes to images."
+      "text": "The aspose.threed.render module, including Renderer, RenderFactory, and Viewport, raises NotImplementedError and cannot render scenes to images."
     },
     {
       "fact_ids": [
@@ -1696,7 +1708,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:4",
-      "text": "Texture and TextureBase raise NotImplementedError on construction, so an image-backed texture cannot be created, although material color and factor properties work independently of texture assignment."
+      "text": "Texture and TextureBase raise NotImplementedError on construction, so image-backed textures cannot be created, although material color and factor properties work independently."
     },
     {
       "fact_ids": [
@@ -1704,31 +1716,29 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:5",
-      "text": "Mesh.do_boolean(), Mesh.union(), Mesh.difference(), and Mesh.intersect() raise NotImplementedError — Boolean/CSG mesh operations are not implemented, even though BooleanOperator and BooleanOperand exist as configuration holders."
+      "text": "Mesh.do_boolean, Mesh.union, Mesh.difference, and Mesh.intersect raise NotImplementedError, so Boolean or CSG mesh operations are not implemented."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh"
+        "inherited_unit:067.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:6",
-      "text": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate() and NurbsSurface.to_mesh() raise NotImplementedError."
+      "text": "NURBS curves and surfaces can be configured but cannot be sampled or converted to a Mesh because NurbsCurve.evaluate and NurbsSurface.to_mesh raise NotImplementedError."
     },
     {
       "fact_ids": [
-        "build_test_asset:tests"
+        "inherited_unit:070.paragraph"
       ],
       "section": "development_testing",
       "slot": "summary",
-      "text": "The test suite covers 33 test files under tests/ and exercises OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior."
+      "text": "Install the package in editable mode and run the test suite using the repository's own assets."
     },
     {
       "fact_ids": [
         "identity:repository",
-        "identity:revision",
         "identity:family",
         "identity:platform",
-        "identity:ecosystem",
         "package:name",
         "package:version",
         "package:python_requires",
@@ -1736,7 +1746,7 @@
       ],
       "section": "enterprise_relationship",
       "slot": "context",
-      "text": "The commercial Aspose.3D FOSS for Python package extends this open-source offering with additional file format support, advanced rendering capabilities, and enterprise-grade support options."
+      "text": "Aspose.3D FOSS for Python provides open-source access to core 3D file format capabilities, while the commercial edition extends this with additional formats, advanced rendering features, and commercial support."
     }
   ]
 }

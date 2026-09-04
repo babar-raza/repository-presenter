@@ -1753,8 +1753,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "938504979eceef9bbc9584486ce798e4f47f07c4c90a824b018a75d5018ef80c",
-      "version": "5"
+      "sha256": "8f4f7160274935f5fe4774650cbb1e5cb3723a15a43a815720c799f0253dc1d2",
+      "version": "6"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",

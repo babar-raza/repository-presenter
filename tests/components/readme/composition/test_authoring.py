@@ -6,10 +6,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.composition.authoring import (
     AUTHORED_SECTIONS,
     SectionTask,
     allowed_identifiers,
+    authoring_schema,
     authoring_tasks,
     identifier_allowed,
     identifier_tokens,
@@ -24,7 +27,9 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
+from support import REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -638,3 +643,42 @@ def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
         "unit context: names the Enterprise Edition; the shell's closing sentence names it "
         "exactly once"
     ]
+
+
+def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
+    # The canary's rejected replies name this failure exactly: "units must fill exactly these
+    # slots once each: scope, limitation:1 .. limitation:6; got scope, limitation:1 ..
+    # limitation:5". Code knows the slots, so a schema-valid reply can no longer be short of one
+    # (RESEARCH_AND_GUIDELINES.md section 27.5 D1, cause RC1 in 27.2).
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    slots = ("scope", "limitation:1", "limitation:2")
+    task = SectionTask("scope_limitations", {}, frozenset({"identity:repository"}), slots)
+    schema = authoring_schema(loaded, task)
+    units = schema["properties"]["units"]
+    assert units["minItems"] == units["maxItems"] == 3
+    assert units["items"]["properties"]["section"] == {"const": "scope_limitations"}
+    assert units["items"]["properties"]["slot"] == {"type": "string", "enum": list(slots)}
+    # Citations stay with the binding and unit_checks; the schema does not narrow them.
+    assert units["items"]["properties"]["fact_ids"] == {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"},
+    }
+    # The manifest's own schema is untouched: the specialisation is per call.
+    assert "minItems" not in loaded.manifest.output.schema_["properties"]["units"]["items"]
+
+    def unit(slot: str) -> dict[str, Any]:
+        return {
+            "section": "scope_limitations",
+            "slot": slot,
+            "text": "t",
+            "fact_ids": ["identity:repository"],
+        }
+
+    validator = Draft202012Validator(schema)
+    short = {"units": [unit("scope"), unit("limitation:1")], "omitted": []}
+    assert [error.json_path for error in validator.iter_errors(short)] == ["$.units"]
+    wrong = {"units": [unit("scope"), unit("limitation:1"), unit("limitation:9")], "omitted": []}
+    assert [error.json_path for error in validator.iter_errors(wrong)] == ["$.units[2].slot"]
+    whole = {"units": [unit(slot) for slot in slots], "omitted": []}
+    assert list(validator.iter_errors(whole)) == []
