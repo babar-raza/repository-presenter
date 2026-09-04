@@ -1,137 +1,60 @@
 {
   "attempts": {
-    "174044b8ecee005097a5ad29": {
-      "changes": [
-        {
-          "after": "Aspose.3D FOSS for Python version 26.1.0 supports Python versions 3.7 through 3.12 and can be tested using the unittest framework against the tests directory.",
-          "before": "Aspose.3D FOSS for Python version 26.1.0 supports Python versions 3.7 through 3.12 and can be tested using the unittest framework against the tests directory.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "units.0.text"
-        }
-      ],
-      "label": "F07",
-      "outcome": "repaired",
-      "re_raised": [
-        "F07"
-      ],
-      "reason": null,
-      "request_sha256": "2403709c1709f8f478c071df68d5ebd7b8effc64fd9643d4e90f581cac7f012b",
-      "section_id": "development_testing",
-      "source": "review",
-      "stage": "S6"
-    },
-    "1b87eb255675b63825c207c9": {
-      "changes": [],
-      "label": "BC-07",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "3e4b03d09551f95ac9155b9c": {
-      "changes": [
-        {
-          "after": "[\n      {\n        \"fact_ids\": [\n          \"example:002\"\n        ],\n        \"section\": \"quick_start\",\n        \"slot\": \"lead_in\",\n        \"text\": \"Create a scene from scratch and export it to glTF.\"\n      }\n    ]",
-          "before": "[]",
-          "fact_ids": [
-            "example:002"
-          ],
-          "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F05",
-      "outcome": "repaired",
-      "re_raised": [
-        "F04"
-      ],
-      "reason": null,
-      "request_sha256": "f6d153c7aae81b9dfcb0fc17c8ecc18f5e3d1f52a5781caaf30321d4b6d345c4",
-      "section_id": "quick_start",
-      "source": "review",
-      "stage": "S6"
-    },
-    "47a715960924072fc30ad98d": {
-      "changes": [
-        {
-          "after": "Build a triangle mesh with PBR material and export to GLTF text format. GltfSaveOptions requires explicit FileFormat because GltfFormat.create_save_options() does not set file_format on the options it returns, and a bare stream (no filename) gives scene.save() nothing else to detect the format from.",
-          "before": "Build a triangle mesh with PBR material and export to GLTF text format.",
-          "fact_ids": [
-            "example:005"
-          ],
-          "id": "R01",
-          "path": "revised_output.units[2].text"
-        },
-        {
-          "after": "Generate a triangle mesh and output it as ASCII STL via StringIO. Use FileFormat.get_format_by_extension(...).create_save_options() rather than StlSaveOptions() directly: a default-constructed options object has no file_format set, and scene.save() cannot infer the format from a bare stream (only filename-based saves fall back to extension detection).",
-          "before": "Generate a triangle mesh and output it as ASCII STL via StringIO.",
-          "fact_ids": [
-            "example:009"
-          ],
-          "id": "R02",
-          "path": "revised_output.units[3].text"
-        }
-      ],
-      "label": "F06",
-      "outcome": "repaired",
-      "reason": null,
-      "request_sha256": "1fcc0e2d810c2263d2267e3bfa027ae9777f7dff2d08aa025dba65afc97c5be3",
-      "section_id": "additional_examples",
-      "source": "review",
-      "stage": "S6"
-    },
     "4d57b12bf2de98931e33320e": {
       "changes": [
         {
-          "after": "",
-          "before": "The API Reference section claims the verified public surface has 337 types, but the original README states 305 public types, and no fact supports the 337 figure.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "units"
-        }
-      ],
-      "label": "F05",
-      "outcome": "repaired",
-      "re_raised": [
-        "F05"
-      ],
-      "reason": null,
-      "request_sha256": "1e06a6edab1fa64ccea5be698538e9b1e34ede628a4516cae0b23e5bd121c6e2",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "61b226f5082d95dbac88e9db": {
-      "changes": [
-        {
-          "after": "Read .3mf, .dae, .glb, .gltf, .obj, and .stl files using aspose.threed.Scene.open, which auto-detects the format from the file extension or an explicit aspose.threed.FileFormat.",
-          "before": "Read OBJ, STL, glTF, glb, COLLADA, and 3MF files using aspose.threed.Scene.open, which auto-detects the format from the file extension or an explicit aspose.threed.FileFormat.",
+          "after": "[\"public_symbol:aspose.threed.shading\"]",
+          "before": "[\"public_symbol:aspose.threed.shading\", \"public_symbol:aspose.threed.shading.lambertmaterial\", \"public_symbol:aspose.threed.shading.pbrmaterial\"]",
           "fact_ids": [
-            "format:input.3mf",
-            "format:input.dae",
-            "format:input.glb",
-            "format:input.gltf",
-            "format:input.obj",
-            "format:input.stl"
+            "public_symbol:aspose.threed.shading"
           ],
           "id": "R01",
-          "path": "revised_output.units[0].text"
+          "path": "revised_output.units[2].fact_ids"
         },
         {
-          "after": "Export scenes to .3mf, .gltf, .obj, and .stl using aspose.threed.Scene.save with format-specific SaveOptions subclasses such as ObjSaveOptions, GltfSaveOptions, and StlSaveOptions, where aspose.threed.FileFormat provides format detection, extension lists, and save option factories.",
-          "before": "Export scenes to OBJ, STL, glTF, and 3MF using aspose.threed.Scene.save with format-specific options, where aspose.threed.FileFormat provides format detection, extension lists, and save option factories.",
+          "after": "The shading module exposes shading types for surface appearance.",
+          "before": "The shading module exposes LambertMaterial and PbrMaterial to define surface appearance, with LambertMaterial supporting ambient_color, diffuse_color, emissive_color, transparency, and transparent_color, and PbrMaterial exposing albedo, albedo_texture, emissive_color, metallic_factor, and roughness_factor.",
           "fact_ids": [
-            "format:output.3mf",
-            "format:output.gltf",
-            "format:output.obj",
-            "format:output.stl",
-            "public_symbol:aspose.threed.fileformat"
+            "public_symbol:aspose.threed.shading"
           ],
           "id": "R02",
-          "path": "revised_output.units[1].text"
+          "path": "revised_output.units[2].text"
+        },
+        {
+          "after": "[\"public_symbol:aspose.threed.animation\"]",
+          "before": "[\"public_symbol:aspose.threed.animation\", \"public_symbol:aspose.threed.animationclip\", \"public_symbol:aspose.threed.animationnode\", \"public_symbol:aspose.threed.keyframesequence\"]",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animation"
+          ],
+          "id": "R03",
+          "path": "revised_output.units[5].fact_ids"
+        },
+        {
+          "after": "The animation module provides animation-related types.",
+          "before": "The animation module provides AnimationClip, AnimationNode, and KeyframeSequence to define and manage time-based transformations and properties.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animation"
+          ],
+          "id": "R04",
+          "path": "revised_output.units[5].text"
+        },
+        {
+          "after": "[\"public_symbol:aspose.threed.utilities\"]",
+          "before": "[\"public_symbol:aspose.threed.utilities\", \"public_symbol:aspose.threed.utilities.vector3\", \"public_symbol:aspose.threed.utilities.vector4\"]",
+          "fact_ids": [
+            "public_symbol:aspose.threed.utilities"
+          ],
+          "id": "R05",
+          "path": "revised_output.units[6].fact_ids"
+        },
+        {
+          "after": "The utilities module provides utility types.",
+          "before": "The utilities module exposes Vector3 and Vector4 for 3D and 4D vector math operations.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.utilities"
+          ],
+          "id": "R06",
+          "path": "revised_output.units[6].text"
         }
       ],
       "label": "F02",
@@ -140,75 +63,93 @@
         "F02"
       ],
       "reason": null,
-      "request_sha256": "e1ad7d425cdba9c62271d412a6940152d82545ed963c43e4a730bceea737caca",
-      "section_id": "key_capabilities",
+      "request_sha256": "236ca2d898d4aa3b01fe8df5eecf7bb1f12983ec3a932f63b3feea53fdb3d7a3",
+      "section_id": "api_reference",
       "source": "review",
       "stage": "S6"
     },
     "6b5328e903679e3527bbe06e": {
       "changes": [
         {
-          "after": "Always import a format's load/save options class from its own format submodule, never from the shared top-level aspose.threed.formats package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects. This warning applies to COLLADA import and export specifically, and importing COLLADA classes from the top-level package is explicitly unsupported.",
-          "before": "Always import a format's load/save options class from its own format submodule, never from the shared top-level aspose.threed.formats package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects.",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R01",
-          "path": "units.4.text"
-        }
-      ],
-      "label": "F06",
-      "outcome": "repaired",
-      "re_raised": [
-        "F06"
-      ],
-      "reason": null,
-      "request_sha256": "c0e5467dc27fc6f8a67f0c19b86027d520dd98c7629c458a0551b34369e7ed75",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "e79d9561d207179e28a6318c": {
-      "changes": [
-        {
-          "after": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes. It reads and writes OBJ, STL, glTF/GLB, COLLADA, and 3MF files, plus imports FBX, through a Scene/Node/Mesh object graph, with no native runtime or external SDK to install.",
-          "before": "Aspose.3D FOSS for Python is a Python library that enables developers to create, read, convert, and export 3D scenes using formats such as .obj, .stl, .gltf, .glb, .dae, .3mf, and .fbx. It solves the problem of integrating 3D content processing into Python applications without requiring external dependencies or proprietary runtimes. Users include developers building tools for 3D modeling, simulation, visualization, and game asset pipelines who need programmatic control over geometry, materials, and scene structure. The library exposes core classes like aspose.threed.Scene, aspose.threed.Node, aspose.threed.Mesh, and aspose.threed.Transform to inspect and manipulate 3D content.",
+          "after": "scope",
+          "before": "scope",
           "fact_ids": [
             "identity:repository",
+            "identity:revision",
+            "identity:family",
             "identity:platform",
+            "identity:ecosystem",
             "package:name",
             "package:version",
             "package:python_requires",
-            "package:python_versions",
-            "dependency:none",
-            "format:input.obj",
-            "format:input.stl",
-            "format:input.gltf",
-            "format:input.glb",
-            "format:input.dae",
-            "format:input.3mf",
-            "format:input.fbx",
-            "format:output.obj",
-            "format:output.stl",
-            "format:output.gltf",
-            "format:output.glb",
-            "format:output.3mf",
-            "format:output.dae",
-            "public_symbol:aspose.threed.scene",
-            "public_symbol:aspose.threed.node",
-            "public_symbol:aspose.threed.mesh",
-            "public_symbol:aspose.threed.transform",
-            "license:spdx"
+            "package:python_versions"
           ],
           "id": "R01",
-          "path": "units[0].text"
+          "path": "revised_output.units.0.slot"
+        },
+        {
+          "after": "limitation:1",
+          "before": "limitation:1",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R02",
+          "path": "revised_output.units.1.slot"
+        },
+        {
+          "after": "limitation:2",
+          "before": "limitation:2",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R03",
+          "path": "revised_output.units.2.slot"
+        },
+        {
+          "after": "limitation:3",
+          "before": "limitation:3",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R04",
+          "path": "revised_output.units.3.slot"
+        },
+        {
+          "after": "limitation:4",
+          "before": "limitation:4",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R05",
+          "path": "revised_output.units.4.slot"
+        },
+        {
+          "after": "limitation:5",
+          "before": "limitation:5",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R06",
+          "path": "revised_output.units.5.slot"
+        },
+        {
+          "after": "limitation:6",
+          "before": "limitation:6",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R07",
+          "path": "revised_output.units.6.slot"
         }
       ],
-      "label": "F01",
+      "label": "F03",
       "outcome": "repaired",
+      "re_raised": [
+        "F03"
+      ],
       "reason": null,
-      "request_sha256": "3aaa69aab8959a32afae76be499c5e52d61289780516943fa799bdf82579f445",
-      "section_id": "opening",
+      "request_sha256": "a8981218b08c9addc395c12bd4ceda55828d6eac3b3707a02aba3bfc30420bec",
+      "section_id": "scope_limitations",
       "source": "review",
       "stage": "S6"
     }

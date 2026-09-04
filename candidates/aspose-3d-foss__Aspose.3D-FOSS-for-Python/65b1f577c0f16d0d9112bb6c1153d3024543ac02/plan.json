@@ -10,33 +10,54 @@
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.mesh"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.utilities.vector4",
-        "public_symbol:aspose.threed.polygonbuilder"
+        "public_symbol:aspose.threed.shading.lambertmaterial",
+        "public_symbol:aspose.threed.shading.pbrmaterial"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading.pbrmaterial",
-        "public_symbol:aspose.threed.shading.lambertmaterial"
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.shading.pbrmaterial"
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.fileformattype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector3",
+        "public_symbol:aspose.threed.utilities.vector4"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "Load multiple 3D formats",
-      "Export scenes to common formats",
-      "Build and traverse scene graphs",
+      "Import multiple 3D formats",
+      "Export to common 3D formats",
       "Construct and edit mesh geometry",
       "Assign and configure materials",
+      "Build and traverse scene graphs",
       "Support keyframe animation"
     ],
     "input_format_ids": [
@@ -51,6 +72,7 @@
       "format:output.obj",
       "format:output.stl",
       "format:output.gltf",
+      "format:output.glb",
       "format:output.3mf"
     ]
   },
@@ -65,34 +87,28 @@
         "format:input.3mf",
         "public_symbol:aspose.threed.scene"
       ],
-      "title": "Load multiple 3D formats"
+      "title": "Import multiple 3D formats"
     },
     {
       "fact_ids": [
         "format:output.obj",
         "format:output.stl",
         "format:output.gltf",
+        "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
-      "title": "Export scenes to common formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
-      ],
-      "title": "Build and traverse scene graphs"
+      "title": "Export to common 3D formats"
     },
     {
       "fact_ids": [
         "example:005",
         "example:009",
         "example:010",
+        "example:012",
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.utilities.vector4"
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere"
       ],
       "title": "Construct and edit mesh geometry"
     },
@@ -108,6 +124,16 @@
     },
     {
       "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "title": "Build and traverse scene graphs"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
@@ -119,10 +145,17 @@
   "deviations": [
     {
       "fact_ids": [
-        "link_target:product.enterprise"
+        "install_command:pip"
       ],
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition paragraph is moved to the enterprise_relationship section as it has a verified product target."
+      "section_id": "installation",
+      "text": "Editable install and verification steps omitted as unsupported by facts."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section_id": "additional_examples",
+      "text": "Position a Node With Transform example corrected to reflect NotImplementedError for TransformBuilder."
     }
   ],
   "flagship_example_id": "example:005",
