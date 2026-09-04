@@ -135,6 +135,12 @@ files, never from memory of a previous iteration.
 - Hosted CI red: reproduce locally, fix at the causal boundary, push. Never disable a check.
 - `FAILED_INTERNAL`: diagnose and repair at the causal stage in this or the next iteration; never
   acceptable completion, never a reason to weaken a check.
+- An advisory review finding's cause is decided by test, never by the reviewer's wording (every
+  reviewer repair reads like a prose edit). Ask: can a deterministic check express this defect — a
+  fact set a unit must cite from, a uniqueness, a section shape, a count? If yes, it is code-caused:
+  add the check, fix the cause, and it blocks at S9 from then on; an acceptance predicate that says
+  "zero code-caused advisories" is met only by that test. Only a finding no check could express is a
+  prose judgment call (`RESEARCH_AND_GUIDELINES.md` §26).
 - Two equivalent failed attempts, or 15 minutes without materially narrowing a cause, prohibit a
   third equivalent attempt: write a three-line first-principles diagnosis in the report and change
   the evidence, prompt, model route, component, stage, boundary, or mechanism.

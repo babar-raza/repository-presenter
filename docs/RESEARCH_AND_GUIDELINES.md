@@ -1390,7 +1390,7 @@ with nothing else in At a Glance; every one of the twelve standard sections pres
 
 | Aspect | Live portfolio convention | Was in this project | Decision |
 |---|---|---|---|
-| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G2-W09's second ecosystem |
+| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G2-W10's second ecosystem |
 | Banner | `[![Name](products.aspose.org/media/{f}/{p}/banner-readme.png)](products.aspose.org/{f}/{p}/)` on all 5 | absent, unmodeled | Matched (row 3) |
 | Navigation | explicit `## Navigation` heading | headerless list | Matched (row 5) |
 | At a Glance | present on all 5, including the generative one (no Starting Points); `flowchart TD`; one Starting Points node listing formats; single chain edge; ≤28-char tokens (hard gate) | condition required an input format, so the canary got none; `graph LR` with one node per input format and per-format edges | Matched and simplified: condition is three capabilities, inputs optional; single listing nodes; one edge per hop; label-geometry rule (§2.1) |
@@ -1464,6 +1464,42 @@ six jobs) — not enough for one description per type in one call. Author the de
 batches keyed to the deduplicated type list, or derive the description deterministically from the
 docstring first line where one exists and reserve the LLM for types without one — either is
 consistent with §3's "renderer owns structure, LLM owns bound prose"; a single oversized call is not.
+
+## 26. Advisory findings whose cause was code, verified against the artifacts (2026-09-04)
+
+The candidate sealed at `65b1f577` after G2-W02–W04 matches the live README on every structural
+axis (§24's twelve sections, banner, one fence, 343 API rows with no filler, 128 visible lines). Its
+`review.json` carries five advisories under `verdict_as_returned: REJECT_PRESENTATION`. Checked each
+against the rendered sections and the plan, not the reviewer's wording:
+
+- **F03 and F05 are false alarms.** Installation has the source fallback, the verify command, and the
+  runtime sentence; Scope and Limitations has six precise bullets naming `RuntimeError`,
+  `NotImplementedError`, `IOService`. The reviewer's quotes were truncated to the first block.
+- **F02 is real and code-caused.** Three of seven Key Capabilities describe a different capability
+  than their title: comparing each `capability:N` unit's `fact_ids` with its plan slot's, slots 1, 6,
+  and 7 overlap their own title's facts 2/5, 0/1, and 0/4 and best-match other slots. `binding_errors`
+  checks that cited facts exist and are `SUPPORTED`; it never checks that they belong to the slot's
+  planned fact set. The previous candidate showed the same symptom. Reader-visible: "Load multiple 3D
+  formats" followed by a sentence about constructing meshes.
+- **F04 is real and code-caused, for a different reason than the reviewer gave.** 343 rows against
+  the live 305 is not "match the old README" — it is 14 duplicate pairs of the form
+  `formats.ColladaLoadOptions` / `ColladaLoadOptions.ColladaLoadOptions`: the package `__init__`
+  re-export and the class inside a same-named module survive the re-export collapse as two facts, the
+  disambiguation rule then qualifies both, and each gets its own authored description. ~329 unique
+  after collapse.
+- **F01 is real and a coverage gap** (§22.1): no input format is `SUPPORTED`, so At a Glance has no
+  Starting Points, and Outputs lists glTF and STL only while the product also writes OBJ and 3MF.
+  Executed save-examples are the only corroboration today; `FileFormat` and importer/exporter plugin
+  registrations are static evidence that would corroborate every format the product declares.
+- Minor, prose: the Enterprise paragraph's second sentence adds "enhanced performance, and commercial
+  licensing" — not a verified addition; the live version names PDF, PLY, USD, rendering, mesh operations.
+
+**The process gap.** G2-W02–W04 were accepted under "zero advisory findings whose cause is
+deterministic code" with F02 and F04 present. Cause was read off the reviewer's repair text — all five
+are phrased as prose edits — instead of being tested. The durable fix: a finding's cause is decided by
+whether a deterministic check can express it. Slot-bound facts and canonical-identity uniqueness both
+can, so both become checks that block at S9 and never reach the reviewer as a judgment call; only a
+finding no check could express is prose. `loop-prompt.md` §5 now says so; G2-W07 does the work.
 
 **Gaps G2-W02 recorded (2026-09-03), for the rows it owned.** Neither is a contract change; both are
 report lines under the revision hold:
