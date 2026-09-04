@@ -1954,3 +1954,201 @@ G2–G7 sections were rewritten in the same commit; this block stays as the prop
   status: PENDING
   purpose: "Rust plugin and cohort (section 28.5): Cargo.toml facts including edition and MSRV, pub surface and re-exports through the shared extractor, examples checked with cargo check, a negative control, format signals; then the one Rust repository. The toolchain (rustup) must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; parity control; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
 ```
+
+## 29. Ecosystem extraction: what the queued G4 items would really do, and the durable plugin design (2026-09-04)
+
+Two read-only audits: aspose.org's `scripts/pipeline/extraction` at `b3ad363aaf69ce4d00d9aa02ecc59616b9705814`
+(the tree that produced the API tables of the 32 live READMEs, §24), and this project's plugin
+boundary, shared code, reuse machinery, and the frozen legacy's ecosystem modules and verifiers.
+Every claim below is cited; line estimates are estimates.
+
+### 29.1 The question
+
+Six ecosystems are queued as six plugins. Would the loop write them from scratch, and what would it
+cost to reuse proven code instead — aspose.org's engine, the legacy's verifiers, battle-tested tools
+— or to build them in parallel?
+
+### 29.2 What the loop would do with G4-W01 to G4-W07 as written
+
+- **F1 Authority conflict.** `plans/idea.md` lines 361–363: the sibling pipeline's extraction modules
+  are "a development-only reference. Any lesson must be reimplemented behind this project's
+  contracts." G4-W01 says "pull." §0 ranks `state.yaml` above `idea.md`, but a careful agent flags
+  the contradiction, and the first-principles review that §0 mandates after fifteen minutes without
+  narrowing would most likely resolve toward reimplementation — the slow path — or stall.
+- **F2 Schema wall.** `schemas/reuse-manifest.schema.json` allows exactly one `source` (object,
+  `additionalProperties: false`, `runtime_dependency_allowed: {const: false}`), no `sources`, no
+  per-record source. "A second reuse-manifest source" is not expressible; the loop must change the
+  schema and `tests/test_schemas.py` first.
+- **F3 The wrong copy is the easy copy.** The legacy vendors an older aspose.org extraction
+  (`runs/legacy/.../vendored_asposeorg/scripts/pipeline/extraction`, 8,760 lines, disposition
+  `FIXTURE_OR_ORACLE_ONLY`) — a single-source pull with no schema change, but it lacks `lang/` and
+  `format_signals.py`; every file differs from the live tree.
+- **F4 Typing tax.** `mypy` is `strict`; the minimal closure is 17 files / ~10,500 untyped lines.
+  Without a sanctioned vendor boundary the loop spends its budget annotating a fork.
+- **F5 Importer rule.** "A module with no production importer is a defect" — the extractor cannot
+  land alone; its first consumer must land in the same item.
+- **F6 Shared-code leaks the plugins cannot fix from their own file** (loop-prompt §3: a platform
+  module imports only `core/` and itself): fence language is `entry.ecosystem` (`renderer.py:590,
+  628, 634`; `validation/registry.py:438, 848` — a .NET README would get ```` ```net ````); the badge
+  row and Installation are hard-coded to `install_command:pip` and `package:python_*`
+  (`renderer.py:157–183, 425–490`); `REGISTRY_NAMES` is keyed `dotnet`/`node` while the registry
+  says `net`/`typescript` and has no `cpp` (`composition/components/ecosystems.py:12–19`);
+  `_LANGUAGE_ALIASES` knows only Python (`extractors/examples/selection.py:8–10`); `PLATFORM_SLUGS`
+  lacks `typescript`; `bounded_records` bounds symbol depth by counting dots (`core/facts.py:161`),
+  meaningless for `::`. Each plugin item would trip these in turn.
+- **F7 Verifiers.** The legacy's .NET, Java, Go, and TypeScript verifiers run in Docker on pinned
+  SDK images with pydantic schemas and a snapshot closure (~1,500 lines; Java drags `env`, the
+  `CPL-07` module) — not pullable here. Only `example_verifiers/{common,cpp,rust}.py` (240 lines)
+  and the six `ecosystems/*.py` manifest readers (356 lines, zero third-party imports) are.
+- **F8 Slugs.** `fact_id` slugs accept `^[a-z0-9]+([._-][a-z0-9]+)*$`; `Aspose::ThreeD::Scene` and
+  C# nested `Outer+Inner` must be mapped, not passed through.
+
+### 29.3 Root causes
+
+- **RC-E1 The authority text conflates runtime independence with code provenance.** The recovery
+  direction rightly banned reading sibling assets at runtime (idea.md 109, 112; manifest 577–578)
+  and, in the same breath, banned reuse of the code. The legacy's bulk vendoring (23,574 lines, §10)
+  was a failure of *discipline*, not of provenance; the cure was records, tests, and closure — the
+  pull discipline this project already has — not reimplementation.
+- **RC-E2 Single-source reuse machinery** designed for one migration.
+- **RC-E3 A monolithic plugin protocol.** `PlatformPlugin` has seven methods and one implementation,
+  1,697 source lines; nothing separates the pure static surface (deterministic), the manifest reader
+  (pure), the registry probe (a network observation), and the toolchain verifier (environment-
+  dependent). "Add an ecosystem" therefore means "write all four," six times.
+- **RC-E4 Python assumptions baked into shared code** (F6).
+- **RC-E5 Strictness without a vendor boundary** (F4, F5).
+- **RC-E6 No verifier design for compiled ecosystems** in this project's execution model
+  (subprocess with an allow-listed environment, 300-second ceiling) — the legacy's answer was
+  Docker.
+
+### 29.4 Structural weaknesses
+
+W1 plugin = monolith with mixed determinism classes; W2 governance has one category for all
+external code; W3 the renderer is Python-shaped; W4 "reimplement lessons" is the wrong invariant —
+the right one is "no runtime import, every pulled line under a record, a test, and a typed façade."
+
+### 29.5 Preserve
+
+The registry-of-entries shape ("ecosystems are added as entries, never as new call sites"); the
+closed fact model (kinds, slug IDs, evidence required); the pull discipline; no runtime import of
+sibling trees; negative controls per verifier; the execution boundary; the extractor-parity control
+(§28.7); the polarity mapping `EXECUTED/COMPILED → SUPPORTED`, `FAILED/TIMED_OUT → CONTRADICTED`,
+`NEEDS_INPUT/NOT_VERIFIED/BLOCKED_TOOLCHAIN → UNRESOLVED`.
+
+### 29.6 The durable design
+
+- **E1 Formal second reuse source.** Amend idea.md 361–363 to: the sibling pipeline's extraction
+  modules and their tests are a reuse source under the same pull discipline as the legacy — pinned
+  revision, one file record each, ported tests, cut closure — and runtime independence is unchanged.
+  Extend the manifest schema with `sources` (each with the legacy source's fields; the sibling's
+  `working_tree_at_freeze` recorded as `DIRTY`, honestly, like OWNER-03) and a per-record
+  `source_id`.
+- **E2 A vendored, typed boundary.** The engine lands under
+  `extractors/surface/_vendor/aspose_extraction/` at the pin, with its ~15 absolute imports
+  rewritten, `mypy` and `ruff` per-path overrides confined to that directory, and every production
+  access through a typed `SurfaceExtractor` façade with its own tests. Recorded patches only:
+  sort the package-root pick (`package_root.py:44–53`) and the `.csproj` pick (`:58`,
+  `package_manifest.py:104`); case-sensitive suffix matching instead of `rglob` (Windows matches
+  `.PY`); `MAX_FILES` a constant, not an environment variable; family vocabularies as parameters.
+  The façade normalises raw grammar node types to this project's `symbol_kind` enum, maps
+  `::`/`+`/generics to slug-safe values, and emits `defined_at` from the member's true declaring
+  file and line — the engine already carries both for every type and member.
+- **E3 Layered plugins.** `PlatformPlugin` becomes a declarative composition: `EcosystemSpec`
+  (ecosystem, tree-sitter language, manifest globs, source suffixes, fence aliases, registry
+  template, badge templates, install-command template, symbol separator) plus one
+  `ExampleVerifier`. The shared `SurfaceExtractor` serves `surface_facts`, `format_claims`, and
+  `format_declarations`; the shared `RegistryProbe` (legacy `ecosystems/registry_request.py`, 61
+  pure lines with every URL template, Go-proxy escaping, NuGet lowercasing, plus the load-bearing
+  lessons in `resolver.py`: Maven via `repo1.maven.org` never `search.maven.org`; crates.io needs a
+  named User-Agent; C++ has no registry) serves `registry_facts`; `ManifestReader` per ecosystem is
+  the legacy's ~50–90-line module. Adding an ecosystem is one spec, one verifier, one negative-
+  control test — exactly G7's rule.
+- **E4 Ecosystem-generic shared code.** Fence language, badges, Installation, `REGISTRY_NAMES`,
+  aliases, slugs, symbol depth all read from the spec. One item, before the first non-Python cohort.
+- **E5 Verifier design for compiled ecosystems.** Fresh, thin verifiers on `core/execution.py`:
+  disposable profile environment (the legacy `common.py` idea — HOME, APPDATA, CARGO_HOME, NuGet
+  config redirected to the workspace), per-ecosystem timeouts up to the ceiling, `--locked`/
+  `--no-restore`/lockfiles where the repository provides them, resolved dependency versions captured
+  into the receipt (the environment class of §27.5 D4), and `BLOCKED_TOOLCHAIN` when a tool is
+  absent — UNRESOLVED, never CONTRADICTED. Pull `example_verifiers/{common,cpp,rust}.py` with a
+  small cut; write .NET, Java, Go, TypeScript fresh (~100 lines each).
+- **E6 Compiler-emitted corroboration, admitted just-in-time.** Where the toolchain already runs,
+  a second independent surface is cheap: `javap -public` after `javac`, a reflection stub after
+  `dotnet build`, `go doc -all`, `tsc --declaration`. Agreement with tree-sitter confirms; a
+  disagreement is a parity finding routed to EXTRACTING. Admit per ecosystem only when the parity
+  control (§28.7 item 2) fails — the engine returns "reachability unknown" for Java, C++, and Go.
+
+### 29.7 Validation and regression controls
+
+1. Extractor parity per repository against the live README's API rows (§28.7 item 2).
+2. Ported golden tests (≈19 of 25 modules unchanged, 5 with a one-line import swap).
+3. Determinism: extract twice and on a shuffled file order — identical facts; a case-sensitivity
+   test that passes on Windows and Linux.
+4. Kind normalisation: every raw node type maps to the enum; unknown → UNRESOLVED, never dropped.
+5. Slug safety for `::`, `+`, generics; every fact carries file-and-line evidence (adapter test).
+6. Vendor boundary: a grep-enforced test that nothing outside the façade imports `_vendor`, and
+   nothing imports a sibling path.
+7. Verifier controls per ecosystem: the negative control; toolchain absent → BLOCKED_TOOLCHAIN →
+   UNRESOLVED; network off → registry UNRESOLVED, never CONTRADICTED; timeout → TIMED_OUT recorded.
+8. Grammar pinning: exact `tree-sitter`, `tree-sitter-language-pack`, `tree-sitter-c-sharp`
+   versions in the lock, and a parse-probe test per language that fails loudly on a node-type change.
+
+### 29.8 Parallel building, assessed
+
+Governance: one `active_work_item` (schema: a single object), `shared_code_items_in_progress`
+(`const: 1`), `parallel_repository_work_allowed: false`, and idea.md 229–233: at most three
+disjoint repository workers after isolation proof, serial coordinator, delegation only when
+measured throughput improves. G4-W01 is shared code and must be serial and first; every plugin item
+also runs its cohort (repository work). Parallel agents would need schema changes, the flag flipped,
+an isolation proof, and would touch the legacy's failure mode (agent hierarchies, §12). The saving
+is small: with E3, authoring a plugin is roughly one iteration, six in series ≈ 3–5 hours; the
+cohort compositions (19 repositories × 3–9 minutes) are tool time and run in the background across
+iterations; the real cost is failure-class fixes, which parallelism does not reduce. Decision: no
+parallel agents for plugins; the tool runs cohorts in the background; the three-worker allowance is
+spent on G5 lanes as idea.md intended.
+
+### 29.9 Trade-offs, risks, limits
+
+- A vendored fork of ~10,500 lines: pinned, patched only by record, re-synced deliberately. The
+  upstream keeps evolving; we do not track it. The `lang/` layer there is a seam, not the locus —
+  `api_surface.py` (3,765 lines) still holds ~20 inline language branches; we inherit that shape.
+- The `mypy` relaxation is real but confined to `_vendor/`; the façade is strict.
+- Format detection is regex-over-identifiers with hand-curated denylists and an exemption for a
+  heuristic its maintainers chose not to fix; treat `formats` as a signal. Our contract already
+  requires a second independent corroboration before a format is SUPPORTED.
+- Reachability is unknown for Java, C++, Go in the engine (`export_surface` returns `None`); E6 is
+  the fallback, admitted per ecosystem on evidence.
+- Java's `internal`/`impl` exclusion is on by default and can drop real API — a spec parameter,
+  checked by parity.
+- C++ has no registry: `install_command` stays UNRESOLVED and Installation renders the contract's
+  source-build fallback.
+- Compiled verification depends on network restores and machine state; E5 records what it can and
+  says UNRESOLVED when it cannot. Windows here, Ubuntu in CI: tests must not depend on either.
+- Estimates: G4-W01 as two items (source amendment and schema; vendor, façade, adapter, first
+  consumer) ≈ 4–6 hours; E4 ≈ 2 hours; six plugins ≈ 3–5 hours authoring plus cohorts ≈ 2–3 hours
+  tool time plus failure-class fixes ≈ 4–8 hours. G4 ≈ 16–24 hours against 25–40 from scratch, and
+  parity with the oracle's extraction by construction rather than by convergence.
+
+### 29.10 Decision required
+
+E1 amends `plans/idea.md`, the plan's authority. The owner decides whether aspose.org becomes a
+formal second reuse source under the pull discipline. On a go, the owner applies the amendment,
+the schema seed, and the revised G4 queue below through §27.9 at a clean checkpoint. Until then
+G4-W01 as queued still says "pull," and the loop would meet F1–F8 in order.
+
+### 29.11 Revised G4 queue (applied on the go; not merged until then)
+
+- **G4-W01** Second reuse source and schema: idea.md 361–363 amended; `sources[]` and per-record
+  `source_id` in the manifest schema and tests; aspose.org pinned at `b3ad363a…` with its dirty
+  working tree recorded; disposition seeds for `scripts/pipeline/extraction/**` (EXTRACT_AND_REFACTOR
+  → `extractors/surface/_vendor/`) and its tests; the vendor-boundary rule in loop-prompt §3.
+- **G4-W02** Shared surface extractor: vendor the 17-file closure with records, rewritten imports,
+  the recorded determinism patches, `mypy`/`ruff` overrides confined to `_vendor/`; the typed
+  `SurfaceExtractor` façade with kind normalisation, slug mapping, `defined_at`; ~19 ported tests;
+  the parity control; first production consumer = the .NET spec's `surface_facts` (no cohort yet).
+- **G4-W03** Ecosystem-generic shared code (E4) plus `EcosystemSpec`, `RegistryProbe` (legacy
+  `registry_request.py` ported nearly intact on `httpx`), verifier base with the disposable profile.
+- **G4-W04…W09** .NET, Java, C++, TypeScript, Go, Rust: one spec, one manifest reader (legacy
+  `ecosystems/*.py` pulled), one verifier (cpp/rust pulled with a small cut; the rest fresh), one
+  negative control, then the cohort with fixes by failure class and honest dispositions. Parity and
+  E6 corroboration per ecosystem when parity fails.
