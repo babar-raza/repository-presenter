@@ -1761,3 +1761,166 @@ that one file.
   status: PENDING
   purpose: "Issue independent one-shot jobs concurrently within one candidate's transaction (27.1: 0 of 315 calls overlapped; a composition burst is latency-bound). This is not repository-level parallelism: one coordinator, one state owner, repository workers stay serial per plans/idea.md. Section authoring calls, type batches and review units run with bounded concurrency of four and backoff on 429; the ledger is written in logical-call order so calls.jsonl stays deterministic; the cache and the no-op proof are unchanged. Acceptance: the canary composes byte-identically to the serial run with the fake gateway; cold composition wall-clock falls by at least half, measured and recorded; the gateway's rate-limit behaviour is discovered and recorded (section 18.4)."
 ```
+
+## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
+
+§27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
+the work-item cadence, and where the owner's tokens and hours go — because at the measured cadence
+the plan reaches 34/34 in eight to fourteen days of continuous running, and the owner has neither
+the tokens nor the time. Evidence: the ESM gate sections, `project/state.yaml`, the cadence measured
+in §27.1, the registry, the frozen legacy tree under `runs/legacy/`, and aspose.org's extraction
+package at `D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\extraction` (HEAD `b3ad363a`).
+Estimates below are estimates; the mechanisms are cited.
+
+### 28.1 Symptoms
+
+- 1 of 34 candidates after three days of green, disciplined iteration.
+- ~30 minutes per iteration, ~4 iterations per work item, ~40–60 items between here and 34/34 on
+  the current plan: roughly 200 iterations, each re-reading governance, running a ~7-minute suite,
+  and watching CI. The owner's spend scales with iterations, not with candidates.
+- The registry is 13 Python, 7 .NET, 4 Java, 4 C++, 3 TypeScript, 2 Go, 1 Rust; 3 entries are
+  `disabled` (PDF-TS and the two PSD), so the reachable ceiling is 31 READMEs and 34 dispositions.
+
+### 28.2 Root causes
+
+- **RC-A Work is organised by mechanism, not by candidate.** G2 stabilises, G3 builds seven
+  plugins, G4 builds the durable runtime and hosted workflows *and then* processes the portfolio,
+  G5–G7 publish and certify. Candidates — the only unit of progress §0 recognises — arrive last.
+  §27.9 repeated the pattern by queuing eight mechanism items ahead of the second candidate.
+- **RC-B Six ecosystems are planned as six bespoke plugins, each with its own surface extractor.**
+  That is the single largest remaining cost. Two proven alternatives exist in trees this project
+  already controls: aspose.org's tree-sitter extraction engine (`lang/{csharp,java,cpp,go,rust,
+  typescript,python}.py`, `api_surface.py`, `formats.py`, `format_signals.py`; 10,328 lines; twelve
+  extraction test modules; grammars via `tree_sitter_language_pack`) — the code that produced the
+  API tables of the 32 live READMEs this project measures itself against (§24); and the legacy's
+  ADAPT_AS_PLUGIN ecosystem modules (thin manifest parsers plus toolchain-backed example verifiers
+  for .NET 353 lines, C++ 122, Rust 82, calling `dotnet`, `javac`/`mvn`, `go`, `cargo`, `cmake`,
+  `tsc`). §18's registry already names tree-sitter as the first choice for exactly this.
+- **RC-C Hosted autonomy is bundled with the portfolio.** G4's CAS, leases, recovery, `monitor.yml`
+  and `present.yml` are needed for unattended operation, not for producing 31 candidates locally.
+- **RC-D Per-iteration ceremony is fixed cost.** Seven minutes of tests (W11 fixes), three of CI
+  watch, governance reading; ~35% of an item's wall clock is ceremony rather than change.
+- **RC-E Rerun-durability work is scheduled before first candidates.** D3 (anchoring) and D4
+  (portable proof) protect reruns over time and hosted runs; they do not change what the first
+  candidate of a repository says. D1, D2, D5, D6 do.
+
+### 28.3 Structural weakness
+
+The plan optimises for architectural certainty in gate order (transaction → boundary → runtime →
+portfolio) while the owner's constraint is candidates per token. Both are legitimate; the plan
+never states which wins when they conflict, so the loop — correctly following the plan — spends its
+budget on mechanisms. The fix is to make *candidates per token* the ordering principle for the rest
+of the local portfolio, and to move everything that only matters for reruns or unattended hosted
+operation behind 31/31.
+
+### 28.4 Preserve
+
+Every quality gate stays: the eleven blocking checks, independent review, the fresh-process
+zero-call proof, D1 (cuts the 20% re-ask share and the fail-closed risk before running 30 more
+repositories), D2 (title binding), D5 (content-only acceptance — without it, 31 READMEs would ship
+with demoted-advisory defects), D6 (coverage ledger — the family-specific fixture work happens per
+cohort, honestly). Every verifier keeps its negative control. The plugin protocol, the reuse-manifest
+pull discipline (one file record, its tests, its import closure), the serial coordinator.
+
+### 28.5 The restructured plan
+
+Order by candidates per token. Gates keep their IDs and the eight-gate budget; G3–G7 content moves.
+
+- **G2 (now)**: W08 → W11 → W12 D1 → W13 D2 → W16 D5 → W17 D6 → W09 freeze v1 → W10 second
+  ecosystem (2/34). D3, D4, and W18 leave G2 (they return in G5).
+- **G3 — Python cohort and freeze**: one cohort item runs the 12 remaining Python repositories
+  through the existing pipeline: seal what passes, record an evidence-bound disposition for what
+  does not, fix causes by failure class (one fix unblocks many), never per repository by hand.
+  Up to 13/34. Contract v1 freezes after the cohort, when thirteen products have sealed against it.
+- **G4 — Multi-language cohorts, local**: (1) pull aspose.org's extraction engine as the shared
+  tree-sitter surface extractor behind `PlatformPlugin`, with its tests, from a pinned revision
+  recorded as a second manifest source; the prohibition on a *runtime* dependency on the sibling
+  system stays — files are copied with records, never imported from it. (2) Six thin ecosystem
+  plugins — manifest parser, toolchain verifier with a negative control, format signals — each item
+  running its cohort: .NET (6), Java (4), C++ (4), TypeScript (2), Go (2), Rust (1). 31/31 READMEs,
+  34/34 dispositions, all local. This is the old G4 step 5 without steps 1–4.
+- **G5 — Rerun durability and hosted operation**: D3, D4, W18, then the durable runtime and the
+  hosted workflows (old G4 steps 1–4), with the old G4 exit predicates.
+- **G6 — Proposal effect proof** (old G5, unchanged). **G7 — Production readiness and continuous
+  operation** (old G6 and G7 merged; nothing dropped).
+
+### 28.6 Cost, honestly estimated
+
+| Path | Items to 31 READMEs | Loop time | Owner tokens |
+|---|---|---|---|
+| Current plan | ~40–60 | 8–14 days continuous | scales with ~200 iterations |
+| Restructured | ~16 (5 in G2, 2 in G3, 8 in G4) | 2–3 days continuous | roughly one third |
+
+The tool's own time (31 compositions at 3–9 minutes, re-sealed once after D3/D4 land) costs
+gateway tokens, not owner tokens, and runs while the agent waits.
+
+### 28.7 Validation and regression controls added by this plan
+
+1. **Cohort report** per gate: sealed / disposition-recorded / failed, by failure class, in the gate
+   evidence manifest; a class fixed once must not recur in a later cohort (test per class).
+2. **Extractor parity**: for every G4 representative, the pulled extractor's verified public-type
+   count is compared with the live README's API row count (§24 census); a shortfall is a coverage
+   finding routed to EXTRACTING, never silently accepted.
+3. **Negative control per verifier** (unchanged): each toolchain verifier rejects one realistic
+   invalid example.
+4. **Portfolio-level §27.6 controls**: rejection telemetry and coverage ratios become per-cohort
+   predicates, which is what turns them from single-repository claims into evidence.
+5. **Re-seal after D3/D4**: every candidate re-seals byte-identically or records the delta with its
+   cause; that is the fresh-state proof's first real test.
+
+### 28.8 Trade-offs, risks, limits
+
+- Adapting aspose.org's extractor is the biggest bet and the biggest saving. Its output model
+  (classes, claims, coverage) is not this project's fact model; a per-plugin adapter maps it onto
+  `public_symbol`, `format`, and `package` facts with file-and-line evidence. Its known behaviours on
+  these exact repositories are an asset; its defects, if any, are inherited and must be caught by
+  the parity control and row-14 uniqueness. Unverified until the first pull.
+- Toolchains: everything present on this machine except Rust (`winget install Rustlang.Rustup`).
+  Compiled-example verification will fail on real repositories for real reasons (the Email .NET
+  `CS1929` seed in G7); those are honest dispositions, not defects of this plan.
+- Deferring D3/D4 means the first 31 candidates are proven only in fresh-process terms. They must
+  be re-sealed after D3/D4 before any hosted or unattended run — G5 exists to make that explicit.
+- Deferring the hosted runtime means refreshes are owner-triggered until G5. Acceptable now.
+- The restructure changes the plan the recovery direction approved. Gate IDs and count are kept;
+  content moves. The decision is the owner's and is recorded in `project/state.yaml` when taken.
+- Cohort items are heavier than the size rule likes (~1,000 characters, a handful of iterations). A
+  cohort splits by *failure class*, never by repository, when it runs long.
+
+### 28.9 Queue proposal — not auto-merged
+
+The entries below are the restructure's items in `next_ready_items` shape. They are **not** in
+§27.9 on purpose: loop-prompt §2 merges §27.9 only, so nothing lands until the owner decides. On a
+go, the owner moves them into §27.9 with their positions and reorders the existing G2 items (D3, D4,
+W18 to G5) at a clean checkpoint; the ESM G3–G7 sections are rewritten in the same commit.
+
+```yaml
+# G3 - inserted when G3 opens, before any ecosystem representative
+- id: G3-W01
+  status: PENDING
+  purpose: "Python cohort (section 28.5): run the twelve remaining Python registry repositories through the existing pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix causes by failure class, never per repository: a class fixed once carries a test that a later cohort cannot regress. Family-specific format declarations and fixtures (section 27.5 D6) are added only where a repository's coverage ledger demands them. Acceptance: status prints the sealed count; the gate evidence manifest carries the cohort report (sealed, disposition, failure class per repository); every sealed bundle is fresh-process zero-call proven; hosted CI green."
+- id: G3-W02
+  status: PENDING
+  purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
+# G4 - inserted when G4 opens
+- id: G4-W01
+  status: PENDING
+  purpose: "Shared multi-language surface extractor (section 28.5, RC-B): pull aspose.org's tree-sitter extraction engine (scripts/pipeline/extraction: api_surface.py, tree_helpers.py, lang/*.py, formats.py, format_signals.py, and their tests) from the pinned revision recorded as a second reuse-manifest source, one file record each with SHA-256, ported tests, and cut import closure; no runtime import of the sibling repository. Adapt its classes and claims to public_symbol, format, and package facts with file-and-line evidence behind PlatformPlugin. Acceptance: the Python plugin's facts for the canary are unchanged or every difference is explained by a test; the extractor parses one fixture per language with a passing ported test; ruff, mypy, pytest green; hosted CI green."
+- id: G4-W02
+  status: PENDING
+  purpose: ".NET plugin and cohort (section 28.5): manifest facts from csproj and nuspec, public surface through the shared extractor, examples compiled with dotnet build in the isolated workspace, a negative control that rejects one realistic invalid example, format signals through the shared engine; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions for failures (the Email .NET CS1929 build failure is a disposition, not a defect of the plugin). Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; parity control (section 28.7 item 2) recorded per repository; hosted CI green."
+- id: G4-W03
+  status: PENDING
+  purpose: "Java plugin and cohort (section 28.5): pom.xml facts, public surface through the shared extractor with the internal and impl package exclusion, examples compiled with javac or mvn -q compile, a negative control, format signals; then the four Java repositories as a cohort (two are registry mode full and are the first publication cohort in G6). Acceptance: cohort report; zero-call proofs; parity control per repository; hosted CI green."
+- id: G4-W04
+  status: PENDING
+  purpose: "C++ plugin and cohort (section 28.5): CMake facts, public surface from headers through the shared extractor with internal-visibility handling, examples configured and built with cmake and the installed Build Tools, a negative control, format signals; then the four C++ repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
+- id: G4-W05
+  status: PENDING
+  purpose: "TypeScript plugin and cohort (section 28.5): package.json facts including exports and ESM/CJS shape, public surface through the shared extractor, examples type-checked with tsc --noEmit via npx, a negative control, format signals; then the two active TypeScript repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
+- id: G4-W06
+  status: PENDING
+  purpose: "Go plugin and cohort (section 28.5): go.mod facts, exported surface through the shared extractor with interface and struct-embedding handling, examples built with go build and vetted, a negative control, format signals; then the two Go repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
+- id: G4-W07
+  status: PENDING
+  purpose: "Rust plugin and cohort (section 28.5): Cargo.toml facts including edition and MSRV, pub surface and re-exports through the shared extractor, examples checked with cargo check, a negative control, format signals; then the one Rust repository. The toolchain (rustup) must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; parity control; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
+```
