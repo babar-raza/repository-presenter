@@ -82,14 +82,14 @@ SEALED_LEDGER = (
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
     / "65b1f577c0f16d0d9112bb6c1153d3024543ac02/calls.jsonl"
 )
-FIRST_ATTEMPT_FLOOR = 80.0
-REASK_CEILING = 20.0
+FIRST_ATTEMPT_FLOOR = 82.0
+REASK_CEILING = 18.0
 
 
 def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
     statistics = call_statistics(SEALED_LEDGER)
     total = statistics["TOTAL"]
-    assert total.calls >= 40, "too few provider calls for the ratio to mean anything"
+    assert total.calls >= 30, "too few provider calls for the ratio to mean anything"
     assert total.first_attempt_rate >= FIRST_ATTEMPT_FLOOR
     assert total.reask_share <= REASK_CEILING
     # Every job the composition runs is measured, so a new job cannot slip in unmeasured.

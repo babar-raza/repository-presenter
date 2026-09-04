@@ -1,199 +1,127 @@
 {
   "attempts": {
-    "0a249741bb42b4d862ed5c76": {
+    "39727031f708358bf9d52231": {
       "changes": [
         {
-          "after": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
-          "before": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
+          "after": "[\n  {\n    \"fact_ids\": [\n      \"identity:revision\",\n      \"identity:family\",\n      \"identity:platform\",\n      \"package:name\",\n      \"package:version\",\n      \"package:python_requires\",\n      \"package:python_versions\",\n      \"link_target:022\"\n    ],\n    \"section\": \"documentation_resources\",\n    \"slot\": \"link:link_target:022\",\n    \"text\": \"The Aspose.3D FOSS for Python documentation at version 26.1.0 covers API reference material for the aspose-3d-foss package, including scene management, node traversal, mesh creation, and format conversion for Python versions 3.7 through 3.12.\"\n  },\n  {\n    \"fact_ids\": [\n      \"identity:revision\",\n      \"identity:family\",\n      \"identity:platform\",\n      \"package:name\",\n      \"package:version\",\n      \"package:python_requires\",\n      \"link_target:023\"\n    ],\n    \"section\": \"documentation_resources\",\n    \"slot\": \"link:link_target:023\",\n    \"text\": \"The Aspose.3D FOSS for Python knowledge base at version 26.1.0 provides step-by-step guides and troubleshooting examples for common tasks such as loading 3D models, inspecting scene hierarchies, and exporting to various formats using Python 3.7 or higher.\"\n  }\n]",
+          "before": "[]",
           "fact_ids": [
-            "example:002"
+            "link_target:022",
+            "link_target:023"
           ],
           "id": "R01",
-          "path": "revised_output.units[0].text"
+          "path": "revised_output.units"
         },
         {
-          "after": "Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format.",
-          "before": "Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format.",
+          "after": "[\n  {\n    \"fact_id\": \"link_target:024\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:025\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:026\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:027\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:028\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:029\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:030\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:031\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  },\n  {\n    \"fact_id\": \"link_target:032\",\n    \"reason\": \"Missing from current units but supported by fact; must be restored per repair instruction.\"\n  }\n]",
+          "before": "[]",
           "fact_ids": [
-            "example:004"
+            "link_target:024",
+            "link_target:025",
+            "link_target:026",
+            "link_target:027",
+            "link_target:028",
+            "link_target:029",
+            "link_target:030",
+            "link_target:031",
+            "link_target:032"
           ],
           "id": "R02",
-          "path": "revised_output.units[1].text"
+          "path": "revised_output.omitted"
         }
       ],
-      "label": "F05",
+      "label": "F03",
       "outcome": "repaired",
       "re_raised": [
-        "F05",
-        "F04"
+        "F03"
       ],
       "reason": null,
-      "request_sha256": "ae601922bc56a98f9d4da4f84fe514ed8f9d9e52fb56dab4027692f335879a55",
-      "section_id": "quick_start",
-      "source": "review",
-      "stage": "S6"
-    },
-    "3a281b9183d640ea8d817b82": {
-      "changes": [
-        {
-          "after": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for working with 3D documents. It supports reading and writing OBJ, STL, glTF/GLB, COLLADA, and 3MF files through a Scene/Node/Mesh object graph. The library requires no native runtime or external SDK and is compatible with Python versions 3.7 through 3.12.",
-          "before": "Aspose.3D FOSS for Python is a Python library for working with 3D documents, supporting formats such as .obj, .stl, .gltf, .glb, .dae, .3mf, and .fbx. It enables developers to create, read, convert, and save 3D scenes using primitives like Box, Sphere, and Cylinder, and manage geometry through Scene, Node, Entity, and Mesh classes. Users can define materials, control mesh topology, and export scenes to multiple 3D formats using FileFormat and save options. The library is compatible with Python versions 3.7 through 3.12 and requires Python >=3.7.",
-          "fact_ids": [
-            "license:spdx",
-            "identity:platform"
-          ],
-          "id": "R01",
-          "path": "units[0].text"
-        }
-      ],
-      "label": "F01",
-      "outcome": "repaired",
-      "reason": null,
-      "request_sha256": "4a9eb4a725c17c3611cfa003b4201a17207931f1656b294ca04a5f022d71b463",
-      "section_id": "opening",
+      "request_sha256": "dfefeda57609741c12d137eedec15e4d8623f7a220c69d1a01671c2dc6f61a0a",
+      "section_id": "documentation_resources",
       "source": "review",
       "stage": "S6"
     },
     "4fcdc460a72140f028c2ad1f": {
       "changes": [
         {
-          "after": "[\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.animationchannel\",\n      \"public_symbol:aspose.threed.animationclip\",\n      \"public_symbol:aspose.threed.animationnode\",\n      \"public_symbol:aspose.threed.keyframesequence\",\n      \"public_symbol:aspose.threed.pose\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.animationchannel\",\n    \"text\": \"AnimationChannel, AnimationClip, AnimationNode, KeyframeSequence, and Pose support animation definition and interpolation, with AnimationChannel exposing member KeyframeSequence for time-based property interpolation, AnimationClip exposing member KeyframeSequence for time-based property interpolation, AnimationNode exposing member Pose for node transformation interpolation, and Pose exposing member BonePose for bone transformation interpolation.\"\n  },\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.entities.polygonmodifier\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.entities.polygonmodifier\",\n    \"text\": \"PolygonModifier provides polygon-level mesh modification capabilities, supporting operations like PolygonModifier.create_polygon and PolygonModifier.to_mesh for direct integration with Mesh entities.\"\n  },\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.fileformat\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.fileformat\",\n    \"text\": \"FileFormat supports format detection and save options via FileFormat.get_format_by_extension and FileFormat.create_save_options, enabling explicit format specification for scene.save() operations.\"\n  }\n]",
-          "before": "[]",
-          "fact_ids": [
-            "public_symbol:aspose.threed.animationchannel",
-            "public_symbol:aspose.threed.animationclip",
-            "public_symbol:aspose.threed.animationnode",
-            "public_symbol:aspose.threed.keyframesequence",
-            "public_symbol:aspose.threed.pose",
-            "public_symbol:aspose.threed.entities.polygonmodifier",
-            "public_symbol:aspose.threed.fileformat"
-          ],
-          "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F07",
-      "outcome": "repaired",
-      "re_raised": [
-        "F07",
-        "F08"
-      ],
-      "reason": null,
-      "request_sha256": "1e2204f55d2fc3f26619ed889dc8f1fcad9ebd78c6afcf55ae4719af85626be9",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "b7e7250affe855eb5f5b161d": {
-      "changes": [
-        {
-          "after": "[]",
-          "before": "[]",
+          "after": "[\"public_symbol:aspose.threed.animation\", \"public_symbol:aspose.threed.animationclip\", \"public_symbol:aspose.threed.animationnode\", \"public_symbol:aspose.threed.keyframesequence\"]",
+          "before": "[\"public_symbol:aspose.threed.animation\", \"public_symbol:aspose.threed.animationclip\", \"public_symbol:aspose.threed.animationnode\", \"public_symbol:aspose.threed.keyframesequence\"]",
           "fact_ids": [],
           "id": "R01",
-          "path": "revised_output.units"
+          "path": "revised_output.units[5].fact_ids"
+        },
+        {
+          "after": "The aspose.threed.animation module supports animation via aspose.threed.AnimationClip, aspose.threed.AnimationNode, and aspose.threed.KeyframeSequence to define time-based transformations and properties for 3D entities.",
+          "before": "The aspose.threed.animation module supports animation via aspose.threed.AnimationClip, aspose.threed.AnimationNode, and aspose.threed.KeyframeSequence to define time-based transformations and properties for 3D entities.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.units[5].text"
         }
       ],
-      "label": "F06",
+      "label": "F02",
       "outcome": "repaired",
       "re_raised": [
-        "F06",
-        "F07"
+        "F02"
       ],
       "reason": null,
-      "request_sha256": "98256bf5adda968b0d8cdf2ca97ff100fb673f5b506aa7984fd348adb563fe6f",
-      "section_id": "additional_examples",
+      "request_sha256": "44917b1552fe806ca6ab21afe79876472f9cd9c550cc262232c2e6ff4249071a",
+      "section_id": "api_reference",
       "source": "review",
       "stage": "S6"
     },
     "be25aac5686a153e071e9173": {
       "changes": [
         {
-          "after": "[\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.fbx.fbxexporter\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:7\",\n        \"text\": \"FBX export raises NotImplementedError — the FBX exporter is not implemented.\"\n      },\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.collada.colladaexporter\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:8\",\n        \"text\": \"COLLADA export is unreachable through Scene.save() because the exporter lookup fails before ColladaExporter is ever consulted.\"\n      },\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.collada.colladaloadoptions\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:9\",\n        \"text\": \"COLLADA import options must be imported by their exact file path (e.g., from aspose.threed.formats.collada.colladaloadoptions import ColladaLoadOptions) because they are not exposed at the aspose.threed.formats.collada module level.\"\n      }\n    ]",
-          "before": "[]",
+          "after": "Texture and TextureBase raise NotImplementedError on construction, so an image-backed texture cannot be created; material color and factor properties (diffuse_color, metallic_factor, and similar) work independently of texture assignment.",
+          "before": "Texture and TextureBase raise NotImplementedError on construction, so an image-backed texture cannot be created; material color and factor properties (diffuse_color, metallic_factor, and similar) work independently of texture assignment.",
           "fact_ids": [
-            "public_symbol:aspose.threed.formats.fbx.fbxexporter",
-            "public_symbol:aspose.threed.formats.collada.colladaexporter",
-            "public_symbol:aspose.threed.formats.collada.colladaloadoptions"
+            "inherited_unit:067.list"
           ],
           "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F08",
-      "outcome": "repaired",
-      "re_raised": [
-        "F09",
-        "F10",
-        "F11",
-        "F12",
-        "F13",
-        "F14",
-        "F15",
-        "F16",
-        "F17",
-        "F18",
-        "F19",
-        "F20",
-        "F21",
-        "F22",
-        "F23",
-        "F24",
-        "F25",
-        "F05",
-        "F06"
-      ],
-      "reason": null,
-      "request_sha256": "a3eda8f467f40946484e1d247f854904f92bba2141469aebb262736a92dcca06",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "c49ba36e79ff9b3ffea3decd": {
-      "changes": [
+          "path": "units.5.text"
+        },
         {
-          "after": "The test suite covers 33 test files under tests/ and exercises OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior.",
-          "before": "Install the package in editable mode and run the test suite using the repository's own test infrastructure.",
+          "after": "Watermark.encode_watermark() and decode_watermark(), every TransformBuilder method, Mesh.do_boolean() and related Boolean operations, NurbsCurve.evaluate() and NurbsSurface.to_mesh(), PointCloud.from_geometry() methods, and AxisSystem methods all raise NotImplementedError.",
+          "before": "Watermark.encode_watermark() and decode_watermark(), every TransformBuilder method, Mesh.do_boolean() and related Boolean operations, NurbsCurve.evaluate() and NurbsSurface.to_mesh(), PointCloud.from_geometry() methods, and AxisSystem methods all raise NotImplementedError.",
           "fact_ids": [
-            "build_test_asset:tests"
+            "inherited_unit:067.list"
           ],
-          "id": "R01",
-          "path": "revised_output.units[0].text"
+          "id": "R02",
+          "path": "units.6.text"
         }
       ],
-      "label": "F09",
+      "label": "F04",
       "outcome": "repaired",
       "re_raised": [
-        "F10",
         "F04"
       ],
       "reason": null,
-      "request_sha256": "9b6681f6a5f785941ababcd2dc4045c81aceebd3aea0ee9b51dc3c100929d43d",
-      "section_id": "development_testing",
+      "request_sha256": "4ff79f8c35bf554061af79cff0c91916a3b171dca01208e1be60be49ddf065d4",
+      "section_id": "scope_limitations",
       "source": "review",
       "stage": "S6"
     },
     "d22a20507671115cc5556a53": {
       "changes": [
         {
-          "after": "format:output.3mf",
-          "before": "format:output.3mf",
-          "fact_ids": [],
+          "after": "Aspose.3D FOSS for Python supports animation by creating aspose.threed.AnimationClip objects via Scene.create_animation_clip, populating them with aspose.threed.AnimationNode and aspose.threed.KeyframeSequence instances to define time-based transformations.",
+          "before": "Aspose.3D FOSS for Python supports animation by creating aspose.threed.AnimationClip objects via Scene.create_animation_clip, populating them with aspose.threed.AnimationNode and aspose.threed.KeyframeSequence instances to define time-based transformations.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animationclip",
+            "public_symbol:aspose.threed.animationnode",
+            "public_symbol:aspose.threed.keyframesequence"
+          ],
           "id": "R01",
-          "path": "units.1.fact_ids"
-        },
-        {
-          "after": "public_symbol:aspose.threed.shading",
-          "before": "public_symbol:aspose.threed.shading",
-          "fact_ids": [],
-          "id": "R02",
-          "path": "units.4.fact_ids"
+          "path": "revised_output.units[5].text"
         }
       ],
-      "label": "F02",
+      "label": "F01",
       "outcome": "repaired",
+      "re_raised": [
+        "F01"
+      ],
       "reason": null,
-      "request_sha256": "17d848cf6f651d143c7fe12b85bf19c3258fcc2ecd2566eedf5796574c828f5f",
+      "request_sha256": "97e4bfaa374a86ad6fef3a30a29519ba6d48bc6532c4ebbc20ca2fd412b09456",
       "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"

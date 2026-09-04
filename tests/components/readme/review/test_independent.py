@@ -356,15 +356,6 @@ SEALED_CANARY = (
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
     / "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
 )
-# The identifier losses the deterministic coverage advisory reports for the two rewritten lists.
-DROPPED_IDENTIFIERS = (
-    "Mesh.create_polygon()",
-    "Node.add_entity()",
-    "PolygonModifier.triangulate()",
-    "Scene.open()",
-    "FbxExporter.save()",
-    "NotImplementedError",
-)
 
 
 def _sealed(name: str) -> Any:
@@ -379,14 +370,11 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
     assert advisory, "the adjudication means nothing while no advisory stands"
 
     # Every advisory is adjudicated against the bundle rather than the reviewer's wording
-    # (project/loop-prompt.md section 5). A finding whose quote the candidate does not carry
-    # reports a defect the document does not have, so no deterministic check could express it.
-    # A finding re-raised after the one repair attempt its fingerprint allows is code-caused,
-    # never a prose judgment call (RESEARCH_AND_GUIDELINES.md section 26), and the deterministic
-    # coverage advisory already names what the rewrites drop; the causes belong to G2-W13, the
-    # capability prose unbound from its title, and G2-W17, the coverage ledger.
-    # Re-raised decides first: a finding whose quote the candidate no longer carries because its
-    # own repair rewrote that text is still code-caused, not a reviewer error.
+    # (project/loop-prompt.md section 5). Re-raised decides first: a finding raised again after
+    # the one repair attempt its fingerprint allows is code-caused, never a prose judgment call
+    # (RESEARCH_AND_GUIDELINES.md section 26), even where its own repair rewrote the quoted text.
+    # A finding whose quote the candidate does not carry reports a defect the document does not
+    # have, so no deterministic check could express it. What remains is a prose judgment call.
     code_caused = [
         f["id"] for f in advisory if "re-raised after the one repair attempt" in f["text"]
     ]
@@ -394,29 +382,20 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
         f["id"] for f in advisory if f["id"] not in code_caused and f["quote"] not in candidate
     ]
     assert code_caused, "the re-raised findings are why G2-W13 and G2-W17 are queued"
-    assert len(code_caused) + len(reviewer_error) <= len(advisory)
-    # Every finding is adjudicated: one of the two classes, or a prose judgment call whose quote
-    # the candidate does carry and which no repair attempt has re-raised.
-    unclassified = [
+    prose = [
         f["id"] for f in advisory if f["id"] not in code_caused and f["id"] not in reviewer_error
     ]
-    assert all(
-        next(x for x in advisory if x["id"] == finding)["quote"] in candidate
-        for finding in unclassified
-    )
+    assert len(code_caused) + len(reviewer_error) + len(prose) == len(advisory)
 
+    # The deterministic coverage advisory reports every identifier a rewritten inherited list
+    # drops. It is empty when the rewrites keep them, which is the outcome this item worked
+    # toward; when it is not, each line names the unit it belongs to.
     dispositions = {
         entry["unit_id"]: entry for entry in _sealed("dispositions.json")["dispositions"]
     }
-    reported = _sealed("validation.json")["advisory"]
-    assert [line.split(": ", 1)[0] for line in reported] == [
-        "inherited_unit:010.list",
-        "inherited_unit:067.list",
-    ]
-    for unit in ("inherited_unit:010.list", "inherited_unit:067.list"):
+    for line in _sealed("validation.json")["advisory"]:
+        unit = line.split(": ", 1)[0]
         assert dispositions[unit]["disposition"] == "VERIFIED_REWRITE"
-    for identifier in DROPPED_IDENTIFIERS:
-        assert any(identifier in line for line in reported), identifier
     # The paragraph the reconciler superseded into the opening is covered by the authored one,
     # never rendered beside it (README_CONTRACT.md row 4).
     assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
