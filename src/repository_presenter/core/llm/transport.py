@@ -63,3 +63,36 @@ def list_models(config: GatewayConfig) -> ModelCatalog:
     if not entries:
         raise GatewayError(f"GET {config.base_url}/models listed no models")
     return ModelCatalog(config.base_url, tuple(entries))
+
+@dataclass(frozen=True)
+class SeedProbe:
+    """Whether one model accepted a ``seed``, from a single bounded call."""
+
+    model: str
+    accepted: bool
+    detail: str
+
+
+def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
+    """One bounded completion carrying ``seed``, to learn whether the gateway accepts it.
+
+    docs/RESEARCH_AND_GUIDELINES.md section 18.4's discovery pattern: ask the gateway rather than
+    assume, once, and record the answer. Acceptance is not the same as honouring it - that needs
+    two identical requests compared - but a rejection settles the question outright, which is what
+    section 27.5 D4 and 27.10 need before seed can be adopted.
+    """
+    client = build_client(config)
+    try:
+        client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "ping"}],
+            max_tokens=1,
+            temperature=0,
+            seed=1,
+        )
+    except APIStatusError as exc:
+        return SeedProbe(model, False, f"HTTP {exc.status_code}")
+    except APIConnectionError as exc:
+        raise GatewayError(f"gateway {config.host} unreachable: {type(exc).__name__}") from None
+    return SeedProbe(model, True, "accepted")
+

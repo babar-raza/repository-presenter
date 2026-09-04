@@ -17,7 +17,12 @@ from pathlib import Path
 from repository_presenter.core.config import MODEL_VARIABLE, GatewayConfig
 from repository_presenter.core.errors import ConfigError, GatewayError
 from repository_presenter.core.llm.prompts import PromptRegistry, load_manifests, validate_routes
-from repository_presenter.core.llm.transport import ModelCatalog, list_models
+from repository_presenter.core.llm.transport import (
+    ModelCatalog,
+    SeedProbe,
+    list_models,
+    probe_seed,
+)
 
 PREFLIGHT_DIRNAME = "preflight"
 CATALOG_FILENAME = "catalog.json"
@@ -28,6 +33,7 @@ class PreflightResult:
     catalog: ModelCatalog
     model_override: str | None
     prompts: PromptRegistry
+    seed_support: tuple[SeedProbe, ...] = ()
 
 
 def run_gateway_preflight(config: GatewayConfig, prompts_dir: Path) -> PreflightResult:
@@ -44,7 +50,11 @@ def run_gateway_preflight(config: GatewayConfig, prompts_dir: Path) -> Preflight
             f"({', '.join(catalog.ids)})"
         )
     validate_routes(prompts, catalog.ids)
-    return PreflightResult(catalog, config.model_override, prompts)
+    # One bounded call per routed model, never per manifest: the routes are the only models any
+    # job uses, and section 18.4 asks the gateway rather than assuming (section 27.5 D4).
+    routed = sorted({loaded.manifest.model_route for loaded in prompts.manifests.values()})
+    probes = tuple(probe_seed(config, model) for model in routed)
+    return PreflightResult(catalog, config.model_override, prompts, probes)
 
 
 def read_catalog_ids(path: Path) -> tuple[str, ...]:
@@ -72,6 +82,10 @@ def write_catalog(result: PreflightResult, path: Path) -> str:
         "base_url": result.catalog.base_url,
         "models": [{"id": model.id, "owned_by": model.owned_by} for model in result.catalog.models],
         "model_override": result.model_override,
+        "seed_support": [
+            {"model": probe.model, "accepted": probe.accepted, "detail": probe.detail}
+            for probe in result.seed_support
+        ],
         "prompts": [
             {"prompt_id": job, "model_route": loaded.manifest.model_route, "sha256": loaded.sha256}
             for job, loaded in sorted(result.prompts.manifests.items())

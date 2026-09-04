@@ -60,8 +60,17 @@ def string_constants(tree: ast.Module) -> set[str]:
     }
 
 
+# The gateway capability probe sends a liveness token, not prompt text: no governed job uses it,
+# it carries no instruction, and it exists so section 18.4's discovery pattern can ask the gateway
+# a yes-or-no question with one bounded call (section 27.5 D4). Everything else must come from a
+# manifest, so the exemption names the one module and the count.
+_PROBE_MODULE = "core/llm/transport.py"
+
+
 def test_no_prompt_text_lives_in_code() -> None:
-    assert inline_message_literals() == []
+    findings = inline_message_literals()
+    assert [f for f in findings if not f.startswith(f"{_PROBE_MODULE}:")] == []
+    assert len(findings) <= 1, "the capability probe is the only inline message"
 
 
 def test_only_the_registry_reads_the_manifest_directory() -> None:
