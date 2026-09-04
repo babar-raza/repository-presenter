@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
 
 from repository_presenter.core.llm.ledger import CallRecord, Ledger, canonical_hash, load_records
+from support import REPO_ROOT, call_statistics
 
 
 def _record(call_id: str, disposition: str, outcome: str, tokens: int | None) -> CallRecord:
@@ -70,3 +72,56 @@ def test_canonical_hash_ignores_key_order_and_whitespace_only() -> None:
     assert canonical_hash({"b": 1, "a": [1, 2]}) == canonical_hash({"a": [1, 2], "b": 1})
     assert canonical_hash({"a": 1}) != canonical_hash({"a": 2})
     assert len(canonical_hash("text")) == 64
+
+
+# RESEARCH_AND_GUIDELINES.md section 27.6 control 1. The floors are what the sealed canary
+# measures today, so a change that makes the model re-ask more often fails here; G2-W12 raises
+# them to the 95 percent acceptance and 5 percent re-ask share its acceptance names.
+SEALED_LEDGER = (
+    REPO_ROOT
+    / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+    / "65b1f577c0f16d0d9112bb6c1153d3024543ac02/calls.jsonl"
+)
+FIRST_ATTEMPT_FLOOR = 80.0
+REASK_CEILING = 20.0
+
+
+def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
+    statistics = call_statistics(SEALED_LEDGER)
+    total = statistics["TOTAL"]
+    assert total.calls >= 40, "too few provider calls for the ratio to mean anything"
+    assert total.first_attempt_rate >= FIRST_ATTEMPT_FLOOR
+    assert total.reask_share <= REASK_CEILING
+    # Every job the composition runs is measured, so a new job cannot slip in unmeasured.
+    assert set(statistics) == {
+        "TOTAL",
+        "independent_review",
+        "presentation_planning",
+        "repository_investigation",
+        "section_authoring",
+        "source_reconciliation",
+        "targeted_repair",
+    }
+    assert sum(entry.calls for job, entry in statistics.items() if job != "TOTAL") == total.calls
+
+
+def test_the_statistics_count_only_provider_calls_and_their_rejections(tmp_path: Path) -> None:
+    ledger = tmp_path / "calls.jsonl"
+    ledger.write_text(
+        "\n".join(
+            json.dumps(record)
+            for record in (
+                {"job": "a", "disposition": "provider_call", "outcome": "success"},
+                {"job": "a", "disposition": "provider_call", "outcome": "response_invalid"},
+                {"job": "a", "disposition": "cache_reuse", "outcome": "cache_reuse"},
+                {"job": "b", "disposition": "provider_call", "outcome": "success"},
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    statistics = call_statistics(ledger)
+    assert statistics["a"].calls == 2 and statistics["a"].invalid == 1
+    assert statistics["a"].first_attempt_rate == 50.0 and statistics["a"].reask_share == 50.0
+    assert statistics["b"].first_attempt_rate == 100.0
+    assert statistics["TOTAL"].calls == 3 and statistics["TOTAL"].invalid == 1

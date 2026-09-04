@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 import httpx
@@ -118,3 +120,41 @@ def head_revision(path: Path) -> str:
     result = run_git(["rev-parse", "HEAD"], cwd=path)
     assert result.returncode == 0, result.stderr
     return result.stdout.strip()
+
+
+@dataclass(frozen=True)
+class CallStatistics:
+    """How often a job's first reply was accepted, from a sealed ledger.
+
+    RESEARCH_AND_GUIDELINES.md section 27.6 control 1: first-attempt acceptance and the re-ask
+    share are computed from the sealed calls.jsonl, never estimated. Only provider calls count;
+    a reused stored output was accepted when it was first made.
+    """
+
+    calls: int
+    invalid: int
+
+    @property
+    def first_attempt_rate(self) -> float:
+        return 100.0 * (self.calls - self.invalid) / self.calls if self.calls else 100.0
+
+    @property
+    def reask_share(self) -> float:
+        return 100.0 * self.invalid / self.calls if self.calls else 0.0
+
+
+def call_statistics(calls_jsonl: Path) -> dict[str, CallStatistics]:
+    """Per job, plus ``TOTAL``, the provider calls and how many were rejected."""
+    calls: Counter[str] = Counter()
+    invalid: Counter[str] = Counter()
+    for line in calls_jsonl.read_text("utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        if record.get("disposition") != "provider_call":
+            continue
+        for key in (record["job"], "TOTAL"):
+            calls[key] += 1
+            if record.get("outcome") == "response_invalid":
+                invalid[key] += 1
+    return {job: CallStatistics(count, invalid[job]) for job, count in sorted(calls.items())}
