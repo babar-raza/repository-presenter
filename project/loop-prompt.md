@@ -31,8 +31,8 @@ files, never from memory of a previous iteration.
   document predicate that this iteration's implementation proved wrong. `docs/README_CONTRACT.md`
   changes only through a work item whose purpose names the revision and whose defect is recorded in
   `RESEARCH_AND_GUIDELINES.md` (§26, §27.8); the revision, its code, and its tests land in that
-  item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W15, G2-W16, and
-  G2-W17 carry such revisions. Any other gap between the contract and what is achievable is a
+  item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W16, G2-W17, and
+  G5-W02 carry such revisions. Any other gap between the contract and what is achievable is a
   report line and a `RESEARCH_AND_GUIDELINES.md` note, not a contract edit.
 - A work item's purpose stays under about a thousand characters and closes in a handful of
   iterations. When an item's scope grows past that, or three iterations move it without a predicate
@@ -77,10 +77,12 @@ files, never from memory of a previous iteration.
 - The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
   position. Take the first `PENDING` item of the current gate. Never renumber items.
 - Before promoting any item, check `RESEARCH_AND_GUIDELINES.md` §27.9: if it lists entries whose
-  IDs are absent from `next_ready_items`, insert them verbatim at the positions it states, validate
-  against `schemas/state.schema.json`, and commit that one file as `chore(state)` first. The owner
-  mirrors every queued item there before it lands, so the queue never depends on a second session
-  being alive.
+  IDs are absent from `next_ready_items`, insert them verbatim at the positions it states; remove
+  any entry it lists as moved; apply the state edits it lists as pending (and the reuse-manifest
+  edit, in the same commit); validate against `schemas/state.schema.json`; commit as `chore(state)`
+  first. The owner mirrors every queued item there before it lands, so the queue never depends on a
+  second session being alive. Items of a later gate may sit in the list; take only the current
+  gate's.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 
@@ -168,7 +170,7 @@ files, never from memory of a previous iteration.
 ## 6. The legacy failure modes, as hard prohibitions
 
 1. No machinery before its consumer. Leases, fencing, durable CAS state, hosted workflows, and
-   authorization arrive at G4 and G5, not earlier.
+   authorization arrive at G5 and G6, not earlier.
 2. No global control-plane hash, ever. A candidate is invalidated only through an input listed in
    its own `dependencies.json`.
 3. Validators and reviewers re-check; they do not invalidate. Only a factual, safety, or

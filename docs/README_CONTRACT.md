@@ -11,7 +11,7 @@ enters only as a coherent fix to a predicate that a sealed candidate's defects p
 never as a new requirement ahead of output. The 2026-09-04 revision is two such fixes — check 4's
 slot binding and row 14's uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md`
 §26. §25 records the reasoning for the discipline itself. Pending revisions, each traced to a measured
-defect in §27 and carried by a named work item — check 4 by G2-W13, check 11 by G2-W15, §6 by
+defect in §27 and carried by a named work item — check 4 by G2-W13, check 11 by G5-W02, §6 by
 G2-W16, a new check 12 by G2-W17 — are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this
 document only in that item's commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
