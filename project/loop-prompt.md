@@ -9,10 +9,13 @@ files, never from memory of a previous iteration.
   any work on facts, composition, validation, or review), `docs/REPOSITORY_LAYOUT.md` (before
   creating any file or directory), `docs/RESEARCH_AND_GUIDELINES.md` §18 (before writing any new
   mechanism — check its library registry first), §7.4 (before touching any platform extractor
-  module), §7.2.1 (before pulling any profile, policy, or link-catalog asset), and §24 (before any
+  module), §7.2.1 (before pulling any profile, policy, or link-catalog asset), §24 (before any
   composition or rendering change — the section-by-section record of what the live portfolio does
-  and which of its conventions this contract matches, exceeds, or deliberately declines),
-  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
+  and which of its conventions this contract matches, exceeds, or deliberately declines), and §27
+  (before any change to composition, review, repair, acceptance, or fact extraction — the eight
+  measured root causes RC1–RC8 and the design D1–D7; a change that reintroduces one of them is a
+  defect), `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item
+  needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite.
@@ -25,11 +28,12 @@ files, never from memory of a previous iteration.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
   document. Writable governance files: `project/state.yaml`, file records and pull notes in
   `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, and one coherent fix to a
-  document predicate that this iteration's implementation proved wrong. While
-  `docs/README_CONTRACT.md` carries a revision hold (its status line), no new requirement enters it
-  until a candidate has sealed against the held revision — build to the contract as written; a gap
-  between the contract and what is achievable is a report line and a `RESEARCH_AND_GUIDELINES.md`
-  note, not a contract edit.
+  document predicate that this iteration's implementation proved wrong. `docs/README_CONTRACT.md`
+  changes only through a work item whose purpose names the revision and whose defect is recorded in
+  `RESEARCH_AND_GUIDELINES.md` (§26, §27.8); the revision, its code, and its tests land in that
+  item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W15, G2-W16, and
+  G2-W17 carry such revisions. Any other gap between the contract and what is achievable is a
+  report line and a `RESEARCH_AND_GUIDELINES.md` note, not a contract edit.
 - A work item's purpose stays under about a thousand characters and closes in a handful of
   iterations. When an item's scope grows past that, or three iterations move it without a predicate
   closing, split it in `project/state.yaml` into items that each seal something — never widen it.
@@ -69,6 +73,11 @@ files, never from memory of a previous iteration.
   a refactor, rename, or cleanup outside the work item's owned paths.
 - The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
   position. Take the first `PENDING` item of the current gate. Never renumber items.
+- Before promoting any item, check `RESEARCH_AND_GUIDELINES.md` §27.9: if it lists entries whose
+  IDs are absent from `next_ready_items`, insert them verbatim at the positions it states, validate
+  against `schemas/state.schema.json`, and commit that one file as `chore(state)` first. The owner
+  mirrors every queued item there before it lands, so the queue never depends on a second session
+  being alive.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 

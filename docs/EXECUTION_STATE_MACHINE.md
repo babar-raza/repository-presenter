@@ -284,30 +284,30 @@ leases, or hosted execution yet; those are G4.
 
 ## G2 — Stability Under Change
 
-Goal: the G1 candidate remains valid while the system evolves. This is the milestone the legacy
-project never reached.
+Goal: the G1 candidate remains valid while the system evolves — the milestone the legacy never
+reached — and the measured causes of rerun drift (`RESEARCH_AND_GUIDELINES.md` §27) are closed.
 
 ### Work
 
-1. Implement dependency evaluation from `dependencies.json`: a changed component reopens only the
-   candidates that consumed it, at the earliest affected stage, reusing every unaffected artifact.
-2. Change each dependency class in isolation and prove the routing: source revision, fact extractor,
-   prompt, model route, template component, validator, reviewer rubric, link policy. Presentation-
-   only changes yield `VALID_UPDATE_AVAILABLE`; factual, safety, or protected-content failures
-   invalidate; corrupt or missing bundle artifacts fail closed.
+1. Dependency evaluation from `dependencies.json`: a changed component reopens only its consumers,
+   at the earliest affected stage, reusing unaffected work; corrupt or missing artifacts fail closed.
+2. Change each dependency class in isolation — source revision, fact extractor, prompt, model route,
+   template component, validator, reviewer rubric, link policy — and prove routing: presentation
+   changes yield `VALID_UPDATE_AVAILABLE`; factual, safety, or preservation failures invalidate.
 3. Inject one factual defect and one preservation defect; prove rejection and repair at the causal
    stage with accepted unaffected work retained; prove the two-attempt rule terminates honestly.
 4. Grep-enforced test: no global control-plane hash anywhere in `src/`.
-5. Freeze acceptance contract v1: the 30-point criterion-specific profile with hard disqualifiers,
-   the eleven blocking checks, and the advisory set, each with a version identifier.
-6. Add one second ecosystem representative (Aspose.3D FOSS for .NET or Aspose.Cells FOSS for Java)
-   through the plugin registry to prove no central product or platform `if/elif` chain exists.
+5. Design D1–D7 (`RESEARCH_AND_GUIDELINES.md` §27.5) as G2-W11 to G2-W18 — constructive generation,
+   title binding, anchored plans, portable proof, content-only acceptance, coverage — before v1 freezes.
+6. Freeze contract v1: the 30-point profile, blocking checks, and advisory set, each versioned.
+7. A second ecosystem representative (.NET or Java) via the plugin registry; no central `if/elif`.
 
 ### Exit predicates
 
-- `2/34` current candidates; the invalidation matrix test is green; unaffected artifacts are reused.
-- No global hash exists; contract v1 is frozen with a version identifier.
-- Deliberately injected defects are rejected and repaired at their causal stage.
+- `2/34` current candidates; the invalidation matrix is green; unaffected artifacts are reused; no
+  global hash exists; contract v1 is frozen with a version identifier after D1–D6 have landed.
+- Injected defects are rejected and repaired at their causal stage; on the canary, first-attempt
+  acceptance ≥95%, re-ask ≤5%, the fresh-state proof, zero required-row advisories, a coverage check.
 
 ## G3 — Seven Ecosystem Representatives
 
