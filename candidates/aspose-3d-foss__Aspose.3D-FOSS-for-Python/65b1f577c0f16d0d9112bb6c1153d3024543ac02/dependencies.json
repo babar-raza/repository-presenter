@@ -1738,33 +1738,33 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "79ac50f331e7058559b6de3e40a0590a266c868116190dd795f503c0a7efefaa",
-      "version": "5"
+      "sha256": "52409698bb405c667664c6c6521dfc7bbc6dc24f9ecd6891a90b2c2727db60ec",
+      "version": "6"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "24adc792bc1cea3f9adc41325985e9bb57de485fb96905ffa14fd41604eb21af",
-      "version": "6"
+      "sha256": "2d99625a38742e93120a83128477f001454bb9f120b4897007c6eeebd403b066",
+      "version": "7"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
-      "sha256": "41c2cca07808eb13d0bb7fefdf7a8c812c0ac0cc0b8c7aa8f030eb1d00198152",
-      "version": "1"
+      "sha256": "a72f8e208d9b2d82bb613c8e11a03b613da9237945a8d2221d7aa3f64a772c0c",
+      "version": "2"
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "8f4f7160274935f5fe4774650cbb1e5cb3723a15a43a815720c799f0253dc1d2",
-      "version": "6"
+      "sha256": "c283cf9902edda9069f460527b55760580634c179c0fc916b7afff779e6ec246",
+      "version": "7"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "3ae30e1d5f17e0c1bba3d8ee2bd561ec480ea89a7ebe93be878c31626436d348",
-      "version": "3"
+      "sha256": "bd6c8191396a1f7a36d054e9055d256b69d9bda840f182b79a0b411e71a77068",
+      "version": "4"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "8e3502fec2f2e2073843764273496443f80aae7ed8b24d14ae1735c01a031c6d",
-      "version": "5"
+      "sha256": "3817e392a7ad586eb2519f81d8d3193e092e3c527acda50a65bc637f5ee849c7",
+      "version": "6"
     }
   },
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",

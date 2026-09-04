@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "6"
+version: "7"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -7,6 +7,7 @@ route_rationale: Of the two general-purpose chat models the recorded catalog lis
 sampling:
   temperature: 0.0
   max_output_tokens: 8000
+  seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

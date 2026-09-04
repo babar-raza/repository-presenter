@@ -172,13 +172,16 @@ def request_payload(
             "schema": schema_for(manifest, call_schema),
             "strict": True,
         }
-    return {
+    payload: dict[str, Any] = {
         "model": manifest.manifest.model_route,
         "messages": messages,
         "temperature": sampling.temperature,
         "max_tokens": sampling.max_output_tokens,
         "response_format": response_format,
     }
+    if sampling.seed is not None:
+        payload["seed"] = sampling.seed
+    return payload
 
 
 def _complete(config: GatewayConfig, payload: dict[str, Any]) -> _Reply:

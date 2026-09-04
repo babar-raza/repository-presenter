@@ -155,6 +155,27 @@ def _canonical_json(document: Mapping[str, Any]) -> bytes:
     )
 
 
+def _composition(staged: Mapping[str, bytes]) -> dict[str, Any]:
+    """What this composition cost in quality terms: advisories and blocking failures.
+
+    Recorded per composition so variance is measured rather than sampled by accident
+    (docs/RESEARCH_AND_GUIDELINES.md section 27.10). Both come from artifacts already staged,
+    so nothing new is computed and nothing can disagree with the bundle.
+    """
+    review = json.loads(staged["review.json"]) if "review.json" in staged else {}
+    validation = json.loads(staged["validation.json"]) if "validation.json" in staged else {}
+    checks = validation.get("checks") or []
+    return {
+        "review_verdict": review.get("verdict"),
+        "review_verdict_as_returned": review.get("verdict_as_returned"),
+        "advisories": len(review.get("advisory") or []),
+        "coverage_advisories": len(validation.get("advisory") or []),
+        "blocking_failures": sorted(
+            check["id"] for check in checks if check.get("verdict") == "FAIL"
+        ),
+    }
+
+
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -231,6 +252,7 @@ def _write_bundle(
         "files": files,
         "provider_calls": provider_calls,
         "no_op_proof": proof,
+        "composition": _composition(staged),
         **dict(extra or {}),
     }
     (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(manifest))

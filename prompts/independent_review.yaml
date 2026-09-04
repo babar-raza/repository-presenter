@@ -1,5 +1,5 @@
 prompt_id: independent_review
-version: "5"
+version: "6"
 stage: S10
 purpose: Judge, under a separate identity from authoring, whether the candidate README is factually sound, complete, specific, and visitor-useful; return one verdict and findings that each name a section and a causal stage.
 model_route: qwen3-next
@@ -7,6 +7,7 @@ route_rationale: Of the two general-purpose chat models the recorded catalog lis
 sampling:
   temperature: 0.0
   max_output_tokens: 6000
+  seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

@@ -14,7 +14,7 @@
         "package:python_versions",
         "package:version"
       ],
-      "rationale": "The H1 product name is rendered from the identity fact and must not be duplicated.",
+      "rationale": "The H1 product name matches the verified repository identity and is required in the identity section.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -60,7 +60,7 @@
         "link_target:product.enterprise",
         "link_target:product.homepage"
       ],
-      "rationale": "The badge row is rendered from verified badge targets and is redundant with the badges section.",
+      "rationale": "All badges in the row have verified targets and are required in the badges section.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -70,7 +70,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image is rendered from the product banner and homepage facts and is redundant with the banner section.",
+      "rationale": "The banner image and link target are verified and belong in the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -82,11 +82,11 @@
         "identity:ecosystem",
         "package:name",
         "license:spdx",
-        "dependency:none",
         "package:python_requires",
-        "package:python_versions"
+        "package:python_versions",
+        "dependency:none"
       ],
-      "rationale": "The paragraph describes the product, its license, dependencies, and platform support, which are all verified and fit the opening section.",
+      "rationale": "The paragraph describes the product, its license, platform support, and zero dependencies, fitting the opening section.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -110,54 +110,13 @@
         "identity:family",
         "identity:platform",
         "identity:repository",
-        "identity:revision",
-        "link_target:011",
-        "link_target:012",
-        "link_target:013",
-        "link_target:014",
-        "link_target:015",
-        "link_target:016",
-        "link_target:017",
-        "link_target:018",
-        "link_target:019",
-        "link_target:020",
-        "link_target:021"
+        "identity:revision"
       ],
-      "rationale": "The navigation list is rendered from the in-page link targets and is redundant with the navigation section.",
+      "rationale": "The navigation list is rendered by the deterministic navigation section and is redundant.",
       "unit_id": "inherited_unit:006.list"
     },
     {
       "destination_section": "at_a_glance",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.glb",
-        "format:input.dae",
-        "format:input.3mf",
-        "public_symbol:aspose.threed.scene"
-      ],
-      "rationale": "The 'At a Glance' heading is supported by the verified input formats and core API, and the Mermaid diagram is placed as-is.",
-      "unit_id": "inherited_unit:007.heading"
-    },
-    {
-      "destination_section": null,
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.glb",
-        "format:input.dae",
-        "format:input.3mf",
-        "public_symbol:aspose.threed.scene"
-      ],
-      "rationale": "The Mermaid diagram is supported by the verified input formats and core API, and is placed as-is.",
-      "unit_id": "inherited_unit:008.code_block"
-    },
-    {
-      "destination_section": "key_capabilities",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "format:input.obj",
@@ -171,19 +130,41 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.pose"
+        "public_symbol:aspose.threed.scene"
       ],
-      "rationale": "The 'Key Capabilities' heading is supported by the verified capabilities and is placed as-is.",
+      "rationale": "The 'At a Glance' heading is required and supported by verified input/output formats and core API.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "format:input.obj",
+        "format:input.stl",
+        "format:input.gltf",
+        "format:input.glb",
+        "format:input.dae",
+        "format:input.3mf",
+        "format:output.obj",
+        "format:output.stl",
+        "format:output.gltf",
+        "format:output.glb",
+        "format:output.3mf",
+        "public_symbol:aspose.threed.scene"
+      ],
+      "rationale": "The Mermaid diagram accurately reflects verified input/output formats and core capabilities.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "rationale": "The 'Key Capabilities' heading is required and supported by verified public symbols.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -201,19 +182,16 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
+        "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial",
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform",
+        "public_symbol:aspose.threed.shading",
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
         "public_symbol:aspose.threed.pose"
       ],
-      "rationale": "The list items are supported by the verified capabilities and are placed as-is.",
+      "rationale": "The list items are grounded in verified formats, public symbols, and examples.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -233,57 +211,70 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The installation paragraph is redundant with the installation section, which renders the verified install command.",
+      "rationale": "The paragraph accurately describes the PyPI package and version, fitting the installation section.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "install_command:pip",
-        "package:name",
-        "package:version"
+        "install_command:pip"
       ],
-      "rationale": "The installation code block is redundant with the installation section, which renders the verified install command.",
+      "rationale": "The pip install command matches the verified install command fact.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The editable install instruction is not supported by any fact and is promotional; omitted.",
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip",
+        "package:python_requires",
+        "package:python_versions"
+      ],
+      "rationale": "The paragraph accurately describes editable install and Python version support.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "install_command:pip"
+        "install_command:pip",
+        "package:python_requires",
+        "package:python_versions"
       ],
-      "rationale": "The editable install code block is not supported by any fact and is promotional; omitted.",
+      "rationale": "The editable install command is verified and fits the installation section.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The verify install instruction is not supported by any fact and is promotional; omitted.",
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip",
+        "package:python_requires",
+        "package:python_versions"
+      ],
+      "rationale": "The verification command is verified and fits the installation section.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
       "destination_section": "installation",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "import_path:aspose.threed",
         "install_command:pip"
       ],
-      "rationale": "The verify install code block is not supported by any fact and is promotional; omitted.",
+      "rationale": "The verification command matches the verified import path.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Python version list is not supported by any fact and is promotional; omitted.",
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:pip",
+        "package:python_requires",
+        "package:python_versions"
+      ],
+      "rationale": "The Python version support statement is verified and fits the installation section.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
@@ -303,7 +294,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The 'Required Package Dependencies' heading is rendered by the deterministic dependencies section and is redundant.",
+      "rationale": "The 'Required Package Dependencies' heading is redundant with the deterministic dependencies section.",
       "unit_id": "inherited_unit:020.heading"
     },
     {
@@ -313,7 +304,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The paragraph states no required third-party dependencies, which is verified and placed as-is.",
+      "rationale": "The statement about no required third-party dependencies is verified.",
       "unit_id": "inherited_unit:021.paragraph"
     },
     {
@@ -323,7 +314,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The 'Native and System Requirements' heading is rendered by the deterministic dependencies section and is redundant.",
+      "rationale": "The 'Native and System Requirements' heading is redundant with the deterministic dependencies section.",
       "unit_id": "inherited_unit:022.heading"
     },
     {
@@ -335,7 +326,7 @@
         "package:python_requires",
         "package:python_versions"
       ],
-      "rationale": "The list item is supported by the verified Python requirements and is placed as-is.",
+      "rationale": "The Python version requirement is verified and fits the dependencies section.",
       "unit_id": "inherited_unit:023.list"
     },
     {
@@ -345,7 +336,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The 'Development Dependencies' heading is rendered by the deterministic dependencies section and is redundant.",
+      "rationale": "The 'Development Dependencies' heading is redundant with the deterministic dependencies section.",
       "unit_id": "inherited_unit:024.heading"
     },
     {
@@ -355,7 +346,7 @@
         "dependency:development.dev.pytest-7.0.0",
         "dependency:none"
       ],
-      "rationale": "The list item is supported by the verified development dependency and is placed as-is.",
+      "rationale": "The pytest development dependency is verified and fits the dependencies section.",
       "unit_id": "inherited_unit:025.list"
     },
     {
@@ -364,7 +355,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The 'Quick Start' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Quick Start' heading is required and supported by a verified example.",
       "unit_id": "inherited_unit:026.heading"
     },
     {
@@ -373,7 +364,7 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The paragraph introduces the Quick Start example, which is verified and placed as-is.",
+      "rationale": "The lead-in sentence for the quick start example is appropriate.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
@@ -383,7 +374,7 @@
         "example:001",
         "example:002"
       ],
-      "rationale": "The Quick Start code block is verified and placed as-is.",
+      "rationale": "The example code matches the verified example fact.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
@@ -393,29 +384,32 @@
         "example:004",
         "example:005",
         "example:009",
+        "example:010",
         "example:012"
       ],
-      "rationale": "The paragraph introduces Additional Examples, which are supported by verified examples and placed as-is.",
+      "rationale": "The lead-in for additional examples is appropriate given multiple verified examples.",
       "unit_id": "inherited_unit:029.paragraph"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004"
+        "example:002"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The glTF export example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:030.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
+        "example:004",
         "example:005",
         "example:009",
+        "example:010",
         "example:012"
       ],
-      "rationale": "The 'Convert Between Formats' heading is supported by the verified examples and is placed as-is.",
+      "rationale": "The 'Additional Examples' heading is required and supported by multiple verified examples.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
@@ -425,31 +419,11 @@
         "example:004",
         "example:005",
         "example:009",
+        "example:010",
         "example:012"
       ],
-      "rationale": "The paragraph introduces Additional Examples, which are supported by verified examples and placed as-is.",
+      "rationale": "The paragraph introducing additional examples is appropriate.",
       "unit_id": "inherited_unit:032.paragraph"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:005",
-        "example:009",
-        "example:012"
-      ],
-      "rationale": "The 'Assign a PBR Material to a Primitive' heading is supported by the verified examples and is placed as-is.",
-      "unit_id": "inherited_unit:033.heading"
-    },
-    {
-      "destination_section": null,
-      "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [
-        "example:003",
-        "example:005"
-      ],
-      "rationale": "The code block is a verified example and is placed as-is.",
-      "unit_id": "inherited_unit:034.code_block"
     },
     {
       "destination_section": "additional_examples",
@@ -458,18 +432,44 @@
         "example:004",
         "example:005",
         "example:009",
+        "example:010",
         "example:012"
       ],
-      "rationale": "The HTML block is a collapsible details wrapper and is placed as-is.",
+      "rationale": "The 'Convert Between Formats' heading is appropriate for the verified format conversion example.",
+      "unit_id": "inherited_unit:033.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012"
+      ],
+      "rationale": "The format conversion example is verified and fits the additional examples section.",
+      "unit_id": "inherited_unit:034.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML details block is a UI element and is non-content.",
       "unit_id": "inherited_unit:035.html_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:004"
+        "example:004",
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Assign a PBR Material to a Primitive' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Assign a PBR Material to a Primitive' heading is appropriate for the verified PBR example.",
       "unit_id": "inherited_unit:036.heading"
     },
     {
@@ -478,16 +478,19 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The PBR material example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:037.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:005"
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Build a Mesh From Control Points and Export It to glTF' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Build a Mesh From Control Points' heading is appropriate for the verified mesh example.",
       "unit_id": "inherited_unit:038.heading"
     },
     {
@@ -496,7 +499,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The paragraph introduces the example and is placed as-is.",
+      "rationale": "The paragraph introducing the mesh example is appropriate.",
       "unit_id": "inherited_unit:039.paragraph"
     },
     {
@@ -505,16 +508,18 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The mesh construction example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:040.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:009"
+        "example:009",
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Triangulate an Imported Mesh' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Triangulate an Imported Mesh' heading is appropriate for the verified triangulation example.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
@@ -524,35 +529,37 @@
         "example:006",
         "example:009"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The triangulation example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:042.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:002"
+        "example:009",
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Walk the Scene Graph' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Walk the Scene Graph' heading is appropriate for the verified scene graph example.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
-        "example:002",
-        "example:007"
+        "example:007",
+        "example:009"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The scene graph traversal example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:044.code_block"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "CORRECT_WITH_EVIDENCE",
       "fact_ids": [
-        "example:002"
+        "example:008"
       ],
-      "rationale": "The 'Position a Node With Transform' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Position a Node With Transform' heading is present but the example code is CONTRADICTED; the heading itself is kept but the example is omitted.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
@@ -561,16 +568,18 @@
       "fact_ids": [
         "example:008"
       ],
-      "rationale": "The code block is contradicted by example:008, which raises NotImplementedError for this usage; corrected to reflect the limitation.",
+      "rationale": "The example code is CONTRADICTED and must not be placed.",
       "unit_id": "inherited_unit:046.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:009"
+        "example:009",
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Build a Mesh and Export It to STL' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Build a Mesh and Export It to STL' heading is appropriate for the verified STL example.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
@@ -579,16 +588,17 @@
       "fact_ids": [
         "example:009"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The STL export example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:048.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:010"
+        "example:010",
+        "example:012"
       ],
-      "rationale": "The 'Convert a Parametric Primitive to a Mesh' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Convert a Parametric Primitive to a Mesh' heading is appropriate for the verified primitive example.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
@@ -597,16 +607,16 @@
       "fact_ids": [
         "example:010"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The primitive conversion example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:050.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "format:input.dae"
+        "example:012"
       ],
-      "rationale": "The 'Import a COLLADA File' heading is supported by the verified format and is placed as-is.",
+      "rationale": "The 'Import a COLLADA File' heading is appropriate for the verified COLLADA example.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
@@ -614,9 +624,9 @@
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [
         "example:011",
-        "format:input.dae"
+        "example:012"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The COLLADA import example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:052.code_block"
     },
     {
@@ -625,7 +635,7 @@
       "fact_ids": [
         "example:012"
       ],
-      "rationale": "The 'Build a Cube and Export It to 3MF' heading is supported by the verified example and is placed as-is.",
+      "rationale": "The 'Build a Cube and Export It to 3MF' heading is appropriate for the verified 3MF example.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
@@ -634,19 +644,14 @@
       "fact_ids": [
         "example:012"
       ],
-      "rationale": "The code block is a verified example and is placed as-is.",
+      "rationale": "The 3MF export example is verified and fits the additional examples section.",
       "unit_id": "inherited_unit:054.code_block"
     },
     {
-      "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:012"
-      ],
-      "rationale": "The HTML block closes the collapsible details and is placed as-is.",
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing HTML details tag is a UI element and is non-content.",
       "unit_id": "inherited_unit:055.html_block"
     },
     {
@@ -655,89 +660,9 @@
       "fact_ids": [
         "public_symbol:aspose",
         "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animationchannel",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.arraylistadapter",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.axis",
-        "public_symbol:aspose.threed.axissystem",
-        "public_symbol:aspose.threed.bindpoint",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.boundingbox2d",
-        "public_symbol:aspose.threed.boundingboxextent",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.camera",
-        "public_symbol:aspose.threed.circle",
-        "public_symbol:aspose.threed.composeorder",
-        "public_symbol:aspose.threed.coordinatesystem",
-        "public_symbol:aspose.threed.curve",
-        "public_symbol:aspose.threed.customobject",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.dish",
-        "public_symbol:aspose.threed.ellipse",
-        "public_symbol:aspose.threed.entity",
-        "public_symbol:aspose.threed.exportexception",
-        "public_symbol:aspose.threed.extrapolation",
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.fmatrix4",
-        "public_symbol:aspose.threed.filecontenttype",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype",
-        "public_symbol:aspose.threed.frustum",
-        "public_symbol:aspose.threed.geometry",
-        "public_symbol:aspose.threed.globaltransform",
-        "public_symbol:aspose.threed.group",
-        "public_symbol:aspose.threed.inamedobject",
-        "public_symbol:aspose.threed.ioextension",
-        "public_symbol:aspose.threed.imagerenderoptions",
-        "public_symbol:aspose.threed.importexception",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.keyframe",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.light",
-        "public_symbol:aspose.threed.linearextrusion",
-        "public_symbol:aspose.threed.mathutils",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.parseexception",
-        "public_symbol:aspose.threed.plane",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.primitive",
-        "public_symbol:aspose.threed.property",
-        "public_symbol:aspose.threed.propertycollection",
-        "public_symbol:aspose.threed.propertyflags",
-        "public_symbol:aspose.threed.rect",
-        "public_symbol:aspose.threed.relativerectangle",
-        "public_symbol:aspose.threed.rotationorder",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.semanticattribute",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.transformbuilder",
-        "public_symbol:aspose.threed.trialexception",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration",
-        "public_symbol:aspose.threed.vertexfield",
-        "public_symbol:aspose.threed.vertexfielddatatype",
-        "public_symbol:aspose.threed.vertexfieldsemantic",
-        "public_symbol:aspose.threed.weightedmode",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed"
       ],
-      "rationale": "The 'API Reference' heading is supported by the verified public symbols and is placed as-is.",
+      "rationale": "The 'API Reference' heading is required and supported by the verified public API surface.",
       "unit_id": "inherited_unit:056.heading"
     },
     {
@@ -747,98 +672,14 @@
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node"
       ],
-      "rationale": "The paragraph introduces the API reference and is placed as-is.",
+      "rationale": "The paragraph introducing the API reference is appropriate.",
       "unit_id": "inherited_unit:057.paragraph"
     },
     {
-      "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animationchannel",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.arraylistadapter",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.axis",
-        "public_symbol:aspose.threed.axissystem",
-        "public_symbol:aspose.threed.bindpoint",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.boundingbox2d",
-        "public_symbol:aspose.threed.boundingboxextent",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.camera",
-        "public_symbol:aspose.threed.circle",
-        "public_symbol:aspose.threed.composeorder",
-        "public_symbol:aspose.threed.coordinatesystem",
-        "public_symbol:aspose.threed.curve",
-        "public_symbol:aspose.threed.customobject",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.dish",
-        "public_symbol:aspose.threed.ellipse",
-        "public_symbol:aspose.threed.entity",
-        "public_symbol:aspose.threed.exportexception",
-        "public_symbol:aspose.threed.extrapolation",
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.fmatrix4",
-        "public_symbol:aspose.threed.filecontenttype",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype",
-        "public_symbol:aspose.threed.frustum",
-        "public_symbol:aspose.threed.geometry",
-        "public_symbol:aspose.threed.globaltransform",
-        "public_symbol:aspose.threed.group",
-        "public_symbol:aspose.threed.inamedobject",
-        "public_symbol:aspose.threed.ioextension",
-        "public_symbol:aspose.threed.imagerenderoptions",
-        "public_symbol:aspose.threed.importexception",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.keyframe",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.light",
-        "public_symbol:aspose.threed.linearextrusion",
-        "public_symbol:aspose.threed.mathutils",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.parseexception",
-        "public_symbol:aspose.threed.plane",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.primitive",
-        "public_symbol:aspose.threed.property",
-        "public_symbol:aspose.threed.propertycollection",
-        "public_symbol:aspose.threed.propertyflags",
-        "public_symbol:aspose.threed.rect",
-        "public_symbol:aspose.threed.relativerectangle",
-        "public_symbol:aspose.threed.rotationorder",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.semanticattribute",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.transformbuilder",
-        "public_symbol:aspose.threed.trialexception",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration",
-        "public_symbol:aspose.threed.vertexfield",
-        "public_symbol:aspose.threed.vertexfielddatatype",
-        "public_symbol:aspose.threed.vertexfieldsemantic",
-        "public_symbol:aspose.threed.weightedmode",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "rationale": "The HTML block opens the collapsible API reference and is placed as-is.",
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML details block is a UI element and is non-content.",
       "unit_id": "inherited_unit:058.html_block"
     },
     {
@@ -847,89 +688,9 @@
       "fact_ids": [
         "public_symbol:aspose",
         "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animationchannel",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.arraylistadapter",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.axis",
-        "public_symbol:aspose.threed.axissystem",
-        "public_symbol:aspose.threed.bindpoint",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.boundingbox2d",
-        "public_symbol:aspose.threed.boundingboxextent",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.camera",
-        "public_symbol:aspose.threed.circle",
-        "public_symbol:aspose.threed.composeorder",
-        "public_symbol:aspose.threed.coordinatesystem",
-        "public_symbol:aspose.threed.curve",
-        "public_symbol:aspose.threed.customobject",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.dish",
-        "public_symbol:aspose.threed.ellipse",
-        "public_symbol:aspose.threed.entity",
-        "public_symbol:aspose.threed.exportexception",
-        "public_symbol:aspose.threed.extrapolation",
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.fmatrix4",
-        "public_symbol:aspose.threed.filecontenttype",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype",
-        "public_symbol:aspose.threed.frustum",
-        "public_symbol:aspose.threed.geometry",
-        "public_symbol:aspose.threed.globaltransform",
-        "public_symbol:aspose.threed.group",
-        "public_symbol:aspose.threed.inamedobject",
-        "public_symbol:aspose.threed.ioextension",
-        "public_symbol:aspose.threed.imagerenderoptions",
-        "public_symbol:aspose.threed.importexception",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.keyframe",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.light",
-        "public_symbol:aspose.threed.linearextrusion",
-        "public_symbol:aspose.threed.mathutils",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.parseexception",
-        "public_symbol:aspose.threed.plane",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.primitive",
-        "public_symbol:aspose.threed.property",
-        "public_symbol:aspose.threed.propertycollection",
-        "public_symbol:aspose.threed.propertyflags",
-        "public_symbol:aspose.threed.rect",
-        "public_symbol:aspose.threed.relativerectangle",
-        "public_symbol:aspose.threed.rotationorder",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.semanticattribute",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.transformbuilder",
-        "public_symbol:aspose.threed.trialexception",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration",
-        "public_symbol:aspose.threed.vertexfield",
-        "public_symbol:aspose.threed.vertexfielddatatype",
-        "public_symbol:aspose.threed.vertexfieldsemantic",
-        "public_symbol:aspose.threed.weightedmode",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed"
       ],
-      "rationale": "The 'Core API' heading is supported by the verified public symbols and is placed as-is.",
+      "rationale": "The 'Core API' heading is appropriate for the verified public API surface.",
       "unit_id": "inherited_unit:059.heading"
     },
     {
@@ -938,196 +699,15 @@
       "fact_ids": [
         "public_symbol:aspose",
         "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animationchannel",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.arraylistadapter",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.axis",
-        "public_symbol:aspose.threed.axissystem",
-        "public_symbol:aspose.threed.bindpoint",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.boundingbox2d",
-        "public_symbol:aspose.threed.boundingboxextent",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.camera",
-        "public_symbol:aspose.threed.circle",
-        "public_symbol:aspose.threed.composeorder",
-        "public_symbol:aspose.threed.coordinatesystem",
-        "public_symbol:aspose.threed.curve",
-        "public_symbol:aspose.threed.customobject",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.dish",
-        "public_symbol:aspose.threed.ellipse",
-        "public_symbol:aspose.threed.entity",
-        "public_symbol:aspose.threed.exportexception",
-        "public_symbol:aspose.threed.extrapolation",
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.fmatrix4",
-        "public_symbol:aspose.threed.filecontenttype",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype",
-        "public_symbol:aspose.threed.frustum",
-        "public_symbol:aspose.threed.geometry",
-        "public_symbol:aspose.threed.globaltransform",
-        "public_symbol:aspose.threed.group",
-        "public_symbol:aspose.threed.inamedobject",
-        "public_symbol:aspose.threed.ioextension",
-        "public_symbol:aspose.threed.imagerenderoptions",
-        "public_symbol:aspose.threed.importexception",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.keyframe",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.light",
-        "public_symbol:aspose.threed.linearextrusion",
-        "public_symbol:aspose.threed.mathutils",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.parseexception",
-        "public_symbol:aspose.threed.plane",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.primitive",
-        "public_symbol:aspose.threed.property",
-        "public_symbol:aspose.threed.propertycollection",
-        "public_symbol:aspose.threed.propertyflags",
-        "public_symbol:aspose.threed.rect",
-        "public_symbol:aspose.threed.relativerectangle",
-        "public_symbol:aspose.threed.rotationorder",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.semanticattribute",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.transformbuilder",
-        "public_symbol:aspose.threed.trialexception",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration",
-        "public_symbol:aspose.threed.vertexfield",
-        "public_symbol:aspose.threed.vertexfielddatatype",
-        "public_symbol:aspose.threed.vertexfieldsemantic",
-        "public_symbol:aspose.threed.weightedmode",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
+        "public_symbol:aspose.threed"
       ],
-      "rationale": "The table is supported by the verified public symbols and is placed as-is.",
+      "rationale": "The table lists verified public symbols and their descriptions.",
       "unit_id": "inherited_unit:060.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.weightedmode"
-      ],
-      "rationale": "The 'Enumerations' heading is supported by the verified public symbols and is placed as-is.",
-      "unit_id": "inherited_unit:061.heading"
-    },
-    {
-      "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.weightedmode"
-      ],
-      "rationale": "The table is supported by the verified public symbols and is placed as-is.",
-      "unit_id": "inherited_unit:062.table"
-    },
-    {
-      "destination_section": "api_reference",
-      "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.pydrawing",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.animationchannel",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.arraylistadapter",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.axis",
-        "public_symbol:aspose.threed.axissystem",
-        "public_symbol:aspose.threed.bindpoint",
-        "public_symbol:aspose.threed.bonepose",
-        "public_symbol:aspose.threed.boundingbox2d",
-        "public_symbol:aspose.threed.boundingboxextent",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.camera",
-        "public_symbol:aspose.threed.circle",
-        "public_symbol:aspose.threed.composeorder",
-        "public_symbol:aspose.threed.coordinatesystem",
-        "public_symbol:aspose.threed.curve",
-        "public_symbol:aspose.threed.customobject",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.dish",
-        "public_symbol:aspose.threed.ellipse",
-        "public_symbol:aspose.threed.entity",
-        "public_symbol:aspose.threed.exportexception",
-        "public_symbol:aspose.threed.extrapolation",
-        "public_symbol:aspose.threed.extrapolationtype",
-        "public_symbol:aspose.threed.fmatrix4",
-        "public_symbol:aspose.threed.filecontenttype",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.fileformattype",
-        "public_symbol:aspose.threed.frustum",
-        "public_symbol:aspose.threed.geometry",
-        "public_symbol:aspose.threed.globaltransform",
-        "public_symbol:aspose.threed.group",
-        "public_symbol:aspose.threed.inamedobject",
-        "public_symbol:aspose.threed.ioextension",
-        "public_symbol:aspose.threed.imagerenderoptions",
-        "public_symbol:aspose.threed.importexception",
-        "public_symbol:aspose.threed.interpolation",
-        "public_symbol:aspose.threed.keyframe",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.light",
-        "public_symbol:aspose.threed.linearextrusion",
-        "public_symbol:aspose.threed.mathutils",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.parseexception",
-        "public_symbol:aspose.threed.plane",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.pose",
-        "public_symbol:aspose.threed.posetype",
-        "public_symbol:aspose.threed.primitive",
-        "public_symbol:aspose.threed.property",
-        "public_symbol:aspose.threed.propertycollection",
-        "public_symbol:aspose.threed.propertyflags",
-        "public_symbol:aspose.threed.rect",
-        "public_symbol:aspose.threed.relativerectangle",
-        "public_symbol:aspose.threed.rotationorder",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.semanticattribute",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.stepmode",
-        "public_symbol:aspose.threed.transform",
-        "public_symbol:aspose.threed.transformbuilder",
-        "public_symbol:aspose.threed.trialexception",
-        "public_symbol:aspose.threed.vertex",
-        "public_symbol:aspose.threed.vertexdeclaration",
-        "public_symbol:aspose.threed.vertexfield",
-        "public_symbol:aspose.threed.vertexfielddatatype",
-        "public_symbol:aspose.threed.vertexfieldsemantic",
-        "public_symbol:aspose.threed.weightedmode",
         "public_symbol:aspose.threed.animation",
         "public_symbol:aspose.threed.deformers",
         "public_symbol:aspose.threed.entities",
@@ -1137,7 +717,30 @@
         "public_symbol:aspose.threed.shading",
         "public_symbol:aspose.threed.utilities"
       ],
-      "rationale": "The HTML block closes the collapsible API reference and is placed as-is.",
+      "rationale": "The 'Enumerations' heading is appropriate for the verified public API surface.",
+      "unit_id": "inherited_unit:061.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.profiles",
+        "public_symbol:aspose.threed.render",
+        "public_symbol:aspose.threed.shading",
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "rationale": "The table lists verified public enumerations and their descriptions.",
+      "unit_id": "inherited_unit:062.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The closing HTML details tag is a UI element and is non-content.",
       "unit_id": "inherited_unit:063.html_block"
     },
     {
@@ -1156,7 +759,7 @@
         "link_target:031",
         "link_target:032"
       ],
-      "rationale": "The 'Documentation & Resources' heading is supported by the verified documentation links and is placed as-is.",
+      "rationale": "The 'Documentation & Resources' heading is required and supported by verified documentation links.",
       "unit_id": "inherited_unit:064.heading"
     },
     {
@@ -1175,7 +778,7 @@
         "link_target:031",
         "link_target:032"
       ],
-      "rationale": "The list items are supported by the verified documentation links and are placed as-is.",
+      "rationale": "The list items are grounded in verified documentation links.",
       "unit_id": "inherited_unit:065.list"
     },
     {
@@ -1184,7 +787,7 @@
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "rationale": "The 'Scope and Limitations' heading is supported by the inherited limitations and is placed as-is.",
+      "rationale": "The 'Scope and Limitations' heading is required and supported by the limitations list.",
       "unit_id": "inherited_unit:066.heading"
     },
     {
@@ -1193,7 +796,7 @@
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "rationale": "The list items are supported by the inherited limitations and are placed as-is.",
+      "rationale": "The limitations list is grounded in the inherited unit and matches the evidence.",
       "unit_id": "inherited_unit:067.list"
     },
     {
@@ -1202,7 +805,7 @@
       "fact_ids": [
         "link_target:product.enterprise"
       ],
-      "rationale": "The paragraph about the Enterprise Edition is supported by the product enterprise link and is moved to the enterprise relationship section.",
+      "rationale": "The Enterprise Edition reference is supported and belongs in the enterprise relationship section.",
       "unit_id": "inherited_unit:068.paragraph"
     },
     {
@@ -1212,7 +815,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The 'Development and Testing' heading is supported by the build and test assets and is placed as-is.",
+      "rationale": "The 'Development and Testing' heading is required and supported by build/test assets.",
       "unit_id": "inherited_unit:069.heading"
     },
     {
@@ -1222,7 +825,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph introduces the development and testing instructions and is placed as-is.",
+      "rationale": "The paragraph describing build and test commands is appropriate.",
       "unit_id": "inherited_unit:070.paragraph"
     },
     {
@@ -1232,7 +835,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The code block is a verified build and test command and is placed as-is.",
+      "rationale": "The test command is verified and fits the development/testing section.",
       "unit_id": "inherited_unit:071.code_block"
     },
     {
@@ -1242,7 +845,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph introduces the single test file command and is placed as-is.",
+      "rationale": "The paragraph describing single test execution is appropriate.",
       "unit_id": "inherited_unit:072.paragraph"
     },
     {
@@ -1252,7 +855,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The code block is a verified single test command and is placed as-is.",
+      "rationale": "The single test command is verified and fits the development/testing section.",
       "unit_id": "inherited_unit:073.code_block"
     },
     {
@@ -1262,7 +865,7 @@
         "build_test_asset:tests",
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph describes the test suite coverage and is placed as-is.",
+      "rationale": "The paragraph describing test coverage is appropriate.",
       "unit_id": "inherited_unit:074.paragraph"
     },
     {
@@ -1271,7 +874,7 @@
       "fact_ids": [
         "build_test_asset:ci"
       ],
-      "rationale": "The paragraph describes the release process and is placed as-is.",
+      "rationale": "The paragraph describing release process is appropriate.",
       "unit_id": "inherited_unit:075.paragraph"
     },
     {
@@ -1291,7 +894,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The paragraph declares the MIT license and is placed as-is.",
+      "rationale": "The license declaration is verified and fits the license section.",
       "unit_id": "inherited_unit:077.paragraph"
     }
   ]

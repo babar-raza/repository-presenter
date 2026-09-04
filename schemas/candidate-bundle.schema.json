@@ -82,6 +82,18 @@
         "recorded_at": { "$ref": "#/$defs/timestamp" }
       }
     },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["advisories", "coverage_advisories", "blocking_failures"],
+      "properties": {
+        "review_verdict": { "oneOf": [{ "type": "null" }, { "type": "string" }] },
+        "review_verdict_as_returned": { "oneOf": [{ "type": "null" }, { "type": "string" }] },
+        "advisories": { "type": "integer", "minimum": 0 },
+        "coverage_advisories": { "type": "integer", "minimum": 0 },
+        "blocking_failures": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "no_op_proof": {
       "oneOf": [
         { "type": "null" },

@@ -1,5 +1,5 @@
 prompt_id: source_reconciliation
-version: "3"
+version: "4"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
@@ -7,6 +7,7 @@ route_rationale: Of the two general-purpose chat models the recorded catalog lis
 sampling:
   temperature: 0.0
   max_output_tokens: 16000
+  seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |

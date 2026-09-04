@@ -46,6 +46,11 @@ class Sampling(BaseModel):
     temperature: float = Field(ge=0.0, le=2.0)
     max_output_tokens: int = Field(ge=1)
     response_format: Literal["json_object", "json_schema"]
+    # The gateway accepts seed for the routed model, probed in G2-W19 and recorded in
+    # runs/preflight/catalog.json. It is a manifest field like the rest, so it is versioned,
+    # reviewed, and tracked in every candidate's dependencies.json
+    # (docs/RESEARCH_AND_GUIDELINES.md sections 18.4 and 27.5 D4).
+    seed: int | None = None
 
 
 class PacketField(BaseModel):

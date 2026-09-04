@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "6"
+version: "7"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -7,6 +7,7 @@ route_rationale: Of the two general-purpose chat models the recorded catalog lis
 sampling:
   temperature: 0.0
   max_output_tokens: 3000
+  seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"
 rejection_template: |
