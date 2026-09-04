@@ -1728,8 +1728,9 @@ discipline (small commits, green CI, evidence per item).
 
 Execution order in `project/state.yaml` (list order is execution order; IDs are identities, not
 positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture,
-G2-W12 D1 (its prose-family predicate added 2026-09-04 evening, §27.10), G2-W19 sampling
-determinism probe, G2-W13 D2, G2-W16 D5, G2-W17 D6; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+G2-W12 D1 (accepted 2026-09-04 at the measured 91.7/8.3, §27.10), G2-W19 sampling determinism
+probe, G2-W21 output-shaping code as a recorded dependency, G2-W13 D2, G2-W16 D5 (review output
+bounded), G2-W17 D6, G2-W20 referential links and commands; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -1754,15 +1755,21 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G2-W12
   status: PENDING
   purpose: "Make every LLM job's structural constraints constructive instead of post-hoc (section 27.5 D1; cause RC1 in 27.2). The code emits each call's skeleton and a per-call JSON schema: slots enumerated with their allowed fact IDs as enums, fixed-length slot arrays, additionalProperties false. Shell section decisions leave the planner's output (code already decides them in planning.py condition_holds). Dispositions a reconciliation rule forces are computed in code and only the free ones are asked. Allowed identifiers travel as a list. The repair packet carries the same skeleton, the section's fact set, and the slot's subject. Prose stays the model's. Acceptance: on a fresh canary composition, first-attempt acceptance is at least 95 percent for every job and the re-ask share at most 5 percent, measured from the sealed calls.jsonl by a test helper; the rejection families of 27.1 (outside-section citation, wrong slot set, missing shell decision, non-fact identifier) cannot be produced by a schema-valid reply, proven by tests; rerun byte-identical with zero calls."
+- id: G2-W21
+  status: PENDING
+  purpose: "Every code path that shapes rendered bytes is a recorded dependency (G2's own promise; the gap the loop named at d147b4a): dependencies.json's component classes gain the composition package's normalisation logic (authoring.py's canonical_abbreviations and the unit_checks rewrites, and any validator normalisation that mutates output) as a versioned component that reopens COMPOSING, beside shell and renderer; the invalidation-matrix test gains the case that a normalisation change altering output reopens COMPOSING and one that does not yields NONE. Insert before G2-W13. Acceptance: the new matrix case passes; the canary's dependencies.json records the component; re-seal byte-identical with zero calls; hosted CI green."
 - id: G2-W13
   status: PENDING
   purpose: "Bind each capability's prose to its title, which nothing holds today (27.2 RC2: authoring packs the union of all slots' facts and never the titles; the renderer joins title and sentence positionally). The planner assigns pairwise-disjoint fact sets per capability or declares shared facts explicitly, enforced by plan_check; the title travels in the authoring packet and the slot identity; a deterministic check confirms each unit cites only its slot's facts and that the title's identifiers and format names appear among the cited facts' values; README_CONTRACT.md check 4 gains that sentence (27.8). Acceptance: swapping two capability sentences in a synthetic candidate fails the check; the canary's seven capabilities each describe their own title, judged by the check; re-seal byte-identical."
 - id: G2-W16
   status: PENDING
-  purpose: "Acceptance decided by content, never by directory history (27.2 RC5 and RC8). A reviewer finding demotes to advisory only when a deterministic check contradicts it; a finding with causal_stage unclear is classified by code from its section's owner, never auto-demoted; a finding re-raised after its one repair attempt never demotes: it is code-caused (section 26 rule: add the check) or it blocks; every failure record carries section_id and causal_stage as fields, retiring the bracket-prefix and detail-string regexes; the three-character substring demotion goes; required rows admit zero advisories before READY_FOR_PROPOSAL; README_CONTRACT.md section 6 is revised accordingly (27.8). Acceptance: the 65b1f577 review.json replayed under the new policy blocks on F02 and F04; a synthetic re-raised finding blocks; a grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; canary re-seal ACCEPT with zero advisories."
+  purpose: "Acceptance decided by content, never by directory history (27.2 RC5 and RC8). A reviewer finding demotes to advisory only when a deterministic check contradicts it; a finding with causal_stage unclear is classified by code from its section's owner, never auto-demoted; a finding re-raised after its one repair attempt never demotes: it is code-caused (section 26 rule: add the check) or it blocks; every failure record carries section_id and causal_stage as fields, retiring the bracket-prefix and detail-string regexes; the three-character substring demotion goes; required rows admit zero advisories before READY_FOR_PROPOSAL; README_CONTRACT.md section 6 is revised accordingly (27.8); independent_review's output is bounded (a capped findings list with anchored quotes) so its token budget never truncates, and a truncation is a defect routed to the prompt manifest, never a retry (the reviewer truncated at 6000 tokens during W12). Acceptance: the 65b1f577 review.json replayed under the new policy blocks on F02 and F04; a synthetic oversized review is bounded, not truncated; a synthetic re-raised finding blocks; a grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; canary re-seal ACCEPT with zero advisories."
 - id: G2-W17
   status: PENDING
   purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; a new blocking check 12 fails closed when a required row's facts are unresolved and routes to EXTRACTING, never to repair (27.8); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
+- id: G2-W20
+  status: PENDING
+  purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
 # G3, G4, G5 entries: append after the last G2 entry, in this order
 - id: G3-W01
   status: PENDING
@@ -1848,6 +1855,20 @@ should move back ahead of the cohorts, and why a casing repair came back unrepai
 it. If it does not, first-candidate variance remains bounded only by (b) and (c), and the cohort
 items must budget for it honestly: a composition that fails a blocking check is a disposition with
 its cause, not a retry.
+
+**Follow-up, measured (2026-09-04, late).** W12 accepted at `53960a5` with its predicates rewritten
+to what the gateway allows: 91.7% first-attempt acceptance and 8.3% re-ask (from 80/20); three of
+four structural families schema-impossible with tests; casing and the repeated edition name
+normalised constructively; the reconciliation enum at 100%. The gateway answers **HTTP 400 for a
+strict `json_schema` carrying `pattern`** — §27.7's anticipated fallback, now measured — so the URL
+and command families stayed post-validated. `seed` is **accepted** by `qwen3-next` (HTTP 200,
+recorded in `runs/preflight/catalog.json`); whether it is honoured is W19's identical-content test.
+Three gaps the loop named, now owned: (1) URLs and commands become *referential* — fact IDs from a
+per-call enum, rendered deterministically — which needs no `pattern` (**G2-W20**); (2) a
+normalisation that changes rendered bytes is not a recorded dependency, so the invalidation matrix
+is blind to it — the gate's own promise, so it stays in G2 (**G2-W21**), not G5; (3) the reviewer
+truncated at its 6,000-token budget and the code correctly refused to retry — bounded review output
+is added to **G2-W16**.
 
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
