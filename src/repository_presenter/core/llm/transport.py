@@ -67,32 +67,51 @@ def list_models(config: GatewayConfig) -> ModelCatalog:
 
 @dataclass(frozen=True)
 class SeedProbe:
-    """Whether one model accepted a ``seed``, from a single bounded call."""
+    """What one model does with a ``seed``, from two identical bounded calls."""
 
     model: str
     accepted: bool
+    deterministic: bool | None
     detail: str
 
 
-def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
-    """One bounded completion carrying ``seed``, to learn whether the gateway accepts it.
+# Bounded enough to cost almost nothing and long enough that two replies could differ.
+_PROBE_MAX_TOKENS = 24
 
-    docs/RESEARCH_AND_GUIDELINES.md section 18.4's discovery pattern: ask the gateway rather than
-    assume, once, and record the answer. Acceptance is not the same as honouring it - that needs
-    two identical requests compared - but a rejection settles the question outright, which is what
-    section 27.5 D4 and 27.10 need before seed can be adopted.
+
+def probe_seed(config: GatewayConfig, model: str) -> SeedProbe:
+    """Two identical bounded completions carrying the same ``seed``, compared byte for byte.
+
+    docs/RESEARCH_AND_GUIDELINES.md section 18.4's discovery pattern, with the definition section
+    27.10's follow-up 3 sets: identical content is ``honoured``, differing content is ``accepted,
+    non-deterministic``, and a refusal settles the question outright. Two calls, one answer, and
+    no composition sampled for a kinder result. The store is not consulted: the point is what the
+    gateway does, not what was cached.
     """
     client = build_client(config)
-    try:
-        client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": "ping"}],
-            max_tokens=1,
-            temperature=0,
-            seed=1,
-        )
-    except APIStatusError as exc:
-        return SeedProbe(model, False, f"HTTP {exc.status_code}")
-    except APIConnectionError as exc:
-        raise GatewayError(f"gateway {config.host} unreachable: {type(exc).__name__}") from None
-    return SeedProbe(model, True, "accepted")
+    messages = [{"role": "user", "content": "ping"}]
+    replies: list[str] = []
+    for _ in range(2):
+        try:
+            completion = client.chat.completions.create(
+                model=model,
+                messages=messages,  # type: ignore[arg-type]
+                max_tokens=_PROBE_MAX_TOKENS,
+                temperature=0,
+                seed=1,
+            )
+        except APIStatusError as exc:
+            return SeedProbe(model, False, None, f"HTTP {exc.status_code}")
+        except APIConnectionError as exc:
+            raise GatewayError(f"gateway {config.host} unreachable: {type(exc).__name__}") from None
+        choices = completion.choices or []
+        if not choices:
+            return SeedProbe(model, True, None, "accepted, no content returned")
+        replies.append(choices[0].message.content or "")
+    deterministic = replies[0] == replies[1]
+    return SeedProbe(
+        model,
+        True,
+        deterministic,
+        "honoured" if deterministic else "accepted, non-deterministic",
+    )

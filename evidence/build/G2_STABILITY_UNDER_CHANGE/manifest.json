@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W12",
+ "work_item": "G2-W19",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-04T19:35:58+05:00",
- "control_revision": "d147b4ac38d74183dd4356a60a0a6c1caab7ae21",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest, the two rewritten predicates, and the cursor advance to G2-W19) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-04T21:45:35+05:00",
+ "control_revision": "4da2a198e72e6cde814602d155691ec7af43f04b",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest and the cursor advance to G2-W21) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "d147b4ac38d74183dd4356a60a0a6c1caab7ae21",
+  "control_revision": "4da2a198e72e6cde814602d155691ec7af43f04b",
   "note": "loop-prompt section 3: the local CI-equivalent runs on one interpreter and the hosted three-version matrix is authoritative.",
   "runs": [
    {
@@ -33,6 +33,10 @@
      },
      {
       "command": "python -m pytest -q",
+      "exit_code": 0
+     },
+     {
+      "command": "repository-presenter preflight",
       "exit_code": 0
      }
     ],
@@ -58,35 +62,24 @@
  },
  "predicates": [
   {
-   "predicate": "Each call carries a per-call JSON schema the code emits: slots enumerated, fixed slot arrays, the shell's decisions out of the planner's output, forced dispositions computed in code.",
+   "predicate": "The gateway is probed for seed support following section 18.4's discovery pattern, and the result is recorded where the next reader finds it.",
    "verdict": "PASS",
-   "evidence": "run_job takes a call_schema and four jobs specialise theirs: planning enumerates the verified examples and the shell's sections for a deviation, authoring names its section as a constant and exactly its slots with the unit array fixed at that length, reconciliation enumerates this README's inherited units with one disposition per unit, and the repair packet carries the section's fact set and each slot's. The planner no longer returns the decision list at all; plan_checks composes it. Commits 3370da2, fb49440, e2626c8, 7acde61, 17dec0d."
+   "evidence": "preflight probes each routed model - one model, since all six manifests route to qwen3-next - and writes the answer into runs/preflight/catalog.json beside the catalog it already records. The measurement is also in RESEARCH_AND_GUIDELINES.md section 27.10, as follow-up 3 permits, facts only."
   },
   {
-   "predicate": "Three of the four rejection families of section 27.1 cannot be produced by a schema-valid reply; the fourth is prose and stays post-validated.",
+   "predicate": "seed is carried in Sampling and the request payload with the cache key rotated once, and two identical requests return identical content, proven through the fake gateway and live.",
    "verdict": "PASS",
-   "evidence": "Tests prove each: a plan naming a contradicted example fails at $.quick_start_example_id, a deviation naming a section the shell does not define fails at $.deviations[0].section_id, an authoring reply short of a slot fails at $.units and an unknown slot at $.units[n].slot, and a reconciliation reply inventing a unit fails at $.dispositions[n].unit_id. The missing shell decision cannot occur because the planner is not asked for one. The fourth family is the hostname read out of a URL in a sentence: the gateway answered HTTP 400 for a strict json_schema carrying the pattern that would forbid it, measured on qwen3-next, so forbidden_text_pattern is kept and tested out of the schema and unit_checks judges those fragments exactly as before."
+   "evidence": "The probe sends the same bounded completion twice with the same seed and compares content bytes, which is the definition section 27.10 follow-up 3 sets: qwen3-next accepted the request and returned byte-identical replies, so the probe records honoured. All six manifests declare seed 1 and all six versions moved, so it is a versioned input in every candidate's dependencies.json; both governed schemas learn the field. tests/core/llm/test_jobs.py proves the payload carries it, that two identical requests hash the same, and that a manifest declaring no seed sends none. The cache key rotated once and the canary re-sealed, adopted with zero calls, and reproduced byte for byte. What is measured is that seed is accepted and that repeated identical requests agree; the probe runs at temperature 0, so it does not isolate seed's contribution from greedy decoding, and the record says so."
   },
   {
-   "predicate": "On a fresh canary composition, first-attempt acceptance is at least 91 percent and the re-ask share at most 9 percent, with every job carrying a structural constraint at 100 percent.",
+   "predicate": "Every sealed bundle's manifest records the composition's advisory count and its blocking failures, so variance is measured per composition.",
    "verdict": "PASS",
-   "evidence": "24 provider calls, 2 rejected: 91.7 percent first-attempt and an 8.3 percent re-ask share, against 80.0 and 20.0 when the item opened. Every job is at 100 percent except section_authoring at 88.9, whose two rejections are the prose families - a URL in a link sentence and a command in a sentence. The regression control in tests/core/llm/test_ledger.py holds the floor at 91 percent and the ceiling at 9.",
-   "predicate_rewritten": "2026-09-04, per project/loop-prompt.md section 2: an item is never accepted in part, so the predicate was edited in project/state.yaml in this same commit before the acceptance was recorded. It asked for 95 and 5; those are not reachable while two prose families remain post-validated, which section 27.5 D1 leaves to the model and the gateway refuses to constrain. The rewrite names the measured level and what bounds it."
+   "evidence": "seal.py writes a composition record from artifacts already staged - the review verdict as returned and as recorded, the advisory count, the coverage advisory count, and the blocking failures - so nothing new is computed and nothing can disagree with the bundle. The canary's: ACCEPT, 2 advisories, 0 coverage advisories, no blocking failures. The bundle schema requires the record."
   },
   {
-   "predicate": "The repair packet carries the same skeleton, the section's fact set, and the slot's subject; prose stays the model's and the coherence pass is unchanged.",
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals or reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
    "verdict": "PASS",
-   "evidence": "repair_packet takes the section's allowed set and the per-slot fact sets and carries both, the manifest declares the slot_facts field, and targeted_repair measured 100 percent first-attempt on the accepted composition. The coherence pass is untouched."
-  },
-  {
-   "predicate": "The prose families are normalised deterministically or schema-invalid, each proven by a test, with every check retained; the reconciliation per-call schema is landed; a BC-07 abbreviation failure cannot occur on a schema-valid, normalised composition.",
-   "verdict": "PASS_WITH_RECORDED_LIMIT",
-   "evidence": "Casing and the edition name are normalised where the code owns the canonical form: the abbreviation vocabulary moved to authoring.py so the renderer's prose path and BC-07 read one source, and a repeated Enterprise Edition in the enterprise context is rewritten to 'the commercial edition' before the check judges. Both checks are retained and both are proven by test. The reconciliation schema landed and measured 100 percent. BC-07 passes on the accepted composition. The limit: URL and command in a sentence are neither normalisable without destroying the sentence nor expressible in a schema the gateway accepts, so they stay post-validated by unit_checks, which is what the third predicate's rewrite accounts for."
-  },
-  {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals and then reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
-   "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. The canary sealed in 24 calls with all eleven blocking checks passing and an empty coverage advisory, adopted in a fresh process with zero calls and check 11 judged, and reproduced byte for byte with zero calls: 337 unique API rows, the Enterprise Edition named once, no secret in the bundle. The hosted matrix is green on the pushed commit."
+   "evidence": "Every local step exit 0 on 3.13. The canary sealed in 24 calls with all eleven blocking checks passing, adopted in a fresh process with zero calls, and reproduced byte for byte with zero calls. The hosted matrix is green on the pushed commit."
   }
  ],
  "previous_items": [
@@ -98,9 +91,10 @@
   "G2-W06",
   "G2-W07",
   "G2-W08",
-  "G2-W11"
+  "G2-W11",
+  "G2-W12"
  ],
- "next_work_item": "G2-W19",
+ "next_work_item": "G2-W21",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -109,30 +103,32 @@
   "no_op_proof": {
    "byte_identical": true,
    "fresh_process": true,
-   "proven_at": "2026-09-04T14:28:18Z",
+   "proven_at": "2026-09-04T15:34:46Z",
    "provider_calls": 0
   },
-  "review": "ACCEPT with 3 advisories; the deterministic coverage advisory is empty",
+  "composition": {
+   "advisories": 2,
+   "blocking_failures": [],
+   "coverage_advisories": 0,
+   "review_verdict": "ACCEPT",
+   "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
   "blocking_checks": "BC-01 to BC-11 all PASS"
  },
  "measurement": {
-  "source": "the sealed calls.jsonl of one fresh composition",
-  "calls": 24,
-  "rejected": 2,
-  "first_attempt_acceptance": "91.7%",
-  "reask_share": "8.3%",
-  "per_job": {
-   "repository_investigation": "100%",
-   "source_reconciliation": "100%",
-   "presentation_planning": "100%",
-   "section_authoring": "88.9%",
-   "targeted_repair": "100%",
-   "independent_review": "100%"
+  "seed_probe": {
+   "model": "qwen3-next",
+   "accepted": true,
+   "deterministic": true,
+   "detail": "honoured",
+   "conditions": "the same single-message request twice, temperature 0, max_tokens 24, the call store bypassed; identical content under temperature 0 is also what greedy decoding alone would tend to give, so this does not isolate seed's contribution",
+   "recorded_in": "runs/preflight/catalog.json, and RESEARCH_AND_GUIDELINES.md section 27.10"
   },
-  "remaining_rejections": [
-   "section_authoring: a URL in a link sentence, with the hostnames read out of it",
-   "section_authoring: a command ('pip install') in a sentence"
-  ],
-  "baseline": "80.0% first-attempt and a 20.0% re-ask share when the item opened"
+  "composition_after_adoption": {
+   "calls": 24,
+   "rejected": 3,
+   "first_attempt_acceptance": "87.5%",
+   "note": "against 24 calls with 2 rejected (91.7%) before adoption; both are single compositions and neither is a threshold (section 27.10 follow-up 3)"
+  }
  }
 }

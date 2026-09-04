@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T20:53:53+05:00"
+updated_at: "2026-09-04T21:45:35+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,32 +29,27 @@ accepted_gates:
   - G1_FIRST_VALID_CANDIDATE
 
 active_work_item:
-  id: G2-W19
-  status: IN_PROGRESS
-  purpose: "Sampling determinism probe (section 27.5 D4, pulled forward on the 2026-09-04 composition-variance measurement in 27.10): probe the gateway for seed support per section 18.4's discovery pattern with one bounded call per served model; if honoured, add seed to Sampling and to the request payload (the cache key rotates once, recorded) and prove by test that two identical requests return identical content, through the fake gateway and live on one canary job; if not honoured, record the finding in 27.10 and in the ledger. Either way, every sealed bundle's manifest records the composition's advisory count and blocking failures so variance is measured per composition rather than sampled by accident. Acceptance: the probe result is recorded; seed is adopted or its absence recorded; the canary re-seals byte-identically with zero calls; hosted CI green."
+  id: G2-W21
+  status: READY
+  purpose: "Every code path that shapes rendered bytes is a recorded dependency (G2's own promise; the gap the loop named at d147b4a): dependencies.json's component classes gain the composition package's normalisation logic (authoring.py's canonical_abbreviations and the unit_checks rewrites, and any validator normalisation that mutates output) as a versioned component that reopens COMPOSING, beside shell and renderer; the invalidation-matrix test gains the case that a normalisation change altering output reopens COMPOSING and one that does not yields NONE. Insert before G2-W13. Acceptance: the new matrix case passes; the canary's dependencies.json records the component; re-seal byte-identical with zero calls; hosted CI green."
   prerequisites:
-    - G2-W12 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - docs/RESEARCH_AND_GUIDELINES.md sections 18.4 (the discovery pattern), 27.5 D4 and 27.10 are read in full before any change under core/llm/; one bounded probe call per served model is the whole of the live budget.
+    - G2-W19 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - docs/STATE_MACHINE.md section 9 (the invalidation matrix) and the dependency evaluation module are read before any change under bundle/; the gap this item closes is the one recorded at d147b4a, that a normalisation mutating composed output is not an input any candidate records.
   owned_paths:
     - src/repository_presenter/
     - tests/
-    - prompts/
+    - schemas/
     - project/state.yaml
   acceptance:
-    - "The gateway is probed for seed support with one bounded call per served model, following section 18.4's discovery pattern, and the result is recorded where the next reader finds it rather than in a message."
-    - "If seed is honoured it is carried in Sampling and in the request payload, the cache key rotation is recorded once, and a test proves two identical requests return identical content through the fake gateway and on one live canary job; if it is not honoured, the finding is recorded in section 27.10 and the ledger says so."
-    - "Every sealed bundle's manifest records the composition's advisory count and its blocking failures, so variance is measured per composition instead of sampled by accident."
+    - "dependencies.json records the composition package's normalisation logic as a versioned component beside shell and renderer, so a change to it reopens COMPOSING; the canary's own record carries it."
+    - "The invalidation matrix gains two cases, both passing: a normalisation change that alters composed output reopens COMPOSING, and one that does not yields NONE."
     - "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals or reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit."
   evidence_required:
-    - The probe result and its record, with the ledger or manifest entry that carries it.
-    - The sealed bundle's manifest showing the advisory count and blocking failures.
+    - The new matrix cases and the canary's dependencies.json showing the component.
     - The work-item record in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.
   blocker: null
 
 next_ready_items:
-  - id: G2-W21
-    status: PENDING
-    purpose: "Every code path that shapes rendered bytes is a recorded dependency (G2's own promise; the gap the loop named at d147b4a): dependencies.json's component classes gain the composition package's normalisation logic (authoring.py's canonical_abbreviations and the unit_checks rewrites, and any validator normalisation that mutates output) as a versioned component that reopens COMPOSING, beside shell and renderer; the invalidation-matrix test gains the case that a normalisation change altering output reopens COMPOSING and one that does not yields NONE. Insert before G2-W13. Acceptance: the new matrix case passes; the canary's dependencies.json records the component; re-seal byte-identical with zero calls; hosted CI green."
   - id: G2-W13
     status: PENDING
     purpose: "Bind each capability's prose to its title, which nothing holds today (27.2 RC2: authoring packs the union of all slots' facts and never the titles; the renderer joins title and sentence positionally). The planner assigns pairwise-disjoint fact sets per capability or declares shared facts explicitly, enforced by plan_check; the title travels in the authoring packet and the slot identity; a deterministic check confirms each unit cites only its slot's facts and that the title's identifiers and format names appear among the cited facts' values; README_CONTRACT.md check 4 gains that sentence (27.8). Acceptance: swapping two capability sentences in a synthetic candidate fails the check; the canary's seven capabilities each describe their own title, judged by the check; re-seal byte-identical."

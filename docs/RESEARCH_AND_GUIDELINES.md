@@ -1891,6 +1891,18 @@ is four points at this sample size. The loop's correction is accepted as the rul
    never decisions or rewrites of the owner's text. A measurement that lives only in a commit
    message is a measurement the next iteration cannot read.
 
+**Measured (the loop, 2026-09-04, G2-W19).** The seed probe now sends the same bounded completion
+twice with the same seed and compares content bytes, per follow-up 3. Against `qwen3-next`, the
+one model all six manifests route to: the request is accepted (HTTP 200) and the two replies are
+byte-identical, so the probe records `honoured`. Conditions, because they bound the reading:
+`temperature` 0, `max_tokens` 24, the same single-message request both times, the call store
+bypassed. Identical content under `temperature` 0 is also what `temperature` 0 alone would tend to
+produce, so this measures that seed is accepted and that repeated identical requests agree; it
+does not isolate seed's contribution from greedy decoding. `runs/preflight/catalog.json` carries
+the result per routed model. The composition after `seed` was adopted measured 24 calls with 3
+rejected (87.5%), against 24 with 2 (91.7%) before it; both are single compositions and neither
+is a threshold.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,

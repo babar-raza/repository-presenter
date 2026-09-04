@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import httpx
 import pytest
 
 from repository_presenter.core.config import GatewayConfig
@@ -17,7 +18,29 @@ PROMPTS = REPO_ROOT / "prompts"
 
 
 def _serve(monkeypatch: pytest.MonkeyPatch, *ids: str) -> None:
-    mock_gateway(monkeypatch, lambda request: model_listing(*((i, "org") for i in ids)))
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/models"):
+            return model_listing(*((i, "org") for i in ids))
+        # preflight also probes the routed model for seed support (G2-W19).
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-1",
+                "object": "chat.completion",
+                "created": 1,
+                "model": "qwen3-next",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": "same"},
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+            },
+        )
+
+    mock_gateway(monkeypatch, handler)
 
 
 def test_preflight_records_the_catalog_and_routes_and_accepts_an_override_it_contains(

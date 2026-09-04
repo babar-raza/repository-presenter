@@ -83,7 +83,12 @@ def write_catalog(result: PreflightResult, path: Path) -> str:
         "models": [{"id": model.id, "owned_by": model.owned_by} for model in result.catalog.models],
         "model_override": result.model_override,
         "seed_support": [
-            {"model": probe.model, "accepted": probe.accepted, "detail": probe.detail}
+            {
+                "model": probe.model,
+                "accepted": probe.accepted,
+                "deterministic": probe.deterministic,
+                "detail": probe.detail,
+            }
             for probe in result.seed_support
         ],
         "prompts": [
