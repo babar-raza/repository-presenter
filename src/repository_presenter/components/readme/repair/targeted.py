@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -261,15 +261,28 @@ def repair_packet(
     facts: FactsDocument,
     preserve: Sequence[str],
     output_contract: dict[str, Any],
+    allowed: Collection[str] | None = None,
 ) -> dict[str, Any]:
-    """The packet for one repair call: the defect, the one artifact it may revise, its contract."""
+    """The packet for one repair call: the defect, the one artifact it may revise, its contract.
+
+    When the causal stage authored a section, ``allowed`` is that section's own fact set and the
+    packet carries only those records. The repair is judged by the section's checks, so a packet
+    holding the whole corpus asks the model to guess which part of it applies and rejects it for
+    guessing wrong: RESEARCH_AND_GUIDELINES.md section 27.2 RC1 measured 69 of 76 repair
+    rejections as citations outside the section's set, and the canary's own rejected replies
+    name that family and the UNRESOLVED-fact one it shares a cause with.
+    """
     kinds = [kind for kind in FACT_KINDS if kind != "inherited_unit"]
+    records = bounded_records(facts, kinds, ("SUPPORTED",))
+    if allowed is not None:
+        permitted = set(allowed)
+        records = [record for record in records if record["id"] in permitted]
     return {
         "repository": entry.repository,
         "defect": {**defect.record, "fingerprint": defect.fingerprint, "source": defect.source},
         "causal_stage": defect.stage,
         "stage_output": stage_output,
-        "facts": bounded_records(facts, kinds, ("SUPPORTED",)),
+        "facts": records,
         "preserve": list(preserve),
         "output_contract": output_contract,
     }

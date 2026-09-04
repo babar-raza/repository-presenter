@@ -283,23 +283,32 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
 
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
-) -> tuple[JobResult, Any]:
-    """The causal stage's accepted result and its own checks, for a repairable defect."""
+) -> tuple[JobResult, Any, frozenset[str] | None]:
+    """The causal stage's accepted result, its own checks, and the fact set it is judged against.
+
+    Only an authored section has a fact set narrower than the corpus; the upstream stages are
+    judged against all of it, so they carry None.
+    """
     if defect.stage == "S3":
-        return current.investigation, None
+        return current.investigation, None, None
     if defect.stage == "S4":
-        return current.reconciled, functools.partial(reconcile_checks, facts=facts)
+        return current.reconciled, functools.partial(reconcile_checks, facts=facts), None
     if defect.stage == "S5":
-        return current.planned, functools.partial(
-            plan_checks,
-            facts=facts,
-            dispositions=current.reconciled.output,
-            ecosystem=ecosystem,
+        return (
+            current.planned,
+            functools.partial(
+                plan_checks,
+                facts=facts,
+                dispositions=current.reconciled.output,
+                ecosystem=ecosystem,
+            ),
+            None,
         )
     task = next(task for task in current.tasks if task.section_id == defect.section_id)
     return (
         current.authored[task.label],
         functools.partial(unit_checks, task=task, facts=facts, name=name),
+        task.accepted_ids,
     )
 
 
@@ -310,14 +319,20 @@ def repair_defect(
     assert defect.stage is not None
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
-    target, stage_checks = _stage_target(
+    target, stage_checks, allowed = _stage_target(
         current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
     )
     contract = causal.manifest.output.schema_
     result = run_job(
         tx.prompts["targeted_repair"],
         repair_packet(
-            tx.entry, defect, target.output, tx.facts, current.review.get("preserve", []), contract
+            tx.entry,
+            defect,
+            target.output,
+            tx.facts,
+            current.review.get("preserve", []),
+            contract,
+            allowed,
         ),
         config=tx.config,
         facts=tx.facts,

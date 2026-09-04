@@ -205,6 +205,23 @@ def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_cont
     assert [r["id"] for r in packet["facts"]] == ["identity:repository", "format:output.glb"]
     assert packet["causal_stage"] == "S6" and packet["preserve"] == ["the H1"]
 
+    # A repair of an authored section is judged by that section's checks, so the packet carries
+    # that section's fact set and nothing else: the canary's rejected replies show the repair
+    # citing facts outside it, which is RESEARCH_AND_GUIDELINES.md section 27.2 RC1 measured at
+    # 69 of 76 repair rejections. The upstream stages are judged against the whole corpus and
+    # pass None, which leaves the packet as it was.
+    bounded = repair_packet(
+        ENTRY,
+        defect,
+        stage_output,
+        FACTS,
+        ["the H1"],
+        authoring.manifest.output.schema_,
+        {"identity:repository"},
+    )
+    assert [r["id"] for r in bounded["facts"]] == ["identity:repository"]
+    assert set(bounded) == set(packet)
+
     def stage_checks(output: dict[str, Any]) -> list[str]:
         return ["slot missing"] if not output["units"] else []
 
