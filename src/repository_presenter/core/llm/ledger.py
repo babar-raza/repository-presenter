@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass, fields
+from dataclasses import MISSING, asdict, dataclass, fields
 from pathlib import Path
 from typing import Any, Literal
 
@@ -59,6 +59,10 @@ class CallRecord:
     completion_tokens: int | None
     total_tokens: int | None
     error_class: str | None
+    # Why the output was rejected, verbatim from the job's own checks. The transaction keeps the
+    # rejected reply, but that directory is gitignored, so without this the sealed ledger says how
+    # often a job re-asked and never why (RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+    rejection: tuple[str, ...] = ()
     schema_version: int = 1
 
     def to_line(self) -> str:
@@ -110,15 +114,20 @@ def load_records(path: Path) -> list[CallRecord]:
     """Every record in the ledger, in order; a malformed or duplicated line is a defect."""
     if not path.is_file():
         return []
-    names = {field.name for field in fields(CallRecord)}
+    required = {field.name for field in fields(CallRecord) if field.default is MISSING}
+    optional = {field.name for field in fields(CallRecord)} - required
     records: list[CallRecord] = []
     seen: set[str] = set()
     for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
         payload = json.loads(line)
-        if set(payload) != names:
+        # A field added since a ledger was sealed reads as its default; an unknown field is a
+        # defect, so a record never carries something this reader would silently drop.
+        if not required <= set(payload) or not set(payload) <= required | optional:
             raise ValueError(f"{path}:{number}: ledger record fields do not match CallRecord")
+        if isinstance(payload.get("rejection"), list):
+            payload["rejection"] = tuple(payload["rejection"])
         record = CallRecord(**payload)
         if record.call_id in seen:
             raise ValueError(f"{path}:{number}: duplicate call ID {record.call_id}")

@@ -133,6 +133,7 @@ class CallStatistics:
 
     calls: int
     invalid: int
+    rejections: tuple[str, ...] = ()
 
     @property
     def first_attempt_rate(self) -> float:
@@ -147,6 +148,7 @@ def call_statistics(calls_jsonl: Path) -> dict[str, CallStatistics]:
     """Per job, plus ``TOTAL``, the provider calls and how many were rejected."""
     calls: Counter[str] = Counter()
     invalid: Counter[str] = Counter()
+    rejections: dict[str, list[str]] = {}
     for line in calls_jsonl.read_text("utf-8").splitlines():
         if not line.strip():
             continue
@@ -157,4 +159,8 @@ def call_statistics(calls_jsonl: Path) -> dict[str, CallStatistics]:
             calls[key] += 1
             if record.get("outcome") == "response_invalid":
                 invalid[key] += 1
-    return {job: CallStatistics(count, invalid[job]) for job, count in sorted(calls.items())}
+                rejections.setdefault(key, []).extend(record.get("rejection") or ())
+    return {
+        job: CallStatistics(count, invalid[job], tuple(rejections.get(job, ())))
+        for job, count in sorted(calls.items())
+    }

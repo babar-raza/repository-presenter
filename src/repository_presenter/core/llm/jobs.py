@@ -21,7 +21,7 @@ import json
 import re
 import string
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -256,9 +256,14 @@ class _Attempts:
         self._record(payload, started_at, started, "success", 200, None, reply)
         return reply
 
-    def record_invalid(self, error_class: str) -> None:
-        """Mark the last successful attempt's output as rejected without a new call."""
-        self.ledger.append(self._base(None, _now(), 0, "response_invalid", 200, error_class))
+    def record_invalid(self, error_class: str, rejection: Sequence[str] = ()) -> None:
+        """Mark the last successful attempt's output as rejected without a new call.
+
+        The rejection travels into the ledger so the sealed record says why a job re-asked, not
+        only how often (RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+        """
+        record = self._base(None, _now(), 0, "response_invalid", 200, error_class)
+        self.ledger.append(replace(record, rejection=tuple(rejection)))
 
     def _record(
         self,
@@ -418,7 +423,10 @@ def run_job(
         reply = run_with_retry("llm_call", functools.partial(attempts.call, config, current))
         if reply.finish_reason == "length":
             # A re-ask under the same budget cannot help; the manifest's budget must change.
-            attempts.record_invalid("TruncatedOutput")
+            attempts.record_invalid(
+                "TruncatedOutput",
+                ("output truncated at the manifest's max_output_tokens",),
+            )
             raise JobError(
                 f"{job}: output truncated at the manifest's max_output_tokens "
                 f"({manifest.manifest.sampling.max_output_tokens}); raise the budget or bound "
@@ -437,7 +445,7 @@ def run_job(
                 reply.model,
                 attempts.last_tokens,
             )
-        attempts.record_invalid("OutputRejected")
+        attempts.record_invalid("OutputRejected", rejection)
         store.reject(request_sha256, ask, job, reply.content, rejection)
         if ask == 1:
             current = _re_ask(manifest, payload, reply.content, rejection)

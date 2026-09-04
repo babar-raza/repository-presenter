@@ -125,3 +125,41 @@ def test_the_statistics_count_only_provider_calls_and_their_rejections(tmp_path:
     assert statistics["a"].first_attempt_rate == 50.0 and statistics["a"].reask_share == 50.0
     assert statistics["b"].first_attempt_rate == 100.0
     assert statistics["TOTAL"].calls == 3 and statistics["TOTAL"].invalid == 1
+
+
+def test_a_ledger_sealed_before_the_rejection_field_still_reads(tmp_path: Path) -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.6 control 1 needs the rejection in the sealed record,
+    # and adding a field must not make an already sealed ledger unreadable: a field with a
+    # default reads as its default, while an unknown field is still a defect.
+    assert load_records(SEALED_LEDGER), "the sealed canary's ledger must still load"
+    assert all(record.rejection == () for record in load_records(SEALED_LEDGER))
+
+    older = json.loads(_record("older", "provider_call", "response_invalid", 10).to_line())
+    del older["rejection"], older["schema_version"]
+    path = tmp_path / "calls.jsonl"
+    path.write_text(json.dumps(older) + "\n", encoding="utf-8")
+    (record,) = load_records(path)
+    assert record.rejection == () and record.schema_version == 1
+
+    path.write_text(json.dumps({**older, "unexpected": 1}) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="do not match CallRecord"):
+        load_records(path)
+
+
+def test_the_statistics_carry_why_each_job_re_asked(tmp_path: Path) -> None:
+    path = tmp_path / "calls.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "job": "a",
+                "disposition": "provider_call",
+                "outcome": "response_invalid",
+                "rejection": ["fact example:008 is CONTRADICTED, not SUPPORTED"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    assert call_statistics(path)["a"].rejections == (
+        "fact example:008 is CONTRADICTED, not SUPPORTED",
+    )
