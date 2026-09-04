@@ -8,11 +8,12 @@ was built against.
 days ahead of any candidate sealing against it — the legacy pattern of the target moving faster than
 output — and was held until one did (G2-W02 sealed at `65b1f577`). The discipline stays: a change
 enters only as a coherent fix to a predicate that a sealed candidate's defects proved insufficient,
-never as a new requirement ahead of output. The 2026-09-04 revision is two such fixes — check 4's
-slot binding and row 14's uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md`
-§26. §25 records the reasoning for the discipline itself. Pending revisions, each traced to a measured
-defect in §27 and carried by a named work item — check 4 by G2-W13, check 11 by G5-W02, §6 by
-G2-W16, a new check 12 by G2-W17 — are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this
+never as a new requirement ahead of output. The 2026-09-04 revisions are three such fixes — check 4's
+slot binding, check 4's title support (G2-W13, the defect measured in §27.2 RC2), and row 14's
+uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md` §26 or §27. §25 records
+the reasoning for the discipline itself. Pending revisions, each traced to a measured defect in §27
+and carried by a named work item — check 11 by G5-W02, §6 by G2-W16, a new check 12 by G2-W17 —
+are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this
 document only in that item's commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
 aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
@@ -199,7 +200,7 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 1 | Source revision pinned; original README bytes exact; every fact carries evidence | all |
 | 2 | Install command verified against manifest and package-registry observation | `installation` |
 | 3 | Every rendered example was executed or compiled in isolation at this revision | `quick_start`, `additional_examples` |
-| 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's; every identifier in prose is a fact value in a code span | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
+| 4 | Every content unit's fact IDs exist, are `SUPPORTED`, and lie within the fact set the plan assigned to that unit's slot — a capability description cites its own title's facts, never another slot's, and the capability's title is supported by the facts its unit cites; every identifier in prose is a fact value in a code span | `opening`, `key_capabilities`, `scope_limitations`, `api_reference`, `documentation_resources`, `enterprise_relationship` |
 | 5 | Every material inherited unit has exactly one disposition; placed units appear in their destination | all |
 | 6 | Every link resolves; Aspose links are contextual and within ceilings; "Enterprise Edition" is the only edition name | `documentation_resources`, `enterprise_relationship`, `badges` |
 | 7 | Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |

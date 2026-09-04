@@ -8,64 +8,75 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.node"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.node"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.polygonbuilder"
+        "public_symbol:aspose.threed.mesh"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.mesh"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
+        "public_symbol:aspose.threed.shading"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.formats.gltf",
-        "public_symbol:aspose.threed.formats.stl"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode"
+        "public_symbol:aspose.threed.animation"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.animation"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.vector4"
+        "public_symbol:aspose.threed.entities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.render"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.render"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.profiles"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.profiles"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose"
+      ],
+      "symbol_fact_id": "public_symbol:aspose"
     }
   ],
   "at_a_glance": {
@@ -75,7 +86,8 @@
       "Construct and manipulate meshes",
       "Assign and configure materials",
       "Build and traverse scene graphs",
-      "Generate parameterized primitives"
+      "Generate parameterized primitives",
+      "Support keyframe animation"
     ],
     "input_format_ids": [
       "format:input.obj",
@@ -104,6 +116,9 @@
         "format:input.3mf",
         "public_symbol:aspose.threed.scene"
       ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.scene"
+      ],
       "title": "Import multiple 3D formats"
     },
     {
@@ -113,6 +128,9 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
+        "public_symbol:aspose.threed.scene"
+      ],
+      "shared_fact_ids": [
         "public_symbol:aspose.threed.scene"
       ],
       "title": "Export to common 3D formats"
@@ -126,6 +144,10 @@
         "public_symbol:aspose.threed.mesh",
         "public_symbol:aspose.threed.polygonbuilder"
       ],
+      "shared_fact_ids": [
+        "example:005",
+        "example:010"
+      ],
       "title": "Construct and manipulate meshes"
     },
     {
@@ -134,6 +156,11 @@
         "example:004",
         "example:005",
         "public_symbol:aspose.threed.shading"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005"
       ],
       "title": "Assign and configure materials"
     },
@@ -144,6 +171,11 @@
         "example:005",
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.transform"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005"
       ],
       "title": "Build and traverse scene graphs"
     },
@@ -156,6 +188,11 @@
         "public_symbol:aspose.threed.sphere",
         "public_symbol:aspose.threed.cylinder"
       ],
+      "shared_fact_ids": [
+        "example:002",
+        "example:004",
+        "example:010"
+      ],
       "title": "Generate parameterized primitives"
     },
     {
@@ -165,6 +202,7 @@
         "public_symbol:aspose.threed.keyframesequence",
         "public_symbol:aspose.threed.pose"
       ],
+      "shared_fact_ids": [],
       "title": "Support keyframe animation"
     }
   ],
@@ -174,7 +212,7 @@
         "inherited_unit:045.heading"
       ],
       "section_id": "additional_examples",
-      "text": "The 'Position a Node With Transform' example is omitted because the example code is CONTRADICTED."
+      "text": "The 'Position a Node With Transform' heading is retained but its example is omitted because the example code is CONTRADICTED."
     }
   ],
   "flagship_example_id": "example:005",
@@ -189,6 +227,38 @@
     },
     {
       "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
       "section_id": "documentation_resources"
     },
     {

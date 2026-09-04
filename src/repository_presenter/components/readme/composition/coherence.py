@@ -15,6 +15,7 @@ from typing import Any
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     section_spellings,
+    slot_records,
     unit_checks,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
@@ -56,6 +57,11 @@ def coherence_packet(
             f"may spell, exactly as written: {', '.join(spellings)}; any other API name, member, "
             "attribute, or parameter is rejected."
         ),
+        "slots": [
+            record
+            for task in tasks
+            for record in slot_records(task.slots, task.slot_facts, task.slot_titles)
+        ],
         "accepted_facts": [
             {"id": fact_id, "kind": by_id[fact_id].kind, "value": by_id[fact_id].value}
             for fact_id in accepted_ids

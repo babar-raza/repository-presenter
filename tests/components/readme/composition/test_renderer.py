@@ -283,6 +283,23 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def test_the_hosting_site_a_verified_link_names_is_left_in_plain_text() -> None:
+    # G2-W13: a code span around GitHub is a rendering defect; the site is a proper noun the
+    # same way a package registry is, and it is spellable only because a fact links there.
+    hosted = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:900", "link_target", "https://github.com/org/repo/issues"),
+        ),
+    )
+    context = RenderContext(ENTRY, hosted, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("Issues live on GitHub.") == "Issues live on GitHub."
+    plain = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert plain.prose("Issues live on GitHub.") == "Issues live on GitHub."
+
+
 def test_renders_verbatim_follows_ownership() -> None:
     assert renders_verbatim("inherited_unit:001.paragraph", "Prose.", "python")
     assert renders_verbatim("inherited_unit:002.list", "- a\n- b", "python")

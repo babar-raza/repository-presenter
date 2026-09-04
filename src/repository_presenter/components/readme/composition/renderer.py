@@ -26,6 +26,7 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.composition.components.ecosystems import (
     REGISTRY_NAMES,
+    host_names,
     registry_name,
 )
 from repository_presenter.components.readme.composition.components.identity import (
@@ -48,7 +49,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "16"  # the template component version dependencies.json records
+RENDERER_VERSION = "17"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -108,6 +109,7 @@ class RenderContext:
         self.members = verified_members(facts)
         self.methods = surface_members(facts)
         self.name_tokens = product_name_tokens(self.name)
+        self.hosts = host_names(fact.value for fact in facts.facts if fact.polarity == "SUPPORTED")
         self.abbreviations = canonical_abbreviations(facts)
         self.symbol_names: frozenset[str] = frozenset(
             fact.value.rsplit(".", 1)[-1]
@@ -152,8 +154,8 @@ class RenderContext:
         tokens.update(ext for ext in _EXTENSION.findall(text) if ext in self.allowed)
         rendered = text
         for token in sorted(tokens, key=len, reverse=True):
-            if token in self.name_tokens or token in REGISTRY_NAMES.values():
-                continue  # the product's own name and package registries are proper nouns
+            if token in self.name_tokens or token in REGISTRY_NAMES.values() or token in self.hosts:
+                continue  # the product's name, package registries and hosting sites are nouns
             if token not in self.symbol_names and not identifier_allowed(
                 token, self.allowed, self.members, self.methods
             ):

@@ -23,6 +23,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.components.ecosystems import (
     REGISTRY_NAMES,
+    host_names,
 )
 from repository_presenter.components.readme.composition.components.identity import (
     product_name,
@@ -60,6 +61,9 @@ _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
 _EDITION = re.compile(r"\bEnterprise Edition\b")
+# The words of a capability title, extensions included, so the concrete things a title names
+# can be looked for among the formats the facts record.
+_TITLE_WORD = re.compile(r"[A-Za-z0-9.]+")
 # Abbreviations the document always spells one way. The renderer normalises prose to these forms
 # and BC-07 judges the rendered document against the same set, so the two cannot drift
 # (docs/RESEARCH_AND_GUIDELINES.md section 27.10).
@@ -159,6 +163,9 @@ class SectionTask:
     # The fact set the plan assigned to each slot that has one (README_CONTRACT.md check 4): a
     # unit cites only its own slot's facts, never another slot's.
     slot_facts: Mapping[str, frozenset[str]] = field(default_factory=dict)
+    # The subject the plan gave a slot - a capability's title - so the unit filling it is held to
+    # describing that subject (README_CONTRACT.md check 4, section 27.5 D2).
+    slot_titles: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -190,6 +197,46 @@ def _placed_units(dispositions: dict[str, Any], section: str) -> list[str]:
         if entry.get("destination_section") == section
         and entry.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE"}
     ]
+
+
+def capability_titles(plan: dict[str, Any]) -> dict[str, str]:
+    """The title the plan gave each capability slot: the subject that slot's unit is about."""
+    return {
+        f"capability:{index}": title
+        for index, item in enumerate(plan.get("core_capabilities", []), start=1)
+        if (title := str(item.get("title", "")).strip())
+    }
+
+
+def slot_records(
+    slots: Sequence[str],
+    slot_facts: Mapping[str, frozenset[str]],
+    titles: Mapping[str, str],
+) -> list[dict[str, Any]]:
+    """Each slot as the author is shown it: its id, the subject the plan gave it, and the only
+    facts its unit may cite. The title travels here and in ``SectionTask.slot_titles``, so the
+    packet and the guard name one subject (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D2)."""
+    records: list[dict[str, Any]] = []
+    for slot in slots:
+        record: dict[str, Any] = {"slot": slot}
+        if titles.get(slot):
+            record["title"] = titles[slot]
+        if slot_facts.get(slot):
+            record["fact_ids"] = sorted(slot_facts[slot])
+        records.append(record)
+    return records
+
+
+def title_terms(title: str, facts: FactsDocument) -> set[str]:
+    """The concrete things a capability title names: identifiers, and this repository's own
+    format names. The rest of a title is ordinary prose, which no fact needs to carry."""
+    terms = identifier_tokens(title)
+    formats = {fact.value.lstrip(".").lower(): fact.value for fact in facts.by_kind("format")}
+    for word in _TITLE_WORD.findall(title):
+        recorded = formats.get(word.lstrip(".").lower())
+        if recorded:
+            terms.add(recorded)
+    return terms
 
 
 def slot_fact_sets(section: str, plan: dict[str, Any]) -> dict[str, frozenset[str]]:
@@ -344,6 +391,7 @@ def _type_batches(
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
+            "slots": slot_records(slots, {}, {}),
             "accepted_facts": accepted,
             "do_not_claim": do_not_claim,
             "length_budget": "one unit per type, one sentence each",
@@ -408,14 +456,21 @@ def authoring_tasks(
         ]
         spellings = section_spellings(ids, facts)
         slot_facts = slot_fact_sets(section, plan)
-        bound_text = "; ".join(
-            f"{slot} cites only {', '.join(sorted(slot_facts[slot]))}"
-            for slot in slots
-            if slot_facts.get(slot)
-        )
+        titles = capability_titles(plan) if section == "key_capabilities" else {}
+        records = slot_records(slots, slot_facts, titles)
         bound_rule = (
-            f"Each slot describes its own facts, never another slot's: {bound_text}. "
-            if bound_text
+            "Each slot below gives the subject its unit is about and the only facts that unit "
+            "may cite; a unit describes its own slot, never another's. "
+            if any(len(record) > 1 for record in records)
+            else ""
+        )
+        # A slot's title is rendered immediately before its unit, so a unit that opens by
+        # restating the title reads as a stutter: measured on the canary the first time the
+        # title travelled, where all seven capabilities began with their own heading.
+        title_rule = (
+            "A slot's title is printed immediately before its unit, so the unit never restates "
+            "it and never opens with the product name; it adds what the title does not say. "
+            if any(record.get("title") for record in records)
             else ""
         )
         packet = {
@@ -425,17 +480,27 @@ def authoring_tasks(
             "section_id": section,
             "objective": (
                 f"{objective} Slots to fill, each exactly once: {', '.join(slots)}. "
-                f"{bound_rule}"
+                f"{bound_rule}{title_rule}"
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
+            "slots": records,
             "accepted_facts": accepted,
             "do_not_claim": do_not_claim,
             "length_budget": budget,
             "rendered_document": "",
             "existing_units": [],
         }
-        tasks.append(SectionTask(section, packet, frozenset(ids), slots, slot_facts=slot_facts))
+        tasks.append(
+            SectionTask(
+                section,
+                packet,
+                frozenset(ids),
+                slots,
+                slot_facts=slot_facts,
+                slot_titles=titles,
+            )
+        )
         if section == "api_reference":
             tasks.extend(_type_batches(entry, facts, do_not_claim))
     return tasks
@@ -555,6 +620,9 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
     """
     allowed: set[str] = set(product_name_tokens(name))
     allowed.update(REGISTRY_NAMES.values())  # package registries are proper nouns, not APIs
+    # So is the hosting site a verified link points at: prose names it, the renderer leaves it
+    # in plain text, and no fact records it as a value.
+    allowed.update(host_names(fact.value for fact in facts.facts if fact.polarity == "SUPPORTED"))
     for fact in facts.facts:
         if fact.polarity != "SUPPORTED":
             continue
@@ -652,6 +720,29 @@ def unit_checks(
                 f"unit {unit.get('slot')}: cites facts outside its slot's planned set "
                 f"({', '.join(outside)}); a unit describes its own slot's facts, never "
                 "another slot's"
+            )
+    # README_CONTRACT.md check 4: the capability's title is supported by the facts its unit
+    # cites. Slot fact sets overlap by design - one example can serve two capabilities - so a
+    # fact-ID subset check cannot separate two capabilities even in principle (section 27.2 RC2).
+    # The title is what separates them, so every identifier and format name it spells appears in
+    # the values of the facts the unit actually cites.
+    values = {fact.id: fact.value for fact in facts.facts}
+    common = " ".join([*(values[i] for i in sorted(neutral) if i in values), name]).lower()
+    for unit in output.get("units", []):
+        title = task.slot_titles.get(str(unit.get("slot")), "")
+        if not title:
+            continue
+        cited = " ".join(values.get(i, "") for i in unit.get("fact_ids", [])).lower()
+        unsupported = sorted(
+            term
+            for term in title_terms(title, facts)
+            if term.lstrip(".").lower() not in cited and term.lstrip(".").lower() not in common
+        )
+        if unsupported:
+            errors.append(
+                f"unit {unit.get('slot')}: its title {title!r} names "
+                f"{', '.join(unsupported)}, which the facts it cites do not carry; cite the facts "
+                "that support this slot's title, or the sentence belongs to another slot"
             )
     # An exception class name is written only when a fact this section may cite records it
     # verbatim (README_CONTRACT.md section 2 row 16: the precise mechanism a fact records).

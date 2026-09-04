@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "7"
+version: "8"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -66,6 +66,7 @@ output:
           properties:
             title: { type: string, minLength: 1 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
+            shared_fact_ids: { type: array, items: { type: string } }
       at_a_glance:
         oneOf:
           - { type: "null" }
@@ -133,7 +134,11 @@ system: |
 
   Core capabilities. Three to eight, each an action-led natural phrase grounded in the cited
   facts, with no keyword repeated across titles. One capability inventory per document: the At a
-  Glance capability titles are a subset of these titles, never a second list.
+  Glance capability titles are a subset of these titles, never a second list. Each capability's
+  fact_ids are its own: a fact cited by two capabilities is listed in shared_fact_ids of every
+  capability that cites it, so the sharing is deliberate and the rest of each set tells the two
+  capabilities apart. Every title is supported by the facts that capability cites, so an
+  identifier or format name a title spells is one of them.
 
   At a Glance. Inputs are verified input formats (format facts with direction input, SUPPORTED)
   and outputs are verified output formats; never selector parameters, intermediate structures, or

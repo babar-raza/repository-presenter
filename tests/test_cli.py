@@ -442,7 +442,10 @@ class _ChatGateway:
                 existing = existing.rsplit("\n\nReturn the units", 1)[0]
                 content = json.dumps({"units": json.loads(existing), "omitted": []})
             else:
-                batch = [m.rstrip(".") for m in re.findall(r"type:(public_symbol:[\w.\-]+)", user)]
+                # The packet names each slot twice - in the objective and in the slots
+                # block that carries its subject and facts - so the scrape is deduped.
+                found = re.findall(r"type:(public_symbol:[\w.\-]+)", user)
+                batch = list(dict.fromkeys(m.rstrip(".") for m in found))
                 if batch:
                     content = json.dumps(
                         {
@@ -770,7 +773,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     }
     assert dependencies["validators"]["BC-11"] == "1" and dependencies["components"] == {
         "shell": "5",
-        "renderer": "16",
+        "renderer": "17",
         "normalisation": "1",
     }
     assert "install_command:pip" in dependencies["facts"]

@@ -1607,6 +1607,27 @@ the evidence is thin it is said.
   `details[0]` (`seal.py:372-373`); validators and renderer match substrings of evidence prose
   (`registry.py:392,425`; `renderer.py:115,254`).
 
+**Measured (the loop, 2026-09-04, G2-W13).** RC2's overlap is real on the canary: of seven
+capabilities, five facts sit in two or more (`public_symbol:aspose.threed.scene` in 1 and 2,
+`example:002`/`example:004` in 4, 5 and 6, `example:005` in 3, 4 and 5, `example:010` in 3 and 6).
+With the plan rule in force the planner declared every one of them in `shared_fact_ids` — six of
+seven capabilities carry a declaration — and the one live rejection it earned
+(`fact example:002 is cited by capabilities 4, 5, 6`) was corrected on its single re-ask. Title
+support was judged on all seven and flagged none: every canary title is ordinary prose
+(`Support keyframe animation`, `Assign and configure materials`), so it names no identifier and no
+recorded format, and the check has nothing to require. It separates the synthetic pair the subset
+check cannot (two capabilities that both declare one example, their sentences exchanged). Three
+compositions were sealed while the title travelled in the packet: with no further instruction all
+seven sentences opened by restating their own title verbatim; with the packet also saying to name
+the products, none restated the title and all seven opened with the product name instead, which
+§8 already forbids as a template sentence; with the packet saying only that a unit never restates
+its title and never opens with the product name, format names returned to their canonical
+spellings (`OBJ`, `glTF`, `3MF` rather than `.obj`, `.gltf`, `.3mf`) and all seven again opened
+with their title's words. Advisories across the three: 5, 0, 2; each verdict ACCEPT, each
+validation 10 pass, 0 fail, 1 pending. `README_CONTRACT.md` row 7 requires a description to name
+the classes or members it rests on and §8 forbids the product-name template; neither addresses a
+description that repeats its title.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt

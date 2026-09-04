@@ -150,6 +150,45 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     return schema
 
 
+def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
+    """Why two capabilities may not rest on the same fact without saying so.
+
+    Overlapping fact sets are why a subset check cannot separate one capability's prose from
+    another's even in principle (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC2). The sets are
+    therefore pairwise disjoint unless every capability citing a shared fact declares it, which
+    keeps a genuinely shared example usable and leaves the rest of each set discriminating
+    (section 27.5 D2).
+    """
+    errors: list[str] = []
+    holders: dict[str, set[int]] = {}
+    for index, item in enumerate(capabilities, start=1):
+        cited = set(item.get("fact_ids", []))
+        stray = sorted(set(item.get("shared_fact_ids") or []) - cited)
+        if stray:
+            errors.append(
+                f"capability {index} declares shared facts it does not cite: {', '.join(stray)}; "
+                "shared_fact_ids is a subset of that capability's fact_ids"
+            )
+        for fact_id in cited:
+            holders.setdefault(fact_id, set()).add(index)
+    for fact_id, holding in sorted(holders.items()):
+        if len(holding) < 2:
+            continue
+        undeclared = sorted(
+            index
+            for index in holding
+            if fact_id not in set(capabilities[index - 1].get("shared_fact_ids") or [])
+        )
+        if undeclared:
+            errors.append(
+                f"fact {fact_id} is cited by capabilities "
+                f"{', '.join(str(index) for index in sorted(holding))}; give each capability its "
+                "own facts, or list the fact in shared_fact_ids of every capability that cites it "
+                f"(missing from {', '.join(str(index) for index in undeclared)})"
+            )
+    return errors
+
+
 def plan_checks(
     output: dict[str, Any],
     facts: FactsDocument,
@@ -203,6 +242,7 @@ def plan_checks(
     titles = [item.get("title", "").strip().lower() for item in capabilities]
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")
+    errors.extend(_capability_facts_apart(capabilities))
 
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
     input_formats = {i for i in supported if i.startswith("format:input.")}

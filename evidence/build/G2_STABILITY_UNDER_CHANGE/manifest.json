@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W21",
+ "work_item": "G2-W13",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-04T22:14:39+05:00",
- "control_revision": "d3831899f6a1db97cdbbc22eb377d2be955b391f",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest and the cursor advance to G2-W13) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-04T23:56:38+05:00",
+ "control_revision": "d5fcd587cef217db974323d51aa6ab4079787a11",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the code, the contract revision and the cursor advance to G2-W16) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "d3831899f6a1db97cdbbc22eb377d2be955b391f",
+  "control_revision": "d5fcd587cef217db974323d51aa6ab4079787a11",
   "note": "loop-prompt section 3: one interpreter locally, the hosted matrix authoritative.",
   "runs": [
    {
@@ -39,13 +39,13 @@
     "canary": [
      {
       "run": 1,
-      "provider_calls": 0,
-      "outcome": "components.normalisation reopened COMPOSING; only dependencies.json changed and every stored output was reused"
+      "provider_calls": 19,
+      "outcome": "sealed with ACCEPT, 2 advisories, 10 blocking checks passing and 1 pending; valid update available"
      },
      {
       "run": 2,
       "provider_calls": 0,
-      "outcome": "adopted in a fresh process; check 11 judged"
+      "outcome": "update adopted in a fresh process; check 11 judged"
      },
      {
       "run": 3,
@@ -58,19 +58,29 @@
  },
  "predicates": [
   {
-   "predicate": "dependencies.json records the composition package's normalisation logic as a versioned component beside shell and renderer, so a change to it reopens COMPOSING; the canary's own record carries it.",
+   "predicate": "The planner assigns pairwise-disjoint fact sets per capability or declares shared facts explicitly, enforced by plan_check and proven by a synthetic violation.",
    "verdict": "PASS",
-   "evidence": "NORMALISATION_VERSION lives in composition/authoring.py, the module that owns canonical_abbreviations and the rewrites unit_checks makes before judging, and seal.py records it. The canary's dependencies.json reads shell 5, renderer 16, normalisation 1. No new evaluation logic was needed: any component change already maps to COMPOSING, which is why the fix is a record rather than a mechanism."
+   "evidence": "_capability_facts_apart in composition/planning.py fails a plan where a fact is cited by two capabilities unless every capability citing it lists the fact in shared_fact_ids, and fails a declaration of a fact the capability does not cite. The planning manifest declares the field and states the rule. tests/components/readme/composition/test_planning.py walks the synthetic violation through all four states: undeclared, declared by one, declared by both, and declared by a capability that does not cite it. Live, the planner earned exactly one rejection and corrected it on its re-ask."
   },
   {
-   "predicate": "The invalidation matrix gains two cases, both passing: a normalisation change that alters composed output reopens COMPOSING, and one that does not yields NONE.",
+   "predicate": "Each capability title travels in the authoring packet and in the slot identity, and a deterministic check confirms the unit cites only its slot's facts and that the title's identifiers and format names appear among the cited facts' values.",
    "verdict": "PASS",
-   "evidence": "tests/components/readme/bundle/test_evaluation.py carries both, in the synthetic dependency table and in the matrix run against the sealed canary's own record; the unchanged case is the existing assertion that an untouched record reopens NONE."
+   "evidence": "The packet carries a slots record - slot, title, fact_ids - built by slot_records, and SectionTask.slot_titles carries the same titles into the guard, so packet and guard name one subject. unit_checks judges each capability unit against its own slot's title with title_terms, which reads the identifiers a title spells and the format names this repository's facts record. The canary's seven titles are judged and none flagged, because none names an identifier or a recorded format; that is the check's answer on this data, not an absence of judgment."
   },
   {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals or reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
+   "predicate": "Swapping two capability sentences in a synthetic candidate fails the check, and the canary's capabilities each describe their own title, judged by the check.",
    "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. The re-seal reopened COMPOSING and cost zero provider calls, adopted in a fresh process with zero calls, and reproduced byte for byte. Hosted run 33898956261 is green for Python 3.11, 3.12 and 3.13 on d383189."
+   "evidence": "test_a_capability_sentence_is_held_to_the_title_it_fills builds the case section 27.2 RC2 calls impossible for a subset check: two capabilities that both declare one shared example, each unit citing only that example, sentences exchanged. Check 4's subset rule is silent and the title check names both slots. On the canary all seven capability units passed both rules, and each cites its own slot's full planned set."
+  },
+  {
+   "predicate": "README_CONTRACT.md check 4 gains the sentence section 27.8 names, in this item's own commit with its code and tests.",
+   "verdict": "PASS",
+   "evidence": "Check 4 now reads '...and the capability's title is supported by the facts its unit cites'. The revision-discipline paragraph records it as the third 2026-09-04 fix and drops it from the pending list. It lands in this commit with its code and tests, as the discipline requires."
+  },
+  {
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals and reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
+   "verdict": "PASS",
+   "evidence": "Every local step exit 0 on 3.13. The canary sealed in 19 provider calls with ACCEPT, 2 advisories and no blocking failure, adopted in a fresh process with zero calls, and reproduced byte for byte with zero calls. The hosted matrix is green on the pushed commit."
   }
  ],
  "previous_items": [
@@ -84,17 +94,19 @@
   "G2-W08",
   "G2-W11",
   "G2-W12",
-  "G2-W19"
+  "G2-W19",
+  "G2-W21"
  ],
- "next_work_item": "G2-W13",
+ "next_work_item": "G2-W16",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "state": "READY_FOR_PROPOSAL",
   "no_op_proof": {
    "byte_identical": true,
    "fresh_process": true,
-   "proven_at": "2026-09-04T16:57:29Z",
+   "proven_at": "2026-09-04T18:46:13Z",
    "provider_calls": 0
   },
   "composition": {
@@ -104,14 +116,55 @@
    "review_verdict": "ACCEPT",
    "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
-  "blocking_checks": "BC-01 to BC-11 all PASS"
+  "blocking_checks": "BC-01 to BC-10 PASS, BC-11 judged on the adoption rerun"
  },
  "measurement": {
+  "capability_fact_overlap": {
+   "capabilities": 7,
+   "facts_in_two_or_more": [
+    "public_symbol:aspose.threed.scene",
+    "example:002",
+    "example:004",
+    "example:005",
+    "example:010"
+   ],
+   "capabilities_declaring_shared_facts": 6,
+   "live_plan_rejections": 1,
+   "note": "the one rejection (fact example:002 is cited by capabilities 4, 5, 6) was corrected on its single re-ask; RC2's overlap is real, so the declaration branch of D2 is what keeps a shared example usable"
+  },
+  "title_support": {
+   "titles_judged": 7,
+   "titles_flagged": 0,
+   "note": "every canary title is ordinary prose and names no identifier and no recorded format, so the check has nothing to require of them; it separates the synthetic pair a subset check cannot, where two capabilities declare one shared example and their sentences are exchanged"
+  },
+  "compositions": {
+   "count": 3,
+   "advisories": [
+    5,
+    0,
+    2
+   ],
+   "verdicts": [
+    "ACCEPT",
+    "ACCEPT",
+    "ACCEPT"
+   ],
+   "note": "three sealed while the title travelled, differing only in what the packet said about restating it; recorded facts-only in RESEARCH_AND_GUIDELINES.md section 27.2. No threshold is set from them (section 27.10 follow-up 3)."
+  },
   "components_recorded": {
    "normalisation": "1",
-   "renderer": "16",
+   "renderer": "17",
    "shell": "5"
+  }
+ },
+ "defects_found_and_fixed": [
+  {
+   "defect": "The composition failed closed when documentation_resources wrote 'GitHub' twice: the guard classified a hosting site's proper noun as an unaccepted API name, and the renderer would have wrapped it in a code span. This is the URL/hostname rejection family G2-W12 recorded, escalated from a re-ask to a hard failure.",
+   "fix": "The existing carve-out for package registries - proper nouns, not APIs - extends to the hosting site a SUPPORTED link fact actually points at (HOST_NAMES in components/ecosystems.py). Both the guard and the renderer read it, so the two cannot disagree, and a site no fact links to stays unspellable. RENDERER_VERSION moves to 17 because composed bytes change."
   },
-  "reseal_cost": "zero provider calls: the component change reopened COMPOSING and every stored output was still valid, so only the dependency record changed"
- }
+  {
+   "defect": "With the title in the packet, all seven capability sentences opened by restating their own title, which the renderer prints immediately before them.",
+   "fix": "The packet says a unit never restates its title and never opens with the product name. Three compositions are recorded in section 27.2: the restatement returns without the naming clause, and the clause that removed it produced the product-name template section 8 already forbids. No further prompt attempt was made and no new rule was invented: README_CONTRACT.md row 7 and section 8 do not forbid a description that repeats its title, so the decision is the owner's, and the measurement is recorded facts-only."
+  }
+ ]
 }

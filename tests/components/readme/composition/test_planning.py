@@ -221,6 +221,37 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS, ceiling) == ["Aspose links exceed the ceiling of 0: 1"]
 
 
+def test_two_capabilities_rest_on_the_same_fact_only_when_both_declare_it() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.2 RC2: overlapping fact sets are why a subset check
+    # cannot separate one capability's prose from another's even in principle, so the plan keeps
+    # them apart - or says plainly that a fact is shared (section 27.5 D2).
+    overlapping = [
+        {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+        {"title": "Export STL", "fact_ids": ["format:output.stl", "example:001"]},
+        {"title": "Run examples", "fact_ids": ["example:002"]},
+    ]
+    assert plan_checks(_plan(core_capabilities=overlapping), FACTS) == [
+        "fact example:001 is cited by capabilities 1, 2; give each capability its own facts, or "
+        "list the fact in shared_fact_ids of every capability that cites it (missing from 1, 2)"
+    ]
+    half = [dict(item) for item in overlapping]
+    half[0]["shared_fact_ids"] = ["example:001"]
+    assert plan_checks(_plan(core_capabilities=half), FACTS) == [
+        "fact example:001 is cited by capabilities 1, 2; give each capability its own facts, or "
+        "list the fact in shared_fact_ids of every capability that cites it (missing from 2)"
+    ]
+    both = [dict(item) for item in half]
+    both[1]["shared_fact_ids"] = ["example:001"]
+    assert plan_checks(_plan(core_capabilities=both), FACTS) == []
+    # A fact may only be declared shared by a capability that cites it.
+    stray = [dict(item) for item in both]
+    stray[2]["shared_fact_ids"] = ["example:001"]
+    assert plan_checks(_plan(core_capabilities=stray), FACTS) == [
+        "capability 3 declares shared facts it does not cite: example:001; shared_fact_ids is a "
+        "subset of that capability's fact_ids"
+    ]
+
+
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
     path = tmp_path / "t" / "plan.json"
     digest = write_plan(_plan(), path)

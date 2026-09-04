@@ -9,34 +9,33 @@
       ],
       "id": "F01",
       "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```",
-      "repair": "Change `pip install aspose-3d-foss` to `python3 -m pip install aspose-3d-foss` to match the verified installation command.",
+      "repair": "Change 'pip install aspose-3d-foss' to 'python3 -m pip install aspose-3d-foss' to match the verified command and the original README.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses `pip install aspose-3d-foss` in the installation section, while the original README and verified facts use `python3 -m pip install aspose-3d-foss`. This change removes the explicit Python interpreter invocation and is inconsistent with the project's documented installation command."
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses 'pip install aspose-3d-foss' in the installation section, but the original README and the verified install command fact use 'python3 -m pip install aspose-3d-foss'. This change removes the explicit Python interpreter invocation, which is inconsistent with the original and the verified command."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [
-        "install_command:pip",
-        "import_path:aspose.threed"
+        "install_command:pip"
       ],
       "id": "F02",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"```\n\nThe package supports Python 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12 and declares `python_requires` as `>=3.7`.",
-      "repair": "Restore the verification step using `python3 -c ",
+      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Restore the verification step 'python3 -c ",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the verification step `python3 -c "
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the verification step 'python3 -c "
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "c283cf9902edda9069f460527b55760580634c179c0fc916b7afff779e6ec246",
+    "prompt_sha256": "aadf706ca95efdeb7443d74e5be48610888dece82604a07805f66f89b6951515",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "234ff2fda2c8fce5ae756f5903cdada3bee248baabe8ce1758d04411bb4643ee",
+  "readme_sha256": "ba9158fb9b75e9a1581b1c526eec5bd951168cf27142d858a1448f670740b026",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

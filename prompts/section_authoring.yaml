@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "7"
+version: "10"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -31,6 +31,9 @@ packet:
     - name: objective
       type: string
       description: What this section must give a visitor, from the semantic shell.
+    - name: slots
+      type: json
+      description: Every slot this section must fill exactly once, as {slot, title, fact_ids} - the subject the plan gave the slot and the only facts its unit may cite; a unit describes its own slot, never another's.
     - name: accepted_facts
       type: json
       description: The closed set of SUPPORTED facts this section may cite, as {id, kind, value}.
@@ -135,6 +138,9 @@ user_template: |
   Section: $section_id
   Objective: $objective
   Length budget: $length_budget
+
+  Slots (fill each exactly once; write about that slot's subject from its facts):
+  $slots
 
   Accepted facts (the closed set; cite by ID):
   $accepted_facts

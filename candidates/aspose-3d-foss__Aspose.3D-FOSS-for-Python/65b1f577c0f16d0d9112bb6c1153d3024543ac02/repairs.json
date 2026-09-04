@@ -152,6 +152,161 @@
       "section_id": "scope_limitations",
       "source": "review",
       "stage": "S6"
+    },
+    "6fec044552e3605ccb52f9a3": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python is a Python library that enables developers to create, read, convert, and save 3D scenes using formats such as .obj, .stl, .gltf, .3mf, .glb, and .dae. FBX import is supported experimentally; FBX export is not implemented.",
+          "before": "Aspose.3D FOSS for Python is a Python library that enables developers to create, read, convert, and save 3D scenes using formats such as .obj, .stl, .gltf, .3mf, .glb, .dae, and .fbx. It solves the problem of programmatically generating and manipulating 3D geometry by providing primitives like Box, Sphere, and Cylinder, and tools like Mesh and PolygonBuilder for custom shapes. Users include developers building 3D content pipelines, CAD exporters, and visualization tools who need a dependency-free, open-source solution for Python 3.7 through 3.12. The library is distributed under the MIT license and targets the 26.1.0 release of aspose-3d-foss.",
+          "fact_ids": [
+            "format:input.fbx"
+          ],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F01",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "1dfc561a88e84044817a9b0c6ff37033eaa49616ab9979c4e182f6f00e13ff7b",
+      "section_id": "opening",
+      "source": "review",
+      "stage": "S6"
+    },
+    "7165fec2a25313a920e8f5ef": {
+      "changes": [
+        {
+          "after": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, manipulating, and saving 3D scenes, and aspose.threed.Node as the building block for constructing the scene graph hierarchy.",
+          "before": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, manipulating, and saving 3D scenes, and aspose.threed.Node as the building block for constructing the scene graph hierarchy.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F07",
+      "outcome": "repaired",
+      "re_raised": [
+        "F04"
+      ],
+      "reason": null,
+      "request_sha256": "3576701e2ea693fa6f4f571d3f4c96a0bcc8144da3139f636bfc5483b81e0090",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "81704009736211e7b4e16fa1": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python supports keyframe animation through aspose.threed.AnimationClip, aspose.threed.AnimationNode, aspose.threed.KeyframeSequence, and aspose.threed.Pose for storing skeletal bind-pose data. Animation rendering and playback are not implemented in this FOSS build.",
+          "before": "Aspose.3D FOSS for Python supports keyframe animation through aspose.threed.AnimationClip, aspose.threed.AnimationNode, aspose.threed.KeyframeSequence, and aspose.threed.Pose for storing skeletal bind-pose data.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animationclip",
+            "public_symbol:aspose.threed.animationnode",
+            "public_symbol:aspose.threed.keyframesequence",
+            "public_symbol:aspose.threed.pose"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[6].text"
+        }
+      ],
+      "label": "F02",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "5b934d7e1a5ba28f4543b54537b326f79ae7d7e3cbebbbd0f91d77da29fc7c01",
+      "section_id": "key_capabilities",
+      "source": "review",
+      "stage": "S6"
+    },
+    "cfd8a1585f9109bdddf53925": {
+      "changes": [
+        {
+          "after": "COLLADA import works, but COLLADA export is not reachable through Scene.save().",
+          "before": "COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup walks its registered exporters in order and reaches FbxExporter before it ever reaches ColladaExporter, so the lookup itself fails before a real, working ColladaExporter is ever consulted.",
+          "fact_ids": [
+            "inherited_unit:067.list"
+          ],
+          "id": "R01",
+          "path": "units.3.text"
+        }
+      ],
+      "label": "F09",
+      "outcome": "repaired",
+      "re_raised": [
+        "F05"
+      ],
+      "reason": null,
+      "request_sha256": "23d274cb109e9184eaf3e25a2d96feda27d6209ca029c2515557035def8265b6",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "df16adf48b33e5730ef36f91": {
+      "changes": [
+        {
+          "after": "Install the package in editable mode and run the test suite using the repository's own assets.",
+          "before": "Install the package in editable mode and run the test suite using the repository's own assets.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F10",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "4371b08816d8cab0e331a12ed7f1fd2fa0dc316b3b0cfa011266f253beae0e31",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "e35014b786f68f1230c830c1": {
+      "changes": [
+        {
+          "after": "Open an existing OBJ file and inspect its geometry by reading the control_points and polygon_count of each entity.",
+          "before": "Open an existing OBJ file and inspect its geometry by reading the control_points and polygon_count of each entity.",
+          "fact_ids": [
+            "example:002"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        },
+        {
+          "after": "Build a 3D scene from scratch by creating a Sphere entity with a PbrMaterial and saving it as an STL file.",
+          "before": "Build a 3D scene from scratch by creating a Sphere entity with a PbrMaterial and saving it as an STL file.",
+          "fact_ids": [
+            "example:004"
+          ],
+          "id": "R02",
+          "path": "units.1.text"
+        }
+      ],
+      "label": "F05+F06",
+      "outcome": "repaired",
+      "re_raised": [
+        "F03"
+      ],
+      "reason": null,
+      "request_sha256": "4db622dd6c18b38966ef15573686bb4271c3aeeb14fffd3af1c300147a025333",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "e55bfe074b080cb6a6aa4ada": {
+      "changes": [
+        {
+          "after": "The full API reference is the complete, browsable reference for all 337 public types.",
+          "before": "The full API reference is the complete, browsable reference for all 305 public types.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.2.text"
+        }
+      ],
+      "label": "F08",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "cff4cd92654746706066466d9de2eff745fb99411d2b9a8b901c50b63c0d3560",
+      "section_id": "documentation_resources",
+      "source": "review",
+      "stage": "S6"
     }
   },
   "schema_version": 1

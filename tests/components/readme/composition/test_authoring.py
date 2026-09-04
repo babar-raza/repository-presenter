@@ -16,6 +16,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_schema,
     authoring_tasks,
     canonical_abbreviations,
+    capability_titles,
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
@@ -24,7 +25,9 @@ from repository_presenter.components.readme.composition.authoring import (
     section_selections,
     section_spellings,
     slot_fact_sets,
+    slot_records,
     surface_members,
+    title_terms,
     unit_checks,
     verified_members,
     write_content_units,
@@ -391,6 +394,23 @@ def test_names_an_executed_example_uses_are_accepted_identifiers() -> None:
     assert "io.StringIO" not in allowed  # a failed example proves nothing
 
 
+def test_the_hosting_site_a_verified_link_names_is_a_proper_noun_too() -> None:
+    # G2-W13: the guard rejected "GitHub" twice on the canary and the composition failed closed.
+    # A hosting site a verified link points at is read like PyPI, never like an API, so prose
+    # spells it and the renderer leaves it out of a code span.
+    hosted = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:900", "link_target", "https://github.com/org/repo/issues"),
+        ),
+    )
+    assert "GitHub" in allowed_identifiers(hosted, NAME)
+    assert "GitLab" not in allowed_identifiers(hosted, NAME)  # no fact links there
+    assert "GitHub" not in allowed_identifiers(FACTS, NAME)
+
+
 def test_package_registry_names_are_proper_nouns_prose_may_spell() -> None:
     allowed = allowed_identifiers(FACTS, NAME)
     assert {"PyPI", "NuGet", "crates.io", "pkg.go.dev"} <= allowed
@@ -614,6 +634,122 @@ def test_a_unit_cites_only_its_own_slots_planned_facts() -> None:
         "unit capability:2: cites facts outside its slot's planned set "
         "(public_symbol:aspose.threed.scene); a unit describes its own slot's facts, never "
         "another slot's",
+    ]
+
+
+def test_each_capability_slot_carries_its_title_into_the_packet() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.5 D2: the title travels in the packet and in the slot
+    # identity, so the packet and the guard name one subject for each slot.
+    tasks = authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    capabilities = next(task for task in tasks if task.section_id == "key_capabilities")
+    assert capabilities.slot_titles == {
+        "capability:1": "Build scenes",
+        "capability:2": "Save GLB",
+        "capability:3": "Import the package",
+    }
+    assert capabilities.packet["slots"] == [
+        {
+            "slot": "capability:1",
+            "title": "Build scenes",
+            "fact_ids": ["public_symbol:aspose.threed.scene"],
+        },
+        {"slot": "capability:2", "title": "Save GLB", "fact_ids": ["format:output.glb"]},
+        {
+            "slot": "capability:3",
+            "title": "Import the package",
+            "fact_ids": ["import_path:aspose.threed"],
+        },
+    ]
+    assert "gives the subject its unit is about" in capabilities.packet["objective"]
+    # The renderer prints the title immediately before the unit, so a unit that opens by
+    # restating it reads as a stutter; the packet says so where the titles travel.
+    assert "never restates it" in capabilities.packet["objective"]
+    # A section whose slots have no subject still declares the field, and the bounded type
+    # batches carry their slots with no subject at all.
+    opening = next(task for task in tasks if task.section_id == "opening")
+    assert opening.slot_titles == {} and opening.packet["slots"] == [{"slot": "opening"}]
+
+
+def test_a_capability_sentence_is_held_to_the_title_it_fills() -> None:
+    # README_CONTRACT.md check 4 as revised: the capability's title is supported by the facts its
+    # unit cites. Slot fact sets overlap by design - here both capabilities declare the same
+    # example - so the subset check cannot separate the two sentences even in principle
+    # (RESEARCH_AND_GUIDELINES.md section 27.2 RC2); the title is what separates them.
+    plan = {
+        "core_capabilities": [
+            {
+                "title": "Save GLB",
+                "fact_ids": ["format:output.glb", "example:001"],
+                "shared_fact_ids": ["example:001"],
+            },
+            {
+                "title": "Import aspose.threed",
+                "fact_ids": ["import_path:aspose.threed", "example:001"],
+                "shared_fact_ids": ["example:001"],
+            },
+        ]
+    }
+    assert capability_titles(plan) == {
+        "capability:1": "Save GLB",
+        "capability:2": "Import aspose.threed",
+    }
+    assert title_terms("Save GLB", FACTS) == {".glb"}
+    assert title_terms("Import aspose.threed", FACTS) == {"aspose.threed"}
+    assert title_terms("Build scenes", FACTS) == set()  # ordinary prose needs no fact
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"format:output.glb", "import_path:aspose.threed", "example:001"}),
+        ("capability:1", "capability:2"),
+        slot_facts=slot_fact_sets("key_capabilities", plan),
+        slot_titles=capability_titles(plan),
+    )
+
+    def unit(slot: str, text: str, *fact_ids: str) -> dict[str, object]:
+        return {
+            "section": "key_capabilities",
+            "slot": slot,
+            "text": text,
+            "fact_ids": list(fact_ids),
+        }
+
+    own = {
+        "units": [
+            unit("capability:1", "A scene saves as GLB.", "format:output.glb"),
+            unit(
+                "capability:2", "The package imports as aspose.threed.", "import_path:aspose.threed"
+            ),
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(own, task, FACTS, NAME) == []
+    swapped = {
+        "units": [
+            unit("capability:1", "The package imports as aspose.threed.", "example:001"),
+            unit("capability:2", "A scene saves as GLB.", "example:001"),
+        ],
+        "omitted": [],
+    }
+    # Every unit still cites a fact its own slot declared, so check 4's subset rule is silent;
+    # both sentences are nonetheless under the wrong title, and the title check names both.
+    assert unit_checks(swapped, task, FACTS, NAME) == [
+        "unit capability:1: its title 'Save GLB' names .glb, which the facts it cites do not "
+        "carry; cite the facts that support this slot's title, or the sentence belongs to "
+        "another slot",
+        "unit capability:2: its title 'Import aspose.threed' names aspose.threed, which the facts "
+        "it cites do not carry; cite the facts that support this slot's title, or the sentence "
+        "belongs to another slot",
+    ]
+
+
+def test_slot_records_name_the_slot_its_subject_and_the_facts_it_may_cite() -> None:
+    assert slot_records(
+        ("capability:1", "opening"),
+        {"capability:1": frozenset({"b", "a"})},
+        {"capability:1": "Save GLB"},
+    ) == [
+        {"slot": "capability:1", "title": "Save GLB", "fact_ids": ["a", "b"]},
+        {"slot": "opening"},
     ]
 
 
