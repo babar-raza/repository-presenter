@@ -729,6 +729,34 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     ]
     if len(badge_rows) != 1:
         failures.append(Failure("COMPOSING", f"expected one badge row; found {len(badge_rows)}"))
+    # README_CONTRACT.md row 14: every verified public type exactly once, keyed by its canonical
+    # defining location, and the Core API table lists those types and nothing else.
+    types = [
+        fact
+        for fact in candidate.facts.by_kind("public_symbol")
+        if fact.polarity == "SUPPORTED"
+        and (fact.attributes or {}).get("symbol_kind") in {"class", "enum"}
+    ]
+    locations = Counter((fact.attributes or {}).get("defined_at") or fact.value for fact in types)
+    for location, count in sorted(locations.items()):
+        if count > 1:
+            failures.append(
+                Failure(
+                    "EXTRACTING",
+                    f"verified public type {location} is recorded {count} times; one fact per "
+                    "canonical defining location",
+                )
+            )
+    rows = re.findall(
+        r"^\| `([^`]+)` \|", _section_texts(candidate.readme).get("api_reference", ""), re.M
+    )
+    if rows and len(rows) != len(types):
+        failures.append(
+            Failure(
+                "COMPOSING",
+                f"the Core API table lists {len(rows)} rows for {len(types)} verified public types",
+            )
+        )
     headings = {section.heading for section in SEMANTIC_SHELL if section.heading}
     # Additional Examples holds every further example under its own real, unique, task-named
     # level-three heading (README_CONTRACT.md section 2 row 12): never "Example N", never reused.

@@ -459,3 +459,31 @@ def test_check_four_blocks_a_unit_citing_another_slots_facts(tmp_path: Path) -> 
         "key_capabilities: unit capability:1: cites facts outside its slot's planned set "
         "(format:output.glb); a unit describes its own slot's facts, never another slot's"
     ]
+
+
+def test_row_fourteen_refuses_two_facts_at_one_canonical_location(tmp_path: Path) -> None:
+    # README_CONTRACT.md row 14 as revised: one verified public type per canonical defining
+    # location; a second fact at the same location is an extraction defect.
+    def camera(fact_id: str) -> Fact:
+        return Fact(
+            fact_id,
+            "public_symbol",
+            "aspose.threed.Camera",
+            (Evidence("aspose/threed/camera.py", "line 1; class; public by name"),),
+            attributes={"symbol_kind": "class", "docstring": "A camera in the scene."},
+        )
+
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            camera("public_symbol:aspose.threed.camera"),
+            camera("public_symbol:aspose.threed.camera-2"),
+        ),
+    )
+    document = validate_candidate(_candidate(facts=facts), tmp_path, ())
+    assert (
+        "verified public type aspose.threed.Camera is recorded 2 times; one fact per canonical "
+        "defining location"
+    ) in _failed(document, "BC-07")["details"]

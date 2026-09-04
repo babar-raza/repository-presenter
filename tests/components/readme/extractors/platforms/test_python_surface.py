@@ -232,3 +232,32 @@ def test_reexport_paths_collapse_to_one_fact_named_by_the_shortest_public_path(
     assert make.attributes["defined_at"] == "pkg.factory.make"
     sub = next(fact for fact in facts if fact.value == "pkg.sub")
     assert sub.attributes["symbol_kind"] == "module"
+
+
+def test_a_later_import_of_the_same_name_wins_and_the_shadowed_class_stays_unresolved(
+    tmp_path: Path,
+) -> None:
+    # Python binds a package name to its last import: pkg.Thing is the flat module's class,
+    # and the class inside impl/Thing.py, reachable only by its own path, is shadowed and not
+    # part of the verified surface (README_CONTRACT.md row 14, RESEARCH section 26).
+    _write(tmp_path, "pkg/__init__.py", "from .impl.Thing import Thing\nfrom .Thing import Thing\n")
+    _write(tmp_path, "pkg/Thing.py", "class Thing:\n    '''Flat.'''\n")
+    _write(tmp_path, "pkg/impl/__init__.py", "")
+    _write(tmp_path, "pkg/impl/Thing.py", "class Thing:\n    '''Nested.'''\n")
+    facts = {
+        fact.value: fact for fact in public_symbol_facts(inspect_public_surface(tmp_path, ["pkg"]))
+    }
+    exposed = facts["pkg.Thing"]
+    assert exposed.polarity == "SUPPORTED" and exposed.attributes is not None
+    assert exposed.attributes["defined_at"] == "pkg.Thing.Thing"
+    assert exposed.attributes["docstring"] == "Flat."
+    shadowed = facts["pkg.impl.Thing.Thing"]
+    assert shadowed.polarity == "UNRESOLVED" and shadowed.attributes is not None
+    assert shadowed.attributes["shadowed_by"] == "pkg.Thing"
+    assert "shadowed by pkg.Thing" in (shadowed.evidence[0].detail or "")
+    verified_classes = [
+        f.value
+        for f in facts.values()
+        if f.polarity == "SUPPORTED" and (f.attributes or {}).get("symbol_kind") == "class"
+    ]
+    assert verified_classes == ["pkg.Thing"]

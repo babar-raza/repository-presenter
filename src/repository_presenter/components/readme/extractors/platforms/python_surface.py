@@ -275,7 +275,18 @@ def inspect_public_surface(repository_root: Path, package_dirs: Sequence[str]) -
             unresolved.extend(module_unresolved)
             for symbol in module_symbols:
                 current = symbols.get(symbol.qualified_name)
-                if current is None or (symbol.public_by == "reexport" and current.kind == "module"):
+                if (
+                    current is None
+                    or (symbol.public_by == "reexport" and current.kind == "module")
+                    or (
+                        # Python binds a name to its last import: a later re-export of the
+                        # same public name replaces the earlier one (a package importing
+                        # ColladaLoadOptions from two modules exposes the second).
+                        symbol.public_by == "reexport"
+                        and current.public_by == "reexport"
+                        and symbol.line > current.line
+                    )
+                ):
                     symbols[symbol.qualified_name] = symbol
         for name, symbol in list(symbols.items()):
             if symbol.reexported_from is None or symbol.kind != "unknown":
@@ -353,6 +364,32 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
         for symbol in surface.symbols
         if symbol.reexported_from is None and symbol.kind != "method"
     }
+
+    def shadowing(definition: PublicSymbol) -> str | None:
+        """The canonical path of the different definition a package binds to this one's name.
+
+        A class reachable only by its own module path while an enclosing package exposes
+        another definition under that name (the class inside a same-named module the package
+        no longer re-exports) is shadowed: it is not part of the verified public surface,
+        and README_CONTRACT.md row 14 lists the exposed definition once (section 26).
+        """
+        if definition.kind in {"module", "method"} or aliases.get(definition.qualified_name):
+            return None
+        parts = definition.module.split(".")
+        for depth in range(len(parts) - 1, 0, -1):
+            bound = by_name.get(f"{'.'.join(parts[:depth])}.{definition.name}")
+            if bound is None or bound.reexported_from is None:
+                continue
+            target = _definition_of(bound, by_name)
+            if target is not None and target != definition.qualified_name:
+                return canonical_paths.get(target, target)
+        return None
+
+    shadowed = {
+        symbol.qualified_name: shadow
+        for symbol in surface.symbols
+        if symbol.reexported_from is None and (shadow := shadowing(symbol)) is not None
+    }
     facts: list[Fact] = []
     seen: dict[str, int] = {}
 
@@ -368,14 +405,15 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
         if symbol.docstring:
             attributes["docstring"] = symbol.docstring
         attributes.update(extra)
+        verified = symbol.kind != "unknown" and "shadowed_by" not in extra
         facts.append(
             Fact(
                 identifier,
                 "public_symbol",
                 value,
                 tuple(evidence),
-                polarity="SUPPORTED" if symbol.kind != "unknown" else "UNRESOLVED",
-                confidence=1.0 if symbol.kind != "unknown" else 0.5,
+                polarity="SUPPORTED" if verified else "UNRESOLVED",
+                confidence=1.0 if verified else 0.5,
                 attributes=attributes,
             )
         )
@@ -403,10 +441,17 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
             value = f"{canonical_paths.get(class_name, class_name)}.{symbol.name}"
             detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
             extra = {"defined_at": symbol.qualified_name} if value != symbol.qualified_name else {}
+            if class_name in shadowed:
+                extra["shadowed_by"] = shadowed[class_name]
+                detail += f"; its class is shadowed by {shadowed[class_name]}"
             entries.append((value, symbol, value, [Evidence(symbol.source_path, detail)], extra))
             continue
         value = canonical_paths[symbol.qualified_name]
         detail = f"line {symbol.line}; {symbol.kind}; public by {symbol.public_by}"
+        if symbol.qualified_name in shadowed:
+            detail += (
+                f"; shadowed by {shadowed[symbol.qualified_name]}, reachable only by this path"
+            )
         evidence = [Evidence(symbol.source_path, detail)]
         others: list[str] = []
         for alias in sorted(
@@ -426,6 +471,8 @@ def public_symbol_facts(surface: PublicSurface) -> list[Fact]:
             others.insert(0, symbol.qualified_name)
         if others:
             extra["public_paths"] = ", ".join(others)
+        if symbol.qualified_name in shadowed:
+            extra["shadowed_by"] = shadowed[symbol.qualified_name]
         entries.append((value, symbol, value, evidence, extra))
     for _, symbol, value, evidence, extra in sorted(entries, key=lambda e: e[0]):
         emit(symbol, value, evidence, extra)

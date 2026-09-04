@@ -7,9 +7,9 @@
       "fact_ids": [],
       "id": "F01",
       "quote": "```mermaid\nflowchart TD\n  PRODUCT[\"Aspose.3D FOSS for Python\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Load multiple 3D formats\"]\n      c2[\"Export to common 3D formats\"]\n      c3[\"Construct and manipulate meshes\"]\n      c4[\"Assign materials to geometry\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Build and traverse scene graphs\"]\n      c6[\"Triangulate arbitrary polygons\"]\n      c7[\"Create keyframe animations\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"glTF or STL file\"]\n  end\n  PRODUCT --> Capabilities --> Outputs\n```",
-      "repair": "Restore the original Mermaid diagram structure, including the 'Starting Points' node with explicit file formats (OBJ, STL, glTF, COLLADA, 3MF) and the complete output list (OBJ, STL, glTF, 3MF) to match the original README's visual representation.",
+      "repair": "Restore the 'Starting Points' subgraph with the verified input formats (OBJ, STL, glTF, COLLADA, 3MF) and ensure the flowchart shows the complete data flow from inputs to outputs via the product.",
       "section_id": "at_a_glance",
-      "text": "[reviewer-scope defect at S7: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The Mermaid flowchart in the At a Glance section omits the 'Starting Points' node and incorrectly simplifies the diagram by removing the explicit input file formats (OBJ, STL, glTF, COLLADA, 3MF) and output formats (OBJ, STL, glTF, 3MF) that are present in the original README."
+      "text": "[reviewer-scope defect at S7: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The Mermaid flowchart in the At a Glance section omits the 'Starting Points' subgraph entirely, which was present in the original README and is essential for understanding the input formats supported by the library."
     },
     {
       "causal_stage": "unclear",
@@ -17,10 +17,10 @@
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F03",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the original verification command (`python3 -c ",
+      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Restore the verification command and editable install instructions exactly as in the original README, since they are supported by the facts in the dependency and install_command sections.",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section removes the verification command (`python3 -c "
+      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section removes the verification command and editable install instructions that were present in the original README and are useful for developers."
     },
     {
       "causal_stage": "unclear",
@@ -28,10 +28,32 @@
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F02",
-      "quote": "- **Load multiple 3D formats.** Create and save 3D scenes to multiple formats including `.gltf` and `.stl` using the `FileFormat` class, which supports format detection, extension mapping, and save options configuration.",
-      "repair": "Restore the original specific format list (OBJ, STL, glTF/GLB, COLLADA, and 3MF) and retain the original phrasing about auto-detection and `SaveOptions` subclasses to match the original README's technical precision.",
+      "quote": "- **Load multiple 3D formats.** Create and save 3D scenes to multiple formats including `.gltf` and `.stl` using the `FileFormat` class, which supports format detection, extension mapping, and save options configuration.\n- **Export to common 3D formats.** Export scenes to `.gltf` and `.stl` formats by leveraging `FileFormat.get_format_by_extension` and its `create_save_options` method to configure binary or ASCII output modes.",
+      "repair": "Restore the original specific format list (OBJ, STL, glTF/GLB, COLLADA, 3MF for import; OBJ, STL, glTF/GLB, 3MF for export) and include the COLLADA export limitation note that 'COLLADA export is registered but not reachable through Scene.save()'.",
       "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section rephrases the original content in a generic way (e.g., 'Load multiple 3D formats' instead of specifying the exact formats: OBJ, STL, glTF/GLB, COLLADA, and 3MF), losing specificity and failing to preserve the original's precise technical details."
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section reorders and rewords the original list in a way that obscures the specific file formats supported for import and export, and omits critical details about COLLADA export limitations that were present in the original."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "The verified public surface has 337 types.",
+      "repair": "Restore the original count of 305 public types and include the detailed class-by-class descriptions from the original README, since the facts support the existence of these types and descriptions.",
+      "section_id": "api_reference",
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The API Reference section reduces the count of public types from 305 (as stated in the original) to 337 without justification and omits the detailed class-by-class descriptions that were present in the original README."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides core scene graph and mesh manipulation capabilities for Python 3.7 through 3.12.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`() and `Scene.save`() cannot detect or dispatch any of these extensions and raise a RuntimeError if you try, and FBX support is experimental with `FbxExporter.save`() and `save_to_stream()` raising NotImplementedError outright, while COLLADA export is not reachable through `Scene.save`() due to exporter lookup order issues.",
+      "repair": "Restore the original detailed limitation descriptions with separate bullet points for each limitation (PDF/PLY/RVM/etc., FBX, COLLADA, render module, Texture, Watermark, TransformBuilder, Boolean operations, NURBS, PointCloud, AxisSystem, and import path issues) as they were in the original README.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section compresses the original detailed limitation descriptions into a single dense paragraph, losing important context about FBX, COLLADA, and format import/export issues that were explicitly verified in the original."
     }
   ],
   "authoring": {
@@ -42,7 +64,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "2685b5b1ad73a37965cfd8bce466b9b1d9dde1643ef0e2003eab5a5bb79ea756",
+  "readme_sha256": "358eca9f26bbec65650d1bffaf8f7838b3514b92cec123a30bf6d30f67ecf2e5",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

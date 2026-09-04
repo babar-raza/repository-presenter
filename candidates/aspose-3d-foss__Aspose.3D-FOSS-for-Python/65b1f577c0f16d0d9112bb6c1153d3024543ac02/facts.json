@@ -12343,6 +12343,42 @@
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaLoadOptions",
+        "signature": "class ColladaLoadOptions(LoadOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path",
+          "path": "aspose/threed/formats/collada/ColladaLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladaloadoptions.colladaloadoptions",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaLoadOptions",
+        "signature": "def flip_coordinate_system(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+          "path": "aspose/threed/formats/collada/ColladaLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladaloadoptions.colladaloadoptions.flip_coordinate_system",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions.flip_coordinate_system"
+    },
+    {
+      "attributes": {
         "symbol_kind": "module"
       },
       "confidence": 1.0,
@@ -12494,6 +12530,78 @@
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaSaveOptions",
+        "signature": "class ColladaSaveOptions(SaveOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladasaveoptions.colladasaveoptions",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaSaveOptions",
+        "signature": "def enable_materials(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 26; method; public by name; its class is shadowed by aspose.threed.formats.ColladaSaveOptions",
+          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladasaveoptions.colladasaveoptions.enable_materials",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.enable_materials"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaSaveOptions",
+        "signature": "def flip_coordinate_system(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by name; its class is shadowed by aspose.threed.formats.ColladaSaveOptions",
+          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladasaveoptions.colladasaveoptions.flip_coordinate_system",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.flip_coordinate_system"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaSaveOptions",
+        "signature": "def indented(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 34; method; public by name; its class is shadowed by aspose.threed.formats.ColladaSaveOptions",
+          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.collada.colladasaveoptions.colladasaveoptions.indented",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.indented"
+    },
+    {
+      "attributes": {
         "symbol_kind": "module"
       },
       "confidence": 1.0,
@@ -12510,87 +12618,92 @@
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaTransformStyle",
         "signature": "class ColladaTransformStyle",
         "symbol_kind": "class"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 7; class; public by name",
+          "detail": "line 7; class; public by name; shadowed by aspose.threed.formats.ColladaTransformStyle, reachable only by this path",
           "path": "aspose/threed/formats/collada/ColladaTransformStyle.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.formats.collada.ColladaTransformStyle.ColladaTransformStyle"
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaTransformStyle",
         "signature": "def COMPONENTS()",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 30; method; public by name",
+          "detail": "line 30; method; public by name; its class is shadowed by aspose.threed.formats.ColladaTransformStyle",
           "path": "aspose/threed/formats/collada/ColladaTransformStyle.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle.components",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.formats.collada.ColladaTransformStyle.ColladaTransformStyle.COMPONENTS"
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaTransformStyle",
         "signature": "def MATRIX()",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 36; method; public by name",
+          "detail": "line 36; method; public by name; its class is shadowed by aspose.threed.formats.ColladaTransformStyle",
           "path": "aspose/threed/formats/collada/ColladaTransformStyle.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle.matrix",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.formats.collada.ColladaTransformStyle.ColladaTransformStyle.MATRIX"
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.ColladaTransformStyle",
         "signature": "def name(self) -> str",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 26; method; public by name",
+          "detail": "line 26; method; public by name; its class is shadowed by aspose.threed.formats.ColladaTransformStyle",
           "path": "aspose/threed/formats/collada/ColladaTransformStyle.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.collada.colladatransformstyle.colladatransformstyle.name",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.formats.collada.ColladaTransformStyle.ColladaTransformStyle.name"
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions",
-        "public_paths": "aspose.threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions",
-        "signature": "class ColladaLoadOptions(LoadOptions)",
+        "defined_at": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions",
+        "docstring": "Load options for Collada",
+        "public_paths": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions",
+        "signature": "class ColladaLoadOptions",
         "symbol_kind": "class"
       },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "line 4; class; public by name",
-          "path": "aspose/threed/formats/collada/ColladaLoadOptions.py"
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/ColladaLoadOptions.py"
         },
         {
-          "detail": "line 26; re-exported as aspose.threed.formats.ColladaLoadOptions",
+          "detail": "line 59; re-exported as aspose.threed.formats.ColladaLoadOptions",
           "path": "aspose/threed/formats/__init__.py"
         }
       ],
@@ -12601,24 +12714,7 @@
     },
     {
       "attributes": {
-        "docstring": "Load options for Collada",
-        "signature": "class ColladaLoadOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/ColladaLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.colladaloadoptions.colladaloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions"
-    },
-    {
-      "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions.enable_materials",
         "signature": "def enable_materials(self) -> bool",
         "symbol_kind": "method"
       },
@@ -12629,13 +12725,14 @@
           "path": "aspose/threed/formats/ColladaLoadOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladaloadoptions.colladaloadoptions.enable_materials",
+      "id": "public_symbol:aspose.threed.formats.colladaloadoptions.enable_materials",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions.enable_materials"
+      "value": "aspose.threed.formats.ColladaLoadOptions.enable_materials"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions.flip_coordinate_system",
         "signature": "def flip_coordinate_system(self) -> bool",
         "symbol_kind": "method"
       },
@@ -12646,24 +12743,6 @@
           "path": "aspose/threed/formats/ColladaLoadOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladaloadoptions.colladaloadoptions.flip_coordinate_system",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaLoadOptions.ColladaLoadOptions.flip_coordinate_system"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions.flip_coordinate_system",
-        "signature": "def flip_coordinate_system(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 10; method; public by name",
-          "path": "aspose/threed/formats/collada/ColladaLoadOptions.py"
-        }
-      ],
       "id": "public_symbol:aspose.threed.formats.colladaloadoptions.flip_coordinate_system",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
@@ -12671,19 +12750,20 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions",
-        "public_paths": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions",
-        "signature": "class ColladaSaveOptions(SaveOptions)",
+        "defined_at": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions",
+        "docstring": "Save options for collada",
+        "public_paths": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions",
+        "signature": "class ColladaSaveOptions",
         "symbol_kind": "class"
       },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "line 10; class; public by name",
-          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/ColladaSaveOptions.py"
         },
         {
-          "detail": "line 27; re-exported as aspose.threed.formats.ColladaSaveOptions",
+          "detail": "line 38; re-exported as aspose.threed.formats.ColladaSaveOptions",
           "path": "aspose/threed/formats/__init__.py"
         }
       ],
@@ -12694,24 +12774,7 @@
     },
     {
       "attributes": {
-        "docstring": "Save options for collada",
-        "signature": "class ColladaSaveOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/ColladaSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.colladasaveoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions"
-    },
-    {
-      "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.enable_materials",
         "signature": "def enable_materials(self) -> bool",
         "symbol_kind": "method"
       },
@@ -12722,13 +12785,14 @@
           "path": "aspose/threed/formats/ColladaSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.colladasaveoptions.enable_materials",
+      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.enable_materials",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.enable_materials"
+      "value": "aspose.threed.formats.ColladaSaveOptions.enable_materials"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.flip_coordinate_system",
         "signature": "def flip_coordinate_system(self) -> bool",
         "symbol_kind": "method"
       },
@@ -12739,13 +12803,14 @@
           "path": "aspose/threed/formats/ColladaSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.colladasaveoptions.flip_coordinate_system",
+      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.flip_coordinate_system",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.flip_coordinate_system"
+      "value": "aspose.threed.formats.ColladaSaveOptions.flip_coordinate_system"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.indented",
         "signature": "def indented(self) -> bool",
         "symbol_kind": "method"
       },
@@ -12756,13 +12821,14 @@
           "path": "aspose/threed/formats/ColladaSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.colladasaveoptions.indented",
+      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.indented",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.indented"
+      "value": "aspose.threed.formats.ColladaSaveOptions.indented"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.transform_style",
         "signature": "def transform_style(self)",
         "symbol_kind": "method"
       },
@@ -12773,64 +12839,10 @@
           "path": "aspose/threed/formats/ColladaSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.colladasaveoptions.transform_style",
+      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.transform_style",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.ColladaSaveOptions.transform_style"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.enable_materials",
-        "signature": "def enable_materials(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 26; method; public by name",
-          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.enable_materials",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.enable_materials"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.flip_coordinate_system",
-        "signature": "def flip_coordinate_system(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 18; method; public by name",
-          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.flip_coordinate_system",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.flip_coordinate_system"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions.indented",
-        "signature": "def indented(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 34; method; public by name",
-          "path": "aspose/threed/formats/collada/ColladaSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.colladasaveoptions.indented",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ColladaSaveOptions.indented"
+      "value": "aspose.threed.formats.ColladaSaveOptions.transform_style"
     },
     {
       "attributes": {
@@ -13642,6 +13654,60 @@
     },
     {
       "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxLoadOptions",
+        "signature": "class FbxLoadOptions(LoadOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name; shadowed by aspose.threed.formats.FbxLoadOptions, reachable only by this path",
+          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxloadoptions.fbxloadoptions",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxLoadOptions",
+        "signature": "def compatible_mode(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 26; method; public by name; its class is shadowed by aspose.threed.formats.FbxLoadOptions",
+          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxloadoptions.fbxloadoptions.compatible_mode",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions.compatible_mode"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxLoadOptions",
+        "signature": "def keep_builtin_global_settings(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by name; its class is shadowed by aspose.threed.formats.FbxLoadOptions",
+          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxloadoptions.fbxloadoptions.keep_builtin_global_settings",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions.keep_builtin_global_settings"
+    },
+    {
+      "attributes": {
         "symbol_kind": "module"
       },
       "confidence": 1.0,
@@ -13790,6 +13856,168 @@
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
       "value": "aspose.threed.formats.fbx.FbxSaveOptions"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "class FbxSaveOptions(SaveOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name; shadowed by aspose.threed.formats.FbxSaveOptions, reachable only by this path",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def embed_textures(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 72; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.embed_textures",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.embed_textures"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def enable_compression(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 40; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.enable_compression",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.enable_compression"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def export_legacy_material_properties(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 56; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.export_legacy_material_properties",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.export_legacy_material_properties"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def export_textures(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 24; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.export_textures",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.export_textures"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def fold_repeated_curve_data(self)",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 48; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.fold_repeated_curve_data",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.fold_repeated_curve_data"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def generate_vertex_element_material(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 80; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.generate_vertex_element_material",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.generate_vertex_element_material"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def reuse_primitive_mesh(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 32; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.reuse_primitive_mesh",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.reuse_primitive_mesh"
+    },
+    {
+      "attributes": {
+        "shadowed_by": "aspose.threed.formats.FbxSaveOptions",
+        "signature": "def video_for_texture(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "line 64; method; public by name; its class is shadowed by aspose.threed.formats.FbxSaveOptions",
+          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.fbx.fbxsaveoptions.fbxsaveoptions.video_for_texture",
+      "kind": "public_symbol",
+      "polarity": "UNRESOLVED",
+      "value": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.video_for_texture"
     },
     {
       "attributes": {
@@ -14216,19 +14444,20 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions",
-        "public_paths": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions",
-        "signature": "class FbxLoadOptions(LoadOptions)",
+        "defined_at": "aspose.threed.formats.FbxLoadOptions.FbxLoadOptions",
+        "docstring": "Load options for FBX",
+        "public_paths": "aspose.threed.formats.FbxLoadOptions.FbxLoadOptions",
+        "signature": "class FbxLoadOptions",
         "symbol_kind": "class"
       },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/FbxLoadOptions.py"
         },
         {
-          "detail": "line 23; re-exported as aspose.threed.formats.FbxLoadOptions",
+          "detail": "line 58; re-exported as aspose.threed.formats.FbxLoadOptions",
           "path": "aspose/threed/formats/__init__.py"
         }
       ],
@@ -14239,73 +14468,20 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions.compatible_mode",
-        "signature": "def compatible_mode(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 26; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxloadoptions.compatible_mode",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxLoadOptions.compatible_mode"
-    },
-    {
-      "attributes": {
-        "docstring": "Load options for FBX",
-        "signature": "class FbxLoadOptions",
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions",
+        "docstring": "Save options for FBX",
+        "public_paths": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions",
+        "signature": "class FbxSaveOptions",
         "symbol_kind": "class"
       },
       "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/FbxLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxloadoptions.fbxloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxLoadOptions.FbxLoadOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxLoadOptions.FbxLoadOptions.keep_builtin_global_settings",
-        "signature": "def keep_builtin_global_settings(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 18; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxloadoptions.keep_builtin_global_settings",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxLoadOptions.keep_builtin_global_settings"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions",
-        "public_paths": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions",
-        "signature": "class FbxSaveOptions(SaveOptions)",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
+          "path": "aspose/threed/formats/FbxSaveOptions.py"
         },
         {
-          "detail": "line 24; re-exported as aspose.threed.formats.FbxSaveOptions",
+          "detail": "line 39; re-exported as aspose.threed.formats.FbxSaveOptions",
           "path": "aspose/threed/formats/__init__.py"
         }
       ],
@@ -14316,96 +14492,7 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.embed_textures",
-        "signature": "def embed_textures(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 72; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.embed_textures",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.embed_textures"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.enable_compression",
-        "signature": "def enable_compression(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 40; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.enable_compression",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.enable_compression"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.export_legacy_material_properties",
-        "signature": "def export_legacy_material_properties(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 56; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.export_legacy_material_properties",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.export_legacy_material_properties"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.export_textures",
-        "signature": "def export_textures(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 24; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.export_textures",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.export_textures"
-    },
-    {
-      "attributes": {
-        "docstring": "Save options for FBX",
-        "signature": "class FbxSaveOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions"
-    },
-    {
-      "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.embed_textures",
         "signature": "def embed_textures(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14416,13 +14503,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.embed_textures",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.embed_textures",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.embed_textures"
+      "value": "aspose.threed.formats.FbxSaveOptions.embed_textures"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.enable_compression",
         "signature": "def enable_compression(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14433,13 +14521,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.enable_compression",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.enable_compression",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.enable_compression"
+      "value": "aspose.threed.formats.FbxSaveOptions.enable_compression"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.export_legacy_material_properties",
         "signature": "def export_legacy_material_properties(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14450,13 +14539,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.export_legacy_material_properties",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.export_legacy_material_properties",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.export_legacy_material_properties"
+      "value": "aspose.threed.formats.FbxSaveOptions.export_legacy_material_properties"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.fold_repeated_curve_data",
         "signature": "def fold_repeated_curve_data(self)",
         "symbol_kind": "method"
       },
@@ -14467,13 +14557,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.fold_repeated_curve_data",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fold_repeated_curve_data",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.fold_repeated_curve_data"
+      "value": "aspose.threed.formats.FbxSaveOptions.fold_repeated_curve_data"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.generate_vertex_element_material",
         "signature": "def generate_vertex_element_material(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14484,13 +14575,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.generate_vertex_element_material",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.generate_vertex_element_material",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.generate_vertex_element_material"
+      "value": "aspose.threed.formats.FbxSaveOptions.generate_vertex_element_material"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.reuse_primitive_mesh",
         "signature": "def reuse_primitive_mesh(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14501,13 +14593,14 @@
           "path": "aspose/threed/formats/FbxSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.reuse_primitive_mesh",
+      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.reuse_primitive_mesh",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.reuse_primitive_mesh"
+      "value": "aspose.threed.formats.FbxSaveOptions.reuse_primitive_mesh"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.video_for_texture",
         "signature": "def video_for_texture(self) -> bool",
         "symbol_kind": "method"
       },
@@ -14516,78 +14609,6 @@
         {
           "detail": "line 46; method; public by name",
           "path": "aspose/threed/formats/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fbxsaveoptions.video_for_texture",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.FbxSaveOptions.video_for_texture"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.fold_repeated_curve_data",
-        "signature": "def fold_repeated_curve_data(self)",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 48; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.fold_repeated_curve_data",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.fold_repeated_curve_data"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.generate_vertex_element_material",
-        "signature": "def generate_vertex_element_material(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 80; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.generate_vertex_element_material",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.generate_vertex_element_material"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.reuse_primitive_mesh",
-        "signature": "def reuse_primitive_mesh(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 32; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.reuse_primitive_mesh",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.FbxSaveOptions.reuse_primitive_mesh"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.fbx.FbxSaveOptions.FbxSaveOptions.video_for_texture",
-        "signature": "def video_for_texture(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 64; method; public by name",
-          "path": "aspose/threed/formats/fbx/FbxSaveOptions.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.fbxsaveoptions.video_for_texture",
@@ -15016,6 +15037,47 @@
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions",
+        "public_paths": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions",
+        "signature": "class GltfLoadOptions(LoadOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name",
+          "path": "aspose/threed/formats/gltf/GltfLoadOptions.py"
+        },
+        {
+          "detail": "line 1; re-exported as aspose.threed.formats.gltf.GltfLoadOptions",
+          "path": "aspose/threed/formats/gltf/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfloadoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfLoadOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions.flip_tex_coord_v",
+        "signature": "def flip_tex_coord_v(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by name",
+          "path": "aspose/threed/formats/gltf/GltfLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfloadoptions.flip_tex_coord_v",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfLoadOptions.flip_tex_coord_v"
+    },
+    {
+      "attributes": {
         "defined_at": "aspose.threed.formats.gltf.GltfPlugin.GltfPlugin",
         "public_paths": "aspose.threed.formats.gltf.GltfPlugin.GltfPlugin",
         "signature": "class GltfPlugin(Plugin)",
@@ -15147,6 +15209,83 @@
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions",
+        "public_paths": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions",
+        "signature": "class GltfSaveOptions(SaveOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name",
+          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
+        },
+        {
+          "detail": "line 2; re-exported as aspose.threed.formats.gltf.GltfSaveOptions",
+          "path": "aspose/threed/formats/gltf/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfsaveoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfSaveOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.binary_mode",
+        "signature": "def binary_mode(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 22; method; public by name",
+          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfsaveoptions.binary_mode",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfSaveOptions.binary_mode"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.file_format",
+        "signature": "def file_format(self) -> 'FileFormat'",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by name",
+          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfsaveoptions.file_format",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfSaveOptions.file_format"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.flip_tex_coord_v",
+        "signature": "def flip_tex_coord_v(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 30; method; public by name",
+          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.gltf.gltfsaveoptions.flip_tex_coord_v",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.gltf.GltfSaveOptions.flip_tex_coord_v"
+    },
+    {
+      "attributes": {
         "defined_at": "aspose.threed.formats.GltfEmbeddedImageFormat.GltfEmbeddedImageFormat",
         "docstring": "Embedded image format for GLTF",
         "public_paths": "aspose.threed.formats.GltfEmbeddedImageFormat.GltfEmbeddedImageFormat",
@@ -15171,24 +15310,21 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions",
-        "public_paths": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions, aspose.threed.formats.gltf.GltfLoadOptions",
-        "signature": "class GltfLoadOptions(LoadOptions)",
+        "defined_at": "aspose.threed.formats.GltfLoadOptions.GltfLoadOptions",
+        "docstring": "Load options for glTF",
+        "public_paths": "aspose.threed.formats.GltfLoadOptions.GltfLoadOptions",
+        "signature": "class GltfLoadOptions",
         "symbol_kind": "class"
       },
       "confidence": 1.0,
       "evidence": [
         {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/gltf/GltfLoadOptions.py"
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/GltfLoadOptions.py"
         },
         {
-          "detail": "line 16; re-exported as aspose.threed.formats.GltfLoadOptions",
+          "detail": "line 57; re-exported as aspose.threed.formats.GltfLoadOptions",
           "path": "aspose/threed/formats/__init__.py"
-        },
-        {
-          "detail": "line 1; re-exported as aspose.threed.formats.gltf.GltfLoadOptions",
-          "path": "aspose/threed/formats/gltf/__init__.py"
         }
       ],
       "id": "public_symbol:aspose.threed.formats.gltfloadoptions",
@@ -15198,124 +15334,9 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfLoadOptions.GltfLoadOptions.flip_tex_coord_v",
-        "signature": "def flip_tex_coord_v(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 15; method; public by name",
-          "path": "aspose/threed/formats/gltf/GltfLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfloadoptions.flip_tex_coord_v",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfLoadOptions.flip_tex_coord_v"
-    },
-    {
-      "attributes": {
-        "docstring": "Load options for glTF",
-        "signature": "class GltfLoadOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/GltfLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfloadoptions.gltfloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfLoadOptions.GltfLoadOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions",
-        "public_paths": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions, aspose.threed.formats.gltf.GltfSaveOptions",
-        "signature": "class GltfSaveOptions(SaveOptions)",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
-        },
-        {
-          "detail": "line 17; re-exported as aspose.threed.formats.GltfSaveOptions",
-          "path": "aspose/threed/formats/__init__.py"
-        },
-        {
-          "detail": "line 2; re-exported as aspose.threed.formats.gltf.GltfSaveOptions",
-          "path": "aspose/threed/formats/gltf/__init__.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfSaveOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.binary_mode",
-        "signature": "def binary_mode(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 22; method; public by name",
-          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions.binary_mode",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfSaveOptions.binary_mode"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.file_format",
-        "signature": "def file_format(self) -> 'FileFormat'",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 18; method; public by name",
-          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions.file_format",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfSaveOptions.file_format"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.gltf.GltfSaveOptions.GltfSaveOptions.flip_tex_coord_v",
-        "signature": "def flip_tex_coord_v(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 30; method; public by name",
-          "path": "aspose/threed/formats/gltf/GltfSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions.flip_tex_coord_v",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfSaveOptions.flip_tex_coord_v"
-    },
-    {
-      "attributes": {
+        "defined_at": "aspose.threed.formats.GltfSaveOptions.GltfSaveOptions",
         "docstring": "Save options for glTF",
+        "public_paths": "aspose.threed.formats.GltfSaveOptions.GltfSaveOptions",
         "signature": "class GltfSaveOptions",
         "symbol_kind": "class"
       },
@@ -15324,12 +15345,16 @@
         {
           "detail": "line 1; class; public by name",
           "path": "aspose/threed/formats/GltfSaveOptions.py"
+        },
+        {
+          "detail": "line 40; re-exported as aspose.threed.formats.GltfSaveOptions",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions.gltfsaveoptions",
+      "id": "public_symbol:aspose.threed.formats.gltfsaveoptions",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.GltfSaveOptions.GltfSaveOptions"
+      "value": "aspose.threed.formats.GltfSaveOptions"
     },
     {
       "attributes": {
@@ -16205,6 +16230,101 @@
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions",
+        "public_paths": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions",
+        "signature": "class ObjLoadOptions(LoadOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name",
+          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
+        },
+        {
+          "detail": "line 1; re-exported as aspose.threed.formats.obj.ObjLoadOptions",
+          "path": "aspose/threed/formats/obj/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.obj.objloadoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.obj.ObjLoadOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.enable_materials",
+        "signature": "def enable_materials(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 26; method; public by name",
+          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.obj.objloadoptions.enable_materials",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.obj.ObjLoadOptions.enable_materials"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.flip_coordinate_system",
+        "signature": "def flip_coordinate_system(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by name",
+          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.obj.objloadoptions.flip_coordinate_system",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.obj.ObjLoadOptions.flip_coordinate_system"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.normalize_normal",
+        "signature": "def normalize_normal(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 42; method; public by name",
+          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.obj.objloadoptions.normalize_normal",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.obj.ObjLoadOptions.normalize_normal"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.scale",
+        "signature": "def scale(self) -> float",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 34; method; public by name",
+          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.obj.objloadoptions.scale",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.obj.ObjLoadOptions.scale"
+    },
+    {
+      "attributes": {
         "symbol_kind": "module"
       },
       "confidence": 1.0,
@@ -16340,125 +16460,8 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions",
-        "public_paths": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions, aspose.threed.formats.obj.ObjLoadOptions",
-        "signature": "class ObjLoadOptions(LoadOptions)",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
-        },
-        {
-          "detail": "line 10; re-exported as aspose.threed.formats.ObjLoadOptions",
-          "path": "aspose/threed/formats/__init__.py"
-        },
-        {
-          "detail": "line 1; re-exported as aspose.threed.formats.obj.ObjLoadOptions",
-          "path": "aspose/threed/formats/obj/__init__.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.enable_materials",
-        "signature": "def enable_materials(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 26; method; public by name",
-          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions.enable_materials",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions.enable_materials"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.flip_coordinate_system",
-        "signature": "def flip_coordinate_system(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 18; method; public by name",
-          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions.flip_coordinate_system",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions.flip_coordinate_system"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.normalize_normal",
-        "signature": "def normalize_normal(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 42; method; public by name",
-          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions.normalize_normal",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions.normalize_normal"
-    },
-    {
-      "attributes": {
-        "docstring": "Load options for OBJ",
-        "signature": "class ObjLoadOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/ObjLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions.objloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions.ObjLoadOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.obj.ObjLoadOptions.ObjLoadOptions.scale",
-        "signature": "def scale(self) -> float",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 34; method; public by name",
-          "path": "aspose/threed/formats/obj/ObjLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objloadoptions.scale",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjLoadOptions.scale"
-    },
-    {
-      "attributes": {
         "defined_at": "aspose.threed.formats.obj.ObjSaveOptions.ObjSaveOptions",
-        "public_paths": "aspose.threed.formats.obj.ObjSaveOptions.ObjSaveOptions, aspose.threed.formats.obj.ObjSaveOptions",
+        "public_paths": "aspose.threed.formats.obj.ObjSaveOptions.ObjSaveOptions",
         "signature": "class ObjSaveOptions(SaveOptions)",
         "symbol_kind": "class"
       },
@@ -16469,18 +16472,14 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         },
         {
-          "detail": "line 11; re-exported as aspose.threed.formats.ObjSaveOptions",
-          "path": "aspose/threed/formats/__init__.py"
-        },
-        {
           "detail": "line 2; re-exported as aspose.threed.formats.obj.ObjSaveOptions",
           "path": "aspose/threed/formats/obj/__init__.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions"
     },
     {
       "attributes": {
@@ -16495,10 +16494,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.apply_unit_scale",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.apply_unit_scale",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.apply_unit_scale"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.apply_unit_scale"
     },
     {
       "attributes": {
@@ -16513,10 +16512,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.axis_system",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.axis_system",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.axis_system"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.axis_system"
     },
     {
       "attributes": {
@@ -16531,10 +16530,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.enable_materials",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.enable_materials",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.enable_materials"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.enable_materials"
     },
     {
       "attributes": {
@@ -16549,28 +16548,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.flip_coordinate_system",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.flip_coordinate_system",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.flip_coordinate_system"
-    },
-    {
-      "attributes": {
-        "docstring": "Save options for OBJ",
-        "signature": "class ObjSaveOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/ObjSaveOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.objsaveoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.ObjSaveOptions"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.flip_coordinate_system"
     },
     {
       "attributes": {
@@ -16585,10 +16566,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.point_cloud",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.point_cloud",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.point_cloud"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.point_cloud"
     },
     {
       "attributes": {
@@ -16603,10 +16584,10 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.serialize_w",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.serialize_w",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.serialize_w"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.serialize_w"
     },
     {
       "attributes": {
@@ -16621,10 +16602,58 @@
           "path": "aspose/threed/formats/obj/ObjSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.objsaveoptions.verbose",
+      "id": "public_symbol:aspose.threed.formats.obj.objsaveoptions.verbose",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.ObjSaveOptions.verbose"
+      "value": "aspose.threed.formats.obj.ObjSaveOptions.verbose"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.ObjLoadOptions.ObjLoadOptions",
+        "docstring": "Load options for OBJ",
+        "public_paths": "aspose.threed.formats.ObjLoadOptions.ObjLoadOptions",
+        "signature": "class ObjLoadOptions",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/ObjLoadOptions.py"
+        },
+        {
+          "detail": "line 60; re-exported as aspose.threed.formats.ObjLoadOptions",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.objloadoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.ObjLoadOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.ObjSaveOptions.ObjSaveOptions",
+        "docstring": "Save options for OBJ",
+        "public_paths": "aspose.threed.formats.ObjSaveOptions.ObjSaveOptions",
+        "signature": "class ObjSaveOptions",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/ObjSaveOptions.py"
+        },
+        {
+          "detail": "line 43; re-exported as aspose.threed.formats.ObjSaveOptions",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.objsaveoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.ObjSaveOptions"
     },
     {
       "attributes": {
@@ -17487,6 +17516,65 @@
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions",
+        "public_paths": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions",
+        "signature": "class StlLoadOptions(LoadOptions)",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by name",
+          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
+        },
+        {
+          "detail": "line 4; re-exported as aspose.threed.formats.stl.StlLoadOptions",
+          "path": "aspose/threed/formats/stl/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.stl.stlloadoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.stl.StlLoadOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions.flip_coordinate_system",
+        "signature": "def flip_coordinate_system(self) -> bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; public by name",
+          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.stl.stlloadoptions.flip_coordinate_system",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.stl.StlLoadOptions.flip_coordinate_system"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions.scale",
+        "signature": "def scale(self) -> float",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; public by name",
+          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.stl.stlloadoptions.scale",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.stl.StlLoadOptions.scale"
+    },
+    {
+      "attributes": {
         "symbol_kind": "module"
       },
       "confidence": 1.0,
@@ -17622,89 +17710,8 @@
     },
     {
       "attributes": {
-        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions",
-        "public_paths": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions, aspose.threed.formats.stl.StlLoadOptions",
-        "signature": "class StlLoadOptions(LoadOptions)",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 9; class; public by name",
-          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
-        },
-        {
-          "detail": "line 12; re-exported as aspose.threed.formats.StlLoadOptions",
-          "path": "aspose/threed/formats/__init__.py"
-        },
-        {
-          "detail": "line 4; re-exported as aspose.threed.formats.stl.StlLoadOptions",
-          "path": "aspose/threed/formats/stl/__init__.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.stlloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlLoadOptions"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions.flip_coordinate_system",
-        "signature": "def flip_coordinate_system(self) -> bool",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 16; method; public by name",
-          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.stlloadoptions.flip_coordinate_system",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlLoadOptions.flip_coordinate_system"
-    },
-    {
-      "attributes": {
-        "defined_at": "aspose.threed.formats.stl.StlLoadOptions.StlLoadOptions.scale",
-        "signature": "def scale(self) -> float",
-        "symbol_kind": "method"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 24; method; public by name",
-          "path": "aspose/threed/formats/stl/StlLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.stlloadoptions.scale",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlLoadOptions.scale"
-    },
-    {
-      "attributes": {
-        "docstring": "Load options for STL",
-        "signature": "class StlLoadOptions",
-        "symbol_kind": "class"
-      },
-      "confidence": 1.0,
-      "evidence": [
-        {
-          "detail": "line 1; class; public by name",
-          "path": "aspose/threed/formats/StlLoadOptions.py"
-        }
-      ],
-      "id": "public_symbol:aspose.threed.formats.stlloadoptions.stlloadoptions",
-      "kind": "public_symbol",
-      "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlLoadOptions.StlLoadOptions"
-    },
-    {
-      "attributes": {
         "defined_at": "aspose.threed.formats.stl.StlSaveOptions.StlSaveOptions",
-        "public_paths": "aspose.threed.formats.stl.StlSaveOptions.StlSaveOptions, aspose.threed.formats.stl.StlSaveOptions",
+        "public_paths": "aspose.threed.formats.stl.StlSaveOptions.StlSaveOptions",
         "signature": "class StlSaveOptions(SaveOptions)",
         "symbol_kind": "class"
       },
@@ -17715,18 +17722,14 @@
           "path": "aspose/threed/formats/stl/StlSaveOptions.py"
         },
         {
-          "detail": "line 13; re-exported as aspose.threed.formats.StlSaveOptions",
-          "path": "aspose/threed/formats/__init__.py"
-        },
-        {
           "detail": "line 5; re-exported as aspose.threed.formats.stl.StlSaveOptions",
           "path": "aspose/threed/formats/stl/__init__.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.stlsaveoptions",
+      "id": "public_symbol:aspose.threed.formats.stl.stlsaveoptions",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlSaveOptions"
+      "value": "aspose.threed.formats.stl.StlSaveOptions"
     },
     {
       "attributes": {
@@ -17741,10 +17744,10 @@
           "path": "aspose/threed/formats/stl/StlSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.stlsaveoptions.binary_mode",
+      "id": "public_symbol:aspose.threed.formats.stl.stlsaveoptions.binary_mode",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlSaveOptions.binary_mode"
+      "value": "aspose.threed.formats.stl.StlSaveOptions.binary_mode"
     },
     {
       "attributes": {
@@ -17759,10 +17762,10 @@
           "path": "aspose/threed/formats/stl/StlSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.stlsaveoptions.flip_coordinate_system",
+      "id": "public_symbol:aspose.threed.formats.stl.stlsaveoptions.flip_coordinate_system",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlSaveOptions.flip_coordinate_system"
+      "value": "aspose.threed.formats.stl.StlSaveOptions.flip_coordinate_system"
     },
     {
       "attributes": {
@@ -17777,14 +17780,40 @@
           "path": "aspose/threed/formats/stl/StlSaveOptions.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.stlsaveoptions.scale",
+      "id": "public_symbol:aspose.threed.formats.stl.stlsaveoptions.scale",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlSaveOptions.scale"
+      "value": "aspose.threed.formats.stl.StlSaveOptions.scale"
     },
     {
       "attributes": {
+        "defined_at": "aspose.threed.formats.StlLoadOptions.StlLoadOptions",
+        "docstring": "Load options for STL",
+        "public_paths": "aspose.threed.formats.StlLoadOptions.StlLoadOptions",
+        "signature": "class StlLoadOptions",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 1; class; public by name",
+          "path": "aspose/threed/formats/StlLoadOptions.py"
+        },
+        {
+          "detail": "line 61; re-exported as aspose.threed.formats.StlLoadOptions",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "public_symbol:aspose.threed.formats.stlloadoptions",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "aspose.threed.formats.StlLoadOptions"
+    },
+    {
+      "attributes": {
+        "defined_at": "aspose.threed.formats.StlSaveOptions.StlSaveOptions",
         "docstring": "Save options for STL",
+        "public_paths": "aspose.threed.formats.StlSaveOptions.StlSaveOptions",
         "signature": "class StlSaveOptions",
         "symbol_kind": "class"
       },
@@ -17793,12 +17822,16 @@
         {
           "detail": "line 1; class; public by name",
           "path": "aspose/threed/formats/StlSaveOptions.py"
+        },
+        {
+          "detail": "line 42; re-exported as aspose.threed.formats.StlSaveOptions",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
-      "id": "public_symbol:aspose.threed.formats.stlsaveoptions.stlsaveoptions",
+      "id": "public_symbol:aspose.threed.formats.stlsaveoptions",
       "kind": "public_symbol",
       "polarity": "SUPPORTED",
-      "value": "aspose.threed.formats.StlSaveOptions.StlSaveOptions"
+      "value": "aspose.threed.formats.StlSaveOptions"
     },
     {
       "attributes": {
@@ -29229,199 +29262,210 @@
     {
       "attributes": {
         "docstring": "Adapter class that wraps List[T] and implements IList[T] compatible interface.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "class ArrayListAdapter(Generic[T])",
         "symbol_kind": "class"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 6; class; public by name",
+          "detail": "line 6; class; public by name; shadowed by aspose.threed.ArrayListAdapter, reachable only by this path",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter"
     },
     {
       "attributes": {
         "docstring": "Add an item to the list.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def add(self, item: T)",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 31; method; public by name",
+          "detail": "line 31; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.add",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.add"
     },
     {
       "attributes": {
         "docstring": "Add multiple items.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def add_range(self, items: List[T])",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 76; method; public by name",
+          "detail": "line 76; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.add_range",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.add_range"
     },
     {
       "attributes": {
         "docstring": "Clear all items.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def clear(self)",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 35; method; public by name",
+          "detail": "line 35; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.clear",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.clear"
     },
     {
       "attributes": {
         "docstring": "Check if item exists in list.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def contains(self, item: T) -> bool",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 39; method; public by name",
+          "detail": "line 39; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.contains",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.contains"
     },
     {
       "attributes": {
         "docstring": "Copy items to an array.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def copy_to(self, array: list, array_index: int=0)",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 43; method; public by name",
+          "detail": "line 43; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.copy_to",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.copy_to"
     },
     {
       "attributes": {
         "docstring": "Get index of item. Returns -1 if not found.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def index_of(self, item: T) -> int",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 57; method; public by name",
+          "detail": "line 57; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.index_of",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.index_of"
     },
     {
       "attributes": {
         "docstring": "Insert item at index.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def insert(self, index: int, item: T)",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 64; method; public by name",
+          "detail": "line 64; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.insert",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.insert"
     },
     {
       "attributes": {
         "docstring": "Remove an item. Returns True if successful.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def remove(self, item: T) -> bool",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 50; method; public by name",
+          "detail": "line 50; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.remove",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.remove"
     },
     {
       "attributes": {
         "docstring": "Remove item at index.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def remove_at(self, index: int)",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 68; method; public by name",
+          "detail": "line 68; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.remove_at",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.remove_at"
     },
     {
       "attributes": {
         "docstring": "Convert to list.",
+        "shadowed_by": "aspose.threed.ArrayListAdapter",
         "signature": "def to_array(self) -> List[T]",
         "symbol_kind": "method"
       },
-      "confidence": 1.0,
+      "confidence": 0.5,
       "evidence": [
         {
-          "detail": "line 72; method; public by name",
+          "detail": "line 72; method; public by name; its class is shadowed by aspose.threed.ArrayListAdapter",
           "path": "aspose/threed/utilities/ArrayListAdapter.py"
         }
       ],
       "id": "public_symbol:aspose.threed.utilities.arraylistadapter.arraylistadapter.to_array",
       "kind": "public_symbol",
-      "polarity": "SUPPORTED",
+      "polarity": "UNRESOLVED",
       "value": "aspose.threed.utilities.ArrayListAdapter.ArrayListAdapter.to_array"
     },
     {
