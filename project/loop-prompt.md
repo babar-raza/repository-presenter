@@ -67,6 +67,8 @@ files, never from memory of a previous iteration.
   then the first non-blocked item of the next gate whose dependency gate is accepted.
 - Never build a later gate's machinery. Never have two shared-code items in progress. Never start
   a refactor, rename, or cleanup outside the work item's owned paths.
+- The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
+  position. Take the first `PENDING` item of the current gate. Never renumber items.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 
@@ -105,9 +107,14 @@ files, never from memory of a previous iteration.
 - The LLM never writes Markdown or the document. Jobs return typed content units bound to fact IDs;
   the deterministic renderer owns headings, badges, Mermaid, commands, code, links, and license text
   (`docs/README_CONTRACT.md` §3). Claim checks are structural, never substring matching on prose.
-- Run focused checks, then the gate's required checks: `ruff check .`, `ruff format --check .`,
-  `mypy src`, `pytest`. Disposable clones and run output go under `runs/` (gitignored). Candidate
-  bundles under `candidates/` and gate evidence under `evidence/` are committed.
+- Run focused checks, then the gate's required checks on the repo-local interpreter: `ruff check
+  .`, `ruff format --check .`, `mypy src`, `pytest`. That single-interpreter pass is the local
+  CI-equivalent. The hosted three-version matrix that every push triggers is the authoritative
+  3.11/3.12/3.13 proof (§4 watches it to completion and fixes red now); an acceptance predicate that
+  names all three interpreters is met by a green hosted run on the pushed commit
+  (`RESEARCH_AND_GUIDELINES.md` §27.5 D7). Disposable clones and run output go under `runs/`
+  (gitignored). Candidate bundles under `candidates/` and gate evidence under `evidence/` are
+  committed.
 - Windows traps: write multi-line files and scripts with the Write tool, not big Bash heredocs;
   pass `newline="\n"` whenever Python writes a tracked text file; keep every path short.
 

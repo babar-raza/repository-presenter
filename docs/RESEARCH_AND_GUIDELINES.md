@@ -1521,3 +1521,212 @@ report lines under the revision hold:
    because the writing examples run. The section itself now renders under the revised condition,
    as the contract requires for a product that creates from scratch. Provisioning fixtures for
    file-reading examples belongs with the facts stage, not the contract.
+
+## 27. Production reassessment: what breaks consistency across reruns, and the durable design (2026-09-04)
+
+Evidence base: four read-only code audits at HEAD `3a59a6b` (cache and determinism; planning and
+authoring; review, repair and acceptance; fact extraction) plus a census of the sealed canary at
+`65b1f577` (395 provider calls, 39 rejected outputs on disk, 27 repair attempts, 11 checks, 191
+content units) and its predecessor `d9f3bfe5`. Every mechanism below is cited to a file and line;
+every magnitude comes from one repository in one ecosystem and is indicative, not general. Where
+the evidence is thin it is said.
+
+### 27.1 Symptoms, measured
+
+| Symptom | Measure | Where |
+|---|---|---|
+| Re-asked calls | 78 of 395 (20%); first-attempt invalid by job: reconciliation 31%, planning 32%, repair 26%, authoring 16%, review 17%; every one `OutputRejected` (schema, binding or check), none HTTP | `calls.jsonl` |
+| Rejection families | repair: 69 of 76 "cites facts outside this section's set"; authoring: URL in text 11, identifier not a fact value 17, command in text 4, wrong slot set 2; planning: "exactly one decision for every shell section" 7; investigation: unknown fact ID 9; review: quote not in the candidate 3 | `runs/transactions/.../calls/*.rejected-*.json` |
+| Accepted with known defects | `verdict_as_returned` REJECT_PRESENTATION became ACCEPT; five advisories, three marked "re-raised after the one repair attempt its fingerprint allows"; F02 and F04 were code defects (§26) | `review.json` |
+| Unrepairable | 6 of 27 attempts: four "names no LLM-owned section" (a regex missed the section in a detail string), two "section is deterministic" | `repairs.json` |
+| Plan drift | 34 distinct plans drawn for one revision; the two transactions chose 7 capabilities and 12 hubs versus 6 and 6, with different titles | `plan.json` ×2, ledger |
+| Coverage | 6 of 12 examples and 5 of 7 formats never SUPPORTED; 59 units omitted before prose began | `content_units.json` |
+| Structure leaks | 58 visible lines outside `<details>` (visibility is a string compare on the last emitted line); two raw bash fences after prose (`.code_block` bypasses the overlap rule) | `renderer.py:692-705`, `placement.py:124-128` |
+| Wall clock | ~30 min per iteration: one local `pytest` pass ≈7 min (twelve `tests/test_cli.py` invalidation tests at ≈30 s each), ×3 interpreters at acceptance; LLM 3–9 min per composition, strictly serial (0 of 315 calls overlapped); CI watch 3 min | `--durations`, ledger |
+
+### 27.2 Root causes (mechanisms, not symptoms)
+
+- **RC1 Generation/validation asymmetry.** Constraints live in validators and in English inside the
+  objective; the model is asked to reproduce structure the code already knows: the slot set
+  (`authoring.py:351-383`), the shell decision list (code decides inclusion anyway,
+  `planning.py:70-73`, then rejects a missing decision at `:123-134`), fact-ID spellings, allowed
+  identifiers, forbidden URLs and commands, dispositions a rule forces
+  (`reconciliation/dispositions.py:318`). The repair packet (`targeted.py:257-275`) carries the
+  finding and the causal stage's output but not the section's fact set, which is why 69 of its 76
+  rejections cite facts outside that set. Each rejection costs a stateful re-ask whose accepted
+  answer depends on the rejected one (`jobs.py:425-436`); a second rejection fails the whole
+  transaction closed (`jobs.py:422`).
+- **RC2 Title and prose are never bound.** The Key Capabilities author receives the union of all
+  slots' facts (27 for seven slots), slot names that are bare ordinals, and no titles
+  (`authoring.py:205-216`; `title` occurs in that module only in a docstring and one objective
+  sentence). Slot fact sets overlap (`example:002/004/009/012` sit in capabilities 1 and 2), so a
+  fact-ID subset check cannot separate them even in principle. Title and sentence meet for the
+  first time in `renderer.py:616`, joined positionally. Nothing in packet, guard, coherence or
+  validator holds the one binding a reader checks.
+- **RC3 The plan is redrawn from scratch and rendered in LLM order.** Planning receives every
+  SUPPORTED fact (231 packet records), two upstream LLM artifacts, and no previous plan
+  (`rounds.py:164-176`; no `previous_plan` anywhere). Every array that drives visible structure
+  (capability order and count, hub order, example order, link order, the six-title two-column flip
+  at `renderer.py:547-567`) is carried in the model's output order with no canonicalisation. A
+  semantically identical re-plan renders as a different document.
+- **RC4 Reproducibility is cache-derived, not model-derived.** The response cache is
+  `runs/transactions/<repo>/<revision>/calls/` — gitignored, machine-local, per revision, excluded
+  from the sealed bundle (`seal.py:54-65`). `identity:revision` (the commit SHA) is a fact in every
+  job's packet (`extract.py:35-40`), so every upstream revision is a guaranteed cold cache even when
+  no relevant fact changed. Temperature is 0 with strict `json_schema` (`jobs.py:148-164`) but there
+  is no `seed`. Check 11 therefore proves that the cache was present, not that the pipeline is
+  reproducible from the repository. On a GitHub-hosted runner `runs/` is always empty, so as built
+  the zero-call proof can never pass hosted (G4).
+- **RC5 Acceptance depends on directory history.** Whether a finding demotes to advisory depends on
+  `repairs.json` in the transaction directory (`targeted.py:200-203`, `rounds.py:367-373`): the same
+  review output blocks in a clean directory and accepts in this one. A finding whose causal stage
+  is `unclear` or S9 can never block (`review.py:33-41,133`); one against a deterministic section
+  auto-demotes (`review.py:191`); a three-character fact value inside the quote demotes
+  (`review.py:160-167`); a prompt version bump reopens every fingerprint (`targeted.py:94`).
+  `verdict = returned if findings or returned == ACCEPT else ACCEPT` (`review.py:277`).
+- **RC6 Coverage defects dead-end as presentation advisories.** A finding that really means "a fact
+  is UNRESOLVED" (F01: no input format verified) routes to presentation repair, which cannot touch a
+  deterministic section (`targeted.py:100-116`), and becomes advisory. There is no per-row coverage
+  record, no route from a finding to EXTRACTING, and file-reading examples are never executed
+  (§22.1, §26).
+- **RC7 The extraction environment is unfingerprinted and live network sits inside hashed facts.**
+  `dependencies.json` records what was consumed from the repository, nothing about what consumed it:
+  no Python version (the venv is cloned from `sys.executable`, `python_examples.py:109`), no OS, no
+  extractor version, no resolved install manifest. The PyPI "latest 26.1.0" string is baked into
+  `install_command:pip` evidence (`python_registry.py:50`), so an upstream release reopens
+  EXTRACTING with no repository change; 17 of 38 link facts and the product-page probes are one
+  HTTP status from flipping; a 120 s timeout turns SUPPORTED into CONTRADICTED; the stripped
+  execution environment (`execution.py:21-48`) omits proxy and CA variables, so a proxied host
+  demotes all 12 example facts at once; `examples.json` is cited by 23 facts but not sealed;
+  `sorted(Path)` orders case-insensitively on Windows and case-sensitively on POSIX
+  (`python_surface.py:271`).
+- **RC8 Free text is a control plane.** The causal stage is regex-recovered from a bracketed prefix
+  in the finding's prose (`review.py:231,243-245`); the target section is regex-extracted from a
+  validator detail string (`targeted.py:48,143-149`, three repairs died there); invalidation keys on
+  `details[0]` (`seal.py:372-373`); validators and renderer match substrings of evidence prose
+  (`registry.py:392,425`; `renderer.py:115,254`).
+
+### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
+
+- **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
+  English and validator code each restate the rules and drift apart: "cites its own title's facts"
+  became "cites its own slot's fact IDs"; visibility inheritance exists only as a renderer string
+  compare; the `.code_block` carve-out exists only in code.
+- **W2 The evidence model has no provenance.** No retrieval time, no environment, and one
+  polarity for "verified false" and "could not verify here"; volatile observations are hashed as
+  facts.
+- **W3 Acceptance mixes content with process history** — fingerprints, round budgets and prompt
+  versions decide what ships.
+- **W4 Determinism is asserted at the document level but guaranteed only by a gitignored
+  directory.**
+- **W5 The model reproduces structure the code owns**, then is punished for getting it wrong.
+
+### 27.4 Preserve — proven, not to be redesigned
+
+The S1–S12 split with a deterministic final verdict (`cli.py:368`); all eleven blocking checks; the
+renderer owning every byte of Markdown; fact-bound content units; canonical serialisation
+everywhere (`sort_keys`, sorted records, `dict.fromkeys` — unusually clean); per-candidate
+`dependencies.json` with per-fact hashes and earliest-affected-stage evaluation; the frozen model
+catalog with fail-closed routing; the two-attempt rule; `cache_stale` re-judging of stored
+outputs; push-disabled clones and secret scans; seal, supersede and adopt-in-place; the loop's own
+discipline (small commits, green CI, evidence per item).
+
+### 27.5 The durable design
+
+- **D1 Constructive generation.** The code emits each call's skeleton and a per-call JSON schema:
+  slots enumerated with their allowed fact IDs as enums, fixed-length slot arrays,
+  `additionalProperties: false`. Shell decisions leave the planner's output. Forced dispositions are
+  computed in code; the model is asked only for the free ones. Allowed identifiers travel as a list
+  (and as an enum where finite). The repair packet is the same skeleton plus the section's fact set
+  and the slot's subject. Prose stays the model's — structure is constructive, interpretation is
+  not (AGENTS.md's ban on mechanical template filling is about content, and holds).
+- **D2 Title-bound capabilities.** The planner assigns pairwise-disjoint fact sets per capability
+  or declares shared facts explicitly; each title travels in the authoring packet and the slot
+  identity; a deterministic check confirms the unit cites only its slot's facts and that the
+  title's identifiers and format names appear among the cited facts' values; contract check 4 says
+  so (27.8).
+- **D3 Anchored, canonical plans.** Planning receives the CURRENT bundle's accepted plan as anchor
+  with the fact delta since; every deviation must cite a changed or new fact ID; layout arrays are
+  canonically ordered (anchor order, then a stable key) before prompt serialisation and rendering.
+- **D4 Portable reproducibility.** `identity:revision` leaves every job packet (the renderer keeps
+  the fact). The call store is seeded from the sealed bundle's accepted artifacts by recomputed
+  request hash, so a fresh clone — or a hosted runner — replays with zero calls; check 11 becomes a
+  fresh-state proof (fresh process *and* empty `runs/`). Ledger records carry temperature,
+  `max_tokens`, `response_format` and `derived_via_reask`. `dependencies.json` gains an environment
+  class (Python version, OS, extractor version, resolved site manifest) that reopens EXTRACTING.
+  Live probes record retrieval time and status; volatile observations leave the hashed fact;
+  the execution environment passes proxy and CA variables; `examples.json` is sealed. `seed` is
+  adopted if the gateway honours it (a discovery task, §18.4).
+- **D5 Content-only acceptance.** A finding demotes only when a deterministic check contradicts it;
+  `unclear` is classified by code from the section's owner; a re-raised finding never demotes — it
+  is code-caused (§26: add the check) or it blocks; every failure record carries `section_id` and
+  `causal_stage` as fields, retiring the regexes of RC8; required rows admit zero advisories before
+  READY_FOR_PROPOSAL; advisory counts appear in the portfolio report. Contract §6 is revised (27.8).
+- **D6 Coverage ledger and fixtures.** A per-row record of required fact kinds and their
+  resolution with reason; a new blocking check fails closed when a required row's facts are
+  unresolved and routes to EXTRACTING, never to repair; file-reading examples receive fixtures from
+  the repository's test assets or from the saved output of an executed example. What still cannot
+  execute stays UNRESOLVED, honestly.
+- **D7 Throughput without weakening checks.** A session-scoped sealed-canary fixture for the twelve
+  invalidation tests (≈7 → ≈2 min per pass); the local CI-equivalent on one interpreter with the
+  hosted matrix authoritative; bounded fan-out (4) of independent jobs with the ledger written in
+  logical-call order, after D1 has cut the re-ask share; consolidation of §19–§26 once G2-W07
+  closes (its prerequisites cite them by number).
+
+### 27.6 Validation and regression controls
+
+1. **Rejection telemetry as a predicate**: first-attempt acceptance per job and re-ask share,
+   computed from the sealed `calls.jsonl` by a test helper; G3 exit requires ≥95% and ≤5% on every
+   representative.
+2. **Fresh-state proof**: delete `runs/`, run `present`; byte-identical, zero calls — a test, and
+   check 11's new meaning.
+3. **Golden-delta perturbations** (fake gateway): change one fact → only units citing it change;
+   add one capability fact → exactly one bullet changes; a new revision with identical facts →
+   zero calls and an identical README.
+4. **Plan stability**: shuffled planner arrays render identically; identical facts plus anchor
+   yield an identical plan.
+5. **Title-binding mutation**: swapping two capability sentences fails the check.
+6. **Coverage ratios** (SUPPORTED examples/total, formats/declared) in the manifest, compared to the
+   live oracle for each G3 representative.
+7. **Environment fingerprint**: 3.11 versus 3.13 differs → EXTRACTING reopens.
+8. **Structured routing**: a grep-enforced test that no regex over prose or detail strings decides
+   routing or invalidation.
+9. **Validator mutation tests** — the loop's existing pattern: every new check blocks on a
+   synthetic violation.
+
+### 27.7 Trade-offs, risks, limits
+
+- D1 narrows the model's freedom over structure. The line is: structure constructive, prose free,
+  coherence pass kept. Per-call schemas with large enums may exceed what the gateway's strict mode
+  accepts — unverified for `qwen3-next`; fall back to post-validation for oversized enums and
+  measure.
+- D3 can entrench a stale plan. Deviations are forced whenever facts change, and a full re-plan is
+  an explicit, reviewed update, not a side effect.
+- D5 will lower the acceptance rate before it raises it: candidates that accept with advisories
+  today will block. That is the correct direction for a production system and the honest cost.
+- D4's seeding adds no storage (accepted outputs are already bundle artifacts); `seed` support and
+  the served model's build stability are unknown — `model_route` is a name, not a pinned build.
+- D6 cannot reach full coverage; examples needing external assets stay UNRESOLVED.
+- Magnitudes come from one repository. Rates for .NET or Java may differ; the mechanisms do not.
+- Cost: seven items before contract v1 freezes and the second ecosystem lands — roughly two days at
+  the measured cadence. Freezing the contract before D2, D5 and D6 would freeze the wrong
+  predicates.
+
+### 27.8 Contract revisions these items carry (applied with their code, never before)
+
+- Check 4: "…and the capability's title is supported by the facts its unit cites."
+- §6: advisory demotion is content-only; a re-raised finding never demotes; required rows admit
+  zero advisories before READY_FOR_PROPOSAL.
+- New check 12 (coverage): a required row whose facts are unresolved fails closed and routes to
+  EXTRACTING.
+- Check 11: fresh-state proof (fresh process and empty `runs/`).
+- §3 placement rule 3: visibility inheritance as a section property, and the `.code_block`
+  carve-out documented or removed.
+
+### 27.9 Queue
+
+Inserted into `project/state.yaml` at the next clean checkpoint, in this execution order (list
+order is execution order; IDs are identities, not positions): G2-W08 (existing), **G2-W11** D7
+fixture and single-interpreter local pass, **G2-W12** D1, **G2-W13** D2, **G2-W14** D3, **G2-W15**
+D4, **G2-W16** D5, **G2-W17** D6, then G2-W09 freeze contract v1, G2-W10 second ecosystem,
+**G2-W18** D7 fan-out.
