@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,7 @@ from repository_presenter.core.llm.jobs import (
     request_payload,
     run_job,
 )
-from repository_presenter.core.llm.ledger import Ledger
+from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT, mock_gateway
 
@@ -296,3 +297,26 @@ def test_transient_failures_are_retried_and_accounted_and_refusals_are_not(
             store=CallStore(tmp_path / "other"),
             context=CONTEXT,
         )
+
+
+def test_the_seed_travels_with_every_request_and_two_identical_requests_agree() -> None:
+    # RESEARCH_AND_GUIDELINES.md sections 18.4 and 27.5 D4: the gateway accepts seed for the
+    # routed model, probed in G2-W19, so the manifests declare it and every request carries it.
+    # Two identical requests must be identical byte for byte, which is what lets the call store
+    # answer the second one without asking the gateway again.
+    assert MANIFEST.manifest.sampling.seed == 1
+    messages = render_messages(MANIFEST, PACKET)
+    payload = request_payload(MANIFEST, messages)
+    assert payload["seed"] == 1
+    again = request_payload(MANIFEST, render_messages(MANIFEST, PACKET))
+    assert canonical_hash(payload) == canonical_hash(again)
+    assert payload == again
+
+    # A manifest that declares no seed sends none, so the field never appears by default.
+    seedless = replace(
+        MANIFEST,
+        manifest=MANIFEST.manifest.model_copy(
+            update={"sampling": MANIFEST.manifest.sampling.model_copy(update={"seed": None})}
+        ),
+    )
+    assert "seed" not in request_payload(seedless, messages)
