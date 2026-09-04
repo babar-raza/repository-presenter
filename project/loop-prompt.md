@@ -77,7 +77,8 @@ files, never from memory of a previous iteration.
 - The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
   position. Take the first `PENDING` item of the current gate. Never renumber items.
 - Before promoting any item, check `RESEARCH_AND_GUIDELINES.md` §27.9: if it lists entries whose
-  IDs are absent from `next_ready_items`, insert them verbatim at the positions it states; remove
+  IDs are absent from `next_ready_items` and are neither the `active_work_item` nor an item the
+  gate evidence records as accepted, insert them verbatim at the positions it states; remove
   any entry it lists as moved; apply the state edits it lists as pending (and the reuse-manifest
   edit, in the same commit); validate against `schemas/state.schema.json`; commit as `chore(state)`
   first. The owner mirrors every queued item there before it lands, so the queue never depends on a
