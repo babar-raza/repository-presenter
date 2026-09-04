@@ -1,6 +1,5 @@
 {
   "additional_example_ids": [
-    "example:004",
     "example:005",
     "example:009",
     "example:010",
@@ -9,60 +8,35 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose.threed",
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.scene"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.entities"
+        "public_symbol:aspose.threed.utilities.vector4",
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed"
+      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.phongmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
+        "public_symbol:aspose.threed.shading.pbrmaterial",
+        "public_symbol:aspose.threed.shading.lambertmaterial"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.shading"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.vector4"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.cylinder"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.formats.obj.objformat",
-        "public_symbol:aspose.threed.formats.stl.stlformat",
-        "public_symbol:aspose.threed.formats.gltf.gltfformat",
-        "public_symbol:aspose.threed.formats.threemfformat"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+      "symbol_fact_id": "public_symbol:aspose.threed.shading.pbrmaterial"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Load multiple 3D formats",
-      "Export to common 3D formats",
-      "Construct and edit meshes",
-      "Assign materials to geometry",
-      "Build scene graphs",
-      "Triangulate polygon meshes",
+      "Export scenes to common formats",
+      "Build and traverse scene graphs",
+      "Construct and edit mesh geometry",
+      "Assign and configure materials",
       "Support keyframe animation"
     ],
     "input_format_ids": [
@@ -77,7 +51,6 @@
       "format:output.obj",
       "format:output.stl",
       "format:output.gltf",
-      "format:output.glb",
       "format:output.3mf"
     ]
   },
@@ -89,7 +62,8 @@
         "format:input.gltf",
         "format:input.glb",
         "format:input.dae",
-        "format:input.3mf"
+        "format:input.3mf",
+        "public_symbol:aspose.threed.scene"
       ],
       "title": "Load multiple 3D formats"
     },
@@ -98,30 +72,11 @@
         "format:output.obj",
         "format:output.stl",
         "format:output.gltf",
-        "format:output.glb",
         "format:output.3mf",
-        "example:002",
-        "example:004",
-        "example:009",
-        "example:012"
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.fileformat"
       ],
-      "title": "Export to common 3D formats"
-    },
-    {
-      "fact_ids": [
-        "example:005",
-        "example:009",
-        "example:010"
-      ],
-      "title": "Construct and edit meshes"
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005"
-      ],
-      "title": "Assign materials to geometry"
+      "title": "Export scenes to common formats"
     },
     {
       "fact_ids": [
@@ -129,13 +84,27 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.transform"
       ],
-      "title": "Build scene graphs"
+      "title": "Build and traverse scene graphs"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.polygonbuilder"
+        "example:005",
+        "example:009",
+        "example:010",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.utilities.vector4"
       ],
-      "title": "Triangulate polygon meshes"
+      "title": "Construct and edit mesh geometry"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005",
+        "public_symbol:aspose.threed.shading.lambertmaterial",
+        "public_symbol:aspose.threed.shading.pbrmaterial"
+      ],
+      "title": "Assign and configure materials"
     },
     {
       "fact_ids": [
@@ -150,10 +119,10 @@
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:046.code_block"
+        "link_target:product.enterprise"
       ],
-      "section_id": "additional_examples",
-      "text": "The Position a Node With Transform example is omitted because it is contradicted by example:008, which raises NotImplementedError."
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition paragraph is moved to the enterprise_relationship section as it has a verified product target."
     }
   ],
   "flagship_example_id": "example:005",
@@ -171,7 +140,7 @@
       "section_id": "documentation_resources"
     },
     {
-      "link_fact_id": "link_target:product.enterprise",
+      "link_fact_id": "link_target:033",
       "section_id": "enterprise_relationship"
     }
   ],
@@ -184,7 +153,7 @@
     }
   ],
   "quick_start_example_id": "example:002",
-  "second_quick_start_example_id": null,
+  "second_quick_start_example_id": "example:004",
   "sections": [
     {
       "include": true,

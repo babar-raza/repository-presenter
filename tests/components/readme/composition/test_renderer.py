@@ -789,3 +789,19 @@ def test_two_verified_types_sharing_a_name_keep_distinct_table_rows() -> None:
     assert "| `ColladaLoadOptions.ColladaLoadOptions` | Load options. |" in readme
     assert readme.count("| `ColladaLoadOptions` |") == 0
     assert "| `Scene` |" in readme  # an unshared name keeps its final segment
+
+
+def test_prose_raises_a_known_abbreviation_to_its_canonical_form() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.10: the code owns the spelling, so it normalises the
+    # casing instead of re-asking the model; BC-07 then judges a document already canonical. A
+    # cold composition lost a whole transaction to "abbreviation 'glb' is not in its canonical
+    # form GLB", which the repair loop could not route.
+    context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("Scenes save as glb files.") == "Scenes save as GLB files."
+    assert context.prose("The api returns json.") == "The API returns JSON."
+    # Only a format these facts record is an abbreviation here, so another product's extension
+    # stays as written and the check keeps its say over it.
+    assert context.prose("Scenes save as gltf files.") == "Scenes save as gltf files."
+    # A word that only looks like one is left alone, and a dotted extension is an identifier.
+    assert context.prose("The scene is saved.") == "The scene is saved."
+    assert "`.glb`" in context.prose("Files use the .glb extension.")

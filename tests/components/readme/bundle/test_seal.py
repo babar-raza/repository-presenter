@@ -122,7 +122,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     )
     assert document["prompts"]["targeted_repair"]["version"] == "5"
     assert document["contract_version"] == "readme-contract-v1-draft"
-    assert document["components"] == {"shell": "5", "renderer": "15"}
+    assert document["components"] == {"shell": "5", "renderer": "16"}
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
     assert document["acceptance_profile_version"] is None
     assert document["protected_content_fingerprint"] == "f" * 64

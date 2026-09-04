@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ from repository_presenter.components.readme.composition.authoring import (
     allowed_identifiers,
     authoring_schema,
     authoring_tasks,
+    canonical_abbreviations,
+    forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
     merge_repeated_slots,
@@ -682,3 +685,34 @@ def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     assert [error.json_path for error in validator.iter_errors(wrong)] == ["$.units[2].slot"]
     whole = {"units": [unit(slot) for slot in slots], "omitted": []}
     assert list(validator.iter_errors(whole)) == []
+
+
+def test_the_canonical_abbreviations_cover_the_set_and_this_products_formats() -> None:
+    # The renderer normalises to these forms and BC-07 judges against them, from one source
+    # (RESEARCH_AND_GUIDELINES.md section 27.10).
+    forms = canonical_abbreviations(FACTS)
+    assert forms["pdf"] == "PDF" and forms["api"] == "API"
+    assert forms["glb"] == "GLB", "a format the facts record is an abbreviation too"
+    assert "max" not in forms, "a format extension that is an ordinary word is not one"
+
+
+def test_the_forbidden_text_pattern_matches_what_unit_checks_judges() -> None:
+    # Section 27.10 offered a schema pattern for the URL, command and edition families, and the
+    # gateway answered HTTP 400 for a strict json_schema carrying one - the fallback section 27.7
+    # anticipated. The expression is kept and tested because a normalisation will use it; the
+    # per-call schema does not carry it, and unit_checks keeps judging these fragments.
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    task = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
+    assert "pattern" not in authoring_schema(loaded, task)["properties"]["units"]["items"][
+        "properties"
+    ].get("text", {})
+
+    pattern = forbidden_text_pattern()
+    assert re.match(pattern, "A clean sentence about GLB files.")
+    assert re.match(pattern, "See https://docs.example.com for more.") is None
+    assert re.match(pattern, "Run pip install thing to begin.") is None
+    assert re.match(pattern, "Wrap ```code``` inline.") is None
+    assert re.match(pattern, "The Enterprise Edition adds formats.")
+    edition = forbidden_text_pattern(("Enterprise Edition",))
+    assert re.match(edition, "The Enterprise Edition adds formats.") is None
+    assert re.match(edition, "The commercial edition adds formats.")

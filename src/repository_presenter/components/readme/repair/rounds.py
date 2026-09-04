@@ -55,6 +55,7 @@ from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
     reconcile_checks,
     reconciliation_packet,
+    reconciliation_schema,
     write_dispositions,
 )
 from repository_presenter.components.readme.repair.targeted import (
@@ -158,6 +159,7 @@ def run_round(tx: TransactionInputs) -> Round:
         loaded,
         reconciliation_packet(entry, facts, investigation.output, loaded.manifest),
         checks=functools.partial(reconcile_checks, facts=facts),
+        call_schema=reconciliation_schema(loaded, facts),
         **common,
     )
     digests["dispositions"] = write_dispositions(

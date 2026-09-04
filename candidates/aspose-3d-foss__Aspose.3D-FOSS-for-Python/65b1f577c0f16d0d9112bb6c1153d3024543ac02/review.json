@@ -1,5 +1,101 @@
 {
-  "advisory": [],
+  "advisory": [
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.cylinder",
+        "public_symbol:aspose.threed.entities.polygonmodifier",
+        "public_symbol:aspose.threed.animationclip",
+        "public_symbol:aspose.threed.animationnode",
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
+      ],
+      "id": "F01",
+      "quote": "  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Load multiple 3D formats\"]\n      c2[\"Export scenes to common formats\"]\n      c3[\"Build and traverse scene graphs\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c4[\"Construct and edit mesh geometry\"]\n      c5[\"Assign and configure materials\"]\n      c6[\"Support keyframe animation\"]\n    end",
+      "repair": "Restore the original Mermaid diagram's detailed capability breakdown, including 'Mesh authoring and editing', 'Parameterized primitive geometry', 'Polygon triangulation', and 'Keyframe animation and skeletal pose data' to accurately reflect the library's full functionality.",
+      "section_id": "at_a_glance",
+      "text": "[reviewer-scope defect at S6: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The 'At a Glance' Mermaid diagram omits several critical capabilities present in the original README and supported by the facts, including 'Mesh authoring and editing', 'Parameterized primitive geometry', 'Polygon triangulation', and 'Keyframe animation and skeletal pose data'. The simplified diagram misrepresents the library's functionality."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F03",
+      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Replace the generic verification command with the specific one from the original README: `python3 -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'`.",
+      "section_id": "installation",
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the explicit verification command from the original README (`python3 -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'`), which is more specific and helpful than the generic `python -c 'import aspose.threed'` used here."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "format:input.obj",
+        "format:input.stl",
+        "format:input.gltf",
+        "format:input.glb",
+        "format:input.dae",
+        "format:input.3mf",
+        "format:output.dae",
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "id": "F02",
+      "quote": "- **Load multiple 3D formats.** Read `.3mf`, `.dae`, `.glb`, `.gltf`, `.obj`, and `.stl` files using `aspose.threed.Scene.open`, which auto-detects the format from the file extension or an explicit `aspose.threed.FileFormat`.\n- **Export scenes to common formats.** Export scenes to `.3mf`, `.gltf`, `.obj`, and `.stl` using `aspose.threed.Scene.save` with format-specific `SaveOptions` subclasses such as `ObjSaveOptions`, `GltfSaveOptions`, and `StlSaveOptions`, where `aspose.threed.FileFormat` provides format detection, extension lists, and save option factories.",
+      "repair": "Restore the original README's specific format list and include critical limitations like COLLADA export being unreachable and FBX being import-only, to ensure developers have accurate expectations.",
+      "section_id": "key_capabilities",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The 'Key Capabilities' section omits critical details from the original README, such as the specific list of supported formats (OBJ, STL, glTF/GLB, COLLADA, 3MF), the fact that COLLADA export is registered but not reachable through Scene.save(), and the explicit mention of FBX import-only status. This reduces the section's usefulness for developers."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:004"
+      ],
+      "id": "F04",
+      "quote": "Open an existing 3D file and inspect its geometry by reading control points and polygons from each entity.\n\n```python\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Box\nfrom aspose.threed.shading import LambertMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nbox = Box(length=2.0, width=1.0, height=1.0)\nmaterial = LambertMaterial()\nmaterial.diffuse_color = Vector3(0.2, 0.6, 0.9)\n\nscene.root_node.create_child_node(\"Crate\", entity=box.to_mesh(), material=material)\nscene.save(\"crate.gltf\")\n```\n\nCreate a 3D scene from scratch by building a sphere with a PBR material and saving it as an STL file.\n\n```python\nfrom aspose.threed import Scene\nfrom aspose.threed.entities import Sphere\nfrom aspose.threed.shading import PbrMaterial\nfrom aspose.threed.utilities import Vector3\n\nscene = Scene()\nsphere = Sphere()\nmaterial = PbrMaterial(albedo=Vector3(0.8, 0.1, 0.1))\nmaterial.metallic_factor = 0.9\nmaterial.roughness_factor = 0.2\n\nscene.root_node.create_child_node(\"Ball\", entity=sphere.to_mesh(), material=material)\nscene.save(\"ball.stl\")\n```",
+      "repair": "Restore the original Quick Start examples: (1) importing an OBJ file with `ObjLoadOptions` and inspecting geometry, and (2) building a scene from scratch with a Box and exporting to glTF, as verified in example:001 and example:002.",
+      "section_id": "quick_start",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Quick Start section replaces the original's two distinct examples (importing an OBJ file and building a scene from scratch) with two new examples that are less representative of common workflows. The first example now combines import and export in a way that doesn't match the verified example:002, and the second example is a reordering of the original's second example."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.threed"
+      ],
+      "id": "F05",
+      "quote": "The aspose-3d-foss package exposes `aspose.threed.Scene` as the primary entry point for loading, building, and saving 3D scenes; each `Scene` contains one or more `Node` objects, each of which carries a `Transform` and optional `Mesh`-derived geometry.\n\nThe verified public surface has 337 types.",
+      "repair": "Restore the original API Reference table listing the 305 public types, as it is a critical resource for developers and is supported by the facts.",
+      "section_id": "api_reference",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The API Reference section omits the detailed public API surface table from the original README, which listed 305 public types, and instead provides a generic description. This reduces the section's usefulness for developers who need to understand the full public surface."
+    },
+    {
+      "causal_stage": "unclear",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.threed.render"
+      ],
+      "id": "F06",
+      "quote": "- `Scene.render`() and the entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raise NotImplementedError, and `Texture` and `TextureBase` raise NotImplementedError on construction, so an image-backed texture cannot be created.",
+      "repair": "Restore the original README's detailed limitations, including the `NotImplementedError` for `Scene.render()` and the `aspose.threed.render` module, and the `NotImplementedError` for `Texture` and `TextureBase` construction.",
+      "section_id": "scope_limitations",
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits the critical detail that the original README explicitly states that `Scene.render()` and the entire `aspose.threed.render` module raise `NotImplementedError`, and that `Texture` and `TextureBase` raise `NotImplementedError` on construction. This omission misleads developers about the library's capabilities."
+    }
+  ],
   "authoring": {
     "job": "section_authoring",
     "prompt_sha256": "8f4f7160274935f5fe4774650cbb1e5cb3723a15a43a815720c799f0253dc1d2",
@@ -8,7 +104,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "b5113324313e6ebef243d7cc48210ca8caba5c1255acd5ae0e9bc567e7fde0ba",
+  "readme_sha256": "340dc7e3378e9382f529d9ca2cb176cb9e4987197205356eaacc9515fa14ef15",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -17,5 +113,5 @@
   },
   "schema_version": 1,
   "verdict": "ACCEPT",
-  "verdict_as_returned": "ACCEPT"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }

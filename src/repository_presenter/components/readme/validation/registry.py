@@ -25,6 +25,7 @@ from urllib.parse import urlsplit
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     allowed_identifiers,
+    canonical_abbreviations,
     identifier_allowed,
     surface_members,
     unit_checks,
@@ -207,26 +208,6 @@ _CAPABILITY_NODE = re.compile(r"^\s*c(\d+)\[", re.MULTILINE)
 _GLANCE_LABEL = re.compile(r"\[\"([^\"]*)\"\]")
 _GLANCE_DIRECTIVE = re.compile(r"^(?:style|classDef|linkStyle|click)\b")
 _GLANCE_FENCE = re.compile(r"```mermaid\n.*?\n```", re.DOTALL)
-_ABBREVIATIONS = frozenset(
-    {
-        "PDF",
-        "XLSX",
-        "HTML",
-        "EPS",
-        "XPS",
-        "API",
-        "JSON",
-        "XML",
-        "CSV",
-        "SVG",
-        "URL",
-        "HTTP",
-        "SDK",
-        "CLI",
-    }
-)
-# Format extensions that are also ordinary words are never judged as abbreviations.
-_WORD_EXTENSIONS = frozenset({"max", "ply", "dat", "raw", "bin", "log", "map", "mat", "tag", "ini"})
 _NARRATION = (
     "preserved repository details",
     "other platforms",
@@ -790,11 +771,7 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                     Failure("COMPOSING", f"heading {line!r} is not a shell heading in title case")
                 )
     prose = _prose(outside)
-    lower_forms = {abbreviation.lower() for abbreviation in _ABBREVIATIONS}
-    for fact in candidate.facts.by_kind("format"):
-        extension = fact.value.lstrip(".").lower()
-        if len(extension) >= 3 and extension.isalpha() and extension not in _WORD_EXTENSIONS:
-            lower_forms.add(extension)
+    lower_forms = canonical_abbreviations(candidate.facts)
     for word in sorted(set(_LOWER_WORD.findall(prose))):
         if word in lower_forms:
             failures.append(

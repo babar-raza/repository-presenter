@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.reconciliation.dispositions import (
     code_units_by_polarity,
     normalize,
     placement_errors,
+    reconciliation_schema,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
+from support import REPO_ROOT
 
 
 def _fact(
@@ -372,3 +379,36 @@ def test_an_inherited_paragraph_placed_into_the_opening_is_covered_by_the_rewrit
         "opening",
     )
     assert heading["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
+    # The canary's reconciliation paired the right ordinals with the wrong type suffixes and lost
+    # the transaction: "unknown inherited unit inherited_unit:037.paragraph ... no disposition for
+    # inherited units: inherited_unit:037.code_block". The code knows the units exactly
+    # (RESEARCH_AND_GUIDELINES.md section 27.5 D1, cause RC1 in 27.2).
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    schema = reconciliation_schema(loaded, FACTS)
+    units = [fact.id for fact in FACTS.by_kind("inherited_unit")]
+    dispositions = schema["properties"]["dispositions"]
+    assert dispositions["minItems"] == dispositions["maxItems"] == len(units)
+    assert dispositions["items"]["properties"]["unit_id"] == {"type": "string", "enum": units}
+    assert "maxItems" not in loaded.manifest.output.schema_["properties"]["dispositions"]
+
+    def entry(unit_id: str) -> dict[str, Any]:
+        return {
+            "unit_id": unit_id,
+            "disposition": "OMIT_UNSUPPORTED",
+            "destination_section": None,
+            "fact_ids": [],
+            "rationale": "r",
+        }
+
+    validator = Draft202012Validator(schema)
+    invented = [*units[:-1], units[-1].rsplit(".", 1)[0] + ".paragraph"]
+    assert [
+        error.json_path
+        for error in validator.iter_errors({"dispositions": [entry(u) for u in invented]})
+    ] == [f"$.dispositions[{len(units) - 1}].unit_id"]
+    short = {"dispositions": [entry(u) for u in units[:-1]]}
+    assert [error.json_path for error in validator.iter_errors(short)] == ["$.dispositions"]
+    assert list(validator.iter_errors({"dispositions": [entry(u) for u in units]})) == []

@@ -16,7 +16,7 @@ import copy
 import hashlib
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -52,6 +52,29 @@ _TYPE_OBJECTIVE = (
     "member count or 'extends X', never a count, never a claim the signature does not carry."
 )
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
+# Abbreviations the document always spells one way. The renderer normalises prose to these forms
+# and BC-07 judges the rendered document against the same set, so the two cannot drift
+# (docs/RESEARCH_AND_GUIDELINES.md section 27.10).
+ABBREVIATIONS = frozenset(
+    {
+        "PDF",
+        "XLSX",
+        "HTML",
+        "EPS",
+        "XPS",
+        "API",
+        "JSON",
+        "XML",
+        "CSV",
+        "SVG",
+        "URL",
+        "HTTP",
+        "SDK",
+        "CLI",
+    }
+)
+# Format extensions that are also ordinary words are never judged as abbreviations.
+WORD_EXTENSIONS = frozenset({"max", "ply", "dat", "raw", "bin", "log", "map", "mat", "tag", "ini"})
 _FORBIDDEN = (
     ("```", "a code fence"),
     ("http://", "a URL"),
@@ -486,6 +509,34 @@ def identifier_tokens(text: str) -> set[str]:
     # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
     # as the contract's canonical abbreviations are, never an identifier.
     return {token for token in found if not (token.isupper() and token.isalnum())}
+
+
+def canonical_abbreviations(facts: FactsDocument) -> dict[str, str]:
+    """Lowercase spelling to canonical form, for every abbreviation this document owns.
+
+    The fixed set plus every format extension the facts record that is not an ordinary word, so a
+    repository whose formats are OBJ and GLB gets those too.
+    """
+    forms = {abbreviation.lower(): abbreviation for abbreviation in ABBREVIATIONS}
+    for fact in facts.by_kind("format"):
+        extension = fact.value.lstrip(".").lower()
+        if len(extension) >= 3 and extension.isalpha() and extension not in WORD_EXTENSIONS:
+            forms[extension] = extension.upper()
+    return forms
+
+
+def forbidden_text_pattern(extra: Sequence[str] = ()) -> str:
+    """A regular expression for a unit's text: none of the fragments a unit may not contain.
+
+    Built from the same table unit_checks judges by. It is NOT put in the per-call schema: the
+    gateway answers HTTP 400 for a strict ``json_schema`` carrying ``pattern``, measured on
+    qwen3-next during G2-W12, which is the fallback docs/RESEARCH_AND_GUIDELINES.md section 27.7
+    anticipated and section 27.10 allows. The URL, command and edition families therefore stay
+    post-validated by unit_checks until a normalisation owns them.
+    """
+    fragments = [fragment for fragment, _ in _FORBIDDEN] + list(extra)
+    alternation = "|".join(re.escape(fragment) for fragment in fragments)
+    return f"^(?!(?:.|\\n)*(?:{alternation}))(?:.|\\n)*$"
 
 
 def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:

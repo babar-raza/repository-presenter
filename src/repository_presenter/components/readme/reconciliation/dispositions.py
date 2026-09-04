@@ -14,6 +14,7 @@ violation is quoted back once; a second one fails the transaction closed.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
@@ -39,7 +40,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.core.facts import FactsDocument, bounded_records
-from repository_presenter.core.llm.prompts import PromptManifest
+from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 DISPOSITIONS_FILENAME = "dispositions.json"
@@ -80,6 +81,27 @@ RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
     "license": ("license",),
 }
 _UNIT_REFERENCE = re.compile(r"unit (inherited_unit:[0-9]+\.[a-z_]+)")
+
+
+def reconciliation_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
+    """The reconciliation schema specialised for this README: exactly its inherited units.
+
+    Every inherited unit needs one disposition and no other unit exists, which the code knows
+    exactly, so the schema says so rather than letting the job invent a unit and be rejected for
+    it (RESEARCH_AND_GUIDELINES.md section 27.5 D1; cause RC1 in 27.2). The canary's job paired
+    the right ordinals with the wrong type suffixes - inherited_unit:037.paragraph where the unit
+    is inherited_unit:037.code_block - and lost a whole transaction to it. The destination and
+    the rationale stay the job's.
+    """
+    schema = copy.deepcopy(manifest.manifest.output.schema_)
+    units = [fact.id for fact in facts.by_kind("inherited_unit")]
+    if not units:
+        return schema
+    dispositions = schema["properties"]["dispositions"]
+    dispositions["minItems"] = len(units)
+    dispositions["maxItems"] = len(units)
+    dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
+    return schema
 
 
 def reconciliation_packet(

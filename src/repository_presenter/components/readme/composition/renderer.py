@@ -18,6 +18,7 @@ from urllib.parse import quote, urlsplit
 
 from repository_presenter.components.readme.composition.authoring import (
     allowed_identifiers,
+    canonical_abbreviations,
     identifier_allowed,
     identifier_tokens,
     surface_members,
@@ -47,13 +48,14 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "15"  # the template component version dependencies.json records
+RENDERER_VERSION = "16"  # the template component version dependencies.json records
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
 _LINK_TEXT = re.compile(r"text '(.*)'$")
+_LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
@@ -106,6 +108,7 @@ class RenderContext:
         self.members = verified_members(facts)
         self.methods = surface_members(facts)
         self.name_tokens = product_name_tokens(self.name)
+        self.abbreviations = canonical_abbreviations(facts)
         self.symbol_names: frozenset[str] = frozenset(
             fact.value.rsplit(".", 1)[-1]
             for fact in facts.by_kind("public_symbol")
@@ -115,6 +118,12 @@ class RenderContext:
                 f"; {kind};" in (fact.evidence[0].detail or "")
                 for kind in ("class", "enum", "function")
             )
+        )
+
+    def canonical(self, text: str) -> str:
+        """``text`` with every known abbreviation raised to the spelling the document uses."""
+        return _LOWER_WORD.sub(
+            lambda match: self.abbreviations.get(match.group(0), match.group(0)), text
         )
 
     def fact(self, fact_id: str) -> Fact | None:
@@ -131,8 +140,12 @@ class RenderContext:
 
         Besides the tokens the guard checks, a capitalized word that names a recorded class or
         function (``Scene``) is wrapped too; the guard leaves such words alone because ordinary
-        prose capitalizes words, but here the match is exact against the surface.
+        prose capitalizes words, but here the match is exact against the surface. A known
+        abbreviation written in lower case is raised to its canonical form first: the code owns
+        that spelling, so it normalises it rather than re-asking the model and rejecting the
+        reply (docs/RESEARCH_AND_GUIDELINES.md section 27.10; BC-07 still judges the result).
         """
+        text = self.canonical(text)
         tokens = set(identifier_tokens(text))
         tokens.update(word for word in _WORD.findall(text) if word in self.symbol_names)
         # A bare extension that is a format fact value (``.stl``) is an identifier too.
