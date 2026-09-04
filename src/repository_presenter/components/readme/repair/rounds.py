@@ -35,6 +35,7 @@ from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     plan_checks,
     planning_packet,
+    planning_schema,
     write_plan,
 )
 from repository_presenter.components.readme.composition.renderer import (
@@ -171,6 +172,7 @@ def run_round(tx: TransactionInputs) -> Round:
             dispositions=reconciled.output,
             ecosystem=entry.ecosystem,
         ),
+        call_schema=planning_schema(loaded, facts),
         **common,
     )
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)

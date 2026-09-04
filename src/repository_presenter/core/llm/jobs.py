@@ -114,7 +114,20 @@ class CallStore:
         return path
 
 
-def render_messages(manifest: LoadedManifest, packet: Mapping[str, Any]) -> list[dict[str, str]]:
+def schema_for(manifest: LoadedManifest, call_schema: dict[str, Any] | None) -> dict[str, Any]:
+    """The schema this call is judged by: the manifest's, or the one the job specialised for it.
+
+    A job that knows which IDs a field may name emits them as an enum, so a schema-valid reply
+    cannot make a selection the binding would reject (RESEARCH_AND_GUIDELINES.md section 27.5 D1).
+    """
+    return manifest.manifest.output.schema_ if call_schema is None else call_schema
+
+
+def render_messages(
+    manifest: LoadedManifest,
+    packet: Mapping[str, Any],
+    call_schema: dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
     """The system and user messages for ``packet``; the packet must match the manifest exactly."""
     fields = manifest.manifest.packet
     expected = fields.names
@@ -136,7 +149,7 @@ def render_messages(manifest: LoadedManifest, packet: Mapping[str, Any]) -> list
         else:
             raise ConfigError(f"packet field {field.name} must be a string")
     user = string.Template(manifest.manifest.user_template).substitute(rendered)
-    schema = json.dumps(manifest.manifest.output.schema_, indent=1, sort_keys=True)
+    schema = json.dumps(schema_for(manifest, call_schema), indent=1, sort_keys=True)
     preface = manifest.manifest.schema_preface.strip()
     system = f"{manifest.manifest.system.rstrip()}\n\n{preface}\n{schema}\n"
     return [
@@ -145,14 +158,18 @@ def render_messages(manifest: LoadedManifest, packet: Mapping[str, Any]) -> list
     ]
 
 
-def request_payload(manifest: LoadedManifest, messages: list[dict[str, str]]) -> dict[str, Any]:
+def request_payload(
+    manifest: LoadedManifest,
+    messages: list[dict[str, str]],
+    call_schema: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """The chat-completion request; ``json_schema`` makes the gateway enforce the output shape."""
     sampling = manifest.manifest.sampling
     response_format: dict[str, Any] = {"type": sampling.response_format}
     if sampling.response_format == "json_schema":
         response_format["json_schema"] = {
             "name": manifest.manifest.prompt_id,
-            "schema": manifest.manifest.output.schema_,
+            "schema": schema_for(manifest, call_schema),
             "strict": True,
         }
     return {
@@ -299,7 +316,11 @@ Checks = Callable[[dict[str, Any]], list[str]]
 
 
 def _parse(
-    manifest: LoadedManifest, content: str, facts: FactsDocument, checks: Checks | None = None
+    manifest: LoadedManifest,
+    content: str,
+    facts: FactsDocument,
+    checks: Checks | None = None,
+    call_schema: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any] | None, list[str]]:
     try:
         output = json.loads(content)
@@ -307,7 +328,7 @@ def _parse(
         return None, [f"output is not a JSON object: {exc.msg} at position {exc.pos}"]
     if not isinstance(output, dict):
         return None, ["output is not a JSON object"]
-    validator = Draft202012Validator(manifest.manifest.output.schema_)
+    validator = Draft202012Validator(schema_for(manifest, call_schema))
     errors = [
         f"{error.json_path}: {error.message}"
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
@@ -329,6 +350,7 @@ def run_job(
     store: CallStore,
     context: JobContext,
     checks: Checks | None = None,
+    call_schema: dict[str, Any] | None = None,
 ) -> JobResult:
     """The accepted output of one job, from the store when the same request was accepted before.
 
@@ -337,15 +359,15 @@ def run_job(
     the others. What the checks accept is what is stored.
     """
     job = manifest.manifest.prompt_id
-    messages = render_messages(manifest, packet)
-    payload = request_payload(manifest, messages)
+    messages = render_messages(manifest, packet, call_schema)
+    payload = request_payload(manifest, messages, call_schema)
     request_sha256 = canonical_hash({"prompt_sha256": manifest.sha256, "payload": payload})
     stored = store.get(request_sha256)
     if stored is not None:
         # A stored output is re-judged under the current rules before reuse (normalised in
         # place like a fresh reply), so a corrected check takes effect without a call and a
         # stored output the rules no longer accept is replaced, never reused.
-        output, _rejection = _parse(manifest, json.dumps(stored), facts, checks)
+        output, _rejection = _parse(manifest, json.dumps(stored), facts, checks, call_schema)
         now = _now()
         reuse = CallRecord(
             call_id=_call_id(request_sha256, 0, "cache_reuse", now),
@@ -402,7 +424,7 @@ def run_job(
                 f"({manifest.manifest.sampling.max_output_tokens}); raise the budget or bound "
                 "the output, never retry"
             )
-        output, rejection = _parse(manifest, reply.content, facts, checks)
+        output, rejection = _parse(manifest, reply.content, facts, checks, call_schema)
         if output is not None:
             store.put(request_sha256, job, reply.model, output)
             return JobResult(

@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "4"
+version: "5"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -29,7 +29,7 @@ packet:
       description: The accepted source_reconciliation output; placed units name their destination sections.
     - name: shell
       type: json
-      description: The semantic shell's sections with id, heading, required flag, owner, condition, and condition_holds - true or false when deterministic code evaluated the condition from the facts, null when the plan decides.
+      description: The semantic shell's sections with id, heading, required flag, owner, condition, and condition_holds - the inclusion decision deterministic code already made from the facts; a section with condition_holds false does not appear in this candidate.
     - name: policy
       type: json
       description: Ceilings and budgets - capability count, hub API count, link ceilings, length budget - as numbers.
@@ -38,12 +38,14 @@ output:
   binding: selection_ids
   schema:
     type: object
-    required: [sections, core_capabilities, at_a_glance, quick_start_example_id, second_quick_start_example_id, additional_example_ids, flagship_example_id, api_hubs, material_limitations, links, deviations]
+    required: [core_capabilities, at_a_glance, quick_start_example_id, second_quick_start_example_id, additional_example_ids, flagship_example_id, api_hubs, material_limitations, links, deviations]
     additionalProperties: false
     properties:
+      # Composed by deterministic code after the reply and ignored if a reply carries it:
+      # the shell's inclusion decisions are not the model's to make (section 27.5 D1). It
+      # stays in the schema because the accepted plan document is re-judged against it.
       sections:
         type: array
-        minItems: 1
         items:
           type: object
           required: [section_id, include, reason]
@@ -121,13 +123,12 @@ system: |
   symbols, inherited units, and links you were given. A selection outside that set rejects the
   whole plan. Ceilings and column rules are enforced at render; stay within the policy numbers.
 
-  Sections. Return one decision for every shell section. Required sections are always included.
-  A conditional section follows condition_holds: included when true, omitted when false, and
-  your decision when null (api_reference: include it when a visitor benefits from curated hub
-  APIs, with the hubs listed). Every reason names the facts or their absence. Never add a section
-  the shell does not define. additional_example_ids are given exactly when additional_examples
-  is included, api_hubs exactly when api_reference is included, and at_a_glance is null exactly
-  when that section is omitted.
+  Sections. You do not decide them and you do not list them. Deterministic code evaluates every
+  shell condition from the facts and composes the inclusion decisions; the shell you are given
+  carries the result in condition_holds, true or false for each section. Read it, and select for
+  the sections it includes: additional_example_ids are given exactly when additional_examples is
+  included, api_hubs exactly when api_reference is included, and at_a_glance is null exactly when
+  that section is omitted.
 
   Core capabilities. Three to eight, each an action-led natural phrase grounded in the cited
   facts, with no keyword repeated across titles. One capability inventory per document: the At a

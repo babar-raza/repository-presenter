@@ -94,7 +94,12 @@ def _plan(**overrides: Any) -> dict[str, Any]:
             {"title": "Save", "fact_ids": ["identity:repository"]},
             {"title": "Load", "fact_ids": ["example:001"]},
         ],
-        "at_a_glance": None,
+        # At a Glance is included by the shell condition, so the plan always carries it.
+        "at_a_glance": {
+            "input_format_ids": [],
+            "output_format_ids": [],
+            "capability_titles": ["Build scenes", "Save", "Load"],
+        },
         "quick_start_example_id": "example:001",
         "additional_example_ids": ["example:002"],
         "api_hubs": [{"symbol_fact_id": "public_symbol:aspose.threed.scene", "fact_ids": []}],
@@ -165,11 +170,14 @@ def test_planning_includes_every_verified_example_and_refuses_an_excluded_destin
     plan = _plan(additional_example_ids=[])
     errors = plan_checks(plan, FACTS, dispositions=DISPOSITIONS, ecosystem="python")
     assert plan["additional_example_ids"] == ["example:002"]  # the contradicted one stays out
-    assert errors == [
-        "section at_a_glance is excluded but the reconciliation placed "
-        "inherited_unit:014.paragraph there; include it, or the transaction fails closed naming "
-        "the unit",
-        "section at_a_glance: its condition holds, so it is included",  # row 6
+    # At a Glance's condition holds, so code includes it whatever the plan said and the
+    # placement stands; only a destination the facts exclude is a defect.
+    assert errors == []
+    excluded = {"dispositions": [_entry("inherited_unit:014.paragraph", "enterprise_relationship")]}
+    assert plan_checks(_plan(), FACTS, dispositions=excluded, ecosystem="python") == [
+        "section enterprise_relationship is excluded at this revision but the reconciliation "
+        "placed inherited_unit:014.paragraph there; place the unit in an included section or "
+        "defer it, or the transaction fails closed naming it"
     ]
     omitted = _plan(additional_example_ids=[])
     for entry in omitted["sections"]:
@@ -178,40 +186,6 @@ def test_planning_includes_every_verified_example_and_refuses_an_excluded_destin
     plan_checks(omitted, FACTS)
     decision = next(e for e in omitted["sections"] if e["section_id"] == "additional_examples")
     assert decision["include"] is True and omitted["additional_example_ids"] == ["example:002"]
-
-
-def test_planning_refuses_to_exclude_a_section_a_supersession_relies_on() -> None:
-    def _supersede(unit: str, destination: str) -> dict[str, Any]:
-        return {
-            "unit_id": unit,
-            "disposition": "SUPERSEDE_REDUNDANT",
-            "destination_section": destination,
-            "fact_ids": [],
-            "rationale": "r",
-        }
-
-    plan = _plan(api_hubs=[])
-    for entry in plan["sections"]:
-        if entry["section_id"] == "api_reference":
-            entry["include"] = False
-    dispositions = {
-        "dispositions": [
-            _supersede("inherited_unit:012.paragraph", "api_reference"),
-            # A heading is the shell's anyway, and an absent section is reconciliation's job.
-            _supersede("inherited_unit:015.heading", "api_reference"),
-            _supersede("inherited_unit:014.paragraph", "at_a_glance"),
-        ]
-    }
-    assert plan_checks(plan, FACTS, dispositions=dispositions, ecosystem="python") == [
-        "section api_reference is excluded but the reconciliation relies on its content to "
-        "supersede inherited_unit:012.paragraph; include it, or the transaction fails closed "
-        "naming the unit",
-        "section at_a_glance is excluded but the reconciliation relies on its content to "
-        "supersede inherited_unit:014.paragraph; include it, or the transaction fails closed "
-        "naming the unit",
-        "section at_a_glance: its condition holds, so it is included",  # row 6
-        "section api_reference is required and cannot be omitted",  # row 14: Required
-    ]
 
 
 def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:

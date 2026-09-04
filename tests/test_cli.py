@@ -17,6 +17,7 @@ import pytest
 
 from repository_presenter import __version__, cli
 from repository_presenter.cli import EXIT_INCONSISTENT, EXIT_OK, EXIT_UNSAFE, EXIT_USAGE, main
+from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.evidence.facts import links
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.repair.targeted import defect_fingerprint
@@ -290,46 +291,7 @@ LOCAL_DISPOSITIONS: dict[str, Any] = {
         },
     ]
 }
-LOCAL_PLAN_INCLUDED = {
-    "banner",
-    "at_a_glance",
-    "identity",
-    "badges",
-    "opening",
-    "navigation",
-    "key_capabilities",
-    "installation",
-    "dependencies",
-    "quick_start",
-    "api_reference",
-    "documentation_resources",
-    "scope_limitations",
-    "license",
-}
 LOCAL_PLAN: dict[str, Any] = {
-    "sections": [
-        {"section_id": section, "include": section in LOCAL_PLAN_INCLUDED, "reason": "facts"}
-        for section in [
-            "identity",
-            "badges",
-            "banner",
-            "opening",
-            "navigation",
-            "at_a_glance",
-            "key_capabilities",
-            "installation",
-            "dependencies",
-            "quick_start",
-            "additional_examples",
-            "api_reference",
-            "documentation_resources",
-            "scope_limitations",
-            "development_testing",
-            "enterprise_relationship",
-            "third_party_notices",
-            "license",
-        ]
-    ],
     "core_capabilities": [
         {"title": "Create scenes", "fact_ids": ["public_symbol:aspose.threed.scene"]},
         {"title": "Save GLB", "fact_ids": ["format:output.glb"]},
@@ -649,7 +611,9 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "links 1, limitations 0; provider calls 1, model qwen3-next; digest "
     )
     written_plan = json.loads((project_with_registry / facts_dir / "plan.json").read_text("utf-8"))
-    assert written_plan == LOCAL_PLAN
+    # The planner returns no section list; code composes one decision per shell section.
+    assert {k: v for k, v in written_plan.items() if k != "sections"} == LOCAL_PLAN
+    assert [e["section_id"] for e in written_plan["sections"]] == list(section_ids())
     assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests] == [
         "repository_investigation",
         "source_reconciliation",

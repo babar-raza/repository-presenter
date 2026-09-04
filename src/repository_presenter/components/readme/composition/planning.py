@@ -11,6 +11,7 @@ before the plan is used.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -18,7 +19,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
-    placeable_section_ids,
+    Section,
     section_ids,
     shell_packet,
 )
@@ -33,7 +34,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     enterprise_target,
 )
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
-from repository_presenter.core.llm.prompts import PromptManifest
+from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 PLAN_FILENAME = "plan.json"
@@ -96,6 +97,34 @@ def planning_packet(
     }
 
 
+def _decision(section: Section, holds: bool | None) -> dict[str, Any]:
+    """One inclusion decision, composed by code from the shell and the evaluated condition."""
+    if section.required:
+        return {"section_id": section.id, "include": True, "reason": "the shell requires it"}
+    return {
+        "section_id": section.id,
+        "include": bool(holds),
+        "reason": "its condition " + ("holds" if holds else "does not hold"),
+    }
+
+
+def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
+    """The planning schema specialised for this repository: the example selections carry the
+    verified example IDs as an enum, so a schema-valid plan cannot name a contradicted or
+    unresolved example (RESEARCH_AND_GUIDELINES.md section 27.5 D1; the canary was rejected
+    twice for naming a CONTRADICTED example, which is cause RC1 in section 27.2)."""
+    schema = copy.deepcopy(manifest.manifest.output.schema_)
+    verified = sorted(fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED")
+    if not verified:
+        return schema
+    properties = schema["properties"]
+    properties["quick_start_example_id"]["enum"] = verified
+    properties["additional_example_ids"]["items"]["enum"] = verified
+    for field in ("second_quick_start_example_id", "flagship_example_id"):
+        properties[field]["enum"] = [*verified, None]
+    return schema
+
+
 def plan_checks(
     output: dict[str, Any],
     facts: FactsDocument,
@@ -105,38 +134,17 @@ def plan_checks(
 ) -> list[str]:
     """Why the plan may not be used, beyond schema and binding; empty when every rule holds.
 
-    Two rules normalise or fail closed here because planning is where they are first knowable:
-    every further verified example belongs in Additional Examples (README_CONTRACT.md section 2
-    row 12), so a missing one is appended and the section included; and a placed inherited unit
-    whose destination the plan excludes is never dropped silently (section 3), so the plan is
-    asked to include the destination, and a second refusal fails the transaction naming the unit.
+    The shell's inclusion decisions are composed here, not asked for: deterministic code already
+    evaluates every condition from the facts, so asking the model to restate the decision list and
+    then rejecting it for restating it wrongly is RESEARCH_AND_GUIDELINES.md section 27.2's RC1
+    (section 27.5 D1). Two rules still normalise or fail closed because planning is where they are
+    first knowable: every further verified example belongs in Additional Examples
+    (README_CONTRACT.md section 2 row 12), so a missing one is appended and the condition holds;
+    and a placed inherited unit whose destination is excluded at this revision is never dropped
+    silently (section 3), so the transaction fails closed naming the unit.
     """
     errors: list[str] = []
     conditions = section_conditions(facts, policy)
-    required = {section.id for section in SEMANTIC_SHELL if section.required}
-    decisions = {entry["section_id"]: entry for entry in output.get("sections", [])}
-    # A required or conditional section leaves the plan nothing to decide, so a decision the
-    # planner left out is filled from the shell rather than re-asked (the planner dropped
-    # third_party_notices twice in a row on the canary); a plan-decided section, condition
-    # None, must be given. One decision per shell section always stands after the fold.
-    order = {section_id: index for index, section_id in enumerate(section_ids())}
-    for shell_section in SEMANTIC_SHELL:
-        holds = conditions[shell_section.id]
-        if shell_section.id in decisions or holds is None:
-            continue
-        filled: dict[str, Any] = {
-            "section_id": shell_section.id,
-            "include": bool(holds),
-            "reason": "filled from the shell: its condition "
-            + ("holds" if holds else "does not hold"),
-        }
-        output.setdefault("sections", []).append(filled)
-        decisions[shell_section.id] = filled
-    output.get("sections", []).sort(key=lambda item: order.get(item["section_id"], 99))
-    ids = [entry["section_id"] for entry in output.get("sections", [])]
-    if sorted(ids) != sorted(section_ids()) or len(ids) != len(set(ids)):
-        errors.append("sections must carry exactly one decision for every shell section")
-    included = {section for section, entry in decisions.items() if entry.get("include")}
     verified_examples = sorted(
         fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
     )
@@ -150,45 +158,17 @@ def plan_checks(
     conditions["additional_examples"] = bool(set(verified_examples) - starts)
     if missing:
         output["additional_example_ids"] = additional + missing
-        entry = decisions.get("additional_examples")
-        if entry is not None and not entry.get("include"):
-            entry["include"] = True
-            entry["reason"] = "every further verified example is presented"
-            included.add("additional_examples")
+    output["sections"] = [_decision(section, conditions[section.id]) for section in SEMANTIC_SHELL]
+    decisions = {entry["section_id"]: entry for entry in output["sections"]}
+    included = {section for section, entry in decisions.items() if entry["include"]}
     if dispositions is not None:
         for placement in placements(output, dispositions, facts, ecosystem):
             if placement.outcome == "excluded":
                 errors.append(
-                    f"section {placement.destination} is excluded but the reconciliation placed "
-                    f"{placement.unit_id} there; include it, or the transaction fails closed "
-                    "naming the unit"
+                    f"section {placement.destination} is excluded at this revision but the "
+                    f"reconciliation placed {placement.unit_id} there; place the unit in an "
+                    "included section or defer it, or the transaction fails closed naming it"
                 )
-        placeable = placeable_section_ids()
-        for entry in dispositions.get("dispositions", []):
-            destination = entry.get("destination_section")
-            unit_type = str(entry.get("unit_id", "")).rsplit(".", 1)[-1]
-            if (
-                entry.get("disposition") == "SUPERSEDE_REDUNDANT"
-                and destination in placeable
-                and destination not in included
-                and conditions.get(destination) is not False  # reconciliation defers those
-                and unit_type not in ("heading", "badge_row")  # the shell owns these anyway
-            ):
-                errors.append(
-                    f"section {destination} is excluded but the reconciliation relies on its "
-                    f"content to supersede {entry.get('unit_id')}; include it, or the "
-                    "transaction fails closed naming the unit"
-                )
-    for section, holds in conditions.items():
-        if section not in decisions:
-            continue
-        if section in required and section not in included:
-            errors.append(f"section {section} is required and cannot be omitted")
-        elif holds is False and section in included:
-            errors.append(f"section {section}: its condition does not hold, so it is omitted")
-        elif holds is True and section not in required and section not in included:
-            errors.append(f"section {section}: its condition holds, so it is included")
-
     capabilities = output.get("core_capabilities", [])
     if not policy.capabilities_min <= len(capabilities) <= policy.capabilities_max:
         errors.append(

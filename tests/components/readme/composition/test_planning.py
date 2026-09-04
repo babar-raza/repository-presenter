@@ -6,9 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
+    planning_schema,
     section_conditions,
     summarize_plan,
     write_plan,
@@ -139,16 +142,33 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "sections 15/18, capabilities 3, hubs 1, examples 1+1, links 1, limitations 1"
     )
 
+    # The shell's decisions are composed, not asked for: a plan that omits a required section
+    # or excludes one whose condition holds is overwritten rather than rejected, so those three
+    # rejection paths no longer exist (RESEARCH_AND_GUIDELINES.md section 27.5 D1).
     sections = [dict(entry) for entry in _plan()["sections"]]
     sections[0]["include"] = False  # identity
     sections[5]["include"] = False  # at_a_glance
     sections[10]["include"] = False  # additional_examples
-    errors = plan_checks(_plan(sections=sections), FACTS)
-    assert "section identity is required and cannot be omitted" in errors
-    assert "section at_a_glance: its condition holds, so it is included" in errors
-    assert "section additional_examples: its condition holds, so it is included" in errors
-    assert "at_a_glance is omitted, so it is null" in errors
-    assert "additional_example_ids are given exactly when additional_examples is included" in errors
+    disagreeing = _plan(sections=sections)
+    assert plan_checks(disagreeing, FACTS) == []
+    composed = {entry["section_id"]: entry for entry in disagreeing["sections"]}
+    assert composed["identity"] == {
+        "section_id": "identity",
+        "include": True,
+        "reason": "the shell requires it",
+    }
+    assert composed["at_a_glance"]["include"] is True
+    assert composed["additional_examples"]["include"] is True
+    assert composed["third_party_notices"] == {
+        "section_id": "third_party_notices",
+        "include": False,
+        "reason": "its condition does not hold",
+    }
+
+    omitted = _plan(at_a_glance=None)
+    assert "at_a_glance is included, so its formats and capabilities are given" in plan_checks(
+        omitted, FACTS
+    )
 
     errors = plan_checks(
         _plan(
@@ -277,29 +297,19 @@ def test_at_a_glance_labels_are_geometry_safe_and_number_three_to_eight() -> Non
     assert any("unbroken token over 28 characters" in error for error in plan_checks(wide, FACTS))
 
 
-def test_a_missing_conditional_decision_is_filled_from_the_shell() -> None:
-    # A required or conditional section leaves the plan nothing to decide, so a decision the
-    # planner left out is filled rather than re-asked; a duplicate decision still fails.
+def test_the_shell_decisions_are_composed_by_code_never_asked_of_the_plan() -> None:
+    # Deterministic code already evaluates every shell condition from the facts, so the plan is
+    # not asked for the decision list and cannot get it wrong: whatever it carries is replaced by
+    # one decision per shell section, in shell order (section 27.2 RC1, section 27.5 D1).
     plan = _plan()
-    plan["sections"] = [
-        entry
-        for entry in plan["sections"]
-        if entry["section_id"] not in {"identity", "third_party_notices"}
-    ]
+    del plan["sections"]
     assert plan_checks(plan, FACTS) == []
-    by_id = {entry["section_id"]: entry for entry in plan["sections"]}
     assert [entry["section_id"] for entry in plan["sections"]] == ALL_SECTIONS
-    assert by_id["identity"]["include"] is True
-    assert by_id["third_party_notices"] == {
-        "section_id": "third_party_notices",
-        "include": False,
-        "reason": "filled from the shell: its condition does not hold",
-    }
+
     duplicated = _plan()
-    duplicated["sections"].append(dict(duplicated["sections"][0]))
-    assert "sections must carry exactly one decision for every shell section" in plan_checks(
-        duplicated, FACTS
-    )
+    duplicated["sections"] = [dict(duplicated["sections"][0])] * 3
+    assert plan_checks(duplicated, FACTS) == []
+    assert [entry["section_id"] for entry in duplicated["sections"]] == ALL_SECTIONS
 
 
 def test_the_flagship_is_one_of_the_additional_examples_or_null() -> None:
@@ -309,3 +319,30 @@ def test_the_flagship_is_one_of_the_additional_examples_or_null() -> None:
     assert plan_checks(_plan(flagship_example_id="example:001"), FACTS) == [
         "flagship_example_id must be one of additional_example_ids; got 'example:001'"
     ]
+
+
+def test_the_verified_examples_travel_as_an_enum_so_a_valid_reply_cannot_name_another() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.5 D1: the canary's planner was rejected twice for
+    # naming a CONTRADICTED example, which no packet wording prevents. The code emits the
+    # allowed IDs, so the rejection family cannot be produced by a schema-valid reply.
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS)
+    properties = schema["properties"]
+    assert properties["quick_start_example_id"]["enum"] == ["example:001", "example:002"]
+    assert properties["additional_example_ids"]["items"]["enum"] == ["example:001", "example:002"]
+    assert properties["second_quick_start_example_id"]["enum"] == [
+        "example:001",
+        "example:002",
+        None,
+    ]
+    assert properties["flagship_example_id"]["enum"] == ["example:001", "example:002", None]
+    # The manifest's own schema is untouched: the specialisation is per call.
+    assert "enum" not in loaded.manifest.output.schema_["properties"]["quick_start_example_id"]
+
+    validator = Draft202012Validator(schema)
+    contradicted = _plan(quick_start_example_id="example:003")
+    assert [
+        error.message
+        for error in validator.iter_errors(contradicted)
+        if error.json_path == "$.quick_start_example_id"
+    ] == ["'example:003' is not one of ['example:001', 'example:002']"]
