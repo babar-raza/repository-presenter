@@ -3,10 +3,12 @@ and check 10 judged from the verdict."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.review.independent.review import (
+    ACCEPT,
     CAUSAL_STATES,
     demote_findings,
     quote_located,
@@ -344,3 +346,59 @@ def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() ->
         "[reviewer-scope defect at S6: section at_a_glance renders from facts under the "
         "contract's own checks; its presentation is the renderer's"
     )
+
+
+# The sealed canary's advisories, adjudicated against the bundle rather than against the
+# reviewer's wording (project/loop-prompt.md section 5): a finding is code-caused when a
+# deterministic check can express it, whatever prose the reviewer chose.
+SEALED_CANARY = (
+    REPO_ROOT
+    / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+    / "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+)
+# The identifiers the inherited capability list names and the covering text drops.
+DROPPED_IDENTIFIERS = (
+    "PolygonModifier.triangulate()",
+    "Mesh.create_polygon()",
+    "Node.add_entity()",
+    "Node.create_child_node()",
+    "ObjSaveOptions",
+    "GltfSaveOptions",
+)
+
+
+def _sealed(name: str) -> Any:
+    return json.loads((SEALED_CANARY / name).read_text("utf-8"))
+
+
+def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle() -> None:
+    review = _sealed("review.json")
+    candidate = (SEALED_CANARY / "README.md").read_text("utf-8")
+    assert review["verdict"] == ACCEPT and review["findings"] == []
+    advisory = {finding["id"]: finding for finding in review["advisory"]}
+    assert sorted(advisory) == ["F01", "F02", "F03"]
+
+    # F03 quotes the very passage it reports as dropped, so it contradicts the document it
+    # reviewed: no check can express a defect the candidate does not have.
+    assert advisory["F03"]["quote"] in candidate
+    installation = candidate.split("## Installation", 1)[1].split("\n## ", 1)[0]
+    assert 'python -c "import aspose.threed"' in installation
+
+    # F01 and F02 are one defect class, on the two inherited units whose covering text drops
+    # their distinguishing claims. The deterministic advisory names them for the rewritten
+    # list, and is silent for the superseded paragraph, so both are code-caused: the cause is
+    # the unbound slot fact set of RESEARCH_AND_GUIDELINES.md section 27.2 RC2 and the missing
+    # coverage record of RC6, carried by G2-W13 and G2-W17.
+    dispositions = {e["unit_id"]: e for e in _sealed("dispositions.json")["dispositions"]}
+    assert dispositions["inherited_unit:010.list"]["disposition"] == "VERIFIED_REWRITE"
+    assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    reported = _sealed("validation.json")["advisory"]
+    assert [line.split(":", 2)[0] + ":" + line.split(":", 2)[1] for line in reported] == [
+        "inherited_unit:010.list"
+    ]
+    for identifier in DROPPED_IDENTIFIERS:
+        assert identifier in reported[0] and identifier in advisory["F02"]["text"]
+    inherited = {fact["id"]: fact["value"] for fact in _sealed("facts.json")["facts"]}
+    paragraph = inherited["inherited_unit:004.paragraph"]
+    assert "pure-Python" in paragraph and "no native runtime" in paragraph
+    assert "pure-Python" not in candidate
