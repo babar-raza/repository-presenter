@@ -1499,3 +1499,84 @@ def test_a_planning_policy_change_reopens_planning(
     _assert_presentation_update(
         out, bundle, "PLANNING", ["dependencies.json"], ("units: ", "review: ")
     )
+
+
+def test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    older = _seal_and_prove(project_with_registry, capsys)
+    source: Path = local_canary["source"]
+    (source / "CHANGELOG.md").write_text("# Changelog\n\n- 26.1.0: first release.\n", "utf-8")
+    newer_revision = commit_all(source, "add a changelog")
+    assert newer_revision != older.name
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    # A bundle is addressed by its source revision: the new revision is a fresh candidate that
+    # starts at EXTRACTING in its own transaction with its own call store, so every agentic
+    # stage runs again and nothing is reused across revisions; the older bundle is not evaluated.
+    assert "earliest affected stage" not in out
+    assert len(gateway_ready.requests) > before
+    transaction = project_with_registry / "runs" / "transactions" / older.parent.name
+    assert (transaction / newer_revision / "facts.json").is_file()
+    newer = older.parent / newer_revision
+    assert json.loads((newer / "manifest.json").read_text("utf-8"))["state"] == "ACCEPTED"
+    assert json.loads((older / "manifest.json").read_text("utf-8"))["state"] == (
+        "READY_FOR_PROPOSAL"
+    )  # the older proof stands until the newer revision is proven
+
+    assert main(["present", "--repo", CANARY, "--root", str(project_with_registry)]) == EXIT_OK
+    capsys.readouterr()
+    assert json.loads((newer / "manifest.json").read_text("utf-8"))["state"] == (
+        "READY_FOR_PROPOSAL"
+    )
+    superseded = json.loads((older / "manifest.json").read_text("utf-8"))
+    assert superseded["state"] == "SUPERSEDED" and superseded["superseded_by"] == newer_revision
+    states = [
+        json.loads((path / "manifest.json").read_text("utf-8"))["state"]
+        for path in sorted(older.parent.iterdir())
+        if (path / "manifest.json").is_file()
+    ]
+    assert sorted(states) == ["READY_FOR_PROPOSAL", "SUPERSEDED"]  # one current candidate
+
+
+def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    readme_before = (bundle / "README.md").read_bytes()
+    assert b"banner-readme.png" in readme_before
+    banner = "https://products.aspose.org/media/3d/python/banner-readme.png"
+    # The extractor now sees the banner illustration resolve elsewhere: the fact keeps its
+    # value and polarity, its evidence detail changes, and so does its record's digest.
+    monkeypatch.setattr(
+        links, "fetch_status", lambda url: (200, url + "?v=2" if url == banner else url)
+    )
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert "(earliest affected stage EXTRACTING; 1 changes (facts -> EXTRACTING)" in out
+    # The stages reopen from EXTRACTING, yet no packet carries the evidence detail, so every
+    # stored output is judged and reused without a call.
+    assert len(gateway_ready.requests) == before
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    # A changed fact is a factual update: recorded, waiting, and the proven candidate kept.
+    assert "(state READY_FOR_PROPOSAL," in bundle_line
+    assert "valid update available (factual):" in bundle_line
+    assert "the proven candidate stays valid" in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert "facts.json" in manifest["update"]["changed"]
+    assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
+    assert (bundle / "README.md").read_bytes() == readme_before
