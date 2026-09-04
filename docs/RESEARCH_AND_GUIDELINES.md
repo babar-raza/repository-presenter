@@ -1870,6 +1870,27 @@ is blind to it — the gate's own promise, so it stays in G2 (**G2-W21**), not G
 truncated at its 6,000-token budget and the code correctly refused to retry — bounded review output
 is added to **G2-W16**.
 
+**Follow-up 3 (2026-09-04, 21:00) — thresholds and what "honoured" means.** With `seed` adopted the
+next composition measured 87.5% (3 of 24 rejected) against 91.7% (2 of 24) before it: one rejection
+is four points at this sample size. The loop's correction is accepted as the rule from here:
+
+1. **A threshold is never fitted to one sample.** A predicate or regression floor is set from at
+   least three sealed compositions — at the observed minimum less one rejection's worth — and
+   restated when the data moves, never tightened to a lucky run. The regression control holds 85%
+   now; W12's accepted record (91.7/8.3) stands as the measurement it was, not as a gate. G2's
+   exit-rate predicate is judged after G2-W20 lands, over the last three sealed compositions.
+2. **"Honoured" is measured by the probe, not by compositions.** Extend the preflight seed probe
+   to send the *same* bounded completion twice with the same seed, bypassing the store, and compare
+   content bytes: identical → `honoured`; different → `accepted, non-deterministic`. Two calls, one
+   answer, no composition sampled for a kinder result (which stays forbidden). W19 accepts on the
+   wording the probe supports. If the answer is non-deterministic, `seed` stays — declared,
+   versioned, harmless — and first-candidate variance rests on D5 (W16), referential units (W20),
+   and content-only acceptance, budgeted honestly in the cohorts.
+3. **Ownership of measured findings.** The loop may append a dated, facts-only paragraph to the
+   RESEARCH section its work item names (this one for W19; §29 for G4 items) — measurements,
+   never decisions or rewrites of the owner's text. A measurement that lives only in a commit
+   message is a measurement the next iteration cannot read.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,

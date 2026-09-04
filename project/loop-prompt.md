@@ -31,8 +31,10 @@ files, never from memory of a previous iteration.
   fixed before any new work.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
   document. Writable governance files: `project/state.yaml`, file records and pull notes in
-  `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, and one coherent fix to a
-  document predicate that this iteration's implementation proved wrong. `docs/README_CONTRACT.md`
+  `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, one coherent fix to a
+  document predicate that this iteration's implementation proved wrong, and a dated, facts-only
+  measurement paragraph appended to the `RESEARCH_AND_GUIDELINES.md` section the active work item
+  names (never a decision, never a rewrite of the owner's text — §27.10 follow-up 3). `docs/README_CONTRACT.md`
   changes only through a work item whose purpose names the revision and whose defect is recorded in
   `RESEARCH_AND_GUIDELINES.md` (§26, §27.8); the revision, its code, and its tests land in that
   item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W16, G2-W17, and
@@ -141,6 +143,10 @@ files, never from memory of a previous iteration.
   aspose-3d-foss/Aspose.3D-FOSS-for-Python` and its immediate rerun, which must be byte-identical
   with zero provider calls.
 - A module with no production importer is a defect. Wire it or delete it in this iteration.
+- A numeric threshold in a predicate or a regression control is never fitted to one sample: set it
+  from at least three sealed compositions at the observed minimum less one rejection's worth,
+  restate it when the data moves, and say in the commit which compositions it rests on
+  (`RESEARCH_AND_GUIDELINES.md` §27.10 follow-up 3). One composition is a measurement, not a gate.
 - The LLM never writes Markdown or the document. Jobs return typed content units bound to fact IDs;
   the deterministic renderer owns headings, badges, Mermaid, commands, code, links, and license text
   (`docs/README_CONTRACT.md` §3). Claim checks are structural, never substring matching on prose.
