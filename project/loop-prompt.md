@@ -65,7 +65,10 @@ files, never from memory of a previous iteration.
 - If it is `VERIFYING`, run its complete acceptance now. If every predicate passes, accept it; if
   it was the gate's last item and every gate exit predicate passes, write the gate evidence
   manifest, append to `accepted_gates`, advance `current_gate`, promote the next gate's first work
-  item to `READY`, commit, push. Otherwise route the defect.
+  item to `READY`, commit, push. Otherwise route the defect. An item is never accepted "in part":
+  when a predicate turns out to belong to another item's cause, first edit the predicate in
+  `project/state.yaml` to name the owning item and the transferred defect, in the same commit,
+  then accept against the predicates as rewritten — the acceptance record must be literally true.
 - A work item is `BLOCKED_EXTERNAL` only if it itself consumes an `OPEN` owner item. Otherwise it
   proceeds. When the active item is blocked, take the next item of the current gate that is not,
   then the first non-blocked item of the next gate whose dependency gate is accepted.
