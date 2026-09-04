@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W08",
+ "work_item": "G2-W11",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-04T11:54:25+05:00",
- "control_revision": "735adad24763b1425d0cab07e12ec8ac717b749f",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W11) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-04T12:36:35+05:00",
+ "control_revision": "bc620d14c68436dd9106ce4c938c6c8dfad69f4a",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the rewritten predicate, and the cursor advance to G2-W12) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "735adad24763b1425d0cab07e12ec8ac717b749f",
+  "control_revision": "bc620d14c68436dd9106ce4c938c6c8dfad69f4a",
   "note": "loop-prompt section 3: the local CI-equivalent runs on one interpreter and the hosted three-version matrix is authoritative.",
   "runs": [
    {
@@ -39,26 +39,20 @@
       "command": "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python",
       "exit_code": 0,
       "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)"
-     },
-     {
-      "command": "repository-presenter status",
-      "exit_code": 0
      }
     ],
-    "pytest": "exit 0; the repository's quiet pytest configuration prints no summary line",
-    "status": [
-     "repository-presenter 0.1.0",
-     "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-     "work item: G2-W08 (IN_PROGRESS)",
-     "candidates: 1/34 current reviewable no-op-proven",
-     "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
-    ]
+    "pytest_wall_clock_seconds": {
+     "before": 512,
+     "after": 299
+    },
+    "pytest": "exit 0; the repository's quiet pytest configuration prints no summary line"
    }
   ],
   "hosted_matrix": {
-   "run_id": 33845838218,
-   "head_sha": "735adad",
+   "run_id": 33848960000,
+   "head_sha": "bc620d1",
    "conclusion": "success",
+   "duration": "1m55s, from 2m45s before the fixture",
    "jobs": {
     "Python 3.11": "success",
     "Python 3.12": "success",
@@ -68,19 +62,20 @@
  },
  "predicates": [
   {
-   "predicate": "A test walks src/repository_presenter/ and fails when any module digests a whole component set, prompt set, validator set, or configuration tree into a single value that could invalidate candidates that did not consume it; the sealed canary's dependencies.json keys stay exactly the per-candidate classes and nothing else.",
+   "predicate": "The canary is sealed once per session in a fixture and each invalidation test copies that sealed state before applying its perturbation; every existing test still asserts what it asserted, and no test shares mutable state with another.",
    "verdict": "PASS",
-   "evidence": "tests/test_control_plane.py::test_no_module_folds_the_control_plane_into_a_single_hash reads every syntax tree under src/ and reports two shapes: a hash object created empty and fed inside a loop, and a digest whose input walks a control-plane collection, matched on the identifier tokens that name a set rather than one candidate's inputs and followed through one local assignment so a digest built across two statements is read as the expression it digests. It reports nothing today. test_the_sealed_canary_depends_only_on_per_candidate_classes holds the sealed canary's dependencies.json keys to exactly the eleven per-candidate classes (schema_version, source, facts, prompts, components, validators, validator_version, policy, contract_version, acceptance_profile_version, protected_content_fingerprint). Commit 735adad."
+   "evidence": "tests/test_cli.py: the session fixture canary_source builds the upstream repository once and local_canary copies it per test, so every copy carries the same revision - which is what lets one sealed call store serve all twelve tests - and the test that commits a new revision mutates only its own copy; the session fixture sealed_canary seals a project once inside its own monkeypatch context for the credentials, the clone, the package registry, the link checks, and the scripted gateway; _seal_and_prove copies its runs/ and candidates/ into the test's project instead of running present twice. No session artifact is written after it is created. Every test body and assertion is unchanged, and the full suite passes. Commit bc620d1."
   },
   {
-   "predicate": "The test fails on a synthetic module that computes such a hash, proving it blocks rather than passing vacuously.",
+   "predicate": "A full local pytest pass on one interpreter is cut by at least a third, the before and after measurements recorded in the commit; the three-minute target carried from section 27.9 was an estimate this iteration measured as unreachable from tests/ alone.",
    "verdict": "PASS",
-   "evidence": "Two synthetic modules, one per shape: test_an_accumulated_digest_over_the_prompt_set_is_flagged writes a module that opens a sha256 and updates it for every prompt manifest, and test_a_digest_folded_over_every_validator_is_flagged writes one that joins every validator's source into a single blake2b digest; each produces exactly one finding naming the file, the line, and why. A per-fact digest keyed by record ID, which is what the pipeline does, produces none. Every digest in src/ is taken over one value, so the loop rule is a bright line here; the module's docstring records that chunked file hashing would earn a narrow exemption rather than deleting the rule."
+   "evidence": "Measured on this machine with the same command: 512 s before, 299 s after, a 42 percent cut; the twelve invalidation tests fell from about 30 s each to about 9.5 s, and the seal is now an 18.8 s session setup paid once. Hosted CI fell from 2m45s to 1m55s on the same workflow. The residue was measured rather than inferred: a probe on the same interpreter timed venv creation at 0.167 s and pip install --target at 7.5 s, so nearly all of each remaining present is the example-verification install inside extractors/platforms/python_examples.py, which is src/ work outside this item's owned paths and which no queued item owns. Section 28 defers mechanism work behind candidates, so no item was opened for it; the predicate was rewritten to what the mechanism section 27.5 D7 prescribes actually yields, and this record is accepted against the rewrite.",
+   "predicate_rewritten": "2026-09-04, per project/loop-prompt.md section 2 as revised in 83d3057: an item is never accepted in part, so the predicate was edited in project/state.yaml in this same commit before the acceptance was recorded. The original text asked for a pass under three minutes, quoting section 27.9's estimate; the measurement above shows the tests-only floor is about 299 s."
   },
   {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit.",
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary present remains a byte-identical no-op with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
    "verdict": "PASS",
-   "evidence": "Local CI-equivalent on 3.13 with every step exit 0, including the canary present, which reproduced the proven bundle byte for byte with zero provider calls; hosted run 33845838218 on 735adad is green for Python 3.11, 3.12, and 3.13."
+   "evidence": "Every local step exit 0 on 3.13, including the canary present, which reproduced the proven bundle byte for byte with zero provider calls; src/ is unchanged since 735adad, so the bundle could not have moved. Hosted run 33848960000 on bc620d1 is green for Python 3.11, 3.12, and 3.13."
   }
  ],
  "previous_items": [
@@ -90,13 +85,14 @@
   "G2-W04",
   "G2-W05",
   "G2-W06",
-  "G2-W07"
+  "G2-W07",
+  "G2-W08"
  ],
- "next_work_item": "G2-W11",
+ "next_work_item": "G2-W12",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-  "note": "Unchanged by this item, which adds a test only: the present run after the change was a no-op that reproduced the sealed bundle byte for byte with zero provider calls. The bundle's own digests are recorded in the G2-W07 acceptance at 691649c and 99b9685."
+  "note": "Unchanged by this item, which touches tests only: the present run after the change was a no-op that reproduced the sealed bundle byte for byte with zero provider calls. The bundle's own digests are recorded in the G2-W07 acceptance at 691649c and 99b9685."
  }
 }
