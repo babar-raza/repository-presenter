@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T23:56:38+05:00"
+updated_at: "2026-09-05T00:35:31+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W16
-  status: READY
+  status: IN_PROGRESS
   purpose: "Acceptance decided by content, never by directory history (27.2 RC5 and RC8). A reviewer finding demotes to advisory only when a deterministic check contradicts it; a finding with causal_stage unclear is classified by code from its section's owner, never auto-demoted; a finding re-raised after its one repair attempt never demotes: it is code-caused (section 26 rule: add the check) or it blocks; every failure record carries section_id and causal_stage as fields, retiring the bracket-prefix and detail-string regexes; the three-character substring demotion goes; required rows admit zero advisories before READY_FOR_PROPOSAL; README_CONTRACT.md section 6 is revised accordingly (27.8); independent_review's output is bounded (a capped findings list with anchored quotes) so its token budget never truncates, and a truncation is a defect routed to the prompt manifest, never a retry (the reviewer truncated at 6000 tokens during W12). Acceptance: the 65b1f577 review.json replayed under the new policy blocks on F02 and F04; a synthetic oversized review is bounded, not truncated; a synthetic re-raised finding blocks; a grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; canary re-seal ACCEPT with zero advisories."
   prerequisites:
     - G2-W13 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.

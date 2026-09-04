@@ -17,7 +17,6 @@ equivalent failure is reported, never retried, and the mechanism must change bef
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -45,7 +44,6 @@ STATE_STAGES: dict[str, str] = {
     "COMPOSING": "S6",
 }
 _COMPOSITION_STAGES = frozenset({"S6", "S7", "S8"})
-_DETAIL_SECTION = re.compile(r"^([a-z_]+)[:/]")
 EVIDENCE_REASON = (
     "evidence defect: extraction reopens only when the source or the extractor changes, and "
     "neither has"
@@ -140,14 +138,18 @@ def validation_defects(
         state = check.get("causal_stage")
         stage = STATE_STAGES.get(str(state))
         details = list(check.get("details", []))
-        first = str(details[0]) if details else ""
+        failures = list(check.get("failures", []))
         section: str | None = None
         reason: str | None = None
         if stage == "S6":
-            match = _DETAIL_SECTION.match(first)
-            section = match.group(1) if match and match.group(1) in llm_sections else None
+            named = [
+                str(failure.get("section_id"))
+                for failure in failures
+                if failure.get("section_id") in llm_sections
+            ]
+            section = named[0] if named else None
             if section is None:
-                stage, reason = None, "the failing detail names no LLM-owned section"
+                stage, reason = None, "no failing check names an LLM-owned section"
         elif stage is None:
             reason = f"{state or 'the bundle'} is not repairable by revision"
         record = {
@@ -155,6 +157,7 @@ def validation_defects(
             "name": check.get("name"),
             "causal_stage": state,
             "details": details,
+            "failures": failures,
         }
         defects.append(
             Defect(

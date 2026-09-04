@@ -1774,7 +1774,7 @@
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "tree_sha256": "fdcbf4e8113871f8d7cdeb2f761260041cd358b351ae7cb2bb5f4bef4f964b0d"
   },
-  "validator_version": "1",
+  "validator_version": "2",
   "validators": {
     "BC-01": "1",
     "BC-02": "1",

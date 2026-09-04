@@ -4,6 +4,7 @@ its causal stage; validation.json is deterministic."""
 from __future__ import annotations
 
 import copy
+import dataclasses
 import hashlib
 import json
 from pathlib import Path
@@ -278,7 +279,39 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "1"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "2"
+
+
+def test_every_failure_record_carries_its_section_and_stage_as_fields(tmp_path: Path) -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.5 D5: a reader of validation.json routes by field.
+    # The unit failures are the ones a repair reopens, so each names the section it is about.
+    candidate = _candidate()
+    broken = {
+        "units": [
+            {**unit, "fact_ids": [*unit["fact_ids"], "format:nowhere"]}
+            if unit["section"] == "opening"
+            else unit
+            for unit in candidate.units["units"]
+        ]
+    }
+    document = validate_candidate(dataclasses.replace(candidate, units=broken), tmp_path, ())
+    units = _failed(document, "BC-04")
+    assert units["failures"] == [
+        {
+            "section_id": "opening",
+            "causal_stage": "COMPOSING",
+            "detail": "opening/opening cites unknown fact format:nowhere",
+        },
+        {
+            "section_id": "opening",
+            "causal_stage": "COMPOSING",
+            "detail": "opening: unit opening: cites facts outside this section's set: "
+            "format:nowhere",
+        },
+    ]
+    assert units["details"] == [failure["detail"] for failure in units["failures"]]
+    # Every check records the list, empty when it passed, so the shape never depends on outcome.
+    assert all("failures" in check for check in document["checks"] if check["verdict"] != "PENDING")
 
 
 def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:

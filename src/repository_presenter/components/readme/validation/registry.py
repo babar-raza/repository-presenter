@@ -57,7 +57,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 VALIDATION_FILENAME = "validation.json"
-VALIDATOR_VERSION = "1"
+VALIDATOR_VERSION = "2"
 Verdict = Literal["PASS", "FAIL", "PENDING"]
 CausalStage = Literal["EXTRACTING", "INVESTIGATING", "RECONCILING", "PLANNING", "COMPOSING"]
 STAGE_ORDER: tuple[CausalStage, ...] = (
@@ -162,8 +162,17 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
 
 @dataclass(frozen=True)
 class Failure:
+    """One reason a blocking check failed, with the two fields that route it.
+
+    ``section`` is the shell section the failure is about, set by the judge that knows it. It is
+    a field rather than a prefix parsed back out of ``detail`` because routing a defect to its
+    causal stage must not depend on prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8,
+    27.5 D5).
+    """
+
     stage: CausalStage | None
     detail: str
+    section: str | None = None
 
 
 @dataclass(frozen=True)
@@ -438,17 +447,24 @@ def _check_units(candidate: Candidate) -> list[Failure]:
         label = f"{unit.get('section')}/{unit.get('slot')}"
         for fact_id in unit.get("fact_ids", []):
             fact = by_id.get(fact_id)
+            section = str(unit.get("section", "")) or None
             if fact is None:
-                failures.append(Failure("COMPOSING", f"{label} cites unknown fact {fact_id}"))
+                failures.append(
+                    Failure("COMPOSING", f"{label} cites unknown fact {fact_id}", section)
+                )
             elif fact.polarity != "SUPPORTED":
                 failures.append(
-                    Failure("COMPOSING", f"{label} cites {fact_id}, which is {fact.polarity}")
+                    Failure(
+                        "COMPOSING",
+                        f"{label} cites {fact_id}, which is {fact.polarity}",
+                        section,
+                    )
                 )
     for task in candidate.tasks:
         owned = [u for u in by_section.get(task.section_id, []) if u.get("slot") in task.slots]
         partial = {"units": owned, "omitted": []}
         failures.extend(
-            Failure("COMPOSING", f"{task.section_id}: {error}")
+            Failure("COMPOSING", f"{task.section_id}: {error}", task.section_id)
             for error in unit_checks(partial, task, facts, name)
         )
     allowed = allowed_identifiers(facts, name)
@@ -959,6 +975,17 @@ def validate_candidate(
             record["verdict"] = "FAIL" if failures else "PASS"
             record["causal_stage"] = _earliest(failures)
             record["details"] = [failure.detail for failure in failures]
+            # The same failures as records, so a reader of validation.json routes by field and
+            # never by parsing detail prose (section 27.5 D5). details stays the human-readable
+            # list the repair packet and the reports show.
+            record["failures"] = [
+                {
+                    "section_id": failure.section,
+                    "causal_stage": failure.stage,
+                    "detail": failure.detail,
+                }
+                for failure in failures
+            ]
         checks.append(record)
     verdicts = Counter(record["verdict"] for record in checks)
     return {
@@ -997,7 +1024,18 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
                 for f in findings
             ]
     checks = [
-        {**check, "verdict": verdict, "causal_stage": stage, "details": details}
+        {
+            **check,
+            "verdict": verdict,
+            "causal_stage": stage,
+            "details": details,
+            # The verdict as a field: whether a review failure invalidates an accepted candidate
+            # is decided by this, never by reading details[0] (section 27.2 RC8).
+            "review_verdict": str(review.get("verdict", "")),
+            "failures": [
+                {"section_id": None, "causal_stage": stage, "detail": detail} for detail in details
+            ],
+        }
         if check.get("id") == "BC-10"
         else check
         for check in document.get("checks", [])

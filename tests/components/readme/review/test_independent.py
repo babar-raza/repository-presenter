@@ -15,6 +15,7 @@ from repository_presenter.components.readme.review.independent.review import (
     review_checks,
     review_document,
     review_packet,
+    scope_defect,
     summarize_review,
     write_review,
 )
@@ -125,52 +126,38 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
     unsupported = {**literal, "quote": "It writes", "fact_ids": ["format:output.glb"]}
     completeness = {**literal, "criterion": "completeness"}
     nothing_cited = {**literal, "quote": "It writes", "fact_ids": []}
-    for finding in (
-        literal,
-        contradicted,
-        maintainer_only,
-        unsupported,
-        completeness,
-        nothing_cited,
-    ):
+    findings = (literal, contradicted, maintainer_only, unsupported, completeness, nothing_cited)
+    for finding in findings:
         output = {"verdict": "REJECT_FACTUAL", "findings": [finding], "preserve": []}
         assert review_checks(output, CANDIDATE, FACTS) == []
-    # The evidence refutes two of them: they are the reviewer's defects, made advisory in place.
-    assert literal["causal_stage"] == "unclear" and literal["text"].startswith(
-        "[reviewer-scope defect at S6: the quote contains the literal value of SUPPORTED fact "
-        "format:output.glb ('.glb'); literal fact text is supported] A claim"
+    # review_checks judges validity only; it never rewrites the reviewer's words, so every
+    # finding is left exactly as it arrived (RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    assert all(f["text"] == "A claim is unsupported." for f in findings)
+    assert all(f["causal_stage"] == "S6" for f in findings)
+    # The evidence refutes two of them, and the reason is a value the caller reads, not a mark.
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    assert scope_defect(literal, CANDIDATE, by_id) == (
+        "the quote contains the literal value of SUPPORTED fact format:output.glb ('.glb'); "
+        "literal fact text is supported"
     )
-    assert maintainer_only["causal_stage"] == "unclear" and maintainer_only["text"].startswith(
-        "[reviewer-scope defect at S6: a factuality finding cites at least one product fact"
-    )
-    assert contradicted["causal_stage"] == "S6" and unsupported["causal_stage"] == "S6"
-    assert completeness["causal_stage"] == "S6" and not completeness["text"].startswith("[")
-    assert nothing_cited["causal_stage"] == "S6"  # "no fact supports this claim" stands
-    # A stored finding is re-judged from its raw form: the mark never stacks, and it lifts when
-    # the facts or the rule no longer refute the finding.
-    assert (
-        review_checks({"verdict": "REJECT_FACTUAL", "findings": [literal]}, CANDIDATE, FACTS) == []
-    )
-    assert literal["text"].count("[reviewer-scope defect") == 1
-    refuting = FactsDocument(
-        ENTRY.repository,
-        "a" * 40,
-        tuple(
-            Fact(f.id, f.kind, f.value, f.evidence, polarity="CONTRADICTED")
-            if f.id == "format:output.glb"
-            else f
-            for f in FACTS.facts
+    assert scope_defect(maintainer_only, CANDIDATE, by_id) is not None
+    assert scope_defect(contradicted, CANDIDATE, by_id) is None
+    assert scope_defect(unsupported, CANDIDATE, by_id) is None
+    assert scope_defect(completeness, CANDIDATE, by_id) is None
+    assert scope_defect(nothing_cited, CANDIDATE, by_id) is None  # cites nothing, by definition
+    # The answer is a pure function of the finding, the facts and the rule: it lifts by itself
+    # when the facts change, because nothing was written into the finding to undo.
+    refuting = {
+        **by_id,
+        "format:output.glb": Fact(
+            "format:output.glb",
+            "format",
+            ".glb",
+            by_id["format:output.glb"].evidence,
+            polarity="CONTRADICTED",
         ),
-    )
-    assert (
-        review_checks({"verdict": "REJECT_FACTUAL", "findings": [literal]}, CANDIDATE, refuting)
-        == []
-    )
-    assert literal["causal_stage"] == "S6" and literal["text"] == "A claim is unsupported."
-    foreign = {**_finding("F01", "opening", "S6"), "text": "[note] A claim is unsupported."}
-    assert review_checks(
-        {"verdict": "REJECT_FACTUAL", "findings": [foreign], "preserve": []}, CANDIDATE, FACTS
-    ) == ["finding F01: text must not begin with a bracketed prefix"]
+    }
+    assert scope_defect(literal, CANDIDATE, refuting) is None
     bad = {
         "verdict": "REJECT_FACTUAL",
         "findings": [
@@ -213,11 +200,13 @@ def test_the_document_splits_advisory_findings_and_records_both_identities(
     demoted = demote_findings(document, ["F01"])
     assert demoted["verdict"] == "ACCEPT" and demoted["findings"] == []
     assert [f["id"] for f in demoted["advisory"]] == ["F02", "F03", "F01"]
-    assert demoted["advisory"][2]["causal_stage"] == "unclear"
+    # The demoted finding keeps the stage the reviewer named and its own words; why it no
+    # longer blocks is a field (section 27.5 D5).
+    assert demoted["advisory"][2]["causal_stage"] == "S4"
     assert demoted["advisory"][2]["causal_state"] is None
-    assert demoted["advisory"][2]["text"].startswith(
-        "[reviewer-scope defect at S4: re-raised after the one repair attempt its fingerprint "
-        "allows] A claim"
+    assert demoted["advisory"][2]["text"] == "A claim is unsupported."
+    assert demoted["advisory"][2]["reviewer_scope_defect"] == (
+        "re-raised after the one repair attempt its fingerprint allows"
     )
     assert demote_findings(document, ["F09"]) == document
     assert document["findings"][0]["causal_state"] == "RECONCILING"
@@ -245,6 +234,10 @@ def test_check_ten_is_judged_from_the_verdict_and_the_identity() -> None:
         "verdict": "PASS",
         "causal_stage": None,
         "details": [],
+        # The reviewer's verdict is a field, so whether a failure invalidates an accepted
+        # candidate is never decided by reading details[0] (section 27.2 RC8).
+        "review_verdict": "ACCEPT",
+        "failures": [],
     }
     assert judged["summary"] == {"pass": 2, "fail": 0, "pending": 0}
 
@@ -287,15 +280,28 @@ def test_a_presentation_finding_against_a_deterministic_section_is_the_reviewers
         **_finding("F02", "key_capabilities", "S6", "It writes `.glb` files."),
         "criterion": "presentation",
     }
-    output = {"verdict": "REJECT_PRESENTATION", "findings": [renderer_owned, authored]}
+    output = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [renderer_owned, authored],
+        "preserve": [],
+    }
     assert review_checks(output, CANDIDATE, FACTS) == []
-    assert renderer_owned["causal_stage"] == "unclear" and renderer_owned["text"].startswith(
-        "[reviewer-scope defect at S6: section installation renders from facts under the "
-        "contract's own checks; its presentation is the renderer's"
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    assert scope_defect(renderer_owned, CANDIDATE, by_id) == (
+        "section installation renders from facts under the contract's own checks; its "
+        "presentation is the renderer's, and a factual error there is a factuality finding"
     )
-    assert authored["causal_stage"] == "S6" and not authored["text"].startswith("[")
-    assert review_checks(output, CANDIDATE, FACTS) == []  # idempotent on the stored form
-    assert renderer_owned["text"].count("[reviewer-scope defect") == 1
+    assert scope_defect(authored, CANDIDATE, by_id) is None
+    # The document records the reason as a field and keeps the stage the reviewer named.
+    document = review_document(
+        output, REVIEWER, AUTHORING, "d" * 64, candidate_readme=CANDIDATE, facts=FACTS
+    )
+    assert [f["id"] for f in document["findings"]] == ["F02"]
+    advisory = document["advisory"][0]
+    assert advisory["id"] == "F01" and advisory["causal_stage"] == "S6"
+    assert advisory["causal_state"] is None
+    assert advisory["reviewer_scope_defect"].startswith("section installation renders from facts")
+    assert advisory["text"] == "A claim is unsupported."
 
 
 def test_a_quote_locates_text_through_markdown_syntax_a_reader_does_not_see() -> None:
@@ -342,9 +348,11 @@ def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() ->
     }
     output = {"verdict": "REJECT_PRESENTATION", "findings": [diagram]}
     assert review_checks(output, CANDIDATE, FACTS) == []
-    assert diagram["causal_stage"] == "unclear" and diagram["text"].startswith(
-        "[reviewer-scope defect at S6: section at_a_glance renders from facts under the "
-        "contract's own checks; its presentation is the renderer's"
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    reason = scope_defect(diagram, CANDIDATE, by_id)
+    assert reason is not None and reason.startswith(
+        "section at_a_glance renders from facts under the contract's own checks; its "
+        "presentation is the renderer's"
     )
 
 

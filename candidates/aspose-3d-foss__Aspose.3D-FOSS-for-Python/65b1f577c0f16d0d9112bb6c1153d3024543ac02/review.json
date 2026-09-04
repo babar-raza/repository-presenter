@@ -10,6 +10,7 @@
       "id": "F01",
       "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```",
       "repair": "Change 'pip install aspose-3d-foss' to 'python3 -m pip install aspose-3d-foss' to match the verified command and the original README.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
       "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses 'pip install aspose-3d-foss' in the installation section, but the original README and the verified install command fact use 'python3 -m pip install aspose-3d-foss'. This change removes the explicit Python interpreter invocation, which is inconsistent with the original and the verified command."
     },
@@ -23,6 +24,7 @@
       "id": "F02",
       "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
       "repair": "Restore the verification step 'python3 -c ",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
       "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the verification step 'python3 -c "
     }

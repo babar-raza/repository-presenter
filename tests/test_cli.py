@@ -1012,9 +1012,11 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     review = json.loads((transaction / "review.json").read_text("utf-8"))
     assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
     assert [f["id"] for f in review["advisory"]] == ["F02"]
-    assert review["advisory"][0]["text"].startswith(
-        "[reviewer-scope defect at S6: re-raised after the one repair attempt"
+    # Why it no longer blocks is a field; the reviewer's own words are left alone.
+    assert review["advisory"][0]["reviewer_scope_defect"] == (
+        "re-raised after the one repair attempt its fingerprint allows"
     )
+    assert review["advisory"][0]["causal_stage"] == "S6"
     validation = json.loads((transaction / "validation.json").read_text("utf-8"))
     assert validation["summary"] == {"pass": 10, "fail": 0, "pending": 1}
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
@@ -1808,6 +1810,15 @@ def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_cand
                 check["verdict"] = "FAIL"
                 check["causal_stage"] = "COMPOSING"
                 check["details"] = [detail]
+                # The section is the failure's own field: routing never reads the prose
+                # (RESEARCH_AND_GUIDELINES.md section 27.2 RC8, 27.5 D5).
+                check["failures"] = [
+                    {
+                        "section_id": "key_capabilities",
+                        "causal_stage": "COMPOSING",
+                        "detail": detail,
+                    }
+                ]
         document["summary"] = {"pass": 9, "fail": 1, "pending": 1}
         return document
 

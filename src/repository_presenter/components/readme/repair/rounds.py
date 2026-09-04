@@ -252,7 +252,12 @@ def run_round(tx: TransactionInputs) -> Round:
         **common,
     )
     review = review_document(
-        reviewed.output, loaded, prompts["section_authoring"], digests["readme"]
+        reviewed.output,
+        loaded,
+        prompts["section_authoring"],
+        digests["readme"],
+        candidate_readme=readme,
+        facts=facts,
     )
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)

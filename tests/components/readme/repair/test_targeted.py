@@ -127,6 +127,16 @@ def test_validation_failures_route_by_causal_state_and_named_section() -> None:
                 "verdict": "FAIL",
                 "causal_stage": "COMPOSING",
                 "details": ["opening/opening cites unknown fact f", "other"],
+                # The section is a field the validator set, not a prefix of the detail prose
+                # (RESEARCH_AND_GUIDELINES.md section 27.2 RC8, 27.5 D5).
+                "failures": [
+                    {
+                        "section_id": "opening",
+                        "causal_stage": "COMPOSING",
+                        "detail": "opening/opening cites unknown fact f",
+                    },
+                    {"section_id": None, "causal_stage": "COMPOSING", "detail": "other"},
+                ],
             },
             {"id": "BC-05", "verdict": "FAIL", "causal_stage": "RECONCILING", "details": ["u"]},
             {"id": "BC-07", "verdict": "FAIL", "causal_stage": "COMPOSING", "details": ["h1"]},
@@ -138,11 +148,38 @@ def test_validation_failures_route_by_causal_state_and_named_section() -> None:
     assert defects["BC-02"].stage is None and "EXTRACTING" in str(defects["BC-02"].reason)
     assert defects["BC-04"].stage == "S6" and defects["BC-04"].section_id == "opening"
     assert defects["BC-05"].stage == "S4" and defects["BC-05"].section_id is None
-    assert defects["BC-07"].stage is None and "names no LLM-owned section" in str(
+    # BC-07's failures name no LLM-owned section, so no revision could reach it.
+    assert defects["BC-07"].stage is None and "no failing check names an LLM-owned section" in str(
         defects["BC-07"].reason
     )
     assert defects["BC-09"].stage is None and "the bundle" in str(defects["BC-09"].reason)
     assert defects["BC-04"].record["details"] == ["opening/opening cites unknown fact f", "other"]
+
+
+def test_detail_prose_that_looks_like_a_section_prefix_routes_nothing() -> None:
+    # The retired shape read the section off the front of the first detail string, so rewording a
+    # message moved the defect (RESEARCH_AND_GUIDELINES.md section 27.2 RC8). Only the field
+    # routes now: prose that reads exactly like the old prefix reaches no stage.
+    validation = {
+        "checks": [
+            {
+                "id": "BC-04",
+                "verdict": "FAIL",
+                "causal_stage": "COMPOSING",
+                "details": ["opening/opening cites unknown fact f"],
+                "failures": [
+                    {
+                        "section_id": None,
+                        "causal_stage": "COMPOSING",
+                        "detail": "opening/opening cites unknown fact f",
+                    }
+                ],
+            }
+        ]
+    }
+    defect = validation_defects(validation, LLM_SECTIONS)[0]
+    assert defect.stage is None and defect.section_id is None
+    assert defect.reason == "no failing check names an LLM-owned section"
 
 
 def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: Path) -> None:

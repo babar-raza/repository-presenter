@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -138,7 +138,9 @@ def blocking(finding: dict[str, Any]) -> bool:
 REVIEWER_SCOPE_DEFECT = "reviewer-scope defect"
 
 
-def factuality_defect(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> str | None:
+def factuality_defect(
+    finding: Mapping[str, Any], quote: str, by_id: Mapping[str, Fact]
+) -> str | None:
     """Why a factuality finding is the reviewer's own defect, or None when it may stand.
 
     A factuality finding cites a product fact that contradicts the quote or should have
@@ -168,7 +170,7 @@ def factuality_defect(finding: dict[str, Any], quote: str, by_id: dict[str, Fact
     return None
 
 
-def presentation_defect(finding: dict[str, Any]) -> str | None:
+def presentation_defect(finding: Mapping[str, Any]) -> str | None:
     """Why a presentation finding is the reviewer's own defect, or None when it may stand.
 
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
@@ -199,7 +201,6 @@ def review_checks(
     """Why the review may not be used, beyond schema and binding; empty when it holds."""
     errors: list[str] = []
     known = set(section_ids()) | _STRUCTURAL_SECTIONS
-    by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     seen: set[str] = set()
     findings = output.get("findings", [])
     for finding in findings:
@@ -218,54 +219,53 @@ def review_checks(
             errors.append(
                 f"finding {label}: quote is not the candidate's text: {quote.strip()[:60]!r}"
             )
-        text = str(finding.get("text", ""))
-        if text.startswith("[") and not _MARK.match(text):
-            # The bracketed prefix is this module's own mark; any other is not the reviewer's
-            # finding text, so the output is asked for again.
-            errors.append(f"finding {label}: text must not begin with a bracketed prefix")
-        elif facts is not None and finding.get("criterion") in ("factuality", "presentation"):
-            _rejudge(finding, quote, by_id)
     return errors
 
 
-_MARK = re.compile(rf"^\[{re.escape(REVIEWER_SCOPE_DEFECT)} at (\S+): .*?\] ")
+def scope_defect(
+    finding: Mapping[str, Any], candidate_readme: str, by_id: Mapping[str, Fact]
+) -> str | None:
+    """Why a finding is the reviewer's own defect, or None when it may stand.
 
-
-def _rejudge(finding: dict[str, Any], quote: str, by_id: dict[str, Fact]) -> None:
-    """Mark a finding that is the reviewer's own defect as advisory in place, or unmark it.
-
-    The mark carries the stage the reviewer named, so a stored finding is re-judged from its
-    raw form under the current rule: the normalisation is a pure function of the finding, the
-    facts, and the rule, never of an earlier run's verdict. A reviewer-scope defect is recorded,
-    never blocks (docs/README_CONTRACT.md section 6), and never earns a second ask.
+    Judged from the reviewer's raw reply every time the document is built, so the answer is a
+    pure function of the finding, the facts, and the rule - never of an earlier run's verdict and
+    never of a mark left in the finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2
+    RC8). A reviewer-scope defect is recorded, never blocks (docs/README_CONTRACT.md section 6),
+    and never earns a second ask.
     """
-    text = str(finding.get("text", ""))
-    marked = _MARK.match(text)
-    if marked:
-        finding["causal_stage"] = marked.group(1)
-        text = text[marked.end() :]
-    if finding.get("criterion") == "factuality":
-        reason = factuality_defect(finding, quote, by_id)
-    else:
-        reason = presentation_defect(finding)
-    if reason is None:
-        finding["text"] = text
-        return
-    stage = str(finding.get("causal_stage", "unclear"))
-    finding["causal_stage"] = "unclear"
-    finding["text"] = f"[{REVIEWER_SCOPE_DEFECT} at {stage}: {reason}] {text}"
+    criterion = finding.get("criterion")
+    if criterion == "factuality":
+        quote = str(finding.get("quote", ""))
+        return factuality_defect(finding, quote, by_id)
+    if criterion == "presentation":
+        return presentation_defect(finding)
+    return None
 
 
 def review_document(
-    output: dict[str, Any], reviewer: LoadedManifest, authoring: LoadedManifest, readme_digest: str
+    output: dict[str, Any],
+    reviewer: LoadedManifest,
+    authoring: LoadedManifest,
+    readme_digest: str,
+    candidate_readme: str = "",
+    facts: FactsDocument | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
-    what a repair must preserve, and the two prompt identities."""
+    what a repair must preserve, and the two prompt identities.
+
+    A finding that is the reviewer's own defect is recorded advisory with the reason as a field,
+    the stage the reviewer named left intact: the record says why it does not block, and nothing
+    downstream has to read prose to find out (section 27.5 D5).
+    """
     findings: list[dict[str, Any]] = []
     advisory: list[dict[str, Any]] = []
+    by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     for finding in output.get("findings", []):
         record = dict(finding)
-        if blocking(finding):
+        reason = scope_defect(finding, candidate_readme, by_id) if facts is not None else None
+        if reason is not None:
+            record["reviewer_scope_defect"] = reason
+        if reason is None and blocking(finding):
             record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
             findings.append(record)
         else:
@@ -311,14 +311,11 @@ def demote_findings(document: dict[str, Any], finding_ids: Sequence[str]) -> dic
     advisory = list(document.get("advisory", []))
     for finding in document.get("findings", []):
         if finding.get("id") in wanted:
-            stage = finding.get("causal_stage", "unclear")
             advisory.append(
                 {
                     **finding,
-                    "causal_stage": "unclear",
                     "causal_state": None,
-                    "text": f"[{REVIEWER_SCOPE_DEFECT} at {stage}: {RE_RAISED_REASON}] "
-                    f"{finding.get('text', '')}",
+                    "reviewer_scope_defect": RE_RAISED_REASON,
                 }
             )
         else:

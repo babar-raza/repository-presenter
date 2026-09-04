@@ -266,8 +266,14 @@ def test_a_corrupt_bundle_fails_closed_and_a_factual_failure_invalidates(tmp_pat
     }
     assert invalidates(failing)
     assert not invalidates({"id": "BC-07", "verdict": "FAIL", "details": ["h1"]})
-    assert invalidates({"id": "BC-10", "verdict": "FAIL", "details": ["REJECT_FACTUAL"]})
-    assert not invalidates({"id": "BC-10", "verdict": "FAIL", "details": ["REJECT_PRESENTATION"]})
+    # The reviewer's verdict decides from its own field; the detail string is prose the record
+    # shows a reader, never a control plane (RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    factual = {"id": "BC-10", "verdict": "FAIL", "review_verdict": "REJECT_FACTUAL"}
+    assert invalidates(factual)
+    assert not invalidates({**factual, "review_verdict": "REJECT_PRESENTATION"})
+    assert not invalidates(
+        {"id": "BC-10", "verdict": "FAIL", "details": ["REJECT_FACTUAL"]}
+    )  # no field, no invalidation
     manifest = invalidate_bundle(bundle, failing)
     assert manifest is not None and manifest["state"] == "INVALIDATED"
     stored = json.loads((bundle / "manifest.json").read_text("utf-8"))

@@ -398,8 +398,9 @@ def invalidates(check: Mapping[str, Any]) -> bool:
     failures that invalidate an accepted candidate (docs/STATE_MACHINE.md section 9)."""
     if check.get("id") in INVALIDATING_CHECKS:
         return True
-    details = list(check.get("details", []))
-    return check.get("id") == "BC-10" and bool(details) and details[0] in INVALIDATING_VERDICTS
+    # The reviewer's verdict is a field on the check record; reading it out of details[0] made a
+    # detail string a control plane (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    return check.get("id") == "BC-10" and check.get("review_verdict") in INVALIDATING_VERDICTS
 
 
 def invalidate_bundle(bundle: Path, check: Mapping[str, Any]) -> dict[str, Any] | None:
@@ -407,11 +408,12 @@ def invalidate_bundle(bundle: Path, check: Mapping[str, Any]) -> dict[str, Any] 
     manifest = _read_manifest(bundle / BUNDLE_MANIFEST_NAME)
     if manifest is None:
         return None
-    details = list(check.get("details", []))
+    # Every reason the check gave, joined for the reader: taking the first alone lost the rest
+    # and made a detail string a control plane (RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
     record = {
         "check": check.get("id"),
         "causal_stage": check.get("causal_stage"),
-        "detail": str(details[0]) if details else "",
+        "detail": "; ".join(str(detail) for detail in check.get("details", [])),
         "recorded_at": _now(),
     }
     updated = {**manifest, "state": "INVALIDATED", "invalidated": record}
