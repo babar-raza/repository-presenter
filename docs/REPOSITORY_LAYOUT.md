@@ -110,7 +110,10 @@ ecosystem changes only its own file, its own test, and one registration line. `R
 any module's tests are found by mirroring its path, never by searching. `tests/fixtures/oracles/`
 holds `FIXTURE_OR_ORACLE_ONLY` assets only, named after their manifest `destination_area`. Shared
 test helpers stay in `tests/conftest.py` and `tests/support.py`, already established at G0; do not
-create a second helper module doing the same job under a different name.
+create a second helper module doing the same job under a different name. A repository-wide
+invariant that belongs to no single module lives in a flat `tests/test_<invariant>.py`
+(`test_path_budget.py`, `test_schemas.py`, `test_cursor.py`, `test_control_plane.py`); that is the
+only exception to mirroring, and it holds the whole tree to one rule.
 
 ## 4. Naming
 
