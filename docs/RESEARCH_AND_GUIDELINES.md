@@ -413,8 +413,9 @@ They consume public core contracts and must not depend on README-private impleme
 Knowledge extraction (`extractors/`, facts stage S2) and knowledge processing (`investigation/`,
 `reconciliation/`, `composition/`, S3 onward) are independent: `facts.json` is the only artifact that
 crosses the boundary; no processing module imports an extractor module directly. Within extraction,
-each platform's module (`extractors/platforms/<ecosystem>.py`) depends only on `core/` and its own
-file, sharing no import with any other ecosystem's module; only the registry
+each platform's module (`extractors/platforms/<ecosystem>.py`) depends only on `core/`, the shared
+ecosystem-agnostic surface façade and verifier base under `extractors/` (§29.6 E2–E3, from
+2026-09-04), and its own file, sharing no import with any other ecosystem's module; only the registry
 (`extractors/platforms/registry.py`) references more than one ecosystem, and only to register them.
 
 **The registry is open-ended, not fixed at seven.** `ecosystem` is a pattern-constrained string in
@@ -1390,7 +1391,7 @@ with nothing else in At a Glance; every one of the twelve standard sections pres
 
 | Aspect | Live portfolio convention | Was in this project | Decision |
 |---|---|---|---|
-| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G4-W02's second ecosystem |
+| Badges | Evidence-driven per ecosystem (Maven Central + Java floor; CI + pkg.go.dev for Go; crates.io absent when unpublished); floor = license + one more | Fixed list, renderer hardcoded to `install_command:pip` and `package:python_requires` | Matched: badge registry keyed by ecosystem, floor rule (row 2). Generalises with G4-W10's second ecosystem |
 | Banner | `[![Name](products.aspose.org/media/{f}/{p}/banner-readme.png)](products.aspose.org/{f}/{p}/)` on all 5 | absent, unmodeled | Matched (row 3) |
 | Navigation | explicit `## Navigation` heading | headerless list | Matched (row 5) |
 | At a Glance | present on all 5, including the generative one (no Starting Points); `flowchart TD`; one Starting Points node listing formats; single chain edge; ≤28-char tokens (hard gate) | condition required an input format, so the canary got none; `graph LR` with one node per input format and per-format edges | Matched and simplified: condition is three capabilities, inputs optional; single listing nodes; one edge per hop; label-geometry rule (§2.1) |
@@ -1726,13 +1727,17 @@ discipline (small commits, green CI, evidence per item).
 ### 27.9 Queue
 
 Execution order in `project/state.yaml` (list order is execution order; IDs are identities, not
-positions), as restructured by §28 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture, G2-W12
-D1, G2-W13 D2, G2-W16 D5, G2-W17 D6; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 — G4-W01
-shared extractor, G4-W02 to G4-W07 ecosystem cohorts; G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out.
-The entries below are the exact `next_ready_items` text; whichever session finds an entry absent
-from `state.yaml` on a clean tree inserts it verbatim at the stated position (loop-prompt §2),
-validates the schema, and commits that one file. **Moved — remove from `state.yaml` if present:**
-G2-W09 → G3-W02, G2-W10 → G4-W02/W03, G2-W14 → G5-W01, G2-W15 → G5-W02, G2-W18 → G5-W03.
+positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture,
+G2-W12 D1, G2-W13 D2, G2-W16 D5, G2-W17 D6; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+G4-W08 second reuse source and schema, G4-W09 shared surface extractor, G4-W10 layered plugins and
+generic shared code, G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
+TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
+`next_ready_items` text; whichever session finds an entry absent from `state.yaml` on a clean tree
+inserts it verbatim at the stated position (loop-prompt §2), validates the schema, and commits that
+one file. **Moved — remove from `state.yaml` if present:** G2-W09 → G3-W02, G2-W10 → G4-W11/W12,
+G2-W14 → G5-W01, G2-W15 → G5-W02, G2-W18 → G5-W03, and the §28 drafts G4-W01 → G4-W09, G4-W02 →
+G4-W11, G4-W03 → G4-W12, G4-W04 → G4-W13, G4-W05 → G4-W14, G4-W06 → G4-W15, G4-W07 → G4-W16
+(superseded by §29 on 2026-09-04; IDs are never reused).
 **Pending state edits, applied in the same commit:** `owner_items` `consumed_by` gate IDs
 `G4_HOSTED_PORTFOLIO` → `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION` and `G5_PROPOSAL_EFFECT_PROOF`
 → `G6_PROPOSAL_EFFECT_PROOF`; `current_gate.purpose` restated from the ESM G2 goal and exit
@@ -1761,27 +1766,33 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
-- id: G4-W01
+- id: G4-W08
   status: PENDING
-  purpose: "Shared multi-language surface extractor (section 28.5, RC-B): pull aspose.org's tree-sitter extraction engine (scripts/pipeline/extraction: api_surface.py, tree_helpers.py, lang/*.py, formats.py, format_signals.py, and their tests) from the pinned revision recorded as a second reuse-manifest source, one file record each with SHA-256, ported tests, and cut import closure; no runtime import of the sibling repository. Adapt its classes and claims to public_symbol, format, and package facts with file-and-line evidence behind PlatformPlugin. Record the legacy reuse census (totals by disposition; everything unpulled is RETIRE) and point the manifest's census_gate at this gate. Acceptance: the Python plugin's facts for the canary are unchanged or every difference is explained by a test; the extractor parses one fixture per language with a passing ported test; ruff, mypy, pytest green; hosted CI green."
-- id: G4-W02
+  purpose: "Make aspose.org a formal second reuse source (section 29.6 E1; owner decision 2026-09-04, plans/idea.md amended). Extend schemas/reuse-manifest.schema.json with a sources array carrying the legacy source's fields per source and a per-record source_id, and update tests/test_schemas.py; record aspose.org at D:/onedrive/Documents/GitHub/aspose.org pinned to b3ad363aaf69ce4d00d9aa02ecc59616b9705814 with working_tree_at_freeze DIRTY, honestly; seed dispositions: scripts/pipeline/extraction/** EXTRACT_AND_REFACTOR into extractors/surface/_vendor/, scripts/pipeline/tests/extraction/** tests ported, the legacy vendored_asposeorg/** superseded as fixtures; name extractors/surface/_vendor/ in docs/REPOSITORY_LAYOUT.md under the vendor-boundary rule (loop-prompt section 3). Acceptance: schema and tests green; the manifest validates with two sources and census_gate G4_MULTI_LANGUAGE_COHORTS; no code pulled yet; hosted CI green."
+- id: G4-W09
   status: PENDING
-  purpose: ".NET plugin and cohort (section 28.5): manifest facts from csproj and nuspec, public surface through the shared extractor, examples compiled with dotnet build in the isolated workspace, a negative control that rejects one realistic invalid example, format signals through the shared engine, and the ecosystem-keyed badge registry generalised beyond Python; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions for failures (the Email .NET CS1929 build failure is a disposition, not a defect of the plugin; PSD-.NET is NON_PROCESSABLE). Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; parity control (section 28.7 item 2) recorded per repository; hosted CI green."
-- id: G4-W03
+  purpose: "Shared surface extractor (section 29.6 E2): vendor aspose.org's 17-file extraction closure (named in section 29.2) under extractors/surface/_vendor/aspose_extraction at the pinned revision, one file record each, mypy and ruff overrides confined to _vendor, recorded patches only (sorted package-root and csproj picks, case-sensitive suffix matching, MAX_FILES a constant, family vocabularies as parameters). Minimal closure only, never wholesale; a file no test exercises is not pulled; known upstream defects (section 29) are patched by record or quarantined behind the facade. A typed SurfaceExtractor facade normalises node types to symbol_kind, maps :: + and generics to slug-safe values, emits defined_at from the declaring file and line, and serves surface, format, and manifest facts; first consumer the .NET spec's surface_facts, no cohort. Port the site-independent extraction tests (about 19 of 25); pin the three tree-sitter packages exactly with a parse-probe test per language. Acceptance: canary facts unchanged; run-twice and shuffled-order determinism identical; vendor-boundary grep test; parity control implemented; hosted CI green."
+- id: G4-W10
   status: PENDING
-  purpose: "Java plugin and cohort (section 28.5): pom.xml facts, public surface through the shared extractor with the internal and impl package exclusion, examples compiled with javac or mvn -q compile, a negative control, format signals; then the four Java repositories as a cohort (two are registry mode full and are the first publication cohort in G6). Acceptance: cohort report; zero-call proofs; parity control per repository; hosted CI green."
-- id: G4-W04
+  purpose: "Layered plugins and ecosystem-generic shared code (section 29.6 E3-E5): EcosystemSpec (ecosystem, language, manifest globs, source suffixes, fence aliases, registry template, badge templates, install-command template, symbol separator); shared RegistryProbe on httpx ported nearly intact from the legacy ecosystems/registry_request.py with resolver.py's lessons (Maven via repo1.maven.org never search.maven.org, crates.io named User-Agent, C++ has no registry); ExampleVerifier base on core/execution.py with a disposable profile environment, per-ecosystem timeouts, lockfile flags, resolved versions in the receipt, BLOCKED_TOOLCHAIN to UNRESOLVED never CONTRADICTED; renderer badges, Installation, fence language, REGISTRY_NAMES, _LANGUAGE_ALIASES, PLATFORM_SLUGS, and bounded_records depth all read from the spec; the Python plugin re-expressed as a spec with its facts unchanged; docs/REPOSITORY_LAYOUT.md section 2.1 restated so a platform module imports core/, the shared surface facade and verifier base, and its own file. Acceptance: canary re-seals byte-identically; a synthetic net spec renders csharp fences, a NuGet badge, and a dotnet install block in a test; toolchain-absent and network-off tests; hosted CI green."
+- id: G4-W11
   status: PENDING
-  purpose: "C++ plugin and cohort (section 28.5): CMake facts, public surface from headers through the shared extractor with internal-visibility handling, examples configured and built with cmake and the installed Build Tools, a negative control, format signals; then the four C++ repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
-- id: G4-W05
+  purpose: ".NET spec and cohort (section 29.6 E3-E6): manifest reader pulled from the legacy ecosystems/dotnet.py (csproj, nuspec, TFM rank), surface through the shared extractor with the C# preprocessor rules, a fresh verifier on the base (dotnet build in the isolated workspace, restore disabled where a lock exists, NuGet config redirected), NuGet probe, a negative control that rejects one realistic invalid example; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions (the Email .NET CS1929 build failure; PSD-.NET NON_PROCESSABLE). Parity per repository; a reflection-stub corroboration (E6) only if parity fails. Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; hosted CI green."
+- id: G4-W12
   status: PENDING
-  purpose: "TypeScript plugin and cohort (section 28.5): package.json facts including exports and ESM/CJS shape, public surface through the shared extractor, examples type-checked with tsc --noEmit via npx, a negative control, format signals; then the two active TypeScript repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
-- id: G4-W06
+  purpose: "Java spec and cohort: manifest reader pulled from the legacy ecosystems/java.py (pom.xml group and artifact, gradle fallback), surface through the shared extractor with the internal and impl package exclusion as a spec parameter checked by parity, a fresh verifier (javac or mvn -q compile, offline flags where the repository provides a lock), Maven Central probe via repo1.maven.org metadata, a negative control; then the four Java repositories as a cohort (two are registry mode full and form G6's first publication cohort). Parity per repository; javap -public corroboration (E6) only if parity fails. Acceptance: cohort report; zero-call proofs; hosted CI green."
+- id: G4-W13
   status: PENDING
-  purpose: "Go plugin and cohort (section 28.5): go.mod facts, exported surface through the shared extractor with interface and struct-embedding handling, examples built with go build and vetted, a negative control, format signals; then the two Go repositories as a cohort. Acceptance: cohort report; zero-call proofs; parity control; hosted CI green."
-- id: G4-W07
+  purpose: "C++ spec and cohort: manifest reader pulled from the legacy ecosystems/cpp.py (CMakeLists), header surface through the shared extractor with internal-visibility handling, the legacy example_verifiers/cpp.py pulled with a small cut (cmake configure and build, syntax-only compile of the example with the installed Build Tools), no registry (install_command stays UNRESOLVED and Installation renders the source-build fallback), a negative control; then the four C++ repositories as a cohort. Parity per repository. Acceptance: cohort report; zero-call proofs; hosted CI green."
+- id: G4-W14
   status: PENDING
-  purpose: "Rust plugin and cohort (section 28.5): Cargo.toml facts including edition and MSRV, pub surface and re-exports through the shared extractor, examples checked with cargo check, a negative control, format signals; then the one Rust repository. The toolchain (rustup) must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; parity control; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
+  purpose: "TypeScript spec and cohort: manifest reader pulled from the legacy ecosystems/typescript.py (package.json exports and ESM/CJS shape, tsconfig), surface through the shared extractor's barrel-resolving TypeScript adapter, a fresh verifier (tsc --noEmit via npx with a disposable npm profile), npm probe, a negative control; then the two active TypeScript repositories as a cohort (PDF-TS is disabled). Parity per repository; tsc --declaration corroboration (E6) only if parity fails. Acceptance: cohort report; zero-call proofs; hosted CI green."
+- id: G4-W15
+  status: PENDING
+  purpose: "Go spec and cohort: manifest reader pulled from the legacy ecosystems/go.py (go.mod), exported surface through the shared extractor with interface and struct-embedding handling, a fresh verifier (go build and go vet with a disposable GOPATH and module cache), Go proxy probe with the module-path escaping from registry_request.py, a negative control; then the two Go repositories as a cohort. Parity per repository; go doc -all corroboration (E6) only if parity fails. Acceptance: cohort report; zero-call proofs; hosted CI green."
+- id: G4-W16
+  status: PENDING
+  purpose: "Rust spec and cohort: manifest reader pulled from the legacy ecosystems/rust.py (Cargo.toml edition and MSRV), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), crates.io probe with the mandatory named User-Agent, a negative control; then the one Rust repository. rustup must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
 - id: G5-W01
   status: PENDING
   purpose: "Stop the plan being redrawn from scratch (27.2 RC3: 34 plans for one revision; the two transactions chose different capability sets). Planning receives the CURRENT bundle's accepted plan as anchor with the fact delta since; every deviation from the anchor cites a changed or new fact ID and plan_check rejects unexplained ones; layout arrays (capabilities, hubs, examples, links, at-a-glance titles) are canonically ordered, anchor order first then a stable key, before prompt serialisation and before rendering. Acceptance: with the fake gateway, shuffled planner arrays render an identical README; identical facts plus anchor yield an identical plan; one added capability fact changes exactly one bullet and no other line (golden-delta test); every current candidate re-seals byte-identically or records its delta and cause."
@@ -2136,19 +2147,22 @@ formal second reuse source under the pull discipline. On a go, the owner applies
 the schema seed, and the revised G4 queue below through §27.9 at a clean checkpoint. Until then
 G4-W01 as queued still says "pull," and the loop would meet F1–F8 in order.
 
-### 29.11 Revised G4 queue (applied on the go; not merged until then)
+### 29.11 Revised G4 queue (the owner said go on 2026-09-04; merged through §27.9)
 
-- **G4-W01** Second reuse source and schema: idea.md 361–363 amended; `sources[]` and per-record
-  `source_id` in the manifest schema and tests; aspose.org pinned at `b3ad363a…` with its dirty
-  working tree recorded; disposition seeds for `scripts/pipeline/extraction/**` (EXTRACT_AND_REFACTOR
-  → `extractors/surface/_vendor/`) and its tests; the vendor-boundary rule in loop-prompt §3.
-- **G4-W02** Shared surface extractor: vendor the 17-file closure with records, rewritten imports,
+The §28 drafts G4-W01 to G4-W07 are superseded and listed as moved in §27.9; IDs are never reused.
+
+- **G4-W08** Second reuse source and schema: idea.md 361–363 amended (done, with the loop-prompt §0
+  and §3 rules); `sources[]` and per-record `source_id` in the manifest schema and tests; aspose.org
+  pinned at `b3ad363a…` with its dirty working tree recorded; disposition seeds for
+  `scripts/pipeline/extraction/**` (EXTRACT_AND_REFACTOR → `extractors/surface/_vendor/`) and its
+  tests; `extractors/surface/_vendor/` named in `REPOSITORY_LAYOUT.md`.
+- **G4-W09** Shared surface extractor: vendor the 17-file closure with records, rewritten imports,
   the recorded determinism patches, `mypy`/`ruff` overrides confined to `_vendor/`; the typed
   `SurfaceExtractor` façade with kind normalisation, slug mapping, `defined_at`; ~19 ported tests;
   the parity control; first production consumer = the .NET spec's `surface_facts` (no cohort yet).
-- **G4-W03** Ecosystem-generic shared code (E4) plus `EcosystemSpec`, `RegistryProbe` (legacy
+- **G4-W10** Ecosystem-generic shared code (E4) plus `EcosystemSpec`, `RegistryProbe` (legacy
   `registry_request.py` ported nearly intact on `httpx`), verifier base with the disposable profile.
-- **G4-W04…W09** .NET, Java, C++, TypeScript, Go, Rust: one spec, one manifest reader (legacy
+- **G4-W11…W16** .NET, Java, C++, TypeScript, Go, Rust: one spec, one manifest reader (legacy
   `ecosystems/*.py` pulled), one verifier (cpp/rust pulled with a small cut; the rest fresh), one
   negative control, then the cohort with fixes by failure class and honest dispositions. Parity and
   E6 corroboration per ecosystem when parity fails.

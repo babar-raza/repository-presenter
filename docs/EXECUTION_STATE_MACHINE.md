@@ -342,16 +342,16 @@ and six thin ecosystem plugins, before any hosted machinery (§28.5, RC-B).
 
 ### Work
 
-1. Shared surface extractor: pull aspose.org's tree-sitter extraction engine from a pinned revision
-   recorded as a second reuse-manifest source — one file record each with SHA-256, ported tests, cut
-   import closure, never a runtime import of the sibling tree — adapted to `public_symbol`, `format`,
-   and `package` facts behind `PlatformPlugin`. Legacy reuse census; `census_gate` names this gate.
-2. Six thin plugins, one item each with its cohort — .NET (6), Java (4), C++ (4), TypeScript (2),
-   Go (2), Rust (1): manifest facts, toolchain-compiled examples in the isolated workspace, a
-   negative control rejecting one realistic invalid example, format signals, the ecosystem-keyed
-   badge registry; fixes by failure class; evidence-bound dispositions (Email .NET `CS1929`, PSD-.NET).
-3. Extractor parity per repository: verified public-type count against the live README's API rows
-   (§24 census); a shortfall is a coverage finding routed to EXTRACTING, never accepted silently.
+1. Second reuse source (§29.6 E1–E2): `plans/idea.md` admits aspose.org's extraction engine and
+   tests under the pull discipline (pinned revision, file records, ported tests, minimal closure only,
+   never a runtime import); `sources` in the manifest schema; the engine under a `_vendor/` boundary
+   with confined `mypy`/`ruff` overrides, recorded patches, a typed `SurfaceExtractor` façade; census.
+2. Layered plugins (§29.6 E3–E5): `EcosystemSpec` + one thin verifier + one negative control each;
+   shared `RegistryProbe`; ecosystem-generic renderer, badges, Installation, fences, aliases, slugs.
+   Six items, one per ecosystem with its cohort — .NET (6), Java (4), C++ (4), TypeScript (2), Go
+   (2), Rust (1); fixes by failure class; evidence-bound dispositions (Email .NET `CS1929`, PSD-.NET).
+3. Extractor parity per repository against the live README's API rows (§24); a shortfall routes to
+   EXTRACTING; compiler-emitted corroboration (E6) is admitted per ecosystem only when parity fails.
 4. Freeze one registry revision as the denominator; portfolio report with separated counts.
 
 ### Exit predicates

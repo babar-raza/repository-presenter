@@ -14,11 +14,15 @@ files, never from memory of a previous iteration.
   and which of its conventions this contract matches, exceeds, or deliberately declines), and §27
   (before any change to composition, review, repair, acceptance, or fact extraction — the eight
   measured root causes RC1–RC8 and the design D1–D7; a change that reintroduces one of them is a
-  defect), `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item
-  needs.
+  defect), and §29 (before any platform, plugin, verifier, or reuse-source work — the layered plugin
+  design E1–E6, the vendor boundary, and what the loop would otherwise get wrong, F1–F8),
+  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
-  read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite.
+  read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite. The
+  sibling checkout at `D:\onedrive\Documents\GitHub\aspose.org` is the second reuse source (owner
+  decision 2026-09-04, `plans/idea.md`; `RESEARCH_AND_GUIDELINES.md` §29), read-only, pinned at
+  `b3ad363aaf69ce4d00d9aa02ecc59616b9705814`; never modify it, never import from it at runtime.
 - Pushing THIS repository to its own `origin` is required, not forbidden, so hosted CI runs. Follow
   `publication.control_repository` in `project/state.yaml`: after the full local CI-equivalent
   passes, push `main` directly while `main_protected: false`; once protected, push a branch, open a
@@ -95,16 +99,27 @@ files, never from memory of a previous iteration.
 - Before creating a file or directory, check `docs/REPOSITORY_LAYOUT.md`; if the work genuinely
   needs a path it does not name, add that path to it in the same commit. No stray, temporary, or
   duplicate-purpose files anywhere in `src/`, `tests/`, `docs/`, or `schemas/`.
-- A platform extractor module imports only `core/` and its own file — never a sibling ecosystem's
-  module or anything in `investigation/`, `reconciliation/`, or `composition/`.
+- A platform extractor module imports only `core/`, the shared surface façade and verifier base
+  under `extractors/` (§29.6 E2–E3), and its own file — never a sibling ecosystem's module or
+  anything in `investigation/`, `reconciliation/`, or `composition/`.
 - A pulled legacy profile, policy file, or catalog record is reviewed before its file record is
   written: confirm its link target still resolves and its label or terminology still matches current
   product reality; pull only what the repository or family in progress needs, never the full
   policy or catalog set ahead of G4.
-- Pull legacy code only through a manifest file record: source path, SHA-256 at the frozen
-  revision, disposition, destination, retained and removed behavior, tests ported, import closure,
-  work item. Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`,
-  or `specialists` module fails, and you cut the seam instead. Known chains: `CPL-01` to `CPL-08`.
+- Pull code from a reuse source — the legacy, or aspose.org's extraction engine and its tests — only
+  through a manifest file record: source id, source path, SHA-256 at that source's pinned revision,
+  disposition, destination, retained and removed behavior, tests ported, import closure, work item.
+  Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`, or
+  `specialists` module fails, and you cut the seam instead. Known chains: `CPL-01` to `CPL-08`.
+- Pulled code that stays close to its source lands under a `_vendor/` directory named in
+  `docs/REPOSITORY_LAYOUT.md`, with `mypy` and `ruff` overrides confined to that path; production
+  code reaches it only through a typed façade with its own tests; the vendor tree changes only by a
+  recorded patch (`RESEARCH_AND_GUIDELINES.md` §29.6 E2). Never import a sibling checkout at runtime.
+  Pull the minimal closure the item names — never a directory wholesale (§12's bulk vendoring is the
+  legacy's failure, not a model); every pulled file is exercised here by a ported or new test or it
+  is not pulled; a known upstream defect (§29.2 F-notes, §29.9) is patched by record or quarantined
+  behind the façade, never inherited silently; the extractor's output is admitted per ecosystem only
+  through the parity control and the contract's own checks — origin never makes a fact true.
 - A work item touching a sealed candidate's bundle reads its `review.json` `advisory` list first.
   A finding whose cause is deterministic code (the renderer, planning, or a fact extractor), not a
   prose judgment call, is real repair work that survived one `targeted_repair` attempt for a

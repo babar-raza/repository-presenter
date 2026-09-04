@@ -25,7 +25,7 @@ Read in this order at the start of every session:
 4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`.
 5. `plans/idea.md` — the human product authority, for the outcome standard and standing
    constraints; never a cursor or task list.
-6. Only legacy files named by the active reuse-manifest record.
+6. Only reuse-source files (legacy or aspose.org) named by the active reuse-manifest record.
 
 Authority by subject:
 
@@ -38,7 +38,7 @@ Authority by subject:
 - `docs/README_CONTRACT.md` owns the candidate README's shape, assembly, agentic decisions, and
   blocking checks. `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 - `project/state.yaml` owns current implementation status.
-- `migration/reuse-manifest.yaml` owns legacy-code disposition after its audit.
+- `migration/reuse-manifest.yaml` owns reuse-source code disposition (legacy and aspose.org).
 - Accepted schemas and tests own implemented interfaces.
 
 Never create a competing plan, roadmap, mission graph, task graph, or status authority.
@@ -67,7 +67,7 @@ execution plan permits it. No two agents edit the same file or durable state con
   `plans/idea.md`'s Prefer Battle-Tested Solutions and `RESEARCH_AND_GUIDELINES.md` §18's registry
   — a legacy module is not exempt for having run in production. Departing from the registry's
   first choice needs a documented reason naming the alternative, in the commit or the file record.
-- Port legacy behavior only through a reuse-manifest entry with source revision, destination,
+- Port reuse-source behavior only through a reuse-manifest entry with source revision, destination,
   retained behavior, removed coupling, provenance, tests, and acceptance.
 - Keep orchestration small; domain behavior belongs behind public component/plugin interfaces.
 - Add ecosystems and families through registries, not a central `if/elif` chain; one ecosystem's

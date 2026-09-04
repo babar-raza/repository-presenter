@@ -15,7 +15,7 @@
 > | Level-8 mission graph, mission `evaluate`/`status`, durable supervisor state, execution focus | Retired. `project/state.yaml` is the only build cursor; runtime state is the repository transaction record in `docs/STATE_MACHINE.md` §13 |
 > | Gates C0 / A / B / C, `PORTFOLIO_AGENT_ACCEPTED`, `PORTFOLIO_PUBLICATION_READY_AWAITING_EFFECT_AUTHORIZATION`, `PR_ELIGIBLE` | Gates G0–G7 in `docs/EXECUTION_STATE_MACHINE.md`; every obligation here is mapped in its §12 |
 > | Historical trusted lane (T0, TP, T0R, T1, T2, T3) | Forensic evidence only; `RETIRE` in `migration/reuse-manifest.yaml` |
-> | `repo-presenter-regen-full` corpus, `BenchmarkQualityProfileV1`, Aspose.org sibling checkout | Development-only fixture and oracle assets (`FIXTURE_OR_ORACLE_ONLY`), consumed at G4; never a runtime dependency |
+> | `repo-presenter-regen-full` corpus, `BenchmarkQualityProfileV1`, Aspose.org sibling checkout | Fixture and oracle assets, and since 2026-09-04 a second reuse source for its extraction engine and tests under the pull discipline (pinned revision, file records, ported tests, cut closure, typed façade); consumed at G4; never a runtime dependency |
 > | `ProductFactsV2`, `RegistryRevisionV1`, 30-point rubric | Reimplemented behind this project's typed contracts through the reuse manifest |
 > | Baseline figures (31/31 processable, 33 registry entries at `df864ffd`) | Dated observations. The registry held 34 entries at `a8a163f7`; the count is revalidated through G1–G3 and frozen as a registry revision at G4 |
 >
@@ -358,9 +358,11 @@ Standing constraints apply across every gate:
 - **Ecosystem truth includes the package's public consumer surface, not only its manifest.** Python
   imports and exported symbols, TypeScript package exports and declarations, and Rust visibility,
   modules, and re-exports must be proved before examples or capability claims are accepted. The
-  committed extraction modules and regressions in the sibling `aspose.org` pipeline are a
-  development-only reference. Any lesson must be reimplemented behind this project's contracts;
-  staging, deployment, and acceptance cannot read or depend on sibling assets.
+  committed extraction modules and regressions in the sibling `aspose.org` pipeline are a reuse
+  source under the same pull discipline as the legacy (owner decision, 2026-09-04): a pinned
+  revision, one file record per file, ported tests, a cut import closure, and a typed façade
+  (`docs/RESEARCH_AND_GUIDELINES.md` §29). Staging, deployment, and acceptance still cannot read or
+  depend on the sibling checkout at runtime.
 
 Battle-tested, proven tools and libraries are preferred over new custom infrastructure. Building a
 bespoke mechanism where an established one already solves the problem requires a documented reason
