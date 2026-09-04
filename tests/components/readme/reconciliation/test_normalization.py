@@ -326,3 +326,49 @@ def test_a_placed_banner_row_is_superseded_by_row_3_or_deferred_while_unresolved
     assert normalize(deferred, FACTS) == []
     entries = deferred["dispositions"]  # type: ignore[misc]
     assert [entry["disposition"] for entry in entries] == ["DEFER_UNRESOLVED"] * 2
+
+
+def test_an_inherited_api_table_placed_into_the_reference_is_covered_by_the_verified_table() -> (
+    None
+):
+    # README_CONTRACT.md row 14: the Core API table is deterministic from the symbol facts, so
+    # an inherited table placed into api_reference is superseded by it; prose placed there stays.
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:060.table", "VERIFIED_PRESERVE", "api_reference"),
+            _entry("inherited_unit:057.paragraph", "VERIFIED_PRESERVE", "api_reference"),
+        ]
+    }
+    assert normalize(output, FACTS) == []
+    table, prose = output["dispositions"]
+    assert (table["disposition"], table["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "api_reference",
+    )
+    assert (prose["disposition"], prose["destination_section"]) == (
+        "VERIFIED_PRESERVE",
+        "api_reference",
+    )
+
+
+def test_an_inherited_paragraph_placed_into_the_opening_is_covered_by_the_rewrite() -> None:
+    # README_CONTRACT.md row 4: the opening is one authored paragraph, so an inherited paragraph
+    # placed there only repeats it; a heading placed there is the shell's anyway and stands.
+    output = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:002.paragraph",
+                "VERIFIED_PRESERVE",
+                "opening",
+                "identity:repository",
+            ),
+            _entry("inherited_unit:001.heading", "VERIFIED_PRESERVE", "opening"),
+        ]
+    }
+    assert normalize(output, FACTS) == []
+    paragraph, heading = output["dispositions"]
+    assert (paragraph["disposition"], paragraph["destination_section"]) == (
+        "SUPERSEDE_REDUNDANT",
+        "opening",
+    )
+    assert heading["disposition"] == "VERIFIED_PRESERVE"

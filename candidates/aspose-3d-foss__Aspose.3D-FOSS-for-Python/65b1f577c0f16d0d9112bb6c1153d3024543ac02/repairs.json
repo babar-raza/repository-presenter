@@ -55,6 +55,16 @@
       "source": "review",
       "stage": "S6"
     },
+    "2a0b4f044c842db41f0bf171": {
+      "changes": [],
+      "label": "BC-07",
+      "outcome": "unrepairable",
+      "reason": "the failing detail names no LLM-owned section",
+      "request_sha256": null,
+      "section_id": null,
+      "source": "validation",
+      "stage": null
+    },
     "2c4addae57ffac38ecfb93fa": {
       "changes": [
         {
@@ -174,7 +184,8 @@
       "label": "F04",
       "outcome": "repaired",
       "re_raised": [
-        "F04"
+        "F04",
+        "F06"
       ],
       "reason": null,
       "request_sha256": "3b4982ffaf942a96282b3e8746673fdb337275cc7f002038616321a6978d26a2",
@@ -587,7 +598,8 @@
       "label": "F05",
       "outcome": "repaired",
       "re_raised": [
-        "F05"
+        "F05",
+        "F07"
       ],
       "reason": null,
       "request_sha256": "3f464a04394513c295cb98c26f76db2dbe4a8897b0ba20b56004cf532e0fe514",
@@ -624,6 +636,58 @@
       "source": "review",
       "stage": "S6"
     },
+    "c49ba36e79ff9b3ffea3decd": {
+      "changes": [
+        {
+          "after": "Install the package in editable mode and run the test suite using the unittest module against the tests directory. The suite covers 34 test files under tests/. Releases run through the publish workflow.",
+          "before": "Install the package in editable mode and run the test suite using the unittest module against the tests directory.",
+          "fact_ids": [
+            "inherited_unit:074.paragraph",
+            "inherited_unit:075.paragraph"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        },
+        {
+          "after": "inherited_unit:070.paragraph\ninherited_unit:071.code_block\ninherited_unit:074.paragraph\ninherited_unit:075.paragraph",
+          "before": "inherited_unit:070.paragraph\ninherited_unit:071.code_block",
+          "fact_ids": [
+            "inherited_unit:074.paragraph",
+            "inherited_unit:075.paragraph"
+          ],
+          "id": "R02",
+          "path": "revised_output.units[0].fact_ids"
+        },
+        {
+          "after": "build_test_asset:ci",
+          "before": "link_target:034",
+          "fact_ids": [
+            "build_test_asset:ci"
+          ],
+          "id": "R03",
+          "path": "revised_output.omitted[16].fact_id"
+        },
+        {
+          "after": "build_test_asset:ci",
+          "before": "link_target:035",
+          "fact_ids": [
+            "build_test_asset:ci"
+          ],
+          "id": "R04",
+          "path": "revised_output.omitted[17].fact_id"
+        }
+      ],
+      "label": "F08",
+      "outcome": "repaired",
+      "re_raised": [
+        "F08"
+      ],
+      "reason": null,
+      "request_sha256": "01c2e70f682a241474218d4aad3e79881d1a202bb7e8ea24949dd73f5347a067",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
     "d22a20507671115cc5556a53": {
       "changes": [
         {
@@ -643,7 +707,8 @@
       "label": "F02",
       "outcome": "repaired",
       "re_raised": [
-        "F02"
+        "F02",
+        "F03"
       ],
       "reason": null,
       "request_sha256": "b36cb535ab094b0de5d6634c14999514451400bdc7104191d8400db06a8ac44e",

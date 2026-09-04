@@ -8,7 +8,12 @@ from typing import Protocol
 
 from repository_presenter.components.readme.extractors.platforms.python import PythonPlugin
 from repository_presenter.core.errors import ConfigError
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FormatClaim
+from repository_presenter.core.examples import (
+    ExampleCandidate,
+    ExampleReceipt,
+    FormatClaim,
+    FormatDeclaration,
+)
 from repository_presenter.core.facts import Fact
 
 
@@ -42,6 +47,9 @@ class PlatformPlugin(Protocol):
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         """The extensions one example's statements load or save, read from its syntax tree."""
+
+    def format_declarations(self, root: Path, tree_paths: list[str]) -> Sequence[FormatDeclaration]:
+        """The product's static format declarations and plugin registrations, from its tree."""
 
 
 _PLUGINS: dict[str, PlatformPlugin] = {plugin.ecosystem: plugin for plugin in (PythonPlugin(),)}

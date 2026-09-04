@@ -10,6 +10,7 @@ from repository_presenter.core.examples import (
     ExampleCandidate,
     ExampleReceipt,
     FixtureBinding,
+    FormatDeclaration,
 )
 
 
@@ -64,3 +65,77 @@ def test_no_receipt_means_not_verified_and_no_examples_mean_no_facts() -> None:
     assert [(f.id, f.polarity) for f in facts] == [("format:output.stl", "UNRESOLVED")]
     assert facts[0].evidence[1].detail == "example 1: NOT_VERIFIED; no verification receipt"
     assert format_facts([], [], format_claims, "examples.json") == []
+
+
+def test_two_static_sources_support_a_format_no_example_executed() -> None:
+    # RESEARCH_AND_GUIDELINES.md sections 22.1 and 26: a declaration and a registration together
+    # support a pair; either alone, like a failed example alone, leaves it UNRESOLVED.
+    candidates = [_candidate(1, 'scene.open("model.obj")\nscene.save("out.fbx")\n', 10)]
+    receipts = [_receipt(1, "FAILED")]
+    declarations = [
+        FormatDeclaration(
+            ".obj",
+            None,
+            "declaration",
+            "aspose/FileFormat.py",
+            3,
+            "FileFormat imports ObjFormat, which states .obj",
+        ),
+        FormatDeclaration(
+            ".obj",
+            "input",
+            "registration",
+            "aspose/formats/__init__.py",
+            9,
+            "ObjPlugin registered with ObjImporter for ObjFormat, which states .obj",
+        ),
+        FormatDeclaration(
+            ".obj",
+            "output",
+            "registration",
+            "aspose/formats/__init__.py",
+            9,
+            "ObjPlugin registered with ObjExporter for ObjFormat, which states .obj",
+        ),
+        FormatDeclaration(
+            ".fbx",
+            None,
+            "declaration",
+            "aspose/FileFormat.py",
+            4,
+            "FileFormat imports FbxFormat, which states .fbx",
+        ),
+        FormatDeclaration(
+            ".fbx",
+            "input",
+            "registration",
+            "aspose/formats/__init__.py",
+            10,
+            "FbxPlugin registered with FbxImporter for FbxFormat, which states .fbx",
+        ),
+        FormatDeclaration(
+            ".3mf",
+            "output",
+            "registration",
+            "aspose/formats/__init__.py",
+            11,
+            "ThreeMfPlugin registered with ThreeMfExporter for ThreeMfFormat, which states .3mf",
+        ),
+    ]
+    facts = format_facts(candidates, receipts, format_claims, "examples.json", declarations)
+    assert [(f.id, f.polarity) for f in facts] == [
+        ("format:input.fbx", "SUPPORTED"),
+        ("format:input.obj", "SUPPORTED"),
+        ("format:output.3mf", "UNRESOLVED"),
+        ("format:output.fbx", "UNRESOLVED"),
+        ("format:output.obj", "SUPPORTED"),
+    ]
+    obj_in = next(f for f in facts if f.id == "format:input.obj")
+    assert [e.detail for e in obj_in.evidence] == [
+        "line 11; example 1: input .obj",
+        "example 1: FAILED; exit 0",
+        "line 3; FileFormat imports ObjFormat, which states .obj",
+        "line 9; ObjPlugin registered with ObjImporter for ObjFormat, which states .obj",
+    ]
+    fbx_out = next(f for f in facts if f.id == "format:output.fbx")
+    assert [e.path for e in fbx_out.evidence] == ["README.md", "examples.json"]

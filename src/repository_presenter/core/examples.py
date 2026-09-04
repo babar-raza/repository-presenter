@@ -21,6 +21,23 @@ class FormatClaim:
     line: int
 
 
+FormatDeclarationKind = Literal["declaration", "registration"]
+
+
+@dataclass(frozen=True)
+class FormatDeclaration:
+    """A static statement about a format, read from the product's own source without importing
+    it: a ``declaration`` states an extension the product provides (direction None), and a
+    ``registration`` implements one direction of it with a non-stub importer or exporter."""
+
+    extension: str
+    direction: FormatDirection | None
+    kind: FormatDeclarationKind
+    source_path: str
+    line: int
+    detail: str
+
+
 @dataclass(frozen=True)
 class ExampleCandidate:
     """One code block of the existing README that claims to be a runnable example."""

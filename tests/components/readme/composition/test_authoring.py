@@ -607,3 +607,34 @@ def test_a_unit_cites_only_its_own_slots_planned_facts() -> None:
         "(public_symbol:aspose.threed.scene); a unit describes its own slot's facts, never "
         "another slot's",
     ]
+
+
+def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
+    # README_CONTRACT.md row 18: the shell names the Enterprise Edition exactly once.
+    task = SectionTask(
+        "enterprise_relationship", {}, frozenset({"identity:repository"}), ("context",)
+    )
+
+    def unit(text: str) -> dict[str, object]:
+        return {
+            "section": "enterprise_relationship",
+            "slot": "context",
+            "text": text,
+            "fact_ids": ["identity:repository"],
+        }
+
+    assert (
+        unit_checks(
+            {"units": [unit("It adds FBX export and rendering.")], "omitted": []}, task, FACTS, NAME
+        )
+        == []
+    )
+    assert unit_checks(
+        {"units": [unit("The Enterprise Edition adds FBX export.")], "omitted": []},
+        task,
+        FACTS,
+        NAME,
+    ) == [
+        "unit context: names the Enterprise Edition; the shell's closing sentence names it "
+        "exactly once"
+    ]

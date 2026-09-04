@@ -4,56 +4,50 @@
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [],
+      "fact_ids": [
+        "identity:platform",
+        "identity:ecosystem"
+      ],
       "id": "F01",
-      "quote": "```mermaid\nflowchart TD\n  PRODUCT[\"Aspose.3D FOSS for Python\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Load multiple 3D formats\"]\n      c2[\"Export to common 3D formats\"]\n      c3[\"Construct and manipulate meshes\"]\n      c4[\"Assign materials to geometry\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Build and traverse scene graphs\"]\n      c6[\"Triangulate arbitrary polygons\"]\n      c7[\"Create keyframe animations\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"glTF or STL file\"]\n  end\n  PRODUCT --> Capabilities --> Outputs\n```",
-      "repair": "Restore the 'Starting Points' subgraph with the verified input formats (OBJ, STL, glTF, COLLADA, 3MF) and ensure the flowchart shows the complete data flow from inputs to outputs via the product.",
-      "section_id": "at_a_glance",
-      "text": "[reviewer-scope defect at S7: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The Mermaid flowchart in the At a Glance section omits the 'Starting Points' subgraph entirely, which was present in the original README and is essential for understanding the input formats supported by the library."
+      "quote": "Aspose.3D FOSS for Python is a Python library for working with 3D documents, supporting import and export of formats including `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, `.3mf`, and `.fbx`. It enables developers to create, manipulate, and inspect 3D scenes using classes such as `aspose.threed.Scene`, `aspose.threed.Node`, `aspose.threed.Mesh`, and `aspose.threed.A3DObject`. The library is suitable for Python developers building applications that process 3D geometry, metadata, and materials without requiring a full commercial suite. It requires Python 3.7 or higher and is distributed under the MIT license.",
+      "repair": "Rewrite the opening paragraph to include 'pure-Python' and clarify that it requires no native runtime or external SDK, matching the original README's emphasis on being a self-contained Python library.",
+      "section_id": "identity",
+      "text": "[reviewer-scope defect at S6: section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the 'pure-Python' descriptor and the explicit statement that there is 'no native runtime or external SDK to install', which are key distinguishing features of this FOSS edition."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [],
+      "fact_ids": [
+        "install_command:pip"
+      ],
       "id": "F03",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the verification command and editable install instructions exactly as in the original README, since they are supported by the facts in the dependency and install_command sections.",
+      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Restore the verification command `python3 -c ",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section removes the verification command and editable install instructions that were present in the original README and are useful for developers."
+      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate's installation section drops the verification command `python3 -c "
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [],
+      "fact_ids": [
+        "format:input.obj",
+        "format:input.stl",
+        "format:input.gltf",
+        "format:input.glb",
+        "format:input.dae",
+        "format:input.3mf",
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.mesh"
+      ],
       "id": "F02",
-      "quote": "- **Load multiple 3D formats.** Create and save 3D scenes to multiple formats including `.gltf` and `.stl` using the `FileFormat` class, which supports format detection, extension mapping, and save options configuration.\n- **Export to common 3D formats.** Export scenes to `.gltf` and `.stl` formats by leveraging `FileFormat.get_format_by_extension` and its `create_save_options` method to configure binary or ASCII output modes.",
-      "repair": "Restore the original specific format list (OBJ, STL, glTF/GLB, COLLADA, 3MF for import; OBJ, STL, glTF/GLB, 3MF for export) and include the COLLADA export limitation note that 'COLLADA export is registered but not reachable through Scene.save()'.",
+      "quote": "- **Load multiple 3D formats.** Aspose.3D FOSS for Python reads `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, and `.3mf` files using `Scene.open`(), which auto-detects the format from the file extension or an explicit `FileFormat` instance.",
+      "repair": "Restore the full, specific capability descriptions from the original README, including explicit format lists, key classes, and the distinction between import-only and full read/write support for formats like FBX and COLLADA.",
       "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section reorders and rewords the original list in a way that obscures the specific file formats supported for import and export, and omits critical details about COLLADA export limitations that were present in the original."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F04",
-      "quote": "The verified public surface has 337 types.",
-      "repair": "Restore the original count of 305 public types and include the detailed class-by-class descriptions from the original README, since the facts support the existence of these types and descriptions.",
-      "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The API Reference section reduces the count of public types from 305 (as stated in the original) to 337 without justification and omits the detailed class-by-class descriptions that were present in the original README."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F05",
-      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides core scene graph and mesh manipulation capabilities for Python 3.7 through 3.12.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`() and `Scene.save`() cannot detect or dispatch any of these extensions and raise a RuntimeError if you try, and FBX support is experimental with `FbxExporter.save`() and `save_to_stream()` raising NotImplementedError outright, while COLLADA export is not reachable through `Scene.save`() due to exporter lookup order issues.",
-      "repair": "Restore the original detailed limitation descriptions with separate bullet points for each limitation (PDF/PLY/RVM/etc., FBX, COLLADA, render module, Texture, Watermark, TransformBuilder, Boolean operations, NURBS, PointCloud, AxisSystem, and import path issues) as they were in the original README.",
-      "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section compresses the original detailed limitation descriptions into a single dense paragraph, losing important context about FBX, COLLADA, and format import/export issues that were explicitly verified in the original."
+      "text": "[reviewer-scope defect at S6: re-raised after the one repair attempt its fingerprint allows] The candidate's 'Key Capabilities' section is significantly shortened and loses critical specificity: it drops explicit mentions of supported export formats (e.g., glTF/GLB), omits key classes like `PolygonModifier.triangulate()`, `Mesh.create_polygon()`, `Node.add_entity()`, `Node.create_child_node()`, `ObjSaveOptions`, and `GltfSaveOptions`, and fails to distinguish between import-only and full read/write support for formats like FBX and COLLADA."
     }
   ],
   "authoring": {
@@ -64,7 +58,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "358eca9f26bbec65650d1bffaf8f7838b3514b92cec123a30bf6d30f67ecf2e5",
+  "readme_sha256": "e90e0e031b080792bdc0e5c0f1d59a90a5d11015c169711e6e9129b5509b7f18",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

@@ -219,6 +219,25 @@ def normalize(
             continue
         if (
             disposition in PLACING
+            and destination == "opening"
+            and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+        ):
+            # README_CONTRACT.md row 4: the opening is the one authored paragraph the plan and
+            # investigation own, so an inherited paragraph placed there can only repeat it
+            # (the re-asked reconciler preserved the old opening beside the new one); the
+            # rewrite covers it.
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            entry["destination_section"] = "opening"
+            continue
+        if disposition in PLACING and destination == "api_reference" and unit.endswith(".table"):
+            # README_CONTRACT.md row 14: the Core API table is deterministic from the verified
+            # symbol facts, so an inherited API table placed here is covered by it, never
+            # rendered beside it (the re-asked reconciler placed two such tables on the canary).
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            entry["destination_section"] = "api_reference"
+            continue
+        if (
+            disposition in PLACING
             and destination == "at_a_glance"
             and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
         ):

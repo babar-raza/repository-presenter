@@ -609,13 +609,17 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     assert dispositions_line.startswith(
         f"dispositions: {facts_dir}/dispositions.json (4 units: OMIT_UNSUPPORTED 1, "
-        "SUPERSEDE_REDUNDANT 1, VERIFIED_PRESERVE 1, VERIFIED_REWRITE 1; provider calls 1, "
+        "SUPERSEDE_REDUNDANT 2, VERIFIED_PRESERVE 1; provider calls 1, "
         "model qwen3-next; digest "
     )
     written_dispositions = json.loads(
         (project_with_registry / facts_dir / "dispositions.json").read_text("utf-8")
     )
-    assert written_dispositions == LOCAL_DISPOSITIONS
+    # README_CONTRACT.md row 4: the opening is the one authored paragraph, so the inherited
+    # paragraph the job routed there is folded into a supersession before the document is used.
+    folded = copy.deepcopy(LOCAL_DISPOSITIONS)
+    folded["dispositions"][1]["disposition"] = "SUPERSEDE_REDUNDANT"
+    assert written_dispositions == folded
     plan_line = next(line for line in captured.out.splitlines() if line.startswith("plan: "))
     assert plan_line.startswith(
         f"plan: {facts_dir}/plan.json (sections 14/18, capabilities 3, hubs 1, examples 1+0, "

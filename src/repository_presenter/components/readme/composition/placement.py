@@ -24,7 +24,7 @@ PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
 PLACING = frozenset(
     {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE", "CORRECT_WITH_EVIDENCE"}
 )
-_RENDERED_ELSEWHERE = frozenset({"heading", "badge_row"})
+_RENDERED_ELSEWHERE = frozenset({"heading", "badge_row", "html_block"})
 Outcome = Literal["placed", "overlap", "owned_elsewhere", "excluded"]
 
 
@@ -40,8 +40,9 @@ class Placement:
 def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
     """Whether a placed inherited unit is rendered verbatim in its destination.
 
-    Prose is. The shell owns every heading and badge row, the plan owns every example, and the
-    renderer owns the diagram, so a preserved heading, badge row, ecosystem code block, or
+    Prose is. The shell owns every heading, badge row, and HTML structure block (a details or
+    summary tag, an alignment wrapper), the plan owns every example, and the renderer owns
+    the diagram, so a preserved heading, badge row, HTML block, ecosystem code block, or
     Mermaid block would only duplicate what those already render; any other code block (a
     command sequence, say) carries content nothing else renders and appears as written.
     """

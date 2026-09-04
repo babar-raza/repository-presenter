@@ -46,6 +46,7 @@ src/repository_presenter/
   components/readme/         README-specific behavior only
     extractors/
       platforms/              one plugin per ecosystem (python.py first)
+        python_format_declarations.py  static format declarations and plugin registrations, read from syntax trees (RESEARCH §22.1, §26)
       examples/                example verification
     investigation/            repository_investigation job wiring
     reconciliation/           source_reconciliation job wiring, dispositions

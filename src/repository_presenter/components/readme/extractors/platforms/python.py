@@ -21,6 +21,9 @@ from typing import Any
 from repository_presenter.components.readme.extractors.platforms.python_examples import (
     verify_python_examples,
 )
+from repository_presenter.components.readme.extractors.platforms.python_format_declarations import (
+    format_declarations,
+)
 from repository_presenter.components.readme.extractors.platforms.python_formats import (
     format_claims,
 )
@@ -34,7 +37,12 @@ from repository_presenter.components.readme.extractors.platforms.python_surface 
     inspect_public_surface,
     public_symbol_facts,
 )
-from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FormatClaim
+from repository_presenter.core.examples import (
+    ExampleCandidate,
+    ExampleReceipt,
+    FormatClaim,
+    FormatDeclaration,
+)
 from repository_presenter.core.facts import (
     Evidence,
     Fact,
@@ -278,6 +286,9 @@ class PythonPlugin:
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         return format_claims(code)
+
+    def format_declarations(self, root: Path, tree_paths: list[str]) -> Sequence[FormatDeclaration]:
+        return format_declarations(root, tree_paths)
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         facts: list[Fact] = []

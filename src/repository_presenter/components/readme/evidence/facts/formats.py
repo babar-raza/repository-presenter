@@ -1,10 +1,13 @@
-"""``format`` facts: the extensions the README's examples load or save, judged by their receipts.
+"""``format`` facts: the extensions the product reads or writes, corroborated two ways.
 
 A format claim lives in an example's code and the platform plugin reads it from the syntax tree;
-its polarity is the example's verified outcome. An extension an executed example loaded or saved
-is SUPPORTED, and a repository file staged for an executed example proves its extension as input.
-An extension only a failed or unverified example names stays UNRESOLVED; nothing is inferred from
-prose or from a catalog. Direction is part of the ID: ``format:input.obj``, ``format:output.stl``.
+an extension an executed example loaded or saved is SUPPORTED, and a repository file staged for an
+executed example proves its extension as input. A claim no executed example makes is SUPPORTED
+only when two independent static sources agree (docs/RESEARCH_AND_GUIDELINES.md sections 22.1
+and 26): the product's format declarations state the extension and a registered, non-stub
+importer or exporter implements that direction. One source alone, or a failed or unverified
+example alone, leaves the fact UNRESOLVED; nothing is inferred from prose. Direction is part of
+the ID: ``format:input.obj``, ``format:output.stl``.
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ from repository_presenter.core.examples import (
     ExampleOutcome,
     ExampleReceipt,
     FormatClaim,
+    FormatDeclaration,
 )
 from repository_presenter.core.facts import Evidence, Fact, fact_id
 
@@ -26,11 +30,12 @@ def format_facts(
     receipts: Sequence[ExampleReceipt],
     claims_for: Callable[[str], Sequence[FormatClaim]],
     receipts_path: str,
+    declarations: Sequence[FormatDeclaration] = (),
 ) -> list[Fact]:
-    """One fact per (direction, extension) across all examples, with every example as evidence."""
+    """One fact per (direction, extension) across the examples and the static sources."""
     by_ordinal = {receipt.ordinal: receipt for receipt in receipts}
     evidence: dict[tuple[str, str], list[Evidence]] = {}
-    supported: set[tuple[str, str]] = set()
+    executed: set[tuple[str, str]] = set()
     for candidate in candidates:
         receipt = by_ordinal.get(candidate.ordinal)
         outcome: ExampleOutcome = receipt.outcome if receipt else "NOT_VERIFIED"
@@ -49,7 +54,7 @@ def format_facts(
                 )
             )
             if outcome == "EXECUTED":
-                supported.add(key)
+                executed.add(key)
         if receipt is None or outcome != "EXECUTED":
             continue
         for binding in receipt.fixtures:
@@ -63,7 +68,35 @@ def format_facts(
                     f"staged as {binding.literal}; example {candidate.ordinal} read it: EXECUTED",
                 )
             )
-            supported.add(key)
+            executed.add(key)
+    # Static corroboration: a declaration states the extension for either direction; a
+    # registration implements one direction. Both together support the pair.
+    declared: dict[str, list[FormatDeclaration]] = {}
+    registered: dict[tuple[str, str], list[FormatDeclaration]] = {}
+    for declaration in declarations:
+        if declaration.kind == "declaration":
+            declared.setdefault(declaration.extension, []).append(declaration)
+        elif declaration.direction is not None:
+            registered.setdefault((declaration.direction, declaration.extension), []).append(
+                declaration
+            )
+    corroborated: set[tuple[str, str]] = set()
+    for key, registrations in sorted(registered.items()):
+        direction, extension = key
+        entries = evidence.setdefault(key, [])
+        for statement in declared.get(extension, []):
+            entries.append(
+                Evidence(statement.source_path, f"line {statement.line}; {statement.detail}")
+            )
+        for registration in registrations:
+            entries.append(
+                Evidence(
+                    registration.source_path, f"line {registration.line}; {registration.detail}"
+                )
+            )
+        if extension in declared:
+            corroborated.add(key)
+    supported = executed | corroborated
     facts: list[Fact] = []
     for key in sorted(evidence):
         direction, extension = key

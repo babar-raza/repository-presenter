@@ -541,6 +541,16 @@ def unit_checks(
             f"units must fill exactly these slots once each: {', '.join(expected)}; "
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
+    # README_CONTRACT.md row 18: the shell's closing sentence names the Enterprise Edition
+    # exactly once, so the authored context sentence never repeats the name.
+    for unit in output.get("units", []):
+        if task.section_id == "enterprise_relationship" and "Enterprise Edition" in str(
+            unit.get("text", "")
+        ):
+            errors.append(
+                f"unit {unit.get('slot')}: names the Enterprise Edition; the shell's closing "
+                "sentence names it exactly once"
+            )
     # README_CONTRACT.md check 4: a unit's facts lie within the set the plan assigned to its
     # slot; identity and package facts belong to no slot and may support any unit.
     neutral = {fact.id for fact in facts.facts if fact.kind in {"identity", "package"}}

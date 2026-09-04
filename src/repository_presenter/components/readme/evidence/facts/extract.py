@@ -58,7 +58,15 @@ def extract_facts(
     """Every deterministic fact the snapshot supports, in one document."""
     facts = identity_facts(entry, snapshot)
     facts.extend(example_facts(examples, receipts, receipts_path))
-    facts.extend(format_facts(examples, receipts, plugin.format_claims, receipts_path))
+    facts.extend(
+        format_facts(
+            examples,
+            receipts,
+            plugin.format_claims,
+            receipts_path,
+            plugin.format_declarations(clone_path, tree_paths),
+        )
+    )
     if manifest is not None:
         manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
         observed = {fact.id: fact for fact in plugin.registry_facts(manifest_facts)}

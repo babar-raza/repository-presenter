@@ -332,7 +332,25 @@
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 67; FileFormat imports ThreeMfFormat, which states .3mf",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 74; ThreeMfPlugin (aspose/threed/formats/threemf/ThreeMfPlugin.py) registered with ThreeMfImporter for ThreeMfFormat, which states .3mf",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:input.3mf",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".3mf"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 335; example 11: input .dae",
@@ -341,16 +359,60 @@
         {
           "detail": "example 11: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 165; FileFormat imports ColladaFormat, which states .dae",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 76; ColladaPlugin (aspose/threed/formats/collada/ColladaPlugin.py) registered with ColladaImporter for ColladaFormat, which states .dae",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:input.dae",
       "kind": "format",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": ".dae"
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 76; FileFormat imports FbxFormat, which states .fbx",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 75; FbxPlugin (aspose/threed/formats/fbx/FbxPlugin.py) registered with FbxImporter for FbxFormat, which states .fbx",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:input.fbx",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".fbx"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 46; FileFormat imports GltfFormat, which states .glb",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfImporter for GltfFormat, which states .glb",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:input.glb",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".glb"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 262; example 7: input .gltf",
@@ -359,16 +421,24 @@
         {
           "detail": "example 7: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 46; FileFormat imports GltfFormat, which states .gltf",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfImporter for GltfFormat, which states .gltf",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:input.gltf",
       "kind": "format",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": ".gltf"
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 135; example 1: input .obj",
@@ -393,16 +463,78 @@
         {
           "detail": "example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 33; FileFormat imports ObjFormat, which states .obj",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 71; ObjPlugin (aspose/threed/formats/obj/ObjPlugin.py) registered with ObjImporter for ObjFormat, which states .obj",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:input.obj",
       "kind": "format",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": ".obj"
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 153; FileFormat imports StlFormat, which states .stl",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 72; StlPlugin (aspose/threed/formats/stl/StlPlugin.py) registered with StlImporter for StlFormat, which states .stl",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:input.stl",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".stl"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 67; FileFormat imports ThreeMfFormat, which states .3mf",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 74; ThreeMfPlugin (aspose/threed/formats/threemf/ThreeMfPlugin.py) registered with ThreeMfExporter for ThreeMfFormat, which states .3mf",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:output.3mf",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".3mf"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 165; FileFormat imports ColladaFormat, which states .dae",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 76; ColladaPlugin (aspose/threed/formats/collada/ColladaPlugin.py) registered with ColladaExporter for ColladaFormat, which states .dae",
+          "path": "aspose/threed/formats/__init__.py"
+        }
+      ],
+      "id": "format:output.dae",
+      "kind": "format",
+      "polarity": "SUPPORTED",
+      "value": ".dae"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 172; example 3: output .glb",
@@ -411,11 +543,19 @@
         {
           "detail": "example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 46; FileFormat imports GltfFormat, which states .glb",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfExporter for GltfFormat, which states .glb",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:output.glb",
       "kind": "format",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": ".glb"
     },
     {
@@ -437,6 +577,14 @@
         {
           "detail": "example 5: EXECUTED; exit 0",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 46; FileFormat imports GltfFormat, which states .gltf",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 73; GltfPlugin (aspose/threed/formats/gltf/GltfPlugin.py) registered with GltfExporter for GltfFormat, which states .gltf",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:output.gltf",
@@ -446,7 +594,7 @@
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "line 285; example 8: output .obj",
@@ -455,11 +603,19 @@
         {
           "detail": "example 8: FAILED; TypeError",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 33; FileFormat imports ObjFormat, which states .obj",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 71; ObjPlugin (aspose/threed/formats/obj/ObjPlugin.py) registered with ObjExporter for ObjFormat, which states .obj",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:output.obj",
       "kind": "format",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": ".obj"
     },
     {
@@ -481,6 +637,14 @@
         {
           "detail": "example 9: EXECUTED; exit 0",
           "path": "examples.json"
+        },
+        {
+          "detail": "line 153; FileFormat imports StlFormat, which states .stl",
+          "path": "aspose/threed/FileFormat.py"
+        },
+        {
+          "detail": "line 72; StlPlugin (aspose/threed/formats/stl/StlPlugin.py) registered with StlExporter for StlFormat, which states .stl",
+          "path": "aspose/threed/formats/__init__.py"
         }
       ],
       "id": "format:output.stl",
