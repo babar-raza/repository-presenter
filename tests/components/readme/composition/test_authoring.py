@@ -637,15 +637,27 @@ def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
         )
         == []
     )
-    assert unit_checks(
-        {"units": [unit("The Enterprise Edition adds FBX export.")], "omitted": []},
-        task,
-        FACTS,
-        NAME,
-    ) == [
-        "unit context: names the Enterprise Edition; the shell's closing sentence names it "
-        "exactly once"
-    ]
+    # The code owns the canonical form, so a repeat is normalised away rather than re-asked
+    # (RESEARCH_AND_GUIDELINES.md section 27.10); the sentence keeps its meaning and the shell
+    # still names the edition exactly once.
+    repeated = {"units": [unit("The Enterprise Edition adds FBX export.")], "omitted": []}
+    assert unit_checks(repeated, task, FACTS, NAME) == []
+    assert repeated["units"][0]["text"] == "The commercial edition adds FBX export."
+    # The normalisation is confined to the section whose shell sentence carries the name.
+    elsewhere = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
+    other = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "The Enterprise Edition adds FBX export.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(other, elsewhere, FACTS, NAME) == []
+    assert other["units"][0]["text"] == "The Enterprise Edition adds FBX export."
 
 
 def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:

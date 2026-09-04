@@ -52,6 +52,9 @@ _TYPE_OBJECTIVE = (
     "member count or 'extends X', never a count, never a claim the signature does not carry."
 )
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
+# "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
+# proper name the shell already carries.
+_EDITION = re.compile(r"\bEnterprise Edition\b")
 # Abbreviations the document always spells one way. The renderer normalises prose to these forms
 # and BC-07 judges the rendered document against the same set, so the two cannot drift
 # (docs/RESEARCH_AND_GUIDELINES.md section 27.10).
@@ -616,7 +619,13 @@ def unit_checks(
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
     # README_CONTRACT.md row 18: the shell's closing sentence names the Enterprise Edition
-    # exactly once, so the authored context sentence never repeats the name.
+    # exactly once, so the authored context sentence never repeats the name. The code owns that
+    # canonical form, so it normalises the repeat away rather than re-asking the model and
+    # rejecting the reply (docs/RESEARCH_AND_GUIDELINES.md section 27.10); the check stays and
+    # still fails for a name the normalisation cannot reach.
+    if task.section_id == "enterprise_relationship":
+        for unit in output.get("units", []):
+            unit["text"] = _EDITION.sub("commercial edition", str(unit.get("text", "")))
     for unit in output.get("units", []):
         if task.section_id == "enterprise_relationship" and "Enterprise Edition" in str(
             unit.get("text", "")
