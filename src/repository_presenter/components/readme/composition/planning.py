@@ -74,6 +74,27 @@ def section_conditions(
     }
 
 
+def _selectable_dispositions(dispositions: dict[str, Any], facts: FactsDocument) -> dict[str, Any]:
+    """The dispositions as the planner may act on them: only the fact IDs a plan may cite.
+
+    A disposition legitimately cites a CONTRADICTED or UNRESOLVED fact - that is why it omits or
+    defers its unit - while the plan's own binding admits SUPPORTED facts only. Showing the
+    planner an ID its reply may not carry is cause RC1 in docs/RESEARCH_AND_GUIDELINES.md
+    section 27.2: the canary's planner copied example:008 from here and was rejected twice, and
+    the transaction failed closed. The destinations and unit IDs are untouched; only the
+    citations a plan may not reuse are dropped, and plan_checks still sees the whole document.
+    """
+    supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
+    entries = [
+        {
+            key: ([i for i in value if i in supported] if key == "fact_ids" else value)
+            for key, value in entry.items()
+        }
+        for entry in dispositions.get("dispositions", [])
+    ]
+    return {**dispositions, "dispositions": entries}
+
+
 def planning_packet(
     entry: RegistryEntry,
     facts: FactsDocument,
@@ -91,7 +112,7 @@ def planning_packet(
         "repository": entry.repository,
         "facts": bounded_records(facts, kinds),
         "investigation": investigation,
-        "dispositions": dispositions,
+        "dispositions": _selectable_dispositions(dispositions, facts),
         "shell": shell,
         "policy": policy_packet(policy),
     }

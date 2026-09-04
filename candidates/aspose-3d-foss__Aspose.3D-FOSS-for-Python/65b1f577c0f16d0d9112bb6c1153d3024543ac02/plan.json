@@ -1,6 +1,5 @@
 {
   "additional_example_ids": [
-    "example:004",
     "example:005",
     "example:009",
     "example:010",
@@ -24,17 +23,14 @@
     {
       "fact_ids": [
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.entities.polygonmodifier"
+        "public_symbol:aspose.threed.polygonbuilder"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.mesh"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.phongmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
+        "public_symbol:aspose.threed.node.material"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
@@ -42,51 +38,19 @@
       "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.pose"
+        "public_symbol:aspose.threed.keyframesequence"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.cylinder"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.entities"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.formats",
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.glb",
-        "format:input.dae",
-        "format:input.3mf"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.vector4"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Load multiple 3D formats",
       "Export to common 3D formats",
-      "Construct and traverse scene graphs",
+      "Build and traverse scene graphs",
       "Create and edit mesh geometry",
-      "Apply materials to geometry",
-      "Support keyframe animation",
-      "Triangulate polygonal geometry",
-      "Work with parameterized primitives"
+      "Assign and configure materials",
+      "Support keyframe animation"
     ],
     "input_format_ids": [
       "format:input.obj",
@@ -113,6 +77,7 @@
         "format:input.glb",
         "format:input.dae",
         "format:input.3mf",
+        "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.fileformat"
       ],
       "title": "Load multiple 3D formats"
@@ -124,7 +89,7 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
       "title": "Export to common 3D formats"
     },
@@ -132,9 +97,10 @@
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entity",
         "public_symbol:aspose.threed.transform"
       ],
-      "title": "Construct and traverse scene graphs"
+      "title": "Build and traverse scene graphs"
     },
     {
       "fact_ids": [
@@ -153,7 +119,7 @@
         "example:004",
         "example:005"
       ],
-      "title": "Apply materials to geometry"
+      "title": "Assign and configure materials"
     },
     {
       "fact_ids": [
@@ -163,27 +129,30 @@
         "public_symbol:aspose.threed.pose"
       ],
       "title": "Support keyframe animation"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.entities.polygonmodifier"
-      ],
-      "title": "Triangulate polygonal geometry"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.cylinder",
-        "example:010"
-      ],
-      "title": "Work with parameterized primitives"
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:045.heading"
+      ],
+      "section_id": "additional_examples",
+      "text": "The Position a Node With Transform example is omitted because the code is CONTRADICTED."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:060.table"
+      ],
+      "section_id": "api_reference",
+      "text": "The full public API table is truncated to 12 hubs to stay within policy ceilings."
+    }
+  ],
   "flagship_example_id": "example:005",
   "links": [
+    {
+      "link_fact_id": "link_target:product.homepage",
+      "section_id": "banner"
+    },
     {
       "link_fact_id": "link_target:022",
       "section_id": "documentation_resources"
@@ -195,145 +164,131 @@
     {
       "link_fact_id": "link_target:024",
       "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:025",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:026",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:027",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:028",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:029",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:030",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:031",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:032",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:product.enterprise",
-      "section_id": "enterprise_relationship"
     }
   ],
   "material_limitations": [
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "identity:family"
       ],
-      "unit_ids": [
-        "inherited_unit:067.list"
-      ]
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "format:input.dae"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.render"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh"
+      ],
+      "unit_ids": []
     }
   ],
   "quick_start_example_id": "example:002",
-  "second_quick_start_example_id": null,
+  "second_quick_start_example_id": "example:004",
   "sections": [
     {
       "include": true,
-      "reason": "Required section; H1 product name is verified and matches the canonical identity.",
+      "reason": "the shell requires it",
       "section_id": "identity"
     },
     {
       "include": true,
-      "reason": "Required section; badge row with Python version, MIT license, contributors, and PyPI version is verified.",
+      "reason": "the shell requires it",
       "section_id": "badges"
     },
     {
       "include": true,
-      "reason": "Verified product illustration and homepage exist; banner image link is supported.",
+      "reason": "its condition holds",
       "section_id": "banner"
     },
     {
       "include": true,
-      "reason": "Required section; the paragraph describing the library's purpose, formats, and pure-Python nature is verified.",
+      "reason": "the shell requires it",
       "section_id": "opening"
     },
     {
       "include": true,
-      "reason": "Required section; navigation links are derived from facts and do not need a heading.",
+      "reason": "the shell requires it",
       "section_id": "navigation"
     },
     {
       "include": true,
-      "reason": "Condition holds: at least three verified core capabilities exist and input formats are supported.",
+      "reason": "its condition holds",
       "section_id": "at_a_glance"
     },
     {
       "include": true,
-      "reason": "Required section; eight action-led capability items are grounded in facts.",
+      "reason": "the shell requires it",
       "section_id": "key_capabilities"
     },
     {
       "include": true,
-      "reason": "Required section; verified pip install command and Python version support are present.",
+      "reason": "the shell requires it",
       "section_id": "installation"
     },
     {
       "include": true,
-      "reason": "Required section; no required third-party dependencies and pytest dev dependency are verified.",
+      "reason": "the shell requires it",
       "section_id": "dependencies"
     },
     {
       "include": true,
-      "reason": "Required section; example:002 is verified and fits the quick start workflow.",
+      "reason": "the shell requires it",
       "section_id": "quick_start"
     },
     {
       "include": true,
-      "reason": "Condition holds: multiple further verified examples exist (example:004, example:005, example:009, example:010, example:012).",
+      "reason": "its condition holds",
       "section_id": "additional_examples"
     },
     {
       "include": true,
-      "reason": "Required section; public API surface is verified and curated hub APIs benefit visitors.",
+      "reason": "the shell requires it",
       "section_id": "api_reference"
     },
     {
       "include": true,
-      "reason": "Condition holds: verified documentation, reference, and knowledge-base targets exist.",
+      "reason": "its condition holds",
       "section_id": "documentation_resources"
     },
     {
       "include": true,
-      "reason": "Required section; material limitations from inherited units are verified.",
+      "reason": "the shell requires it",
       "section_id": "scope_limitations"
     },
     {
       "include": true,
-      "reason": "Condition holds: build and test assets (tests/, .github/workflows/, docs/) exist.",
+      "reason": "its condition holds",
       "section_id": "development_testing"
     },
     {
       "include": true,
-      "reason": "Condition holds: verified aspose.com product target exists in policy.",
+      "reason": "its condition holds",
       "section_id": "enterprise_relationship"
     },
     {
       "include": false,
-      "reason": "filled from the shell: its condition does not hold",
+      "reason": "its condition does not hold",
       "section_id": "third_party_notices"
     },
     {
       "include": true,
-      "reason": "Required section; license paragraph and MIT fact are verified.",
+      "reason": "the shell requires it",
       "section_id": "license"
     }
   ]

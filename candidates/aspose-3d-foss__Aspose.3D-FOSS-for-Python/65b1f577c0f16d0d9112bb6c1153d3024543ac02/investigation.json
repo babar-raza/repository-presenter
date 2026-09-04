@@ -17,9 +17,10 @@
         "format:input.glb",
         "format:input.dae",
         "format:input.3mf",
+        "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.fileformat"
       ],
-      "text": "Imports OBJ, STL, glTF, glTF Binary, COLLADA, and 3MF files via Scene.open() with automatic format detection from file extension or explicit FileFormat.",
+      "text": "Imports OBJ, STL, glTF/GLB, COLLADA, and 3MF files using Scene.open() with automatic format detection from file extension or explicit FileFormat.",
       "title": "Load multiple 3D formats"
     },
     {
@@ -29,19 +30,20 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
-      "text": "Exports scenes to OBJ, STL, glTF, glTF Binary, and 3MF using Scene.save() with format-specific options for compression, coordinate system, and unit scaling.",
+      "text": "Exports scenes to OBJ, STL, glTF/GLB, and 3MF using Scene.save() with format-specific options for compression, coordinate system, and unit scaling.",
       "title": "Export to common 3D formats"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entity",
         "public_symbol:aspose.threed.transform"
       ],
-      "text": "Build hierarchical scenes using Scene, Node, and Transform objects, supporting child node creation, entity assignment, and independent node transforms.",
-      "title": "Construct and traverse scene graphs"
+      "text": "Construct hierarchical scene graphs using Scene, Node, and Entity objects with independent transforms per node.",
+      "title": "Build and traverse scene graphs"
     },
     {
       "fact_ids": [
@@ -51,7 +53,7 @@
         "example:010",
         "example:012"
       ],
-      "text": "Build meshes programmatically via Mesh.control_points and Mesh.create_polygon(), or convert primitives to meshes using to_mesh().",
+      "text": "Create meshes from control points and polygons, convert primitives to meshes, and modify geometry via Mesh.control_points and Mesh.create_polygon().",
       "title": "Create and edit mesh geometry"
     },
     {
@@ -61,8 +63,8 @@
         "example:004",
         "example:005"
       ],
-      "text": "Assign LambertMaterial, PhongMaterial, or PbrMaterial to nodes and configure color and factor properties for diffuse, specular, albedo, metallic, and roughness.",
-      "title": "Apply materials to geometry"
+      "text": "Assign LambertMaterial, PhongMaterial, or PbrMaterial to nodes and set diffuse, specular, albedo, metallic, and roughness properties.",
+      "title": "Assign and configure materials"
     },
     {
       "fact_ids": [
@@ -71,44 +73,44 @@
         "public_symbol:aspose.threed.keyframesequence",
         "public_symbol:aspose.threed.pose"
       ],
-      "text": "Construct animation clips using AnimationClip, AnimationNode, and KeyframeSequence, and store skeletal bind-pose data with Pose and related types.",
+      "text": "Build keyframe animations using AnimationClip, AnimationNode, and KeyframeSequence, and store skeletal bind-pose data with Pose and related types.",
       "title": "Support keyframe animation"
     }
   ],
   "limitations": [
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "identity:family"
       ],
-      "text": "FBX export is not implemented; FbxExporter.save() and save_to_stream() raise NotImplementedError."
+      "text": "FBX import is experimental and FBX export is not implemented; FbxExporter.save() raises NotImplementedError."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "format:input.dae"
       ],
       "text": "COLLADA export is not reachable through Scene.save() due to exporter lookup order issues."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "public_symbol:aspose.threed.render"
       ],
-      "text": "Scene.render() and the entire aspose.threed.render module raise NotImplementedError; image rendering is unsupported."
+      "text": "Scene.render() and the entire aspose.threed.render module raise NotImplementedError; this library does not render scenes to images."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "public_symbol:aspose.threed"
       ],
-      "text": "Texture construction raises NotImplementedError; image-backed textures cannot be created, though material properties work without them."
+      "text": "Texture and TextureBase raise NotImplementedError on construction; image-backed textures cannot be created."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "public_symbol:aspose.threed.mesh"
       ],
-      "text": "Mesh boolean operations (union, difference, intersect) raise NotImplementedError; CSG operations are not implemented."
+      "text": "Mesh boolean operations (union, difference, intersect) raise NotImplementedError."
     },
     {
       "fact_ids": [
-        "inherited_unit:067.list"
+        "public_symbol:aspose.threed"
       ],
       "text": "NURBS curve evaluation and surface-to-mesh conversion raise NotImplementedError."
     }
@@ -136,17 +138,18 @@
         "format:output.glb",
         "format:output.3mf"
       ],
-      "text": "Supports common 3D interchange formats (OBJ, STL, glTF/GLB, COLLADA, 3MF) for interoperability across design and manufacturing tools."
+      "text": "Supports common 3D file formats used in 3D printing and web workflows (OBJ, STL, glTF/GLB, COLLADA, 3MF) through a unified Scene/Node/Mesh object model."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.a3dobject",
-        "public_symbol:aspose.threed.assetinfo",
-        "public_symbol:aspose.threed.sceneobject",
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.cylinder",
+        "example:002",
+        "example:004",
+        "example:010"
       ],
-      "text": "Provides a scene graph model with nodes, entities, transforms, and materials for structured 3D scene composition."
+      "text": "Provides parameterized primitives (Box, Sphere, Cylinder, etc.) and direct mesh editing capabilities for rapid prototyping and geometry generation."
     }
   ],
   "product_summary": {
@@ -160,66 +163,73 @@
     "text": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for loading, constructing, and exporting 3D scenes without native dependencies."
   },
   "uncertainties": [
-    "The exact set of formats supported beyond those explicitly listed in format:input and format:output facts is unclear; some formats may be partially implemented but not tested.",
-    "Whether the experimental FBX importer works reliably with real-world FBX files is uncertain due to lack of integration tests with actual FBX fixtures.",
-    "The behavior of Scene.open() and Scene.save() when given streams without explicit FileFormat hints for formats other than STL and glTF is not fully documented in examples."
+    "The exact set of formats supported beyond those explicitly listed in format facts is unclear; some option classes exist but are not dispatchable.",
+    "Whether the library supports importing FBX files in practice beyond tokenizer tests is uncertain.",
+    "The behavior of Scene.save() when no format can be inferred from filename or explicit FileFormat is not documented in facts."
   ],
   "workflows": [
     {
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:012"
+        "format:input.obj",
+        "format:input.stl",
+        "format:input.gltf",
+        "format:input.dae",
+        "format:input.3mf",
+        "public_symbol:aspose.threed.scene"
       ],
       "name": "Import and inspect 3D scenes",
       "text": "Load OBJ, STL, glTF, COLLADA, or 3MF files using Scene.open() and inspect geometry, nodes, and materials."
     },
     {
       "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:012"
+        "format:output.obj",
+        "format:output.stl",
+        "format:output.gltf",
+        "format:output.glb",
+        "format:output.3mf",
+        "public_symbol:aspose.threed.scene"
       ],
       "name": "Export scenes to 3D formats",
-      "text": "Write scenes to OBJ, STL, glTF/GLB, or 3MF using Scene.save() with format-specific options for compression, coordinate system, and unit scaling."
+      "text": "Save scenes to OBJ, STL, glTF/GLB, or 3MF using Scene.save() with format-specific SaveOptions for fine-grained control."
     },
     {
       "fact_ids": [
-        "example:005",
-        "example:009",
-        "example:012"
-      ],
-      "name": "Build meshes from control points",
-      "text": "Construct custom meshes by adding control points and polygons, then attach them to scene nodes."
-    },
-    {
-      "fact_ids": [
+        "public_symbol:aspose.threed.box",
+        "public_symbol:aspose.threed.sphere",
+        "public_symbol:aspose.threed.cylinder",
         "example:002",
         "example:004",
         "example:010"
       ],
-      "name": "Create and modify primitives",
-      "text": "Instantiate parameterized primitives like Box, Sphere, Cylinder, and convert them to editable meshes via to_mesh()."
+      "name": "Build scenes from primitives",
+      "text": "Create parameterized primitives like Box, Sphere, or Cylinder, convert them to meshes via to_mesh(), and attach materials."
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "example:005",
+        "example:009",
+        "example:012"
+      ],
+      "name": "Construct meshes from control points",
+      "text": "Build custom meshes by adding control points and polygons, then attach materials and save to target formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading",
         "example:002",
         "example:004",
         "example:005"
       ],
-      "name": "Assign materials to geometry",
+      "name": "Assign materials to 3D entities",
       "text": "Attach LambertMaterial, PhongMaterial, or PbrMaterial to nodes and configure diffuse, specular, albedo, metallic, and roughness properties."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.polygonbuilder"
       ],
-      "name": "Triangulate polygonal geometry",
-      "text": "Triangulate arbitrary polygons using PolygonModifier.triangulate() for compatibility with formats requiring triangle-only meshes."
+      "name": "Triangulate polygon meshes",
+      "text": "Triangulate arbitrary polygon data using PolygonModifier.triangulate() for compatibility with formats requiring triangle geometry."
     }
   ]
 }

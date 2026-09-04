@@ -67,20 +67,25 @@ def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, st
 
     A job names a symbol by the path it reads (``aspose.threed.LambertMaterial``) while the
     facts record it where it is defined (``aspose.threed.shading.LambertMaterial``) and again
-    at each re-export; the shortest ID is the package-level export. A name no fact carries
-    stays as cited and rejects the output as before.
+    at each re-export; the shortest ID is the package-level export. The final name segment is
+    matched without regard to case, because a job names the class as the source spells it
+    (``Scene``) while a fact ID is lowercased (``scene``) - a fact-ID spelling the model is
+    asked to reproduce and is rejected for missing, which is cause RC1 in
+    docs/RESEARCH_AND_GUIDELINES.md section 27.2, measured there as "investigation: unknown
+    fact ID 9". Fact IDs are lowercased when they are minted, so folding case adds no
+    ambiguity. A name no fact carries stays as cited and rejects the output as before.
     """
     known = {fact.id for fact in facts.facts}
     by_name: dict[str, list[str]] = {}
     for fact in facts.by_kind("public_symbol"):
         if fact.polarity == "SUPPORTED":
-            by_name.setdefault(fact.id.rsplit(".", 1)[-1], []).append(fact.id)
+            by_name.setdefault(fact.id.rsplit(".", 1)[-1].lower(), []).append(fact.id)
     rewrites: dict[str, str] = {}
 
     def resolve(value: str) -> str:
         if value in known or not value.startswith("public_symbol:"):
             return value
-        candidates = by_name.get(value.rsplit(".", 1)[-1], [])
+        candidates = by_name.get(value.rsplit(".", 1)[-1].lower(), [])
         if not candidates:
             return value
         target = min(candidates, key=lambda i: (len(i), i))

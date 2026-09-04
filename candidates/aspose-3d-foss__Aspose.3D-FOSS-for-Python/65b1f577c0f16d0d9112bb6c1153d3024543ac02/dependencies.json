@@ -1743,8 +1743,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "d0af643d7860c6d2f02d40ee7448477fa208dbf43449a9aafde3a904c33abf8b",
-      "version": "4"
+      "sha256": "a65f4ad79fcca436a290a41da53f6bb100e8ef791db594f3b07f5511fb676305",
+      "version": "5"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",

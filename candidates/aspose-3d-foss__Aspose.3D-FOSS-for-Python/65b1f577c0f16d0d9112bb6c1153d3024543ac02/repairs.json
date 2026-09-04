@@ -1,425 +1,45 @@
 {
   "attempts": {
-    "0343f12d596a07114c4815e2": {
-      "changes": [],
-      "label": "BC-03",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "193691ef7ee0524fd7ab85c6": {
+    "0a249741bb42b4d862ed5c76": {
       "changes": [
         {
-          "after": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco, and attempts to use these formats raise an error. FBX import is experimental and lightly verified, while FBX export is not supported. COLLADA import works but COLLADA export is unreachable through Scene.save() due to exporter lookup failure. Load and save options for OBJ, STL, glTF, and COLLADA must be imported from their format-specific submodules, not from the shared top-level aspose.threed.formats package. The aspose.threed.render module and Scene.render() are not supported. Texture and TextureBase cannot be constructed, so image-backed textures cannot be created. Watermark.encode_watermark(), Watermark.decode_watermark(), and all TransformBuilder methods are not supported. Mesh.do_boolean(), union(), difference(), and intersect() are not supported. NurbsCurve.evaluate(), NurbsCurve.evaluate_at(), and NurbsSurface.to_mesh() are not supported. PointCloud.from_geometry(), PointCloud.from_geometry_with_density(), and AxisSystem are not supported.",
-          "before": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco, and attempts to use these formats raise an error. FBX import is experimental and lightly verified, while FBX export is not supported. COLLADA import works but COLLADA export is unreachable through Scene.save() due to exporter lookup failure. Load and save options for OBJ, STL, glTF, and COLLADA must be imported from their format-specific submodules, not from the shared top-level aspose.threed.formats package. The aspose.threed.render module and Scene.render() are not supported. Texture and TextureBase cannot be constructed, so image-backed textures cannot be created. Watermark.encode_watermark(), Watermark.decode_watermark(), and all TransformBuilder methods are not supported. Mesh.do_boolean(), union(), difference(), and intersect() are not supported. NurbsCurve.evaluate(), NurbsCurve.evaluate_at(), and NurbsSurface.to_mesh() are not supported. PointCloud.from_geometry(), PointCloud.from_geometry_with_density(), and AxisSystem are not supported.",
+          "after": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
+          "before": "Import an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
           "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R01",
-          "path": "revised_output.units[1].text"
-        }
-      ],
-      "label": "F09",
-      "outcome": "repaired",
-      "re_raised": [
-        "F04",
-        "F05"
-      ],
-      "reason": null,
-      "request_sha256": "e092b9c653bf982266ca15ab7e0933e617bb8a91c76f64de7b12f5b4dfc87523",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "29adb47fd59d09c8ef9d0ccf": {
-      "changes": [
-        {
-          "after": "The aspose-3d-foss package exposes 305 public types including aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
-          "before": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "units.0.text"
-        }
-      ],
-      "label": "F04",
-      "outcome": "repaired",
-      "re_raised": [
-        "F04"
-      ],
-      "reason": null,
-      "request_sha256": "11b1c280ede280e09c12dadd4780ae1becd0878262d0e3c5b238495302d8b085",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "2a0b4f044c842db41f0bf171": {
-      "changes": [],
-      "label": "BC-07",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "2c4addae57ffac38ecfb93fa": {
-      "changes": [
-        {
-          "after": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — PdfSaveOptions, PlyLoadOptions, DracoSaveOptions, and similar option classes exist as public types, but Scene.open() and Scene.save() cannot detect or dispatch any of these extensions and raise an error if you try. FBX support is experimental — FbxImporter has a working tokenizer and parser but no bundled test opens a real .fbx file through it, and FbxExporter.save() and save_to_stream() both raise an error outright, so FBX is import-only at best. COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before ColladaExporter is ever consulted. Always import a format's load/save options class from its own format submodule — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects. Scene.render() and the entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raise an error — this library does not render scenes to images. Texture and TextureBase raise an error on construction, so an image-backed texture cannot be created, but material color and factor properties such as diffuse_color and metallic_factor work independently of texture assignment. Watermark.encode_watermark() and decode_watermark() and every TransformBuilder method raise an error — build node transforms through Transform's own translation, rotation, and scaling properties instead of the fluent TransformBuilder chain. Mesh.do_boolean(), union(), difference(), and intersect() raise an error — Boolean or CSG mesh operations are not implemented, even though BooleanOperator and BooleanOperand exist as configuration holders. NurbsCurve.evaluate() and evaluate_at() and NurbsSurface.to_mesh() raise an error — NURBS curves and surfaces can be configured but not sampled or converted to a Mesh. PointCloud.from_geometry() and from_geometry_with_density() raise an error, and AxisSystem raises an error on every method, including construction.",
-          "before": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — PdfSaveOptions, PlyLoadOptions, DracoSaveOptions, and similar option classes exist as public types, but Scene.open() and Scene.save() cannot detect or dispatch any of these extensions and raise an error if you try. FBX support is experimental — FbxImporter has a working tokenizer and parser but no bundled test opens a real .fbx file through it, and FbxExporter.save() and save_to_stream() both raise an error outright, so FBX is import-only at best. COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before ColladaExporter is ever consulted. Always import a format's load/save options class from its own format submodule — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects. Scene.render() and the entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raise an error — this library does not render scenes to images. Texture and TextureBase raise an error on construction, so an image-backed texture cannot be created, but material color and factor properties such as diffuse_color and metallic_factor work independently of texture assignment. Watermark.encode_watermark() and decode_watermark() and every TransformBuilder method raise an error — build node transforms through Transform's own translation, rotation, and scaling properties instead of the fluent TransformBuilder chain. Mesh.do_boolean(), union(), difference(), and intersect() raise an error — Boolean or CSG mesh operations are not implemented, even though BooleanOperator and BooleanOperand exist as configuration holders. NurbsCurve.evaluate() and evaluate_at() and NurbsSurface.to_mesh() raise an error — NURBS curves and surfaces can be configured but not sampled or converted to a Mesh. PointCloud.from_geometry() and from_geometry_with_density() raise an error, and AxisSystem raises an error on every method, including construction.",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R01",
-          "path": "revised_output.units[1].text"
-        }
-      ],
-      "label": "F03",
-      "outcome": "repaired",
-      "re_raised": [
-        "F03",
-        "F09"
-      ],
-      "reason": null,
-      "request_sha256": "47e65f0fe9a187321d5501b5569c8ab34611ef805289b885abb626948e0d6fe7",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "3d992c9874aaf2401f5c2e9d": {
-      "changes": [
-        {
-          "after": "The API Reference section now lists all public classes and modules in alphabetical order with concise descriptions of their purpose and key members.",
-          "before": "The API Reference section replaces the original comprehensive, alphabetically sorted public class index with a high-level, hub-style grouping that omits many public types and loses the detailed class descriptions, reducing utility for developers.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F02",
-      "outcome": "repaired",
-      "re_raised": [
-        "F03",
-        "F04"
-      ],
-      "reason": null,
-      "request_sha256": "6d2f27caefcc9e5fd3f0e8f97f04192952f98f0d3322426f31a2f270852655e8",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "3e13589b302c747588d7605a": {
-      "changes": [],
-      "label": "BC-07",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "45c3bdac56f5d15212e448e8": {
-      "changes": [
-        {
-          "after": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
-          "before": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files on Python 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
-          "fact_ids": [
-            "package:name",
-            "package:version",
-            "package:python_requires",
-            "package:python_versions",
-            "inherited_unit:067.list"
+            "example:002"
           ],
           "id": "R01",
           "path": "revised_output.units[0].text"
-        }
-      ],
-      "label": "F04",
-      "outcome": "repaired",
-      "re_raised": [
-        "F04",
-        "F05"
-      ],
-      "reason": null,
-      "request_sha256": "5a2fa7ae095a544721c30d4fa1db5e4a5bf817cd6e7df8de51fc99f0162e89f0",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "4b098bfd66f542d6ce675dbd": {
-      "changes": [
+        },
         {
-          "after": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12. Run tests with `python -m unittest discover tests/`; there are 33 real test files.",
-          "before": "Build and test Aspose.3D FOSS for Python using the assets in the tests/ directory and the CI workflows in .github/workflows/; the package requires Python >=3.7 and supports versions 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "revised_output.units[0].text"
+          "after": "Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format.",
+          "before": "Build a 3D scene from scratch using primitives, assign materials, and export it to a standard format.",
+          "fact_ids": [
+            "example:004"
+          ],
+          "id": "R02",
+          "path": "revised_output.units[1].text"
         }
       ],
       "label": "F05",
       "outcome": "repaired",
       "re_raised": [
-        "F05",
-        "F04"
+        "F05"
       ],
       "reason": null,
-      "request_sha256": "cbb370a3e3dbc0288eca9e931a86ad476f854dcf06603cf856b10b3ceaffffb3",
-      "section_id": "development_testing",
-      "source": "review",
-      "stage": "S6"
-    },
-    "4fcdc460a72140f028c2ad1f": {
-      "changes": [
-        {
-          "after": "The aspose-3d-foss package exposes 305 public types including aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
-          "before": "The aspose-3d-foss package exposes aspose.threed.Scene as the primary entry point for loading, saving, and manipulating 3D scenes, and aspose.threed.Node as the fundamental building block for constructing scene hierarchies.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "units.0.text"
-        }
-      ],
-      "label": "F04",
-      "outcome": "repaired",
-      "re_raised": [
-        "F04",
-        "F06"
-      ],
-      "reason": null,
-      "request_sha256": "3b4982ffaf942a96282b3e8746673fdb337275cc7f002038616321a6978d26a2",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "53aa2aa8e78e7e70f2d94312": {
-      "changes": [
-        {
-          "after": "11 links in the links array, including 10 documentation links (link_target:022 through link_target:031) plus the enterprise link (link_target:product.enterprise)",
-          "before": "12 links in the links array, including 11 documentation links (link_target:022 through link_target:032) plus the enterprise link (link_target:product.enterprise)",
-          "fact_ids": [
-            "link_target:022",
-            "link_target:023",
-            "link_target:024",
-            "link_target:025",
-            "link_target:026",
-            "link_target:027",
-            "link_target:028",
-            "link_target:029",
-            "link_target:030",
-            "link_target:031",
-            "link_target:product.enterprise"
-          ],
-          "id": "R01",
-          "path": "links"
-        }
-      ],
-      "label": "BC-06",
-      "outcome": "repaired",
-      "reason": null,
-      "request_sha256": "2c400a94743ba8dda48f5508def291f089834266a9833c8378bd2794fa032079",
-      "section_id": null,
-      "source": "validation",
-      "stage": "S5"
-    },
-    "59b6b55ad57422e04bdf76e6": {
-      "changes": [
-        {
-          "after": "",
-          "before": "The API Reference section omits critical public symbols like `PolygonModifier`, `Skeleton`, `Bone`, and `TransformBuilder`, which are listed in the original README and are part of the public surface.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.polygonbuilder",
-            "public_symbol:aspose.threed.animation",
-            "public_symbol:aspose.threed.deformers",
-            "public_symbol:aspose.threed.entities",
-            "public_symbol:aspose.threed.formats",
-            "public_symbol:aspose.threed.profiles",
-            "public_symbol:aspose.threed.render",
-            "public_symbol:aspose.threed.shading",
-            "public_symbol:aspose.threed.utilities"
-          ],
-          "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F08",
-      "outcome": "repaired",
-      "re_raised": [
-        "F02"
-      ],
-      "reason": null,
-      "request_sha256": "d4c44667a41ce93413f25a58831fe8f8c1c4106676d7d5c86b9f54f4103b4a64",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "687c901fe25c2a9ca087492c": {
-      "changes": [
-        {
-          "after": "Build a scene from scratch using a Box entity with a LambertMaterial and export it to glTF format.",
-          "before": "Open an existing OBJ file and inspect its geometry by reading the control_points and polygon_count from each entity.",
-          "fact_ids": [
-            "example:002"
-          ],
-          "id": "R01",
-          "path": "units.0.text"
-        },
-        {
-          "after": "Import an OBJ file and inspect its geometry.",
-          "before": "Build a scene from scratch using a Box entity with a LambertMaterial and export it to glTF format.",
-          "fact_ids": [
-            "example:004"
-          ],
-          "id": "R02",
-          "path": "units.1.text"
-        },
-        {
-          "after": "inherited_unit:027.paragraph,example:002",
-          "before": "inherited_unit:027.paragraph",
-          "fact_ids": [
-            "example:002"
-          ],
-          "id": "R03",
-          "path": "units.0.fact_ids"
-        },
-        {
-          "after": "inherited_unit:029.paragraph,example:004",
-          "before": "inherited_unit:029.paragraph,example:002",
-          "fact_ids": [
-            "example:004"
-          ],
-          "id": "R04",
-          "path": "units.1.fact_ids"
-        }
-      ],
-      "label": "F02",
-      "outcome": "repaired",
-      "re_raised": [
-        "F02"
-      ],
-      "reason": null,
-      "request_sha256": "229513bf07f3d1f39f0aa98d5b81eef77d4ec66377d18df8b0e710f0ba51686c",
+      "request_sha256": "ae601922bc56a98f9d4da4f84fe514ed8f9d9e52fb56dab4027692f335879a55",
       "section_id": "quick_start",
       "source": "review",
       "stage": "S6"
     },
-    "6b3882f14828b4d6208ddb7e": {
+    "3a281b9183d640ea8d817b82": {
       "changes": [
         {
-          "after": "limitation:6",
-          "before": "limitation:6",
+          "after": "Aspose.3D FOSS for Python is a pure-Python, MIT-licensed library for working with 3D documents. It supports reading and writing OBJ, STL, glTF/GLB, COLLADA, and 3MF files through a Scene/Node/Mesh object graph. The library requires no native runtime or external SDK and is compatible with Python versions 3.7 through 3.12.",
+          "before": "Aspose.3D FOSS for Python is a Python library for working with 3D documents, supporting formats such as .obj, .stl, .gltf, .glb, .dae, .3mf, and .fbx. It enables developers to create, read, convert, and save 3D scenes using primitives like Box, Sphere, and Cylinder, and manage geometry through Scene, Node, Entity, and Mesh classes. Users can define materials, control mesh topology, and export scenes to multiple 3D formats using FileFormat and save options. The library is compatible with Python versions 3.7 through 3.12 and requires Python >=3.7.",
           "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R01",
-          "path": "revised_output.units.6.slot"
-        },
-        {
-          "after": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
-          "before": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R02",
-          "path": "revised_output.units.6.text"
-        },
-        {
-          "after": "public_symbol:aspose.threed.render",
-          "before": "",
-          "fact_ids": [
-            "public_symbol:aspose.threed.render"
-          ],
-          "id": "R03",
-          "path": "revised_output.omitted.0.fact_id"
-        },
-        {
-          "after": "The entire aspose.threed.render module raises NotImplementedError and is not usable for rendering scenes to images.",
-          "before": "",
-          "fact_ids": [
-            "public_symbol:aspose.threed.render"
-          ],
-          "id": "R04",
-          "path": "revised_output.omitted.0.reason"
-        }
-      ],
-      "label": "F05",
-      "outcome": "repaired",
-      "re_raised": [
-        "F05"
-      ],
-      "reason": null,
-      "request_sha256": "a5e863aafbdf694b6090cccb4a8c607358e06060794fb6a8d94566ca49ec076c",
-      "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "74a472b3fbbdbca34e3a2853": {
-      "changes": [],
-      "label": "F07",
-      "outcome": "unrepairable",
-      "reason": "section installation is deterministic; its blocks change only when facts change",
-      "request_sha256": null,
-      "section_id": "installation",
-      "source": "review",
-      "stage": null
-    },
-    "82bea0d3e165ccc2147728b3": {
-      "changes": [
-        {
-          "after": "[\"public_symbol:aspose.threed.scene\"]",
-          "before": "[\"public_symbol:aspose.threed.scene\", \"inherited_unit:057.paragraph\"]",
-          "fact_ids": [
-            "public_symbol:aspose.threed.scene"
-          ],
-          "id": "R01",
-          "path": "units.0.fact_ids"
-        },
-        {
-          "after": "[\"public_symbol:aspose.threed.node\"]",
-          "before": "[\"public_symbol:aspose.threed.node\", \"inherited_unit:057.paragraph\"]",
-          "fact_ids": [
-            "public_symbol:aspose.threed.node"
-          ],
-          "id": "R02",
-          "path": "units.1.fact_ids"
-        }
-      ],
-      "label": "F02",
-      "outcome": "repaired",
-      "re_raised": [
-        "F02",
-        "F08"
-      ],
-      "reason": null,
-      "request_sha256": "0083151cbcdd8fda5a9a9f6af92dda40908da6810a95839b9a86b2c03f1ff2a4",
-      "section_id": "api_reference",
-      "source": "review",
-      "stage": "S6"
-    },
-    "8607d4375dbd20e43fbe525f": {
-      "changes": [],
-      "label": "F01",
-      "outcome": "unrepairable",
-      "reason": "section at_a_glance is deterministic; its blocks change only when facts change",
-      "request_sha256": null,
-      "section_id": "at_a_glance",
-      "source": "review",
-      "stage": null
-    },
-    "8bed3bcf2997b515f63a3c55": {
-      "changes": [
-        {
-          "after": "Load multiple 3D formats by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
-          "before": "Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
-          "fact_ids": [
-            "example:002",
-            "example:004",
-            "example:009",
-            "example:012",
-            "public_symbol:aspose.threed.mesh",
-            "public_symbol:aspose.threed.node",
-            "public_symbol:aspose.threed.shading"
+            "license:spdx",
+            "identity:platform"
           ],
           "id": "R01",
           "path": "units[0].text"
@@ -427,131 +47,59 @@
       ],
       "label": "F01",
       "outcome": "repaired",
-      "re_raised": [
-        "F01",
-        "F02"
-      ],
       "reason": null,
-      "request_sha256": "2e0d9d4c578ce1b98866157e3a3a9967e809e87ba4f06b2314cd7c039a512a2f",
-      "section_id": "key_capabilities",
+      "request_sha256": "4a9eb4a725c17c3611cfa003b4201a17207931f1656b294ca04a5f022d71b463",
+      "section_id": "opening",
       "source": "review",
       "stage": "S6"
     },
-    "8ee0e3d248f6d3b7aa59aa2e": {
-      "changes": [],
-      "label": "BC-07",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "90f1b79e6cbed2c2f555d953": {
-      "changes": [],
-      "label": "BC-08",
-      "outcome": "unrepairable",
-      "reason": "the failing detail names no LLM-owned section",
-      "request_sha256": null,
-      "section_id": null,
-      "source": "validation",
-      "stage": null
-    },
-    "9344c15c5338d3c50139d6fb": {
+    "4fcdc460a72140f028c2ad1f": {
       "changes": [
         {
-          "after": "Import OBJ, STL, glTF, COLLADA, and 3MF files with Scene.open() and auto-detection from file extension or explicit FileFormat.",
-          "before": "Create 3D scenes by constructing entities like Box and Sphere, attaching materials such as LambertMaterial or PbrMaterial, and saving them to formats including .gltf and .stl using the aspose.threed.FileFormat API.",
+          "after": "[\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.animationchannel\",\n      \"public_symbol:aspose.threed.animationclip\",\n      \"public_symbol:aspose.threed.animationnode\",\n      \"public_symbol:aspose.threed.keyframesequence\",\n      \"public_symbol:aspose.threed.pose\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.animationchannel\",\n    \"text\": \"AnimationChannel, AnimationClip, AnimationNode, KeyframeSequence, and Pose support animation definition and interpolation, with AnimationChannel exposing member KeyframeSequence for time-based property interpolation, AnimationClip exposing member KeyframeSequence for time-based property interpolation, AnimationNode exposing member Pose for node transformation interpolation, and Pose exposing member BonePose for bone transformation interpolation.\"\n  },\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.entities.polygonmodifier\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.entities.polygonmodifier\",\n    \"text\": \"PolygonModifier provides polygon-level mesh modification capabilities, supporting operations like PolygonModifier.create_polygon and PolygonModifier.to_mesh for direct integration with Mesh entities.\"\n  },\n  {\n    \"fact_ids\": [\n      \"public_symbol:aspose.threed.fileformat\"\n    ],\n    \"section\": \"api_reference\",\n    \"slot\": \"hub:public_symbol:aspose.threed.fileformat\",\n    \"text\": \"FileFormat supports format detection and save options via FileFormat.get_format_by_extension and FileFormat.create_save_options, enabling explicit format specification for scene.save() operations.\"\n  }\n]",
+          "before": "[]",
           "fact_ids": [
-            "example:002",
-            "example:004",
-            "public_symbol:aspose.threed.fileformat",
-            "format:output.gltf",
-            "format:output.stl"
-          ],
-          "id": "R01",
-          "path": "units.0.text"
-        },
-        {
-          "after": "Build custom meshes programmatically by adding control points and polygons via the aspose.threed.Mesh class, then assign them to nodes and export to formats like .stl or 3MF using appropriate save options.",
-          "before": "Build custom meshes programmatically by adding control points and polygons via the aspose.threed.Mesh class, then assign them to nodes and export to formats like .stl or 3MF using appropriate save options.",
-          "fact_ids": [
-            "example:009",
-            "example:012",
-            "public_symbol:aspose.threed.mesh",
-            "format:output.stl"
-          ],
-          "id": "R02",
-          "path": "units.1.text"
-        },
-        {
-          "after": "Construct polygons from control points using the aspose.threed.PolygonBuilder pattern, enabling precise mesh definition for complex shapes before attaching them to scene nodes.",
-          "before": "Construct polygons from control points using the aspose.threed.PolygonBuilder pattern, enabling precise mesh definition for complex shapes before attaching them to scene nodes.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.polygonbuilder"
-          ],
-          "id": "R03",
-          "path": "units.5.text"
-        },
-        {
-          "after": "Define and manipulate animation data using classes like aspose.threed.AnimationClip, aspose.threed.AnimationNode, and aspose.threed.KeyframeSequence to support time-based scene changes.",
-          "before": "Define and manipulate animation data using classes like aspose.threed.AnimationClip, aspose.threed.AnimationNode, and aspose.threed.KeyframeSequence to support time-based scene changes.",
-          "fact_ids": [
+            "public_symbol:aspose.threed.animationchannel",
             "public_symbol:aspose.threed.animationclip",
             "public_symbol:aspose.threed.animationnode",
-            "public_symbol:aspose.threed.keyframesequence"
+            "public_symbol:aspose.threed.keyframesequence",
+            "public_symbol:aspose.threed.pose",
+            "public_symbol:aspose.threed.entities.polygonmodifier",
+            "public_symbol:aspose.threed.fileformat"
           ],
-          "id": "R04",
-          "path": "units.6.text"
-        },
-        {
-          "after": "Inspect scene structure and node relationships using the aspose.threed.Pose class and related APIs to evaluate global transforms and extract spatial information.",
-          "before": "Inspect scene structure and node relationships using the aspose.threed.Pose class and related APIs to evaluate global transforms and extract spatial information.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.pose"
-          ],
-          "id": "R05",
-          "path": "units.7.text"
+          "id": "R01",
+          "path": "revised_output.units"
         }
       ],
-      "label": "F01+F02+F03+F04+F05",
+      "label": "F07",
       "outcome": "repaired",
       "re_raised": [
-        "F01"
+        "F07",
+        "F08"
       ],
       "reason": null,
-      "request_sha256": "feb180a1fbc4518a5fb162ea8b14d2187fea8bdece79b946c7302176aec33442",
-      "section_id": "key_capabilities",
+      "request_sha256": "1e2204f55d2fc3f26619ed889dc8f1fcad9ebd78c6afcf55ae4719af85626be9",
+      "section_id": "api_reference",
       "source": "review",
       "stage": "S6"
     },
-    "adf6e7b3ddec3bd6caa81ad2": {
+    "b7e7250affe855eb5f5b161d": {
       "changes": [
         {
-          "after": "[\"example:004\", \"example:005\", \"example:009\", \"example:012\", \"example:010\"]",
-          "before": "[\"example:004\", \"example:005\", \"example:009\", \"example:012\", \"example:010\"]",
-          "fact_ids": [
-            "example:004",
-            "example:005",
-            "example:009",
-            "example:012",
-            "example:010"
-          ],
-          "id": "R01",
-          "path": "revised_output.units[0].fact_ids"
-        },
-        {
           "after": "[]",
-          "before": "[{\"fact_id\": \"example:001\", \"reason\": \"example:001 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:003\", \"reason\": \"example:003 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:006\", \"reason\": \"example:006 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:007\", \"reason\": \"example:007 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"example:008\", \"reason\": \"example:008 is contradicted and not part of the accepted examples list\"}, {\"fact_id\": \"example:011\", \"reason\": \"example:011 is unresolved and not part of the accepted examples list\"}, {\"fact_id\": \"format:input.dae\", \"reason\": \"format:input.dae is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:input.gltf\", \"reason\": \"format:input.gltf is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:input.obj\", \"reason\": \"format:input.obj is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:output.glb\", \"reason\": \"format:output.glb is unresolved and not referenced in any accepted example\"}, {\"fact_id\": \"format:output.obj\", \"reason\": \"format:output.obj is unresolved and not referenced in any accepted example\"}]",
+          "before": "[]",
           "fact_ids": [],
-          "id": "R02",
-          "path": "revised_output.omitted"
+          "id": "R01",
+          "path": "revised_output.units"
         }
       ],
-      "label": "F03",
+      "label": "F06",
       "outcome": "repaired",
+      "re_raised": [
+        "F06"
+      ],
       "reason": null,
-      "request_sha256": "9ebb5435da1b6ea5559a585dc1849c10aa420cf82d5a8b95cdfb3be1c8e9c381",
+      "request_sha256": "98256bf5adda968b0d8cdf2ca97ff100fb673f5b506aa7984fd348adb563fe6f",
       "section_id": "additional_examples",
       "source": "review",
       "stage": "S6"
@@ -559,131 +107,47 @@
     "be25aac5686a153e071e9173": {
       "changes": [
         {
-          "after": "The entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raises NotImplementedError, so this library does not render scenes to images.",
-          "before": "The entire aspose.threed.render module (Renderer, RenderFactory, Viewport, and related classes) raises NotImplementedError, so this library does not render scenes to images.",
+          "after": "[\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.fbx.fbxexporter\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:7\",\n        \"text\": \"FBX export raises NotImplementedError — the FBX exporter is not implemented.\"\n      },\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.collada.colladaexporter\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:8\",\n        \"text\": \"COLLADA export is unreachable through Scene.save() because the exporter lookup fails before ColladaExporter is ever consulted.\"\n      },\n      {\n        \"fact_ids\": [\n          \"public_symbol:aspose.threed.formats.collada.colladaloadoptions\"\n        ],\n        \"section\": \"scope_limitations\",\n        \"slot\": \"limitation:9\",\n        \"text\": \"COLLADA import options must be imported by their exact file path (e.g., from aspose.threed.formats.collada.colladaloadoptions import ColladaLoadOptions) because they are not exposed at the aspose.threed.formats.collada module level.\"\n      }\n    ]",
+          "before": "[]",
           "fact_ids": [
-            "inherited_unit:067.list"
+            "public_symbol:aspose.threed.formats.fbx.fbxexporter",
+            "public_symbol:aspose.threed.formats.collada.colladaexporter",
+            "public_symbol:aspose.threed.formats.collada.colladaloadoptions"
           ],
           "id": "R01",
           "path": "revised_output.units"
-        },
-        {
-          "after": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
-          "before": "NURBS curves and surfaces can be configured but not sampled or converted to a Mesh because NurbsCurve.evaluate()/evaluate_at() and NurbsSurface.to_mesh() raise NotImplementedError.",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R02",
-          "path": "revised_output.units"
-        },
-        {
-          "after": "Watermark.encode_watermark() and Watermark.decode_watermark() raise NotImplementedError.",
-          "before": "",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R03",
-          "path": "revised_output.units"
-        },
-        {
-          "after": "TransformBuilder methods raise NotImplementedError.",
-          "before": "",
-          "fact_ids": [
-            "inherited_unit:067.list"
-          ],
-          "id": "R04",
-          "path": "revised_output.units"
         }
       ],
-      "label": "F05",
+      "label": "F08",
       "outcome": "repaired",
       "re_raised": [
-        "F05",
-        "F07"
+        "F09"
       ],
       "reason": null,
-      "request_sha256": "3f464a04394513c295cb98c26f76db2dbe4a8897b0ba20b56004cf532e0fe514",
+      "request_sha256": "a3eda8f467f40946484e1d247f854904f92bba2141469aebb262736a92dcca06",
       "section_id": "scope_limitations",
-      "source": "review",
-      "stage": "S6"
-    },
-    "bf780ac61b4beed879c23655": {
-      "changes": [
-        {
-          "after": "Read and write multiple 3D formats including .gltf and .stl using the FileFormat class and its format-specific save options.",
-          "before": "Read and write multiple 3D formats including .gltf and .stl using the FileFormat class and its format-specific save options.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.fileformat",
-            "format:output.gltf",
-            "format:output.stl",
-            "example:002",
-            "example:004",
-            "example:009",
-            "example:012"
-          ],
-          "id": "R01",
-          "path": "revised_output.units[1].text"
-        }
-      ],
-      "label": "F02",
-      "outcome": "repaired",
-      "re_raised": [
-        "F02"
-      ],
-      "reason": null,
-      "request_sha256": "aad831f177a9380ba3b3f15492bdb4842e589ae63ab510adf85c2b38bc709dd2",
-      "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"
     },
     "c49ba36e79ff9b3ffea3decd": {
       "changes": [
         {
-          "after": "Install the package in editable mode and run the test suite using the unittest module against the tests directory. The suite covers 34 test files under tests/. Releases run through the publish workflow.",
-          "before": "Install the package in editable mode and run the test suite using the unittest module against the tests directory.",
+          "after": "The test suite covers 33 test files under tests/ and exercises OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior.",
+          "before": "Install the package in editable mode and run the test suite using the repository's own test infrastructure.",
           "fact_ids": [
-            "inherited_unit:074.paragraph",
-            "inherited_unit:075.paragraph"
+            "build_test_asset:tests"
           ],
           "id": "R01",
           "path": "revised_output.units[0].text"
-        },
-        {
-          "after": "inherited_unit:070.paragraph\ninherited_unit:071.code_block\ninherited_unit:074.paragraph\ninherited_unit:075.paragraph",
-          "before": "inherited_unit:070.paragraph\ninherited_unit:071.code_block",
-          "fact_ids": [
-            "inherited_unit:074.paragraph",
-            "inherited_unit:075.paragraph"
-          ],
-          "id": "R02",
-          "path": "revised_output.units[0].fact_ids"
-        },
-        {
-          "after": "build_test_asset:ci",
-          "before": "link_target:034",
-          "fact_ids": [
-            "build_test_asset:ci"
-          ],
-          "id": "R03",
-          "path": "revised_output.omitted[16].fact_id"
-        },
-        {
-          "after": "build_test_asset:ci",
-          "before": "link_target:035",
-          "fact_ids": [
-            "build_test_asset:ci"
-          ],
-          "id": "R04",
-          "path": "revised_output.omitted[17].fact_id"
         }
       ],
-      "label": "F08",
+      "label": "F09",
       "outcome": "repaired",
       "re_raised": [
-        "F08"
+        "F10"
       ],
       "reason": null,
-      "request_sha256": "01c2e70f682a241474218d4aad3e79881d1a202bb7e8ea24949dd73f5347a067",
+      "request_sha256": "9b6681f6a5f785941ababcd2dc4045c81aceebd3aea0ee9b51dc3c100929d43d",
       "section_id": "development_testing",
       "source": "review",
       "stage": "S6"
@@ -691,117 +155,24 @@
     "d22a20507671115cc5556a53": {
       "changes": [
         {
-          "after": "public_symbol:aspose.threed.mesh, public_symbol:aspose.threed.node, public_symbol:aspose.threed.shading, example:002, example:004",
-          "before": "public_symbol:aspose.threed.mesh, public_symbol:aspose.threed.node, public_symbol:aspose.threed.shading, public_symbol:aspose.threed.entities, example:002, example:004",
-          "fact_ids": [
-            "public_symbol:aspose.threed.mesh",
-            "public_symbol:aspose.threed.node",
-            "public_symbol:aspose.threed.shading",
-            "example:002",
-            "example:004"
-          ],
+          "after": "format:output.3mf",
+          "before": "format:output.3mf",
+          "fact_ids": [],
           "id": "R01",
-          "path": "units.0.fact_ids"
+          "path": "units.1.fact_ids"
+        },
+        {
+          "after": "public_symbol:aspose.threed.shading",
+          "before": "public_symbol:aspose.threed.shading",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "units.4.fact_ids"
         }
       ],
       "label": "F02",
       "outcome": "repaired",
-      "re_raised": [
-        "F02",
-        "F03"
-      ],
       "reason": null,
-      "request_sha256": "b36cb535ab094b0de5d6634c14999514451400bdc7104191d8400db06a8ac44e",
-      "section_id": "key_capabilities",
-      "source": "review",
-      "stage": "S6"
-    },
-    "dcc16484d42adc112252f13b": {
-      "changes": [
-        {
-          "after": "The Additional Examples section omits several verified examples from the original README, including OBJ import, COLLADA import, scene graph traversal, and STL export via StringIO, which are critical for completeness.",
-          "before": "The Additional Examples section omits several verified examples from the original README, including OBJ import, COLLADA import, scene graph traversal, and STL export via StringIO, which are critical for completeness.",
-          "fact_ids": [],
-          "id": "R01",
-          "path": "revised_output.units"
-        }
-      ],
-      "label": "F03",
-      "outcome": "repaired",
-      "re_raised": [
-        "F03"
-      ],
-      "reason": null,
-      "request_sha256": "f561594d080ddbdb73c4d02e18b98fcabac79ac7aec9784fa89fce27d7832fdd",
-      "section_id": "additional_examples",
-      "source": "review",
-      "stage": "S6"
-    },
-    "e09a51db6287a22699970e93": {
-      "changes": [
-        {
-          "after": "Load multiple 3D formats by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
-          "before": "Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.",
-          "fact_ids": [
-            "example:002",
-            "example:004",
-            "example:009",
-            "example:012",
-            "public_symbol:aspose.threed.mesh",
-            "public_symbol:aspose.threed.node",
-            "public_symbol:aspose.threed.shading"
-          ],
-          "id": "R01",
-          "path": "units.0.text"
-        }
-      ],
-      "label": "F01",
-      "outcome": "repaired",
-      "reason": null,
-      "request_sha256": "c81b117b4506acb16926f82d68e70e771bfdcc8ea058a8a7b6f31c6ba4ac4117",
-      "section_id": "key_capabilities",
-      "source": "review",
-      "stage": "S6"
-    },
-    "e5ddc1e1acc1e2687bad2412": {
-      "changes": [
-        {
-          "after": "Read and write scenes to formats including .gltf and .stl using Scene.open and Scene.save, where Scene.open auto-detects the format from the file extension or an explicit FileFormat argument.",
-          "before": "Read and write scenes to formats including .gltf and .stl using Scene.open and Scene.save, where Scene.from_file and Scene.open auto-detect the format from the file extension or an explicit FileFormat argument.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.scene",
-            "format:output.gltf",
-            "format:output.stl",
-            "example:002",
-            "example:004",
-            "example:005",
-            "example:009"
-          ],
-          "id": "R01",
-          "path": "units.3.text"
-        },
-        {
-          "after": "Triangulate arbitrary polygon meshes using PolygonBuilder, a real ear-clipping triangulation implementation rather than a naive fan split, ensuring valid geometry for downstream workflows.",
-          "before": "Triangulate arbitrary polygon meshes into triangle fans using PolygonBuilder, a real ear-clipping triangulation implementation rather than a naive fan split, ensuring valid geometry for downstream workflows.",
-          "fact_ids": [
-            "public_symbol:aspose.threed.polygonbuilder"
-          ],
-          "id": "R02",
-          "path": "units.5.text"
-        }
-      ],
-      "label": "F01",
-      "outcome": "repaired",
-      "re_raised": [
-        "F01",
-        "F02",
-        "F03",
-        "F04",
-        "F05",
-        "F06"
-      ],
-      "reason": null,
-      "request_sha256": "8c46f14a10eb1d6470a99dabaa27e6ad9f2dd7384bbfd2a9ef7ebfae052dcb7b",
+      "request_sha256": "17d848cf6f651d143c7fe12b85bf19c3258fcc2ecd2566eedf5796574c828f5f",
       "section_id": "key_capabilities",
       "source": "review",
       "stage": "S6"

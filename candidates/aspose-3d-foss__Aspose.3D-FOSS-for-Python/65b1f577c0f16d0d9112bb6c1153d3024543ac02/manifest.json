@@ -1,86 +1,88 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-04T05:31:53Z",
+    "adopted_at": "2026-09-04T09:14:56Z",
     "changed": [
       "README.md",
       "README.patch",
       "content_units.json",
       "dependencies.json",
       "dispositions.json",
+      "investigation.json",
       "plan.json",
+      "repairs.json",
       "review.json",
       "validation.json"
     ],
     "classification": "factual",
-    "earliest_affected_stage": "NONE",
+    "earliest_affected_stage": "PLANNING",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-04T05:23:35Z",
+      "proven_at": "2026-09-04T05:31:53Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-04T05:31:12Z"
+    "recorded_at": "2026-09-04T09:13:53Z"
   },
   "files": {
     "README.md": {
-      "bytes": 51204,
-      "sha256": "e90e0e031b080792bdc0e5c0f1d59a90a5d11015c169711e6e9129b5509b7f18"
+      "bytes": 49680,
+      "sha256": "32d2ef36f3ec2dbd5783f95a0692eb1be0e1afc6022acb9445f4feda99fbc7d3"
     },
     "README.patch": {
-      "bytes": 87006,
-      "sha256": "6dd22da18baa414b932a5ebc84fd18d3d09ea3803824b7928d13e2212d1c1c3f"
+      "bytes": 84761,
+      "sha256": "47fe48346940ff2f744e6ab2a7e17166c7f1bfdb9eaae0d1975cc96b16843008"
     },
     "calls.jsonl": {
-      "bytes": 1787870,
-      "sha256": "3722e78572343a4424cfd7a5b7811ab3da34d192c742390f538d02a7aa7c2333"
+      "bytes": 76166,
+      "sha256": "f1c27c150bdc75207ab8a6aad1caa9cf2b66d3edd38f8f5f6f961e671ebacacd"
     },
     "content_units.json": {
-      "bytes": 74200,
-      "sha256": "619f3bd74579b797fa8d90e5da73caeceddf81df86841027ecd50eb97f286aa4"
+      "bytes": 70279,
+      "sha256": "b2e1b70ba8877fc9af7aa5592fe0fde4c62b54a276d6deadc74404e6db3eb337"
     },
     "dependencies.json": {
       "bytes": 223259,
-      "sha256": "930cca67b7bd7616f9a451d63c872c4a1bf4cdf29a004b89e635e2b8a807cb82"
+      "sha256": "98ae5b6e99c4fa5a9329029b622e0e5717df748b01ee76d4d046176f39a9ea57"
     },
     "dispositions.json": {
-      "bytes": 30946,
-      "sha256": "0a26ac5a907720dbc7dbc391ead1a352fbad2394ff45f782dc5e5aa2f8ae581a"
+      "bytes": 32012,
+      "sha256": "ba9bdff4b0fc45570954df386da5c395b7bfd502d2cd0133b7e686c54044dd17"
     },
     "facts.json": {
       "bytes": 1136750,
       "sha256": "692a2dbb8f5c482147787419bb22e79299a59c961e412d827e42109a8c7e28ec"
     },
     "investigation.json": {
-      "bytes": 8064,
-      "sha256": "ceddf0649d4b354f885ac29da4b0721ca0511541e667df51e4a3d375d622fd3e"
+      "bytes": 8330,
+      "sha256": "ab56f8099a527a7c5ec17b2a7e5b5ae2af797cb7abed456899bc813bd9632b70"
     },
     "plan.json": {
-      "bytes": 9822,
-      "sha256": "124e7d5b6d2e42c7424021fdf30f7b7d21cc6ee785ba4e7027536e64114ba076"
+      "bytes": 7068,
+      "sha256": "24b8b4ff8e6a3c805690d56c8c882f8f100157010ae6fe8a011d7d23ba3f8225"
     },
     "repairs.json": {
-      "bytes": 38404,
-      "sha256": "1b6f71c3646db725bc253e6dde03dc8415b567d6932c3c74fcb7825933081507"
+      "bytes": 9302,
+      "sha256": "ab59e820ba76e894d83dacad0300a3fc5d50b2bddbbda734b5afa51297d6c00b"
     },
     "review.json": {
-      "bytes": 4394,
-      "sha256": "fc6214c5b5f916cb8feacb028fd57676363b48844c3db5dada47e6867e1cb9cd"
+      "bytes": 9947,
+      "sha256": "bfd3812bbc8ef3a60c4fead7bb70205e7755ba6b5c7ab024b654b573e5f99bef"
     },
     "validation.json": {
-      "bytes": 4395,
-      "sha256": "71f8e0925ff0ab0cbb524736a1efc75d49536087d0c1ca1365e455d03ea95bd8"
+      "bytes": 4896,
+      "sha256": "5bd0da4af644ec19603f93cda11835d9bc7f76d110c1c3eb5bad0bf62c907dd5"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-04T05:31:53Z",
+    "proven_at": "2026-09-04T09:14:56Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
-  "sealed_at": "2026-09-04T05:31:53Z",
+  "sealed_at": "2026-09-04T09:14:56Z",
   "state": "READY_FOR_PROPOSAL"
 }

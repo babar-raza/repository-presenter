@@ -150,3 +150,42 @@ def test_a_repair_binds_its_own_changes_and_leaves_the_revised_output_to_its_sta
         "fact example:002 is CONTRADICTED, not SUPPORTED",
         "unknown fact ID nope:1",
     ]
+
+
+def test_a_symbol_named_as_the_source_spells_it_binds_to_its_lowercased_fact() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.2 RC1, measured in 27.1 as "investigation: unknown
+    # fact ID 9": a job names the class as the source writes it while the fact ID is lowercased,
+    # and the job was rejected for a spelling the code can resolve. A cold canary composition
+    # failed exactly this way on public_symbol:aspose.threed.Scene.
+    facts = FactsDocument(
+        "org/repo",
+        "a" * 40,
+        (
+            _fact("public_symbol:aspose.threed.scene", "public_symbol"),
+            _fact("public_symbol:aspose.threed.shading.lambertmaterial", "public_symbol"),
+        ),
+    )
+    payload = {
+        "capabilities": [
+            {
+                "fact_ids": [
+                    "public_symbol:aspose.threed.Scene",
+                    "public_symbol:aspose.threed.shading.LambertMaterial",
+                    "public_symbol:aspose.threed.Missing",
+                ]
+            }
+        ]
+    }
+    rewrites = resolve_symbol_ids(payload, facts)
+    assert rewrites == [
+        ("public_symbol:aspose.threed.Scene", "public_symbol:aspose.threed.scene"),
+        (
+            "public_symbol:aspose.threed.shading.LambertMaterial",
+            "public_symbol:aspose.threed.shading.lambertmaterial",
+        ),
+    ]
+    assert payload["capabilities"][0]["fact_ids"] == [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.shading.lambertmaterial",
+        "public_symbol:aspose.threed.Missing",  # no fact carries it: still rejected
+    ]

@@ -133,7 +133,24 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     ids = {record["id"] for record in packet["facts"]}
     assert "format:input.obj" not in ids and "example:003" not in ids
     assert {"inherited_unit:001.paragraph", "link_target:002", "example:002"} <= ids
-    assert (packet["investigation"], packet["dispositions"]) == ({"i": 1}, {"d": 2})
+    assert packet["investigation"] == {"i": 1}
+    # A disposition may cite a fact the plan's own binding forbids - that is why it omits or
+    # defers its unit - so the planner is shown only the citations a valid plan may carry
+    # (RESEARCH_AND_GUIDELINES.md section 27.2 RC1); destinations and unit IDs are untouched.
+    omission = {
+        "unit_id": "inherited_unit:001.paragraph",
+        "disposition": "OMIT_UNSUPPORTED",
+        "destination_section": None,
+        "fact_ids": ["example:003", "example:002"],
+        "rationale": "the example failed",
+    }
+    filtered = planning_packet(
+        ENTRY, FACTS, {"i": 1}, {"d": 2, "dispositions": [omission]}, MANIFEST
+    )
+    assert filtered["dispositions"] == {
+        "d": 2,
+        "dispositions": [{**omission, "fact_ids": ["example:002"]}],
+    }
 
 
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
