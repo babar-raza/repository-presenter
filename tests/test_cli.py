@@ -1744,3 +1744,81 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
     assert names.count("targeted_repair") == 1
     assert names.count("presentation_planning") == 2
     assert json.loads((transaction / "review.json").read_text("utf-8"))["verdict"] == "ACCEPT"
+
+
+def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_candidate_intact(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.repair import rounds
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    validator_version = json.loads((bundle / "validation.json").read_text("utf-8"))[
+        "validator_version"
+    ]
+    genuine = rounds.validate_candidate
+    detail = "key_capabilities: a capability sentence restates the opening"
+
+    def failing(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        document = genuine(*args, **kwargs)
+        for check in document["checks"]:
+            if check["id"] == "BC-07":
+                check["verdict"] = "FAIL"
+                check["causal_stage"] = "COMPOSING"
+                check["details"] = [detail]
+        document["summary"] = {"pass": 9, "fail": 1, "pending": 1}
+        return document
+
+    monkeypatch.setattr(rounds, "validate_candidate", failing)
+    fingerprint = defect_fingerprint(
+        "validation",
+        "key_capabilities",
+        "S6",
+        "BC-07",
+        f"{validator_version}|{_PROMPTS['targeted_repair'].sha256}",
+    )
+    revised = copy.deepcopy(LOCAL_UNITS["key_capabilities"])
+    revised["units"][0]["text"] = "Scene objects are built in memory before saving."
+    gateway_ready.queues = {
+        "targeted_repair": [
+            {
+                "fingerprint": fingerprint,
+                "causal_stage": "S6",
+                "revised_output": revised,
+                "changes": [
+                    {
+                        "id": "R01",
+                        "path": "$.units[0].text",
+                        "before": "Scene objects are created in memory.",
+                        "after": "Scene objects are built in memory before saving.",
+                        "fact_ids": ["public_symbol:aspose.threed.scene"],
+                    }
+                ],
+            }
+        ]
+    }
+    requests_before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    # The check fails, its one repair runs, the check fails again with the same fingerprint:
+    # reported, never attempted a third time (docs/STATE_MACHINE.md section 8).
+    assert code == EXIT_INCONSISTENT
+    assert (
+        f"BC-07 failed at COMPOSING: {detail}; "
+        "after one repair attempt the equivalent failure stands"
+    ) in captured.err
+    names = [
+        r["response_format"]["json_schema"]["name"]
+        for r in gateway_ready.requests[requests_before:]
+    ]
+    assert names.count("targeted_repair") == 1
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    assert repairs["attempts"][fingerprint]["outcome"] == "repaired"
+    assert "state INVALIDATED" not in captured.out
+    # A presentation failure never invalidates: the proven candidate stands as sealed.
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and "invalidated" not in manifest
