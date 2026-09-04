@@ -8,7 +8,7 @@ authority:
   governance: AGENTS.md
   reuse_model: INCREMENTAL_PULL
   first_pull_gate: G1_FIRST_VALID_CANDIDATE
-  census_gate: G3_SEVEN_ECOSYSTEM_REPRESENTATIVES
+  census_gate: G4_MULTI_LANGUAGE_COHORTS
   note: >
     This manifest is a ledger, not a census. A legacy file or asset enters the new repository only when a
     gate's work pulls it, and it enters with one file record, its ported tests, and a cut import closure.
@@ -192,7 +192,7 @@ audit:
   auditor: null
   inventory_path: migration/legacy-source-inventory.json
   dependency_report_path: migration/legacy-dependency-closure.json
-  census_evidence: evidence/build/G3_SEVEN_ECOSYSTEM_REPRESENTATIVES/reuse-census.json
+  census_evidence: evidence/build/G4_MULTI_LANGUAGE_COHORTS/reuse-census.json
   per_pull_checks:
     - Compute the import closure of the source file before pulling; the pull fails if it drags a RETIRE module or any supervisor, capabilities, or specialists module.
     - Record the exact SHA-256 of the file at the frozen revision, taken from a git archive extracted to a short path.
@@ -1372,7 +1372,7 @@ file_records:
 
 acceptance:
   per_pull_gate: every gate from G1_FIRST_VALID_CANDIDATE onward
-  census_gate: G3_SEVEN_ECOSYSTEM_REPRESENTATIVES
+  census_gate: G4_MULTI_LANGUAGE_COHORTS
   status: NOT_READY
   per_pull_predicates:
     - Every pulled file or asset has one exact file record whose hash matches the frozen revision.
