@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T12:11:47+05:00"
+updated_at: "2026-09-04T12:29:21+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W11
-  status: READY
+  status: IN_PROGRESS
   purpose: "Cut the local verification cost that dominates every iteration without changing what is verified (RESEARCH_AND_GUIDELINES.md section 27.5 D7). The twelve invalidation-matrix tests in tests/test_cli.py each seal the canary from scratch, about 30 s each and about 7 minutes per pytest pass: seal once in a session-scoped fixture and have each test copy that sealed state before applying its perturbation. The local CI-equivalent runs on one interpreter with the hosted three-version matrix authoritative (loop-prompt.md section 3). Acceptance: every existing test still asserts what it asserted; a full local pytest pass on one interpreter takes under three minutes on this machine, the measurement recorded in the commit; hosted CI green on the pushed commit."
   prerequisites:
     - G2-W08 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.

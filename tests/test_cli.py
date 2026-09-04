@@ -158,10 +158,15 @@ def fake_clone(monkeypatch: pytest.MonkeyPatch) -> list[dict[str, Any]]:
     return calls
 
 
-@pytest.fixture
-def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
-    """Serve the canary's clone URL from a local repository through the real clone contract."""
-    source = init_git_repository(tmp_path / "upstream", with_commit=False)
+@pytest.fixture(scope="session")
+def canary_source(tmp_path_factory: pytest.TempPathFactory) -> dict[str, Any]:
+    """The canary's upstream repository, built once for the session.
+
+    Every test copies it rather than rebuilding it, so the revision is identical across tests -
+    which is what lets one sealed call store serve all of them - and a test that commits to its
+    own copy cannot disturb another (RESEARCH_AND_GUIDELINES.md section 27.5 D7).
+    """
+    source = init_git_repository(tmp_path_factory.mktemp("canary") / "upstream", with_commit=False)
     (source / "README.md").write_bytes(
         b"# Aspose.3D for Python\n\nOriginal bytes. See [LICENSE](LICENSE) and "
         b"[docs](https://docs.example.com/3d).\n\n```python\n"
@@ -182,11 +187,18 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
         "    def save(self, path):\n        open(path, 'wb').close()\n",
         encoding="utf-8",
     )
-    revision = commit_all(source, "seed")
-    calls: list[dict[str, Any]] = []
+    return {"source": source, "revision": commit_all(source, "seed")}
+
+
+def _serve_canary(
+    monkeypatch: pytest.MonkeyPatch, source: Path, calls: list[dict[str, Any]] | None = None
+) -> None:
+    """Serve the canary's clone URL from ``source`` through the real clone contract, and answer
+    the package registry and every link check locally."""
 
     def serve_locally(clone_url: str, destination: Path, **kwargs: Any) -> ReadOnlyClone:
-        calls.append({"clone_url": clone_url, "destination": destination, **kwargs})
+        if calls is not None:
+            calls.append({"clone_url": clone_url, "destination": destination, **kwargs})
         return pinned_read_only_clone(str(source), destination)
 
     monkeypatch.setattr(cli, "pinned_read_only_clone", serve_locally)
@@ -198,7 +210,18 @@ def local_canary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, A
         ),
     )
     monkeypatch.setattr(links, "fetch_status", lambda url: (200, url))
-    return {"source": source, "revision": revision, "calls": calls}
+
+
+@pytest.fixture
+def local_canary(
+    canary_source: dict[str, Any], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> dict[str, Any]:
+    """This test's own copy of the canary upstream, at the session's revision."""
+    source = tmp_path / "upstream"
+    shutil.copytree(canary_source["source"], source)
+    calls: list[dict[str, Any]] = []
+    _serve_canary(monkeypatch, source, calls)
+    return {"source": source, "revision": canary_source["revision"], "calls": calls}
 
 
 LOCAL_INVESTIGATION: dict[str, Any] = {
@@ -1067,9 +1090,41 @@ def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
     assert attempt["outcome"] == "unrepairable" and attempt["reason"].startswith("evidence defect")
 
 
-def _seal_and_prove(project: Path, capsys: pytest.CaptureFixture[str]) -> Path:
-    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
-    assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+@pytest.fixture(scope="session")
+def sealed_canary(canary_source: dict[str, Any], tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A project with the canary already sealed and proven, built once for the session.
+
+    Sealing costs a clone, a virtual environment, and an install - about twenty seconds - and the
+    invalidation matrix needs the same starting state twelve times. It is paid once here and each
+    test restores it into its own project; the perturbation a test then applies is its own
+    (RESEARCH_AND_GUIDELINES.md section 27.5 D7).
+    """
+    project = tmp_path_factory.mktemp("sealed") / "project"
+    project.mkdir()
+    write_cursor(project)
+    (project / "data").mkdir()
+    shutil.copy(REPO_ROOT / "data" / "registry.json", project / "data" / "registry.json")
+    shutil.copytree(REPO_ROOT / "prompts", project / "prompts")
+    catalog = project / "runs" / "preflight" / "catalog.json"
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text(
+        json.dumps({"schema_version": 1, "models": [{"id": "qwen3-next", "owned_by": "org"}]}),
+        encoding="utf-8",
+    )
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("GPT_OSS_ENDPOINT", "https://gw.example/v1")
+        patch.setenv("GPT_OSS_API_KEY", LIVE_KEY)
+        _serve_canary(patch, canary_source["source"])
+        mock_gateway(patch, _ChatGateway())
+        assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+        assert main(["present", "--repo", CANARY, "--root", str(project)]) == EXIT_OK
+    return project
+
+
+def _seal_and_prove(sealed: Path, project: Path, capsys: pytest.CaptureFixture[str]) -> Path:
+    """Restore the session's sealed canary into ``project`` and return its proven bundle."""
+    for directory in ("runs", "candidates"):
+        shutil.copytree(sealed / directory, project / directory, dirs_exist_ok=True)
     capsys.readouterr()
     bundle = next((project / "candidates").glob("*/*/manifest.json")).parent
     assert json.loads((bundle / "manifest.json").read_text("utf-8"))["state"] == (
@@ -1080,11 +1135,12 @@ def _seal_and_prove(project: Path, capsys: pytest.CaptureFixture[str]) -> Path:
 
 def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     before = {name: (bundle / name).read_bytes() for name in ("README.md", "plan.json")}
     manifest_path = project_with_registry / "prompts" / "section_authoring.yaml"
     manifest_path.write_text(
@@ -1127,6 +1183,7 @@ def test_a_changed_prompt_reopens_only_its_stage_and_records_an_update(
 
 def test_a_factual_failure_invalidates_the_proven_candidate(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1134,7 +1191,7 @@ def test_a_factual_failure_invalidates_the_proven_candidate(
 ) -> None:
     from repository_presenter.components.readme.repair import rounds
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     genuine = rounds.validate_candidate
 
     def contradicted(*args: Any, **kwargs: Any) -> dict[str, Any]:
@@ -1161,11 +1218,12 @@ def test_a_factual_failure_invalidates_the_proven_candidate(
 
 def test_a_corrupt_bundle_artifact_fails_closed_before_any_call(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     (bundle / "README.md").unlink()
     requests_before = len(gateway_ready.requests)
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -1360,6 +1418,7 @@ def _assert_presentation_update(
 
 def test_a_template_component_change_reopens_composing_and_reuses_every_call(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1367,7 +1426,7 @@ def test_a_template_component_change_reopens_composing_and_reuses_every_call(
 ) -> None:
     from repository_presenter.components.readme.bundle import seal
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     readme_before = (bundle / "README.md").read_bytes()
     monkeypatch.setattr(seal, "RENDERER_VERSION", "999")
     before = len(gateway_ready.requests)
@@ -1385,6 +1444,7 @@ def test_a_template_component_change_reopens_composing_and_reuses_every_call(
 
 def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1392,7 +1452,7 @@ def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
 ) -> None:
     from repository_presenter.components.readme.bundle import seal
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     monkeypatch.setattr(seal, "VALIDATOR_VERSION", "999")
     before = len(gateway_ready.requests)
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -1408,11 +1468,12 @@ def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(
 
 def test_a_reviewer_rubric_change_reopens_reviewing_only(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     manifest_path = project_with_registry / "prompts" / "independent_review.yaml"
     manifest_path.write_text(
         manifest_path.read_text("utf-8") + "\n# revised rubric\n", encoding="utf-8", newline="\n"
@@ -1436,11 +1497,12 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
 
 def test_a_model_route_change_reopens_the_stage_that_used_it(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     catalog = project_with_registry / "runs" / "preflight" / "catalog.json"
     catalog.write_text(
         json.dumps(
@@ -1485,6 +1547,7 @@ def test_a_model_route_change_reopens_the_stage_that_used_it(
 
 def test_a_planning_policy_change_reopens_planning(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1492,7 +1555,7 @@ def test_a_planning_policy_change_reopens_planning(
 ) -> None:
     from repository_presenter.components.readme.bundle import seal
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     monkeypatch.setattr(seal, "POLICY_VERSION", "999")
     before = len(gateway_ready.requests)
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
@@ -1508,11 +1571,12 @@ def test_a_planning_policy_change_reopens_planning(
 
 def test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    older = _seal_and_prove(project_with_registry, capsys)
+    older = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     source: Path = local_canary["source"]
     (source / "CHANGELOG.md").write_text("# Changelog\n\n- 26.1.0: first release.\n", "utf-8")
     newer_revision = commit_all(source, "add a changelog")
@@ -1552,12 +1616,13 @@ def test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bund
 
 def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     readme_before = (bundle / "README.md").read_bytes()
     assert b"banner-readme.png" in readme_before
     banner = "https://products.aspose.org/media/3d/python/banner-readme.png"
@@ -1589,6 +1654,7 @@ def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
 
 def test_a_protected_content_failure_invalidates_the_proven_candidate(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1596,7 +1662,7 @@ def test_a_protected_content_failure_invalidates_the_proven_candidate(
 ) -> None:
     from repository_presenter.components.readme.repair import rounds
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     genuine = rounds.validate_candidate
 
     def dropped(*args: Any, **kwargs: Any) -> dict[str, Any]:
@@ -1752,6 +1818,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
 
 def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_candidate_intact(
     project_with_registry: Path,
+    sealed_canary: Path,
     local_canary: dict[str, Any],
     gateway_ready: _ChatGateway,
     monkeypatch: pytest.MonkeyPatch,
@@ -1759,7 +1826,7 @@ def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_cand
 ) -> None:
     from repository_presenter.components.readme.repair import rounds
 
-    bundle = _seal_and_prove(project_with_registry, capsys)
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
     validator_version = json.loads((bundle / "validation.json").read_text("utf-8"))[
         "validator_version"
     ]
