@@ -58,7 +58,11 @@ files, never from memory of a previous iteration.
    update its `status` and `last_checked_at` if it changed.
 5. Environment: repo-local `.venv` from `C:\Python313\python.exe` with `pip install -e .[dev]`;
    Python 3.11 and 3.12 interpreters were provisioned with `uv` under `runs/verify/` in a previous
-   iteration and may be reused or recreated. `GH_TOKEN`, `GPT_OSS_ENDPOINT`, and `GPT_OSS_API_KEY`
+   iteration and may be reused or recreated. Any other toolchain a work item needs and this machine
+   lacks (rustup, or a later ecosystem's) is provisioned the same way: workspace-local under
+   `runs/toolchains/`, a pinned version, called by absolute path, recorded in the receipt — never a
+   system-wide install, never a PATH or profile edit (`RESEARCH_AND_GUIDELINES.md` §29.6 E5). An
+   owner item is raised only when provisioning itself is impossible. `GH_TOKEN`, `GPT_OSS_ENDPOINT`, and `GPT_OSS_API_KEY`
    are present in the process environment (OWNER-02 is `OVERRIDDEN`; no `.env` file is read or
    required). Read all three only through the configured loader, never print them.
 

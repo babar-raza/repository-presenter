@@ -1792,7 +1792,7 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   purpose: "Go spec and cohort: manifest reader pulled from the legacy ecosystems/go.py (go.mod), exported surface through the shared extractor with interface and struct-embedding handling, a fresh verifier (go build and go vet with a disposable GOPATH and module cache), Go proxy probe with the module-path escaping from registry_request.py, a negative control; then the two Go repositories as a cohort. Parity per repository; go doc -all corroboration (E6) only if parity fails. Acceptance: cohort report; zero-call proofs; hosted CI green."
 - id: G4-W16
   status: PENDING
-  purpose: "Rust spec and cohort: manifest reader pulled from the legacy ecosystems/rust.py (Cargo.toml edition and MSRV), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), crates.io probe with the mandatory named User-Agent, a negative control; then the one Rust repository. rustup must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
+  purpose: "Rust spec and cohort: manifest reader pulled from the legacy ecosystems/rust.py (Cargo.toml edition and MSRV), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), crates.io probe with the mandatory named User-Agent, a negative control; then the one Rust repository. If rustup is absent the verifier base provisions it workspace-locally with a pinned toolchain (rustup-init -y --profile minimal --no-modify-path, RUSTUP_HOME and CARGO_HOME under runs/toolchains/, cargo called by absolute path, the version recorded in the receipt), never system-wide; BLOCKED_EXTERNAL only if provisioning itself fails. Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
 - id: G5-W01
   status: PENDING
   purpose: "Stop the plan being redrawn from scratch (27.2 RC3: 34 plans for one revision; the two transactions chose different capability sets). Planning receives the CURRENT bundle's accepted plan as anchor with the fact delta since; every deviation from the anchor cites a changed or new fact ID and plan_check rejects unexplained ones; layout arrays (capabilities, hubs, examples, links, at-a-glance titles) are canonically ordered, anchor order first then a stable key, before prompt serialisation and before rendering. Acceptance: with the fake gateway, shuffled planner arrays render an identical README; identical facts plus anchor yield an identical plan; one added capability fact changes exactly one bullet and no other line (golden-delta test); every current candidate re-seals byte-identically or records its delta and cause."
@@ -2080,8 +2080,11 @@ sibling trees; negative controls per verifier; the execution boundary; the extra
   disposable profile environment (the legacy `common.py` idea — HOME, APPDATA, CARGO_HOME, NuGet
   config redirected to the workspace), per-ecosystem timeouts up to the ceiling, `--locked`/
   `--no-restore`/lockfiles where the repository provides them, resolved dependency versions captured
-  into the receipt (the environment class of §27.5 D4), and `BLOCKED_TOOLCHAIN` when a tool is
-  absent — UNRESOLVED, never CONTRADICTED. Pull `example_verifiers/{common,cpp,rust}.py` with a
+  into the receipt (the environment class of §27.5 D4). A toolchain this machine lacks is
+  provisioned by the verifier base workspace-locally with a pinned version under `runs/toolchains/`
+  — as the 3.11 and 3.12 interpreters already are under `runs/verify/` — never system-wide, never a
+  PATH or profile edit, the version recorded in the receipt; the same function serves G5's hosted
+  runners. `BLOCKED_TOOLCHAIN` means provisioning itself failed — UNRESOLVED, never CONTRADICTED. Pull `example_verifiers/{common,cpp,rust}.py` with a
   small cut; write .NET, Java, Go, TypeScript fresh (~100 lines each).
 - **E6 Compiler-emitted corroboration, admitted just-in-time.** Where the toolchain already runs,
   a second independent surface is cheap: `javap -public` after `javac`, a reflection stub after
