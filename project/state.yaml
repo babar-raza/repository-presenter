@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T07:43:33+05:00"
+updated_at: "2026-09-04T08:15:42+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W07
-  status: READY
+  status: IN_PROGRESS
   purpose: "Repair three defects the 65b1f577 review accepted as advisory whose causes are code or coverage (RESEARCH_AND_GUIDELINES.md section 26; README_CONTRACT.md check 4 and row 14 as revised 2026-09-04): (1) key_capabilities units unbound from their slot - three of seven cite a different slot's facts; the S9 binding guard requires a unit's fact_ids to lie within its plan slot's fact set, so this blocks at validation and never reaches the reviewer as prose; (2) fourteen classes listed twice in the API table (a package re-export and the class inside a same-named module) - collapse to one fact per canonical defining location and add a uniqueness check by that identity; (3) At a Glance lacks Starting Points and lists two of four output formats - corroborate declared formats statically from FileFormat and importer/exporter plugin registrations alongside executed examples so inputs and outputs reach SUPPORTED. The Enterprise paragraph names only verified additions. Re-seal superseding 65b1f577. Acceptance: the two new checks exist, pass, and block on a synthetic violation; 305 to 330 unique API rows; Starting Points names OBJ, STL, glTF, COLLADA, and 3MF; review ACCEPT with zero code-caused advisories, judged by test."
   prerequisites:
     - G2-W06 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.

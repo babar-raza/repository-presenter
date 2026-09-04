@@ -1747,8 +1747,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "0a94dd9befc5b9fb953cf364e107f3a131aeed9f04e046db9bfdb1f72c997396",
-      "version": "4"
+      "sha256": "938504979eceef9bbc9584486ce798e4f47f07c4c90a824b018a75d5018ef80c",
+      "version": "5"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",

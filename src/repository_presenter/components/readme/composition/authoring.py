@@ -15,7 +15,8 @@ import ast
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -122,6 +123,9 @@ class SectionTask:
     accepted_ids: frozenset[str]
     slots: tuple[str, ...]
     key: str = ""  # distinguishes a bounded batch task from its section's main task
+    # The fact set the plan assigned to each slot that has one (README_CONTRACT.md check 4): a
+    # unit cites only its own slot's facts, never another slot's.
+    slot_facts: Mapping[str, frozenset[str]] = field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -153,6 +157,41 @@ def _placed_units(dispositions: dict[str, Any], section: str) -> list[str]:
         if entry.get("destination_section") == section
         and entry.get("disposition") in {"VERIFIED_PRESERVE", "VERIFIED_REWRITE", "VERIFIED_MOVE"}
     ]
+
+
+def slot_fact_sets(section: str, plan: dict[str, Any]) -> dict[str, frozenset[str]]:
+    """The fact set the plan assigned to each slot of the section that has one: a capability
+    its title's facts, a hub its symbol and justifying facts, a link its target, a workflow its
+    example, a quick-start lead-in its example, a material limitation its facts and units."""
+    bound: dict[str, frozenset[str]] = {}
+    if section == "key_capabilities":
+        for index, item in enumerate(plan.get("core_capabilities", []), start=1):
+            bound[f"capability:{index}"] = frozenset(item.get("fact_ids", []))
+    elif section == "quick_start":
+        quick = plan.get("quick_start_example_id")
+        if quick:
+            bound["lead_in"] = frozenset({quick})
+        second = plan.get("second_quick_start_example_id")
+        if second:
+            bound["lead_in:2"] = frozenset({second})
+    elif section == "additional_examples":
+        for example in plan.get("additional_example_ids", []):
+            bound[f"workflow:{example}"] = frozenset({example})
+    elif section == "api_reference":
+        for hub in plan.get("api_hubs", []):
+            symbol = hub.get("symbol_fact_id", "")
+            bound[f"hub:{symbol}"] = frozenset({symbol, *hub.get("fact_ids", [])})
+    elif section == "documentation_resources":
+        for link in plan.get("links", []):
+            if link.get("section_id") == section:
+                target = link.get("link_fact_id", "")
+                bound[f"link:{target}"] = frozenset({target})
+    elif section == "scope_limitations":
+        for index, item in enumerate(plan.get("material_limitations", []), start=1):
+            bound[f"limitation:{index}"] = frozenset(
+                [*item.get("fact_ids", []), *item.get("unit_ids", [])]
+            )
+    return bound
 
 
 def section_selections(
@@ -314,6 +353,17 @@ def authoring_tasks(
             for fact_id in ids
         ]
         spellings = section_spellings(ids, facts)
+        slot_facts = slot_fact_sets(section, plan)
+        bound_text = "; ".join(
+            f"{slot} cites only {', '.join(sorted(slot_facts[slot]))}"
+            for slot in slots
+            if slot_facts.get(slot)
+        )
+        bound_rule = (
+            f"Each slot describes its own facts, never another slot's: {bound_text}. "
+            if bound_text
+            else ""
+        )
         packet = {
             "repository": entry.repository,
             "product_name": name,
@@ -321,6 +371,7 @@ def authoring_tasks(
             "section_id": section,
             "objective": (
                 f"{objective} Slots to fill, each exactly once: {', '.join(slots)}. "
+                f"{bound_rule}"
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
@@ -330,7 +381,7 @@ def authoring_tasks(
             "rendered_document": "",
             "existing_units": [],
         }
-        tasks.append(SectionTask(section, packet, frozenset(ids), slots))
+        tasks.append(SectionTask(section, packet, frozenset(ids), slots, slot_facts=slot_facts))
         if section == "api_reference":
             tasks.extend(_type_batches(entry, facts, do_not_claim))
     return tasks
@@ -490,6 +541,20 @@ def unit_checks(
             f"units must fill exactly these slots once each: {', '.join(expected)}; "
             f"got {', '.join(str(slot) for slot in slots_seen)}"
         )
+    # README_CONTRACT.md check 4: a unit's facts lie within the set the plan assigned to its
+    # slot; identity and package facts belong to no slot and may support any unit.
+    neutral = {fact.id for fact in facts.facts if fact.kind in {"identity", "package"}}
+    for unit in output.get("units", []):
+        bound = task.slot_facts.get(str(unit.get("slot")))
+        if bound is None:
+            continue
+        outside = [i for i in unit.get("fact_ids", []) if i not in bound and i not in neutral]
+        if outside:
+            errors.append(
+                f"unit {unit.get('slot')}: cites facts outside its slot's planned set "
+                f"({', '.join(outside)}); a unit describes its own slot's facts, never "
+                "another slot's"
+            )
     # An exception class name is written only when a fact this section may cite records it
     # verbatim (README_CONTRACT.md section 2 row 16: the precise mechanism a fact records).
     recorded = " ".join(

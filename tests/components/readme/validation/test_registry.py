@@ -3,12 +3,16 @@ its causal stage; validation.json is deterministic."""
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.composition.authoring import SectionTask
+from repository_presenter.components.readme.composition.authoring import (
+    SectionTask,
+    slot_fact_sets,
+)
 from repository_presenter.components.readme.composition.renderer import render_readme
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
@@ -205,7 +209,13 @@ DISPOSITIONS: dict[str, Any] = {
 ACCEPTED = frozenset(fact.id for fact in BASE_FACTS)
 TASKS = [
     SectionTask("opening", {}, ACCEPTED, ("opening",)),
-    SectionTask("key_capabilities", {}, ACCEPTED, tuple(f"capability:{i}" for i in range(1, 7))),
+    SectionTask(
+        "key_capabilities",
+        {},
+        ACCEPTED,
+        tuple(f"capability:{i}" for i in range(1, 7)),
+        slot_facts=slot_fact_sets("key_capabilities", PLAN),
+    ),
     SectionTask("quick_start", {}, ACCEPTED, ("lead_in",)),
     SectionTask("api_reference", {}, ACCEPTED, ("intro", "hub:public_symbol:aspose.threed.scene")),
     SectionTask("documentation_resources", {}, ACCEPTED, ("link:link_target:001",)),
@@ -218,15 +228,16 @@ def _candidate(
     facts: FactsDocument = FACTS,
     dispositions: dict[str, Any] = DISPOSITIONS,
     plan: dict[str, Any] = PLAN,
+    units: dict[str, Any] = UNITS,
 ) -> Candidate:
     rendered = (
-        readme if readme is not None else render_readme(ENTRY, facts, plan, UNITS, dispositions)
+        readme if readme is not None else render_readme(ENTRY, facts, plan, units, dispositions)
     )
     return Candidate(
         ENTRY,
         facts,
         plan,
-        UNITS,
+        units,
         dispositions,
         rendered,
         ORIGINAL,
@@ -435,3 +446,16 @@ def test_the_aspose_ceiling_counts_contextual_links_not_the_mandated_rows() -> N
     five = f"{four} [page 4]({docs[4].value})"
     over = _candidate(readme=nl.join([base, mandated, five, ""]), facts=facts)
     assert any("5 Aspose links exceed the ceiling of 4" in str(f) for f in _check_links(over))
+
+
+def test_check_four_blocks_a_unit_citing_another_slots_facts(tmp_path: Path) -> None:
+    # README_CONTRACT.md check 4 as revised: the plan bound every capability slot to
+    # identity:repository, so a capability citing the GLB format fact cites another set.
+    units = copy.deepcopy(UNITS)
+    crossed = next(u for u in units["units"] if u["slot"] == "capability:1")
+    crossed["fact_ids"] = [*crossed["fact_ids"], "format:output.glb"]
+    document = validate_candidate(_candidate(units=units), tmp_path, ())
+    assert _failed(document, "BC-04")["details"] == [
+        "key_capabilities: unit capability:1: cites facts outside its slot's planned set "
+        "(format:output.glb); a unit describes its own slot's facts, never another slot's"
+    ]

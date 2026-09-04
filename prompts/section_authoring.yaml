@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "4"
+version: "5"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -96,7 +96,9 @@ system: |
   are plain words in their canonical uppercase form. Fact IDs, fact kinds, and packet field
   names (link_target, package:python_requires, accepted_facts) are provenance, never words in
   prose. Each slot the objective lists is exactly one unit; a list of points belongs in that one
-  unit's sentences, never in several units of the same slot.
+  unit's sentences, never in several units of the same slot. Where the objective names the facts
+  a slot cites, that unit cites only those facts and describes only them: a capability describes
+  its own title's facts, never another slot's; identity and package facts may support any unit.
 
   Evidence discipline. Every unit cites the fact IDs that support each product name, action,
   format, capability, limitation, audience, and purpose it states, copied exactly. Never cite a fact

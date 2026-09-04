@@ -4,91 +4,45 @@
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "format:input.obj",
-        "format:input.gltf",
-        "format:input.dae",
-        "format:output.gltf",
-        "format:output.stl",
-        "format:output.obj",
-        "format:output.glb"
-      ],
+      "fact_ids": [],
       "id": "F01",
       "quote": "```mermaid\nflowchart TD\n  PRODUCT[\"Aspose.3D FOSS for Python\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Load multiple 3D formats\"]\n      c2[\"Export to common 3D formats\"]\n      c3[\"Construct and manipulate meshes\"]\n      c4[\"Assign materials to geometry\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"Build and traverse scene graphs\"]\n      c6[\"Triangulate arbitrary polygons\"]\n      c7[\"Create keyframe animations\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"glTF or STL file\"]\n  end\n  PRODUCT --> Capabilities --> Outputs\n```",
-      "repair": "Restore the 'Starting Points' node with verified input formats (OBJ, STL, glTF, COLLADA, 3MF) and update the 'Outputs' node to list all verified output formats (OBJ, STL, glTF, 3MF).",
+      "repair": "Restore the original Mermaid diagram structure, including the 'Starting Points' node with explicit file formats (OBJ, STL, glTF, COLLADA, 3MF) and the complete output list (OBJ, STL, glTF, 3MF) to match the original README's visual representation.",
       "section_id": "at_a_glance",
-      "text": "[reviewer-scope defect at S7: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The Mermaid diagram in the At a Glance section omits the 'Starting Points' node and incorrectly shows only two output formats (glTF and STL) when the product supports OBJ, COLLADA, and 3MF as well."
+      "text": "[reviewer-scope defect at S7: section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The Mermaid flowchart in the At a Glance section omits the 'Starting Points' node and incorrectly simplifies the diagram by removing the explicit input file formats (OBJ, STL, glTF, COLLADA, 3MF) and output formats (OBJ, STL, glTF, 3MF) that are present in the original README."
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
+      "fact_ids": [],
       "id": "F03",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```\n\nTo work from a source checkout instead, install the clone with pip:\n\n```bash\ngit clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git\ncd Aspose.3D-FOSS-for-Python\npip install .\n```\n\nVerify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the editable install command (`pip install -e .`) and verification command (`python -c 'from aspose.threed import Scene; print('Aspose.3D FOSS OK')'`) from the original README.",
+      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
+      "repair": "Restore the original verification command (`python3 -c ",
       "section_id": "installation",
-      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section omits the editable install command and verification command from the original README, which are present in the repository and supported by the 'install_command:pip' fact."
+      "text": "[reviewer-scope defect at S7: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The installation section removes the verification command (`python3 -c "
     },
     {
       "causal_stage": "unclear",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.polygonbuilder",
-        "public_symbol:aspose.threed.formats"
-      ],
+      "fact_ids": [],
       "id": "F02",
-      "quote": "- **Load multiple 3D formats.** Create 3D scenes by constructing meshes with control points and polygons, then attach them to scene nodes with materials.\n- **Export to common 3D formats.** Read and write multiple 3D formats including `.gltf` and `.stl` using the `FileFormat` class and its format-specific save options.\n- **Construct and manipulate meshes.** Inspect mesh geometry by accessing control points and polygon collections, and compute bounding boxes for scene entities.\n- **Assign materials to geometry.** Apply and modify material properties such as diffuse color, metallic factor, and roughness factor using shading classes.\n- **Build and traverse scene graphs.** Manage scene hierarchy by creating child nodes, setting their transforms, and assigning entities and materials.\n- **Triangulate arbitrary polygons.** Export scenes to binary or ASCII formats by configuring save options such as `binary_mode` and `enable_compression`.\n- **Create keyframe animations.** Build polygonal meshes programmatically using the `Mesh` class and `PolygonBuilder` to define vertices and faces.",
-      "repair": "Replace generic phrases with specific, verified capabilities: multi-format import (OBJ, STL, glTF, COLLADA, 3MF), FBX import, parameterized primitives (Box, Sphere, Cylinder, etc.), material assignment (Lambert, Phong, PBR), triangulation via PolygonModifier, and keyframe animation via AnimationClip/AnimationNode/KeyframeSequence.",
+      "quote": "- **Load multiple 3D formats.** Create and save 3D scenes to multiple formats including `.gltf` and `.stl` using the `FileFormat` class, which supports format detection, extension mapping, and save options configuration.",
+      "repair": "Restore the original specific format list (OBJ, STL, glTF/GLB, COLLADA, and 3MF) and retain the original phrasing about auto-detection and `SaveOptions` subclasses to match the original README's technical precision.",
       "section_id": "key_capabilities",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities list is generic and omits specific, verified capabilities such as FBX import, parameterized primitives, and triangulation, instead using vague phrases like 'Load multiple 3D formats' and 'Export to common 3D formats'."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:067.list"
-      ],
-      "id": "F04",
-      "quote": "The verified public surface has 343 types.",
-      "repair": "Correct the public type count to 305, matching the original README and the Scope and Limitations section.",
-      "section_id": "api_reference",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The API Reference section claims the package exposes 343 types, but the original README states 305 public types, and no fact supports the 343 figure."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:067.list"
-      ],
-      "id": "F05",
-      "quote": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA files, and provides basic scene graph inspection and node manipulation through the `Scene`, `Node`, and `Entity` APIs.\n\n- No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open`()/`Scene.save`() cannot detect or dispatch any of these extensions, and raise a RuntimeError if you try.\n- FBX support is experimental: `FbxImporter` has a real, working ASCII/binary tokenizer and parser, but no bundled test opens a real .fbx fixture through it, and `FbxExporter.save`()/`save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.\n- COLLADA import works, but COLLADA export is not reachable through `Scene.save`() because `IOService`'s exporter lookup walks its registered exporters in order and reaches `FbxExporter` (whose `supports_format()` is unimplemented and raises unconditionally) before it ever reaches `ColladaExporter`, so the lookup itself fails before a real, working `ColladaExporter` is ever consulted.\n- The entire `aspose.threed.render` module (`Renderer`, `RenderFactory`, `Viewport`, and related classes) raises NotImplementedError, so this library does not render scenes to images.\n- Boolean/CSG mesh operations are not implemented: `Mesh.do_boolean`(), `union()`, `difference()`, and `intersect()` raise NotImplementedError, even though `BooleanOperator` and `BooleanOperand` exist as configuration holders.\n- NURBS curves and surfaces can be configured but not sampled or converted to a `Mesh` because `NurbsCurve.evaluate`()/`evaluate_at()` and `NurbsSurface.to_mesh`() raise NotImplementedError.",
-      "repair": "Restore the missing limitations from the original README: FBX exporter limitation, COLLADA export unreachability, render module NotImplementedError, and additional limitations such as `Watermark.encode_watermark()`/`decode_watermark()` and `TransformBuilder` methods raising NotImplementedError.",
-      "section_id": "scope_limitations",
-      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Scope and Limitations section omits several verified limitations from the original README, including the FBX exporter limitation, COLLADA export unreachability, and the fact that `Scene.render()` and the entire render module raise NotImplementedError."
+      "text": "[reviewer-scope defect at S7: re-raised after the one repair attempt its fingerprint allows] The Key Capabilities section rephrases the original content in a generic way (e.g., 'Load multiple 3D formats' instead of specifying the exact formats: OBJ, STL, glTF/GLB, COLLADA, and 3MF), losing specificity and failing to preserve the original's precise technical details."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "0a94dd9befc5b9fb953cf364e107f3a131aeed9f04e046db9bfdb1f72c997396",
+    "prompt_sha256": "938504979eceef9bbc9584486ce798e4f47f07c4c90a824b018a75d5018ef80c",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "a6cbbe0171b01b78d29cad5a4ea6da8989c6018fa1961cc7ead51c3340f99efd",
+  "readme_sha256": "2685b5b1ad73a37965cfd8bce466b9b1d9dde1643ef0e2003eab5a5bb79ea756",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",

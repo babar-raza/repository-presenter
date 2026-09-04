@@ -17,6 +17,7 @@ from repository_presenter.components.readme.composition.authoring import (
     merge_units,
     section_selections,
     section_spellings,
+    slot_fact_sets,
     surface_members,
     unit_checks,
     verified_members,
@@ -542,4 +543,67 @@ def test_a_unit_for_a_slot_the_task_never_asked_for_is_dropped_not_rejected() ->
     short = {"units": [unit("scope", "It reads files.")], "omitted": []}
     assert unit_checks(short, task, FACTS, NAME) == [
         "units must fill exactly these slots once each: scope, limitation:1; got scope"
+    ]
+
+
+def test_a_unit_cites_only_its_own_slots_planned_facts() -> None:
+    # README_CONTRACT.md check 4 as revised: a capability describes its own title's facts, never
+    # another slot's; identity and package facts belong to no slot and may support any unit.
+    plan = {
+        "core_capabilities": [
+            {"title": "Build scenes", "fact_ids": ["public_symbol:aspose.threed.scene"]},
+            {"title": "Save GLB", "fact_ids": ["format:output.glb"]},
+        ]
+    }
+    bound = slot_fact_sets("key_capabilities", plan)
+    assert bound == {
+        "capability:1": frozenset({"public_symbol:aspose.threed.scene"}),
+        "capability:2": frozenset({"format:output.glb"}),
+    }
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset(
+            {"public_symbol:aspose.threed.scene", "format:output.glb", "identity:repository"}
+        ),
+        ("capability:1", "capability:2"),
+        slot_facts=bound,
+    )
+
+    def unit(slot: str, text: str, *fact_ids: str) -> dict[str, object]:
+        return {
+            "section": "key_capabilities",
+            "slot": slot,
+            "text": text,
+            "fact_ids": list(fact_ids),
+        }
+
+    own = {
+        "units": [
+            unit(
+                "capability:1",
+                "Scenes are built in memory.",
+                "public_symbol:aspose.threed.scene",
+                "identity:repository",
+            ),
+            unit("capability:2", "A scene saves as GLB.", "format:output.glb"),
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(own, task, FACTS, NAME) == []
+    crossed = {
+        "units": [
+            unit("capability:1", "A scene saves as GLB.", "format:output.glb"),
+            unit(
+                "capability:2", "Scenes are built in memory.", "public_symbol:aspose.threed.scene"
+            ),
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(crossed, task, FACTS, NAME) == [
+        "unit capability:1: cites facts outside its slot's planned set (format:output.glb); "
+        "a unit describes its own slot's facts, never another slot's",
+        "unit capability:2: cites facts outside its slot's planned set "
+        "(public_symbol:aspose.threed.scene); a unit describes its own slot's facts, never "
+        "another slot's",
     ]
