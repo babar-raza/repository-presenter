@@ -139,7 +139,8 @@ files, never from memory of a previous iteration.
   it. Stage only paths this iteration authored, then confirm `git diff --cached --stat` names exactly
   those paths before committing.
 - One coherent commit: `<type>(<scope>): <what> (<GATE_ID>/<WORK_ITEM_ID>)`, ending with
-  `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
+  the `Co-Authored-By:` trailer for the model actually executing the iteration (the owner plans on
+  one model and executes on another by design; the trailer records which one wrote the commit).
 - Push per `publication.control_repository`, then watch the triggered run to completion (`gh run
   list --limit 1` for the pushed SHA, or `gh run watch`) before ending the iteration. A red run is
   fixed now, in this iteration — never deferred to the next iteration's Orient step. Record the
