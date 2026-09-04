@@ -1,5 +1,5 @@
 prompt_id: targeted_repair
-version: "4"
+version: "5"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
@@ -30,6 +30,9 @@ packet:
     - name: facts
       type: json
       description: The SUPPORTED facts as {id, kind, value}; the only evidence a revision may cite.
+    - name: slot_facts
+      type: json
+      description: For a repair of an authored section, the fact IDs each slot may cite, keyed by slot; a unit citing outside its own slot's set is rejected. Empty for the upstream stages, which are judged against the whole fact set.
     - name: preserve
       type: json
       description: Content the reviewer requires every repair to keep.
@@ -105,6 +108,9 @@ user_template: |
 
   Facts (the only evidence; cite IDs exactly):
   $facts
+
+  Fact IDs each slot may cite (a unit cites only its own slot's set):
+  $slot_facts
 
   Preserve:
   $preserve

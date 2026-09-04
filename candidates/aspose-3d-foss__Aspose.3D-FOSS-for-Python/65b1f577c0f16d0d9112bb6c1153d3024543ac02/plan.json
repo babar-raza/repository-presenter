@@ -9,24 +9,13 @@
   "api_hubs": [
     {
       "fact_ids": [
+        "public_symbol:aspose.threed",
         "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.scene"
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.node"
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.polygonbuilder"
+        "public_symbol:aspose.threed.entities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.mesh"
+      "symbol_fact_id": "public_symbol:aspose.threed"
     },
     {
       "fact_ids": [
@@ -39,50 +28,41 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
+        "public_symbol:aspose.threed.utilities",
+        "public_symbol:aspose.threed.utilities.vector3",
+        "public_symbol:aspose.threed.utilities.vector4"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.entities",
         "public_symbol:aspose.threed.box",
         "public_symbol:aspose.threed.sphere",
-        "public_symbol:aspose.threed.cylinder",
-        "public_symbol:aspose.threed.primitive"
+        "public_symbol:aspose.threed.cylinder"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.entities"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.formats.obj",
-        "public_symbol:aspose.threed.formats.stl",
-        "public_symbol:aspose.threed.formats.gltf",
-        "public_symbol:aspose.threed.formats.collada",
-        "public_symbol:aspose.threed.formats.threemf"
+        "public_symbol:aspose.threed.fileformat",
+        "public_symbol:aspose.threed.formats.obj.objformat",
+        "public_symbol:aspose.threed.formats.stl.stlformat",
+        "public_symbol:aspose.threed.formats.gltf.gltfformat",
+        "public_symbol:aspose.threed.formats.threemfformat"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.formats"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.utilities",
-        "public_symbol:aspose.threed.utilities.vector3",
-        "public_symbol:aspose.threed.utilities.vector4"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Load multiple 3D formats",
       "Export to common 3D formats",
-      "Construct and edit mesh geometry",
-      "Manage scene hierarchy with transforms",
-      "Apply materials to 3D entities",
+      "Construct and edit meshes",
+      "Assign materials to geometry",
+      "Build scene graphs",
+      "Triangulate polygon meshes",
       "Support keyframe animation"
     ],
     "input_format_ids": [
@@ -109,8 +89,7 @@
         "format:input.gltf",
         "format:input.glb",
         "format:input.dae",
-        "format:input.3mf",
-        "public_symbol:aspose.threed.scene"
+        "format:input.3mf"
       ],
       "title": "Load multiple 3D formats"
     },
@@ -121,7 +100,10 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.scene"
+        "example:002",
+        "example:004",
+        "example:009",
+        "example:012"
       ],
       "title": "Export to common 3D formats"
     },
@@ -129,34 +111,38 @@
       "fact_ids": [
         "example:005",
         "example:009",
-        "example:010",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.box",
-        "public_symbol:aspose.threed.sphere"
+        "example:010"
       ],
-      "title": "Construct and edit mesh geometry"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
-      ],
-      "title": "Manage scene hierarchy with transforms"
+      "title": "Construct and edit meshes"
     },
     {
       "fact_ids": [
         "example:002",
         "example:004",
-        "example:005",
-        "public_symbol:aspose.threed.shading"
+        "example:005"
       ],
-      "title": "Apply materials to 3D entities"
+      "title": "Assign materials to geometry"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.transform"
+      ],
+      "title": "Build scene graphs"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "title": "Triangulate polygon meshes"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
       ],
       "title": "Support keyframe animation"
     }
@@ -164,43 +150,14 @@
   "deviations": [
     {
       "fact_ids": [
-        "install_command:pip"
-      ],
-      "section_id": "installation",
-      "text": "The inherited README includes an editable install instruction and verification command that are not supported by any fact; only the PyPI install command is included."
-    },
-    {
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
+        "inherited_unit:046.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "The inherited README includes several headings and examples that are promotional and not supported by facts; only verified examples are included."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.shading"
-      ],
-      "section_id": "api_reference",
-      "text": "The inherited README includes a large table of public symbols that is promotional and not supported by facts; only the core API surface is included."
+      "text": "The Position a Node With Transform example is omitted because it is contradicted by example:008, which raises NotImplementedError."
     }
   ],
   "flagship_example_id": "example:005",
   "links": [
-    {
-      "link_fact_id": "link_target:product.homepage",
-      "section_id": "banner"
-    },
-    {
-      "link_fact_id": "link_target:product.enterprise",
-      "section_id": "enterprise_relationship"
-    },
     {
       "link_fact_id": "link_target:022",
       "section_id": "documentation_resources"
@@ -208,6 +165,14 @@
     {
       "link_fact_id": "link_target:023",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:product.enterprise",
+      "section_id": "enterprise_relationship"
     }
   ],
   "material_limitations": [

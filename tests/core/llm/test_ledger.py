@@ -82,8 +82,8 @@ SEALED_LEDGER = (
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
     / "65b1f577c0f16d0d9112bb6c1153d3024543ac02/calls.jsonl"
 )
-FIRST_ATTEMPT_FLOOR = 82.0
-REASK_CEILING = 18.0
+FIRST_ATTEMPT_FLOOR = 85.0
+REASK_CEILING = 15.0
 
 
 def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:

@@ -222,6 +222,25 @@ def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_cont
     assert [r["id"] for r in bounded["facts"]] == ["identity:repository"]
     assert set(bounded) == set(packet)
 
+    # A repaired unit is judged against its own slot's planned set, not the section's, so the
+    # packet names that set per slot: the clean composition still showed "unit capability:6
+    # cites facts outside its slot's planned set" once the section bound alone was in place.
+    per_slot = repair_packet(
+        ENTRY,
+        defect,
+        stage_output,
+        FACTS,
+        ["the H1"],
+        authoring.manifest.output.schema_,
+        {"identity:repository", "format:output.glb"},
+        {"capability:2": {"format:output.glb"}, "capability:1": {"identity:repository"}},
+    )
+    assert per_slot["slot_facts"] == {
+        "capability:1": ["identity:repository"],
+        "capability:2": ["format:output.glb"],
+    }
+    assert packet["slot_facts"] == {}
+
     def stage_checks(output: dict[str, Any]) -> list[str]:
         return ["slot missing"] if not output["units"] else []
 

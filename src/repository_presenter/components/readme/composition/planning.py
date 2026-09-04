@@ -136,9 +136,13 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     twice for naming a CONTRADICTED example, which is cause RC1 in section 27.2)."""
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     verified = sorted(fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED")
+    properties = schema["properties"]
+    deviations = properties.get("deviations", {}).get("items", {}).get("properties", {})
+    if "section_id" in deviations:
+        # The canary's planner named a deviation against 'links', which is not a shell section.
+        deviations["section_id"] = {"type": "string", "enum": list(section_ids())}
     if not verified:
         return schema
-    properties = schema["properties"]
     properties["quick_start_example_id"]["enum"] = verified
     properties["additional_example_ids"]["items"]["enum"] = verified
     for field in ("second_quick_start_example_id", "flagship_example_id"):

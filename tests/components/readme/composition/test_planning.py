@@ -8,6 +8,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
@@ -363,3 +364,21 @@ def test_the_verified_examples_travel_as_an_enum_so_a_valid_reply_cannot_name_an
         for error in validator.iter_errors(contradicted)
         if error.json_path == "$.quick_start_example_id"
     ] == ["'example:003' is not one of ['example:001', 'example:002']"]
+
+
+def test_a_deviation_may_only_name_a_shell_section() -> None:
+    # The canary's planner was rejected for "deviation names an unknown section 'links'", which
+    # the code can state outright (RESEARCH_AND_GUIDELINES.md section 27.5 D1).
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS)
+    section_id = schema["properties"]["deviations"]["items"]["properties"]["section_id"]
+    assert section_id["enum"] == list(section_ids())
+    assert "links" not in section_id["enum"] and "opening" in section_id["enum"]
+
+    validator = Draft202012Validator(schema)
+    plan = _plan(deviations=[{"section_id": "links", "reason": "r"}])
+    assert [
+        error.message
+        for error in validator.iter_errors(plan)
+        if error.json_path == "$.deviations[0].section_id"
+    ] == [f"'links' is not one of {list(section_ids())!r}"]

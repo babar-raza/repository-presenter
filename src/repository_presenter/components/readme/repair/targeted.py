@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -262,6 +262,7 @@ def repair_packet(
     preserve: Sequence[str],
     output_contract: dict[str, Any],
     allowed: Collection[str] | None = None,
+    slot_facts: Mapping[str, Collection[str]] | None = None,
 ) -> dict[str, Any]:
     """The packet for one repair call: the defect, the one artifact it may revise, its contract.
 
@@ -283,6 +284,7 @@ def repair_packet(
         "causal_stage": defect.stage,
         "stage_output": stage_output,
         "facts": records,
+        "slot_facts": {slot: sorted(ids) for slot, ids in sorted((slot_facts or {}).items())},
         "preserve": list(preserve),
         "output_contract": output_contract,
     }

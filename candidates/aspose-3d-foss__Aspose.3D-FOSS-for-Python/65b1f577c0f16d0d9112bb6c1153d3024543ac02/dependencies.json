@@ -1743,8 +1743,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "a65f4ad79fcca436a290a41da53f6bb100e8ef791db594f3b07f5511fb676305",
-      "version": "5"
+      "sha256": "24adc792bc1cea3f9adc41325985e9bb57de485fb96905ffa14fd41604eb21af",
+      "version": "6"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -1763,8 +1763,8 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "70613fe23fb4a042df30a588d826424ba2859da42d4c3f6febc0ac6ad6f7a482",
-      "version": "4"
+      "sha256": "8e3502fec2f2e2073843764273496443f80aae7ed8b24d14ae1735c01a031c6d",
+      "version": "5"
     }
   },
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",

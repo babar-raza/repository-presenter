@@ -12,7 +12,7 @@ never retried. Every artifact of the round is written, so the last round is what
 from __future__ import annotations
 
 import functools
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -285,16 +285,16 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
 
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
-) -> tuple[JobResult, Any, frozenset[str] | None]:
+) -> tuple[JobResult, Any, frozenset[str] | None, Mapping[str, frozenset[str]] | None]:
     """The causal stage's accepted result, its own checks, and the fact set it is judged against.
 
     Only an authored section has a fact set narrower than the corpus; the upstream stages are
     judged against all of it, so they carry None.
     """
     if defect.stage == "S3":
-        return current.investigation, None, None
+        return current.investigation, None, None, None
     if defect.stage == "S4":
-        return current.reconciled, functools.partial(reconcile_checks, facts=facts), None
+        return current.reconciled, functools.partial(reconcile_checks, facts=facts), None, None
     if defect.stage == "S5":
         return (
             current.planned,
@@ -305,12 +305,14 @@ def _stage_target(
                 ecosystem=ecosystem,
             ),
             None,
+            None,
         )
     task = next(task for task in current.tasks if task.section_id == defect.section_id)
     return (
         current.authored[task.label],
         functools.partial(unit_checks, task=task, facts=facts, name=name),
         task.accepted_ids,
+        task.slot_facts,
     )
 
 
@@ -321,7 +323,7 @@ def repair_defect(
     assert defect.stage is not None
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
-    target, stage_checks, allowed = _stage_target(
+    target, stage_checks, allowed, slot_facts = _stage_target(
         current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
     )
     contract = causal.manifest.output.schema_
@@ -335,6 +337,7 @@ def repair_defect(
             current.review.get("preserve", []),
             contract,
             allowed,
+            slot_facts,
         ),
         config=tx.config,
         facts=tx.facts,
