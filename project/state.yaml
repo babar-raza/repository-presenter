@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T11:35:42+05:00"
+updated_at: "2026-09-04T11:54:25+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,28 +29,25 @@ accepted_gates:
   - G1_FIRST_VALID_CANDIDATE
 
 active_work_item:
-  id: G2-W08
-  status: IN_PROGRESS
-  purpose: "Grep-enforced test that no global control-plane hash exists anywhere in src/."
+  id: G2-W11
+  status: READY
+  purpose: "Cut the local verification cost that dominates every iteration without changing what is verified (RESEARCH_AND_GUIDELINES.md section 27.5 D7). The twelve invalidation-matrix tests in tests/test_cli.py each seal the canary from scratch, about 30 s each and about 7 minutes per pytest pass: seal once in a session-scoped fixture and have each test copy that sealed state before applying its perturbation. The local CI-equivalent runs on one interpreter with the hosted three-version matrix authoritative (loop-prompt.md section 3). Acceptance: every existing test still asserts what it asserted; a full local pytest pass on one interpreter takes under three minutes on this machine, the measurement recorded in the commit; hosted CI green on the pushed commit."
   prerequisites:
-    - G2-W07 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - docs/EXECUTION_STATE_MACHINE.md G2 and project/loop-prompt.md section 6 rule 2 (no global control-plane hash, ever) are read before the test is written; the sealed canary's dependencies.json is the shape the test holds every candidate to.
+    - G2-W08 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - docs/RESEARCH_AND_GUIDELINES.md section 27.5 D7 and section 27.1's wall-clock row are read before any change under tests/; the twelve invalidation-matrix tests in tests/test_cli.py are the target and each must keep asserting exactly what it asserts today.
   owned_paths:
     - tests/
     - project/state.yaml
   acceptance:
-    - "A test walks src/repository_presenter/ and fails when any module digests a whole component set, prompt set, validator set, or configuration tree into a single value that could invalidate candidates that did not consume it; the sealed canary's dependencies.json keys stay exactly the per-candidate classes and nothing else."
-    - "The test fails on a synthetic module that computes such a hash, proving it blocks rather than passing vacuously."
-    - "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit."
+    - "The canary is sealed once per session in a fixture and each invalidation test copies that sealed state before applying its perturbation; every existing test still asserts what it asserted, proven by the unchanged assertions and a green run, and no test shares mutable state with another."
+    - "A full local pytest pass on one interpreter takes under three minutes on this machine, the before and after measurements recorded in the commit."
+    - "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary present remains a byte-identical no-op with zero provider calls, and the hosted three-version matrix is green on the pushed commit."
   evidence_required:
-    - The grep-enforced test and its synthetic-violation case, with the run recorded in the local CI equivalent.
+    - The measured pytest durations before and after, from --durations, recorded in the local CI equivalent.
     - The work-item record in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.
   blocker: null
 
 next_ready_items:
-  - id: G2-W11
-    status: PENDING
-    purpose: "Cut the local verification cost that dominates every iteration without changing what is verified (RESEARCH_AND_GUIDELINES.md section 27.5 D7). The twelve invalidation-matrix tests in tests/test_cli.py each seal the canary from scratch, about 30 s each and about 7 minutes per pytest pass: seal once in a session-scoped fixture and have each test copy that sealed state before applying its perturbation. The local CI-equivalent runs on one interpreter with the hosted three-version matrix authoritative (loop-prompt.md section 3). Acceptance: every existing test still asserts what it asserted; a full local pytest pass on one interpreter takes under three minutes on this machine, the measurement recorded in the commit; hosted CI green on the pushed commit."
   - id: G2-W12
     status: PENDING
     purpose: "Make every LLM job's structural constraints constructive instead of post-hoc (section 27.5 D1; cause RC1 in 27.2). The code emits each call's skeleton and a per-call JSON schema: slots enumerated with their allowed fact IDs as enums, fixed-length slot arrays, additionalProperties false. Shell section decisions leave the planner's output (code already decides them in planning.py condition_holds). Dispositions a reconciliation rule forces are computed in code and only the free ones are asked. Allowed identifiers travel as a list. The repair packet carries the same skeleton, the section's fact set, and the slot's subject. Prose stays the model's. Acceptance: on a fresh canary composition, first-attempt acceptance is at least 95 percent for every job and the re-ask share at most 5 percent, measured from the sealed calls.jsonl by a test helper; the rejection families of 27.1 (outside-section citation, wrong slot set, missing shell decision, non-fact identifier) cannot be produced by a schema-valid reply, proven by tests; rerun byte-identical with zero calls."

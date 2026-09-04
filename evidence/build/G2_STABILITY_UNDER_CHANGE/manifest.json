@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W07",
+ "work_item": "G2-W08",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-04T11:15:44+05:00",
- "control_revision": "7e2340b995abb5e27c240c5feabcd2dd02e7d0d6",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W08) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-04T11:54:25+05:00",
+ "control_revision": "735adad24763b1425d0cab07e12ec8ac717b749f",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W11) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "7e2340b995abb5e27c240c5feabcd2dd02e7d0d6",
+  "control_revision": "735adad24763b1425d0cab07e12ec8ac717b749f",
   "note": "loop-prompt section 3: the local CI-equivalent runs on one interpreter and the hosted three-version matrix is authoritative.",
   "runs": [
    {
@@ -36,6 +36,11 @@
       "exit_code": 0
      },
      {
+      "command": "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+      "exit_code": 0,
+      "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)"
+     },
+     {
       "command": "repository-presenter status",
       "exit_code": 0
      }
@@ -44,15 +49,15 @@
     "status": [
      "repository-presenter 0.1.0",
      "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-     "work item: G2-W07 (IN_PROGRESS)",
+     "work item: G2-W08 (IN_PROGRESS)",
      "candidates: 1/34 current reviewable no-op-proven",
      "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
     ]
    }
   ],
   "hosted_matrix": {
-   "run_id": 33842714184,
-   "head_sha": "7e2340b995abb5e27c240c5feabcd2dd02e7d0d6",
+   "run_id": 33845838218,
+   "head_sha": "735adad",
    "conclusion": "success",
    "jobs": {
     "Python 3.11": "success",
@@ -61,117 +66,21 @@
    }
   }
  },
- "candidate": {
-  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
-  "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-  "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-  "state": "READY_FOR_PROPOSAL",
-  "no_op_proof": {
-   "byte_identical": true,
-   "fresh_process": true,
-   "proven_at": "2026-09-04T05:31:53Z",
-   "provider_calls": 0
-  },
-  "files": {
-   "calls.jsonl": {
-    "bytes": 1787870,
-    "sha256": "3722e78572343a4424cfd7a5b7811ab3da34d192c742390f538d02a7aa7c2333"
-   },
-   "content_units.json": {
-    "bytes": 74200,
-    "sha256": "619f3bd74579b797fa8d90e5da73caeceddf81df86841027ecd50eb97f286aa4"
-   },
-   "dependencies.json": {
-    "bytes": 223259,
-    "sha256": "930cca67b7bd7616f9a451d63c872c4a1bf4cdf29a004b89e635e2b8a807cb82"
-   },
-   "dispositions.json": {
-    "bytes": 30946,
-    "sha256": "0a26ac5a907720dbc7dbc391ead1a352fbad2394ff45f782dc5e5aa2f8ae581a"
-   },
-   "facts.json": {
-    "bytes": 1136750,
-    "sha256": "692a2dbb8f5c482147787419bb22e79299a59c961e412d827e42109a8c7e28ec"
-   },
-   "investigation.json": {
-    "bytes": 8064,
-    "sha256": "ceddf0649d4b354f885ac29da4b0721ca0511541e667df51e4a3d375d622fd3e"
-   },
-   "plan.json": {
-    "bytes": 9822,
-    "sha256": "124e7d5b6d2e42c7424021fdf30f7b7d21cc6ee785ba4e7027536e64114ba076"
-   },
-   "README.md": {
-    "bytes": 51204,
-    "sha256": "e90e0e031b080792bdc0e5c0f1d59a90a5d11015c169711e6e9129b5509b7f18"
-   },
-   "README.patch": {
-    "bytes": 87006,
-    "sha256": "6dd22da18baa414b932a5ebc84fd18d3d09ea3803824b7928d13e2212d1c1c3f"
-   },
-   "repairs.json": {
-    "bytes": 38404,
-    "sha256": "1b6f71c3646db725bc253e6dde03dc8415b567d6932c3c74fcb7825933081507"
-   },
-   "review.json": {
-    "bytes": 4394,
-    "sha256": "fc6214c5b5f916cb8feacb028fd57676363b48844c3db5dada47e6867e1cb9cd"
-   },
-   "validation.json": {
-    "bytes": 4395,
-    "sha256": "71f8e0925ff0ab0cbb524736a1efc75d49536087d0c1ca1365e455d03ea95bd8"
-   }
-  },
-  "no_op_runs": [
-   {
-    "run": 1,
-    "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 11; valid update available (factual): README.md, README.patch, content_units.json, dependencies.json, dispositions.json, plan.json, review.json, validation.json changed at NONE; the proven candidate stays valid and the update waits in the transaction)",
-    "exit": "exit 0"
-   },
-   {
-    "run": 2,
-    "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; update adopted (factual): a fresh process reproduced the waiting update byte for byte with zero provider calls; check 11 judged)",
-    "exit": "exit 0"
-   },
-   {
-    "run": 3,
-    "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)",
-    "exit": "exit 0"
-   }
-  ],
-  "advisory_adjudication": {
-   "test": "tests/components/readme/review/test_independent.py::test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle",
-   "F03": "Reviewer error, not a defect: the finding reports the installation section as dropping the verification command, and its own quote is that command, present verbatim in the candidate's Installation section. No deterministic check can express a defect the document does not have.",
-   "F02": "Code-caused. The deterministic coverage advisory already names the nine identifiers the rewrite of inherited_unit:010.list drops, six of which the finding repeats, so the check exists and the cause is the unbound capability slot fact set (RESEARCH_AND_GUIDELINES.md section 27.2 RC2). Transferred to G2-W13, whose acceptance already requires the canary's capabilities to describe their own titles.",
-   "F01": "Code-caused, the same class as F02 on a superseded unit: inherited_unit:004.paragraph carries the pure-Python and no-native-runtime claims and folds to SUPERSEDE_REDUNDANT into the opening, where the retention advisory does not run, so the authored opening drops both claims silently. Transferred to G2-W17, whose coverage ledger and fail-closed check 12 are the mechanism that reports it (section 27.2 RC6, 27.5 D6)."
-  }
- },
  "predicates": [
   {
-   "predicate": "Slot-bound binding (check 4 as revised): a unit's fact_ids lie within the fact set the plan assigned to its slot, at authoring and at S9, a synthetic violation fails the check, and the re-sealed canary's seven Key Capabilities each cite their own slot's facts.",
+   "predicate": "A test walks src/repository_presenter/ and fails when any module digests a whole component set, prompt set, validator set, or configuration tree into a single value that could invalidate candidates that did not consume it; the sealed canary's dependencies.json keys stay exactly the per-candidate classes and nothing else.",
    "verdict": "PASS",
-   "evidence": "slot_fact_sets and SectionTask.slot_facts carry each slot's planned fact set into the authoring packet; unit_checks rejects a unit citing outside it (identity and package facts neutral) and BC-04 blocks the same violation at S9. Tests: tests/components/readme/composition/test_authoring.py. The re-sealed bundle's validation.json records BC-04 PASS. Commit 1a18463."
+   "evidence": "tests/test_control_plane.py::test_no_module_folds_the_control_plane_into_a_single_hash reads every syntax tree under src/ and reports two shapes: a hash object created empty and fed inside a loop, and a digest whose input walks a control-plane collection, matched on the identifier tokens that name a set rather than one candidate's inputs and followed through one local assignment so a digest built across two statements is read as the expression it digests. It reports nothing today. test_the_sealed_canary_depends_only_on_per_candidate_classes holds the sealed canary's dependencies.json keys to exactly the eleven per-candidate classes (schema_version, source, facts, prompts, components, validators, validator_version, policy, contract_version, acceptance_profile_version, protected_content_fingerprint). Commit 735adad."
   },
   {
-   "predicate": "Canonical identity (row 14 as revised): one fact per canonical defining location, a uniqueness check blocking a synthetic duplicate, and the Core API table holding one row per verified public type with no formats.X / X.X pair.",
+   "predicate": "The test fails on a synthetic module that computes such a hash, proving it blocks rather than passing vacuously.",
    "verdict": "PASS",
-   "evidence": "python_surface.py lets a later re-export of the same public name win and marks a definition reachable only by its own module path UNRESOLVED with shadowed_by; BC-07 gained one verified public type per canonical defining location and a Core API table row count equal to the verified type count. The re-sealed README holds 337 unique rows, matching the verified type count; the item's summary estimate of 305 to 330 was an estimate and the acceptance predicate states the invariant instead. Commit 3a59a6b."
+   "evidence": "Two synthetic modules, one per shape: test_an_accumulated_digest_over_the_prompt_set_is_flagged writes a module that opens a sha256 and updates it for every prompt manifest, and test_a_digest_folded_over_every_validator_is_flagged writes one that joins every validator's source into a single blake2b digest; each produces exactly one finding naming the file, the line, and why. A per-fact digest keyed by record ID, which is what the pipeline does, produces none. Every digest in src/ is taken over one value, so the loop rule is a bright line here; the module's docstring records that chunked file hashing would earn a narrow exemption rather than deleting the rule."
   },
   {
-   "predicate": "Format corroboration (section 22.1): declared formats corroborated statically from FileFormat and the importer/exporter plugin registrations alongside executed examples; Starting Points names OBJ, STL, glTF, COLLADA, and 3MF; a format no evidence corroborates stays UNRESOLVED.",
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit.",
    "verdict": "PASS",
-   "evidence": "extractors/platforms/python_format_declarations.py reads the FileFormat module's format-class imports and the register_plugin calls from syntax trees without importing the product; a stub importer or exporter (every entry method raising NotImplementedError) registers nothing, so the shipped FBX exporter is not an output. format_facts marks a pair SUPPORTED on an executed example or two agreeing static sources, recording each source with its file and line. The re-sealed README's At a Glance reads 'An existing OBJ, STL, glTF, GLB, COLLADA, or 3MF file'. Tests: tests/components/readme/extractors/platforms/test_python_format_declarations.py and tests/components/readme/evidence/facts/test_formats.py. Commit d97c115."
-  },
-  {
-   "predicate": "The Enterprise paragraph names only verified additions, and the re-sealed candidate at 65b1f577 (adopted in place per section 25 gap 2, the equivalent of superseding at the same revision) passes every blocking check with a review of ACCEPT; of its three advisories, F03 is shown by test to be beyond any deterministic check's reach, and the two whose cause is code are owned by the items that carry those causes: F02, the capability prose unbound from its title, by G2-W13 (RESEARCH_AND_GUIDELINES.md section 27.2 RC2, 27.5 D2), and F01, an inherited unit's distinguishing claims dropped by the text that supersedes it, by G2-W17 (RC6, D6). Present three times: seal, adopt, and reproduce with zero provider calls.",
-   "verdict": "PASS",
-   "evidence": "The re-sealed bundle records all eleven blocking checks PASS (BC-01 to BC-11), state READY_FOR_PROPOSAL, no_op_proof byte_identical and fresh_process with zero provider calls, and a review verdict of ACCEPT with no blocking findings; 'Enterprise Edition' appears exactly once, the shell's own row 18 mention, an inherited context unit naming it being rejected at authoring and at S9. The three presents sealed the update, adopted it in a fresh process with zero calls, and reproduced the bundle byte for byte. The advisory adjudication test decides each finding against the bundle rather than the reviewer's wording: F03 quotes the verification command it reports as dropped, which is in the candidate verbatim; the deterministic coverage advisory names the identifiers F02 repeats, and is silent for the paragraph superseded into the opening, which is F01. No check is weakened or disabled and the existing advisory keeps reporting; the two code-caused findings are routed to the items named in the predicate, whose acceptance lines already require them.",
-   "predicate_rewritten": "2026-09-04, per project/loop-prompt.md section 2 as revised in 83d3057: an item is never accepted in part. The predicate as originally written asked that every advisory be beyond a deterministic check's reach; two were not, so it now names the items that own their causes and the record is accepted against it as rewritten. The routing and the evidence are unchanged from the acceptance at 691649c; only the predicate's wording and its verdict are."
-  },
-  {
-   "predicate": "ruff, ruff format, mypy, and pytest pass on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion.",
-   "verdict": "PASS",
-   "evidence": "Local CI-equivalent on one interpreter (loop-prompt section 3) plus the hosted three-version matrix as the authoritative proof: run 33842714184 on 7e2340b is green for Python 3.11, 3.12, and 3.13, each running unit tests, schema validation, the canary, the path budget, and the official entry point."
+   "evidence": "Local CI-equivalent on 3.13 with every step exit 0, including the canary present, which reproduced the proven bundle byte for byte with zero provider calls; hosted run 33845838218 on 735adad is green for Python 3.11, 3.12, and 3.13."
   }
  ],
  "previous_items": [
@@ -180,7 +89,14 @@
   "G2-W03",
   "G2-W04",
   "G2-W05",
-  "G2-W06"
+  "G2-W06",
+  "G2-W07"
  ],
- "next_work_item": "G2-W08"
+ "next_work_item": "G2-W11",
+ "candidate": {
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "bundle": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "note": "Unchanged by this item, which adds a test only: the present run after the change was a no-op that reproduced the sealed bundle byte for byte with zero provider calls. The bundle's own digests are recorded in the G2-W07 acceptance at 691649c and 99b9685."
+ }
 }
