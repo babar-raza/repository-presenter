@@ -356,14 +356,14 @@ SEALED_CANARY = (
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
     / "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
 )
-# The identifiers the inherited capability list names and the covering text drops.
+# The identifier losses the deterministic coverage advisory reports for the two rewritten lists.
 DROPPED_IDENTIFIERS = (
-    "PolygonModifier.triangulate()",
     "Mesh.create_polygon()",
     "Node.add_entity()",
-    "Node.create_child_node()",
-    "ObjSaveOptions",
-    "GltfSaveOptions",
+    "PolygonModifier.triangulate()",
+    "Scene.open()",
+    "FbxExporter.save()",
+    "NotImplementedError",
 )
 
 
@@ -375,30 +375,41 @@ def test_the_sealed_canarys_advisories_are_each_adjudicated_against_the_bundle()
     review = _sealed("review.json")
     candidate = (SEALED_CANARY / "README.md").read_text("utf-8")
     assert review["verdict"] == ACCEPT and review["findings"] == []
-    advisory = {finding["id"]: finding for finding in review["advisory"]}
-    assert sorted(advisory) == ["F01", "F02", "F03"]
+    advisory = review["advisory"]
+    assert advisory, "the adjudication means nothing while no advisory stands"
 
-    # F03 quotes the very passage it reports as dropped, so it contradicts the document it
-    # reviewed: no check can express a defect the candidate does not have.
-    assert advisory["F03"]["quote"] in candidate
-    installation = candidate.split("## Installation", 1)[1].split("\n## ", 1)[0]
-    assert 'python -c "import aspose.threed"' in installation
+    # None of them is the self-contradicting kind an earlier composition produced, where a
+    # finding reported as dropped the very passage it quoted: every quote is in the candidate.
+    assert [finding["id"] for finding in advisory if finding["quote"] not in candidate] == []
 
-    # F01 and F02 are one defect class, on the two inherited units whose covering text drops
-    # their distinguishing claims. The deterministic advisory names them for the rewritten
-    # list, and is silent for the superseded paragraph, so both are code-caused: the cause is
-    # the unbound slot fact set of RESEARCH_AND_GUIDELINES.md section 27.2 RC2 and the missing
-    # coverage record of RC6, carried by G2-W13 and G2-W17.
-    dispositions = {e["unit_id"]: e for e in _sealed("dispositions.json")["dispositions"]}
-    assert dispositions["inherited_unit:010.list"]["disposition"] == "VERIFIED_REWRITE"
-    assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
-    reported = _sealed("validation.json")["advisory"]
-    assert [line.split(":", 2)[0] + ":" + line.split(":", 2)[1] for line in reported] == [
-        "inherited_unit:010.list"
+    # A finding re-raised after the one repair attempt its fingerprint allows is code-caused,
+    # never a prose judgment call (RESEARCH_AND_GUIDELINES.md section 26, loop-prompt section 5),
+    # and a deterministic check already expresses the loss: the coverage advisory names the
+    # identifiers each rewritten inherited list no longer carries. The cause is the capability
+    # prose unbound from its title (section 27.2 RC2, G2-W13) and the missing coverage ledger
+    # (RC6, G2-W17); no check is weakened while they stand.
+    re_raised = [
+        finding["id"]
+        for finding in advisory
+        if "re-raised after the one repair attempt" in finding["text"]
     ]
+    assert re_raised == ["F05", "F06", "F07", "F08", "F09", "F10"]
+    dispositions = {
+        entry["unit_id"]: entry for entry in _sealed("dispositions.json")["dispositions"]
+    }
+    reported = _sealed("validation.json")["advisory"]
+    assert [line.split(": ", 1)[0] for line in reported] == [
+        "inherited_unit:010.list",
+        "inherited_unit:067.list",
+    ]
+    for unit in ("inherited_unit:010.list", "inherited_unit:067.list"):
+        assert dispositions[unit]["disposition"] == "VERIFIED_REWRITE"
     for identifier in DROPPED_IDENTIFIERS:
-        assert identifier in reported[0] and identifier in advisory["F02"]["text"]
+        assert any(identifier in line for line in reported), identifier
+
+    # The paragraph superseded into the opening keeps its distinguishing claim, which an earlier
+    # composition lost silently because the retention advisory does not run on a supersession.
     inherited = {fact["id"]: fact["value"] for fact in _sealed("facts.json")["facts"]}
-    paragraph = inherited["inherited_unit:004.paragraph"]
-    assert "pure-Python" in paragraph and "no native runtime" in paragraph
-    assert "pure-Python" not in candidate
+    assert dispositions["inherited_unit:004.paragraph"]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert "pure-Python" in inherited["inherited_unit:004.paragraph"]
+    assert "pure-Python" in candidate
