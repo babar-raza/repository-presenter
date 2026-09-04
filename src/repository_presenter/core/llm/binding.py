@@ -2,9 +2,11 @@
 
 The guard is structural. It walks the output for every key that carries fact or unit IDs and
 checks each against the facts document; it never reads prose. What each binding class requires:
-``fact_ids``, ``selection_ids``, and ``revision_ids`` cite only SUPPORTED facts; ``finding_ids``
-cite facts that exist (a finding may point at a contradicted fact as its evidence); ``unit_ids``
-name every inherited unit exactly once.
+``fact_ids`` and ``selection_ids`` cite only SUPPORTED facts; ``revision_ids`` cite only SUPPORTED
+facts in the repair's own changes, while its ``revised_output`` is bound by the causal stage's own
+binding (a reconciliation repair may cite a contradicted fact for an omission exactly as a fresh
+reply may); ``finding_ids`` cite facts that exist (a finding may point at a contradicted fact as
+its evidence); ``unit_ids`` name every inherited unit exactly once.
 """
 
 from __future__ import annotations
@@ -105,6 +107,10 @@ def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, st
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:
     """Why the output may not be used, or an empty list when every citation holds."""
     known = {fact.id: fact for fact in facts.facts}
+    if binding == "revision_ids" and isinstance(payload, dict):
+        # The revised output is the causal stage's object and is bound by that stage's
+        # binding in the repair checks; here only the repair's own citations are judged.
+        payload = {key: value for key, value in payload.items() if key != "revised_output"}
     cited = collect_ids(payload)
     errors: list[str] = []
     require_supported = binding in {"fact_ids", "selection_ids", "revision_ids"}

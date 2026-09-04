@@ -420,11 +420,6 @@
       "section": "api_reference"
     },
     {
-      "fact_id": "public_symbol:aspose.threed.render",
-      "reason": "The entire aspose.threed.render module raises NotImplementedError and is not usable for rendering scenes to images.",
-      "section": "scope_limitations"
-    },
-    {
       "fact_id": "build_test_asset:tests",
       "reason": "The test directory path is referenced by the code block in inherited_unit:071.code_block and inherited_unit:073.code_block, and the renderer handles test asset references.",
       "section": "development_testing"
@@ -467,8 +462,7 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.shading",
         "example:002",
-        "example:004",
-        "example:009"
+        "example:004"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
@@ -512,7 +506,6 @@
     {
       "fact_ids": [
         "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform",
         "example:002",
         "example:004"
       ],

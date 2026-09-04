@@ -127,3 +127,26 @@ def test_a_symbol_cited_by_its_read_path_binds_to_the_shortest_supported_fact() 
     # A contradicted symbol is never a resolution target, and a known ID is left alone.
     scene = {"fact_ids": ["public_symbol:aspose.threed.scene", "public_symbol:x.scene"]}
     assert resolve_symbol_ids(scene, facts) == []
+
+
+def test_a_repair_binds_its_own_changes_and_leaves_the_revised_output_to_its_stage() -> None:
+    # revision_ids: the repair's change citations must be SUPPORTED; the revised output is the
+    # causal stage's object and is bound by that stage's rules in the repair checks, so a
+    # reconciliation repair may keep an omission that cites a CONTRADICTED example.
+    repair = {
+        "fingerprint": "f" * 64,
+        "causal_stage": "S4",
+        "revised_output": {
+            "dispositions": [
+                {"unit_id": "inherited_unit:001.heading", "fact_ids": ["example:002"]},
+                {"unit_id": "inherited_unit:002.paragraph", "fact_ids": ["identity:repository"]},
+            ]
+        },
+        "changes": [{"id": "R01", "fact_ids": ["identity:repository"]}],
+    }
+    assert binding_errors(repair, FACTS, "revision_ids") == []
+    repair["changes"][0]["fact_ids"] = ["example:002", "nope:1"]
+    assert binding_errors(repair, FACTS, "revision_ids") == [
+        "fact example:002 is CONTRADICTED, not SUPPORTED",
+        "unknown fact ID nope:1",
+    ]

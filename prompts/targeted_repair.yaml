@@ -1,5 +1,5 @@
 prompt_id: targeted_repair
-version: "3"
+version: "4"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
@@ -70,8 +70,9 @@ system: |
   path names the missing evidence, and leave the output otherwise intact.
 
   Rules that are checked mechanically. revised_output satisfies the causal stage's output contract
-  exactly, including its fact-ID binding: every fact ID it cites exists in the facts you were given
-  and is SUPPORTED; an unknown or contradicted ID rejects the repair. Every change lists the JSON
+  exactly, including that stage's own fact-ID binding: authored units and plans cite only SUPPORTED
+  facts, while a reconciliation may cite a CONTRADICTED fact for an omission; an unknown ID rejects
+  the repair, and so does a fact ID in changes that is not SUPPORTED. Every change lists the JSON
   path it touched, the text before and after, and the fact IDs that justify it. Content listed in
   preserve stays present with its meaning intact. The fingerprint you return is the defect's own;
   a second attempt at the same fingerprint is never made, so the repair must be complete. When the

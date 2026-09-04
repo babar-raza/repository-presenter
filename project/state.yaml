@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T05:47:03+05:00"
+updated_at: "2026-09-04T06:20:21+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W06
-  status: READY
+  status: IN_PROGRESS
   purpose: "Injected defects - one factual and one preservation defect are rejected and repaired at their causal stage with accepted unaffected work retained, and the two-attempt rule terminates honestly."
   prerequisites:
     - G2-W05 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.

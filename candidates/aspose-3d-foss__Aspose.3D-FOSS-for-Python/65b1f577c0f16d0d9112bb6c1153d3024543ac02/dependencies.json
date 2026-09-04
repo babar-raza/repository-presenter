@@ -1757,8 +1757,8 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "f4f93d14652d2c2944b4f43a5373d59b3a4bca38191d59beced8605a90aeb4ac",
-      "version": "3"
+      "sha256": "70613fe23fb4a042df30a588d826424ba2859da42d4c3f6febc0ac6ad6f7a482",
+      "version": "4"
     }
   },
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",

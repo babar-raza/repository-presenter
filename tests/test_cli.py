@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
@@ -1616,3 +1617,130 @@ def test_a_protected_content_failure_invalidates_the_proven_candidate(
     assert manifest["state"] == "INVALIDATED"
     assert manifest["invalidated"]["check"] == "BC-08"
     assert manifest["invalidated"]["causal_stage"] == "COMPOSING"
+
+
+# Injected defects (G2-W06): one factual and one preservation defect, each rejected at its
+# causal stage and repaired by one targeted repair that changes only the defective output,
+# with every accepted unaffected unit and upstream artifact retained.
+
+
+def test_an_injected_factual_defect_is_repaired_at_composing_with_the_rest_retained(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    factual = {**_rejection("F01"), "verdict": "REJECT_FACTUAL"}
+    gateway_ready.queues = {
+        "independent_review": [factual, {"verdict": "ACCEPT", "findings": [], "preserve": []}],
+        "targeted_repair": [_opening_repair()],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
+    assert (
+        "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory; rounds 2"
+    ) in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    attempt = repairs["attempts"][OPENING_FINGERPRINT]
+    assert attempt["outcome"] == "repaired"
+    assert [(c["id"], c["path"]) for c in attempt["changes"]] == [("R01", "$.units[0].text")]
+    # Only the defective unit changed: every other authored unit is the accepted one.
+    units = json.loads((transaction / "content_units.json").read_text("utf-8"))["units"]
+    by_section: dict[str, list[dict[str, Any]]] = {}
+    for unit in units:
+        by_section.setdefault(unit["section"], []).append(unit)
+    assert [u["text"] for u in by_section["opening"]] == [REVISED_OPENING]
+    for section, canned in LOCAL_UNITS.items():
+        if section in ("opening", "api_reference"):
+            continue
+        assert by_section.get(section) == canned["units"], section
+    # Upstream work was accepted once and retained: one investigation, reconciliation, and plan.
+    names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
+    assert names.count("repository_investigation") == 1
+    assert names.count("source_reconciliation") == 1
+    assert names.count("presentation_planning") == 1
+    assert names.count("targeted_repair") == 1
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "ACCEPT"
+
+
+def test_an_injected_preservation_defect_is_repaired_at_reconciling(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    context = f"{_PROMPTS['independent_review'].sha256}|{_PROMPTS['targeted_repair'].sha256}"
+    fingerprint = defect_fingerprint("review", "opening", "S4", "preservation", context)
+    finding = {
+        "id": "F01",
+        "section_id": "opening",
+        "causal_stage": "S4",
+        "criterion": "preservation",
+        "text": "The rewrite dropped the inherited paragraph's LICENSE and docs links.",
+        "quote": OPENING_QUOTE,
+        "fact_ids": ["inherited_unit:002.paragraph"],
+        "repair": "Preserve the inherited paragraph where a visitor finds it.",
+    }
+    restored = copy.deepcopy(LOCAL_DISPOSITIONS)
+    restored["dispositions"][1] = {
+        "unit_id": "inherited_unit:002.paragraph",
+        "disposition": "VERIFIED_PRESERVE",
+        "destination_section": "scope_limitations",
+        "fact_ids": ["identity:repository", "link_target:002"],
+        "rationale": "The paragraph's links are verified and it is kept verbatim.",
+    }
+    repair = {
+        "fingerprint": fingerprint,
+        "causal_stage": "S4",
+        "revised_output": restored,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.dispositions[1].disposition",
+                "before": "VERIFIED_REWRITE",
+                "after": "VERIFIED_PRESERVE",
+                "fact_ids": ["inherited_unit:002.paragraph"],
+            }
+        ],
+    }
+    gateway_ready.queues = {
+        "independent_review": [
+            {"verdict": "REJECT_PRESERVATION", "findings": [finding], "preserve": []},
+            {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        ],
+        "targeted_repair": [repair],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
+    assert (
+        "repair: 1 repaired (F01 S4 opening), 0 unrepairable recorded advisory; rounds 2"
+    ) in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    dispositions = json.loads((transaction / "dispositions.json").read_text("utf-8"))
+    paragraph = next(
+        d for d in dispositions["dispositions"] if d["unit_id"] == "inherited_unit:002.paragraph"
+    )
+    assert (paragraph["disposition"], paragraph["destination_section"]) == (
+        "VERIFIED_PRESERVE",
+        "scope_limitations",
+    )
+    readme = (transaction / "README.md").read_text("utf-8")
+    scope = readme.split("## Scope and Limitations\n", 1)[1].split("\n## ", 1)[0]
+    assert (
+        "Original bytes. See [LICENSE](LICENSE) and [docs](https://docs.example.com/3d)." in scope
+    )
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    attempt = repairs["attempts"][fingerprint]
+    assert attempt["outcome"] == "repaired" and attempt["changes"][0]["id"] == "R01"
+    # The causal stage's stored output is superseded; investigation stands, the plan and the
+    # sections were asked again on the restored dispositions, and the review accepts.
+    names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
+    assert names.count("repository_investigation") == 1
+    assert names.count("source_reconciliation") == 1
+    assert names.count("targeted_repair") == 1
+    assert names.count("presentation_planning") == 2
+    assert json.loads((transaction / "review.json").read_text("utf-8"))["verdict"] == "ACCEPT"

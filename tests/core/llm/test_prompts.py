@@ -86,7 +86,7 @@ def test_line_endings_do_not_change_a_manifest_hash(tmp_path: Path) -> None:
         ),
         (
             lambda p: _rewrite(
-                p / "targeted_repair.yaml", 'version: "3"', 'version: "3"\nowner: x'
+                p / "targeted_repair.yaml", 'version: "4"', 'version: "4"\nowner: x'
             ),
             "is malformed",
         ),
