@@ -49,8 +49,11 @@ files, never from memory of a previous iteration.
 ## 1. Orient (at most five minutes)
 
 1. `git status` must be clean. If not, inspect; commit or revert only leftovers you created; never
-   discard work you did not author. Then `gh run list --limit 3`: if the latest hosted CI run for
-   `main` is red, that is this iteration's work (§5).
+   discard work you did not author. Then `gh run list --limit 3`: if the latest *completed* hosted
+   CI run for `main` is red (conclusion `failure`), that is this iteration's work (§5). A run whose
+   conclusion is `cancelled` was superseded by a later push on the same ref under the workflow's
+   cancel-in-progress rule — the owner's governance pushes do this often — and is not red; the
+   verdict for the tree is the latest completed run.
 2. Read `project/state.yaml`: `current_gate`, `active_work_item`, `next_ready_items`,
    `owner_items`, `progress`, `publication.control_repository`.
 3. Read the current gate's section and exit predicates in `docs/EXECUTION_STATE_MACHINE.md`.
@@ -165,8 +168,10 @@ files, never from memory of a previous iteration.
   one model and executes on another by design; the trailer records which one wrote the commit).
 - Push per `publication.control_repository`, then watch the triggered run to completion (`gh run
   list --limit 1` for the pushed SHA, or `gh run watch`) before ending the iteration. A red run is
-  fixed now, in this iteration — never deferred to the next iteration's Orient step. Record the
-  pushed commit and its CI result in the report.
+  fixed now, in this iteration — never deferred to the next iteration's Orient step. If your run
+  was cancelled because a later push superseded it, the later run's result is the verdict for your
+  tree too — wait for it, never treat `cancelled` as red or as green. Record the pushed commit and
+  its CI result in the report.
 
 ## 5. Blockers and failures
 
