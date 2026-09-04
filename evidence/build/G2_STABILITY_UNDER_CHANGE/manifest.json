@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
   "gate": "G2_STABILITY_UNDER_CHANGE",
-  "work_item": "G2-W04",
+  "work_item": "G2-W05",
   "gate_status": "READY",
   "work_item_status": "ACCEPTED",
-  "recorded_at": "2026-09-04T04:27:26+05:00",
-  "control_revision": "58902dd8a35348cb8bf71ddf9a5b62d77b4e2814",
-  "control_revision_note": "Revision verified. The acceptance commit (this manifest plus the cursor advance to G2-W05) is its child, pushed to origin in the same iteration with hosted CI watched.",
+  "recorded_at": "2026-09-04T05:47:03+05:00",
+  "control_revision": "7c75b75ff78df95da08fc414d5e867cb9d278df7",
+  "control_revision_note": "Revision verified. The acceptance commit (this manifest, the protected-content case, and the cursor advance to G2-W06) is its child, pushed to origin in the same iteration with hosted CI watched.",
   "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
   },
   "local_ci_equivalent": {
-    "control_revision": "58902dd8a35348cb8bf71ddf9a5b62d77b4e2814",
+    "control_revision": "7c75b75ff78df95da08fc414d5e867cb9d278df7",
     "runs": [
       {
         "python": "3.11.16",
@@ -43,7 +43,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W04 (IN_PROGRESS)",
+          "work item: G2-W05 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -76,7 +76,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W04 (IN_PROGRESS)",
+          "work item: G2-W05 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -109,7 +109,7 @@
         "status": [
           "repository-presenter 0.1.0",
           "gate: G2_STABILITY_UNDER_CHANGE (READY)",
-          "work item: G2-W04 (IN_PROGRESS)",
+          "work item: G2-W05 (IN_PROGRESS)",
           "candidates: 1/34 current reviewable no-op-proven",
           "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
         ]
@@ -199,128 +199,189 @@
         "sha256": "0ba9b614903ca67bd1fc755832e6219a7dfc8116f3c4939405c53b7e0ed56def"
       }
     },
-    "readme": {
-      "visible_lines": 215,
-      "total_lines": 828
+    "dependency_classes": {
+      "source": {
+        "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+        "tree_sha256": "fdcbf4e8113871f8d7cdeb2f761260041cd358b351ae7cb2bb5f4bef4f964b0d"
+      },
+      "facts": "1718 fact records by digest",
+      "prompts": {
+        "independent_review": {
+          "model_route": "qwen3-next",
+          "sha256": "79ac50f331e7",
+          "version": "5"
+        },
+        "presentation_planning": {
+          "model_route": "qwen3-next",
+          "sha256": "d0af643d7860",
+          "version": "4"
+        },
+        "repository_investigation": {
+          "model_route": "qwen3-next",
+          "sha256": "41c2cca07808",
+          "version": "1"
+        },
+        "section_authoring": {
+          "model_route": "qwen3-next",
+          "sha256": "0a94dd9befc5",
+          "version": "4"
+        },
+        "source_reconciliation": {
+          "model_route": "qwen3-next",
+          "sha256": "090b0756b197",
+          "version": "2"
+        },
+        "targeted_repair": {
+          "model_route": "qwen3-next",
+          "sha256": "f4f93d14652d",
+          "version": "3"
+        }
+      },
+      "components": {
+        "renderer": "15",
+        "shell": "5"
+      },
+      "validators": {
+        "BC-01": "1",
+        "BC-02": "1",
+        "BC-03": "1",
+        "BC-04": "1",
+        "BC-05": "1",
+        "BC-06": "1",
+        "BC-07": "2",
+        "BC-08": "1",
+        "BC-09": "1",
+        "BC-10": "1",
+        "BC-11": "1"
+      },
+      "validator_version": "1",
+      "contract_version": "readme-contract-v1-draft",
+      "acceptance_profile_version": null,
+      "policy": {
+        "sha256": "52cd7a97800a3df8fee21a2c99beb6f62f7d5dff45fb7cd8e6006f7e6b18d9b1",
+        "version": "1"
+      },
+      "protected_content_fingerprint": "e2b91421ffa6"
     },
-    "product_facts": {
-      "link_target:product.enterprise": {
-        "value": "https://products.aspose.com/3d/python-net/",
-        "polarity": "SUPPORTED",
-        "attributes": {
-          "level": "platform",
-          "platform": "python",
-          "role": "enterprise"
-        }
+    "no_op_runs": [
+      {
+        "run": 1,
+        "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)",
+        "exit": "exit 0"
       },
-      "link_target:product.homepage": {
-        "value": "https://products.aspose.org/3d/python/",
-        "polarity": "SUPPORTED",
-        "attributes": {
-          "role": "product homepage"
-        }
+      {
+        "run": 2,
+        "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)",
+        "exit": "exit 0"
       },
-      "link_target:product.banner": {
-        "value": "https://products.aspose.org/media/3d/python/banner-readme.png",
-        "polarity": "SUPPORTED",
-        "attributes": {
-          "role": "banner illustration"
-        }
+      {
+        "run": 3,
+        "bundle": "(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle was reproduced byte for byte with zero provider calls)",
+        "exit": "exit 0"
       }
-    }
+    ]
   },
   "predicates": [
     {
-      "predicate": "The banner (row 3) renders as a linked image only from a verified illustration fact and a verified homepage fact resolved by a live lookup, and is omitted entirely when either is unresolved; the Enterprise Edition paragraph (row 18) closes Scope and Limitations from the verified target, appears exactly once, and names no platform for a family-level target.",
+      "predicate": "A matrix test changes each dependency class in isolation against the sealed canary bundle with the gateway faked and proves the routing from dependencies.json: a changed component reopens only the stages that consumed it, every unaffected artifact is reused with zero provider calls, a presentation-only change records a valid update and keeps the proven candidate, a factual, safety, or protected-content failure invalidates it, and a corrupt or missing bundle artifact fails closed before any provider call.",
       "verdict": "PASS",
-      "evidence": "facts.json: {\"link_target:product.enterprise\": {\"value\": \"https://products.aspose.com/3d/python-net/\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"level\": \"platform\", \"platform\": \"python\", \"role\": \"enterprise\"}}, \"link_target:product.homepage\": {\"value\": \"https://products.aspose.org/3d/python/\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"role\": \"product homepage\"}}, \"link_target:product.banner\": {\"value\": \"https://products.aspose.org/media/3d/python/banner-readme.png\", \"polarity\": \"SUPPORTED\", \"attributes\": {\"role\": \"banner illustration\"}}}; README line '[![Aspose.3D FOSS for Python](https://products.aspose.org/media/3d/python/banner-readme.png)](https://products.aspose.org/3d/python/)' immediately below the badge row; 'Enterprise Edition' appears 2 time(s), in the closing paragraph of Scope and Limitations naming the platform-level target; the omission paths are unit-tested (test_product_pages.py, test_renderer.py, test_planning.py). Commits 64a360a and e5b3f2d."
+      "evidence": "tests/components/readme/bundle/test_evaluation.py: ['test_the_sealed_canary_reopens_nothing_when_nothing_changed', 'test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state'] run against this bundle's committed dependencies.json for ten classes (source revision, a fact record, the investigation, reconciliation, and planning prompts, a model route, the template component, a validator, the reviewer rubric, the planning policy) and the unchanged record (NONE, no global hash key). tests/test_cli.py: ['test_a_changed_prompt_reopens_only_its_stage_and_records_an_update', 'test_a_factual_failure_invalidates_the_proven_candidate', 'test_a_corrupt_bundle_artifact_fails_closed_before_any_call', 'test_a_template_component_change_reopens_composing_and_reuses_every_call', 'test_a_validator_change_reopens_validating_and_rechecks_without_a_call', 'test_a_reviewer_rubric_change_reopens_reviewing_only', 'test_a_model_route_change_reopens_the_stage_that_used_it', 'test_a_planning_policy_change_reopens_planning', 'test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle', 'test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update', 'test_a_protected_content_failure_invalidates_the_proven_candidate'] on the local fixture: component and validator changes reuse every stored output with zero calls and record a presentation update; a rubric change asks only the review and a route change only the plan; a policy change re-plans at most once; a fact record change reopens EXTRACTING and reuses everything the packets do not carry as a factual update; a new source revision seals its own bundle and supersedes the older one on proof; a factual (BC-02) and a protected-content (BC-08) failure invalidate the proven candidate; a missing artifact fails closed with no call. Commits 297a371, 7c75b75, and the acceptance commit."
     },
     {
-      "predicate": "At a Glance renders under its revised condition (row 6) with the section 2.1 topology.",
+      "predicate": "The live canary stays no-op proven after the item: present run three times seals, adopts, and reproduces the bundle byte for byte with zero provider calls, and the bundle's dependencies.json names every dependency class the matrix covers with its version identifier.",
       "verdict": "PASS",
-      "evidence": "The section holds exactly one Mermaid fence: '```mermaid' .. '```'; chain edge ['  PRODUCT --> Capabilities --> Outputs']; Starting Points present: False (SUPPORTED input formats none; unresolved ['format:input.dae', 'format:input.gltf', 'format:input.obj']); 7 capability nodes in two balanced columns; BC-07 judges that shape (registry.py _topology_failures). Commit fca6439; the Starting Points gap is RESEARCH_AND_GUIDELINES.md section 25 item 3."
+      "evidence": "Three runs at 7c75b75: ['(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ', '(state READY_FOR_PROPOSAL, 12 files, provider calls 0; no-op: the proven bundle ']; nothing under src/ changed during the item, so every run is the no-op. dependencies.json (dependency_classes above) carries source, facts, six prompt manifests with sha256, version, and model route, components shell 5 and renderer 15, ten validators with validator_version 1, the contract version, the acceptance profile version (none yet, frozen at G2-W08), the policy version and hash, and the protected-content fingerprint."
     },
     {
-      "predicate": "Additional Examples shows one visible flagship example under its own task-named heading when the plan selects one, and preserves every verified repository-owned image from the inherited README under its own descriptive heading.",
+      "predicate": "Every new module has a production importer exercised by present, and any pulled legacy file has one manifest file record with its SHA-256 at the frozen revision.",
       "verdict": "PASS",
-      "evidence": "plan.json flagship_example_id 'example:005', rendered visibly before the collapsed block (True); the inherited README carries 0 repository-owned image(s), so the image clause holds vacuously here and its mechanism is exercised by the second ecosystem representative (G2-W09). Commit 6604eb9."
-    },
-    {
-      "predicate": "A section-by-section comparison against the live README shows no section, image, or link it has that this candidate lacks, recorded in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.",
-      "verdict": "PASS",
-      "evidence": "comparison below: live H2 sections missing here none; live images missing ['https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg']; live links missing ['https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg', 'https://www.python.org/downloads/'], each a badge-row detail recorded under deviations with its reason (no repository content, image, or documentation link is lost)."
-    },
-    {
-      "predicate": "All eleven blocking checks pass on the canary, the independent review returns ACCEPT with zero advisory findings whose cause is deterministic code, and the sealed bundle carries the result through the adopt-on-proof seal.",
-      "verdict": "PASS",
-      "evidence": "validation.json summary {'fail': 0, 'pass': 11, 'pending': 0}; review ACCEPT with 5 advisories (F01, F03, F02, F04, F05), 5 marked reviewer-scope and 0 unmarked; the one advisory with a deterministic cause (duplicate API table names, F04 in the previous seal) was fixed in the renderer and the table now carries 0 duplicate name(s). Bundle READY_FOR_PROPOSAL with no_op_proof and the adopted update record."
-    },
-    {
-      "predicate": "Every pulled legacy file has one manifest file record; every new module has a production importer exercised by present.",
-      "verdict": "PASS",
-      "evidence": "No legacy file was pulled under this item; the one new module, evidence/facts/product_pages.py, is imported by extract.py, planning.py, renderer.py, dispositions.py, and registry.py and exercised by present; docs/REPOSITORY_LAYOUT.md lists it."
+      "evidence": "No new module and no legacy file: the item landed as tests in the two mirrored test modules the layout names."
     },
     {
       "predicate": "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion.",
       "verdict": "PASS",
-      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of the item (33800665398, 33809276390, 33813400440, 33814977490, 33817345910 on 58902dd)."
+      "evidence": "local_ci_equivalent above at the control revision; hosted CI green for every commit of the item (33820548387, 33822672735, and the acceptance commit's run recorded in its report)."
     }
   ],
-  "comparison": {
-    "live_readme_blob": "47fb6f51ea6d7eedaea25f4769cd0e54fe5e1580",
-    "scope": "README_CONTRACT.md section 2: every section, image, and link of the live README against this candidate",
-    "live_h2": [
-      "## Navigation",
-      "## At a Glance",
-      "## Key Capabilities",
-      "## Installation",
-      "## Dependencies",
-      "## Quick Start",
-      "## Additional Examples",
-      "## API Reference",
-      "## Documentation & Resources",
-      "## Scope and Limitations",
-      "## Development and Testing",
-      "## License"
+  "matrix": {
+    "evaluation_against_sealed_canary": [
+      "test_the_sealed_canary_reopens_nothing_when_nothing_changed",
+      "test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state"
     ],
-    "candidate_h2": [
-      "## Navigation",
-      "## At a Glance",
-      "## Key Capabilities",
-      "## Installation",
-      "## Dependencies",
-      "## Quick Start",
-      "## Additional Examples",
-      "## API Reference",
-      "## Documentation & Resources",
-      "## Scope and Limitations",
-      "## Development and Testing",
-      "## License"
-    ],
-    "live_h2_missing_in_candidate": [],
-    "live_h3_headings": 14,
-    "candidate_h3_headings": 21,
-    "h3_note": "Level-three headings are authored task names over the verified examples and the API hubs; the live README names ten examples where six execute at this revision (facts.json), so the sets differ by content, not by a lost section.",
-    "live_images_missing_in_candidate": [
-      "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg"
-    ],
-    "live_links_missing_in_candidate": [
-      "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg",
-      "https://www.python.org/downloads/"
-    ],
-    "deviations": [
-      {
-        "what": "https://www.python.org/downloads/ as the Python badge target",
-        "why": "the badge row (row 2, deterministic) states python_requires from the manifest fact; no fact verifies a downloads page, so the badge carries no target rather than an unverified link"
-      },
-      {
-        "what": "https://img.shields.io/github/contributors/<repo>.svg as the Contributors badge image",
-        "why": "the same badge with the same target; the candidate uses the shields path without the .svg suffix"
-      }
-    ],
-    "repository_owned_images_in_live": []
+    "transaction_cases": [
+      "test_a_changed_prompt_reopens_only_its_stage_and_records_an_update",
+      "test_a_factual_failure_invalidates_the_proven_candidate",
+      "test_a_corrupt_bundle_artifact_fails_closed_before_any_call",
+      "test_a_template_component_change_reopens_composing_and_reuses_every_call",
+      "test_a_validator_change_reopens_validating_and_rechecks_without_a_call",
+      "test_a_reviewer_rubric_change_reopens_reviewing_only",
+      "test_a_model_route_change_reopens_the_stage_that_used_it",
+      "test_a_planning_policy_change_reopens_planning",
+      "test_a_new_source_revision_reopens_extracting_and_supersedes_the_proven_bundle",
+      "test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update",
+      "test_a_protected_content_failure_invalidates_the_proven_candidate"
+    ]
   },
   "previous_items": [
+    {
+      "work_item": "G2-W04",
+      "recorded_at": "2026-09-04T04:27:26+05:00",
+      "control_revision": "58902dd8a35348cb8bf71ddf9a5b62d77b4e2814",
+      "comparison": {
+        "live_readme_blob": "47fb6f51ea6d7eedaea25f4769cd0e54fe5e1580",
+        "scope": "README_CONTRACT.md section 2: every section, image, and link of the live README against this candidate",
+        "live_h2": [
+          "## Navigation",
+          "## At a Glance",
+          "## Key Capabilities",
+          "## Installation",
+          "## Dependencies",
+          "## Quick Start",
+          "## Additional Examples",
+          "## API Reference",
+          "## Documentation & Resources",
+          "## Scope and Limitations",
+          "## Development and Testing",
+          "## License"
+        ],
+        "candidate_h2": [
+          "## Navigation",
+          "## At a Glance",
+          "## Key Capabilities",
+          "## Installation",
+          "## Dependencies",
+          "## Quick Start",
+          "## Additional Examples",
+          "## API Reference",
+          "## Documentation & Resources",
+          "## Scope and Limitations",
+          "## Development and Testing",
+          "## License"
+        ],
+        "live_h2_missing_in_candidate": [],
+        "live_h3_headings": 14,
+        "candidate_h3_headings": 21,
+        "h3_note": "Level-three headings are authored task names over the verified examples and the API hubs; the live README names ten examples where six execute at this revision (facts.json), so the sets differ by content, not by a lost section.",
+        "live_images_missing_in_candidate": [
+          "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg"
+        ],
+        "live_links_missing_in_candidate": [
+          "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Python.svg",
+          "https://www.python.org/downloads/"
+        ],
+        "deviations": [
+          {
+            "what": "https://www.python.org/downloads/ as the Python badge target",
+            "why": "the badge row (row 2, deterministic) states python_requires from the manifest fact; no fact verifies a downloads page, so the badge carries no target rather than an unverified link"
+          },
+          {
+            "what": "https://img.shields.io/github/contributors/<repo>.svg as the Contributors badge image",
+            "why": "the same badge with the same target; the candidate uses the shields path without the .svg suffix"
+          }
+        ],
+        "repository_owned_images_in_live": []
+      }
+    },
     {
       "work_item": "G2-W03",
       "recorded_at": "2026-09-04T00:02:19+05:00",
@@ -517,5 +578,5 @@
       }
     }
   ],
-  "next_work_item": "G2-W05"
+  "next_work_item": "G2-W06"
 }

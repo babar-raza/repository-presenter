@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-04T05:15:29+05:00"
+updated_at: "2026-09-04T05:47:03+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,33 +29,30 @@ accepted_gates:
   - G1_FIRST_VALID_CANDIDATE
 
 active_work_item:
-  id: G2-W05
-  status: IN_PROGRESS
-  purpose: "Invalidation matrix - change each dependency class in isolation (source revision, fact extractor, prompt, model route, template component, validator, reviewer rubric, link policy) and prove the routing: presentation-only changes yield VALID_UPDATE_AVAILABLE, factual, safety, or protected-content failures invalidate, corrupt or missing bundle artifacts fail closed; unaffected artifacts are reused."
+  id: G2-W06
+  status: READY
+  purpose: "Injected defects - one factual and one preservation defect are rejected and repaired at their causal stage with accepted unaffected work retained, and the two-attempt rule terminates honestly."
   prerequisites:
-    - G2-W04 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - docs/STATE_MACHINE.md (dependency evaluation and bundle states) and docs/RESEARCH_AND_GUIDELINES.md section 18 are read before any change under bundle/ or core/llm/; the sealed bundle at candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02 with its dependencies.json is the baseline every matrix case starts from.
+    - G2-W05 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - docs/STATE_MACHINE.md section 8 (validation and repair routing) and the repair rounds module (src/repository_presenter/components/readme/repair/) are read before any change under repair/ or validation/; the sealed bundle at candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02 is the baseline and stays no-op proven.
   owned_paths:
     - src/repository_presenter/
     - tests/
-    - schemas/
     - prompts/
     - project/state.yaml
   acceptance:
-    - "A matrix test changes each dependency class in isolation against the sealed canary bundle (source revision, fact extractor, prompt, model route, template component, validator, reviewer rubric, link policy) with the gateway faked, and proves the routing from dependencies.json: a changed component reopens only the stages that consumed it, every unaffected artifact is reused with zero provider calls, a presentation-only change records a valid update and keeps the proven candidate, a factual, safety, or protected-content failure invalidates it, and a corrupt or missing bundle artifact fails closed before any provider call."
-    - "The live canary stays no-op proven after the item: present run three times seals, adopts, and reproduces the bundle byte for byte with zero provider calls, and the bundle's dependencies.json names every dependency class the matrix covers with its version identifier."
-    - "Every new module has a production importer exercised by present, and any pulled legacy file has one manifest file record with its SHA-256 at the frozen revision."
+    - "A test injects one factual defect (an authored claim whose cited fact is CONTRADICTED) into a proven local fixture transaction and proves rejection at its causal stage with one targeted repair that changes only the defective unit, every accepted unaffected unit and upstream artifact staying byte-identical, recorded in repairs.json."
+    - "A test injects one preservation defect (a material inherited unit dropped or altered against its disposition) and proves rejection at RECONCILING or COMPOSING with the repair restoring it and the rest retained, recorded in repairs.json."
+    - "The two-attempt rule terminates honestly: a second equivalent failure after the one repair is reported with the fingerprint and never attempted a third time, the transaction failing closed with the proven candidate intact or invalidated only for a factual, safety, or protected-content failure."
+    - "The live canary stays no-op proven after the item (present three times: zero provider calls each) and no new module lacks a production importer."
     - "ruff, ruff format, mypy, and pytest pass locally on Python 3.11, 3.12, and 3.13 with the gateway faked; the commit is pushed and hosted CI is watched to completion."
   evidence_required:
-    - The matrix test module with one case per dependency class and its green run in the local CI equivalent.
-    - The canary bundle's dependencies.json and manifest.json after the item, with the no-op proof.
+    - The injected-defect tests with their repairs.json assertions and their green run in the local CI equivalent.
+    - The canary bundle's manifest.json after the item with the no-op proof.
     - The work-item record in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.
   blocker: null
 
 next_ready_items:
-  - id: G2-W06
-    status: PENDING
-    purpose: "Injected defects - one factual and one preservation defect are rejected and repaired at their causal stage with accepted unaffected work retained, and the two-attempt rule terminates honestly."
   - id: G2-W07
     status: PENDING
     purpose: "Grep-enforced test that no global control-plane hash exists anywhere in src/."

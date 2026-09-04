@@ -1580,3 +1580,39 @@ def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
     assert "facts.json" in manifest["update"]["changed"]
     assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
     assert (bundle / "README.md").read_bytes() == readme_before
+
+
+def test_a_protected_content_failure_invalidates_the_proven_candidate(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from repository_presenter.components.readme.repair import rounds
+
+    bundle = _seal_and_prove(project_with_registry, capsys)
+    genuine = rounds.validate_candidate
+
+    def dropped(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        document = genuine(*args, **kwargs)
+        for check in document["checks"]:
+            if check["id"] == "BC-08":
+                check["verdict"] = "FAIL"
+                check["causal_stage"] = "COMPOSING"
+                check["details"] = ["inherited_unit:001.heading was altered in place"]
+        document["summary"] = {"pass": 9, "fail": 1, "pending": 1}
+        return document
+
+    # A protected-content failure, like a factual one, invalidates the accepted candidate
+    # (docs/STATE_MACHINE.md section 9); a presentation failure never would.
+    monkeypatch.setattr(rounds, "validate_candidate", dropped)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "BC-08 failed at COMPOSING" in captured.err
+    assert "(state INVALIDATED; BC-08 failed at COMPOSING)" in captured.out
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "INVALIDATED"
+    assert manifest["invalidated"]["check"] == "BC-08"
+    assert manifest["invalidated"]["causal_stage"] == "COMPOSING"
