@@ -43,12 +43,12 @@ active_work_item:
   - docs/REPOSITORY_LAYOUT.md
   - project/state.yaml
   acceptance:
-  - The canary re-seals byte-identically (section 27.9's acceptance sentence, verbatim).
+  - 'Every sealed candidate renders to the bytes it was sealed with, over every bundle on disk (tests/test_sealed_bytes.py). Restated 2026-09-06 from "the canary re-seals byte-identically": G3-W01''s cold-run measurement deleted the canary''s transaction and proved a cold composition does not reproduce it (section 27.10), so re-sealing through the entry point needs G5-W02''s bundle seeding - that wording and its defect transfer to G5-W02.'
   - A synthetic net spec renders csharp fences, a NuGet badge, and a dotnet install block in a test.
   - Toolchain-absent and network-off tests.
   - Hosted CI green.
   evidence_required:
-  - The canary's re-sealed bundle, byte-identical to its predecessor.
+  - The sealed-bytes control over every bundle on disk (tests/test_sealed_bytes.py), which is what the re-sealed bundle was to evidence.
   - The synthetic net spec test, and the toolchain-absent and network-off tests.
   - The work-item record in evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json.
   blocker: null

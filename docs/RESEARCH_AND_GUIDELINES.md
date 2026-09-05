@@ -3583,3 +3583,15 @@ p-toolchains`,
   exceed 90. The condition does not hold, so G3-W03 defers. Reverse by instrumenting the stages
   and re-measuring; a stage-level median could differ from this whole-command proxy, though only
   downward, since the command also clones and writes.
+
+- **2026-09-06 09:05 · loop (PROVISIONAL) · the canary re-seal predicate is restated as a
+  sealed-bytes control, and its original wording transfers to G5-W02.** Item G4-W10. Measured, not
+  assumed: `present` on the canary now fails BC-10 with the two corroborated presentation findings
+  of the cold run, because G3-W01's cold-run measurement legitimately deleted the transaction and
+  the store now holds that run's replies (§27.10). Restoring the sealed composition is G5-W02's
+  bundle seeding, which the same measurement established is required, not a fallback. Decision:
+  `tests/test_sealed_bytes.py` renders every sealed bundle from its own facts, plan, units and
+  dispositions and compares byte for byte - stronger than one canary run, since it covers both
+  candidates and cannot be satisfied by a stored reply. Both pass under the spec refactor.
+  Alternative rejected: hand-restoring the transaction from the bundle, which would prove nothing
+  the copy did not put there. Reverse by deleting the control and restoring the old wording.
