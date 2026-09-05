@@ -61,11 +61,14 @@ packages = ["src/repository_presenter"]
 line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
-# Sealed bundles are content-addressed evidence, never source: a formatter must not touch them.
-extend-exclude = ["candidates"]
+# Sealed bundles are content-addressed evidence, never source, and vendored code stays byte-close
+# to its origin so the next pull is a diff and not a merge (section 29.6 E2): the linter and the
+# formatter leave both alone, and the relaxation reaches nothing else.
+extend-exclude = ["candidates", "src/repository_presenter/components/readme/extractors/surface/_vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
+
 
 [tool.mypy]
 python_version = "3.11"
@@ -73,6 +76,11 @@ strict = true
 warn_unreachable = true
 platform = "linux"
 files = ["src"]
+
+[[tool.mypy.overrides]]
+# Confined to the vendor boundary: nothing outside it is exempt (section 29.6 E2, F4).
+module = "repository_presenter.components.readme.extractors.surface._vendor.*"
+ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

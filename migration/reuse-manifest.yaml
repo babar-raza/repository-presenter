@@ -827,6 +827,266 @@ expected_asset_dispositions:
       - Shape regression material only; not an acceptance oracle.
 
 file_records:
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/api_surface.py
+    sha256: 96cd6b5f2a9b74e9ba3a779a283d2ba4685c3e9d78bb4426b7e104e072acfd01
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/api_surface.py
+    retained_behavior:
+      - Tree-sitter surface extraction for six languages - public types, members, signatures, and the declaring file and line each was read from.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/tree_helpers.py
+    sha256: 42e084567857c42083384ccf1414d3d7f2b00c5dbbe0a83ace2a9b21ab392744
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/tree_helpers.py
+    retained_behavior:
+      - Node walking shared by every language adapter - child lookup by field and type, text slicing, and comment association.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/__init__.py
+    sha256: 7b01567b8c395131d83809109a7659bee0d2ebd315014961ffaa4ab738db9c03
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/__init__.py
+    retained_behavior:
+      - The adapter registry - which module reads which language's nodes.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/cpp.py
+    sha256: e6002da942d16ed75e0458e507b45d6d24e18bc6e2cf3136d5e10e86b15f1245
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/cpp.py
+    retained_behavior:
+      - C++ node types to symbols, including namespaces and template declarations.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/csharp.py
+    sha256: cc3af1f5e2c074d7898b3b64d2aa72583b15bd1674bca3edf1fa5af4d833f644
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/csharp.py
+    retained_behavior:
+      - C# node types to symbols, including nested types and accessors.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/go.py
+    sha256: 5c3a6ffb91fc3d048007986557c53627cce93699de1f7d589bb5df0866d37861
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/go.py
+    retained_behavior:
+      - Go node types to symbols, including receivers and exported-name rules.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/java.py
+    sha256: 67561e3b2153fbb5dd90c510abb388a2542b191724f2fd106760ff15ae3a032f
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/java.py
+    retained_behavior:
+      - Java node types to symbols, including packages and nested classes.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/python.py
+    sha256: a23052470d94b353a05bba9433803a0f553a0cf19c2f39c8b6b742f846efeaca
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/python.py
+    retained_behavior:
+      - Python node types to symbols, kept for the parity control against this repository's own extractor.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/rust.py
+    sha256: 63ae3c006e036f56cb9f33028b2b0568ffbb7962e4c11b0a06645e3b9413a7e5
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/rust.py
+    retained_behavior:
+      - Rust node types to symbols, including impl blocks and visibility.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/lang/typescript.py
+    sha256: 614bae4eaab232302e11e424a764b984bda46b31302443e07896cecb968f5997
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/lang/typescript.py
+    retained_behavior:
+      - TypeScript node types to symbols, including barrel re-exports and declaration files.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+    acceptance: >
+      The module imports under this repository's package name and the vendor boundary test
+      holds: nothing outside the facade imports it, and the lint and typing relaxations name
+      only the vendor directory. Its extraction output is admitted through the parity control
+      and the contract's checks, never by origin.
+    import_closure:
+      - scripts/pipeline/extraction/api_surface.py
+      - scripts/pipeline/extraction/tree_helpers.py
+      - scripts/pipeline/extraction/lang/ (eight modules)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never from the 424-file dirty working tree.
+      One recorded patch: every `from extraction.X import` becomes this package's absolute
+      path, and the origin's `__init__` re-export module is replaced by an empty one, because
+      it imported package_root and package_manifest - other facades' closure, not this one's.
   - source_path: src/readme_agent/errors.py
     sha256: 628397a3aa5a66416891539c178a32b829d5151f386cf6250c1c3d3177521b48
     disposition: EXTRACT_AND_REFACTOR

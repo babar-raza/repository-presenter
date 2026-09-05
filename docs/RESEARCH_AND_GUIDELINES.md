@@ -3502,7 +3502,8 @@ p-toolchains`,
   squash-merged as `9ccd621` touching exactly `docs/RESEARCH_LANE_B.md`,
   `evidence/build/lanes/lane-b/LANE-B-00.json` and `project/lanes/lane-b.yaml`; PR #1 (old convention)
   closed unmerged, branch deleted; rustup 1.29.1 / cargo 1.98.1 and tsc 5.9.3 provisioned under
-  `C:	oolsp-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect found
+  `C:	ools
+p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect found
   by the lane: `pytest -n auto` is nondeterministic on this machine because `tests/test_cli.py`
   fixtures compose against the real gateway when `GPT_OSS_ENDPOINT`/`GPT_OSS_API_KEY` are in the
   process environment (six runs: 503 passed; 501+2 errors; 500+3 errors+1 failed; 500+2 errors — a
@@ -3618,7 +3619,10 @@ p-toolchains`,
 
 - **2026-09-06 10:20 · loop (PROVISIONAL) · the closure and the toolchains, measured before the
   spend.** Item G4-W09. Read through `git show 16d75e95d4:<path>`, the import closure of the roots
-  the item names is **10 files and 9,289 lines** — `api_surface` 3,765, `formats` 2,047,
+  the item names is **18 files and 10,901 lines** (corrected 2026-09-06 10:55: the first walk said
+  10 files and 9,289 lines because it followed `from extraction.X import` but not
+  `from extraction import lang`, and so missed the eight language adapters; §29.2's estimate of
+  17 files and ~10,500 lines was right and mine was low) — `api_surface` 3,765, `formats` 2,047,
   `dependency_extract` 1,114, `tree_helpers` 1,009 — plus the five `package_registries` submodules,
   so about 15 files against §29.2's estimate of 17 and ~10,500 lines. Three of the named paths are
   under `scripts/pipeline/`, not the repository root, and `lib/package_registries` is a package,
@@ -3632,3 +3636,15 @@ p-toolchains`,
   seven grammars parse with the network blocked; a first `get_parser("c_sharp")` raised
   DownloadError over a 371-language manifest, which is the pack's spelling (`csharp`), not a
   network dependency.
+
+- **2026-09-06 11:00 · loop (PROVISIONAL) · the surface closure is vendored; the other two façades'
+  closures are not.** Item G4-W09. Pulled at 16d75e95d4: `api_surface`, `tree_helpers` and the
+  eight `lang/` adapters — 10 files, 6,386 lines — under
+  `extractors/surface/_vendor/aspose_extraction`, one file record each, hashed from `git show`
+  rather than the dirty working tree. Two recorded patches: every `from extraction.X import`
+  becomes this package's absolute path, and the origin's `__init__` re-export module is replaced
+  by an empty one, because it imported `package_root` and `package_manifest` — the ManifestReader
+  façade's closure, not this one's. That is the seam cut §3 prefers to a wholesale pull.
+  `formats`, `package_manifest`, `package_root`, `dependency_extract`, `publication_probe` and
+  `package_registries` stay unpulled until their own façade needs them. Reverse by deleting the
+  directory, its ten records, and the two linter overrides.
