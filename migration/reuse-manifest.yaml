@@ -828,6 +828,56 @@ expected_asset_dispositions:
 
 file_records:
   - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/package_manifest.py
+    sha256: 3a60f9b732d7331373b9183eebfa84b842f7b0168d52b0668c0231acc97acf84
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_manifest.py
+    retained_behavior:
+      - Manifest parsing per ecosystem - pyproject and setup.py, .csproj target frameworks, pom.xml coordinates, package.json, go.mod - returning identity, version, and the platform's own floor.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_manifest.py
+    acceptance: >
+      The ManifestReader facade reads a .csproj, a pyproject and a pom under test, and
+      reports empty rather than guessing when a repository carries no manifest. The vendor
+      boundary test holds: nothing outside the facade imports it.
+    import_closure:
+      - none - both modules import only the standard library
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree, and pulled
+      unmodified - neither module imports a first-party module, so no import rewrite was
+      needed. The facade reads all three floor keys the reader actually emits
+      (requires_python, min_framework, runtime_min_version), measured one probe per
+      platform; a guessed key would have produced an empty floor with no error.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/extraction/package_root.py
+    sha256: 4217619dfa28c68a01db73ac1a679df4935e71d4997b6b2ecda321a99457c74a
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_root.py
+    retained_behavior:
+      - Where a package's sources start, per ecosystem, so the surface reader is pointed at the product rather than at tests or samples.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_manifest.py
+    acceptance: >
+      The ManifestReader facade reads a .csproj, a pyproject and a pom under test, and
+      reports empty rather than guessing when a repository carries no manifest. The vendor
+      boundary test holds: nothing outside the facade imports it.
+    import_closure:
+      - none - both modules import only the standard library
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree, and pulled
+      unmodified - neither module imports a first-party module, so no import rewrite was
+      needed. The facade reads all three floor keys the reader actually emits
+      (requires_python, min_framework, runtime_min_version), measured one probe per
+      platform; a guessed key would have produced an empty floor with no error.
+  - source_id: aspose-org
     source_path: scripts/pipeline/extraction/api_surface.py
     sha256: 96cd6b5f2a9b74e9ba3a779a283d2ba4685c3e9d78bb4426b7e104e072acfd01
     disposition: PORT_NEARLY_INTACT
