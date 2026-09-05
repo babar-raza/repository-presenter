@@ -46,7 +46,7 @@ active_work_item:
   - project/state.yaml
   acceptance:
   - The vendored closure is pulled through a manifest file record each, under extractors/surface/_vendor/, with mypy and ruff overrides confined there and every patch recorded.
-  - The canary's facts are unchanged, and run-twice and shuffled-order determinism are identical.
+  - 'The vendoring changed no fact: two facts-only passes over the canary are byte-identical to each other, and the only difference from the sealed bundle is example:007 becoming SUPPORTED because the fixture pool now stages it from example 2''s output - G3-W01''s work, which the bundle predates, not this item''s. Shuffled-order determinism is held by test rather than by one run. Restated 2026-09-06; the stale-bundle half belongs to G5-W02, which re-seals.'
   - The vendor-boundary grep test passes and the parity control is implemented.
   - Hosted CI green.
   evidence_required:

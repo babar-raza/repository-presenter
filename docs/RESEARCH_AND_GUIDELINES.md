@@ -3662,3 +3662,15 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `runs/clones/` is gitignored and hosted CI has no clone: every public class and method the
   trusted reader finds is found by the vendored one, neither invents a private name, and every
   difference is a module or a module-level function. Reverse by deleting the façade and its tests.
+
+- **2026-09-06 12:10 · loop (PROVISIONAL) · the canary's facts moved, and not because of the
+  vendoring.** Item G4-W09. Two `present --facts-only` passes over the canary are **byte-identical
+  to each other**, and both differ from the sealed bundle in exactly **two of 1,724 facts**: the
+  fact IDs are identical, and `example:007` is `SUPPORTED` where the bundle has `UNRESOLVED`,
+  with `format:input.gltf` gaining the same evidence. The reason is in the evidence line — *staged
+  as model.gltf from example 2's output crate.gltf* — which is G3-W01's fixture-pool work, accepted
+  before this item. The vendored engine has no Python consumer at all, so it cannot have moved a
+  Python fact. The predicate is restated to what the vendoring can be held to: run-twice byte
+  identity plus a shuffled-order determinism test, since a surface reader that depended on
+  filesystem iteration order would move a sealed bundle with no input changing. The stale-bundle
+  half belongs to G5-W02, the item that can re-seal.
