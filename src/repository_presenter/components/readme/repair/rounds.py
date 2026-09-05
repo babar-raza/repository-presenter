@@ -72,7 +72,6 @@ from repository_presenter.components.readme.repair.targeted import (
 )
 from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
-    demote_findings,
     review_checks,
     review_document,
     review_packet,
@@ -364,22 +363,6 @@ def repair_defect(
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
 
-def demote_re_raised(
-    tx: TransactionInputs, current: Round, repeated: Sequence[Defect], repairs: RepairLedger
-) -> Round:
-    """Record the re-raised findings and rewrite review.json and validation.json so the
-    verdict follows the blocking findings that remain."""
-    for defect in repeated:
-        repairs.note_re_raised(defect)
-    current.review = demote_findings(current.review, [d.label for d in repeated])
-    current.digests["review"] = write_review(current.review, tx.directory / REVIEW_FILENAME)
-    current.validation = record_review_verdict(current.validation, current.review)
-    current.digests["validation"] = write_validation(
-        current.validation, tx.directory / VALIDATION_FILENAME
-    )
-    return current
-
-
 def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:
     """Rounds until the candidate is accepted, a defect cannot be repaired, or a fingerprint
     would be attempted twice; returns the last round, the attempts, and the round count."""
@@ -394,15 +377,17 @@ def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:
             if not defect.repairable and not repairs.attempted(defect.fingerprint):
                 repairs.record(defect, "unrepairable")
         repeated = [d for d in defects if d.repairable and repairs.attempted(d.fingerprint)]
-        if any(d.source == "validation" for d in repeated):
-            break  # a blocking check failed again after its one repair: reported, never retried
         if repeated:
-            # A review finding re-raised after its one attempt is a reviewer-scope defect:
-            # recorded advisory, it never blocks a second time (README_CONTRACT.md section 6).
-            current = demote_re_raised(tx, current, repeated, repairs)
-            defects = round_defects(current, tx)
-            if not defects:
-                break
+            # A defect re-raised after its one repair attempt never demotes, whatever its
+            # source: acceptance is decided by content, never by directory history
+            # (RESEARCH_AND_GUIDELINES.md section 27.2 RC5, section 27.5 D5). It is code-caused
+            # - add the check, per section 26 - or it blocks; either way it is reported here,
+            # never retried a third time from a different mechanism. A validation check and a
+            # review finding are held to the one rule, so neither gets a demotion path the
+            # other lacks.
+            for defect in repeated:
+                repairs.note_re_raised(defect)
+            break
         # One attempt per fingerprint: the round's equivalent defects fold into one repair.
         fresh = merge_equivalent(
             [d for d in defects if d.repairable and not repairs.attempted(d.fingerprint)]

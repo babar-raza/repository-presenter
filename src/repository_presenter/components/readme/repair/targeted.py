@@ -228,7 +228,9 @@ class RepairLedger:
         self.write()
 
     def note_re_raised(self, defect: Defect) -> None:
-        """A finding re-raised after its fingerprint's one attempt: recorded, never retried."""
+        """A defect re-raised after its fingerprint's one attempt: recorded, never retried, and
+        never demoted on that account alone (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5) -
+        it blocks, and the transaction reports it rather than trying a third time."""
         attempt = self.attempts[defect.fingerprint]
         re_raised = list(attempt.get("re_raised", []))
         if defect.label not in re_raised:
@@ -253,7 +255,10 @@ class RepairLedger:
         parts = [f"{len(repaired)} repaired" + (f" ({', '.join(repaired)})" if repaired else "")]
         parts.append(f"{advisory} unrepairable recorded advisory")
         if re_raised:
-            parts.append(f"{re_raised} re-raised after repair recorded advisory")
+            # Never "recorded advisory": a re-raised defect blocks and the transaction reports
+            # it (section 27.5 D5), the same outcome an unrepairable one on its first attempt
+            # does not get.
+            parts.append(f"{re_raised} re-raised after repair; the equivalent failure stands")
         return ", ".join(parts)
 
 

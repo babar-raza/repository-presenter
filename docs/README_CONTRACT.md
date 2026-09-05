@@ -10,11 +10,14 @@ output — and was held until one did (G2-W02 sealed at `65b1f577`). The discipl
 enters only as a coherent fix to a predicate that a sealed candidate's defects proved insufficient,
 never as a new requirement ahead of output. The 2026-09-04 revisions are three such fixes — check 4's
 slot binding, check 4's title support (G2-W13, the defect measured in §27.2 RC2), and row 14's
-uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md` §26 or §27. §25 records
-the reasoning for the discipline itself. Pending revisions, each traced to a measured defect in §27
-and carried by a named work item — check 11 by G5-W02, §6 by G2-W16, a new check 12 by G2-W17 —
-are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this
-document only in that item's commit, together with its code and tests.  
+uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md` §26 or §27. The
+2026-09-05 revision is a fourth — §6's demotion rule (G2-W16, the defect measured in §27.2 RC5:
+acceptance depended on `repairs.json`'s directory history, not on content) — landed with the code
+that stops demoting a re-raised finding, in the same commit. §25 records the reasoning for the
+discipline itself. Pending revisions, each traced to a measured defect in §27 and carried by a
+named work item — §6's zero-advisory-on-required-rows clause by G2-W16, check 11 by G5-W02, a new
+check 12 by G2-W17 — are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this document
+only in that item's commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
 aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
 how a reader receives it — evidence to check against, never a third authority (`EXECUTION_STATE_MACHINE.md`
@@ -224,9 +227,13 @@ criterion profile.
 
 Repair may change LLM-owned content units and plan selections, and may reopen extraction when
 evidence is missing. Deterministic blocks change only when their facts change. A reviewer finding
-that cannot be acted on within that scope is recorded as advisory, never blocks a second time, and
-is reported as a reviewer-scope defect. Repair attempts are one per equivalent fingerprint; the
-second failure changes evidence, prompt, model route, or stage.
+demotes to advisory only when a deterministic check contradicts it or shows the section it names is
+outside repair's scope — content decides, never how many times the finding has been seen. A finding
+re-raised after its one repair attempt never demotes on that account alone: it is code-caused (a
+deterministic check should have caught it, so the check is added and the cause fixed at its stage)
+or it blocks, reported as the transaction's outcome rather than retried a third time. Repair
+attempts are one per equivalent fingerprint; the second failure changes evidence, prompt, model
+route, or stage.
 
 ## 7. Bundle layout
 

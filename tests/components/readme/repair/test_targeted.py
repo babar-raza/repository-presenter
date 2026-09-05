@@ -205,9 +205,11 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
     reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
     reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))
     assert RepairLedger(tmp_path / "repairs.json").attempts["abc"]["re_raised"] == ["F03"]
+    # Never "recorded advisory": a re-raised defect blocks, whether it came from validation or
+    # review (RESEARCH_AND_GUIDELINES.md section 27.5 D5).
     assert reloaded.summary() == (
         "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory, "
-        "1 re-raised after repair recorded advisory"
+        "1 re-raised after repair; the equivalent failure stands"
     )
     data = (tmp_path / "repairs.json").read_bytes()
     assert data.endswith(b"}\n") and list(json.loads(data)) == ["attempts", "schema_version"]

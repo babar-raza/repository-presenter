@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -297,32 +297,6 @@ def review_document(
         "identity_separate": reviewer.manifest.prompt_id != authoring.manifest.prompt_id
         and reviewer.sha256 != authoring.sha256,
     }
-
-
-RE_RAISED_REASON = "re-raised after the one repair attempt its fingerprint allows"
-
-
-def demote_findings(document: dict[str, Any], finding_ids: Sequence[str]) -> dict[str, Any]:
-    """review.json with the named blocking findings recorded advisory as reviewer-scope defects
-    (docs/README_CONTRACT.md section 6: never blocks a second time), the verdict following the
-    blocking findings that remain."""
-    wanted = set(finding_ids)
-    findings: list[dict[str, Any]] = []
-    advisory = list(document.get("advisory", []))
-    for finding in document.get("findings", []):
-        if finding.get("id") in wanted:
-            advisory.append(
-                {
-                    **finding,
-                    "causal_state": None,
-                    "reviewer_scope_defect": RE_RAISED_REASON,
-                }
-            )
-        else:
-            findings.append(finding)
-    returned = str(document.get("verdict_as_returned", document.get("verdict")))
-    verdict = returned if findings or returned == ACCEPT else ACCEPT
-    return {**document, "verdict": verdict, "findings": findings, "advisory": advisory}
 
 
 def summarize_review(document: dict[str, Any]) -> str:

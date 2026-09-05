@@ -1000,31 +1000,38 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     }
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     captured = capsys.readouterr()
-    # The re-raised finding had its one attempt: it is recorded advisory and never blocks
-    # again, so the candidate proceeds on the blocking findings that remain, which is none.
-    assert code == EXIT_OK and "state ACCEPTED" in captured.out
+    # The re-raised finding had its one attempt: it never demotes on that account alone
+    # (RESEARCH_AND_GUIDELINES.md section 27.5 D5) - it blocks, reported rather than retried a
+    # third time, the same outcome a repeated validation failure gets.
+    assert code == EXIT_INCONSISTENT
+    assert (
+        "BC-10 failed at COMPOSING: REJECT_PRESENTATION; "
+        "after one repair attempt the equivalent failure stands"
+    ) in captured.err
     assert (
         "repair: 1 repaired (F01 S6 opening), 0 unrepairable recorded advisory, "
-        "1 re-raised after repair recorded advisory; rounds 2"
+        "1 re-raised after repair; the equivalent failure stands; rounds 2"
     ) in captured.out
     assert len(gateway_ready.requests) == 15
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     review = json.loads((transaction / "review.json").read_text("utf-8"))
-    assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
-    assert [f["id"] for f in review["advisory"]] == ["F02"]
-    # Why it no longer blocks is a field; the reviewer's own words are left alone.
-    assert review["advisory"][0]["reviewer_scope_defect"] == (
-        "re-raised after the one repair attempt its fingerprint allows"
-    )
-    assert review["advisory"][0]["causal_stage"] == "S6"
+    assert review["verdict"] == "REJECT_PRESENTATION"
+    assert [f["id"] for f in review["findings"]] == ["F02"]
+    assert review["findings"][0]["causal_stage"] == "S6"
+    assert review["advisory"] == []
     validation = json.loads((transaction / "validation.json").read_text("utf-8"))
-    assert validation["summary"] == {"pass": 10, "fail": 0, "pending": 1}
+    assert validation["summary"] == {"pass": 9, "fail": 1, "pending": 1}
     repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    assert repairs["attempts"][OPENING_FINGERPRINT]["outcome"] == "repaired"
     assert repairs["attempts"][OPENING_FINGERPRINT]["re_raised"] == ["F02"]
-    # The rerun reaches the same outcome from the stored outputs with no call.
+    # A rerun reaches the identical, still-blocking outcome from the stored outputs, no call.
     again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     rerun = capsys.readouterr()
-    assert again == EXIT_OK and "state READY_FOR_PROPOSAL" in rerun.out
+    assert again == EXIT_INCONSISTENT
+    assert (
+        "BC-10 failed at COMPOSING: REJECT_PRESENTATION; "
+        "after one repair attempt the equivalent failure stands"
+    ) in rerun.err
     assert len(gateway_ready.requests) == 15
     assert json.loads((transaction / "review.json").read_text("utf-8")) == review
 
