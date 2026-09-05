@@ -1942,6 +1942,22 @@ invalidation tests fail intermittently under `-n auto` and never serially or on 
 each builds a virtual environment and installs the clone to verify examples, and enough of them at
 once exhausts the machine. Four consecutive full runs: green, green with three lost, green.
 
+**Measured (the loop, 2026-09-05, G2-W17, the repair loop engaging).** With the ledger scoped to
+its composition, the canary's repair loop attempted **seven repairs where it had attempted none**,
+and blocking findings fell from seven to four; all six advisories were refuted, by the absence rule
+and the renderer-owned rule. The composition still ends `EXIT_INCONSISTENT`. Before that run the
+review failed closed a second time on quote location: the reviewer quoted the install verification
+as one flattened string, fence and all, and the fence's language tag survived where the candidate's
+own fence line dropped it - `verify the install: bash python -c ...` against `verify the install:
+python -c ...`. Two rejections, then a `JobError` instead of a verdict; the normaliser now drops a
+fence marker and its language wherever it appears, as it already did for a Mermaid label's
+quotation marks. The four findings that remain: one calls Key Capabilities' phrasing generic, one
+says Enterprise Relationship omits a link, and **two are the original README contradicting a
+verified fact** - the candidate renders 337 public types and 34 test files, both computed from
+facts, and the reviewer prefers the original's stale 305 and 33. The contract already says an
+inherited README unit is maintainer text, not evidence; the reviewer's packet does not enforce it
+for a `presentation` finding that cites no fact at all.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -3112,3 +3128,10 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   the stored response, the second when an escalation re-plans. Evidence: §27.2, 2026-09-05 - seven
   findings, nineteen re-raised, no repair attempted. Reverse by dropping `composition` from
   `RepairLedger`.
+- **2026-09-05 · G2-W17 · a structural marker the candidate carries on its own line must
+  normalise away inline too.** A reviewer flattens the document into its quote; the fence marker
+  and its language now go wherever they appear, as the Mermaid label's quotation marks already do.
+  Alternative rejected: rejecting the reviewer's reply and re-asking, which is what happened twice
+  and ended the transaction on a `JobError` rather than a verdict. Evidence: §27.2, 2026-09-05 -
+  two review failures, both on quote location, both asymmetries of the same kind. Reverse by
+  removing the fence pattern from `_MARKUP`.
