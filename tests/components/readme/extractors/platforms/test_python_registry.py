@@ -33,8 +33,15 @@ def test_found_distribution_reports_latest_and_published_state() -> None:
     assert calls == ["https://pypi.org/pypi/aspose-3d-foss/json"]
     assert observation.found and observation.latest_version == "26.1.0"
     assert observation.manifest_version_published is True
-    assert observation.summary == (
-        "package registry: found; latest 26.1.0; manifest version published"
+    # The summary is what the fact's evidence carries, so the version stays out of it and
+    # travels in the probe record instead (section 27.2 RC7).
+    assert observation.summary == "package registry: found; manifest version published"
+    assert observation.status == 200 and observation.elapsed_ms is not None
+    probe = observation.probe
+    assert (probe.kind, probe.outcome, probe.observation) == (
+        "package_registry",
+        "FOUND",
+        "latest 26.1.0",
     )
     older = observe_pypi(
         "aspose-3d-foss", "25.0.0", fetch=_fetch_with([_project("26.1.0", ["26.1.0"])])[1]

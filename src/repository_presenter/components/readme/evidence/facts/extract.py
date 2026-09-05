@@ -24,6 +24,7 @@ from repository_presenter.core.facts import (
     FactsDocument,
     fact_id,
 )
+from repository_presenter.core.probes import ProbeRecord
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.snapshot.capture import RepositorySnapshot
 
@@ -54,9 +55,15 @@ def extract_facts(
     examples: Sequence[ExampleCandidate] = (),
     receipts: Sequence[ExampleReceipt] = (),
     receipts_path: str = RECEIPTS_FILENAME,
-) -> FactsDocument:
-    """Every deterministic fact the snapshot supports, in one document."""
+) -> tuple[FactsDocument, list[ProbeRecord]]:
+    """Every deterministic fact the snapshot supports, and every live read that informed one.
+
+    The probe records are returned rather than folded into the facts because they carry what a
+    fact must not: the duration of a read, and a reading that changes without the repository
+    changing (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC7).
+    """
     facts = identity_facts(entry, snapshot)
+    probes: list[ProbeRecord] = []
     facts.extend(example_facts(examples, receipts, receipts_path))
     facts.extend(
         format_facts(
@@ -69,8 +76,10 @@ def extract_facts(
     )
     if manifest is not None:
         manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
-        observed = {fact.id: fact for fact in plugin.registry_facts(manifest_facts)}
+        registry_facts, registry_probes = plugin.registry_facts(manifest_facts)
+        observed = {fact.id: fact for fact in registry_facts}
         facts.extend(observed.get(fact.id, fact) for fact in manifest_facts)
+        probes.extend(registry_probes)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     facts.extend(license_facts(clone_path, snapshot.license_path, snapshot.notices_path))
     facts.extend(asset_facts(tree_paths))
@@ -78,9 +87,12 @@ def extract_facts(
     if snapshot.readme_path is not None:
         readme_bytes = (clone_path / snapshot.readme_path).read_bytes()
         facts.extend(inherited_unit_facts(snapshot.readme_path, readme_bytes))
-        facts.extend(link_facts(snapshot.readme_path, readme_bytes, tree_paths))
-    return FactsDocument(
+        link_records, link_probes = link_facts(snapshot.readme_path, readme_bytes, tree_paths)
+        facts.extend(link_records)
+        probes.extend(link_probes)
+    document = FactsDocument(
         repository=entry.repository,
         source_revision=snapshot.source_revision,
         facts=tuple(facts),
     )
+    return document, probes

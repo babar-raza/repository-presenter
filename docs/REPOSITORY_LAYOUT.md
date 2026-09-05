@@ -30,6 +30,7 @@ src/repository_presenter/
     retry.py                bounded retry policies on tenacity
     facts.py                typed fact records and the facts.json writer (the extraction boundary)
     examples.py             shared example-verification types and the receipts writer
+    probes.py               what a live read observed - status, timing, volatile reading - kept out of the hashed facts
     execution.py            bounded secret-free execution of repository examples
     config.py               gateway configuration from the process environment (a subpackage once G4 adds GitHub App configuration)
     git_safety/              push-neutered clone, safety checks

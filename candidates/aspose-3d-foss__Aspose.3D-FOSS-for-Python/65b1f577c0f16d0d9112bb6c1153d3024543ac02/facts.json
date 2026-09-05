@@ -1851,7 +1851,7 @@
           "path": "setup.py"
         },
         {
-          "detail": "package registry: found; latest 26.1.0; manifest version published",
+          "detail": "package registry: found; manifest version published",
           "path": "https://pypi.org/pypi/aspose-3d-foss/json"
         }
       ],

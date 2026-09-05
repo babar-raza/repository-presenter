@@ -68,10 +68,18 @@ def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.Mo
     plugin = plugin_for(ENTRY.ecosystem)
     tree_paths = list_tree_paths(clone.path)
 
-    document = extract_facts(
+    document, probes = extract_facts(
         ENTRY, snapshot, clone.path, tree_paths, plugin, plugin.detect_manifest(clone.path)
     )
 
+    # Every live read is recorded beside the facts, never inside them: a probe carries the
+    # duration and the registry's current version, which no fact may hash (section 27.2 RC7).
+    assert {probe.kind for probe in probes} <= {"link", "package_registry"}
+    assert all(probe.elapsed_ms is not None for probe in probes)
+    hashed = " ".join(
+        evidence.detail or "" for fact in document.facts for evidence in fact.evidence
+    )
+    assert "latest " not in hashed
     ids = sorted(fact.id for fact in document.facts)
     assert ids == [
         "build_test_asset:tests",
@@ -109,7 +117,7 @@ def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.Mo
     schema = json.loads((REPO_ROOT / "schemas" / "facts.schema.json").read_text("utf-8"))
     assert list(Draft202012Validator(schema).iter_errors(json.loads(document.to_json()))) == []
 
-    again = extract_facts(
+    again, _ = extract_facts(
         ENTRY, snapshot, clone.path, tree_paths, plugin, plugin.detect_manifest(clone.path)
     )
     assert again.to_json() == document.to_json()
@@ -125,7 +133,9 @@ def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Pa
     snapshot = capture_snapshot(ENTRY.repository, clone)
     plugin = plugin_for("python")
 
-    document = extract_facts(ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin, None)
+    document, _ = extract_facts(
+        ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin, None
+    )
 
     assert {fact.kind for fact in document.facts} == {
         "identity",

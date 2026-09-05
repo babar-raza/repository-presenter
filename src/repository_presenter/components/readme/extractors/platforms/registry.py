@@ -15,6 +15,7 @@ from repository_presenter.core.examples import (
     FormatDeclaration,
 )
 from repository_presenter.core.facts import Fact
+from repository_presenter.core.probes import ProbeRecord
 
 
 class PlatformPlugin(Protocol):
@@ -33,8 +34,10 @@ class PlatformPlugin(Protocol):
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
         """Public symbols of the product packages, read statically from the tree."""
 
-    def registry_facts(self, facts: Sequence[Fact]) -> list[Fact]:
-        """Facts re-issued with the package registry's observation; matched by ID on merge."""
+    def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
+        """Facts re-issued with the package registry's observation, matched by ID on merge, and
+        the probe record of the read itself - status, timing, and the volatile reading a fact
+        must not carry (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC7)."""
 
     def verify_examples(
         self,

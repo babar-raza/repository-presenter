@@ -209,7 +209,7 @@ def test_registry_facts_reissue_the_install_claim_with_the_observation(
         return RegistryObservation(name, f"https://pypi.org/pypi/{name}/json", True, "26.1.0", True)
 
     monkeypatch.setattr(plugin_module, "observe_pypi", observe)
-    [resolved] = plugin.registry_facts(facts)
+    [resolved], [probe] = plugin.registry_facts(facts)
     assert seen == [("aspose-3d-foss", "26.1.0")]
     assert (resolved.id, resolved.polarity, resolved.confidence) == (
         "install_command:pip",
@@ -218,20 +218,30 @@ def test_registry_facts_reissue_the_install_claim_with_the_observation(
     )
     assert resolved.evidence[1].path == "https://pypi.org/pypi/aspose-3d-foss/json"
     assert "manifest version published" in resolved.evidence[1].detail
+    # The version the registry happens to hold today is the probe's, never the fact's: hashing
+    # it reopened EXTRACTING whenever PyPI published (section 27.2 RC7).
+    assert "26.1.0" not in resolved.evidence[1].detail
+    assert (probe.kind, probe.target, probe.outcome) == (
+        "package_registry",
+        "https://pypi.org/pypi/aspose-3d-foss/json",
+        "FOUND",
+    )
+    assert probe.observation == "latest 26.1.0"
 
     monkeypatch.setattr(
         plugin_module,
         "observe_pypi",
         lambda name, version: RegistryObservation(name, "u", False),
     )
-    assert plugin.registry_facts(facts)[0].polarity == "CONTRADICTED"
+    assert plugin.registry_facts(facts)[0][0].polarity == "CONTRADICTED"
     monkeypatch.setattr(
         plugin_module,
         "observe_pypi",
         lambda name, version: RegistryObservation(name, "u", False, error="ConnectError"),
     )
-    assert plugin.registry_facts(facts)[0].polarity == "UNRESOLVED"
-    assert plugin.registry_facts(facts[:1]) == []
+    assert plugin.registry_facts(facts)[0][0].polarity == "UNRESOLVED"
+    # No install claim to resolve means no fact re-issued and no read made.
+    assert plugin.registry_facts(facts[:1]) == ([], [])
 
 
 def test_the_dependency_snapshot_records_verified_zero_and_extras_by_bucket(

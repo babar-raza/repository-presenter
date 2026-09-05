@@ -49,6 +49,7 @@ from repository_presenter.core.facts import (
     Polarity,
     fact_id,
 )
+from repository_presenter.core.probes import ProbeRecord
 
 MANIFEST_NAMES = ("pyproject.toml", "setup.cfg", "setup.py")
 _NON_PRODUCT_TOP_LEVEL = frozenset({"tests", "test", "docs", "examples", "pyi", "scripts", "build"})
@@ -243,13 +244,18 @@ class PythonPlugin:
         package_dirs = [dotted.replace(".", "/") for dotted in package_directories(tree_paths)]
         return public_symbol_facts(inspect_public_surface(root, package_dirs))
 
-    def registry_facts(self, facts: Sequence[Fact]) -> list[Fact]:
-        """Resolve the pip install claim against PyPI; the fact keeps its ID and gains evidence."""
+    def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
+        """Resolve the pip install claim against PyPI; the fact keeps its ID and gains evidence.
+
+        The read's status, its duration, and the registry's current latest version go to the
+        probe record instead of the evidence, so a release published upstream cannot reopen a
+        stage for a repository that did not change (section 27.2 RC7).
+        """
         by_id = {fact.id: fact for fact in facts}
         install = by_id.get("install_command:pip")
         name = by_id.get("package:name")
         if install is None or name is None:
-            return []
+            return [], []
         version = by_id.get("package:version")
         observation = observe_pypi(name.value, version.value if version else None)
         polarity: Polarity
@@ -273,7 +279,7 @@ class PythonPlugin:
                 polarity=polarity,
                 confidence=confidence,
             )
-        ]
+        ], [observation.probe]
 
     def verify_examples(
         self,

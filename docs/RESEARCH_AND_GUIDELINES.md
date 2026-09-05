@@ -1875,6 +1875,21 @@ before the receipt is written, in either separator; the canary's receipt carries
 and no absolute path, the bundle re-sealed with a presentation-only update, and a fresh process
 reproduced it byte for byte with zero provider calls.
 
+**Measured (the loop, 2026-09-05, G2-W17, RC7).** `install_command:pip` carried
+`package registry: found; latest 26.1.0; manifest version published` as hashed evidence, so every
+release PyPI published would have rewritten the fact and reopened EXTRACTING for a repository that
+had not changed - the same shape as the `ReadTimeout` that reopened EXTRACTING and invalidated the
+bundle earlier that day. The evidence now reads `package registry: found; manifest version
+published`, and the volatile part travels in a sealed `probes.json`: 15 records on the canary, 14
+link reads and one registry read, each with its HTTP status and its duration, the registry record
+carrying `latest 26.1.0` as its observation. No `latest` string survives anywhere in the hashed
+evidence. Sealing the record exposed the same defect the receipt had: timing differs on every run,
+so the first re-seal withdrew the no-op proof with `probes.json changed since the last seal`.
+`probes.json` joins `calls.jsonl` and the manifest as a file that carries a clock by design and is
+not compared byte for byte - three files, none of which a candidate depends on. The bundle is 14
+files, the update was adopted by a fresh process with zero provider calls, and the run after it was
+a no-op.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -1993,9 +2008,11 @@ discipline (small commits, green CI, evidence per item).
 - §6 (G2-W17, 2026-09-05): a finding that alleges an absence states what it claims is missing as
   text the code can look for, and a required row admits zero advisories *left standing* - a finding
   a deterministic check refuted is not deferred work and never blocks.
-- §7 (G2-W17, 2026-09-05): the bundle's file list names `examples.json` and `repairs.json`, and
-  says why - a bundle carries every artifact its own facts cite as evidence, so nothing a fact
-  points at is left dangling outside the seal.
+- §7 (G2-W17, 2026-09-05): the bundle's file list names `examples.json`, `probes.json` and
+  `repairs.json`, and says why - a bundle carries every artifact its own facts cite as evidence,
+  so nothing a fact points at is left dangling outside the seal; `probes.json` records what a live
+  read cost and any reading that moves without the repository, and carries a clock, so it is not
+  compared byte for byte in the no-op proof.
 - Check 11: fresh-state proof (fresh process and empty `runs/`).
 - §3 placement rule 3: visibility inheritance as a section property, and the `.code_block`
   carve-out documented or removed.
@@ -2861,3 +2878,9 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   bundle a reviewer opens. Evidence: §27.2, 2026-09-05 - twelve facts citing a file the bundle did
   not hold, and four invalidation tests failing on a receipt that differed only by where the run
   happened. Reverse by dropping the two names from `OPTIONAL_ARTIFACTS` and `_redact`.
+- **2026-09-05 · G2-W17 · a live read's volatile part is sealed beside the facts, never inside
+  them.** The registry's latest version, the HTTP status and the duration go to `probes.json`;
+  the fact's evidence keeps only what is stable while the repository is unchanged. Alternative
+  rejected: keeping the version in the evidence and accepting a reopen whenever PyPI publishes,
+  which is RC7 exactly. Evidence: §27.2, 2026-09-05 (RC7) - 15 probe records, no `latest` string
+  in any hashed evidence. Reverse by restoring the version to `RegistryObservation.summary`.

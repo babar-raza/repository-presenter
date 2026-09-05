@@ -13,9 +13,9 @@ proof; on a proven bundle it records a valid update instead and touches no artif
 with zero provider calls proves it, so the bundle adopts it as its proven content and keeps the
 previous proof on the manifest for the record.
 
-Two files carry timestamps by design and are exempt from the byte comparison: the ledger and the
-manifest itself. validation.json is compared with check 11 blanked, since the proof is what
-judges it. CURRENT names the revision a reviewer opens.
+Three files carry a clock by design and are exempt from the byte comparison: the ledger, the
+manifest itself, and the probe record. validation.json is compared with check 11 blanked, since
+the proof is what judges it. CURRENT names the revision a reviewer opens.
 """
 
 from __future__ import annotations
@@ -72,9 +72,14 @@ OPTIONAL_ARTIFACTS = (
     "investigation.json",
     "content_units.json",
     "examples.json",
+    "probes.json",
     "repairs.json",
 )
-REPLAY_EXEMPT = frozenset({"calls.jsonl", BUNDLE_MANIFEST_NAME})
+# Three files carry a clock by design and cannot be compared byte for byte across runs: the
+# ledger, the manifest, and the probe record, whose whole point is how long a live read took
+# (core/probes.py; RESEARCH_AND_GUIDELINES.md 27.2 RC7). Nothing a candidate depends on is
+# only in them.
+REPLAY_EXEMPT = frozenset({"calls.jsonl", "probes.json", BUNDLE_MANIFEST_NAME})
 STATE_ACCEPTED = "ACCEPTED"
 STATE_READY = "READY_FOR_PROPOSAL"
 

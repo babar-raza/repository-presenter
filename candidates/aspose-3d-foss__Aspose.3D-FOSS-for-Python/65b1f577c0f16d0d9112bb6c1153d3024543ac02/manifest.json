@@ -1,18 +1,19 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-05T14:01:42Z",
+    "adopted_at": "2026-09-05T16:02:30Z",
     "changed": [
-      "examples.json"
+      "dependencies.json",
+      "facts.json"
     ],
-    "classification": "presentation",
-    "earliest_affected_stage": "NONE",
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-05T13:48:16Z",
+      "proven_at": "2026-09-05T14:01:42Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-05T14:00:54Z"
+    "recorded_at": "2026-09-05T16:01:37Z"
   },
   "composition": {
     "advisories": 3,
@@ -31,8 +32,8 @@
       "sha256": "81f590414224aaca8220fc6274aa2e41db1541328af61bc927a19d0e9134cae1"
     },
     "calls.jsonl": {
-      "bytes": 209100,
-      "sha256": "1bd11ba0d031e994380084aa0d4021111b7699b24d0cb002ee493a526f23474b"
+      "bytes": 260181,
+      "sha256": "a2ec5fabdaccebf1561b208df9170a7fbcc633e62789933351bb812188351fb2"
     },
     "content_units.json": {
       "bytes": 73255,
@@ -40,7 +41,7 @@
     },
     "dependencies.json": {
       "bytes": 223286,
-      "sha256": "91620010f510907ba5acebc0236c4435441647562365fdac1c664d54ec0e24f7"
+      "sha256": "664fffc6b960ee041785bca1c0999020b6bc9bb0522dbc2e53c4ef13e2e2cd26"
     },
     "dispositions.json": {
       "bytes": 34051,
@@ -51,8 +52,8 @@
       "sha256": "3e09be01a99dd3b3f69a5efca72b978dc6e3c9665a3ee8b9cb4d91afa9fb4210"
     },
     "facts.json": {
-      "bytes": 1136750,
-      "sha256": "692a2dbb8f5c482147787419bb22e79299a59c961e412d827e42109a8c7e28ec"
+      "bytes": 1136735,
+      "sha256": "79148432e936528a88fbc833ca259616aa6a5712e5ef2f0c7c590253f1419e4b"
     },
     "investigation.json": {
       "bytes": 8122,
@@ -61,6 +62,10 @@
     "plan.json": {
       "bytes": 7873,
       "sha256": "f7f3eeb453bdba1c253fbc35a3d4aacac94d798aa8ace0649a1effc262c4dd6c"
+    },
+    "probes.json": {
+      "bytes": 2868,
+      "sha256": "61c5742fa9f2b92c2e92e4d1e6764a9008bdf28c127c7b55713ec67e4a41b731"
     },
     "repairs.json": {
       "bytes": 24114,
@@ -78,13 +83,13 @@
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-05T14:01:42Z",
+    "proven_at": "2026-09-05T16:02:30Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
-  "sealed_at": "2026-09-05T14:01:42Z",
+  "sealed_at": "2026-09-05T16:02:30Z",
   "state": "READY_FOR_PROPOSAL"
 }

@@ -20,6 +20,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 from repository_presenter.core.facts import Evidence, Fact, Polarity, fact_id
+from repository_presenter.core.probes import ProbeRecord
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
 
 LinkKind = Literal["external", "anchor", "relative", "mailto", "other"]
@@ -52,6 +53,9 @@ class LinkTarget:
 class LinkResult:
     outcome: LinkOutcome
     detail: str
+    # What the read cost and what it returned, for the probe record; a local check has neither.
+    status: int | None = None
+    elapsed_ms: int | None = None
 
 
 def _classify(href: str) -> LinkKind:
@@ -161,16 +165,22 @@ def check_external(
             raise RetryableOperationError(f"HTTP {status}")
         return status, final
 
+    started = time.monotonic()
+
+    def since_start() -> int:
+        return int((time.monotonic() - started) * 1000)
+
     try:
         status, final = run_with_retry("link_check", attempt, sleep=sleep or time.sleep)
     except RetryableOperationError as exc:
-        return LinkResult("UNCHECKED", f"unreachable: {exc}")
+        return LinkResult("UNCHECKED", f"unreachable: {exc}", elapsed_ms=since_start())
+    elapsed = since_start()
     redirected = f" via {final}" if final != href else ""
     if 200 <= status < 300:
-        return LinkResult("RESOLVED", f"HTTP {status}{redirected}")
+        return LinkResult("RESOLVED", f"HTTP {status}{redirected}", status, elapsed)
     if status in _ACCESS_GATED_STATUSES:
-        return LinkResult("UNCHECKED", f"HTTP {status} (access-gated){redirected}")
-    return LinkResult("MISSING", f"HTTP {status}{redirected}")
+        return LinkResult("UNCHECKED", f"HTTP {status} (access-gated){redirected}", status, elapsed)
+    return LinkResult("MISSING", f"HTTP {status}{redirected}", status, elapsed)
 
 
 def check_relative(href: str, tree_paths: Sequence[str]) -> LinkResult:
@@ -218,18 +228,31 @@ def link_facts(
     *,
     fetch: Callable[[str], tuple[int, str]] | None = None,
     sleep: Callable[[float], None] | None = None,
-) -> list[Fact]:
-    """One ``link_target`` fact per distinct link, resolved by its kind.
+) -> tuple[list[Fact], list[ProbeRecord]]:
+    """One ``link_target`` fact per distinct link, resolved by its kind, and one probe record
+    per link read over the network.
 
     ``fetch`` is looked up at call time so a test's patched ``fetch_status`` always applies.
+    The timing a probe record carries never reaches a fact: it differs on every run, and a fact's
+    evidence is hashed (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC7).
     """
     text = readme_bytes.decode("utf-8", errors="replace")
     slugs = heading_slugs(text)
     facts: list[Fact] = []
+    probes: list[ProbeRecord] = []
     for target in extract_links(text):
         if target.kind == "external":
             result = check_external(target.href, fetch=fetch, sleep=sleep)
             where = target.href
+            probes.append(
+                ProbeRecord(
+                    "link",
+                    target.href,
+                    result.outcome,
+                    status=result.status,
+                    elapsed_ms=result.elapsed_ms,
+                )
+            )
         elif target.kind == "anchor":
             result = check_anchor(target.href, slugs)
             where = readme_path
@@ -253,4 +276,4 @@ def link_facts(
                 confidence=1.0 if result.outcome != "UNCHECKED" else 0.5,
             )
         )
-    return facts
+    return facts, probes

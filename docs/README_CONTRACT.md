@@ -252,11 +252,15 @@ advisory count either way.
 
 `candidates/<owner>__<name>/<revision>/` holds `README.md`, `README.patch`, `facts.json`,
 `investigation.json`, `dispositions.json`, `plan.json`, `content_units.json`, `examples.json`,
-`validation.json`, `review.json`, `repairs.json`, `calls.jsonl`, `dependencies.json`, and
-`manifest.json`. A bundle carries every artifact its own facts cite as evidence: `examples.json`
-is the verification receipt each `example` fact names, and `repairs.json` the record of what a
-repair attempted, so neither is left dangling outside the seal. A transaction that composed
-without one seals without it. The manifest seals the
+`probes.json`, `validation.json`, `review.json`, `repairs.json`, `calls.jsonl`,
+`dependencies.json`, and `manifest.json`. A bundle carries every artifact its own facts cite as
+evidence: `examples.json` is the verification receipt each `example` fact names, and
+`repairs.json` the record of what a repair attempted, so neither is left dangling outside the
+seal. `probes.json` records every live read that informed a fact — its status, how long it took,
+and any reading that changes without the repository changing, such as a registry's latest
+version — because a fact's evidence is hashed and must not move when only the world does. A
+transaction that composed without one seals without it; `probes.json` and `calls.jsonl` carry a
+clock, so neither is compared byte for byte in the no-op proof. The manifest seals the
 bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
 `candidates/<owner>__<name>/CURRENT` names the revision of the current candidate so a reviewer
 opens one stable path. Superseded revisions stay in place with state `SUPERSEDED`.

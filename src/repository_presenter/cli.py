@@ -98,6 +98,7 @@ from repository_presenter.core.preflight import (
     run_gateway_preflight,
     write_catalog,
 )
+from repository_presenter.core.probes import PROBES_FILENAME, write_probes
 from repository_presenter.core.registry.loader import (
     REGISTRY_RELATIVE_PATH,
     load_registry,
@@ -304,9 +305,10 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             for outcome, count in sorted(Counter(r.outcome for r in receipts).items())
         )
         print(f"examples: {len(candidates)} candidates; {outcomes or 'none'}")
-        document = extract_facts(
+        document, probes = extract_facts(
             entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
         )
+        write_probes(probes, transaction / PROBES_FILENAME)
         facts_digest = write_facts(document, transaction / FACTS_FILENAME)
         kinds = sorted({fact.kind for fact in document.facts})
         counts = ", ".join(f"{kind} {len(document.by_kind(kind))}" for kind in kinds)

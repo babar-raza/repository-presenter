@@ -97,7 +97,7 @@ def test_link_facts_carry_both_the_readme_location_and_the_resolution() -> None:
         "https://pypi.org/project/aspose-3d-foss/": 200,
         "https://example.com/": 404,
     }
-    facts = link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u))
+    facts, probes = link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u))
     by_value = {f.value: f for f in facts}
     assert [f.id for f in facts][:3] == ["link_target:001", "link_target:002", "link_target:003"]
     assert by_value["LICENSE"].polarity == "SUPPORTED"
@@ -112,4 +112,11 @@ def test_link_facts_carry_both_the_readme_location_and_the_resolution() -> None:
     assert pypi.evidence[0].detail == "line 3; external; text 'PyPI'"
     assert pypi.evidence[1].path == "https://pypi.org/project/aspose-3d-foss/"
     assert pypi.evidence[1].detail == "RESOLVED: HTTP 200"
-    assert link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u)) == facts
+    # One probe record per external read, with the status and the duration the fact omits.
+    assert {probe.target for probe in probes} == set(statuses)
+    assert {probe.outcome for probe in probes} == {"RESOLVED", "MISSING"}
+    assert all(probe.elapsed_ms is not None for probe in probes)
+    assert {probe.status for probe in probes} == {200, 404}
+    assert (
+        link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u))[0] == facts
+    )
