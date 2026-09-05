@@ -88,6 +88,11 @@ SEALED_LEDGER = (
 )
 FIRST_ATTEMPT_FLOOR = 85.0
 REASK_CEILING = 15.0
+# G2-W20's own predicate, met when the two prose families became constructive: the slot, its
+# facts, and what the renderer prints beside it all travel in the call, so a section_authoring
+# reply cannot be short of a slot, cite another slot's fact, or need to restate a link or a
+# command. Measured 14 of 14 on the composition sealed 2026-09-05 (section 27.10).
+AUTHORING_FLOOR = 97.0
 
 
 def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
@@ -96,6 +101,7 @@ def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
     assert total.calls >= 20, "too few provider calls for the ratio to mean anything"
     assert total.first_attempt_rate >= FIRST_ATTEMPT_FLOOR
     assert total.reask_share <= REASK_CEILING
+    assert statistics["section_authoring"].first_attempt_rate >= AUTHORING_FLOOR
     # Every job the composition runs is measured, so a new job cannot slip in unmeasured.
     # targeted_repair is conditional - a composition the reviewer accepts outright, as this one
     # currently does, never calls it - so its absence is not itself a regression.

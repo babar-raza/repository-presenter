@@ -1,21 +1,76 @@
 {
-  "advisory": [],
+  "advisory": [
+    {
+      "absent": [
+        "python3 -m pip install aspose-3d-foss"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):",
+      "repair": "Replace `pip install aspose-3d-foss` with `python3 -m pip install aspose-3d-foss` to match the verified command.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate uses `pip install aspose-3d-foss` instead of the verified `python3 -m pip install aspose-3d-foss` command."
+    },
+    {
+      "absent": [
+        "python3 -m pip install -e .",
+        "cd Aspose.3D-FOSS-for-Python",
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F02",
+      "quote": "To work from a source checkout instead, install the clone with pip:",
+      "repair": "Restore the editable install instructions exactly as in the original: `git clone ...`, `cd ...`, `python3 -m pip install -e .`.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cd Aspose.3D-FOSS-for-Python', 'git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git', 'python3 -m pip install -e .', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate omits the editable install verification step present in the original README."
+    },
+    {
+      "absent": [
+        "python3 -c ",
+        "from aspose.threed import Scene"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F03",
+      "quote": "Verify the install:",
+      "repair": "Replace `python -c ",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'from aspose.threed import Scene', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate's verification command `python -c "
+    }
+  ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "aadf706ca95efdeb7443d74e5be48610888dece82604a07805f66f89b6951515",
+    "prompt_sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "b1283b06b92973fadc860b5da74b9b23b2c83bd10b78449a471101d5c7308695",
+  "readme_sha256": "73fce16435f330cc5a7351ca5702e6d47615636215a56ac858c482a8d6df4aeb",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "a9a12b01d6a513a8efed6a3da21d018b56811526dbbbe7de051ddb64b2ed5c96",
+    "prompt_sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
     "stage": "S10"
   },
   "schema_version": 1,
   "verdict": "ACCEPT",
-  "verdict_as_returned": "ACCEPT"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }

@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W22",
+ "work_item": "G2-W20",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-05T14:19:33+05:00",
- "control_revision": "4562798e8208d4a847eb827fef9802fd4b38937a",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest, the restated predicate, the provisional decisions and the cursor advance to G2-W17) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-05T18:33:45+05:00",
+ "control_revision": "2614db6c4280693754a14e1fa1a4d8f299097b43",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the re-sealed bundle, the code and tests, and the cursor advance to G2-W17) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "4562798e8208d4a847eb827fef9802fd4b38937a",
+  "control_revision": "2614db6c4280693754a14e1fa1a4d8f299097b43",
   "note": "loop-prompt section 3: one interpreter locally, the hosted matrix authoritative.",
   "runs": [
    {
@@ -39,18 +39,18 @@
     "canary": [
      {
       "run": 1,
-      "provider_calls": 55,
-      "outcome": "from-scratch composition under planning v9: 6 findings, 5 repairs, 4 re-raised, zero escalations, EXIT_INCONSISTENT on families G2-W17 and G2-W20 own (section 27.2)"
+      "provider_calls": 15,
+      "outcome": "re-authored under section_authoring v12: 14 of 14 authoring calls accepted first, review ACCEPT with 0 findings and 3 advisories, all eleven checks PASS"
      },
      {
       "run": 2,
       "provider_calls": 0,
-      "outcome": "replayed from the store; every stage reused, same digests"
+      "outcome": "a fresh process reproduced the waiting update byte for byte with zero provider calls; the bundle adopted it and check 11 was judged"
      },
      {
       "run": 3,
       "provider_calls": 0,
-      "outcome": "byte-identical to run 2, line for line, zero calls at every stage"
+      "outcome": "no-op: the proven bundle reproduced byte for byte, zero calls"
      }
     ]
    }
@@ -58,29 +58,29 @@
  },
  "predicates": [
   {
-   "predicate": "A synthetic finding whose fix drops or adds a plan slot escalates once to a plan-level repair at S5 and round-trips through S6 to S8 to ACCEPT.",
+   "predicate": "An authored unit never writes a URL or a command as text: it references a link_target or install_command fact by ID from a per-call enum the packet and the schema carry for the slot, and the renderer emits the link or command from the fact.",
    "verdict": "PASS",
-   "evidence": "tests/test_cli.py::test_a_repair_needing_a_slot_the_plan_never_assigned_escalates_once_to_planning drives a scope_limitations finding whose repair fills a slot the plan never assigned. Both authoring attempts are rejected for it, the defect escalates once under its own derived fingerprint, the plan repair adds the material limitation, and the next round re-plans and re-authors the section with the slot the revised plan assigns: repairs.json records the authoring attempt escalated at S6 and the plan repair repaired at S5, content_units.json carries scope and limitation:1, and the review returns ACCEPT."
+   "evidence": "authoring_schema emits one prefixItems entry per slot, in the task's order, pinning the section, the slot, and exactly the fact IDs the plan assigned it; the gateway enforces it by position (the probe in section 27.10). slot_rendering puts what the renderer prints beside the slot - the link with its label, the command block - into the packet, so the unit has no reason to restate it. On the sealed composition no authoring reply wrote a URL, a host, or a command."
   },
   {
-   "predicate": "A synthetic finding still unable to produce a schema-valid revision after the one escalation blocks, reported rather than retried.",
+   "predicate": "A synthetic reply with a literal URL is rejected while the referential form renders the same link, proven by test; unit_checks keeps rejecting both families.",
    "verdict": "PASS",
-   "evidence": "::test_a_repair_still_unrepairable_after_its_one_escalation_blocks queues a plan repair that empties core_capabilities, which its own contract rejects twice. The escalated fingerprint is recorded unrepairable, the plan is untouched, the finding stands, and the run ends EXIT_INCONSISTENT with BC-10 failing at COMPOSING. The escalation is one attempt, not a licence to keep asking."
+   "evidence": "tests/components/readme/composition/test_renderer.py::test_a_literal_url_is_rejected_while_the_referential_form_renders_the_same_link drives one documentation slot three ways: the literal URL is rejected for the URL and for its host as a non-fact identifier, a sentence naming a command is rejected for the command, and the referential unit passes while render_readme emits - **[Docs](https://docs.example.com/3d)** from the fact it cites."
   },
   {
-   "predicate": "The escalation is proven by the repair job's own binding - the causal stage's output contract - and never inferred from the finding's prose.",
+   "predicate": "section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured from the sealed calls.jsonl by the ledger helper.",
    "verdict": "PASS",
-   "evidence": "SlotSetProbe compares two sets of slot names: the plan's, and the ones the revision returned, read in repair_checks before the stage's own checks normalise the units they judge. tests/components/readme/repair/test_targeted.py::test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision covers kept, dropped and added. Nothing reads the finding's text, so W16's AST guard over the routing modules (tests/test_routing_fields.py) still passes unchanged."
+   "evidence": "14 of 14 (100%) on the sealed bundle's calls.jsonl. tests/core/llm/test_ledger.py::test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor now asserts the per-job floor of 97 beside the 85 total floor, so a regression in this job fails here."
   },
   {
-   "predicate": "No defect in a fresh composition of the canary is left unrepairable for want of a slot-set change. Restated 2026-09-05 from the ACCEPT-with-zero-advisories wording (section 31).",
+   "predicate": "The canary re-seals byte-identically or with its recorded delta, its rerun is byte-identical with zero provider calls, and the sealed bundle is committed.",
    "verdict": "PASS",
-   "evidence": "The from-scratch composition of 2026-09-05 recorded zero escalations and no slot-set defect: repairs.json shows five repairs, none escalated, none unrepairable. It ends EXIT_INCONSISTENT on six findings across six sections - a command written as prose (G2-W20's family), an API-reference omission and a scope-limitations omission (G2-W17's), an example claim, a preservation claim, and one claim the document contradicts. Those causes are transferred to the items that own them; section 27.2 carries the measurement and section 31 the decision and the alternative rejected."
+   "evidence": "The composition changed at PLANNING and the delta is recorded in the manifest's update; a fresh process reproduced it byte for byte with zero provider calls and the bundle adopted it, then a further run reproduced the proven bundle with zero calls. The bundle is committed in this iteration's commit, its ledger measuring 95.0% against section 27.6 control 1's floor of 85."
   },
   {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary rerun is byte-identical with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit.",
    "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. Two consecutive reruns of the composition are identical line for line with zero provider calls at every stage - investigation, reconciliation, planning, authoring, coherence and review all reused from the store. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
+   "evidence": "Every local step exit 0 on 3.13. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
   }
  ],
  "previous_items": [
@@ -97,7 +97,9 @@
   "G2-W13",
   "G2-W16",
   "G2-W19",
-  "G2-W21"
+  "G2-W21",
+  "G2-W22",
+  "G2-W22"
  ],
  "next_work_item": "G2-W17",
  "candidate": {
@@ -108,29 +110,30 @@
   "no_op_proof": {
    "byte_identical": true,
    "fresh_process": true,
-   "proven_at": "2026-09-05T07:41:11Z",
+   "proven_at": "2026-09-05T13:22:03Z",
    "provider_calls": 0
   },
   "composition": {
-   "advisories": 0,
+   "advisories": 3,
    "blocking_failures": [],
-   "coverage_advisories": 0,
+   "coverage_advisories": 1,
    "review_verdict": "ACCEPT",
-   "review_verdict_as_returned": "ACCEPT"
+   "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "blocking_checks": "BC-01 to BC-11 all PASS on the sealed candidate"
  },
  "measurement": {
-  "escalations": 0,
-  "note": "The rule this item adds never fired on the canary, because no repair's binding proved a slot-set change: that is the predicate, not a gap. The escalation is proven by its two synthetic cases instead. The sealed candidate at 65b1f577 is untouched and still counts; the composition attempted this iteration is rejected and sealed nothing.",
+  "section_authoring_first_attempt": "14 of 14 (100%)",
+  "sealed_ledger_first_attempt": "19 of 20 (95.0%)",
+  "note": "The sealed ledger's one rejection is presentation_planning's shared_fact_ids family, from the planning call this composition consumed, whose prompt wording was corrected after that call was made. The two families this item owns - a URL or a host written as text, and a command written in a sentence - do not appear at all, where the same canary carried seven such rejections on 2026-09-05 before the change (section 27.10).",
   "sealed_candidate": {
    "state": "READY_FOR_PROPOSAL",
    "composition": {
-    "advisories": 0,
+    "advisories": 3,
     "blocking_failures": [],
-    "coverage_advisories": 0,
+    "coverage_advisories": 1,
     "review_verdict": "ACCEPT",
-    "review_verdict_as_returned": "ACCEPT"
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
    }
   }
  },

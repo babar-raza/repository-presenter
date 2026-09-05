@@ -8,49 +8,85 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.scene"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.node"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.node"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.primitive"
+        "public_symbol:aspose.threed.mesh"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.mesh"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
+        "public_symbol:aspose.threed.primitive"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.shading.lambertmaterial"
+      "symbol_fact_id": "public_symbol:aspose.threed.primitive"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
+        "public_symbol:aspose.threed.shading"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationclip"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animationnode"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animationnode"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.keyframesequence"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.keyframesequence"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.pose"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.pose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.transform"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.transform"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.polygonbuilder"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.polygonbuilder"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Load multiple 3D formats",
-      "Export to common 3D formats",
-      "Construct and edit meshes",
-      "Assign materials and lighting",
-      "Traverse and manipulate scene graphs",
-      "Support keyframe animation"
+      "Export to interchange formats",
+      "Scene graph manipulation",
+      "Mesh construction and editing",
+      "Material assignment",
+      "Animation support"
     ],
     "input_format_ids": [
       "format:input.obj",
@@ -77,10 +113,10 @@
         "format:input.glb",
         "format:input.dae",
         "format:input.3mf",
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.fileformat"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.fileformat"
       ],
       "title": "Load multiple 3D formats"
     },
@@ -91,240 +127,72 @@
         "format:output.gltf",
         "format:output.glb",
         "format:output.3mf",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.scene"
       ],
       "shared_fact_ids": [
         "public_symbol:aspose.threed.scene"
       ],
-      "title": "Export to common 3D formats"
+      "title": "Export to interchange formats"
     },
     {
       "fact_ids": [
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.primitive"
-      ],
-      "shared_fact_ids": [
-        "example:005"
-      ],
-      "title": "Construct and edit meshes"
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial"
-      ],
-      "shared_fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005"
-      ],
-      "title": "Assign materials and lighting"
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "example:004",
-        "example:005",
+        "public_symbol:aspose.threed.scene",
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.transform"
       ],
       "shared_fact_ids": [
+        "public_symbol:aspose.threed.scene"
+      ],
+      "title": "Scene graph manipulation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.primitive",
+        "example:005",
+        "example:009",
+        "example:010"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.mesh",
+        "example:005"
+      ],
+      "title": "Mesh construction and editing"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading",
         "example:002",
         "example:004",
         "example:005"
       ],
-      "title": "Traverse and manipulate scene graphs"
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.shading",
+        "example:005"
+      ],
+      "title": "Material assignment"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
+        "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.pose"
       ],
-      "shared_fact_ids": [],
-      "title": "Support keyframe animation"
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.animationclip"
+      ],
+      "title": "Animation support"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "identity:repository",
-        "identity:platform",
-        "identity:ecosystem",
-        "package:name",
-        "license:spdx"
+        "inherited_unit:068.paragraph",
+        "link_target:product.enterprise"
       ],
-      "section_id": "identity",
-      "text": "The H1 heading is rendered deterministically from identity facts."
-    },
-    {
-      "fact_ids": [
-        "identity:repository",
-        "license:spdx",
-        "package:name",
-        "package:python_versions"
-      ],
-      "section_id": "badges",
-      "text": "The badge row is rendered deterministically from package and license facts."
-    },
-    {
-      "fact_ids": [
-        "link_target:product.banner",
-        "link_target:product.homepage"
-      ],
-      "section_id": "banner",
-      "text": "The banner image link is verified and placed in the banner section."
-    },
-    {
-      "fact_ids": [
-        "identity:repository",
-        "identity:platform",
-        "identity:ecosystem",
-        "package:name",
-        "license:spdx",
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.dae",
-        "format:input.3mf",
-        "format:output.obj",
-        "format:output.stl",
-        "format:output.gltf",
-        "format:output.3mf",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh"
-      ],
-      "section_id": "opening",
-      "text": "The paragraph's substance is covered by the opening section; facts support its claims."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision"
-      ],
-      "section_id": "navigation",
-      "text": "The Navigation heading and list are rendered deterministically."
-    },
-    {
-      "fact_ids": [
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.dae",
-        "format:input.3mf",
-        "public_symbol:aspose.threed.scene"
-      ],
-      "section_id": "at_a_glance",
-      "text": "The Mermaid diagram is supported by verified input formats and Scene."
-    },
-    {
-      "fact_ids": [
-        "format:input.obj",
-        "format:input.stl",
-        "format:input.gltf",
-        "format:input.dae",
-        "format:input.3mf",
-        "format:output.obj",
-        "format:output.stl",
-        "format:output.gltf",
-        "format:output.3mf",
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.shading.lambertmaterial",
-        "public_symbol:aspose.threed.shading.pbrmaterial",
-        "public_symbol:aspose.threed.animationclip",
-        "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence"
-      ],
-      "section_id": "key_capabilities",
-      "text": "The heading is valid and the list items are grounded in verified capabilities."
-    },
-    {
-      "fact_ids": [
-        "install_command:pip",
-        "package:version"
-      ],
-      "section_id": "installation",
-      "text": "The Installation heading and install command are rendered deterministically."
-    },
-    {
-      "fact_ids": [
-        "dependency:development.dev.pytest-7.0.0",
-        "dependency:none"
-      ],
-      "section_id": "dependencies",
-      "text": "The Dependencies heading and subsections are rendered deterministically."
-    },
-    {
-      "fact_ids": [
-        "example:002"
-      ],
-      "section_id": "quick_start",
-      "text": "The heading is valid and the example is supported by example:002."
-    },
-    {
-      "fact_ids": [
-        "example:004",
-        "example:005",
-        "example:009",
-        "example:010",
-        "example:012"
-      ],
-      "section_id": "additional_examples",
-      "text": "The heading is valid and the examples are supported by verified examples."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.threed"
-      ],
-      "section_id": "api_reference",
-      "text": "The heading is valid and the API reference is supported by public symbols."
-    },
-    {
-      "fact_ids": [
-        "link_target:022",
-        "link_target:023",
-        "link_target:024"
-      ],
-      "section_id": "documentation_resources",
-      "text": "The heading is valid and the links are verified."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:067.list"
-      ],
-      "section_id": "scope_limitations",
-      "text": "The heading is valid and the limitations are supported by inherited_unit:067.list."
-    },
-    {
-      "fact_ids": [
-        "build_test_asset:tests",
-        "build_test_asset:ci"
-      ],
-      "section_id": "development_testing",
-      "text": "The heading is valid and the build/test assets exist."
-    },
-    {
-      "fact_ids": [
-        "license:file",
-        "license:spdx"
-      ],
-      "section_id": "license",
-      "text": "The License heading and paragraph are rendered deterministically."
+      "section_id": "enterprise_relationship",
+      "text": "These limitations don't apply to Aspose.3D for Python — Enterprise Edition, which adds the broader proprietary-format support (PDF, PLY, USD, and more), rendering, and advanced mesh operations that this FOSS build leaves unimplemented."
     }
   ],
   "flagship_example_id": "example:005",
@@ -342,8 +210,8 @@
       "section_id": "documentation_resources"
     },
     {
-      "link_fact_id": "link_target:product.enterprise",
-      "section_id": "scope_limitations"
+      "link_fact_id": "link_target:033",
+      "section_id": "enterprise_relationship"
     }
   ],
   "material_limitations": [

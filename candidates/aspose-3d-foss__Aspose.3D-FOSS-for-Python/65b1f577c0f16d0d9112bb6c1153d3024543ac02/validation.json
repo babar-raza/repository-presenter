@@ -1,5 +1,7 @@
 {
-  "advisory": [],
+  "advisory": [
+    "inherited_unit:010.list: the rewrite no longer names GltfSaveOptions, Mesh.create_polygon(), Mesh.polygons, Node.add_entity(), Node.child_nodes, Node.create_child_node(), ObjSaveOptions, PolygonModifier.triangulate(), Scene.open(), Scene.save()"
+  ],
   "checks": [
     {
       "causal_stage": null,
@@ -132,13 +134,13 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no advisory left on a required row",
+      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "2"
+      "version": "3"
     },
     {
       "causal_stage": null,
@@ -155,8 +157,325 @@
       "version": "1"
     }
   ],
-  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
-  "readme_sha256": "b1283b06b92973fadc860b5da74b9b23b2c83bd10b78449a471101d5c7308695",
+  "coverage": [
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "identity"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        },
+        {
+          "extracted": 38,
+          "kind": "link_target",
+          "supported": 38
+        }
+      ],
+      "required": true,
+      "section_id": "badges"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 38,
+          "kind": "link_target",
+          "supported": 38
+        }
+      ],
+      "required": false,
+      "section_id": "banner"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        },
+        {
+          "extracted": 13,
+          "kind": "format",
+          "supported": 13
+        },
+        {
+          "extracted": 1564,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+            "UNRESOLVED: line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+            "UNRESOLVED: line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path"
+          ],
+          "supported": 1531
+        }
+      ],
+      "required": true,
+      "section_id": "opening"
+    },
+    {
+      "included": true,
+      "kinds": [],
+      "required": true,
+      "section_id": "navigation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 13,
+          "kind": "format",
+          "supported": 13
+        },
+        {
+          "extracted": 1564,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+            "UNRESOLVED: line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+            "UNRESOLVED: line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path"
+          ],
+          "supported": 1531
+        }
+      ],
+      "required": false,
+      "section_id": "at_a_glance"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1564,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+            "UNRESOLVED: line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+            "UNRESOLVED: line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path"
+          ],
+          "supported": 1531
+        },
+        {
+          "extracted": 12,
+          "kind": "example",
+          "reasons": [
+            "UNRESOLVED: example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide"
+          ],
+          "supported": 6
+        },
+        {
+          "extracted": 13,
+          "kind": "format",
+          "supported": 13
+        },
+        {
+          "extracted": 3,
+          "kind": "import_path",
+          "supported": 3
+        }
+      ],
+      "required": true,
+      "section_id": "key_capabilities"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "install_command",
+          "supported": 1
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        }
+      ],
+      "required": true,
+      "section_id": "installation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "dependency",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "dependencies"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 12,
+          "kind": "example",
+          "reasons": [
+            "UNRESOLVED: example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide"
+          ],
+          "supported": 6
+        }
+      ],
+      "required": true,
+      "section_id": "quick_start"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 12,
+          "kind": "example",
+          "reasons": [
+            "UNRESOLVED: example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide"
+          ],
+          "supported": 6
+        }
+      ],
+      "required": false,
+      "section_id": "additional_examples"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1564,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+            "UNRESOLVED: line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+            "UNRESOLVED: line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path"
+          ],
+          "supported": 1531
+        }
+      ],
+      "required": true,
+      "section_id": "api_reference"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 38,
+          "kind": "link_target",
+          "supported": 38
+        }
+      ],
+      "required": false,
+      "section_id": "documentation_resources"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 77,
+          "kind": "inherited_unit",
+          "supported": 77
+        },
+        {
+          "extracted": 12,
+          "kind": "example",
+          "reasons": [
+            "UNRESOLVED: example 1: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 3: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+            "UNRESOLVED: example 6: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide"
+          ],
+          "supported": 6
+        },
+        {
+          "extracted": 1564,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 10; class; public by name; shadowed by aspose.threed.formats.ColladaSaveOptions, reachable only by this path",
+            "UNRESOLVED: line 10; method; public by name; its class is shadowed by aspose.threed.formats.ColladaLoadOptions",
+            "UNRESOLVED: line 4; class; public by name; shadowed by aspose.threed.formats.ColladaLoadOptions, reachable only by this path"
+          ],
+          "supported": 1531
+        }
+      ],
+      "required": true,
+      "section_id": "scope_limitations"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 3,
+          "kind": "build_test_asset",
+          "supported": 3
+        }
+      ],
+      "required": false,
+      "section_id": "development_testing"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 38,
+          "kind": "link_target",
+          "supported": 38
+        }
+      ],
+      "required": false,
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "third_party_notices",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "third_party_notices"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "license"
+    }
+  ],
+  "protected_content_fingerprint": "e160e9c2d4bf428b7a80ed121ffcf2513d006d5c7e4e90f249283b19f4dbb8df",
+  "readme_sha256": "73fce16435f330cc5a7351ca5702e6d47615636215a56ac858c482a8d6df4aeb",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -165,5 +484,5 @@
     "pass": 11,
     "pending": 0
   },
-  "validator_version": "2"
+  "validator_version": "3"
 }

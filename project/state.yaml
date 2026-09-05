@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T17:51:51+05:00"
+updated_at: "2026-09-05T18:33:45+05:00"
 
 authority:
   product: plans/idea.md
@@ -29,34 +29,31 @@ accepted_gates:
   - G1_FIRST_VALID_CANDIDATE
 
 active_work_item:
-  id: G2-W20
-  status: IN_PROGRESS
-  purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
+  id: G2-W17
+  status: READY
+  purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; check 12 (a required row whose facts are unresolved fails closed and routes to EXTRACTING, never to repair, 27.8) is admitted only when a sealed candidate exhibits that defect - none does at 65b1f577, every required row has SUPPORTED facts - so per loop-prompt section 6 rule 14 it waits for the G3 cohort and is proposed in section 31 when a cohort candidate shows the gap (reviewer decision 2026-09-05); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
   prerequisites:
-    - G2-W17 waits on this item. Every one of its remaining predicates needs a bundle the repository can commit, and a bundle cannot be committed while the sealed composition's first-attempt acceptance is under the 85 floor of docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1 (measured 82.1 percent, 2026-09-05, section 27.2).
-    - docs/RESEARCH_AND_GUIDELINES.md section 27.0's D1 line and section 27.10 are read first. The gateway answers HTTP 400 for a pattern in a strict json_schema, so the referential form travels as a per-call enum, never as a regular expression.
-    - The canary's transaction holds an accepting composition whose two authoring rejections are exactly this item's families - a URL in a link unit's text with the host as a non-fact identifier, and 'pip install' written into a summary unit.
+    - G2-W20 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
+    - The canary is sealed again and committed, its composition accepting with zero blocking findings and its ledger at 95.0 percent, so a bundle this item changes can be committed.
+    - docs/RESEARCH_AND_GUIDELINES.md section 27.0, section 27.2 RC6 and RC7, and the section 31 entries of 2026-09-05 are read first. Check 12 is not this item's to admit - no required row of the sealed candidate rests on evidence that produced nothing, so it waits for a G3 cohort candidate that exhibits the defect (owner decision, section 27.9).
   owned_paths:
     - src/repository_presenter/
     - tests/
     - prompts/
+    - docs/README_CONTRACT.md
     - project/state.yaml
   acceptance:
-    - "An authored unit never writes a URL or a command as text: it references a link_target or install_command fact by ID from a per-call enum the packet and the schema carry for the slot, and the renderer emits the link or command from the fact."
-    - "A synthetic reply with a literal URL is rejected while the referential form renders the same link, proven by test; unit_checks keeps rejecting both families."
-    - "section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured from the sealed calls.jsonl by the ledger helper."
-    - "The canary re-seals byte-identically or with its recorded delta, its rerun is byte-identical with zero provider calls, and the sealed bundle is committed."
-    - "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit."
+    - "A per-row coverage ledger records each contract row's required fact kinds and their resolution with a reason, and travels in the sealed bundle."
+    - "examples.json is sealed in the bundle, its evidence path resolving; live probes record retrieval time and status, and a volatile observation such as the PyPI latest version string leaves the hashed fact (section 27.2 RC7)."
+    - "The canary's file-reading examples receive fixtures from the repository's test assets or from an executed example's saved output where the evidence allows one, and every example whose fixture exists executes; the input formats OBJ, STL, glTF and COLLADA are SUPPORTED."
+    - "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals and its rerun is byte-identical with zero provider calls, and the hosted three-version matrix is green on the pushed commit."
   evidence_required:
-    - The rejected synthetic reply and the referential form that renders the same link, in tests.
-    - The sealed calls.jsonl and the section_authoring rate the ledger helper reads from it.
+    - The coverage ledger in the sealed bundle.
+    - The sealed examples.json and the probe records that keep a volatile observation out of a hashed fact.
     - The work-item record in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.
   blocker: null
 
 next_ready_items:
-  - id: G2-W17
-    status: PENDING
-    purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; check 12 (a required row whose facts are unresolved fails closed and routes to EXTRACTING, never to repair, 27.8) is admitted only when a sealed candidate exhibits that defect - none does at 65b1f577, every required row has SUPPORTED facts - so per loop-prompt section 6 rule 14 it waits for the G3 cohort and is proposed in section 31 when a cohort candidate shows the gap (reviewer decision 2026-09-05); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
   - id: G2-W23
     status: PENDING
     purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."

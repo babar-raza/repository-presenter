@@ -1739,13 +1739,13 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "a9a12b01d6a513a8efed6a3da21d018b56811526dbbbe7de051ddb64b2ed5c96",
-      "version": "7"
+      "sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
+      "version": "9"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "d97bc3e39a4b2887ac940572b05bb9117c8c36630dfd96fa0c3b30910254eb47",
-      "version": "8"
+      "sha256": "879d3baaa167f3fe92d9e0fcf1ee4c7c3743ded2e0f649cdf50d6088e7841a7e",
+      "version": "9"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -1754,8 +1754,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "aadf706ca95efdeb7443d74e5be48610888dece82604a07805f66f89b6951515",
-      "version": "10"
+      "sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
+      "version": "12"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -1768,13 +1768,13 @@
       "version": "7"
     }
   },
-  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
+  "protected_content_fingerprint": "e160e9c2d4bf428b7a80ed121ffcf2513d006d5c7e4e90f249283b19f4dbb8df",
   "schema_version": 1,
   "source": {
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
     "tree_sha256": "fdcbf4e8113871f8d7cdeb2f761260041cd358b351ae7cb2bb5f4bef4f964b0d"
   },
-  "validator_version": "2",
+  "validator_version": "3",
   "validators": {
     "BC-01": "1",
     "BC-02": "1",
@@ -1785,7 +1785,7 @@
     "BC-07": "2",
     "BC-08": "1",
     "BC-09": "1",
-    "BC-10": "2",
+    "BC-10": "3",
     "BC-11": "1"
   }
 }

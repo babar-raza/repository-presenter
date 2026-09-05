@@ -5,6 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.composition.authoring import (
+    SectionTask,
+    unit_checks,
+)
 from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
     anchor,
@@ -186,6 +190,52 @@ DISPOSITIONS = {
         },
     ]
 }
+
+
+def test_a_literal_url_is_rejected_while_the_referential_form_renders_the_same_link() -> None:
+    """G2-W20: a unit names what the reader finds; the renderer emits the link from the fact.
+
+    Measured on the canary on 2026-09-05: three documentation units wrote the target as text
+    and lost the call; under the referential form the same three rendered the same links and
+    the family disappeared from the ledger (section 27.10).
+    """
+    task = SectionTask(
+        "documentation_resources",
+        {},
+        frozenset({"link_target:002", "identity:repository"}),
+        ("link:link_target:002",),
+        slot_facts={"link:link_target:002": frozenset({"link_target:002"})},
+    )
+
+    def unit(body: str) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "documentation_resources",
+                    "slot": "link:link_target:002",
+                    "text": body,
+                    "fact_ids": ["link_target:002"],
+                }
+            ],
+            "omitted": [],
+        }
+
+    literal = unit("The developer guide at https://docs.example.com/3d covers installation.")
+    assert unit_checks(literal, task, FACTS, "Aspose.3D FOSS for Python") == [
+        "unit link:link_target:002: text contains a URL ('https://')",
+        "unit link:link_target:002: identifiers that are not accepted fact values: "
+        "docs.example.com",
+    ]
+    referential = unit("It covers installation, walkthroughs, and feature guides.")
+    assert unit_checks(referential, task, FACTS, "Aspose.3D FOSS for Python") == []
+    # The command family is judged the same way, and the renderer owns the block that carries it.
+    commanded = unit("Run pip install aspose-3d-foss to get the package.")
+    assert unit_checks(commanded, task, FACTS, "Aspose.3D FOSS for Python") == [
+        "unit link:link_target:002: text contains a command ('pip install')",
+    ]
+    # The renderer emits the link itself, from the fact the unit cites and nothing else.
+    rendered = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert "- **[Docs](https://docs.example.com/3d)** " in rendered
 
 
 def test_the_document_follows_the_shell_with_code_spans_and_placed_units() -> None:

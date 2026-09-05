@@ -548,6 +548,8 @@ def authoring_tasks(
         renders_rule = (
             "A slot's `renders` is what the renderer prints there from the same facts; write "
             "only what it does not already say, and never repeat its link, label, or command. "
+            "It is shown so you do not repeat it, never as a source of spellings: an identifier "
+            "that appears only there, such as a module inside a command, is not yours to write. "
             if any(record.get("renders") for record in records)
             else ""
         )

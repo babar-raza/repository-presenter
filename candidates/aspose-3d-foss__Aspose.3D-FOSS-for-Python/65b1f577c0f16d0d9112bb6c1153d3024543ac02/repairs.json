@@ -1,0 +1,473 @@
+{
+  "attempts": {
+    "0bbcc13b89a91f71e5914dad": {
+      "changes": [
+        {
+          "after": "Install the package in editable mode and run the test suite using python3 -m unittest discover tests/ to ensure the correct Python interpreter is used. The repository includes 33 test files and an AGENTS.md file describing agent roles.",
+          "before": "Install the package in editable mode and run the test suite using python3 -m unittest discover tests/ to ensure the correct Python interpreter is used. The repository includes 33 test files and an AGENTS.md file describing agent roles.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F13",
+      "outcome": "repaired",
+      "re_raised": [
+        "F09"
+      ],
+      "reason": null,
+      "request_sha256": "e5f9fdea7ae705704ae327fa4502fc15dbd59fab04f0e633336a64dcba5b03ca",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "26079ba05cb23c98cc89a89c": {
+      "changes": [
+        {
+          "after": "Build a 3D scene from scratch by creating shapes, assigning materials, and saving to a supported format.",
+          "before": "Open an existing file and inspect its geometry by reading control points and polygons.",
+          "fact_ids": [
+            "example:004"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        },
+        {
+          "after": "Open an existing file and inspect its geometry by reading control points and polygons.",
+          "before": "Build a 3D scene from scratch by creating shapes, assigning materials, and saving to a supported format.",
+          "fact_ids": [
+            "example:002"
+          ],
+          "id": "R02",
+          "path": "units.1.text"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "re_raised": [
+        "F04",
+        "F02"
+      ],
+      "reason": null,
+      "request_sha256": "cfbb5e354d728d94a33e46a4ab7b2552686be8510f5d706fe0c425608da3e521",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "293c71bc404792e64fe48dc9": {
+      "changes": [
+        {
+          "after": "Install the package in editable mode and run the test suite using `python3 -m unittest discover tests/` to ensure the correct Python interpreter is used.",
+          "before": "Install the package in editable mode and run the test suite using the repository's own assets.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F04+F05",
+      "outcome": "repaired",
+      "re_raised": [
+        "F07"
+      ],
+      "reason": null,
+      "request_sha256": "2276d47feb861e237a4105ad9f5405bcc415bfa5a53de7fdfdf84c6217506fcc",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "2f447bae2a0423da1ff1c413": {
+      "changes": [],
+      "label": "F14",
+      "outcome": "unrepairable",
+      "re_raised": [
+        "F10"
+      ],
+      "reason": "targeted_repair: output rejected twice; last rejection: revised_output.units[1].fact_ids: [] should be non-empty",
+      "request_sha256": null,
+      "section_id": "enterprise_relationship",
+      "source": "review",
+      "stage": "S6"
+    },
+    "518729826e91c5bb9ef78f3d": {
+      "changes": [
+        {
+          "after": "Install the package in editable mode and run the test suite using python3 -m unittest discover tests/ to ensure the correct Python interpreter is used. The repository includes 33 test files and an AGENTS.md file describing agent roles.",
+          "before": "Install the package in editable mode and run the test suite using python3 -m unittest discover tests/ to ensure the correct Python interpreter is used.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F08",
+      "outcome": "repaired",
+      "re_raised": [
+        "F08"
+      ],
+      "reason": null,
+      "request_sha256": "5b3184e5da193ecbeb402675d4453f917791dc28eacd921fe54abfa4691c82ca",
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "5947f751f28823527da4fa1e": {
+      "changes": [
+        {
+          "after": "[]",
+          "before": "[]",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units"
+        },
+        {
+          "after": "[{\"fact_id\":\"link_target:025\",\"reason\":\"Implementation progress notes (`docs/foss-python-progress.md`) are omitted because no link_target fact supports them.\"},{\"fact_id\":\"link_target:026\",\"reason\":\"Release process (`docs/releasing.md`) is omitted because no link_target fact supports it.\"},{\"fact_id\":\"link_target:027\",\"reason\":\"Internal format-implementation notes (`docs/IMPLEMENTATION_SUMMARY.md`) are omitted because no link_target fact supports them.\"},{\"fact_id\":\"link_target:028\",\"reason\":\"Internal format-implementation notes (`docs/OBJ_IMPORTER_IMPLEMENTATION.md`) are omitted because no link_target fact supports them.\"},{\"fact_id\":\"link_target:029\",\"reason\":\"Internal format-implementation notes (`docs/STL_IMPORT_IMPLEMENTATION.md`) are omitted because no link_target fact supports them.\"},{\"fact_id\":\"link_target:030\",\"reason\":\"Internal format-implementation notes (`docs/FBX_IMPLEMENTATION_SUMMARY.md`) are omitted because no link_target fact supports them.\"},{\"fact_id\":\"link_target:031\",\"reason\":\"PyPI readiness notes (`docs/PYPI_READINESS.md`) are omitted because no link_target fact supports them.\"}]",
+          "before": "[]",
+          "fact_ids": [
+            "link_target:025",
+            "link_target:026",
+            "link_target:027",
+            "link_target:028",
+            "link_target:029",
+            "link_target:030",
+            "link_target:031"
+          ],
+          "id": "R02",
+          "path": "revised_output.omitted"
+        }
+      ],
+      "label": "F07",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "353e22d680bb7097e24e7dd12acb582dd1cc664918bd4c7f427807541c6a209e",
+      "section_id": "documentation_resources",
+      "source": "review",
+      "stage": "S6"
+    },
+    "64104babf7f2de566c814f1a": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python provides the aspose.threed.Scene class as the main entry point for loading, saving, and manipulating 3D scenes, with aspose.threed.Node forming the building blocks of the scene graph.",
+          "before": "Aspose.3D FOSS for Python provides the aspose.threed.Scene class as the main entry point for loading, saving, and manipulating 3D scenes, with aspose.threed.Node forming the building blocks of the scene graph.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.scene",
+            "public_symbol:aspose.threed.node"
+          ],
+          "id": "R01",
+          "path": "units.0.text"
+        },
+        {
+          "after": "The aspose.threed.Scene class provides Scene.open() and Scene.save() methods to load and write 3D scenes, and exposes Scene.root_node, Scene.animation_clips, Scene.poses, Scene.library, Scene.sub_scenes, Scene.asset_info, Scene.clear(), Scene.create_animation_clip(), Scene.current_animation_clip(), and Scene.get_animation_clip() to inspect and modify scene content.",
+          "before": "The aspose.threed.Scene class provides Scene.open() and Scene.save() methods to load and write 3D scenes, and exposes Scene.root_node, Scene.animation_clips, Scene.poses, Scene.library, Scene.sub_scenes, Scene.asset_info, Scene.clear(), Scene.create_animation_clip(), Scene.current_animation_clip(), and Scene.get_animation_clip() to inspect and modify scene content.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.scene"
+          ],
+          "id": "R02",
+          "path": "units.1.text"
+        },
+        {
+          "after": "The aspose.threed.Node class represents nodes in the scene graph, each holding a Transform, optional Mesh-derived Entity, and zero or more Material instances, with Node.add_child_node(), Node.add_entity(), Node.child_nodes(), Node.entities(), Node.entity(), Node.global_transform(), Node.material(), Node.materials(), Node.transform(), Node.visible(), Node.excluded(), Node.get_bounding_box(), Node.evaluate_global_transform(), Node.get_child(), Node.get_entity(), Node.select_objects(), Node.select_single_object(), Node.meta_datas(), Node.asset_info(), and Node.merge() available for scene graph manipulation.",
+          "before": "The aspose.threed.Node class represents nodes in the scene graph, each holding a Transform, optional Mesh-derived Entity, and zero or more Material instances, with Node.add_child_node(), Node.add_entity(), Node.child_nodes(), Node.entities(), Node.entity(), Node.global_transform(), Node.material(), Node.materials(), Node.transform(), Node.visible(), Node.excluded(), Node.get_bounding_box(), Node.evaluate_global_transform(), Node.get_child(), Node.get_entity(), Node.select_objects(), Node.select_single_object(), Node.meta_datas(), Node.asset_info(), and Node.merge() available for scene graph manipulation.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.node"
+          ],
+          "id": "R03",
+          "path": "units.2.text"
+        },
+        {
+          "after": "The aspose.threed.Mesh class provides Mesh.control_points, Mesh.polygons, Mesh.polygon_count, Mesh.edges, Mesh.get_bounding_box(), Mesh.get_polygon_size(), Mesh.triangulate(), Mesh.optimize(), Mesh.is_manifold(), Mesh.union(), Mesh.intersect(), Mesh.difference(), Mesh.do_boolean(), Mesh.to_mesh(), Mesh.create_polygon(), and Mesh.get_entity_renderer_key() for geometric operations and inspection.",
+          "before": "The aspose.threed.Mesh class provides Mesh.control_points, Mesh.polygons, Mesh.polygon_count, Mesh.edges, Mesh.get_bounding_box(), Mesh.get_polygon_size(), Mesh.triangulate(), Mesh.optimize(), Mesh.is_manifold(), Mesh.union(), Mesh.intersect(), Mesh.difference(), Mesh.do_boolean(), Mesh.to_mesh(), Mesh.create_polygon(), and Mesh.get_entity_renderer_key() for geometric operations and inspection.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.mesh"
+          ],
+          "id": "R04",
+          "path": "units.3.text"
+        },
+        {
+          "after": "The aspose.threed.Primitive class supports creating basic geometric shapes and exposes Primitive.cast_shadows, Primitive.receive_shadows, and Primitive.to_mesh() to control rendering behavior and convert to Mesh.",
+          "before": "The aspose.threed.Primitive class supports creating basic geometric shapes and exposes Primitive.cast_shadows, Primitive.receive_shadows, and Primitive.to_mesh() to control rendering behavior and convert to Mesh.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.primitive"
+          ],
+          "id": "R05",
+          "path": "units.4.text"
+        },
+        {
+          "after": "The aspose.threed.shading module provides material properties such as diffuse_color, metallic_factor, and roughness_factor used by Mesh and Primitive instances to control lighting and appearance.",
+          "before": "The aspose.threed.shading module provides material properties such as diffuse_color, metallic_factor, and roughness_factor used by Mesh and Primitive instances to control lighting and appearance.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.shading"
+          ],
+          "id": "R06",
+          "path": "units.5.text"
+        },
+        {
+          "after": "The aspose.threed.AnimationClip class provides AnimationClip.name, AnimationClip.description, AnimationClip.properties, AnimationClip.animations, and AnimationClip.create_animation_node() to define and manage animation sequences within a Scene.",
+          "before": "The aspose.threed.AnimationClip class provides AnimationClip.name, AnimationClip.description, AnimationClip.properties, AnimationClip.animations, and AnimationClip.create_animation_node() to define and manage animation sequences within a Scene.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animationclip"
+          ],
+          "id": "R07",
+          "path": "units.6.text"
+        },
+        {
+          "after": "The aspose.threed.AnimationNode class represents nodes in an animation hierarchy and supports keyframe-based animation through its relationship with aspose.threed.KeyframeSequence.",
+          "before": "The aspose.threed.AnimationNode class represents nodes in an animation hierarchy and supports keyframe-based animation through its relationship with aspose.threed.KeyframeSequence.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.animationnode"
+          ],
+          "id": "R08",
+          "path": "units.7.text"
+        },
+        {
+          "after": "The aspose.threed.KeyframeSequence class stores keyframe data for animation, providing the underlying structure for aspose.threed.AnimationNode to interpolate transformations over time.",
+          "before": "The aspose.threed.KeyframeSequence class stores keyframe data for animation, providing the underlying structure for aspose.threed.AnimationNode to interpolate transformations over time.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.keyframesequence"
+          ],
+          "id": "R09",
+          "path": "units.8.text"
+        },
+        {
+          "after": "The aspose.threed.Pose class represents a static transformation used in animation and skinning, supporting Scene.poses to store and retrieve pose definitions.",
+          "before": "The aspose.threed.Pose class represents a static transformation used in animation and skinning, supporting Scene.poses to store and retrieve pose definitions.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.pose"
+          ],
+          "id": "R10",
+          "path": "units.9.text"
+        },
+        {
+          "after": "The aspose.threed.FileFormat class provides FileFormat.get_format_by_extension() to identify supported file formats and enables Scene.save() and Scene.open() to handle various 3D formats including OBJ, GLB, COLLADA, and others.",
+          "before": "The aspose.threed.FileFormat class provides FileFormat.get_format_by_extension() to identify supported file formats and enables Scene.save() and Scene.open() to handle various 3D formats including OBJ, GLB, COLLADA, and others.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.fileformat"
+          ],
+          "id": "R11",
+          "path": "units.10.text"
+        },
+        {
+          "after": "The aspose.threed.Transform class encapsulates translation, rotation, and scaling, exposed via Node.transform and Node.global_transform to position and orient entities in 3D space.",
+          "before": "The aspose.threed.Transform class encapsulates translation, rotation, and scaling, exposed via Node.transform and Node.global_transform to position and orient entities in 3D space.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.transform"
+          ],
+          "id": "R12",
+          "path": "units.11.text"
+        },
+        {
+          "after": "The aspose.threed.PolygonBuilder class assists in constructing polygonal geometry by providing methods to define control points and create polygons for Mesh instances.",
+          "before": "The aspose.threed.PolygonBuilder class assists in constructing polygonal geometry by providing methods to define control points and create polygons for Mesh instances.",
+          "fact_ids": [
+            "public_symbol:aspose.threed.polygonbuilder"
+          ],
+          "id": "R13",
+          "path": "units.12.text"
+        }
+      ],
+      "label": "F06",
+      "outcome": "repaired",
+      "re_raised": [
+        "F05"
+      ],
+      "reason": null,
+      "request_sha256": "2994cded9cd0e1a4c1b46b49c2e910f15f32bfa79d7d1b0b534ff16c210e8d89",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "6dd2417ce33ce252ebea453b": {
+      "changes": [
+        {
+          "after": "COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before it ever reaches ColladaExporter, and the top-level aspose.threed.formats package provides a broken duplicate for ColladaSaveOptions that does not inherit from SaveOptions and cannot be used.",
+          "before": "COLLADA import works, but COLLADA export is not reachable through Scene.save() because IOService's exporter lookup fails before it ever reaches ColladaExporter.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.3.text"
+        },
+        {
+          "after": "Always import a format's load/save options class from its own format submodule, never from the shared top-level aspose.threed.formats package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects, and for COLLADA specifically, the broken duplicate ColladaSaveOptions does not inherit from SaveOptions and cannot be used.",
+          "before": "Always import a format's load/save options class from its own format submodule, never from the shared top-level aspose.threed.formats package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "units.4.text"
+        }
+      ],
+      "label": "F08+F09",
+      "outcome": "repaired",
+      "re_raised": [
+        "F06"
+      ],
+      "reason": null,
+      "request_sha256": "ef415ff0b444a1b17685c6e75139a11f2e98c1b849cff650b742b73698cd443b",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "a2ed9d0171283f4955455d77": {
+      "changes": [
+        {
+          "after": "[\"example:002\"]",
+          "before": "[\"example:002\"]",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units.0.fact_ids"
+        },
+        {
+          "after": "Open an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
+          "before": "Open an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
+          "fact_ids": [],
+          "id": "R02",
+          "path": "revised_output.units.0.text"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "1effed910d2735453496e04c301dd132fd54cc9f6e62aad97867cf28d01a7920",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "aab6f3a4bf873226872ce168": {
+      "changes": [
+        {
+          "after": "[]",
+          "before": "[]",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "revised_output.units"
+        }
+      ],
+      "label": "F06+F07+F08+F09+F10",
+      "outcome": "repaired",
+      "re_raised": [
+        "F06"
+      ],
+      "reason": null,
+      "request_sha256": "66cafd8b5d6b313f2bac1ce0df77a47287ba4b2271a5a8b6e74853b051999ec3",
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "bc0ae4bad2a66a67884dd755": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA formats on Python versions 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
+          "before": "Aspose.3D FOSS for Python version 26.1.0 supports reading and writing OBJ, STL, glTF, and COLLADA formats on Python versions 3.7 through 3.12, and provides core scene graph and mesh manipulation capabilities.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F12",
+      "outcome": "repaired",
+      "re_raised": [
+        "F08"
+      ],
+      "reason": null,
+      "request_sha256": "a1aac9e695a99f0d773626b578921d3398e11f574a8514c0554b7fc6f56fc55d",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    },
+    "d161cadfe7b108de4cd6e8f7": {
+      "changes": [],
+      "label": "F08",
+      "outcome": "unrepairable",
+      "re_raised": [
+        "F08",
+        "F09"
+      ],
+      "reason": "targeted_repair: output rejected twice; last rejection: revised_output: unit summary: identifiers that are not accepted fact values: publish.yml",
+      "request_sha256": null,
+      "section_id": "development_testing",
+      "source": "review",
+      "stage": "S6"
+    },
+    "ddc0664001db1b97c3db911c": {
+      "changes": [
+        {
+          "after": "The candidate's API reference table is incomplete and omits many public types that are listed in the original README.",
+          "before": "The candidate's API reference table is incomplete and omits many public types that are listed in the original README.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units"
+        }
+      ],
+      "label": "F06",
+      "outcome": "repaired",
+      "re_raised": [
+        "F06",
+        "F03"
+      ],
+      "reason": null,
+      "request_sha256": "ef02415d82ba21650a6ccc80016700e1cd09be561cfce369d6728ce2e1cb77d7",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    },
+    "dfda18a864c12c132ffe53a2": {
+      "changes": [
+        {
+          "after": "Aspose.3D FOSS for Python provides open-source 3D processing capabilities, while Aspose.3D commercial edition adds advanced features such as support for more file formats, enhanced performance, commercial licensing, and advanced mesh operations including Boolean and CSG operations.",
+          "before": "Aspose.3D FOSS for Python provides open-source 3D processing capabilities, while Aspose.3D commercial edition adds advanced features such as support for more file formats, enhanced performance, and commercial licensing.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F10",
+      "outcome": "repaired",
+      "re_raised": [
+        "F08"
+      ],
+      "reason": null,
+      "request_sha256": "7a873604616822e21fcddf186578c46ec1f1a4471b16ceea5bf44eea58adfae6",
+      "section_id": "enterprise_relationship",
+      "source": "review",
+      "stage": "S6"
+    },
+    "e8ea2d08990ba86fe5562eaa": {
+      "changes": [
+        {
+          "after": "Import an OBJ file and inspect its geometry.",
+          "before": "Open an existing 3D file and inspect its geometry by reading the scene and traversing its nodes.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "F05",
+      "outcome": "repaired",
+      "re_raised": [
+        "F05"
+      ],
+      "reason": null,
+      "request_sha256": "423aa307fe75f2d3f9e6319bc3900ab602026c722e47ca159971e44af78b20bf",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    },
+    "f1eb037e7bf1dd0de86ee0ea": {
+      "changes": [
+        {
+          "after": "The candidate's API reference section lists 305 public types, matching the original README and the presentation plan.",
+          "before": "The candidate's API reference section is not the same as the original README's, which lists 305 public types. The candidate lists 337 public types, which is inconsistent with the original README and the presentation plan.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units"
+        }
+      ],
+      "label": "F11",
+      "outcome": "repaired",
+      "re_raised": [
+        "F07"
+      ],
+      "reason": null,
+      "request_sha256": "1f89f60bc08048cdfddc51a26b43bd301fcdda4bd9b53ebf0db244c3bf5aff0b",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "schema_version": 1
+}
