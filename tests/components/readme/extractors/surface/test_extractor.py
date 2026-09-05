@@ -152,3 +152,40 @@ def test_a_member_the_grammar_gives_no_line_for_is_kept_at_line_zero(tmp_path: P
     assert _line({}) == 0
     assert _line({"line": ""}) == 0
     assert _line({"line": "7"}) == 7
+
+
+CASED = """
+namespace P
+{
+    public class Spec
+    {
+        public string MimeType { get; set; }
+        public string MIMEType { get; set; }
+        public void FindField(string name) { }
+        public void findField(string name) { }
+    }
+}
+"""
+
+
+def test_two_members_differing_only_in_case_both_survive(tmp_path: Path) -> None:
+    """A fact ID is lowercased and C# is not; dropping either would delete a public member.
+
+    Measured 2026-09-06 on Aspose.PDF for .NET: seven pairs like MimeType/MIMEType and
+    FindField/findField, every one two real members - usually an alias kept for compatibility.
+    The reference the contract requires must be complete (loop-prompt section 6 rule 8), so the
+    later one takes a numbered identifier and keeps its own name.
+    """
+    package = tmp_path / "src" / "P"
+    package.mkdir(parents=True)
+    (package / "Spec.cs").write_text(CASED, encoding="utf-8")
+    symbols = surface_symbols(get_parser("csharp"), "csharp", package, tmp_path, "p")
+    values = {symbol.value for symbol in symbols}
+    assert {"P.Spec.MimeType", "P.Spec.MIMEType"} <= values
+    assert {"P.Spec.FindField", "P.Spec.findField"} <= values
+    # Every fact ID source is unique once slugged, which is the constraint downstream.
+    slugs = [slug(symbol.fact_slug) for symbol in symbols]
+    assert len(slugs) == len(set(slugs))
+    # The name a reader sees is untouched; only the identifier moves.
+    numbered = [s for s in symbols if s.fact_slug != s.value]
+    assert numbered and all(s.fact_slug == f"{s.value}-2" for s in numbered)

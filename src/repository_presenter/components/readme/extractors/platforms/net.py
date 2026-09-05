@@ -135,7 +135,7 @@ class NetPlugin:
                 attributes["docstring"] = symbol.doc
             facts.append(
                 Fact(
-                    fact_id("public_symbol", symbol.value),
+                    fact_id("public_symbol", symbol.fact_slug),
                     "public_symbol",
                     symbol.value,
                     (

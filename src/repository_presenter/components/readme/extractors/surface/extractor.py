@@ -14,13 +14,14 @@ the parity control and the contract's own checks; origin never makes a fact true
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
 from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
     api_surface,
 )
+from repository_presenter.core.facts import slug
 
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 
@@ -70,6 +71,13 @@ class SurfaceSymbol:
     line: int
     doc: str = ""
     signature: str = ""
+    # What a fact ID is derived from. It is the value, unless another symbol's value slugs to the
+    # same thing: a fact ID is lowercased and C# is not, so `MimeType` and `MIMEType` collide.
+    fact_slug: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.fact_slug:
+            object.__setattr__(self, "fact_slug", self.value)
 
 
 def slug_safe(value: str) -> str:
@@ -182,4 +190,26 @@ def surface_symbols(
             continue
         seen.add(symbol.value)
         unique.append(symbol)
-    return unique
+    return _disambiguate(unique)
+
+
+def _disambiguate(symbols: list[SurfaceSymbol]) -> list[SurfaceSymbol]:
+    """Give every symbol a fact-ID source no other symbol shares.
+
+    A fact ID is lowercased and C# is not, so a library may expose two distinct public members
+    whose slugs collide - measured 2026-09-06 on Aspose.PDF for .NET, which declares `MimeType`
+    and `MIMEType`, `findField` and `FindField`, `LLx` and `Llx`: seven pairs, every one of them
+    two real members, usually an alias kept for compatibility. Dropping either would delete a
+    public member from a reference the contract says must be complete (loop-prompt §6 rule 8), so
+    the later one takes a numbered suffix instead. The value - the name a reader sees - is
+    untouched; only the identifier moves.
+    """
+    taken: dict[str, int] = {}
+    resolved: list[SurfaceSymbol] = []
+    for symbol in symbols:
+        key = slug(symbol.value)
+        count = taken.get(key, 0) + 1
+        taken[key] = count
+        source = symbol.value if count == 1 else f"{symbol.value}-{count}"
+        resolved.append(replace(symbol, fact_slug=source))
+    return resolved
