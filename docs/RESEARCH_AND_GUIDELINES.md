@@ -2355,6 +2355,25 @@ does not prove — but it fires at S6, where the plan is already fixed and a re-
 rewrite prose. `plan_checks` now asks the same question at S5, beside the rule that already
 governs the At a Glance formats, where the model can choose another title.
 
+**Measurement (the loop's, G3-W01, 2026-09-06, the two-reader rule).** With the quote fix, Cells
+and Slides both reached a verdict and both stopped at BC-10 `REJECT_PRESENTATION`. Cells repaired
+four findings and Slides two, escalating one; what stood was **four findings on Cells and three
+on Slides, every one of them `criterion: presentation` at `causal_stage: S6`** — key capabilities
+"omits critical details from the original", the Detailed Member Reference, a scope limitation's
+wording, the opening's example list. The repair loop's own reasons are `no failing check names an
+LLM-owned section` and `section structure is deterministic; its blocks change only when facts
+change`: nothing the loop can act on, which is §26's definition of a prose judgment. That is the
+class §27.8's two-reader rule names, on the required rows where an advisory left standing blocks,
+and it is now the dominant sealing risk exactly as the owner predicted — two of two repositories
+that reached review. The rule landed here: a presentation finding on a required row is read a
+second time under a different seed (the same prompt, so the prompt hash and every recorded
+dependency are unchanged), and blocks only if the second read raises a finding of the same class
+— same section, same stage, same criterion. Otherwise it is recorded `single_reader_advisory`,
+which neither blocks nor counts as an advisory left standing, and the candidate seals. The second
+read costs one call and can only remove a finding from the blocking set: a read that fails its
+own checks corroborates nothing, so corroboration can never turn a sealing candidate into a
+failed transaction.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
@@ -3475,3 +3494,12 @@ p-toolchains`,
   (2026-09-06, later) — Note's `capability:4` "Export pages to PDF" against `format:output.pdf`
   `UNRESOLVED`, rejected twice at S6 where nothing could change the title. Reverse by deleting the
   loop over `capabilities` in `plan_checks` and its test.
+
+- **2026-09-06 06:15 · loop (PROVISIONAL) · the two-reader rule landed, with the one line that
+  makes it act.** Item G3-W01, implementing the owner's decision of 2026-09-06 00:15 (§27.8).
+  Beyond the rule as written, `deferred_on_required_rows` also skips a `single_reader_advisory`:
+  without that the finding would leave the blocking set and fail the same BC-10 one line later,
+  so the rule would have changed nothing (proven by the end-to-end test, which failed exactly
+  that way first). Only `criterion: presentation` counts as a prose judgment - factuality, scope
+  and absence findings are refuted deterministically. Evidence: §27.10, seven such findings
+  across Cells and Slides. Reverse by deleting `second_reader`, `prose_judgment` and that clause.

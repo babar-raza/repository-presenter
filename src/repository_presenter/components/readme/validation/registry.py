@@ -1109,12 +1109,19 @@ def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]
     refuted is not deferred work: there is nothing to defer and no revision could act on it, so
     it is recorded with its reason and counted, never blocking. What blocks is a finding left
     standing - one nothing contradicted - because that is work this candidate still owes.
+
+    A ``single_reader_advisory`` is not owed work either: a second independent read of the same
+    candidate under a different seed raised nothing equivalent, so the defect is one reader's
+    judgment rather than the candidate's (the owner's two-reader rule, 2026-09-06 00:15, section
+    31; docs/RESEARCH_AND_GUIDELINES.md section 27.8). Without this the rule would change
+    nothing: the finding would leave the blocking set and fail the same check one line later.
     """
     return [
         dict(finding)
         for finding in review.get("advisory", [])
         if str(finding.get("section_id", "")) in REQUIRED_SECTIONS
         and not finding.get("reviewer_scope_defect")
+        and not finding.get("single_reader_advisory")
     ]
 
 

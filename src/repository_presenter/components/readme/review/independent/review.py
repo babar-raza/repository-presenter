@@ -15,6 +15,7 @@ import hashlib
 import json
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     section_ids,
 )
+from repository_presenter.components.readme.repair.targeted import defect_fingerprint
 from repository_presenter.core.facts import FACT_KINDS, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -153,6 +155,51 @@ def review_packet(
 def blocking(finding: dict[str, Any]) -> bool:
     """A finding blocks when it names a candidate section and a stage the loop can reopen."""
     return bool(finding.get("section_id")) and finding.get("causal_stage") in CAUSAL_STATES
+
+
+# A required row admits zero advisories left standing, so on those rows one reader's taste can
+# hold a candidate unsealed indefinitely. The owner's two-reader rule (2026-09-06 00:15, §31;
+# RESEARCH_AND_GUIDELINES.md §27.8) makes such a finding block only when a second independent
+# read under a different seed raises an equivalent one. Only the presentation criterion is a
+# prose judgment: factuality, scope and absence findings are refuted deterministically above.
+REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
+PROSE_JUDGMENT = "presentation"
+SECOND_READER_SEED = 2
+
+
+def prose_judgment(finding: Mapping[str, Any]) -> bool:
+    """A finding on a required row that no deterministic check expresses (§26)."""
+    return (
+        finding.get("criterion") == PROSE_JUDGMENT
+        and str(finding.get("section_id")) in REQUIRED_SECTIONS
+    )
+
+
+def finding_class(finding: Mapping[str, Any]) -> str:
+    """What two readers must agree on: the same section, stage and criterion."""
+    return defect_fingerprint(
+        "review",
+        finding.get("section_id"),
+        finding.get("causal_stage"),
+        str(finding.get("criterion", "")),
+    )
+
+
+def second_reader(manifest: LoadedManifest) -> LoadedManifest:
+    """The same reviewer prompt, read again under a different seed.
+
+    The prompt file and its hash are untouched, so the candidate's dependencies are unchanged and
+    this is corroboration, never a retry: the second read can only take a finding out of the
+    blocking set, never put one in.
+    """
+    sampling = manifest.manifest.sampling
+    seed = SECOND_READER_SEED if sampling.seed is None else sampling.seed + SECOND_READER_SEED
+    return replace(
+        manifest,
+        manifest=manifest.manifest.model_copy(
+            update={"sampling": sampling.model_copy(update={"seed": seed})}
+        ),
+    )
 
 
 REVIEWER_SCOPE_DEFECT = "reviewer-scope defect"
@@ -361,6 +408,7 @@ def review_document(
     facts: FactsDocument | None = None,
     original_readme: str = "",
     rendered: Sequence[str] = (),
+    second: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -368,9 +416,20 @@ def review_document(
     A finding that is the reviewer's own defect is recorded advisory with the reason as a field,
     the stage the reviewer named left intact: the record says why it does not block, and nothing
     downstream has to read prose to find out (section 27.5 D5).
+
+    ``second`` is a second independent read of the same candidate under a different seed. When it
+    is given, a prose judgment on a required row blocks only if that read raised a finding of the
+    same class; otherwise it is recorded ``single_reader_advisory`` and does not block (the
+    owner's two-reader rule, section 27.8). A second read that returned nothing usable
+    corroborates nothing, which is the same answer as a second reader who saw no such defect.
     """
     findings: list[dict[str, Any]] = []
     advisory: list[dict[str, Any]] = []
+    corroborated = (
+        {finding_class(f) for f in second.get("findings", []) if blocking(dict(f))}
+        if second is not None
+        else set()
+    )
     by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     evidence = claim_evidence(original_readme, facts) if original_readme else ""
     for finding in output.get("findings", []):
@@ -382,11 +441,18 @@ def review_document(
         )
         if reason is not None:
             record["reviewer_scope_defect"] = reason
-        if reason is None and blocking(finding):
+        alone = (
+            second is not None
+            and prose_judgment(finding)
+            and finding_class(finding) not in corroborated
+        )
+        if reason is None and blocking(finding) and not alone:
             record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
             findings.append(record)
         else:
             record["causal_state"] = None
+            if alone and reason is None:
+                record["single_reader_advisory"] = True
             advisory.append(record)
     returned = str(output.get("verdict"))
     # A rejection rests on its blocking findings; one whose findings are all advisory has
@@ -399,6 +465,10 @@ def review_document(
         "verdict_as_returned": returned,
         "findings": findings,
         "advisory": advisory,
+        "second_reader": {
+            "read": second is not None,
+            "corroborated": sorted(corroborated),
+        },
         "preserve": list(output.get("preserve", [])),
         "reviewer": {
             "job": reviewer.manifest.prompt_id,

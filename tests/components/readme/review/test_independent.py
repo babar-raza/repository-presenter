@@ -14,11 +14,14 @@ from repository_presenter.components.readme.review.independent.review import (
     CAUSAL_STATES,
     absence_defect,
     claim_evidence,
+    finding_class,
+    prose_judgment,
     quote_located,
     review_checks,
     review_document,
     review_packet,
     scope_defect,
+    second_reader,
     summarize_review,
     write_review,
 )
@@ -83,6 +86,69 @@ def _finding(label: str, section: str, stage: str, quote: str = "") -> dict[str,
         "absent": [],
         "repair": "Drop the claim.",
     }
+
+
+def _judgment(label: str, section: str, quote: str = "It writes `.glb` files.") -> dict[str, Any]:
+    """A prose judgment: the presentation criterion, on a section the shell requires."""
+    return {**_finding(label, section, "S6", quote), "criterion": "presentation", "fact_ids": []}
+
+
+def test_a_prose_judgment_on_a_required_row_blocks_only_when_a_second_reader_agrees() -> None:
+    """The owner's two-reader rule (2026-09-06 00:15, section 31; section 27.8).
+
+    A required row admits zero advisories left standing, so one reader's taste could hold a
+    candidate unsealed indefinitely - measured on Aspose.Cells and Aspose.Slides, whose only
+    remaining blockers were four and three presentation findings after repair (2026-09-06).
+    """
+    output = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [_judgment("F01", "opening"), _judgment("F02", "key_capabilities")],
+        "preserve": [],
+    }
+    common: dict[str, Any] = {
+        "candidate_readme": CANDIDATE,
+        "facts": FACTS,
+        "original_readme": "Old prose.",
+    }
+    # One reader alone: both findings become advisory, marked, and the candidate seals.
+    alone = review_document(output, REVIEWER, AUTHORING, "d" * 64, second={}, **common)
+    assert alone["verdict"] == ACCEPT and alone["findings"] == []
+    assert [f["id"] for f in alone["advisory"]] == ["F01", "F02"]
+    assert all(f["single_reader_advisory"] for f in alone["advisory"])
+    assert alone["second_reader"] == {"read": True, "corroborated": []}
+
+    # A second reader raising the same class on one of them keeps that one blocking; the other
+    # is still one reader's judgment. Equivalence is the class, never the wording.
+    agreed = {**_judgment("X9", "opening"), "text": "Different words, same defect."}
+    both = review_document(
+        output, REVIEWER, AUTHORING, "d" * 64, second={"findings": [agreed]}, **common
+    )
+    assert [f["id"] for f in both["findings"]] == ["F01"]
+    assert [f["id"] for f in both["advisory"]] == ["F02"]
+    assert both["verdict"] == "REJECT_PRESENTATION"
+    assert both["second_reader"]["corroborated"] == [finding_class(agreed)]
+
+    # Without a second read nothing is demoted, and a finding a deterministic check can express
+    # is never a prose judgment: it blocks on one reader, as it always did.
+    assert len(review_document(output, REVIEWER, AUTHORING, "d" * 64, **common)["findings"]) == 2
+    factual = {**output, "findings": [_finding("F01", "opening", "S6", "It writes `.glb` files.")]}
+    unmoved = review_document(factual, REVIEWER, AUTHORING, "d" * 64, second={}, **common)
+    assert [f["id"] for f in unmoved["findings"]] == ["F01"]
+
+
+def test_the_second_read_changes_the_seed_and_nothing_else() -> None:
+    """The prompt file and its hash are untouched, so the candidate's dependencies do not move."""
+    second = second_reader(REVIEWER)
+    assert second.sha256 == REVIEWER.sha256 and second.path == REVIEWER.path
+    assert second.manifest.sampling.seed != REVIEWER.manifest.sampling.seed
+    assert (
+        second.manifest.model_copy(update={"sampling": REVIEWER.manifest.sampling})
+        == REVIEWER.manifest
+    )
+    # A prose judgment is the presentation criterion on a row the shell requires, nothing else.
+    assert prose_judgment(_judgment("F01", "opening"))
+    assert not prose_judgment(_finding("F01", "opening", "S6"))
+    assert not prose_judgment(_judgment("F01", "enterprise_relationship"))
 
 
 def test_the_packet_is_bounded_and_carries_validation_as_context() -> None:

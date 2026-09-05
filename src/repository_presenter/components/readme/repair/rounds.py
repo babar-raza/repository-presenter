@@ -75,9 +75,11 @@ from repository_presenter.components.readme.repair.targeted import (
 )
 from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
+    prose_judgment,
     review_checks,
     review_document,
     review_packet,
+    second_reader,
     write_review,
 )
 from repository_presenter.components.readme.validation.registry import (
@@ -246,15 +248,13 @@ def run_round(tx: TransactionInputs) -> Round:
     # Stage S10 runs only over a candidate every deterministic check accepted, under its own
     # prompt and identity, and writes its verdict into check 10.
     loaded = prompts["independent_review"]
-    reviewed = run_job(
-        loaded,
-        review_packet(
-            entry, facts, tx.original, readme, planned.output, reconciled.output, validation
-        ),
-        checks=functools.partial(review_checks, candidate_readme=readme, facts=facts),
-        **common,
+    packet = review_packet(
+        entry, facts, tx.original, readme, planned.output, reconciled.output, validation
     )
-    review = review_document(
+    checks = functools.partial(review_checks, candidate_readme=readme, facts=facts)
+    reviewed = run_job(loaded, packet, checks=checks, **common)
+    document = functools.partial(
+        review_document,
         reviewed.output,
         loaded,
         prompts["section_authoring"],
@@ -264,6 +264,19 @@ def run_round(tx: TransactionInputs) -> Round:
         original_readme=tx.original,
         rendered=renderer_sentences(entry, facts, planned.output, current.units, reconciled.output),
     )
+    review = document()
+    # A prose judgment on a required row is read a second time under a different seed before it
+    # holds the candidate unsealed (the owner's two-reader rule, section 27.8). The second read
+    # only ever removes a finding from the blocking set, so a read that cannot produce a usable
+    # review corroborates nothing and the candidate is judged by the first reader's other
+    # findings - it never turns a sealing candidate into a failed transaction.
+    if any(prose_judgment(finding) for finding in review["findings"]):
+        try:
+            corroboration = run_job(second_reader(loaded), packet, checks=checks, **common)
+        except JobError:
+            review = document(second={})
+        else:
+            review = document(second=corroboration.output)
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)

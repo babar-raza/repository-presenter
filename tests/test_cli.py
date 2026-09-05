@@ -1234,6 +1234,69 @@ def _plan_repair_adding_the_limitation() -> dict[str, Any]:
     }
 
 
+def _presentation_rejection(label: str = "F01") -> dict[str, Any]:
+    """A prose judgment: the presentation criterion on a row the shell requires."""
+    return {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [
+            {
+                "id": label,
+                "section_id": "scope_limitations",
+                "causal_stage": "S6",
+                "criterion": "presentation",
+                "text": "The section reads thinner than the original.",
+                "quote": SCOPE_QUOTE,
+                "fact_ids": [],
+                "absent": [],
+                "repair": "Restore the original level of detail.",
+            }
+        ],
+        "preserve": [],
+    }
+
+
+def test_a_prose_judgment_one_reader_raised_is_read_again_before_it_holds_the_candidate(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The owner's two-reader rule, end to end (section 27.8; section 31, 2026-09-06 00:15).
+
+    A presentation finding on a required row is read a second time under a different seed. The
+    second read raises nothing equivalent, so the finding is recorded single_reader_advisory and
+    the candidate seals instead of failing BC-10 - the class that left Aspose.Cells and
+    Aspose.Slides unsealed with four and three such findings after repair.
+    """
+    gateway_ready.queues = {
+        "independent_review": [
+            _presentation_rejection(),
+            {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        ]
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK, captured.err
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "ACCEPT" and review["verdict_as_returned"] == "REJECT_PRESENTATION"
+    assert review["findings"] == []
+    assert [f["id"] for f in review["advisory"]] == ["F01"]
+    assert review["advisory"][0]["single_reader_advisory"] is True
+    assert review["second_reader"] == {"read": True, "corroborated": []}
+    # It cost exactly one extra call, under the same prompt: two reads with different request
+    # hashes and one prompt identity, so every dependency the candidate records is unchanged.
+    calls = [
+        json.loads(line)
+        for line in (transaction / "calls.jsonl").read_text("utf-8").splitlines()
+        if line.strip()
+    ]
+    reads = [call for call in calls if call["job"] == "independent_review"]
+    assert len(reads) == 2
+    assert len({call["request_sha256"] for call in reads}) == 2
+    assert len({call["prompt_sha256"] for call in reads}) == 1
+
+
 def test_a_repair_needing_a_slot_the_plan_never_assigned_escalates_once_to_planning(
     project_with_registry: Path,
     local_canary: dict[str, Any],
