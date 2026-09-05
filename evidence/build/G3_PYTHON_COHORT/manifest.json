@@ -1,0 +1,177 @@
+{
+ "schema_version": 1,
+ "gate": "G3_PYTHON_COHORT",
+ "gate_status": "READY",
+ "work_item": "G3-W01",
+ "work_item_status": "IN_PROGRESS",
+ "recorded_at": "2026-09-06T00:16:02+05:00",
+ "control_revision": "81a10ac0b172670cde783ba8dabe0f3dbf632bb3",
+ "preflight": {
+  "command": "repository-presenter present --repo <owner/name> --facts-only",
+  "provider_calls": 0,
+  "lanes": 3,
+  "repositories": 13,
+  "processable": 12,
+  "dispositions": [
+   "aspose-psd-foss/Aspose.PSD-FOSS-for-Python"
+  ],
+  "failure_classes": [
+   {
+    "class": "PYTHON_KEYWORD_AVOIDING_SYMBOL_NAME",
+    "repositories": [
+     "aspose-font-foss/Aspose.Font-FOSS-for-Python"
+    ],
+    "detail": "fact extraction raised ValueError on aspose_font.cff.dict_.PrivateDictOp: a run of separators has no slug. Fixed at the boundary - a run keeps its first character, so dict_ stays distinct from dict - and Font now extracts 766 facts.",
+    "status": "FIXED"
+   },
+   {
+    "class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "repositories": [
+     "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+     "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+     "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+     "aspose-words-foss/Aspose.Words-FOSS-for-Python"
+    ],
+    "detail": "every README example opens an input file the repository does not ship, so no example executes and the required Quick Start row rests on no evidence. The fixture pool serves an example from another example's output; these four have no executed example to draw from.",
+    "status": "OPEN"
+   }
+  ],
+  "report": [
+   {
+    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+    "source_revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+    "processable": true,
+    "facts": 1724,
+    "supported": 1686,
+    "unresolved": 37,
+    "contradicted": 1,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+    "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+    "processable": true,
+    "facts": 178,
+    "supported": 151,
+    "unresolved": 26,
+    "contradicted": 1,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "source_revision": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
+    "processable": true,
+    "facts": 1092,
+    "supported": 1091,
+    "unresolved": 1,
+    "contradicted": 0,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+    "processable": true,
+    "facts": 326,
+    "supported": 287,
+    "unresolved": 38,
+    "contradicted": 1,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "source_revision": "c4c453b861596d20b3348dbc8d3b70c591e6fd70",
+    "processable": true,
+    "facts": 766,
+    "supported": 749,
+    "unresolved": 16,
+    "contradicted": 1,
+    "required_rows_without_evidence": [
+     "quick_start"
+    ]
+   },
+   {
+    "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+    "source_revision": "912f0ae078b5418226a51de08539bc591547682e",
+    "processable": true,
+    "facts": 493,
+    "supported": 377,
+    "unresolved": 115,
+    "contradicted": 1,
+    "required_rows_without_evidence": [
+     "quick_start"
+    ]
+   },
+   {
+    "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+    "processable": true,
+    "facts": 339,
+    "supported": 335,
+    "unresolved": 1,
+    "contradicted": 3,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    "source_revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+    "processable": true,
+    "facts": 728,
+    "supported": 725,
+    "unresolved": 0,
+    "contradicted": 3,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+    "source_revision": "109e26a10e37541528afb5e3ae6b04516c1c0359",
+    "processable": true,
+    "facts": 1553,
+    "supported": 1478,
+    "unresolved": 61,
+    "contradicted": 14,
+    "required_rows_without_evidence": [
+     "quick_start"
+    ]
+   },
+   {
+    "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python",
+    "source_revision": "2f6c746a8a3ebfaf686a7053e34abfad3a2fd8b3",
+    "processable": false,
+    "disposition": "NO_IMPLEMENTATION_EVIDENCE",
+    "resume_predicate": "a later default-branch revision adds a python manifest (pyproject.toml, setup.cfg, setup.py) or source files (.py)"
+   },
+   {
+    "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+    "source_revision": "becd199a776682785768c60c778558d975b0c2f9",
+    "processable": true,
+    "facts": 3296,
+    "supported": 3293,
+    "unresolved": 2,
+    "contradicted": 1,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+    "source_revision": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+    "processable": true,
+    "facts": 153,
+    "supported": 132,
+    "unresolved": 11,
+    "contradicted": 10,
+    "required_rows_without_evidence": []
+   },
+   {
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+    "source_revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+    "processable": true,
+    "facts": 825,
+    "supported": 786,
+    "unresolved": 39,
+    "contradicted": 0,
+    "required_rows_without_evidence": [
+     "quick_start"
+    ]
+   }
+  ]
+ }
+}

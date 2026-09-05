@@ -39,12 +39,17 @@ FACTS_FILENAME = "facts.json"
 
 _SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 _UNSAFE = re.compile(r"[^a-z0-9._-]+")
+_SEPARATOR_RUN = re.compile(r"[._-]{2,}")
 
 
 def slug(text: str) -> str:
     """A lowercase identifier-safe form of ``text`` for use inside a fact ID."""
     cleaned = _UNSAFE.sub("-", text.strip().lower()).strip("._-")
-    cleaned = re.sub(r"-{2,}", "-", cleaned)
+    # A run of separators keeps its first character. Python names a symbol dict_ or class_ to
+    # avoid a keyword, so a path like aspose_font.cff.dict_.PrivateDictOp arrives with "_." in
+    # it; collapsing the run to "." would merge that symbol with a real dict module, while
+    # keeping the first character distinguishes them (measured on Aspose.Font, 2026-09-06).
+    cleaned = _SEPARATOR_RUN.sub(lambda match: match.group(0)[0], cleaned)
     if not cleaned or not _SLUG_PATTERN.fullmatch(cleaned):
         raise ValueError(f"cannot derive a fact ID slug from {text!r}")
     return cleaned

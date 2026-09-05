@@ -48,6 +48,13 @@ def sample_document() -> FactsDocument:
 def test_slugs_are_lowercase_identifier_safe_and_stable() -> None:
     assert slug("Aspose.3D FOSS") == "aspose.3d-foss"
     assert slug("aspose.threed") == "aspose.threed"
+    # A run of separators keeps its first character: Python names a symbol dict_ or class_
+    # to avoid a keyword, and Aspose.Font's aspose_font.cff.dict_.PrivateDictOp crashed
+    # fact extraction outright before this (measured 2026-09-06).
+    assert slug("aspose_font.cff.dict_.PrivateDictOp") == "aspose_font.cff.dict_privatedictop"
+    assert slug("a--b") == "a-b" and slug("x..y") == "x.y"
+    # The collapse never merges a keyword-avoiding name with the real one.
+    assert slug("Class_.Method") != slug("Class.Method")
     assert fact_id("import_path", "aspose.threed") == "import_path:aspose.threed"
     assert fact_id("build_test_asset", "tests", "ci") == "build_test_asset:tests.ci"
     with pytest.raises(ValueError, match="cannot derive"):
