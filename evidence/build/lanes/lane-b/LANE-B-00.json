@@ -5,8 +5,8 @@
  "work_item": "LANE-B-00",
  "work_item_status": "ACCEPTED",
  "recorded_at": "2026-09-06T00:16:44+05:00",
- "control_revision": "199b803064ac363fb943dee5e73600dcf52da3c9",
- "control_revision_note": "lane-b is rebased onto this revision of origin/main. The acceptance commit carrying this receipt, the lane cursor and the RESEARCH_LANE_B.md entries is its child, landed on main through a pull request after hosted CI. The rebase took origin's version of G4-W13's purpose, which the owner rewrote at 81a10ac to name the GCC and Ninja this item verified.",
+ "control_revision": "ee7d5358e4480ec9697b8277caf2e8ed477a3cb9",
+ "control_revision_note": "The single-use branch lane-b/LANE-B-00 is rebased onto this revision of origin/main, and the acceptance commits carrying this receipt, the lane cursor and the RESEARCH_LANE_B.md entries are its children, landed through one squashed pull request after the hosted three-version run. Two rebases happened during the item and both took origin's text where it overlapped: 81a10ac rewrote G4-W13's purpose to name the GCC and Ninja this item verified, and ee7d535 replaced the lane's landing convention with the single-use branch this PR uses.",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
@@ -182,9 +182,20 @@
      },
      {
       "command": "python -m pytest -n auto",
-      "exit_code": 0
+      "exit_code": 0,
+      "seconds": 107,
+      "passed": 503
+     },
+     {
+      "command": "python -m pytest -n auto (with GPT_OSS_ENDPOINT and GPT_OSS_API_KEY unset, as ci.yml leaves them)",
+      "exit_code": 0,
+      "seconds": 119,
+      "passed": 503,
+      "errors": 0,
+      "note": "The control for the nondeterminism described below: removing the two credentials made the suite deterministic and complete on the first attempt, which is what identifies the live gateway as the cause rather than anything this item changed."
      }
-    ]
+    ],
+    "note": "ruff, ruff format and mypy were clean on every run. pytest is nondeterministic on this machine: six runs of the same tree gave 503 passed, then 501 passed with 2 errors, then 500 passed with 3 errors and 1 failure, then 500 passed with 2 errors - a different subset of tests/test_cli.py each time, every one an LLM output rejection at fixture setup rather than an assertion about this item's files. GPT_OSS_ENDPOINT and GPT_OSS_API_KEY are present in this machine's process environment, so those fixtures compose against the real gateway; .github/workflows/ci.yml sets neither, which is why the hosted matrix is deterministic and green. The lane owns no path under composition/, core/ or prompts/, and this item adds no Python, so the finding is recorded for the primary loop (RESEARCH_LANE_B.md) rather than repaired here. The hosted run below is the authoritative verdict (loop-prompt section 3)."
    }
   ]
  },
@@ -220,8 +231,34 @@
    "evidence": "This file. RESEARCH_LANE_B.md carries three entries in section 31 shape: the rustup root decision, the PROPOSAL that the workspace-local GCC satisfies OWNER-06, and the tsc warm-up."
   }
  ],
+ "hosted_ci": {
+  "note": "The authoritative 3.11/3.12/3.13 proof (loop-prompt section 3). The first pull request, #1, carried this item's commit before the landing convention changed; it was closed unmerged and its branch deleted, and the item landed from the single-use branch lane-b/LANE-B-00 instead.",
+  "runs": [
+   {
+    "pull_request": 1,
+    "run_id": 33987474220,
+    "checks": [
+     {
+      "name": "Python 3.11",
+      "conclusion": "pass",
+      "duration": "1m44s"
+     },
+     {
+      "name": "Python 3.12",
+      "conclusion": "pass",
+      "duration": "2m2s"
+     },
+     {
+      "name": "Python 3.13",
+      "conclusion": "pass",
+      "duration": "1m40s"
+     }
+    ]
+   }
+  ]
+ },
  "next_work_item": "G4-W14",
- "next_work_item_blocked_on": "G4-W10 and G4-W09 accepted on main; neither is accepted at revision 199b803 - no accept commit for either, and evidence/build/ holds manifests only for G0, G1 and G2 - so the lane reports and ends the run rather than polling. G4-W13's other prerequisite, OWNER-06, is SATISFIED in state.yaml and reproduced by this item's probe.",
+ "next_work_item_blocked_on": "G4-W10 and G4-W09 accepted on main; neither is accepted at revision 199b803 - `git log origin/main --grep=\"accept G4-W09\"` and the same for W10 return nothing, and evidence/build/ carries no G4_MULTI_LANGUAGE_COHORTS manifest (G0, G1, G2 and G3 only) - so the lane reports and ends the run rather than polling; the reviewer re-spawns it when W09 lands. G4-W13's other prerequisite, OWNER-06, is SATISFIED in state.yaml and reproduced by this item's probe.",
  "measurement": {
   "tools_recorded": 12,
   "provisioned_by_this_item": [
