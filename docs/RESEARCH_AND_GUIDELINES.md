@@ -1575,10 +1575,16 @@ diagnosing. Each line names where the detail lives.
 - **Throughput, second pass (30.9 B–E)**: close as many predicates per iteration as the budget
   allows, one commit each; grep or Read with offsets before whole-file reads; commit bodies ≤ 120
   words; **G3-W03** (facts cache keyed by tree hash + extractor version + environment fingerprint,
-  wheel cache, per-stage timings) runs before the cohort so a no-op rerun takes seconds.
-- **Order to 31/31**: G2 (W17 closes it) → G3: **W03 facts cache**, then the Python cohort — facts-only
-  preflight, then twelve compositions in **up to three repository lanes** — then freeze → G4 second
-  source, spec layer, extractor, six cohorts → G5 durability and hosted (§28).
+  wheel cache, per-stage timings) runs only if G3-W01's preflight measures a median facts stage
+  above 90 s per repository (30.9 decision 7); otherwise it is deferred behind G3-W02.
+- **Third pass (30.9 decisions 7–9, 2026-09-05 23:05)**: G2's exit predicates restated to what the
+  rules allow (85 floor, zero blocking findings, zero required-row advisories, ledger in the bundle;
+  no per-job 95%, no blocking check before a sealed defect, no suite wall-clock as a gate);
+  `parallel_repository_work_allowed: true` for the lanes; the cohort census is §28.10.
+- **Order to 31/31**: G2 (W17 closes it) → G3: **the Python cohort first** — facts-only preflight
+  over the twelve (§28.10 confirms each failure class), then compositions in **up to three repository
+  lanes** — W03 only on the preflight's measurement, then freeze → G4 second source, spec layer,
+  extractor, six cohorts → G5 durability and hosted (§28).
 
 ### 27.1 Symptoms, measured
 
@@ -2071,8 +2077,9 @@ G2-W12 D1 (accepted 2026-09-04 at the measured 91.7/8.3, §27.10), G2-W19 sampli
 probe, G2-W21 output-shaping code as a recorded dependency, G2-W13 D2, G2-W16 D5 (review output
 bounded), G2-W22 plan-level repair escalation (split from W16, 2026-09-05), G2-W17 D6 (accepts on
 the ledger, sealing, volatile observations, proxy/CA environment; fixtures move to G3-W01), G2-W20
-referential links and commands; G2-W23 folded into G3-W01 on 2026-09-05 (30.9); G3 — G3-W03 facts
-cache and stage timings (first, 30.9 B), then G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+referential links and commands; G2-W23 folded into G3-W01 on 2026-09-05 (30.9); G3 — G3-W01 Python
+cohort first (its preflight measures; census §28.10), G3-W03 facts cache only if that measurement
+admits it (30.9 decision 7), G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -2117,12 +2124,12 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   status: PENDING
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
 # G3, G4, G5 entries: append after the last G2 entry, in this order
-- id: G3-W03
-  status: PENDING
-  purpose: "Facts-stage cache and stage timings (30.9 B; owner admission, section 31). A present whose source tree hash, extractor version, and environment fingerprint (Python version, OS, resolved site manifest - the RC7 record of 27.5 D4) match a stored result reuses facts.json, examples.json, and the probe records from runs/facts-cache under that key and skips venv creation, pip install, example execution, and the live probes; any mismatch runs the stage and stores the result. pip installs use a per-revision wheel cache and preinstalled build dependencies rather than fetching them from PyPI on every run. The CLI prints per-stage wall-clock (S1 snapshot; S2 facts with venv, install, examples, probes; S3 to S12) and the sealed manifest records them. Insert before G3-W01. Acceptance: the no-op rerun of the sealed canary completes in under 30 seconds with zero provider calls and identical bytes; a changed tree or fingerprint invalidates the cache, proven by test; timings appear in present output and the manifest; hosted CI green."
 - id: G3-W01
   status: PENDING
-  purpose: "Python cohort (section 28.5; 30.9). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls; in the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
+  purpose: "Python cohort (section 28.5; 30.9; census 28.10). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls, plus per-repository stage timings (venv, install, examples, probes), fixture availability by suffix, and registry publication status; each anticipated class in 28.10 is confirmed or refuted here before any fix. In the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md; lanes scaled from the first lane's rate-limit evidence), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. The loop reads the cohort report, never a per-repository bundle, unless a failure class needs the look. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
+- id: G3-W03
+  status: PENDING
+  purpose: "Facts-stage cache and stage timings (30.9 B; owner admission, section 31; order per 30.9 decision 7). A present whose source tree hash, extractor version, and environment fingerprint (Python version, OS, resolved site manifest - the RC7 record of 27.5 D4) match a stored result reuses facts.json, examples.json, and the probe records from runs/facts-cache under that key and skips venv creation, pip install, example execution, and the live probes; any mismatch runs the stage and stores the result. pip installs use a per-revision wheel cache and preinstalled build dependencies rather than fetching them from PyPI on every run. The CLI prints per-stage wall-clock (S1 snapshot; S2 facts with venv, install, examples, probes; S3 to S12) and the sealed manifest records them. Runs after G3-W01's step-one preflight and only if the preflight's measured median facts stage exceeds 90 seconds per repository; otherwise it is deferred behind G3-W02, recorded in section 31. Acceptance: the no-op rerun of the sealed canary completes in under 30 seconds with zero provider calls and identical bytes; a changed tree or fingerprint invalidates the cache, proven by test; timings appear in present output and the manifest; hosted CI green."
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -2433,6 +2440,45 @@ G2–G7 sections were rewritten in the same commit; this block stays as the prop
   status: PENDING
   purpose: "Rust plugin and cohort (section 28.5): Cargo.toml facts including edition and MSRV, pub surface and re-exports through the shared extractor, examples checked with cargo check, a negative control, format signals; then the one Rust repository. The toolchain (rustup) must be present; if absent the item is BLOCKED_EXTERNAL with the install command as its resume predicate. Acceptance: cohort report; zero-call proof; parity control; status prints 31 sealed candidates and 34 dispositions; hosted CI green."
 ```
+
+### 28.10 Python cohort census (owner, 2026-09-05, static; read-only shallow clones outside the repository)
+
+Prepared so G3-W01's preflight confirms failure classes against a known picture instead of finding
+them one repository at a time. Nothing here is a fix: each class is confirmed or refuted by the
+preflight before any code changes (§30 A7 — measured over anticipated), then fixed once by class.
+
+| Family | Manifest / layout | Python | Third-party deps | `.py` | README lines | Fences reading a file | Fixture files in tree | CI wf | PyPI |
+|---|---|---|---|---|---|---|---|---|---|
+| PDF | pyproject / src | ≥3.11 | cryptography, asn1crypto | 367 | 926 | 13 of 13 | 18 | 4 | not published |
+| BarCode | pyproject / src | ≥3.12 | Pillow | 130 | 262 | 0 of 6 | 0 | 0 | not published |
+| Cells | pyproject / flat | ≥3.7 | pycryptodome, olefile | 87 | 397 | 6 of 6 | 4 (no `.xlsx`) | 0 | 26.7.0 |
+| Email | pyproject / flat | ≥3.10 | none | 18 | 411 | 5 of 6 | 4 | 2 | 26.3 |
+| Font | pyproject + setup.py / src | ≥3.10 | none | 102 | 486 | 8 of 8 | 142 | 0 | not published |
+| HTML | pyproject / src | ≥3.10 | skia-python | 302 | 609 | 0 of 7 | 4 | 0 | not published |
+| Note | pyproject / src | ≥3.10 | none | 32 | 528 | 12 of 12 | 38 | 2 | 26.3.2 |
+| Page | pyproject + setup.py / src | ≥3.10 | none | 134 | 576 | 5 of 8 | 2268 | 0 | not published |
+| PSD | none | – | – | 0 | 2 | – | 0 | 0 | – (NON_PROCESSABLE) |
+| Slides | pyproject / flat | ≥3.10 | lxml | 624 | 456 | 15 of 15 | 13 | 2 | 26.8.0 |
+| TeX | pyproject / src | ≥3.10 | none | 119 | 368 | 1 of 10 | 30 | 0 | not published |
+| Words | pyproject / flat | ≥3.10 | olefile, fpdf2 | 115 | 655 | 11 of 12 | 16 | 0 | 26.7.0 |
+
+No native binaries; every third-party dependency has a cp313/win_amd64 or pure wheel; every README
+carries 3–7 images to preserve. G3 can therefore seal at most 12 of 34 (the canary plus eleven).
+
+Anticipated failure classes, by repositories affected: **(1) fixtures for file-reading examples** —
+9 repositories, 6 of them entirely; `stage_fixtures` already takes a same-suffix tree file or an
+earlier example's output, so the likely gaps are Cells (no `.xlsx` in the tree: a create-then-save
+example must run before its readers) and directory-qualified literals. **(2) Unpublished packages**
+— 6 of 12; check 2, row 8's "not yet published" sentence and the badge floor (licence plus the
+Python-floor badge) have never run, the canary being published; seven repositories carry no CI
+workflow. **(3) Format declarations** — the declarations extractor is 3D-specific (`FileFormat.py`,
+`register_plugin`); five repositories carry a Save/Load format enum in another shape. At a Glance is
+conditional so nothing blocks, and executed examples' load/save literals still yield formats — class
+1 drives class 3. **(4) Large READMEs** (926, 655, 609, 576 lines) — the reviewer's output was
+bounded in W16; the reconciler's one-disposition-per-unit output may not be. **(5) Layouts** — four
+flat packages, seven `src/`, two with both `setup.py` and `pyproject`; BarCode's `>=3.12` floor.
+**(6) The gateway's rate limit under lanes** — unknown until measured; 429 handling is G5-W03's, so
+the loop scales lanes from the first lane's evidence.
 
 ## 29. Ecosystem extraction: what the queued G4 items would really do, and the durable plugin design (2026-09-04)
 
@@ -2874,6 +2920,27 @@ ports) — fixing them is real work, bounded; the model's ~35% is the thinking a
 - **Not a cause:** OneDrive (no account registered), the gateway (0 non-200), the machine's power
   settings (never sleeps), the model's own output volume (50k characters a day — small).
 
+**Third pass — the order of G3 and the gate it must pass (owner, 2026-09-05 23:05).** (7) The
+cohort preflight runs first, the cache second and only on evidence: a cache keyed on tree hash and
+fingerprint pays back on re-runs of one repository at one revision; the cohort's first pass is cold
+for every repository whatever the order, pip already keeps its wheel cache, and W03's cheap half
+(per-stage timings) belongs in the preflight — which then decides W03 by measurement (median facts
+stage above 90 s per repository admits it before step two; otherwise it is deferred behind G3-W02).
+(8) G2's exit predicates were restated to what the rules allow: "a blocking coverage check"
+contradicted §6 rule 14; "≥95% and re-ask ≤5% per job" was a one-composition number against
+§27.10's three-composition rule (section_authoring measures 91.7%); "pytest under three minutes" is
+a control in this section, not a gate. The 85 floor, zero blocking findings and zero required-row
+advisories stay. Without the restatement the loop would have reached W17's acceptance with a gate
+it could neither pass nor honestly accept — loop-prompt §2 advances a gate only when every exit
+predicate passes. (9) `parallel_repository_work_allowed` is set true for decision (6) — owner
+approval 2026-09-05 22:50: "Parallel work approved, however you need to be more careful than before
+to avoid, catch and fix any problems in time." The census behind (7) is §28.10. **Controls.** The
+reviewer wake now runs a deterministic check every two hours — liveness, iteration accounting, rule
+compliance (full-suite runs per commit, canary runs, CI watching, commit-body length, read volume),
+queue-versus-§27.9 agreement, gate-exit satisfiability, growth signals (new modules without an
+importer, new check definitions, deferral language in evidence), new §31 entries — and an event
+monitor on the loop's transcript reports a stop, a cap, or silence within a minute.
+
 ## 31. Provisional decision log (the loop appends; the owner reviews asynchronously)
 
 The loop never stops to ask. When a decision is needed it decides by loop-prompt §5's order, appends
@@ -3019,6 +3086,25 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   produced. Evidence: §27.2, 2026-09-05 (fixtures) - 6 of 12 executed became 7 of 12, and the four
   that remain need an `.obj` the product cannot write and a `.dae` nothing writes. Reverse by
   dropping the `produced` argument from `stage_fixtures` and the second pass.
+- **2026-09-05 23:05 · owner (REVIEWED) · G2 exit predicates restated; G3-W01 before G3-W03; the
+  lanes flag set.** Evidence: the ESM G2 exit bullet named a blocking coverage check that §6 rule 14
+  forbids until a sealed defect, a per-job ≥95% that one composition cannot establish (§27.10;
+  section_authoring at 91.7%), and a suite wall-clock §30.9 treats as a control — loop-prompt §2
+  advances a gate only when every exit predicate passes, so W17's acceptance would have held the
+  gate. The static census in §28.10 shows the cache pays back only on same-revision re-runs, so the
+  preflight decides it (30.9 decision 7). `parallel_repository_work_allowed: true` per decision 6
+  and the owner's approval. Entry #20 (fixture never fabricated) confirmed; it also settles that
+  OBJ and COLLADA cannot reach SUPPORTED, so W17 accepts on the §27.0 restatement. Reverse by
+  restoring the ESM lines from the previous revision, swapping the two §27.9 entries back, and the
+  flag to false.
+- **2026-09-05 22:54 · reviewer (REVIEWED) · control observation, no rule change.** Window
+  19:54–22:54, measured from the transcript: 19 full-suite runs for 8 loop commits (2.4 per commit;
+  §3 says once, immediately before the commit — a failing full run, a fix, and one more full run is
+  the honest exception, and 2.4 is above it); CI watched 7 minutes (§4: push and continue); 3 of 8
+  commit bodies over 120 words (141 max); suite 104–113 s under xdist; 5 canary runs for 8 commits;
+  loop-prompt read every iteration. Nothing changes on one reading — the next wake compares, and a
+  second reading like this becomes a one-line loop-prompt clarification only if the rule is
+  ambiguous, otherwise a reviewer entry naming the rule skipped.
 - **2026-09-05 · G2-W17 · the repair ledger is scoped to the composition's own inputs.** A
   fingerprint says what a defect is, not which document raised it, so a transaction-lifetime ledger
   made every defect of a rebuilt composition look already attempted. Alternative rejected: the

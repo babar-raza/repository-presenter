@@ -304,8 +304,9 @@ reached — and the first-candidate causes of drift (`RESEARCH_AND_GUIDELINES.md
 
 - The invalidation matrix is green; unaffected artifacts are reused; no global hash exists;
   injected defects are rejected and repaired at their causal stage.
-- On the canary: first-attempt acceptance ≥95% and re-ask ≤5% per job, zero required-row
-  advisories, a blocking coverage check, one local `pytest` pass under three minutes.
+- On the canary: the sealed composition accepts with zero blocking findings and zero required-row
+  advisories; every job holds the 85 first-attempt floor (per-job thresholds need three sealed
+  compositions, §27.10); the coverage ledger is in the bundle (check 12 waits for a sealed defect).
 
 ## G3 — Python Cohort and Contract Freeze
 
@@ -322,7 +323,7 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 
 ### Exit predicates
 
-- `status` prints the sealed count (up to 13/34); the gate manifest carries the cohort report by
+- `status` prints the sealed count (up to 12/34); the gate manifest carries the cohort report by
   repository (sealed, disposition, failure class); every sealed bundle is zero-call proven; v1 frozen.
 
 ## G4 — Multi-Language Cohorts, Local
