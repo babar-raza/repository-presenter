@@ -27,6 +27,14 @@ dev = [
     "pytest>=8.3",
     "pytest-xdist>=3.6",
     "ruff>=0.9",
+    # The suite installs the canary into a throwaway venv on every worker. With build isolation
+    # pip fetches its build backend from PyPI once per install, and under -n auto (27 workers
+    # here) those fetches fail: measured 2026-09-06, "pip subprocess to install build
+    # dependencies did not run successfully", leaving the examples NOT_VERIFIED and a different
+    # test red on each run. tests/conftest.py turns build isolation off, which needs the backend
+    # present in this environment.
+    "setuptools>=75",
+    "wheel>=0.45",
     "types-PyYAML>=6.0.12",
     "types-jsonschema>=4.23",
 ]

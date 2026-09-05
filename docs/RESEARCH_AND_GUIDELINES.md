@@ -2374,6 +2374,26 @@ read costs one call and can only remove a finding from the blocking set: a read 
 own checks corroborates nothing, so corroboration can never turn a sealing candidate into a
 failed transaction.
 
+**Measurement (the loop's, G3-W01, 2026-09-06, what two readers agree on).** Recomposed under the
+rule, Cells and Slides both read twice. The rule acted — Cells' `opening` finding and Slides'
+`scope_limitations` finding became `single_reader_advisory` — and the second reader **corroborated
+the rest**: three classes on Cells (`key_capabilities`, `api_reference`, `scope_limitations`),
+two on Slides (`additional_examples`, `structure`). Both candidates still fail BC-10, and that is
+the rule working, not failing: two independent reads agree. Reading the five texts, every one is
+an **absence claim carrying an empty `absent` list** — "omits critical details from the original",
+"omits the Markdown export example entirely", "omits the 'Links' section entirely" — and every one
+also carries `fact_ids: []`. §6's rule from G2-W17 already says an absence claim states what is
+missing as text the code can look for; these state it only in prose, so `absence_defect` has
+nothing to check and the finding stands on assertion alone. Two of the five are refutable on
+existing precedent without touching that rule: Slides' `structure` finding asks for a "Links"
+section the semantic shell does not define, which is the same case `presentation_defect` already
+makes for a deterministic section (the repair loop prints exactly this: *section structure is
+deterministic; its blocks change only when facts change*); and Cells' `api_reference` finding
+quotes `#### Detailed Member Reference`, a heading the renderer emits because contract row 14
+requires it, which is the case `rendered_defect` already makes for a renderer-written sentence.
+Both are recorded in §31 rather than landed here: this iteration has already changed the review
+twice, and loop-prompt §6 rule 4 says stop.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
@@ -3503,3 +3523,26 @@ p-toolchains`,
   that way first). Only `criterion: presentation` counts as a prose judgment - factuality, scope
   and absence findings are refuted deterministically. Evidence: §27.10, seven such findings
   across Cells and Slides. Reverse by deleting `second_reader`, `prose_judgment` and that clause.
+
+- **2026-09-06 06:45 · loop (PROVISIONAL) · two reviewer-scope refutations, proposed not landed.**
+  Item G3-W01, evidence §27.10 (what two readers agree on). (1) `_DETERMINISTIC_SECTIONS` gains
+  `structure` and `document`: the semantic shell owns which sections exist, so a *presentation*
+  finding there is the renderer's, exactly as for a `D`-owned section — the repair loop already
+  prints that reason. (2) `rendered_defect` gains the headings the renderer emits, so a finding
+  quoting `#### Detailed Member Reference` — mandated by contract row 14 — is refuted like a
+  finding quoting a renderer-written sentence. Not landed: this iteration already changed the
+  review twice (`ab27322`, `33255d2`) and loop-prompt §6 rule 4 says stop. Next iteration, with
+  a mutation test each. The remaining three findings are absence claims with an empty `absent`
+  list; §6's G2-W17 rule covers them, but detecting the claim without reading prose is unsolved.
+
+- **2026-09-06 07:10 · loop (PROVISIONAL) · the suite's last network call was pip's, and it was
+  the "parallel contention" all along.** Item G3-W01. Verifying an example installs the clone into
+  a throwaway venv; pip's build isolation fetched setuptools from PyPI once per install, and under
+  `-n auto` (27 workers here) those fetches failed - "pip subprocess to install build dependencies
+  did not run successfully" - leaving both canary examples `NOT_VERIFIED`, so the canned
+  investigation reply cited an `UNRESOLVED` fact and a different test went red each run. Evidence:
+  the receipt in `pytest-4601/popen-gw19`, read after two red runs. Decision: `setuptools` and
+  `wheel` become dev dependencies and `tests/conftest.py` sets `PIP_NO_BUILD_ISOLATION` and
+  `PIP_NO_INDEX`, so no install a test drives reaches an index. Measured: 118s red, then 76s green.
+  This is the defect I recorded as contention twice and did not diagnose; the credential leak of
+  `63a9eb5` was a second, separate cause. Reverse by deleting the fixture and the two dependencies.

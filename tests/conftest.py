@@ -42,6 +42,27 @@ def isolate_ambient_credentials_for_the_whole_session() -> Iterator[None]:
         yield
 
 
+@pytest.fixture(scope="session", autouse=True)
+def install_without_reaching_an_index(tmp_path_factory: pytest.TempPathFactory) -> Iterator[None]:
+    """Every install a test drives builds from what this environment already has.
+
+    Verifying an example installs the repository into a throwaway venv, and pip's default build
+    isolation fetches its backend from PyPI once per install. Under ``-n auto`` - 27 workers on
+    this machine - those fetches fail: measured 2026-09-06, "pip subprocess to install build
+    dependencies did not run successfully" left both canary examples NOT_VERIFIED, so the canned
+    investigation reply cited an UNRESOLVED fact and a different test went red on each run. The
+    backend is a dev dependency instead (pyproject.toml), and the index is closed so a fetch this
+    suite did not intend fails loudly rather than intermittently.
+    """
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("PIP_NO_BUILD_ISOLATION", "1")
+        patch.setenv("PIP_NO_INDEX", "1")
+        patch.setenv("PIP_DISABLE_PIP_VERSION_CHECK", "1")
+        patch.setenv("PIP_NO_INPUT", "1")
+        patch.setenv("PIP_CACHE_DIR", str(tmp_path_factory.mktemp("pip-cache")))
+        yield
+
+
 @pytest.fixture(autouse=True)
 def isolate_ambient_credentials_and_git_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """Tests never inherit a developer's or runner's credentials or git configuration."""

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 
 import pytest
@@ -28,6 +29,20 @@ def test_no_fixture_at_any_scope_sees_an_ambient_credential(
     """
     assert credentials_a_session_fixture_can_see == []
     assert [name for name in AMBIENT_CREDENTIALS if name in os.environ] == []
+
+
+def test_no_install_a_test_drives_reaches_an_index() -> None:
+    """The one network call left in the suite was pip's, and it is what broke under -n auto.
+
+    Verifying an example installs the repository into a throwaway venv; with build isolation pip
+    fetched its backend from PyPI once per install, and 27 concurrent workers made that fail
+    intermittently - a different test red on each run (measured 2026-09-06). The backend is a dev
+    dependency now, so nothing is fetched and the suite runs in 76 seconds rather than 118.
+    """
+    assert os.environ["PIP_NO_BUILD_ISOLATION"] == "1"
+    assert os.environ["PIP_NO_INDEX"] == "1"
+    # Turning isolation off only works because this environment carries the backend itself.
+    assert importlib.util.find_spec("setuptools") is not None
 
 
 def test_building_a_gateway_client_is_refused_in_tests() -> None:
