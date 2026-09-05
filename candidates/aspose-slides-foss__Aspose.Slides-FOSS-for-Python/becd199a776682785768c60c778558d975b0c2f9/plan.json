@@ -1,0 +1,383 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008",
+    "example:009",
+    "example:010",
+    "example:011",
+    "example:012",
+    "example:013",
+    "example:014"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss",
+        "import_path:aspose.slides_foss"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.presentation",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.presentation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.autoshape",
+        "example:002"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.autoshape"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.baseportionformat",
+        "example:003"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.baseportionformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.charts.chart",
+        "example:012"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.charts.chart"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.baseslide.slide_show_transition",
+        "example:013"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.baseslide.slide_show_transition"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.documentproperties",
+        "example:011"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.documentproperties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.notesslide",
+        "example:009"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.notesslide"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.comment",
+        "example:010"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.comment"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.images",
+        "example:008"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.images"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.export.saveformat",
+        "format:output.pptx"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.export.saveformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.hyperlink",
+        "example:004"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.hyperlink"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Presentation I/O",
+      "Slide and shape management",
+      "Text formatting",
+      "Chart creation",
+      "Slide transitions",
+      "Document properties",
+      "Notes and comments",
+      "Image embedding"
+    ],
+    "input_format_ids": [
+      "format:input.pptx",
+      "format:input.png"
+    ],
+    "output_format_ids": [
+      "format:output.pptx"
+    ]
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "format:input.pptx",
+        "format:output.pptx"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Presentation I/O"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:005",
+        "example:006",
+        "example:014"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Slide and shape management"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "shared_fact_ids": [
+        "example:003"
+      ],
+      "title": "Text formatting"
+    },
+    {
+      "fact_ids": [
+        "example:012"
+      ],
+      "shared_fact_ids": [],
+      "title": "Chart creation"
+    },
+    {
+      "fact_ids": [
+        "example:013"
+      ],
+      "shared_fact_ids": [],
+      "title": "Slide transitions"
+    },
+    {
+      "fact_ids": [
+        "example:011"
+      ],
+      "shared_fact_ids": [],
+      "title": "Document properties"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:010"
+      ],
+      "shared_fact_ids": [
+        "example:009"
+      ],
+      "title": "Notes and comments"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "format:input.png"
+      ],
+      "shared_fact_ids": [
+        "example:008"
+      ],
+      "title": "Image embedding"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:047.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "Markdown export example (inherited_unit:047.code_block) is contradicted and omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:048.paragraph"
+      ],
+      "section_id": "additional_examples",
+      "text": "Markdown export content paragraph (inherited_unit:048.paragraph) is unsupported and omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.paragraph"
+      ],
+      "section_id": "scope_limitations",
+      "text": "SaveFormat and file name independence paragraph (inherited_unit:055.paragraph) is unsupported and omitted."
+    }
+  ],
+  "flagship_example_id": "example:012",
+  "links": [
+    {
+      "link_fact_id": "link_target:product.homepage",
+      "section_id": "identity"
+    },
+    {
+      "link_fact_id": "link_target:008",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:009",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:010",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:011",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:012",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:013",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:014",
+      "section_id": "license"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:050.paragraph",
+        "inherited_unit:051.paragraph"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:053.list"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:054.paragraph"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "unit_ids": []
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

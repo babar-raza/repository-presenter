@@ -1,0 +1,776 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:030.paragraph",
+      "reason": "inherited unit, not a capability example",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:039.paragraph",
+      "reason": "inherited unit, not a capability example",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:041.paragraph",
+      "reason": "inherited unit, not a capability example",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "repository identity is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "revision identity is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "family identity is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "platform identity is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "ecosystem identity is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "package name is provenance only, not used in prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "version identity is provenance only, not used in prose",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license",
+        "inherited_unit:058.paragraph",
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:008",
+        "example:009",
+        "example:010",
+        "example:011",
+        "example:012",
+        "example:013",
+        "example:014"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Slides FOSS for Python is a free, open-source library that enables Python developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports common operations such as adding shapes, tables, charts, images, text formatting, hyperlinks, comments, speaker notes, and slide transitions, all while preserving unknown XML content on round-trip saves. Developers use it to automate report generation, build dynamic slide decks, and integrate presentation workflows into Python applications running on Python 3.10 or later under the MIT license."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "format:input.pptx",
+        "format:output.pptx"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create new presentations from scratch or open existing .pptx files and save them back to .pptx format using the Presentation class and SaveFormat.PPTX."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:005",
+        "example:006",
+        "example:014"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Add and manage shapes including rectangles, bent connectors, tables, and group shapes on slides using methods like add_auto_shape, add_connector, add_table, and add_group_shape."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Format text by setting font height, bold style, and solid fill color on portions, and apply hyperlinks to individual text portions or entire shapes."
+    },
+    {
+      "fact_ids": [
+        "example:012"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Create clustered column charts with embedded workbook data by calling add_chart with ChartType.CLUSTERED_COLUMN and populating series and categories via chart_data_workbook."
+    },
+    {
+      "fact_ids": [
+        "example:013"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Configure slide transitions by setting the transition type to CIRCLE and enabling advance on click or after a specified time in milliseconds."
+    },
+    {
+      "fact_ids": [
+        "example:011"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Set built-in document properties such as title and author, and store custom properties like version numbers using document_properties methods."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:010"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Add speaker notes to slides using notes_slide_manager.add_notes_slide and attach comments with timestamps and positions via comment_authors and comments."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "format:input.png"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Embed images from .png files by reading them into memory and adding them to the presentation's image collection, then placing them as picture frames on slides."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "The example imports the library, creates a new presentation from scratch, and then opens an existing file to read its slide count before saving again."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create shapes, format text, add tables and connectors, insert images, manage notes and comments, set slide transitions, and build charts using Aspose.Slides FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Add a rectangle shape with text to a slide and save as PPTX."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Format text font height, bold, and solid fill color for a shape."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Add click and mouse-over hyperlinks to text and shapes."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Create a table with rows and columns and populate cell text."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Connect two rectangles with a bent connector shape."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Fill a rectangle shape with a solid color."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Insert an image from bytes and add it as a picture frame."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Add speaker notes to a slide using the notes slide manager."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:010",
+      "text": "Add a comment author and place a comment on a slide."
+    },
+    {
+      "fact_ids": [
+        "example:011",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:011",
+      "text": "Set document properties and custom properties for the presentation."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:012",
+      "text": "Build a clustered column chart and populate its embedded workbook."
+    },
+    {
+      "fact_ids": [
+        "example:013",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:013",
+      "text": "Configure circle transition with click and time-based advance."
+    },
+    {
+      "fact_ids": [
+        "example:014",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:014",
+      "text": "Group multiple shapes under a named group shape container."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.presentation",
+        "public_symbol:slides_foss"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The aspose-slides-foss package exposes slides_foss.Presentation as the primary entry point for working with presentations, and provides supporting classes such as AutoShape, Chart, and Hyperlink for authoring content."
+    },
+    {
+      "fact_ids": [
+        "import_path:aspose.slides_foss",
+        "public_symbol:slides_foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss",
+      "text": "The slides_foss module serves as the top-level namespace for the Aspose.Slides FOSS for Python API, exposing core classes like Presentation, AutoShape, and Chart."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:slides_foss.presentation"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.presentation",
+      "text": "The Presentation class enables creating new presentations from scratch or opening existing ones, and provides access to slides, masters, notes, images, comments, document properties, and transition settings through its members."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:slides_foss.autoshape"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.autoshape",
+      "text": "AutoShape represents geometric shapes and text boxes on a slide, supporting operations like adding text frames and querying shape type or text content."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:slides_foss.baseportionformat"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.baseportionformat",
+      "text": "BasePortionFormat exposes text formatting properties such as font height, bold, italic, underline, fill, and line settings for individual text portions."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "public_symbol:slides_foss.charts.chart"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.charts.chart",
+      "text": "Chart provides access to chart data, axes, title, and series, enabling programmatic creation and modification of embedded charts backed by an XLSX workbook."
+    },
+    {
+      "fact_ids": [
+        "example:013",
+        "public_symbol:slides_foss.baseslide.slide_show_transition"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.baseslide.slide_show_transition",
+      "text": "slide_show_transition on BaseSlide controls slide transition behavior, including type, advance on click, and advance after a specified time in milliseconds."
+    },
+    {
+      "fact_ids": [
+        "example:011",
+        "public_symbol:slides_foss.documentproperties"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.documentproperties",
+      "text": "DocumentProperties holds built-in properties like title and author, and supports custom properties for metadata storage on a presentation."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:slides_foss.notesslide"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.notesslide",
+      "text": "NotesSlide stores speaker notes associated with a slide and provides access to its text frame for authoring notes content."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:slides_foss.comment"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.comment",
+      "text": "Comment represents a user comment attached to a slide, including author, text, position, and timestamp."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:slides_foss.images"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.images",
+      "text": "Images allows adding image objects to a presentation, which can then be inserted into picture frames on slides."
+    },
+    {
+      "fact_ids": [
+        "format:output.pptx",
+        "public_symbol:slides_foss.export.saveformat"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.export.saveformat",
+      "text": "SaveFormat enumerates supported output formats, including .pptx for saving presentations."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:slides_foss.hyperlink"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:slides_foss.hyperlink",
+      "text": "Hyperlink enables associating clickable links with text portions or entire shapes, supporting both click and mouse-over actions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.basehandoutnotesslideheaderfootermanager"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.basehandoutnotesslideheaderfootermanager",
+      "text": "BaseHandoutNotesSlideHeaderFooterManager manages header and footer elements for handout and notes slides in a presentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.baseshapelock"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.baseshapelock",
+      "text": "BaseShapeLock provides base functionality for locking shape properties to prevent user modifications."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.geometryshape"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.geometryshape",
+      "text": "GeometryShape represents a shape with geometric properties such as connector lines and built-in shapes like rectangles and circles."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.graphicalobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.graphicalobject",
+      "text": "GraphicalObject is an abstract base class for shapes that support graphical formatting and rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.graphicalobjectlock"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.graphicalobjectlock",
+      "text": "GraphicalObjectLock extends BaseShapeLock to provide locking capabilities specific to graphical objects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.ieffectparamsource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.ieffectparamsource",
+      "text": "IEffectParamSource defines the interface for objects that supply parameters for visual effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.ifillparamsource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.ifillparamsource",
+      "text": "IFillParamSource defines the interface for objects that supply parameters for shape fill formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.ilineparamsource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.ilineparamsource",
+      "text": "ILineParamSource defines the interface for objects that supply parameters for shape line formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.iloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.iloadoptions",
+      "text": "ILoadOptions provides configuration settings for loading presentations from files or streams."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.imasterlayoutslidecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.imasterlayoutslidecollection",
+      "text": "IMasterLayoutSlideCollection represents a collection of master and layout slides in a presentation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.iportionformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.iportionformat",
+      "text": "IPortionFormat defines formatting properties for text portions including font, color, and hyperlink behavior."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.isection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.isection",
+      "text": "ISection defines the interface for a logical section within a presentation structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.ithreedparamsource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.ithreedparamsource",
+      "text": "IThreeDParamSource defines the interface for objects that supply parameters for three-dimensional effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.effects.iimagetransformoperation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.effects.iimagetransformoperation",
+      "text": "IImageTransformOperation defines the interface for image transformation operations applied to picture frames."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.effects.imagetransformoperation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:slides_foss.effects.imagetransformoperation",
+      "text": "ImageTransformOperation implements image transformation operations such as cropping, color adjustments, and artistic effects."
+    },
+    {
+      "fact_ids": [
+        "link_target:008"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:008",
+      "text": "The changelog documents version-specific changes, new features, bug fixes, and breaking changes introduced in each release of Aspose.Slides FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:009"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:009",
+      "text": "The GitHub repository hosts the source code, release artifacts, and supporting files for Aspose.Slides FOSS for Python, enabling inspection and contribution."
+    },
+    {
+      "fact_ids": [
+        "link_target:010"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:010",
+      "text": "The issue tracker allows users to report bugs, request features, and track the status of known problems in Aspose.Slides FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:011"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:011",
+      "text": "The contributing guidelines outline how developers can submit code, documentation, or test improvements to Aspose.Slides FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:012"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:012",
+      "text": "The security policy describes how to report vulnerabilities and the process Aspose.Slides FOSS for Python follows to address security concerns."
+    },
+    {
+      "fact_ids": [
+        "link_target:013"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:013",
+      "text": "The code of conduct defines expected behavior and community standards for participants interacting in the Aspose.Slides FOSS for Python project."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:050.paragraph",
+        "inherited_unit:051.paragraph",
+        "inherited_unit:052.paragraph",
+        "inherited_unit:053.list",
+        "inherited_unit:054.paragraph",
+        "inherited_unit:056.paragraph",
+        "inherited_unit:057.paragraph",
+        "inherited_unit:058.paragraph",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Slides FOSS for Python version 26.8.0 creates and edits PowerPoint presentations in the OOXML family, supporting Python 3.10 and later under the MIT license."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:050.paragraph",
+        "inherited_unit:051.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Only seven SaveFormat values write valid files — PPTX, PPTM, PPSX, PPSM, POTX, POTM, and MD — while the remaining fourteen raise ValueError instead of producing mislabelled output."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:053.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Rendering and conversion to PDF, HTML, XPS, or images is not supported, slide size cannot be read or changed, and SmartArt, OLE objects, mathematical text, VBA macros, digital signatures, encryption, and most action settings are absent."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:054.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "The add_image method requires image bytes or a file-like object, not a file path, so callers must open the file and pass the handle or its bytes."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Assigning a shape or formatting object to a property that does not accept it raises AttributeError, ensuring misspelt property names fail at the point of assignment."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:057.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Comment threads are written from the classic comment list on save, so resolved status, @-mentions, and reply chains that the classic list cannot express are lost if the presentation's comment authors are modified before saving."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:058.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Unknown XML parts encountered during load are preserved verbatim on save, so opening and re-saving a file never strips content this library does not yet understand."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests",
+        "package:python_requires",
+        "package:license"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the aspose-slides-foss package using the tests directory and CI workflows defined in .github/workflows/, ensuring compatibility with Python >=3.10 under the MIT license."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Aspose.Slides FOSS for Python is a free, open-source library that enables Python developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint.",
+      "repair": "Remove the banner image and rephrase the opening to be factual and neutral, focusing on the open-source nature and core functionality without promotional language or commercial links.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate opens with a promotional banner image and a marketing-style description that overstates the product's capabilities and includes a link to a commercial product page, which is not appropriate for an open-source README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "subgraph Capabilities[”Core Capabilities”] direction LR subgraph capl[” “] direction TB c1[”Presentation I/O”] c2[”Slide and shape management”] c3[”Text formatting”] c4[”Chart creation”] end subgraph capr[” “] direction TB c5[”Slide transitions”] c6[”Document properties”] c7[”Notes and comments”] c8[”Image embedding”] end end",
+      "repair": "Restore the full set of core capabilities from the original README, including Markdown export, animations, visual effects, and 3D styling, to provide an accurate and complete overview.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid flowchart in At a Glance is significantly simplified and omits key capabilities present in the original, including Markdown export, animations, visual effects, and 3D shape styling."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "Install the published package from PyPI (aspose-slides-foss, version 26.8.0): pip install aspose-slides-foss",
+      "repair": "Add the warning about PyPI version lag and the instruction to install from the repository for the latest features, as present in the original README.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation section omits the critical warning about the PyPI version lagging behind the repository and the need to install from git for features like hyperlinks and all save formats."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "import aspose.slides_foss as slides from aspose.slides_foss.export import SaveFormat, MarkdownSaveOptions, Flavor, NewLineType",
+      "repair": "Include the Markdown export example with options for flavor, new line type, slide number format, and saving selected slides, as in the original README.",
+      "reviewer_scope_defect": "the quote is example:015, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "additional_examples",
+      "text": "The candidate omits the Markdown export example entirely, which is a key feature supported by the library and present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 516 types.",
+      "repair": "Replace the exhaustive type list with a concise, curated list of key classes and their purposes, or remove the section entirely in favor of linking to official API documentation.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API reference section is excessive and unscoped, listing 516 types in a way that is not useful to a visiting developer and appears to be auto-generated rather than curated."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Only seven SaveFormat values write valid files — PPTX, PPTM, PPSX, PPSM, POTX, POTM, and MD — while the remaining fourteen raise ValueError instead of producing mislabelled output.",
+      "repair": "Restore the full list of limitations from the original README, including the specific SaveFormat values, absent rendering and conversion features, and other unsupported capabilities.",
+      "section_id": "scope_limitations",
+      "single_reader_advisory": true,
+      "text": "The scope and limitations section is incomplete and omits critical details about SaveFormat values, rendering, slide size, and other absent features that are present in the original."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "## Documentation & Resources",
+      "repair": "Add a 'Links' or 'Documentation & Resources' section with direct links to CHANGELOG.md, issue tracker, CONTRIBUTING.md, SECURITY.md, and CODE_OF_CONDUCT.md, as in the original README.",
+      "reviewer_scope_defect": "the semantic shell owns which sections exist, in what order, and under which headings; it is evaluated from the facts, so no stage the loop can reopen would add or remove one",
+      "section_id": "structure",
+      "text": "The candidate omits the 'Links' section entirely, which in the original README provides essential navigation to the changelog, issue tracker, contributing, security policy, and code of conduct."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "[![Aspose.Slides FOSS for Python](https://products.aspose.org/media/slides/python/banner-readme.png)](https://products.aspose.org/slides/python/)",
+      "repair": "Remove the banner image and its link to the commercial product page, as it is not appropriate for an open-source README.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate includes a promotional banner image link to a commercial product page, which is inappropriate for an open-source README and creates a conflict of interest."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "339ba5db91a03786af0b669b1ea90fa77a3e56411def2d09b4db20575abe5eb2",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "75ce3972a5bdabd7147b459d",
+      "7b39d108aee98d84de885f46",
+      "7bf2dd6eda183d6293dbc405"
+    ],
+    "read": true
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

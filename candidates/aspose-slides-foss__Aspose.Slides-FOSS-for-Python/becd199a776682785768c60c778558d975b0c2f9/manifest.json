@@ -1,0 +1,79 @@
+{
+  "composition": {
+    "advisories": 8,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 70809,
+      "sha256": "339ba5db91a03786af0b669b1ea90fa77a3e56411def2d09b4db20575abe5eb2"
+    },
+    "README.patch": {
+      "bytes": 78847,
+      "sha256": "6c98dfea5eaf9943017d41d13a07b2a9ced289d89018b6eba60db800508350ab"
+    },
+    "calls.jsonl": {
+      "bytes": 110902,
+      "sha256": "25cf0f4072cc9f7a9abfe752ce8ac33ddb3585c0ecdaadc251296230835af607"
+    },
+    "content_units.json": {
+      "bytes": 27709,
+      "sha256": "4e1e833f4eb9b4b856adb7f7e2ccc5183497bca6b095a0a945ba202e5f91a36e"
+    },
+    "dependencies.json": {
+      "bytes": 432055,
+      "sha256": "c46cac8a0562efb5407720df2498610c80a5a300e8c89541d917635a2d07b28c"
+    },
+    "dispositions.json": {
+      "bytes": 26821,
+      "sha256": "84cdd60c52f2abed9b6affdbaf57f2dc60e0a8e28e371b3d336cc5cd03925336"
+    },
+    "examples.json": {
+      "bytes": 6536,
+      "sha256": "1ff4255799317f6e458c242886194132acfd538d1b166cb5aacbf2cff4e6f7e6"
+    },
+    "facts.json": {
+      "bytes": 2324836,
+      "sha256": "c073a909d918ea80b1c056cfe1b70cf0d45ba9db0afaca9fd89f86e806401ca1"
+    },
+    "investigation.json": {
+      "bytes": 6405,
+      "sha256": "7132b9645a12f99e9c5cf5198faf878d0e9e52de977808d2a68b9db68252724b"
+    },
+    "plan.json": {
+      "bytes": 8599,
+      "sha256": "aabd36b68f9a168099685f066dd564709ebd9790484601e3a147d226e335d221"
+    },
+    "probes.json": {
+      "bytes": 3018,
+      "sha256": "f1a57b5023d640cebe78a4266708f6c30eab3cb5e06c807b28b977da198b9d39"
+    },
+    "repairs.json": {
+      "bytes": 3889,
+      "sha256": "f175869c8b6cfce16c03642f56977a411375b58b81059cc58b7c66f1ae6e71c3"
+    },
+    "review.json": {
+      "bytes": 8229,
+      "sha256": "9b791d4817e6e9b25908d2a43867f13a8654831ad56ce379c18a59fbea40e3b3"
+    },
+    "validation.json": {
+      "bytes": 10940,
+      "sha256": "785cc0f8f7c183f5815193f7e072bd9266df45832f8c236da3a0b2b43146c2de"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-05T21:10:41Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+  "revision": "becd199a776682785768c60c778558d975b0c2f9",
+  "schema_version": 1,
+  "sealed_at": "2026-09-05T21:10:41Z",
+  "state": "READY_FOR_PROPOSAL"
+}

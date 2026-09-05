@@ -1,0 +1,71 @@
+{
+  "attempts": {
+    "10ce4614d5a9d4a857b3349b": {
+      "changes": [],
+      "label": "F04",
+      "outcome": "escalated",
+      "re_raised": [
+        "F04"
+      ],
+      "reason": "the revision would leave preview, workflow:example:002, workflow:example:003, workflow:example:004, workflow:example:005, workflow:example:006, workflow:example:007, workflow:example:008, workflow:example:009, workflow:example:010, workflow:example:011, workflow:example:012, workflow:example:013, workflow:example:014, workflow:example:015 where the plan assigned preview, workflow:example:002, workflow:example:003, workflow:example:004, workflow:example:005, workflow:example:006, workflow:example:007, workflow:example:008, workflow:example:009, workflow:example:010, workflow:example:011, workflow:example:012, workflow:example:013, workflow:example:014; escalated once to a plan-level repair at S5",
+      "request_sha256": null,
+      "section_id": "additional_examples",
+      "source": "review",
+      "stage": "S6"
+    },
+    "83d901c94cd3be1fb57b8a91": {
+      "changes": [
+        {
+          "after": "[{\"fact_ids\": [\"inherited_unit:047.code_block\"], \"section_id\": \"additional_examples\", \"text\": \"Markdown export example (inherited_unit:047.code_block) is contradicted and omitted.\"}, {\"fact_ids\": [\"inherited_unit:048.paragraph\"], \"section_id\": \"additional_examples\", \"text\": \"Markdown export content paragraph (inherited_unit:048.paragraph) is unsupported and omitted.\"}]",
+          "before": "[{\"fact_ids\": [\"inherited_unit:047.code_block\"], \"section_id\": \"additional_examples\", \"text\": \"Markdown export example (inherited_unit:047.code_block) is contradicted and omitted.\"}, {\"fact_ids\": [\"inherited_unit:048.paragraph\"], \"section_id\": \"additional_examples\", \"text\": \"Markdown export content paragraph (inherited_unit:048.paragraph) is unsupported and omitted.\"}, {\"fact_ids\": [\"inherited_unit:055.paragraph\"], \"section_id\": \"scope_limitations\", \"text\": \"SaveFormat and file name independence paragraph (inherited_unit:055.paragraph) is unsupported and omitted.\"}]",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "deviations"
+        }
+      ],
+      "label": "F04",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "d3fada56fc9134f30a177b490a92e09691152572ff666c5284db5483cc298ac2",
+      "section_id": null,
+      "source": "review",
+      "stage": "S5"
+    },
+    "9740df888811e9621d1abfc2": {
+      "changes": [],
+      "label": "F07",
+      "outcome": "unrepairable",
+      "reason": "section structure is deterministic; its blocks change only when facts change",
+      "request_sha256": null,
+      "section_id": "structure",
+      "source": "review",
+      "stage": null
+    },
+    "a99d68e39c459938064c9bbc": {
+      "changes": [
+        {
+          "after": "Only seven SaveFormat values write valid files — PPTX, PPTM, PPSX, PPSM, POTX, POTM, and MD — while the remaining fourteen raise ValueError instead of producing mislabelled output.",
+          "before": "Only seven SaveFormat values write valid files — PPTX, PPTM, PPSX, PPSM, POTX, POTM, and MD — while the remaining fourteen raise ValueError instead of producing mislabelled output.",
+          "fact_ids": [
+            "inherited_unit:050.paragraph",
+            "inherited_unit:051.paragraph"
+          ],
+          "id": "R01",
+          "path": "units.1.text"
+        }
+      ],
+      "label": "F06",
+      "outcome": "repaired",
+      "re_raised": [
+        "F06"
+      ],
+      "reason": null,
+      "request_sha256": "2bb6a69181d1d6475c7002495860ffec633aadf3f10cc7883855eb86535f2b7e",
+      "section_id": "scope_limitations",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "6cdd07add7a524c6cea41b8e081df17be5bad0801425b60cbaec502f021332fb",
+  "schema_version": 1
+}

@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-06T03:10:00+05:00"
+updated_at: "2026-09-06T02:20:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -14,7 +14,7 @@ authority:
 
 progress:
   unit: current reviewable no-op-proven README candidates
-  current_candidates: 1
+  current_candidates: 2
   denominator: 34
   denominator_status: observed at the legacy freeze; frozen as a registry revision at G4
   canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python

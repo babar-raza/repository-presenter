@@ -1,0 +1,252 @@
+[
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "new.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      },
+      {
+        "literal": "output.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "Slides: 1\r\n"
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "shapes.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "text.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "links.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "table.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "connector.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "fill.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "picture.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      },
+      {
+        "literal": "picture.png",
+        "produced_by": null,
+        "source_path": "tests/test_data/lotus.png"
+      }
+    ],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "notes.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "comments.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 10,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "deck.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 11,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "chart.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 12,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "transition.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 13,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "group.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      }
+    ],
+    "ordinal": 14,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "ValueError",
+    "fixtures": [
+      {
+        "literal": "input.pptx",
+        "produced_by": null,
+        "source_path": "aspose/slides_foss/_internal/pptx/Template.pptx"
+      },
+      {
+        "literal": "output.md",
+        "produced_by": null,
+        "source_path": ".github/PULL_REQUEST_TEMPLATE.md"
+      },
+      {
+        "literal": "custom.md",
+        "produced_by": null,
+        "source_path": ".github/PULL_REQUEST_TEMPLATE.md"
+      },
+      {
+        "literal": "subset.md",
+        "produced_by": null,
+        "source_path": ".github/PULL_REQUEST_TEMPLATE.md"
+      }
+    ],
+    "ordinal": 15,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_015\\example.py\", line 19, in <module>\r\n    prs.save(\"subset.md\", [2, 1], SaveFormat.MD, options)\r\n    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\slides_foss\\Presentation.py\", line 492, in save\r\n    save_presentation_to_markdown(self, destination, slides, options)\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\slides_foss\\_internal\\export\\markdown\\writers.py\", line 53, in save_presentation_to_markdown\r\n    _write_presentation(presentation, stream, slides_numbers, options)\r\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\slides_foss\\_internal\\export\\markdown\\writers.py\", line 76, in _write_presentation\r\n    raise ValueError(\r\n        \"'slides' array contains {0} slide position, which is not present in the presentation.\".format(\r\n            slide_number))\r\nValueError: 'slides' array contains 2 slide position, which is not present in the presentation.\r\n",
+    "stdout": ""
+  }
+]
