@@ -18,6 +18,12 @@ dependencies = [
     "pydantic>=2.10",
     "tenacity>=9.0",
     "pyyaml>=6.0.2",
+    # The vendored surface extractor parses six languages through tree-sitter (section 29.6 E2).
+    # Pinned exactly, not by floor: a grammar release changes node types, and a node type is what
+    # a symbol_kind is read from, so an unpinned bump would move facts under a sealed candidate.
+    "tree-sitter==0.26.0",
+    "tree-sitter-c-sharp==0.23.5",
+    "tree-sitter-language-pack==1.16.1",
 ]
 
 [project.optional-dependencies]

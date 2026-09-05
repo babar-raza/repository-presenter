@@ -3615,3 +3615,20 @@ p-toolchains`,
   before its consumer (loop-prompt §6 rule 1) and untestable against a real ecosystem. The
   renderer's component version stays "17": `tests/test_sealed_bytes.py` proves both sealed
   candidates render unchanged, and the version marks rendered behaviour, not source text.
+
+- **2026-09-06 10:20 · loop (PROVISIONAL) · the closure and the toolchains, measured before the
+  spend.** Item G4-W09. Read through `git show 16d75e95d4:<path>`, the import closure of the roots
+  the item names is **10 files and 9,289 lines** — `api_surface` 3,765, `formats` 2,047,
+  `dependency_extract` 1,114, `tree_helpers` 1,009 — plus the five `package_registries` submodules,
+  so about 15 files against §29.2's estimate of 17 and ~10,500 lines. Three of the named paths are
+  under `scripts/pipeline/`, not the repository root, and `lib/package_registries` is a package,
+  not a module. Third-party: `tree_sitter`, `tree_sitter_c_sharp`, `tree_sitter_language_pack`,
+  `tomli`. Before committing to that pull I measured what this machine can actually build:
+  **dotnet 10.0.204, JDK 21.0.11, Maven 3.9.16, node 24.13.1, go and cmake are all present; only
+  cargo is absent** (Rust, lane B's G4-W16). So the .NET and Java cohorts can execute examples and
+  the vendoring buys real candidates — unlike the four Python repositories whose examples never ran.
+  The three tree-sitter packages are pinned exactly, not by floor: a node type is what a
+  `symbol_kind` is read from, so a grammar bump would move facts under a sealed candidate. All
+  seven grammars parse with the network blocked; a first `get_parser("c_sharp")` raised
+  DownloadError over a 371-language manifest, which is the pack's spelling (`csharp`), not a
+  network dependency.
