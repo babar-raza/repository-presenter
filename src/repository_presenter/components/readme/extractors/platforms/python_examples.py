@@ -19,7 +19,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FixtureBinding
-from repository_presenter.core.execution import ExecutionResult, execute
+from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 
 EXAMPLE_TIMEOUT_SECONDS = 120.0
 INSTALL_TIMEOUT_SECONDS = 300.0
@@ -184,7 +184,16 @@ def verify_python_examples(
             [str(python), "-s", "-X", "utf8", str(script)],
             workspace=run_dir,
             timeout_seconds=EXAMPLE_TIMEOUT_SECONDS,
-            extra_environment={"PYTHONPATH": str(site), "PYTHONNOUSERSITE": "1"},
+            # The example is the repository's own code: it runs with its caches and its
+            # home redirected into the run directory, so it can neither read state a
+            # previous run left in the developer's account nor leave any there
+            # (RESEARCH_AND_GUIDELINES.md section 29.6 E5). The install above keeps the
+            # shared package cache: no repository code runs there that this does not.
+            extra_environment={
+                **profile_environment(run_dir),
+                "PYTHONPATH": str(site),
+                "PYTHONNOUSERSITE": "1",
+            },
         )
         outcome, detail = _classify(result, candidate.code)
         receipt = ExampleReceipt(

@@ -78,6 +78,44 @@ def secret_free_environment(base: dict[str, str] | None = None) -> dict[str, str
     return clean
 
 
+# Where a toolchain would otherwise write into the developer's own account: a package cache, a
+# credential store, a global configuration file. Every one is redirected into the run's workspace
+# so a verification cannot read state a previous run left behind, and cannot leave any
+# (RESEARCH_AND_GUIDELINES.md section 29.6 E5, the legacy's disposable-profile idea).
+_PROFILE_DIRECTORIES: dict[str, str] = {
+    "HOME": "home",
+    "USERPROFILE": "home",
+    "APPDATA": "appdata",
+    "LOCALAPPDATA": "localappdata",
+    "XDG_CACHE_HOME": "cache",
+    "XDG_CONFIG_HOME": "config",
+    "PIP_CACHE_DIR": "cache/pip",
+    "NUGET_PACKAGES": "cache/nuget",
+    "DOTNET_CLI_HOME": "home",
+    "CARGO_HOME": "cache/cargo",
+    "GOPATH": "cache/go",
+    "GOMODCACHE": "cache/go/pkg/mod",
+    "MAVEN_OPTS_REPO": "cache/maven",
+    "NPM_CONFIG_CACHE": "cache/npm",
+    "GRADLE_USER_HOME": "cache/gradle",
+}
+
+
+def profile_environment(workspace: Path) -> dict[str, str]:
+    """The names that point a toolchain's caches and configuration inside ``workspace``.
+
+    Returned as an overlay for ``execute``'s ``extra_environment``, so a caller adds it to the
+    secret-free base rather than replacing it. Directories are created, because a toolchain that
+    finds its cache path missing usually creates it in the real home instead.
+    """
+    overlay: dict[str, str] = {}
+    for name, relative in _PROFILE_DIRECTORIES.items():
+        target = workspace.joinpath(*relative.split("/"))
+        target.mkdir(parents=True, exist_ok=True)
+        overlay[name] = str(target)
+    return overlay
+
+
 def execute(
     argv: list[str],
     *,

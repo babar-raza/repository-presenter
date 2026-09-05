@@ -7,7 +7,11 @@ from pathlib import Path
 
 import pytest
 
-from repository_presenter.core.execution import execute, secret_free_environment
+from repository_presenter.core.execution import (
+    execute,
+    profile_environment,
+    secret_free_environment,
+)
 
 
 def test_environment_is_an_allow_list_without_credential_like_names() -> None:
@@ -90,3 +94,35 @@ def test_invalid_requests_are_rejected(
 def test_missing_workspace_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="workspace does not exist"):
         execute(["python"], workspace=tmp_path / "nope", timeout_seconds=5)
+
+
+def test_a_disposable_profile_points_every_toolchain_cache_inside_the_workspace(
+    tmp_path: Path,
+) -> None:
+    """A verification reads no state a previous run left, and leaves none behind.
+
+    RESEARCH_AND_GUIDELINES.md section 29.6 E5. The names are the ones a compiled toolchain
+    actually writes through - NuGet, Cargo, Go, Gradle, npm - so a .NET or Rust verifier needs no
+    redirection of its own; it adds this overlay and runs.
+    """
+    overlay = profile_environment(tmp_path)
+    assert set(overlay) >= {
+        "HOME",
+        "USERPROFILE",
+        "APPDATA",
+        "LOCALAPPDATA",
+        "NUGET_PACKAGES",
+        "CARGO_HOME",
+        "GOMODCACHE",
+        "GRADLE_USER_HOME",
+        "PIP_CACHE_DIR",
+    }
+    assert all(Path(value).is_relative_to(tmp_path) for value in overlay.values())
+    # A toolchain that finds its cache path missing writes to the real home instead, so the
+    # directories exist before anything runs.
+    assert all(Path(value).is_dir() for value in overlay.values())
+    assert overlay["HOME"] == overlay["USERPROFILE"]
+    # It is an overlay, not a replacement: the secret-free base still governs what is inherited.
+    merged = {**secret_free_environment({"PATH": "p", "GH_TOKEN": "t"}), **overlay}
+    assert "GH_TOKEN" not in merged and merged["CI"] == "true"
+    assert merged["HOME"] == overlay["HOME"]
