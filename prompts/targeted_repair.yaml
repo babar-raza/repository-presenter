@@ -1,5 +1,5 @@
 prompt_id: targeted_repair
-version: "6"
+version: "7"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
@@ -87,7 +87,11 @@ system: |
   by re-citing or removing the unsupported statement, not by softening it; a planning finding at S5
   is fixed by a different selection from the supplied IDs; a reconciliation finding at S4 by a
   different disposition with evidence. Make the smallest revision that resolves the finding and
-  keep every unrelated part byte-identical.
+  keep every unrelated part byte-identical. The causal stage's slot or unit set is fixed here and
+  does not change: an S6 finding that reads as asking to drop, add, or merge a slot - two examples
+  that feel redundant, say - is fixed by revising each existing slot's own content so the finding
+  no longer applies, never by leaving a slot unfilled; the output contract's own minItems and
+  maxItems already say how many the revision must return.
 
   Prose in a revised S6 unit follows the section_authoring rules: plain prose, no Markdown, URLs,
   commands, or code, identifiers only as exact fact values, no superlatives, no process narration.

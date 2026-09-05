@@ -97,7 +97,9 @@ def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
     assert total.first_attempt_rate >= FIRST_ATTEMPT_FLOOR
     assert total.reask_share <= REASK_CEILING
     # Every job the composition runs is measured, so a new job cannot slip in unmeasured.
-    assert set(statistics) == {
+    # targeted_repair is conditional - a composition the reviewer accepts outright, as this one
+    # currently does, never calls it - so its absence is not itself a regression.
+    known = {
         "TOTAL",
         "independent_review",
         "presentation_planning",
@@ -106,6 +108,8 @@ def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
         "source_reconciliation",
         "targeted_repair",
     }
+    assert set(statistics) <= known
+    assert set(statistics) >= known - {"targeted_repair"}
     assert sum(entry.calls for job, entry in statistics.items() if job != "TOTAL") == total.calls
 
 

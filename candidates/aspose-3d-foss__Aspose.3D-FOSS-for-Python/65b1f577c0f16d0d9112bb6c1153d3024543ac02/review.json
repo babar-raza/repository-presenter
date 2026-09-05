@@ -1,34 +1,5 @@
 {
-  "advisory": [
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F01",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):\n\n```bash\npip install aspose-3d-foss\n```",
-      "repair": "Change 'pip install aspose-3d-foss' to 'python3 -m pip install aspose-3d-foss' to match the verified command and the original README.",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate uses 'pip install aspose-3d-foss' in the installation section, but the original README and the verified install command fact use 'python3 -m pip install aspose-3d-foss'. This change removes the explicit Python interpreter invocation, which is inconsistent with the original and the verified command."
-    },
-    {
-      "causal_stage": "unclear",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F02",
-      "quote": "Verify the install:\n\n```bash\npython -c \"import aspose.threed\"\n```",
-      "repair": "Restore the verification step 'python3 -c ",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "installation",
-      "text": "[reviewer-scope defect at S6: section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding] The candidate omits the verification step 'python3 -c "
-    }
-  ],
+  "advisory": [],
   "authoring": {
     "job": "section_authoring",
     "prompt_sha256": "aadf706ca95efdeb7443d74e5be48610888dece82604a07805f66f89b6951515",
@@ -37,14 +8,14 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "ba9158fb9b75e9a1581b1c526eec5bd951168cf27142d858a1448f670740b026",
+  "readme_sha256": "b1283b06b92973fadc860b5da74b9b23b2c83bd10b78449a471101d5c7308695",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "52409698bb405c667664c6c6521dfc7bbc6dc24f9ecd6891a90b2c2727db60ec",
+    "prompt_sha256": "a9a12b01d6a513a8efed6a3da21d018b56811526dbbbe7de051ddb64b2ed5c96",
     "stage": "S10"
   },
   "schema_version": 1,
   "verdict": "ACCEPT",
-  "verdict_as_returned": "REJECT_PRESENTATION"
+  "verdict_as_returned": "ACCEPT"
 }

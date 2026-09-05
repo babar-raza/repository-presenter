@@ -1659,6 +1659,34 @@ provider calls. The sealed candidate (`65b1f577`, built under manifest v6) is un
 `READY_FOR_PROPOSAL`; a fresh composition on the canary under manifest v7 currently ends
 `EXIT_INCONSISTENT` on this finding, which is not yet closed by any work item.
 
+**Measured (the loop, 2026-09-05, G2-W16, second entry).** That `EXIT_INCONSISTENT` did not
+survive a clean transaction. `repairs.json` persists across `present` invocations in one
+transaction directory, and a review defect's fingerprint carries `targeted_repair`'s own hash, so
+the directory the paragraph above describes held attempts recorded before and after each fix of
+that iteration - layered diagnostic state, not one composition's judgment. Deleting the
+transaction directory (disposable, under `runs/`) and composing from scratch under
+`independent_review` v7 and `targeted_repair` v7 returned **ACCEPT with zero findings and zero
+advisories on the first review**, no repair round at all: 24 provider calls, 3 rejections,
+87.5 per cent first attempt, `validation` 10 pass, 0 fail, 1 pending, and the update adopted and
+reproduced byte for byte with zero calls. The three rejections were the known families, each
+corrected on its single re-ask: the shared-fact plan rule G2-W13 added, and a URL and a command
+written as prose in two units, which is the pair G2-W20 is queued to make referential. Two
+observations the run leaves standing. First, the quick_start repair that could not fill both
+slots did succeed once `targeted_repair`'s prompt said in words that the causal stage's slot set
+is fixed and a finding reading as "drop a slot" is answered by revising the slots that exist;
+whether the reviewer should have named S5 for it is untested. Second, a dotted call still renders
+with its parentheses outside the code span - `` `Scene.open` ``() - and a chained call leaves the
+rest outside it entirely, as in `` `FileFormat.get_format_by_extension` ``().create_save_options();
+BC-07 passes, and §6 rule 8 names a split identifier a defect even when every check passes. The
+API reference is unchanged at 337 rows and the visible budget improved from 237 to 228 lines.
+On the acceptance predicate that asks for the `65b1f577` `review.json` replayed under the new
+policy: that document no longer carries the five advisories §26 records - today it carries zero
+findings and zero advisories - so there is no stored artifact to replay. F02 and F04 as §26
+describes them can no longer reach a reviewer at all: a unit citing another slot's facts fails
+check 4 at S9 (`authoring.py`, "cites facts outside its slot's planned set", G2-W07 and G2-W13)
+and two facts at one canonical defining location fail row 14 at S9 (`registry.py`, "one fact per
+canonical defining location"), both blocking before S10 runs.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt

@@ -1739,8 +1739,8 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "52409698bb405c667664c6c6521dfc7bbc6dc24f9ecd6891a90b2c2727db60ec",
-      "version": "6"
+      "sha256": "a9a12b01d6a513a8efed6a3da21d018b56811526dbbbe7de051ddb64b2ed5c96",
+      "version": "7"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
@@ -1764,8 +1764,8 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3817e392a7ad586eb2519f81d8d3193e092e3c527acda50a65bc637f5ee849c7",
-      "version": "6"
+      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
+      "version": "7"
     }
   },
   "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
