@@ -1764,8 +1764,9 @@ repair's binding proved a slot-set change, so the rule this item adds never fire
 elsewhere. The six: a command written as prose in Development and Testing (`pip install -e .` where
 the verified fact reads `python3 -m pip install -e .`), an API-reference omission, a
 scope-limitations omission, a quick-start example claim, an enterprise-relationship preservation
-claim, and one claim the document contradicts - the Additional Examples introduction it calls
-duplicated appears exactly once. Every round-two finding named S7, which `review_defects` maps to
+claim, and one claim the document contradicts. (Corrected 2026-09-05 by the count below: the
+Additional Examples introduction that finding called duplicated does appear twice, so that
+finding was sound; the ones the document contradicts are the four named below.) Every round-two finding named S7, which `review_defects` maps to
 S6, so each shared a fingerprint with its round-one finding in the same section and blocked as
 re-raised. Two further facts. The planner failed twice, before the v9 wording, on `shared_fact_ids`:
 it read "shared" as facts a capability shares but does not itself list, declaring
@@ -1774,6 +1775,34 @@ And deleting a transaction directory destroys the call store a sealed bundle's z
 depends on: the bundle keeps its recorded proof and still counts, but reproducing it byte for byte
 afterwards would need the same 24 replies again. Both reruns of the rejected composition are
 identical with zero provider calls at every stage.
+
+**Measured (the loop, 2026-09-05, G2-W17).** The canary's blocking review findings were counted
+against the candidate's own bytes. Of the six that blocked the 2026-09-05 composition, four were
+claims the document contradicts: the API reference "omits" `ColladaLoadOptions`, `GltfSaveOptions`,
+`ObjSaveOptions` and `StlSaveOptions`, which occur in it 1, 5, 3 and 4 times; scope and limitations
+"omits" the COLLADA export note, which is the finding's own quote, located in the candidate;
+Development and Testing "uses `pip install -e .` instead of the verified `python3 -m pip install
+-e .`", where the candidate contains the verified form once and the bare form never; and the quick
+start "contradicts the verified example that uses positional arguments `Box(10, 20, 30)`", a string
+in neither the candidate, the original README, nor any fact - `example:002` is keyword-argument
+code, verbatim, and it is what the candidate renders. The repair loop spent five attempts and four
+re-raises on that set. Separately, the 33 `public_symbol` facts that are UNRESOLVED are not a
+coverage gap: each is a deep-module duplicate of a SUPPORTED re-export (`aspose.threed.formats.
+collada.ColladaLoadOptions.ColladaLoadOptions` behind `aspose.threed.formats.ColladaLoadOptions`),
+and every class the reviewer called missing is in the document. Six of twelve examples stay
+UNRESOLVED on `NEEDS_INPUT`: `example:001`, `:003` and `:006` open a `.obj`, `:007` a `.gltf`,
+`:011` a `.dae`, and the repository carries no model file of any kind (751 `.py`, 9 `.md`, 4
+`.txt`, 1 `.yml`, no data assets). Of the executed examples only `:002` writes a file the tree
+keeps, `crate.gltf`, and `:004` writes `ball.stl`; the one example that saves a `.obj`, `:008`, is
+CONTRADICTED by the product's own `ObjExporter` (`stream.write(content)`, `TypeError: a bytes-like
+object is required, not 'str'`), so no executed example can produce a `.obj` and nothing anywhere
+produces a COLLADA file. After the absence rule landed, a re-reviewed composition returned ten
+findings: four advisory (one refuted by the absence rule, three by the renderer-owned-section
+rule) and six blocking, of which three allege an omission - `AGENTS.md`, `IOService`, the
+top-level `ColladaSaveOptions` duplicate - that the candidate contains 1, 3 and 2 times while
+leaving `absent` empty, and one lists `Box(2.0, 1.0, 1.0)`, a string in no fact value and not in
+the original README. The reviewer filled `absent` on four of ten findings at its first version.
+Both reruns of the composition are identical, every stage reused, zero provider calls.
 
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
@@ -1888,6 +1917,9 @@ discipline (small commits, green CI, evidence per item).
   zero advisories before READY_FOR_PROPOSAL.
 - New check 12 (coverage): a required row whose facts are unresolved fails closed and routes to
   EXTRACTING.
+- §6 (G2-W17, 2026-09-05): a finding that alleges an absence states what it claims is missing as
+  text the code can look for, and a required row admits zero advisories *left standing* - a finding
+  a deterministic check refuted is not deferred work and never blocks.
 - Check 11: fresh-state proof (fresh process and empty `runs/`).
 - §3 placement rule 3: visibility inheritance as a section property, and the `.code_block`
   carve-out documented or removed.
@@ -2651,6 +2683,21 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   Proposed for §27.9: G2-W20's acceptance gains "the canary's fresh composition ends ACCEPT
   with zero advisories", as the last of those families to land. Reverse via §27.9 or a
   state.yaml edit.
+- **2026-09-05 · G2-W17 · an absence claim is a field the code checks, and a refuted finding is
+  not deferred work.** `independent_review` v8 carries `absent`; a string listed there that the
+  candidate contains refutes the finding, and a refuted finding no longer counts against §6's
+  required-row rule. Alternative rejected: reading "omits" out of the finding's prose, which RC8
+  forbids. Evidence: four of six blocking findings were disproved by the candidate's own bytes
+  (§27.2, 2026-09-05); under the old rule disproving them changed nothing. Reverse by restoring
+  the `whatever demoted it` clause in §6 and the version-2 name of BC-10.
+- **2026-09-05 · G2-W17 · blocking check 12 is not admitted yet: §6 rule 14's first condition is
+  unmet.** No required row of the one sealed candidate rests on evidence that produced nothing -
+  every kind every required row needs has SUPPORTED facts - and the coverage gaps it does have are
+  already covered (BC-03 executed examples, BC-04 cited facts, BC-05 dispositions). Alternative
+  rejected: admitting the check on an anticipated defect, which the ceiling rule exists to stop.
+  Evidence: the per-row ledger and the fact counts in §27.2, 2026-09-05. Proposed for §27.9:
+  G2-W17's check-12 predicate waits for a sealed candidate that exhibits the defect, which the G3
+  cohort will supply. Reverse by admitting it with a cohort candidate's measured defect.
 - **2026-09-05 · G2-W22 · presentation_planning v9 spells out that shared_fact_ids is a subset
   of that capability's own fact_ids.** Alternative rejected: relax the check to accept a fact
   declared shared but not cited, which would break the arithmetic the rule exists for - the

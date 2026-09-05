@@ -236,10 +236,14 @@ re-raised after its one repair attempt never demotes on that account alone: it i
 deterministic check should have caught it, so the check is added and the cause fixed at its stage)
 or it blocks, reported as the transaction's outcome rather than retried a third time. Repair
 attempts are one per equivalent fingerprint; the second failure changes evidence, prompt, model
-route, or stage. A required row of §2 admits zero advisories before `READY_FOR_PROPOSAL`: an
-advisory is deferred repair work, not accepted work, so a finding left standing against a section
-every candidate must have blocks and is reported, whatever demoted it. An optional row may carry
-one; the bundle records the count either way.
+route, or stage. A finding that alleges an absence states what it claims is missing as text the
+code can look for; a string it names that the candidate does contain refutes the finding, which is
+recorded with its reason. A required row of §2 admits zero advisories left standing before
+`READY_FOR_PROPOSAL`: an advisory is deferred repair work, not accepted work, so a finding nothing
+contradicted, against a section every candidate must have, blocks and is reported. A refuted
+finding is not deferred work — no revision could act on it — so it never blocks; `review.json`
+keeps it with the reason that refuted it. An optional row may carry one; the bundle records the
+advisory count either way.
 
 ## 7. Bundle layout
 

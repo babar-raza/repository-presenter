@@ -59,6 +59,7 @@ def _finding(label: str, section: str, stage: str, *fact_ids: str) -> dict[str, 
         "text": "t",
         "quote": "",
         "fact_ids": list(fact_ids),
+        "absent": [],
         "repair": "r",
     }
 

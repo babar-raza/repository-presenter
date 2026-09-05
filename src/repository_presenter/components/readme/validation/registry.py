@@ -173,9 +173,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     Check("BC-09", "1", "No configured secret in the bundle", ("bundle",), "S9"),
     Check(
         "BC-10",
-        "2",
+        "3",
         "Independent review returns ACCEPT under a reviewer identity separate from authoring, "
-        "with no advisory left on a required row",
+        "with no unrefuted advisory left on a required row",
         ("review",),
         "S10",
     ),
@@ -1095,18 +1095,20 @@ def validate_candidate(
 
 
 def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Advisory findings against a section the contract marks Required.
+    """Advisory findings against a section the contract marks Required, minus the refuted ones.
 
     An advisory is deferred repair work, not accepted work (project/loop-prompt.md section 6
     rule 5), so a required row carries none before READY_FOR_PROPOSAL (docs/README_CONTRACT.md
-    section 6, docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5). The advisories that reach this
-    point are the ones a deterministic check contradicted; that a required row keeps attracting
-    them is itself the signal, and it is reported rather than shipped.
+    section 6, docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5). A finding a deterministic check
+    refuted is not deferred work: there is nothing to defer and no revision could act on it, so
+    it is recorded with its reason and counted, never blocking. What blocks is a finding left
+    standing - one nothing contradicted - because that is work this candidate still owes.
     """
     return [
         dict(finding)
         for finding in review.get("advisory", [])
         if str(finding.get("section_id", "")) in REQUIRED_SECTIONS
+        and not finding.get("reviewer_scope_defect")
     ]
 
 
@@ -1134,8 +1136,8 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
                 for f in findings
             ]
         details.extend(
-            f"{f.get('id')} {f.get('section_id')}: a required row admits no advisory "
-            f"({f.get('reviewer_scope_defect') or 'recorded advisory'})"
+            f"{f.get('id')} {f.get('section_id')}: a required row admits no advisory left "
+            f"standing: {f.get('text')}"
             for f in deferred
         )
     # A deferred advisory names the row it sits on; the rest of check 10's details are about the

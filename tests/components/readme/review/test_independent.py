@@ -12,6 +12,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
+    absence_defect,
     quote_located,
     review_checks,
     review_document,
@@ -78,6 +79,7 @@ def _finding(label: str, section: str, stage: str, quote: str = "") -> dict[str,
         "text": "A claim is unsupported.",
         "quote": quote,
         "fact_ids": ["format:input.obj"],
+        "absent": [],
         "repair": "Drop the claim.",
     }
 
@@ -266,17 +268,43 @@ def test_check_ten_is_judged_from_the_verdict_and_the_identity() -> None:
     ]
 
 
-def test_a_required_row_admits_no_advisory_before_ready_for_proposal() -> None:
+def test_a_required_row_admits_no_advisory_left_standing() -> None:
     # README_CONTRACT.md section 6: an advisory is deferred repair work, not accepted work, so a
-    # finding left standing against a section every candidate must have blocks, whatever demoted
-    # it (RESEARCH_AND_GUIDELINES.md section 27.5 D5). The advisories that reach here are the ones
-    # a deterministic check contradicted; that a required row keeps attracting them is the signal.
-    on_required = {
+    # finding nothing contradicted, against a section every candidate must have, blocks
+    # (RESEARCH_AND_GUIDELINES.md section 27.5 D5). This one is advisory because S9 is not a
+    # stage the repair loop can reopen, and no check refutes it: the work is real and deferred.
+    standing = _finding("F01", "api_reference", "S9")
+    document = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [standing], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=FACTS,
+    )
+    assert [f["id"] for f in document["advisory"]] == ["F01"]
+    assert "reviewer_scope_defect" not in document["advisory"][0]
+    judged = record_review_verdict(VALIDATION, document)
+    assert judged["checks"][1]["verdict"] == "FAIL"
+    assert judged["checks"][1]["details"] == [
+        "ACCEPT",
+        "F01 api_reference: a required row admits no advisory left standing: "
+        "A claim is unsupported.",
+    ]
+    # The row it sits on is a field, and no stage is named: the finding named none the loop can
+    # reopen, so it is reported rather than routed (section 27.2 RC8).
+    assert judged["checks"][1]["failures"][1]["section_id"] == "api_reference"
+    assert judged["checks"][1]["causal_stage"] is None
+    assert deferred_on_required_rows(document)[0]["id"] == "F01"
+
+    # A finding a deterministic check refuted is not deferred work - there is nothing to defer
+    # and no revision could act on it - so the same required row carries it without blocking.
+    refuted = {
         **_finding("F01", "installation", "S6", "It writes `.glb` files."),
         "criterion": "presentation",
     }
     document = review_document(
-        {"verdict": "REJECT_PRESENTATION", "findings": [on_required], "preserve": []},
+        {"verdict": "REJECT_PRESENTATION", "findings": [refuted], "preserve": []},
         REVIEWER,
         AUTHORING,
         "d" * 64,
@@ -286,26 +314,12 @@ def test_a_required_row_admits_no_advisory_before_ready_for_proposal() -> None:
     # The finding is the reviewer's own defect, so it does not block as a finding - and the
     # verdict follows the blocking findings that remain, which is none.
     assert document["verdict"] == ACCEPT and document["findings"] == []
-    assert [f["id"] for f in document["advisory"]] == ["F01"]
-    judged = record_review_verdict(VALIDATION, document)
-    assert judged["checks"][1]["verdict"] == "FAIL"
-    assert judged["checks"][1]["details"] == [
-        "ACCEPT",
-        "F01 installation: a required row admits no advisory (section installation renders from "
-        "facts under the contract's own checks; its presentation is the renderer's, and a factual "
-        "error there is a factuality finding)",
-    ]
-    # The row it sits on is a field, and no stage is named: no revision could act on a finding a
-    # check already contradicted, so it is reported rather than routed (section 27.2 RC8).
-    assert judged["checks"][1]["failures"][1]["section_id"] == "installation"
-    assert judged["checks"][1]["causal_stage"] is None
-    assert deferred_on_required_rows(document)[0]["id"] == "F01"
+    assert document["advisory"][0]["reviewer_scope_defect"].startswith("section installation")
+    assert deferred_on_required_rows(document) == []
+    assert record_review_verdict(VALIDATION, document)["checks"][1]["verdict"] == "PASS"
 
     # An optional row may carry one; the bundle records the count either way.
-    on_optional = {
-        **_finding("F01", "at_a_glance", "S6", "It writes `.glb` files."),
-        "criterion": "presentation",
-    }
+    on_optional = _finding("F01", "at_a_glance", "S9")
     optional = review_document(
         {"verdict": "REJECT_PRESENTATION", "findings": [on_optional], "preserve": []},
         REVIEWER,
@@ -317,6 +331,53 @@ def test_a_required_row_admits_no_advisory_before_ready_for_proposal() -> None:
     assert [f["id"] for f in optional["advisory"]] == ["F01"]
     assert deferred_on_required_rows(optional) == []
     assert record_review_verdict(VALIDATION, optional)["checks"][1]["verdict"] == "PASS"
+
+
+def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> None:
+    """The reviewer states what it claims is missing; the code looks for it (section 27.2 RC6).
+
+    Measured on the canary at 65b1f577 on 2026-09-05: four of six blocking findings alleged an
+    omission or a substitution the candidate's own bytes contradicted - the API-reference classes,
+    the COLLADA export note, and the editable install command were all in the document.
+    """
+    omission = {
+        **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
+        "criterion": "presentation",
+        "absent": ["ObjSaveOptions", "`.glb`"],
+        "text": "The API reference omits ObjSaveOptions and the GLB output format.",
+    }
+    reason = scope_defect(omission, CANDIDATE, {fact.id: fact for fact in FACTS.facts})
+    # Only the string the candidate actually contains is named, under the candidate's spelling.
+    assert reason == (
+        "the finding claims the candidate does not contain '`.glb`', which the candidate contains"
+    )
+    document = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [omission], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=FACTS,
+    )
+    assert document["verdict"] == ACCEPT and document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"] == reason
+    assert deferred_on_required_rows(document) == []
+
+    # An absence the candidate really does lack stands, whatever the criterion, and blocks.
+    real = {**omission, "absent": ["ObjSaveOptions"]}
+    stands = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [real], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=FACTS,
+    )
+    assert [f["id"] for f in stands["findings"]] == ["F01"]
+    # A finding that alleges no absence is untouched by the rule.
+    assert absence_defect(_finding("F02", "opening", "S6"), CANDIDATE) is None
+    # An empty or blank claim is not a claim: it never refutes a finding by locating nothing.
+    assert absence_defect({"absent": ["", "   "]}, CANDIDATE) is None
 
 
 def test_a_presentation_finding_against_a_deterministic_section_is_the_reviewers_defect() -> None:

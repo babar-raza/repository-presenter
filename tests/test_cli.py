@@ -870,6 +870,7 @@ def _rejection(label: str, quote: str = OPENING_QUOTE) -> dict[str, Any]:
                 "text": "The audience sentence is generic.",
                 "quote": quote,
                 "fact_ids": ["identity:repository"],
+                "absent": [],
                 "repair": "Name the developers concretely.",
             }
         ],
@@ -1133,6 +1134,7 @@ def _scope_rejection(label: str = "F01") -> dict[str, Any]:
                 "text": "The section states one limitation where the product has two.",
                 "quote": SCOPE_QUOTE,
                 "fact_ids": ["identity:repository"],
+                "absent": [],
                 "repair": "Add a bullet for the GLB-only export limitation.",
             }
         ],
@@ -1978,6 +1980,7 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
         "text": "The rewrite dropped the inherited paragraph's LICENSE and docs links.",
         "quote": OPENING_QUOTE,
         "fact_ids": ["inherited_unit:002.paragraph"],
+        "absent": [],
         "repair": "Preserve the inherited paragraph where a visitor finds it.",
     }
     restored = copy.deepcopy(LOCAL_DISPOSITIONS)

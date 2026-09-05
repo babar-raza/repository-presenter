@@ -170,6 +170,34 @@ def factuality_defect(
     return None
 
 
+_ABSENCE_REPORTED = 3
+
+
+def absence_defect(finding: Mapping[str, Any], candidate_readme: str) -> str | None:
+    """Why a finding that alleges an absence is the reviewer's own defect, or None.
+
+    An omission claim is checkable, so the reviewer states what it claims is missing as strings
+    in ``absent`` rather than asserting it in prose; the code looks each one up in the candidate
+    under the same spelling rules that locate a quote. A string that is there disproves the
+    finding by the candidate's own bytes - a deterministic check contradicting it
+    (docs/README_CONTRACT.md section 6) - and nothing here reads the finding's text
+    (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    """
+    present = sorted(
+        {
+            claim
+            for claim in (str(entry).strip() for entry in finding.get("absent", []))
+            if claim and quote_located(claim, candidate_readme)
+        }
+    )
+    if not present:
+        return None
+    named = ", ".join(repr(claim) for claim in present[:_ABSENCE_REPORTED])
+    return (
+        f"the finding claims the candidate does not contain {named}, which the candidate contains"
+    )
+
+
 def presentation_defect(finding: Mapping[str, Any]) -> str | None:
     """Why a presentation finding is the reviewer's own defect, or None when it may stand.
 
@@ -232,7 +260,14 @@ def scope_defect(
     never of a mark left in the finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2
     RC8). A reviewer-scope defect is recorded, never blocks (docs/README_CONTRACT.md section 6),
     and never earns a second ask.
+
+    An absence the candidate disproves is judged first, whatever the criterion: a finding that
+    names text the candidate contains is refuted by the document itself, and no reading of its
+    criterion changes that.
     """
+    absence = absence_defect(finding, candidate_readme)
+    if absence is not None:
+        return absence
     criterion = finding.get("criterion")
     if criterion == "factuality":
         quote = str(finding.get("quote", ""))
