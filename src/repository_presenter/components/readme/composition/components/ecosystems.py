@@ -3,8 +3,9 @@
 README_CONTRACT.md section 2 names the package registries the badge row and the Installation
 row present (row 2, row 8). Their display names are proper nouns a visitor reads, never
 identifiers, so authored prose may spell them as written here; the renderer names the
-registry a verified install came from with the same spelling. G2-W07 extends this table when
-the second ecosystem arrives; nothing here imports an extractor.
+registry a verified install came from with the same spelling; from G4-W10 the renderer takes
+that spelling from the ecosystem spec (core/ecosystems.py), and this table is the prose
+vocabulary alone - a candidate may name NuGet without a NuGet spec being registered.
 """
 
 from __future__ import annotations
@@ -36,8 +37,3 @@ def host_names(values: Iterable[str]) -> frozenset[str]:
     return frozenset(
         name for host, name in HOST_NAMES.items() if any(host in value for value in values)
     )
-
-
-def registry_name(ecosystem: str) -> str:
-    """The registry's display name for an ecosystem, or a plain phrase when none is known."""
-    return REGISTRY_NAMES.get(ecosystem, "the package registry")

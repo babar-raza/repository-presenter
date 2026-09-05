@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-06T03:05:00+05:00"
+updated_at: "2026-09-06T03:25:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -31,7 +31,7 @@ accepted_gates:
 
 active_work_item:
   id: G4-W10
-  status: READY
+  status: IN_PROGRESS
   purpose: 'Layered plugins and ecosystem-generic shared code (section 29.6 E3-E5): EcosystemSpec (ecosystem, language, manifest globs, source suffixes, fence aliases, registry template, badge templates, install-command template, symbol separator); shared RegistryProbe on httpx ported nearly intact from the legacy ecosystems/registry_request.py with resolver.py''s lessons (Maven via repo1.maven.org never search.maven.org, crates.io named User-Agent, C++ has no registry); ExampleVerifier base on core/execution.py with a disposable profile environment, per-ecosystem timeouts, lockfile flags, resolved versions in the receipt, BLOCKED_TOOLCHAIN to UNRESOLVED never CONTRADICTED; renderer badges, Installation, fence language, REGISTRY_NAMES, _LANGUAGE_ALIASES, PLATFORM_SLUGS, and bounded_records depth all read from the spec; the Python plugin re-expressed as a spec with its facts unchanged; plugin registration discoverable by module name (platforms/<ecosystem>.py exposes PLUGIN; registry.py imports by ecosystem name and never lists plugins), so lane B (section 28.12) adds TypeScript, Go, Rust and C++ without editing a shared file; docs/REPOSITORY_LAYOUT.md section 2.1 restated so a platform module imports core/, the shared surface facade and verifier base, and its own file. Acceptance: canary re-seals byte-identically; a synthetic net spec renders csharp fences, a NuGet badge, and a dotnet install block in a test; toolchain-absent and network-off tests; hosted CI green.'
   prerequisites:
   - G3-W01 is accepted - every one of the twelve Python repositories is sealed or carries an evidence-bound disposition (evidence/build/G3_PYTHON_COHORT/manifest.json).

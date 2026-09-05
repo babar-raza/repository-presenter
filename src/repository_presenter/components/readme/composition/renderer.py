@@ -27,7 +27,6 @@ from repository_presenter.components.readme.composition.authoring import (
 from repository_presenter.components.readme.composition.components.ecosystems import (
     REGISTRY_NAMES,
     host_names,
-    registry_name,
 )
 from repository_presenter.components.readme.composition.components.identity import (
     product_name,
@@ -47,6 +46,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
+from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -88,6 +88,9 @@ class RenderContext:
         self.entry = entry
         self.facts = facts
         self.plan = plan
+        # Every ecosystem-specific spelling the renderer prints comes from here, never from a
+        # branch on the ecosystem's name (RESEARCH_AND_GUIDELINES.md section 29.6 E4).
+        self.spec = spec_for(entry.ecosystem)
         self.name = product_name(entry)
         self.by_id: dict[str, Fact] = {fact.id: fact for fact in facts.facts}
         self.included: list[Section] = [
@@ -172,13 +175,13 @@ def anchor(heading: str) -> str:
 def _badges(context: RenderContext) -> list[str]:
     repo = context.entry.repository
     badges: list[str] = []
-    install = context.fact("install_command:pip")
+    spec = context.spec
+    install = context.fact(spec.install_fact_id)
     package = context.fact("package:name")
     if install is not None and install.polarity == "SUPPORTED" and package is not None:
-        badges.append(
-            f"[![PyPI](https://img.shields.io/pypi/v/{package.value}.svg)]"
-            f"(https://pypi.org/project/{package.value}/)"
-        )
+        badge = spec.badge(package.value)
+        if badge:
+            badges.append(badge)
     requires = context.fact("package:python_requires")
     if requires is not None and requires.polarity == "SUPPORTED":
         label = quote(requires.value.replace(">=", "").strip() + "+", safe="")
@@ -489,11 +492,11 @@ def _installation(context: RenderContext) -> list[str]:
     example imported; the runtime sentence restates the manifest's own declarations.
     """
     lines: list[str] = []
-    install = context.fact("install_command:pip")
+    install = context.fact(context.spec.install_fact_id)
     package = context.fact("package:name")
     version = context.fact("package:version")
     if install is not None and install.polarity == "SUPPORTED" and package is not None:
-        registry = registry_name(context.entry.ecosystem)
+        registry = context.spec.registry
         lead = f"Install the published package from {registry} (`{package.value}`"
         lead += f", version {version.value}):" if version is not None else "):"
         lines.append(lead)
@@ -501,7 +504,7 @@ def _installation(context: RenderContext) -> list[str]:
         lines.extend(_code_block("bash", install.value))
     elif install is not None and package is not None:
         detail = install.evidence[-1].detail or "the registry could not be checked"
-        registry = registry_name(context.entry.ecosystem)
+        registry = context.spec.registry
         state = (
             f"is not yet published on {registry}"
             if install.polarity == "CONTRADICTED"
@@ -531,7 +534,7 @@ def _installation(context: RenderContext) -> list[str]:
         lines.append("")
         lines.append("Verify the install:")
         lines.append("")
-        lines.extend(_code_block("bash", f'python -c "import {module}"'))
+        lines.extend(_code_block("bash", context.spec.verify_command.format(module=module)))
     versions = context.fact("package:python_versions")
     requires = context.fact("package:python_requires")
     sentence = ""
@@ -638,7 +641,7 @@ def _example_entry(context: RenderContext, sid: str, example_id: str) -> list[st
     example = context.fact(example_id)
     assert example is not None
     task = context.unit(sid, f"workflow:{example_id}").strip().rstrip(".")
-    return ["", f"### {task}", "", *_code_block(context.entry.ecosystem, example.value)]
+    return ["", f"### {task}", "", *_code_block(context.spec.fence, example.value)]
 
 
 def _section_body(context: RenderContext, section: Section) -> list[str]:
@@ -676,13 +679,13 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
         example = context.fact(plan.get("quick_start_example_id", ""))
         if example is not None:
             lines.append("")
-            lines.extend(_code_block(context.entry.ecosystem, example.value))
+            lines.extend(_code_block(context.spec.fence, example.value))
         second = context.fact(plan.get("second_quick_start_example_id") or "")
         if second is not None:
             lines.append("")
             lines.append(context.unit(sid, "lead_in:2"))
             lines.append("")
-            lines.extend(_code_block(context.entry.ecosystem, second.value))
+            lines.extend(_code_block(context.spec.fence, second.value))
     elif sid == "additional_examples":
         # README_CONTRACT.md section 2 row 12: one lead-in; one flagship example visible under
         # its own task-named heading when the plan selects one; then a single details block

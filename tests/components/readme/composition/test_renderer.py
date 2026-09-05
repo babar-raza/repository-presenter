@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     unit_checks,
@@ -18,6 +20,7 @@ from repository_presenter.components.readme.composition.renderer import (
     renders_verbatim,
     write_text,
 )
+from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -645,6 +648,50 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "- `save`: Defined as `def save(self, path)`.\n"
     )
     assert section.rstrip("\n").endswith("</details>")
+
+
+def test_a_synthetic_net_spec_renders_csharp_fences_a_nuget_badge_and_a_dotnet_install(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adding an ecosystem is a spec, not an edit to the renderer (section 29.6 E3 and E4).
+
+    Nothing here is a .NET plugin: the spec is synthetic and the facts are the canary's, renamed.
+    What it proves is that every ecosystem-specific spelling the renderer prints - the fence
+    language, the registry badge, the install block and the verify command - reads from the spec.
+    """
+    net = EcosystemSpec(
+        ecosystem="net",
+        language="C#",
+        fence="csharp",
+        registry="NuGet",
+        install_fact_id="install_command:dotnet",
+        version_badge=(
+            "[![NuGet](https://img.shields.io/nuget/v/{package}.svg)]"
+            "(https://www.nuget.org/packages/{package}/)"
+        ),
+        verify_command="dotnet list package | findstr {module}",
+    )
+    monkeypatch.setitem(SPECS, "net", net)
+    entry = ENTRY.model_copy(update={"ecosystem": "net"})
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "install_command:pip"),
+            _fact("install_command:dotnet", "install_command", "dotnet add package Aspose.ThreeD"),
+        ),
+    )
+    readme = render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "[![NuGet](https://img.shields.io/nuget/v/aspose-3d-foss.svg)]" in readme
+    assert "https://img.shields.io/pypi/" not in readme
+    assert "Install the published package from NuGet" in readme
+    assert "```bash\ndotnet add package Aspose.ThreeD\n```" in readme
+    # Every fence the renderer writes takes the spec's language. The one ```python fence left is
+    # an inherited code block, placed verbatim because it is the maintainer's own text.
+    assert "```csharp\nfrom aspose.threed import Scene" in readme
+    assert readme.count("```python") == 1
+    assert "```python\nprint(2)\n```" in readme
+    assert "dotnet list package | findstr aspose.threed" in readme
 
 
 def test_a_docstring_description_is_raised_to_the_documents_abbreviation_spelling() -> None:
