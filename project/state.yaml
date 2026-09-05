@@ -22,7 +22,7 @@ progress:
 current_gate:
   id: G2_STABILITY_UNDER_CHANGE
   status: READY
-  purpose: "The G1 candidate remains valid while the system evolves and the first-candidate causes of drift are closed (RESEARCH_AND_GUIDELINES.md sections 27 and 28): dependency evaluation from dependencies.json reopens only the candidates that consumed a changed component at the earliest affected stage, the invalidation matrix is proven per dependency class, injected defects are rejected and repaired at their causal stage, no global control-plane hash exists, and on the canary first-attempt acceptance is at least 95 percent and re-ask at most 5 percent per job, required rows carry zero advisories, a blocking coverage check exists, and one local pytest pass takes under three minutes. The contract freeze is G3's; anchoring, portable proof, and fan-out are G5's."
+  purpose: "The G1 candidate remains valid while the system evolves and the first-candidate causes of drift are closed (RESEARCH_AND_GUIDELINES.md sections 27 and 28): dependency evaluation from dependencies.json reopens only the candidates that consumed a changed component at the earliest affected stage, the invalidation matrix is proven per dependency class, injected defects are rejected and repaired at their causal stage, no global control-plane hash exists, and on the canary the sealed composition accepts with zero blocking findings and zero required-row advisories, every job holds the 85 first-attempt floor (per-job thresholds need three sealed compositions, 27.10), and the coverage ledger is in the bundle (check 12 waits for a sealed defect; ESM G2 exit predicates as restated 2026-09-05, 30.9 decision 8). The contract freeze is G3's; anchoring, portable proof, and fan-out are G5's."
 
 accepted_gates:
   - G0_FOUNDATION
@@ -135,6 +135,12 @@ owner_items:
     resume_predicate: GET /repos/babar-raza/foss-readme-optimizer returns archived true.
     consumed_by: [NONE]
     recorded_at: "2026-09-02T15:00:00+05:00"
+  - id: OWNER-06
+    status: OPEN
+    summary: "Install a C++ toolchain the G4-W13 verifier can call: Visual Studio 2022 Build Tools with the Desktop development with C++ workload (cl.exe, MSBuild, Windows SDK) - for example winget install Microsoft.VisualStudio.2022.BuildTools --override \"--quiet --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\" (needs elevation, several GB). cmake 4.4.1 is present but has no compiler to drive (RESEARCH section 28.12)."
+    resume_predicate: "cmake -G \"Visual Studio 17 2022\" configures a trivial C++ project on this machine (or vswhere finds a VC tools installation); then G4-W13 leaves BLOCKED_EXTERNAL and the four C++ repositories can be verified."
+    consumed_by: [G4_MULTI_LANGUAGE_COHORTS]
+    recorded_at: "2026-09-05T23:35:00+05:00"
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer

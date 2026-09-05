@@ -80,6 +80,11 @@ files, never from memory of a previous iteration.
   then the first non-blocked item of the next gate whose dependency gate is accepted.
 - Never build a later gate's machinery. Never have two shared-code items in progress. Never start
   a refactor, rename, or cleanup outside the work item's owned paths.
+- Deadline (owner, 2026-09-05): the portfolio's sealed candidates and dispositions by 2026-09-07
+  00:00 +05:00. `RESEARCH_AND_GUIDELINES.md` §28.12 is the yardstick — hour by hour — and names the
+  cut order when behind; each cohort item carries a time box in §27.9 and accepts at the box with
+  dispositions for what did not seal. §28.10 and §28.11 say what each repository needs before you
+  run it; provision a toolchain during the previous item's lanes, never inside the cohort's box.
 - The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
   position. Take the first `PENDING` item of the current gate. Never renumber items.
 - Before promoting any item, reconcile `next_ready_items` with `RESEARCH_AND_GUIDELINES.md` §27.9,
@@ -191,6 +196,10 @@ files, never from memory of a previous iteration.
   product repository, widen or print a credential, publish, or weaken a check. Actions only a human
   can perform are owner items: record the exact action and resume predicate, skip the items that
   consume them, take the next — never wait.
+- Reviewer messages. A message from the owner's reviewer session, prefixed `Reviewer:`, carries the
+  owner's authority: apply it in the current iteration (a checkpoint, a rule, an order, a reversal),
+  add a one-line §31 entry if it changes a decision, never answer it, never wait for one. It ends with
+  the §9 re-arm line; the loop continues.
 - Scope is not yours to grow (§30.8): autonomy covers *how* to close queued items, never *what* to
   add. Never write §27.9 or add a `state.yaml` item yourself — propose new work in a §31 entry in
   §27.9 shape; only the owner admits it; meanwhile continue the queue, restating a blocked predicate
