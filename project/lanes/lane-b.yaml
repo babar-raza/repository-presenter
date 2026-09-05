@@ -33,9 +33,19 @@ repositories:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 0
+toolchains:
+  registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
+  receipt: evidence/build/lanes/lane-b/LANE-B-00.json
+  note: 'Every tool is called by the absolute path the registry records; nothing is on the user or system PATH, and a cohort item never installs inside its time box (RESEARCH 28.12 point 6). Resolve a machine tool with shutil.which(name) or shutil.which(name + ".cmd") - npx and npm exist only as .CMD shims here.'
+  cpp: g++ 16.2.0, gcc 16.2.0, ninja 1.13.2, mingw32-make 4.4.1, cmake 4.4.1 (C++20 probe configured, built and ran)
+  rust: rustup 1.29.1, cargo 1.98.1, rustc 1.98.1 (stable-x86_64-pc-windows-msvc) under C:/tools/rp-toolchains/rustup
+  typescript: node v24.13.1, npx 11.8.0, npm 11.8.0, tsc 5.9.3 in the disposable npm profile at C:/tools/rp-toolchains/npm
+  go: go1.26.4 windows/amd64
 items:
 - id: LANE-B-00
-  status: PENDING
+  status: ACCEPTED
+  accepted_at: '2026-09-06T00:16:44+05:00'
+  evidence: evidence/build/lanes/lane-b/LANE-B-00.json
   prerequisites: []
   purpose: 'Toolchains for the lane, never on PATH and never system-wide (loop-prompt section 1.5; OWNER-06): verify the workspace-local GCC and Ninja recorded in C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt (cmake -G Ninja configures and builds a C++20 probe with them); provision rustup with a pinned stable toolchain under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME and CARGO_HOME there; cargo called by absolute path; version recorded), and confirm node, npx.cmd and go with their versions. Acceptance: g++ --version, ninja --version, cargo --version, node --version, go version all print from the recorded absolute paths; a trivial cargo new crate passes cargo check under the disposable CARGO_HOME; evidence/build/lanes/lane-b/LANE-B-00.json records every path and version; RESEARCH_LANE_B.md has the entry.'
 - id: G4-W14
@@ -62,4 +72,5 @@ items:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted
   - OWNER-06 resolved (a C++ compiler the verifier can call; the workspace-local GCC counts)
+  prerequisite_notes: 'OWNER-06 is SATISFIED on main (81a10ac) and LANE-B-00 reproduced its resume predicate independently: cmake -G Ninja reconfigured, rebuilt and ran a C++20 probe with the recorded g++ 16.2.0 and ninja 1.13.2, the binary printing cxx202002 (evidence/build/lanes/lane-b/LANE-B-00.json). This item now waits only on G4-W10 and G4-W09.'
   purpose: 'C++ spec and cohort (consumes OWNER-06, the C++ compiler; BLOCKED_EXTERNAL while it is OPEN, and the loop takes the next item): identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; CMakeLists and FetchContent; the legacy ecosystems/cpp.py only for a field it lacks), header surface through the shared extractor with internal-visibility handling, the legacy example_verifiers/cpp.py pulled with a small cut (cmake configure and build, syntax-only compile of the example with the compiler OWNER-06 records - GCC 16.2 and Ninja under C:/tools/rp-toolchains per TOOLCHAIN_PATHS.txt, their bin directories prepended to the subprocess PATH only, MSVC if it is ever installed; Slides C++ carries a conanfile - FetchContent fallback or a disposition), registry facts through the vendored RegistryProbe where a manifest names a package (aspose.org notes cells/cpp ships NuGet), otherwise install_command stays UNRESOLVED and Installation renders the source-build fallback, a negative control; then the four C++ repositories as a cohort. Parity per repository. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
