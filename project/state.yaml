@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T11:58:43+05:00"
+updated_at: "2026-09-05T12:09:57+05:00"
 
 authority:
   product: plans/idea.md
@@ -65,9 +65,12 @@ next_ready_items:
   - id: G2-W20
     status: PENDING
     purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
+  - id: G2-W23
+    status: PENDING
+    purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."
   - id: G3-W01
     status: PENDING
-    purpose: "Python cohort (section 28.5): run the twelve remaining Python registry repositories through the existing pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix causes by failure class, never per repository: a class fixed once carries a test that a later cohort cannot regress. Family-specific format declarations and fixtures (section 27.5 D6) are added only where a repository's coverage ledger demands them. Acceptance: status prints the sealed count; the gate evidence manifest carries the cohort report (sealed, disposition, failure class per repository); every sealed bundle is fresh-process zero-call proven; hosted CI green."
+    purpose: "Python cohort (section 28.5). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls (section 30 A7); fix by class with a regression test each. Step two: run the twelve through the full pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not; compositions run in the background across iterations. Never per repository by hand. Family-specific format declarations and fixtures (section 27.5 D6) only where a repository's coverage ledger demands them. Acceptance: the preflight report and the cohort report (sealed, disposition, failure class per repository) are in the gate evidence manifest; status prints the sealed count; every sealed bundle is fresh-process zero-call proven; hosted CI green."
   - id: G3-W02
     status: PENDING
     purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
