@@ -214,7 +214,17 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
         "1 re-raised after repair; the equivalent failure stands"
     )
     data = (tmp_path / "repairs.json").read_bytes()
-    assert data.endswith(b"}\n") and list(json.loads(data)) == ["attempts", "schema_version"]
+    assert data.endswith(b"}\n") and list(json.loads(data)) == [
+        "attempts",
+        "composition",
+        "schema_version",
+    ]
+    # The attempts belong to the composition they were made against, so another
+    # composition's ledger is not this one's and reading it back yields none: without that
+    # scope the canary's first round found its defects already attempted and reported seven
+    # findings re-raised without repairing any (section 27.2, 2026-09-05).
+    assert RepairLedger(tmp_path / "repairs.json", composition="d" * 64).attempts == {}
+    assert RepairLedger(tmp_path / "repairs.json").attempts.keys() == ledger.attempts.keys()
 
 
 def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_contract() -> None:

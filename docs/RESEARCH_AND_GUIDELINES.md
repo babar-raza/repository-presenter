@@ -1918,6 +1918,24 @@ and were before this change. The composition that followed the new fact ended `E
 on seven findings, six of them prose judgments about ordering and density that the same document
 did not attract an hour earlier: composition variance (27.10), not a family this item owns.
 
+**Measured (the loop, 2026-09-05, G2-W17, the repair ledger's scope).** The canary's composition
+of that evening reported seven blocking findings and nineteen re-raised, with **no repair
+attempted**: `repairs.json` is written into the transaction, the transaction outlives its
+compositions, and a defect fingerprint is only a source, a section, a stage and a criterion plus
+the judge's identity - never the composition being judged. So the first round of a rebuilt
+composition found each of its defects already attempted against a document that no longer existed,
+took the re-raised branch, and stopped before repairing anything. The ledger is now scoped by the
+inputs its composition was built from - the revision, the facts, and the prompt set - which every
+round of one composition shares, a replay reproduces, and a rebuilt composition never matches; a
+rebuilt composition is exactly the changed evidence the contract's one-attempt rule asks for. Two
+identities were tried and rejected first: the round-one document digest, which a repair changes by
+rewriting the stored response round one consumes, and the planning request hash, which an
+escalation moves mid-loop. **Parallel suite (same day).** `pytest -n auto` runs 500 tests in 104
+to 113 seconds against 175 at `-n 4`, both under the 120-second ceiling. Three `tests/test_cli.py`
+invalidation tests fail intermittently under `-n auto` and never serially or on a clean re-run:
+each builds a virtual environment and installs the clone to verify examples, and enough of them at
+once exhausts the machine. Four consecutive full runs: green, green with three lost, green.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -3001,3 +3019,10 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   produced. Evidence: §27.2, 2026-09-05 (fixtures) - 6 of 12 executed became 7 of 12, and the four
   that remain need an `.obj` the product cannot write and a `.dae` nothing writes. Reverse by
   dropping the `produced` argument from `stage_fixtures` and the second pass.
+- **2026-09-05 · G2-W17 · the repair ledger is scoped to the composition's own inputs.** A
+  fingerprint says what a defect is, not which document raised it, so a transaction-lifetime ledger
+  made every defect of a rebuilt composition look already attempted. Alternative rejected: the
+  round-one document digest and the planning request hash - the first moves when a repair rewrites
+  the stored response, the second when an escalation re-plans. Evidence: §27.2, 2026-09-05 - seven
+  findings, nineteen re-raised, no repair attempted. Reverse by dropping `composition` from
+  `RepairLedger`.

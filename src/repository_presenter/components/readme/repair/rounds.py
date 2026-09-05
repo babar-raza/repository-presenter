@@ -91,7 +91,7 @@ from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
-from repository_presenter.core.llm.ledger import Ledger
+from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
@@ -427,10 +427,27 @@ def escalate_to_plan(
     repair_defect(tx, current, escalated, repairs)
 
 
+def composition_id(tx: TransactionInputs) -> str:
+    """What this composition is built from: the revision, the facts, and the prompt set.
+
+    The repair ledger is scoped to it. Every round of one composition sees the same value, and a
+    replay sees it again, because a repair rewrites a stored response and never these inputs; a
+    composition rebuilt on new facts or a changed prompt sees a different one, which is the
+    changed evidence the contract's one-attempt rule asks for (docs/README_CONTRACT.md section 6).
+    """
+    return canonical_hash(
+        {
+            "revision": tx.source_revision,
+            "facts": tx.facts.to_json(),
+            "prompts": dict(sorted(tx.prompts.hashes().items())),
+        }
+    )
+
+
 def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:
     """Rounds until the candidate is accepted, a defect cannot be repaired, or a fingerprint
     would be attempted twice; returns the last round, the attempts, and the round count."""
-    repairs = RepairLedger(tx.directory / REPAIRS_FILENAME)
+    repairs = RepairLedger(tx.directory / REPAIRS_FILENAME, composition=composition_id(tx))
     current = run_round(tx)
     rounds = 1
     while rounds < MAX_ROUNDS:

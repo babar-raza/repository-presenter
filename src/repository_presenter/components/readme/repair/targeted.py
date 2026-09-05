@@ -214,15 +214,30 @@ def merge_equivalent(defects: Sequence[Defect]) -> list[Defect]:
 
 @dataclass
 class RepairLedger:
-    """repairs.json: every attempt by fingerprint; a second equivalent failure is never retried."""
+    """repairs.json: every attempt by fingerprint; a second equivalent failure is never retried.
+
+    The attempts belong to the composition they were made against, named by ``composition`` -
+    the revision, the facts, and the prompt set it was built from (``composition_id``). Every
+    round of one composition sees that value and so does a replay, because a repair rewrites a
+    stored response and never those inputs. A transaction outlives its compositions, though, and
+    a fingerprint is only a section, a stage and a criterion: without the scope, the first round
+    of a rebuilt composition found its defects already attempted and reported every one as
+    re-raised without repairing any (measured on the canary 2026-09-05: seven findings, nineteen
+    re-raised, no repair attempted). A rebuilt composition is the changed evidence the contract's
+    one-attempt rule asks for (docs/README_CONTRACT.md section 6).
+    """
 
     path: Path
     attempts: dict[str, dict[str, Any]] = field(default_factory=dict)
+    composition: str = ""
 
     def __post_init__(self) -> None:
-        if self.path.is_file():
-            stored = json.loads(self.path.read_text(encoding="utf-8"))
-            self.attempts = dict(stored.get("attempts", {}))
+        if not self.path.is_file():
+            return
+        stored = json.loads(self.path.read_text(encoding="utf-8"))
+        if self.composition and stored.get("composition", "") != self.composition:
+            return  # another composition's attempts; this one starts with none
+        self.attempts = dict(stored.get("attempts", {}))
 
     def attempted(self, fingerprint: str) -> bool:
         return fingerprint in self.attempts
@@ -258,7 +273,11 @@ class RepairLedger:
         self.write()
 
     def write(self) -> None:
-        document = {"schema_version": 1, "attempts": self.attempts}
+        document = {
+            "schema_version": 1,
+            "composition": self.composition,
+            "attempts": self.attempts,
+        }
         data = json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_bytes(data.encode("utf-8"))
