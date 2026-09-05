@@ -34,6 +34,10 @@ class EcosystemSpec:
     install_fact_id: str
     version_badge: str = ""
     verify_command: str = ""
+    # Per-ecosystem, up to core.execution's ceiling (section 29.6 E5): an interpreted example
+    # returns in seconds, a compiled one pays for a restore and a build first.
+    example_timeout_seconds: float = 120.0
+    install_timeout_seconds: float = 300.0
     symbol_separator: str = "."
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)

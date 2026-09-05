@@ -6,6 +6,7 @@ import pytest
 
 from repository_presenter.core.ecosystems import PYTHON, SPECS, EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
+from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS
 
 
 def test_the_python_spec_carries_what_the_renderer_used_to_hard_code() -> None:
@@ -18,6 +19,9 @@ def test_the_python_spec_carries_what_the_renderer_used_to_hard_code() -> None:
         "(https://pypi.org/project/aspose-3d-foss/)"
     )
     assert spec.verify_command.format(module="aspose.threed") == 'python -c "import aspose.threed"'
+    # The spec owns the verifier's clock too; core.execution's ceiling still bounds it.
+    assert spec.example_timeout_seconds == 120.0 and spec.install_timeout_seconds == 300.0
+    assert spec.example_timeout_seconds <= MAX_TIMEOUT_SECONDS
 
 
 def test_an_ecosystem_with_no_registry_prints_no_badge() -> None:

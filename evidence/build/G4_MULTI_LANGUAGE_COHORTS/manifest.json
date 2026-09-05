@@ -1,0 +1,50 @@
+{
+ "schema_version": 1,
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "gate_status": "READY",
+ "work_item": "G4-W10",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-06T03:36:03+05:00",
+ "control_revision": "7a5fde06c5fc251d3d628560cee39bad218676d0",
+ "work_item_acceptance": [
+  {
+   "predicate": "Every sealed candidate renders to the bytes it was sealed with.",
+   "evidence": "tests/test_sealed_bytes.py over both bundles on disk; restated from the canary re-seal, whose wording transferred to G5-W02 (section 27.10, section 31)."
+  },
+  {
+   "predicate": "A synthetic net spec renders csharp fences, a NuGet badge, and a dotnet install block in a test.",
+   "evidence": "tests/components/readme/composition/test_renderer.py::test_a_synthetic_net_spec_renders_csharp_fences_a_nuget_badge_and_a_dotnet_install"
+  },
+  {
+   "predicate": "Toolchain-absent and network-off tests.",
+   "evidence": "test_python_examples.py::test_a_toolchain_that_cannot_be_provisioned_leaves_every_example_unresolved; test_python.py already covers an unreachable registry leaving the install claim UNRESOLVED."
+  },
+  {
+   "predicate": "Hosted CI green.",
+   "evidence": "run for 1c6a364 and 7a5fde0, both success on 3.11, 3.12 and 3.13."
+  }
+ ],
+ "landed": [
+  "EcosystemSpec in core/ecosystems.py, with the renderer reading fence, registry, badge, install fact and verify command from it",
+  "plugin discovery by module name and a PLUGIN attribute; registry.py lists no plugins",
+  "profile_environment: a disposable profile for every toolchain cache, wired where untrusted code runs",
+  "per-ecosystem example and install timeouts, read from the spec"
+ ],
+ "deferred_to_consumers": [
+  {
+   "element": "shared RegistryProbe ported from the legacy",
+   "consumer": "G4-W11",
+   "why": "first ecosystem needing a registry probe; untestable against a real registry until then"
+  },
+  {
+   "element": "full ExampleVerifier base",
+   "consumer": "G4-W11",
+   "why": "the .NET verifier is its first implementation; the base is shaped by it, not before it"
+  },
+  {
+   "element": "bounded_records depth from the spec",
+   "consumer": "G4-W11",
+   "why": "no second ecosystem exists to differ from Python"
+  }
+ ]
+}

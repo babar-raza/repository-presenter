@@ -18,11 +18,14 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from repository_presenter.core.ecosystems import PYTHON
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FixtureBinding
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 
-EXAMPLE_TIMEOUT_SECONDS = 120.0
-INSTALL_TIMEOUT_SECONDS = 300.0
+# The spec owns the numbers; these names keep the module readable and the failure message
+# honest about what it waited for (RESEARCH_AND_GUIDELINES.md section 29.6 E5).
+EXAMPLE_TIMEOUT_SECONDS = PYTHON.example_timeout_seconds
+INSTALL_TIMEOUT_SECONDS = PYTHON.install_timeout_seconds
 _MAX_OUTPUT_CHARS = 4000
 _FILE_LITERAL = re.compile(r"^[\w./-]+\.[A-Za-z0-9]{1,5}$")
 _ERROR_LINE = re.compile(r"^(\w+(?:\.\w+)*(?:Error|Exception|Warning))(?::|$)", re.MULTILINE)

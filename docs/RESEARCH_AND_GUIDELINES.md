@@ -3595,3 +3595,23 @@ p-toolchains`,
   candidates and cannot be satisfied by a stored reply. Both pass under the spec refactor.
   Alternative rejected: hand-restoring the transaction from the bundle, which would prove nothing
   the copy did not put there. Reverse by deleting the control and restoring the old wording.
+
+- **2026-09-06 09:40 · loop (PROVISIONAL) · a prompt change now costs a sealed candidate that
+  cannot be re-earned.** Item G4-W10, but it governs every remaining Python fix. Both sealed
+  bundles record `prompts` as a dependency class with each prompt's sha256, so editing
+  `section_authoring` or `presentation_planning` invalidates them. The canary cannot then be
+  re-sealed: G3-W01's cold-run measurement consumed its transaction and proved a fresh composition
+  does not seal (§27.10). So the resume predicates of BarCode, Email and Note - each of which names
+  a prompt change - are gated behind G5-W02's bundle seeding, not merely queued after it. Recorded
+  rather than acted on: promoting G5-W02 is the owner's call under §30.8. Meanwhile no prompt is
+  edited, and the cohorts that need no prompt change proceed.
+
+- **2026-09-06 09:45 · loop (PROVISIONAL) · G4-W10 accepted on its four predicates; three purpose
+  elements land with their consumers.** The spec, discoverable registration, the disposable
+  profile and the per-ecosystem clock are in. Not built: the shared `RegistryProbe` ported from the
+  legacy, the full `ExampleVerifier` base, and `bounded_records` depth from the spec. Each has one
+  consumer and no other - G4-W11 is the first ecosystem needing a registry probe and a fresh
+  verifier, and it is the item §27.9 puts next after G4-W09. Building them now would be machinery
+  before its consumer (loop-prompt §6 rule 1) and untestable against a real ecosystem. The
+  renderer's component version stays "17": `tests/test_sealed_bytes.py` proves both sealed
+  candidates render unchanged, and the version marks rendered behaviour, not source text.
