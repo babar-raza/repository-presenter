@@ -1958,6 +1958,23 @@ facts, and the reviewer prefers the original's stale 305 and 33. The contract al
 inherited README unit is maintainer text, not evidence; the reviewer's packet does not enforce it
 for a `presentation` finding that cites no fact at all.
 
+**Measured (the loop, 2026-09-05, G2-W17, the renderer's own sentences).** Two of the canary's four
+remaining findings disputed counts the renderer computes: the candidate says 337 verified public
+types and 34 test files, the reviewer preferred the original README's 305 and 33. The facts carry
+exactly 337 SUPPORTED symbols of kind class or enum, and the clone holds exactly 34 files under
+`tests/`, so the renderer is right and the original is stale maintainer text - which the contract
+already refuses as evidence, but only for a `factuality` finding that cites a fact. The renderer now
+names the sentences it writes into a section an LLM otherwise owns - the suite size, the release
+line, the surface count, the reference count - and a finding whose quote sits inside them is the
+reviewer's own defect, as one against a deterministic section already is. Verified against the
+canary's own review without recomposing: both count findings refute, the other two stand. Reaching
+that took two corrections the first attempt missed - the inventory omitted the API-reference
+sentence, and a quote may span two adjacent renderer sentences - and a **third normalisation
+asymmetry**: the candidate carries `[publish workflow](.github/workflows/publish.yml)` where the
+reviewer quotes the words it clicked. After the Mermaid label's quotation marks and the fence's
+language tag, the rule is now explicit in `_normalized`: a reviewer quotes what it reads, and every
+piece of syntax the renderer wrapped around it is ours to strip.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -3135,3 +3152,10 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   and ended the transaction on a `JobError` rather than a verdict. Evidence: §27.2, 2026-09-05 -
   two review failures, both on quote location, both asymmetries of the same kind. Reverse by
   removing the fence pattern from `_MARKUP`.
+- **2026-09-05 · G2-W17 · a sentence the renderer writes inside an authored section is out of the
+  reviewer's scope.** The unit beside it did not write it and no revision of that unit can change
+  it, so a finding against one is the reviewer's own defect, as for a deterministic section.
+  Alternative rejected: telling the reviewer in its prompt that the original README is not evidence
+  against a fact - exhortation, where the same packet already carries the facts it ignored.
+  Evidence: §27.2, 2026-09-05 - 337 and 34 verified against the facts and the clone, both findings
+  refuted against the canary's own review. Reverse by dropping `rendered` from `scope_defect`.
