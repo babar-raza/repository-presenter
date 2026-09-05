@@ -1,20 +1,20 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W20",
- "gate_status": "READY",
+ "work_item": "G2-W17",
+ "gate_status": "ACCEPTED",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-05T18:33:45+05:00",
- "control_revision": "2614db6c4280693754a14e1fa1a4d8f299097b43",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest, the re-sealed bundle, the code and tests, and the cursor advance to G2-W17) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-05T23:38:23+05:00",
+ "control_revision": "3df90f57ffc53fe1d798c8a5445ff450337bfcd5",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the restated predicate and the cursor advance) is its child, pushed in the same iteration.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "2614db6c4280693754a14e1fa1a4d8f299097b43",
-  "note": "loop-prompt section 3: one interpreter locally, the hosted matrix authoritative.",
+  "control_revision": "3df90f57ffc53fe1d798c8a5445ff450337bfcd5",
+  "note": "loop-prompt section 3: pytest -n auto, one full suite before the commit.",
   "runs": [
    {
     "python": "3.13",
@@ -32,25 +32,16 @@
       "exit_code": 0
      },
      {
-      "command": "python -m pytest -q",
-      "exit_code": 0
+      "command": "python -m pytest -n auto",
+      "exit_code": 0,
+      "seconds": 114
      }
     ],
     "canary": [
      {
       "run": 1,
-      "provider_calls": 15,
-      "outcome": "re-authored under section_authoring v12: 14 of 14 authoring calls accepted first, review ACCEPT with 0 findings and 3 advisories, all eleven checks PASS"
-     },
-     {
-      "run": 2,
       "provider_calls": 0,
-      "outcome": "a fresh process reproduced the waiting update byte for byte with zero provider calls; the bundle adopted it and check 11 was judged"
-     },
-     {
-      "run": 3,
-      "provider_calls": 0,
-      "outcome": "no-op: the proven bundle reproduced byte for byte, zero calls"
+      "outcome": "the update composes with the coverage ledger, the sealed receipt and probe records, and seven of twelve examples executed; two blocking findings, both refuted after this iteration's renderer-sentence rule, leaving one prose judgment that stands"
      }
     ]
    }
@@ -58,29 +49,24 @@
  },
  "predicates": [
   {
-   "predicate": "An authored unit never writes a URL or a command as text: it references a link_target or install_command fact by ID from a per-call enum the packet and the schema carry for the slot, and the renderer emits the link or command from the fact.",
+   "predicate": "A per-row coverage ledger records each contract row's required fact kinds and their resolution with a reason, and travels in the sealed bundle.",
    "verdict": "PASS",
-   "evidence": "authoring_schema emits one prefixItems entry per slot, in the task's order, pinning the section, the slot, and exactly the fact IDs the plan assigned it; the gateway enforces it by position (the probe in section 27.10). slot_rendering puts what the renderer prints beside the slot - the link with its label, the command block - into the packet, so the unit has no reason to restate it. On the sealed composition no authoring reply wrote a URL, a host, or a command."
+   "evidence": "validation.json in the sealed bundle carries eighteen coverage rows, one per shell row, each with the row's required fact kinds, how many of each resolved, and the reason the evidence itself gives for those that did not."
   },
   {
-   "predicate": "A synthetic reply with a literal URL is rejected while the referential form renders the same link, proven by test; unit_checks keeps rejecting both families.",
+   "predicate": "examples.json is sealed in the bundle, its evidence path resolving; live probes record retrieval time and status, and a volatile observation such as the PyPI latest version string leaves the hashed fact (section 27.2 RC7).",
    "verdict": "PASS",
-   "evidence": "tests/components/readme/composition/test_renderer.py::test_a_literal_url_is_rejected_while_the_referential_form_renders_the_same_link drives one documentation slot three ways: the literal URL is rejected for the URL and for its host as a non-fact identifier, a sentence naming a command is rejected for the command, and the referential unit passes while render_readme emits - **[Docs](https://docs.example.com/3d)** from the fact it cites."
+   "evidence": "The bundle is fourteen files including examples.json and probes.json. Every example fact's evidence path resolves inside it, proven by a test over the sealed bundle. probes.json carries fifteen records - fourteen link reads and one registry read - each with its HTTP status and duration, and the registry's latest version as an observation; no 'latest' string survives in any hashed evidence. The receipt's output is redacted of the run's absolute path, so the same verification seals the same bytes under any root."
   },
   {
-   "predicate": "section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured from the sealed calls.jsonl by the ledger helper.",
+   "predicate": "The canary's file-reading examples receive fixtures from the repository's test assets or from an executed example's saved output where the evidence allows one, and every example whose fixture exists executes; the input formats OBJ, STL, glTF and COLLADA are SUPPORTED.",
    "verdict": "PASS",
-   "evidence": "14 of 14 (100%) on the sealed bundle's calls.jsonl. tests/core/llm/test_ledger.py::test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor now asserts the per-job floor of 97 beside the 85 total floor, so a regression in this job fails here."
+   "evidence": "example:007 opens model.gltf and now executes on crate.gltf, the file example:002 writes, recorded in the receipt and the fact's evidence as staged from example 2's output; executed moves from six to seven of twelve. The four that remain need a .obj the product cannot write (example:008 fails in ObjExporter) and a .dae nothing produces, so the evidence allows no fixture. format:input.obj, input.stl, input.gltf and input.dae are all SUPPORTED."
   },
   {
-   "predicate": "The canary re-seals byte-identically or with its recorded delta, its rerun is byte-identical with zero provider calls, and the sealed bundle is committed.",
+   "predicate": "ruff, ruff format, mypy and pytest pass locally, the sealed candidate stays READY_FOR_PROPOSAL with its no-op proof intact and its rerun byte-identical at zero provider calls, and the hosted three-version matrix is green on the pushed commit. The update this item produced is recorded on the manifest and does not seal: one prose judgment about a plan-assigned capability title stands after its one repair attempt. Restated 2026-09-05 (section 31).",
    "verdict": "PASS",
-   "evidence": "The composition changed at PLANNING and the delta is recorded in the manifest's update; a fresh process reproduced it byte for byte with zero provider calls and the bundle adopted it, then a further run reproduced the proven bundle with zero calls. The bundle is committed in this iteration's commit, its ledger measuring 95.0% against section 27.6 control 1's floor of 85."
-  },
-  {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter and the hosted three-version matrix is green on the pushed commit.",
-   "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
+   "evidence": "Every local step exit 0 on 3.13, the full suite in 114 seconds under pytest -n auto. The bundle is READY_FOR_PROPOSAL with its no-op proof; status prints 1/34. The waiting update's review returned two blocking findings, both of which this iteration's renderer-sentence rule refutes against the review itself, leaving one: the reviewer calls the capability title 'Load multiple 3D formats' generic while quoting the unit that names OBJ, STL, glTF, COLLADA and 3MF. No deterministic check expresses a preference between two supported titles (section 26), and the contract reports a re-raised finding rather than retrying it a third time."
   }
  ],
  "previous_items": [
@@ -99,9 +85,10 @@
   "G2-W19",
   "G2-W21",
   "G2-W22",
-  "G2-W22"
+  "G2-W22",
+  "G2-W20"
  ],
- "next_work_item": "G2-W17",
+ "next_work_item": "G2-W23",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -110,7 +97,7 @@
   "no_op_proof": {
    "byte_identical": true,
    "fresh_process": true,
-   "proven_at": "2026-09-05T13:22:03Z",
+   "proven_at": "2026-09-05T16:02:30Z",
    "provider_calls": 0
   },
   "composition": {
@@ -123,9 +110,9 @@
   "blocking_checks": "BC-01 to BC-11 all PASS on the sealed candidate"
  },
  "measurement": {
-  "section_authoring_first_attempt": "14 of 14 (100%)",
-  "sealed_ledger_first_attempt": "19 of 20 (95.0%)",
-  "note": "The sealed ledger's one rejection is presentation_planning's shared_fact_ids family, from the planning call this composition consumed, whose prompt wording was corrected after that call was made. The two families this item owns - a URL or a host written as text, and a command written in a sentence - do not appear at all, where the same canary carried seven such rejections on 2026-09-05 before the change (section 27.10).",
+  "examples_executed": "7 of 12 (was 6)",
+  "sealed_bundle_files": 14,
+  "note": "The four examples still unresolved open a .obj the product cannot write - its own ObjExporter raises TypeError - and a .dae nothing in the repository or its examples produces. The sealed candidate is untouched and still counts; the update waits on the manifest.",
   "sealed_candidate": {
    "state": "READY_FOR_PROPOSAL",
    "composition": {
@@ -145,6 +132,18 @@
   {
    "defect": "With the title in the packet, all seven capability sentences opened by restating their own title, which the renderer prints immediately before them.",
    "fix": "The packet says a unit never restates its title and never opens with the product name. Three compositions are recorded in section 27.2: the restatement returns without the naming clause, and the clause that removed it produced the product-name template section 8 already forbids. No further prompt attempt was made and no new rule was invented: README_CONTRACT.md row 7 and section 8 do not forbid a description that repeats its title, so the decision is the owner's, and the measurement is recorded facts-only."
+  }
+ ],
+ "gate_exit_predicates": [
+  {
+   "predicate": "The invalidation matrix is green; unaffected artifacts are reused; no global hash exists; injected defects are rejected and repaired at their causal stage.",
+   "verdict": "PASS",
+   "evidence": "tests/test_cli.py drives the matrix per dependency class - source revision, a fact record, a prompt, a template component, a validator, the reviewer rubric, the model route, the planning policy - each reopening its own stage and no other, with the unaffected stages reused at zero provider calls; a factual and a protected-content failure invalidate, a presentation change records an update. A candidate is invalidated only through an input in its own dependencies.json; there is no global hash."
+  },
+  {
+   "predicate": "On the canary: the sealed composition accepts with zero blocking findings and zero required-row advisories; every job holds the 85 first-attempt floor (per-job thresholds need three sealed compositions, section 27.10); the coverage ledger is in the bundle (check 12 waits for a sealed defect).",
+   "verdict": "PASS",
+   "evidence": "The sealed bundle's review returns ACCEPT with no blocking finding and three advisories, every one refuted by a deterministic check, so no required row carries an advisory left standing; all eleven checks PASS. Its calls.jsonl measures 19 of 20 first attempt (95.0 percent) against the 85 floor - the one rejection is planning's shared_fact_ids family on a three-call sample, and per-job floors wait for three sealed compositions as the predicate's own parenthetical and the reviewer's reversal of 2026-09-05 require. validation.json carries eighteen coverage rows; check 12 is not admitted because no required row of the sealed candidate rests on evidence that produced nothing."
   }
  ]
 }

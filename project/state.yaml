@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T23:06:35+05:00"
+updated_at: "2026-09-05T23:38:23+05:00"
 
 authority:
   product: plans/idea.md
@@ -20,46 +20,45 @@ progress:
   canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python
 
 current_gate:
-  id: G2_STABILITY_UNDER_CHANGE
+  id: G3_PYTHON_COHORT
   status: READY
-  purpose: "The G1 candidate remains valid while the system evolves and the first-candidate causes of drift are closed (RESEARCH_AND_GUIDELINES.md sections 27 and 28): dependency evaluation from dependencies.json reopens only the candidates that consumed a changed component at the earliest affected stage, the invalidation matrix is proven per dependency class, injected defects are rejected and repaired at their causal stage, no global control-plane hash exists, and on the canary the sealed composition accepts with zero blocking findings and zero required-row advisories, every job holds the 85 first-attempt floor (per-job thresholds need three sealed compositions, 27.10), and the coverage ledger is in the bundle (check 12 waits for a sealed defect; ESM G2 exit predicates as restated 2026-09-05, 30.9 decision 8). The contract freeze is G3's; anchoring, portable proof, and fan-out are G5's."
+  purpose: "Every processable Python repository has a candidate or an evidence-bound disposition, and the contract freezes against thirteen sealed products rather than one (docs/EXECUTION_STATE_MACHINE.md G3; section 28.5). The cohort runs to the deadline plan's box (section 28.12): yield order, a facts-only preflight first, fixes by failure class, and at the box a disposition for every repository that did not seal."
 
 accepted_gates:
   - G0_FOUNDATION
   - G1_FIRST_VALID_CANDIDATE
+  - G2_STABILITY_UNDER_CHANGE
 
 active_work_item:
-  id: G2-W17
-  status: IN_PROGRESS
-  purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; check 12 (a required row whose facts are unresolved fails closed and routes to EXTRACTING, never to repair, 27.8) is admitted only when a sealed candidate exhibits that defect - none does at 65b1f577, every required row has SUPPORTED facts - so per loop-prompt section 6 rule 14 it waits for the G3 cohort and is proposed in section 31 when a cohort candidate shows the gap (reviewer decision 2026-09-05); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
+  id: G3-W01
+  status: READY
+  purpose: "Python cohort (section 28.5; 30.9). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls; in the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
   prerequisites:
-    - G2-W20 is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and its pushed main has a green hosted CI run, checked at the start of the iteration.
-    - The canary is sealed again and committed, its composition accepting with zero blocking findings and its ledger at 95.0 percent, so a bundle this item changes can be committed.
-    - docs/RESEARCH_AND_GUIDELINES.md section 27.0, section 27.2 RC6 and RC7, and the section 31 entries of 2026-09-05 are read first. Check 12 is not this item's to admit - no required row of the sealed candidate rests on evidence that produced nothing, so it waits for a G3 cohort candidate that exhibits the defect (owner decision, section 27.9).
+    - G2_STABILITY_UNDER_CHANGE is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and the canary stays sealed at 1/34 with its no-op proof.
+    - docs/RESEARCH_AND_GUIDELINES.md section 28.12 is the yardstick - this item's box is six hours and it accepts at the box, sealing what passes and giving every other repository an evidence-bound disposition with its failure class and resume predicate.
+    - Sections 28.10 and 28.11 say what each repository needs before it runs; repositories run in yield order and the facts-only preflight covers the whole cohort before any composition.
   owned_paths:
     - src/repository_presenter/
     - tests/
     - prompts/
-    - docs/README_CONTRACT.md
+    - candidates/
+    - evidence/
     - project/state.yaml
   acceptance:
-    - "A per-row coverage ledger records each contract row's required fact kinds and their resolution with a reason, and travels in the sealed bundle."
-    - "examples.json is sealed in the bundle, its evidence path resolving; live probes record retrieval time and status, and a volatile observation such as the PyPI latest version string leaves the hashed fact (section 27.2 RC7)."
-    - "The canary's file-reading examples receive fixtures from the repository's test assets or from an executed example's saved output where the evidence allows one, and every example whose fixture exists executes; the input formats OBJ, STL, glTF and COLLADA are SUPPORTED."
-    - "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals and its rerun is byte-identical with zero provider calls, and the hosted three-version matrix is green on the pushed commit."
+    - "A facts-only preflight covers all twelve remaining Python repositories with zero provider calls, recording each one's processability and coverage and every failure class it hits."
+    - "The cold-run determinism measurement folded in from G2-W23 is recorded in section 27.10 with the differing stage, if any."
+    - "Every repository that passes all eleven checks is sealed and zero-call proven; every other carries an evidence-bound disposition naming its failure class and resume predicate."
+    - "The cohort report is in the gate evidence manifest, status prints the sealed count, and ruff, ruff format, mypy and pytest -n auto pass before each commit."
   evidence_required:
-    - The coverage ledger in the sealed bundle.
-    - The sealed examples.json and the probe records that keep a volatile observation out of a hashed fact.
-    - The work-item record in evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json.
+    - The preflight report over the twelve repositories.
+    - The cohort report with a disposition for every repository that did not seal.
+    - The work-item record in evidence/build/G3_PYTHON_COHORT/manifest.json.
   blocker: null
 
 next_ready_items:
   - id: G3-W03
     status: PENDING
     purpose: "Facts-stage cache and stage timings (30.9 B; owner admission, section 31). A present whose source tree hash, extractor version, and environment fingerprint (Python version, OS, resolved site manifest - the RC7 record of 27.5 D4) match a stored result reuses facts.json, examples.json, and the probe records from runs/facts-cache under that key and skips venv creation, pip install, example execution, and the live probes; any mismatch runs the stage and stores the result. pip installs use a per-revision wheel cache and preinstalled build dependencies rather than fetching them from PyPI on every run. The CLI prints per-stage wall-clock (S1 snapshot; S2 facts with venv, install, examples, probes; S3 to S12) and the sealed manifest records them. Insert before G3-W01. Acceptance: the no-op rerun of the sealed canary completes in under 30 seconds with zero provider calls and identical bytes; a changed tree or fingerprint invalidates the cache, proven by test; timings appear in present output and the manifest; hosted CI green."
-  - id: G3-W01
-    status: PENDING
-    purpose: "Python cohort (section 28.5; 30.9). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls; in the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
   - id: G3-W02
     status: PENDING
     purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -187,10 +186,11 @@ publication:
     mode: DIRECT_MAIN_WHILE_UNPROTECTED
 
 last_transition:
-  from: G1_FIRST_VALID_CANDIDATE
-  to: G2_STABILITY_UNDER_CHANGE
-  reason: "G1 accepted - every exit predicate observed on the canary at its pinned revision: the candidate at its stable path reads as a concise, product-first README within budget with every required shell section; all eleven blocking checks pass, the review verdict is ACCEPT (the reviewer's REJECT_FACTUAL reduced to seven advisory reviewer-scope defects, recorded beside it), and the no-op is proven in a fresh process with zero provider calls; every pulled legacy file has a manifest record and ported tests, every module is reached from the entry point, and the bundle's ledger reconciles its calls; the PSD repository yields insufficient_evidence with zero calls. The acceptance commit is pushed and hosted CI is watched in the same iteration."
+  from: G2_STABILITY_UNDER_CHANGE
+  to: G3_PYTHON_COHORT
+  reason: "G2 accepted on its exit predicates, measured on the sealed canary: the invalidation matrix is green and every injected defect is rejected and repaired at its causal stage, no global control-plane hash exists, the sealed composition accepts with zero blocking findings and zero required-row advisories (three advisories, all refuted by a deterministic check), the ledger measures 95.0 percent first attempt against the 85 floor - per-job floors wait for three sealed compositions, section 27.10 - and the eighteen-row coverage ledger is in the bundle with check 12 waiting for a sealed defect. G2-W23 was folded into G3-W01; G2-W17 closed with one prose judgment reported rather than retried."
   evidence:
-    - evidence/build/G1_FIRST_VALID_CANDIDATE/manifest.json
-    - candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/d9f3bfe50d47e8156266955dda52ec5abf2d9dec/manifest.json
+    - evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json
+    - candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/65b1f577c0f16d0d9112bb6c1153d3024543ac02/manifest.json
     - project/state.yaml
+
