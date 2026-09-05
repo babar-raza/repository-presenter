@@ -647,6 +647,37 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
     assert section.rstrip("\n").endswith("</details>")
 
 
+def test_a_docstring_description_is_raised_to_the_documents_abbreviation_spelling() -> None:
+    """BC-07 judges the whole document, and no repair can rewrite a docstring.
+
+    Measured 2026-09-06: Aspose.Cells reached validation and failed on ``abbreviation 'xlsx' is
+    not in its canonical form XLSX``, written by the source's own docstring - the ``glb`` defect
+    of docs/RESEARCH_AND_GUIDELINES.md section 27.10, in the one prose path owner decision 2(c)
+    of 2026-09-04 did not reach.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith("public_symbol:")),
+            Fact(
+                "public_symbol:aspose.threed.scene",
+                "public_symbol",
+                "aspose.threed.Scene",
+                (Evidence("aspose/threed/scene.py", "line 1; class; public by name"),),
+                attributes={
+                    "symbol_kind": "class",
+                    "docstring": "Formula evaluator for xlsx cells; see xlsx_encryptor.",
+                },
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    # The abbreviation takes the spelling the rest of the document uses; a snake_case name keeps
+    # its own, because it is an identifier and not a word.
+    assert "| `Scene` | Formula evaluator for XLSX cells; see xlsx_encryptor. |" in readme
+
+
 def test_a_type_without_a_docstring_takes_its_batch_authored_description() -> None:
     facts = FactsDocument(
         ENTRY.repository,

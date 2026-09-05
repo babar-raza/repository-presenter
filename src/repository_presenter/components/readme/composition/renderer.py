@@ -381,7 +381,12 @@ def _symbol_description(context: RenderContext, fact: Fact) -> str:
         return f"Defined as `{signature}`."
     if not text:
         text = f"Public {attributes.get('symbol_kind', 'symbol')}."
-    return text.replace("|", "/").replace("`", "")
+    # A description is prose, wherever it came from, so the abbreviation the code owns is raised
+    # here too. A docstring is the source's spelling, not the document's: Aspose.Cells wrote
+    # "formula evaluator for xlsx cells" and BC-07 failed the whole candidate on it, with no
+    # LLM-owned section for the repair to route to (docs/RESEARCH_AND_GUIDELINES.md section 27.10,
+    # owner decision 2(c) of 2026-09-04: normalise constructively, keep the check).
+    return context.canonical(text.replace("|", "/").replace("`", ""))
 
 
 def _table_names(values: list[str]) -> dict[str, str]:

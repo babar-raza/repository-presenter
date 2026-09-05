@@ -2331,7 +2331,13 @@ other two strays, `TeXJob` and `TeXJob.messages`, stay rejected — all ten of i
 are one each: Cells reached validation and failed BC-07 on `abbreviation 'xlsx' is not in its
 canonical form XLSX`, unrepairable — the `glb` defect of 2026-09-04 above, recurring; and Page
 ended at `source_reconciliation` after two rejections of `inherited_unit:011.heading`, whose
-section renders nothing at this revision.
+section renders nothing at this revision. The `xlsx` was written by Aspose.Cells' own docstring,
+lifted into an API Reference row: the one prose path decision 2(c) did not reach, since a
+docstring belongs to no LLM-owned section and no repair can rewrite it. `_symbol_description`
+now normalises what it returns, exactly as the authored-prose path does, with BC-07 retained.
+After both fixes, TeX and Email cleared the opening and failed further in — `TeXJob` (whose ten
+examples are all `CONTRADICTED`) and `email.message`, a lowercase module path the noun rule
+deliberately excludes. Under §28.12 rule (4) each is a disposition, not a third attempt.
 
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
