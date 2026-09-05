@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
@@ -47,17 +48,34 @@ def test_every_queued_item_carries_section_27_9s_text_verbatim() -> None:
     assert drifted == [], f"these entries differ from section 27.9's text: {drifted}"
 
 
+def accepted_work_items() -> set[str]:
+    """Every work item a gate's evidence manifest records as accepted, at any gate."""
+    accepted: set[str] = set()
+    for manifest in sorted((REPO_ROOT / "evidence" / "build").rglob("manifest.json")):
+        record = json.loads(manifest.read_text("utf-8"))
+        if record.get("work_item_status") == "ACCEPTED" and record.get("work_item"):
+            accepted.add(record["work_item"])
+        accepted.update(record.get("previous_items", []))
+    return accepted
+
+
 def test_an_entry_section_27_9_states_is_queued_active_or_already_accepted() -> None:
-    """Section 27.9's own rule: an entry is absent only if it is in none of the three places."""
+    """Section 27.9's own rule: an entry is absent only if it is in none of the three places.
+
+    The third place is the accepted evidence, which is the gate manifests - not `accepted_gates`.
+    An item accepted inside a gate that is still open, as G3-W01 was on 2026-09-06 while G3 waits
+    for its v1 freeze, is accounted for there and nowhere else.
+    """
     cursor = state()
     known = {item["id"] for item in cursor["next_ready_items"]}
     known.add(cursor["active_work_item"]["id"])
-    accepted = set(cursor["accepted_gates"])
-    missing = [
+    known |= accepted_work_items()
+    known |= {
         entry["id"]
         for entry in queue_entries()
-        if entry["id"] not in known and entry["id"].split("-")[0] not in {g[:2] for g in accepted}
-    ]
+        if entry["id"].split("-")[0] in {gate.split("_")[0] for gate in cursor["accepted_gates"]}
+    }
+    missing = [entry["id"] for entry in queue_entries() if entry["id"] not in known]
     assert missing == [], f"section 27.9 states these but state.yaml does not carry them: {missing}"
 
 

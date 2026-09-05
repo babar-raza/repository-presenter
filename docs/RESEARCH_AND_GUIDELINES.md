@@ -3573,3 +3573,13 @@ p-toolchains`,
   restore" rule read from the quote the reviewer filled rather than the `absent` list it left
   empty. Alternative rejected: dispositioning Slides for a finding a check demonstrably answers.
   Reverse by deleting the function and its call in `scope_defect`.
+
+- **2026-09-06 08:15 · loop (PROVISIONAL) · G3-W03 is deferred behind G3-W02 on its own
+  condition.** Item G3-W01. G3-W03 runs "only if the preflight's measured median facts stage
+  exceeds 90 seconds per repository". Measured from the one preflight pass, as the wall time of
+  `present --facts-only` per repository derived from lane completion timestamps - three lanes in
+  parallel, so each reading carries that contention, and none is stage-instrumented: 44, 50, 56,
+  58, 59, 59, 62, 79, 104, 105, 143, 362 seconds, **median 60.5**. Only Page (362) and Font (143)
+  exceed 90. The condition does not hold, so G3-W03 defers. Reverse by instrumenting the stages
+  and re-measuring; a stage-level median could differ from this whole-command proxy, though only
+  downward, since the command also clones and writes.

@@ -3,9 +3,9 @@
  "gate": "G3_PYTHON_COHORT",
  "gate_status": "READY",
  "work_item": "G3-W01",
- "work_item_status": "IN_PROGRESS",
- "recorded_at": "2026-09-06T02:25:15+05:00",
- "control_revision": "6a42d72b537d6e66cf40b6a50a91ec737708d75f",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-06T03:01:28+05:00",
+ "control_revision": "e7b08770b5707ace91d373d12c0b2e64d3680942",
  "preflight": {
   "command": "repository-presenter present --repo <owner/name> --facts-only",
   "provider_calls": 0,
@@ -179,15 +179,8 @@
   "lanes": 3,
   "processable": 12,
   "sealed": 1,
-  "not_sealed": 6,
+  "not_sealed": 10,
   "not_processable": 1,
-  "still_to_run": [
-   "aspose-font-foss/Aspose.Font-FOSS-for-Python",
-   "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
-   "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
-   "aspose-words-foss/Aspose.Words-FOSS-for-Python"
-  ],
-  "still_to_run_reason": "the preflight measured QUICK_START_WITHOUT_EXECUTED_EXAMPLE on all four: every README example opens an input file the repository does not ship, so the required Quick Start row rests on no evidence and a composition cannot seal. They are run when that class is fixed, not before.",
   "classes_fixed_this_item": [
    "PYTHON_KEYWORD_AVOIDING_SYMBOL_NAME - slug() lost a separator run (Aspose.Font)",
    "IDENTIFIER_IS_A_PROPER_NOUN - TeX, BarCode, OneNote, EmailMessage, PowerPoint (5 of 7)",
@@ -273,7 +266,63 @@
     "stage": "S2 facts",
     "detail": "The default branch carries no Python manifest and no source files.",
     "resume_predicate": "a later default-branch revision adds a python manifest (pyproject.toml, setup.cfg, setup.py) or source files (.py)"
+   },
+   {
+    "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "source_revision": "c4c453b8",
+    "outcome": "NOT_SEALED",
+    "failure_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "stage": "S5 presentation_planning",
+    "detail": "8 example candidates, all UNRESOLVED: not one executed - each opens an input file the repository does not ship. With no SUPPORTED example the plan cannot fill quick_start_example_id, which contract row 11 requires and the guard checks; both attempts offered an inherited code block or a contradicted example and were rejected. The preflight anticipated this class from the coverage ledger; this is the measurement, from a composition that ran. 766 facts were extracted, so nothing else is missing.",
+    "resume_predicate": "the fixture pool serves these examples an input file - from a test asset or an earlier example's output, the work moved into this item from G2-W17 - so at least one example executes and the Quick Start row rests on evidence"
+   },
+   {
+    "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+    "source_revision": "912f0ae0",
+    "outcome": "NOT_SEALED",
+    "failure_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "stage": "S5 presentation_planning",
+    "detail": "7 example candidates, all UNRESOLVED: not one executed - each opens an input file the repository does not ship. With no SUPPORTED example the plan cannot fill quick_start_example_id, which contract row 11 requires and the guard checks; both attempts offered an inherited code block or a contradicted example and were rejected. The preflight anticipated this class from the coverage ledger; this is the measurement, from a composition that ran. 493 facts were extracted, so nothing else is missing.",
+    "resume_predicate": "the fixture pool serves these examples an input file - from a test asset or an earlier example's output, the work moved into this item from G2-W17 - so at least one example executes and the Quick Start row rests on evidence"
+   },
+   {
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+    "source_revision": "109e26a1",
+    "outcome": "NOT_SEALED",
+    "failure_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "stage": "S5 presentation_planning",
+    "detail": "13 example candidates, all CONTRADICTED: every one executed and failed. With no SUPPORTED example the plan cannot fill quick_start_example_id, which contract row 11 requires and the guard checks; both attempts offered an inherited code block or a contradicted example and were rejected. The preflight anticipated this class from the coverage ledger; this is the measurement, from a composition that ran. 1553 facts were extracted, so nothing else is missing.",
+    "resume_predicate": "the fixture pool serves these examples an input file - from a test asset or an earlier example's output, the work moved into this item from G2-W17 - so at least one example executes and the Quick Start row rests on evidence"
+   },
+   {
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+    "source_revision": "2d2efee2",
+    "outcome": "NOT_SEALED",
+    "failure_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "stage": "S5 presentation_planning",
+    "detail": "12 example candidates, all UNRESOLVED: not one executed - each opens an input file the repository does not ship. With no SUPPORTED example the plan cannot fill quick_start_example_id, which contract row 11 requires and the guard checks; both attempts offered an inherited code block or a contradicted example and were rejected. The preflight anticipated this class from the coverage ledger; this is the measurement, from a composition that ran. 825 facts were extracted, so nothing else is missing.",
+    "resume_predicate": "the fixture pool serves these examples an input file - from a test asset or an earlier example's output, the work moved into this item from G2-W17 - so at least one example executes and the Quick Start row rests on evidence"
    }
-  ]
+  ],
+  "facts_stage_seconds": {
+   "method": "wall time of `present --facts-only` per repository, derived from the lane completion timestamps of the one preflight pass; three lanes ran in parallel, so each reading carries that contention. Not stage-instrumented.",
+   "readings": [
+    44,
+    50,
+    56,
+    58,
+    59,
+    59,
+    62,
+    79,
+    104,
+    105,
+    143,
+    362
+   ],
+   "median": 60.5,
+   "consequence": "G3-W03's own admission condition is a median above 90 seconds; at 60.5 it is deferred behind G3-W02 (section 31, 2026-09-06)"
+  },
+  "every_repository_accounted_for": true
  }
 }
