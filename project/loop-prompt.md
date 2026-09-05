@@ -34,9 +34,10 @@ files, never from memory of a previous iteration.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
   document. Writable governance files: `project/state.yaml`, file records and pull notes in
   `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, one coherent fix to a
-  document predicate that this iteration's implementation proved wrong, and a dated, facts-only
+  document predicate that this iteration's implementation proved wrong, a dated, facts-only
   measurement paragraph appended to the `RESEARCH_AND_GUIDELINES.md` section the active work item
-  names (never a decision, never a rewrite of the owner's text — §27.10 follow-up 3). `docs/README_CONTRACT.md`
+  names, and a `PROVISIONAL` decision entry appended to `RESEARCH_AND_GUIDELINES.md` §31 (§5) —
+  never a rewrite of the owner's existing text. `docs/README_CONTRACT.md`
   changes only through a work item whose purpose names the revision and whose defect is recorded in
   `RESEARCH_AND_GUIDELINES.md` (§26, §27.8); the revision, its code, and its tests land in that
   item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W16, G2-W17, and
@@ -189,17 +190,26 @@ files, never from memory of a previous iteration.
   work items that consume them, and continue. Stop the loop only when every remaining work item in
   the current gate and the next gate consumes an unmet owner item; then tell the owner the exact
   actions, in order, with the item IDs.
-- Decisions (`RESEARCH_AND_GUIDELINES.md` §30 A1). Three classes. **Provisional — decide, record,
-  continue**: a threshold from data (§3's three-composition rule), the wording of a record, the
-  order of items inside the current gate, a measured fallback (a gateway limit, an unhonoured
-  parameter), restating a predicate to what the implementation proved, and any choice §27–§29
-  already sanction. Write a dated paragraph marked `PROVISIONAL` in the RESEARCH section the item
-  names, with the alternative you did not take, and continue; the owner reviews these at the next
-  check-in and may reverse any of them. **Queue, do not widen**: anything that adds scope becomes a
-  §27.9-shaped entry proposed in that same paragraph, never work done now. **Owner-only — stop and
-  ask**: a change to `plans/idea.md`; a new requirement in `docs/README_CONTRACT.md` (a predicate fix
-  proven by a sealed defect is not one); credentials, publication, or any effect on a product
-  repository; a safety invariant. A question for the owner is never by itself a reason to stop.
+- Decisions (`RESEARCH_AND_GUIDELINES.md` §30 A1, §31). **You decide; you never ask.** There is no
+  class of decision that stops the loop or waits for a human, because a human in the path is the
+  measured bottleneck (§30.1). Decide from first principles, in this order: (1) the goal — every
+  processable repository has a sealed, honest candidate by the shortest path, without weakening any
+  check; (2) the current gate's exit predicates; (3) the item's predicates; (4) measured evidence
+  over anticipation; (5) the option that keeps candidates moving; (6) reversibility — prefer what
+  git can undo; (7) minimal scope — split, never widen. Record every non-trivial decision as an
+  entry in `RESEARCH_AND_GUIDELINES.md` §31 (date, item, decision, the alternative rejected, the
+  evidence, how to reverse), marked `PROVISIONAL`, and continue in the same iteration. The owner
+  reviews §31 asynchronously and may reverse an entry through §27.9 or a `state.yaml` edit; until
+  then your decision stands. This includes: thresholds from data, wording, order inside a gate,
+  measured fallbacks, restating a predicate to what was proven, a contract predicate fix or a new
+  contract sentence a sealed candidate's defect or the live oracle demands (recorded in §31 and
+  §27.8, landed with its code and tests), and an interpretation of `plans/idea.md` where it is
+  silent or ambiguous (interpret, record, continue — never edit idea.md itself). Scope growth is
+  queued as a §27.9-shaped entry, never done now. The only things you never do are prohibitions,
+  not questions: write a product repository, widen or print a credential, publish, or weaken a
+  check. Actions only a human can physically perform (create the GitHub App, protect the branch)
+  are owner items: record the exact action and resume predicate, skip the items that consume them,
+  and take the next item — never wait.
 - Hosted CI red: reproduce locally, fix at the causal boundary, push. Never disable a check.
 - `FAILED_INTERNAL`: diagnose and repair at the causal stage in this or the next iteration; never
   acceptable completion, never a reason to weaken a check.
@@ -248,14 +258,16 @@ files, never from memory of a previous iteration.
 - After a productive iteration, schedule the next wakeup in 60 to 120 seconds with `noop: false`.
 - Waiting on a long local process or a hosted CI run: schedule a delay that matches it, at most
   ten minutes, then verify the result and continue.
-- Stop the loop (`ScheduleWakeup` with `stop: true`) only when: every remaining work item in the
-  current and next gate consumes an unmet owner item; three consecutive iterations changed no
-  acceptance predicate, reported with a first-principles diagnosis; the definition of done in
-  `docs/EXECUTION_STATE_MACHINE.md` §11 is met; continuing would violate a safety invariant; or the
-  next step needs one of the four owner-only decisions in §5. Nothing else stops the loop: not a
-  clean checkpoint, not the end of a slice, not a prompt that read like a single task, not the hour,
-  not the owner's absence, not a question you would like the owner's read on (§5 says what to do
-  with those). A productive iteration always schedules the next wakeup. On 2026-09-04/05 two
+- Stop the loop (`ScheduleWakeup` with `stop: true`) only when: the definition of done in
+  `docs/EXECUTION_STATE_MACHINE.md` §11 is met; or every remaining work item in the current and
+  next gate consumes an unmet owner item, after you have recorded the exact owner actions and resume
+  predicates; or every remaining path would violate a prohibition in §5. Nothing else stops the
+  loop: not a clean checkpoint, not the end of a slice, not a prompt that read like a single task,
+  not the hour, not the owner's absence, not a decision you would have liked the owner's read on
+  (§5: decide, record in §31, continue), not three iterations without a predicate closing (that is
+  the §0 split rule and a §31 entry: split the item, or restate the predicate to what is proven, or
+  mark it `BLOCKED_EXTERNAL` with a resume predicate and take the next item). A productive iteration
+  always schedules the next wakeup, and so does an unproductive one. On 2026-09-04/05 two
   self-stops outside these rules cost eleven of forty-eight hours (`RESEARCH_AND_GUIDELINES.md`
   §30). Never wake only to check on yourself.
 

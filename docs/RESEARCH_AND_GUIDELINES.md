@@ -1556,8 +1556,10 @@ diagnosing. Each line names where the detail lives.
 - **Reuse**: aspose.org is a second reuse source under the pull discipline; vendor boundary; never a
   runtime import; minimal closure only; every pulled file tested (§29, loop-prompt §3).
 - **Toolchains** are provisioned workspace-locally by the loop, never system-wide (29.6 E5).
-- **Autonomy**: `stop: true` only under loop-prompt §7; decisions are provisional-and-recorded, not
-  asked (§5, §30); the only re-arm text is one line (§9).
+- **Autonomy**: the loop never asks. Every decision is taken on first principles, recorded as
+  `PROVISIONAL` in §31 with the alternative rejected, and acted on in the same iteration; the owner
+  reviews §31 asynchronously and may reverse. `stop: true` only for done, all-remaining-items-owner-
+  blocked, or a prohibition (loop-prompt §5, §7, §9; §30).
 - **Order to 31/31**: G2 (W22, W16, W17, W20, W23) → G3 Python cohort with a facts-only preflight,
   then freeze → G4 second source, spec layer, extractor, six cohorts → G5 durability and hosted (§28).
 
@@ -2477,8 +2479,14 @@ written down instead of blocking.
   wording, intra-gate order, measured fallbacks, restated predicates, and anything §27–§29 already
   sanction — a dated `PROVISIONAL` paragraph in the item's RESEARCH section, with the alternative
   not taken; the owner reviews at the next check-in and may reverse. Scope growth is queued, never
-  done. Stop-and-ask only for `plans/idea.md`, a new contract requirement, credentials or effects,
-  and safety.
+  done. **Revised the same day (owner, 2026-09-05):** there is no stop-and-ask class at all. The
+  owner's words: the goal is absolute, the agent must not ask questions, and the human was only an
+  intermediary relaying the loop's concerns to the steering session — a bottleneck by construction.
+  Contract sentences a sealed defect or the live oracle demands, and interpretations of
+  `plans/idea.md` where it is silent, are decided and recorded too (§31, §27.8). What remains are
+  prohibitions (never write a product repository, widen a credential, publish, or weaken a check)
+  and owner items for actions only a human can physically perform — recorded, skipped around,
+  never waited on. The first-principles order the loop decides by is in loop-prompt §5.
 - **A2 Canonical re-arm text** (loop-prompt §9): one line, no checkpoint facts in the prompt.
 - **A3 Hardened §7**: `stop: true` only under the enumerated conditions; a clean checkpoint, the end
   of a slice, the hour, and the owner's absence are named as non-reasons.
@@ -2516,3 +2524,23 @@ written down instead of blocking.
 - Estimate, with A1–A3 in force and the machine on AC: G2's five remaining items ≈ 12–15 running
   hours; G3 ≈ 10–12; G4 ≈ 20–28. Roughly 45–55 running hours ≈ 2–2.5 unattended days to 31/31,
   against ≈ 4 days at today's effective 14 running hours per day. The unattended day is the lever.
+
+## 31. Provisional decision log (the loop appends; the owner reviews asynchronously)
+
+The loop never stops to ask. When a decision is needed it decides by loop-prompt §5's order, appends
+one entry here, and continues. The owner reads this section at each check-in; an entry stands until
+reversed through §27.9 or a `state.yaml` edit, and a reversal is itself an entry. Format, six lines
+at most: **date · item · decision · alternative rejected · evidence · reversal path.** Never rewrite
+an earlier entry; append.
+
+- **2026-09-04 · G2-W12 · D3 stays in G5** (decided by the owner after the loop stopped to ask —
+  the stop this section exists to prevent). Alternative rejected: move anchoring ahead of the
+  cohorts. Evidence: anchoring binds to a previous accepted plan, which a first candidate lacks;
+  variance sources owned by W19, W16, W20 (§27.10). Reverse via §27.9 order.
+- **2026-09-04 · G2-W19 · "honoured" is what the two-call probe measures; accept on that wording**
+  (decided by the owner after the loop paused to ask). Alternative rejected: compare two live
+  compositions. Evidence: sampling for a kinder result is forbidden; two identical bounded calls
+  answer the question. Outcome: honoured, deterministic. Reverse: none needed.
+- **2026-09-05 · G2-W16 · the plan-level repair escalation is its own item, G2-W22** (owner).
+  Alternative rejected: keep it inside W16. Evidence: W16 at 1,857 characters and four commits
+  against the size rule. Reverse via §27.9 (fold back).

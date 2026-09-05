@@ -22,7 +22,9 @@ commit, together with its code and tests.
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
 aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
 how a reader receives it — evidence to check against, never a third authority (`EXECUTION_STATE_MACHINE.md`
-principle 9). When the two disagree, the owner decides and the decision is written once, here.  
+principle 9). When the two disagree, the loop decides on first principles, records the decision and the
+alternative it rejected as `PROVISIONAL` in `RESEARCH_AND_GUIDELINES.md` §31, and continues; the owner
+may reverse it asynchronously; the settled decision is written once, here.  
 Derived from: `plans/idea.md` (Portfolio README Presentation Contract and standing constraints),
 `RESEARCH_AND_GUIDELINES.md` §4 to §7 and §24, and the legacy template registry pulled as an asset.  
 Owns: the candidate's required shape, how content is assembled, which decisions are agentic, and
