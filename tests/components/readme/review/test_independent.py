@@ -457,6 +457,48 @@ def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_def
     assert document["advisory"][0]["reviewer_scope_defect"].startswith("the finding asks for")
 
 
+def test_a_finding_against_a_sentence_the_renderer_wrote_is_out_of_scope() -> None:
+    """The renderer writes counts from the facts into sections an LLM otherwise owns.
+
+    Measured on the canary 2026-09-05: the reviewer twice preferred the original README's
+    stale counts - 305 public types, 33 test files - over the 337 and 34 the renderer
+    computed from the facts, and the repair loop spent an attempt on prose no unit owns.
+    """
+    rendered = (
+        "The suite covers 34 test files under `tests/`.",
+        "It covers all 337 verified public types; the [API Reference]"
+        "(#api-reference) section above covers the essentials.",
+    )
+    counted = {
+        **_finding(
+            "F01",
+            "development_testing",
+            "S6",
+            "The suite covers 34 test files",
+        ),
+        "criterion": "presentation",
+    }
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    assert scope_defect(counted, CANDIDATE, by_id, "", rendered) == (
+        "the quoted sentence is the renderer's own, written from the facts beside a "
+        "unit that did not write it; no revision of that unit can change it"
+    )
+    # The same finding without the renderer's sentences in hand still stands: the rule is
+    # what the renderer wrote, never a guess about the wording.
+    assert scope_defect(counted, CANDIDATE, by_id) is None
+    # A finding against the unit beside it is untouched.
+    authored = {
+        **_finding(
+            "F02",
+            "development_testing",
+            "S6",
+            "It writes `.glb` files.",
+        ),
+        "criterion": "presentation",
+    }
+    assert scope_defect(authored, CANDIDATE, by_id, "", rendered) is None
+
+
 def test_a_presentation_finding_against_a_deterministic_section_is_the_reviewers_defect() -> None:
     renderer_owned = {
         **_finding("F01", "installation", "S6", "It writes `.glb` files."),

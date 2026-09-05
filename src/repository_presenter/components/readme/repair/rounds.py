@@ -44,6 +44,7 @@ from repository_presenter.components.readme.composition.renderer import (
     README_FILENAME,
     render_patch,
     render_readme,
+    renderer_sentences,
     write_text,
 )
 from repository_presenter.components.readme.investigation.dossier import (
@@ -261,6 +262,7 @@ def run_round(tx: TransactionInputs) -> Round:
         candidate_readme=readme,
         facts=facts,
         original_readme=tx.original,
+        rendered=renderer_sentences(entry, facts, planned.output, current.units, reconciled.output),
     )
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)

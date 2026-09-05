@@ -286,11 +286,32 @@ def review_checks(
     return errors
 
 
+def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str | None:
+    """Why a finding against a sentence the renderer wrote is the reviewer's own defect.
+
+    A deterministic section's presentation is the renderer's (``presentation_defect``); so is a
+    sentence the renderer writes inside a section an LLM otherwise owns - a count from the facts,
+    the suite size, the release line. The unit beside it did not write it and no revision of that
+    unit can change it, so no stage the loop can reopen would act on the finding.
+    """
+    quote = _normalized(str(finding.get("quote", "")))
+    if not quote:
+        return None
+    for sentence in rendered:
+        if quote in _normalized(sentence):
+            return (
+                "the quoted sentence is the renderer's own, written from the facts beside a unit "
+                "that did not write it; no revision of that unit can change it"
+            )
+    return None
+
+
 def scope_defect(
     finding: Mapping[str, Any],
     candidate_readme: str,
     by_id: Mapping[str, Fact],
     evidence: str = "",
+    rendered: Sequence[str] = (),
 ) -> str | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
@@ -307,6 +328,9 @@ def scope_defect(
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
         return absence
+    written = rendered_defect(finding, rendered)
+    if written is not None:
+        return written
     criterion = finding.get("criterion")
     if criterion == "factuality":
         quote = str(finding.get("quote", ""))
@@ -324,6 +348,7 @@ def review_document(
     candidate_readme: str = "",
     facts: FactsDocument | None = None,
     original_readme: str = "",
+    rendered: Sequence[str] = (),
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -339,7 +364,9 @@ def review_document(
     for finding in output.get("findings", []):
         record = dict(finding)
         reason = (
-            scope_defect(finding, candidate_readme, by_id, evidence) if facts is not None else None
+            scope_defect(finding, candidate_readme, by_id, evidence, rendered)
+            if facts is not None
+            else None
         )
         if reason is not None:
             record["reviewer_scope_defect"] = reason

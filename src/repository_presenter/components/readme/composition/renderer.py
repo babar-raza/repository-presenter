@@ -327,6 +327,34 @@ def _development_sentences(context: RenderContext) -> list[str]:
     return sentences
 
 
+def renderer_sentences(
+    entry: RegistryEntry,
+    facts: FactsDocument,
+    plan: dict[str, Any],
+    units: dict[str, Any],
+    dispositions: dict[str, Any],
+) -> tuple[str, ...]:
+    """Every sentence the renderer writes into a section an LLM otherwise owns.
+
+    A count computed from the facts, the suite size, the release line: the unit beside them did
+    not write them and no revision of it can change them, so a finding against one is out of the
+    reviewer's scope exactly as one against a deterministic section is
+    (docs/README_CONTRACT.md section 6, section 3). Measured on the canary 2026-09-05: the
+    reviewer twice preferred the original README's stale counts - 305 public types, 33 test
+    files - over the 337 and 34 the renderer computed from facts, and the repair loop could
+    only spend an attempt on prose it does not own.
+    """
+    context = RenderContext(entry, facts, plan, units, dispositions)
+    sentences = list(_development_sentences(context))
+    if any(section.id == "api_reference" for section in context.included):
+        count = _public_type_count(context)
+        sentences.append(
+            f"It covers all {count} verified public types; the "
+            "[API Reference](#api-reference) section above covers the essentials."
+        )
+    return tuple(sentences)
+
+
 def _symbol_description(context: RenderContext, fact: Fact) -> str:
     """The docstring first line when the source has one, else the sentence authored from the
     signature in a bounded batch, else the verified signature; never an invented sentence.
