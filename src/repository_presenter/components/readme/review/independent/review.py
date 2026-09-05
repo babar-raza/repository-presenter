@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -173,29 +173,56 @@ def factuality_defect(
 _ABSENCE_REPORTED = 3
 
 
-def absence_defect(finding: Mapping[str, Any], candidate_readme: str) -> str | None:
+def _claimed_absent(finding: Mapping[str, Any]) -> list[str]:
+    """The non-blank strings a finding says the candidate does not contain."""
+    return [text for text in (str(entry).strip() for entry in finding.get("absent", [])) if text]
+
+
+def absence_defect(
+    finding: Mapping[str, Any], candidate_readme: str, evidence: str = ""
+) -> str | None:
     """Why a finding that alleges an absence is the reviewer's own defect, or None.
 
     An omission claim is checkable, so the reviewer states what it claims is missing as strings
-    in ``absent`` rather than asserting it in prose; the code looks each one up in the candidate
-    under the same spelling rules that locate a quote. A string that is there disproves the
-    finding by the candidate's own bytes - a deterministic check contradicting it
-    (docs/README_CONTRACT.md section 6) - and nothing here reads the finding's text
+    in ``absent`` rather than asserting it in prose; the code looks each one up under the same
+    spelling rules that locate a quote. A string the candidate contains disproves the finding by
+    the candidate's own bytes. A string that occurs nowhere in the evidence the candidate draws
+    from - the original README and the fact values - is text nobody wrote, so there is nothing to
+    restore. Either way a deterministic check contradicts the finding
+    (docs/README_CONTRACT.md section 6), and nothing here reads the finding's prose
     (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
     """
-    present = sorted(
-        {
-            claim
-            for claim in (str(entry).strip() for entry in finding.get("absent", []))
-            if claim and quote_located(claim, candidate_readme)
-        }
-    )
-    if not present:
+    claims = _claimed_absent(finding)
+    present = sorted({claim for claim in claims if quote_located(claim, candidate_readme)})
+    if present:
+        return (
+            f"the finding claims the candidate does not contain {_named(present)}, "
+            "which the candidate contains"
+        )
+    if not evidence:
         return None
-    named = ", ".join(repr(claim) for claim in present[:_ABSENCE_REPORTED])
-    return (
-        f"the finding claims the candidate does not contain {named}, which the candidate contains"
-    )
+    invented = sorted({claim for claim in claims if not quote_located(claim, evidence)})
+    if invented:
+        return (
+            f"the finding asks for {_named(invented)}, which occurs in no fact value and "
+            "nowhere in the original README: there is nothing to restore"
+        )
+    return None
+
+
+def _named(claims: Sequence[str]) -> str:
+    """The first few claims, quoted, so the reason names what it judged without listing all."""
+    return ", ".join(repr(claim) for claim in claims[:_ABSENCE_REPORTED])
+
+
+def claim_evidence(original_readme: str, facts: FactsDocument | None) -> str:
+    """Everything a candidate could have drawn its text from: the original README and the facts.
+
+    An absence claim is measured against this, never against the candidate alone: asking for text
+    the original README and the facts both lack is asking for something nobody wrote.
+    """
+    values = [fact.value for fact in facts.facts] if facts is not None else []
+    return "\n".join([original_readme, *values])
 
 
 def presentation_defect(finding: Mapping[str, Any]) -> str | None:
@@ -251,7 +278,10 @@ def review_checks(
 
 
 def scope_defect(
-    finding: Mapping[str, Any], candidate_readme: str, by_id: Mapping[str, Fact]
+    finding: Mapping[str, Any],
+    candidate_readme: str,
+    by_id: Mapping[str, Fact],
+    evidence: str = "",
 ) -> str | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
@@ -265,7 +295,7 @@ def scope_defect(
     names text the candidate contains is refuted by the document itself, and no reading of its
     criterion changes that.
     """
-    absence = absence_defect(finding, candidate_readme)
+    absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
         return absence
     criterion = finding.get("criterion")
@@ -284,6 +314,7 @@ def review_document(
     readme_digest: str,
     candidate_readme: str = "",
     facts: FactsDocument | None = None,
+    original_readme: str = "",
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -295,9 +326,12 @@ def review_document(
     findings: list[dict[str, Any]] = []
     advisory: list[dict[str, Any]] = []
     by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
+    evidence = claim_evidence(original_readme, facts) if original_readme else ""
     for finding in output.get("findings", []):
         record = dict(finding)
-        reason = scope_defect(finding, candidate_readme, by_id) if facts is not None else None
+        reason = (
+            scope_defect(finding, candidate_readme, by_id, evidence) if facts is not None else None
+        )
         if reason is not None:
             record["reviewer_scope_defect"] = reason
         if reason is None and blocking(finding):

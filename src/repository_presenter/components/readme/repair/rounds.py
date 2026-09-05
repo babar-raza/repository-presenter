@@ -260,6 +260,7 @@ def run_round(tx: TransactionInputs) -> Round:
         digests["readme"],
         candidate_readme=readme,
         facts=facts,
+        original_readme=tx.original,
     )
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)

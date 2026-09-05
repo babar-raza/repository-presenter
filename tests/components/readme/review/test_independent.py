@@ -13,6 +13,7 @@ from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
     absence_defect,
+    claim_evidence,
     quote_located,
     review_checks,
     review_document,
@@ -378,6 +379,46 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     assert absence_defect(_finding("F02", "opening", "S6"), CANDIDATE) is None
     # An empty or blank claim is not a claim: it never refutes a finding by locating nothing.
     assert absence_defect({"absent": ["", "   "]}, CANDIDATE) is None
+
+
+def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_defect() -> None:
+    """Asking for text neither the original README nor any fact holds asks for what nobody wrote.
+
+    Measured on the canary on 2026-09-05: a quick-start finding required the "verified example"
+    to read `Box(10, 20, 30)`, a string in no fact value, not in the original README, and not in
+    the candidate; `example:002` is keyword-argument code and it is what the candidate renders.
+    """
+    original = "# Old\n\nIt writes `.glb` files and reads `pkg.Sym1`.\n"
+    evidence = claim_evidence(original, FACTS)
+    invented = {
+        **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
+        "claim": "absence",
+        "absent": ["pkg.Sym404(1, 2, 3)"],
+    }
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    assert scope_defect(invented, CANDIDATE, by_id, evidence) == (
+        "the finding asks for 'pkg.Sym404(1, 2, 3)', which occurs in no fact value and nowhere "
+        "in the original README: there is nothing to restore"
+    )
+    # A string a fact value holds is real text the candidate could have carried: the finding stands.
+    real = {**invented, "absent": ["pkg.Sym99"]}
+    assert scope_defect(real, CANDIDATE, by_id, evidence) is None
+    # So is one the original README holds and the candidate does not.
+    inherited = {**invented, "absent": ["reads `pkg.Sym1`"]}
+    assert scope_defect(inherited, CANDIDATE, by_id, evidence) is None
+    # Without the evidence the rule stays silent rather than guessing.
+    assert scope_defect(invented, CANDIDATE, by_id) is None
+    document = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [invented], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=FACTS,
+        original_readme=original,
+    )
+    assert document["verdict"] == ACCEPT and document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"].startswith("the finding asks for")
 
 
 def test_a_presentation_finding_against_a_deterministic_section_is_the_reviewers_defect() -> None:

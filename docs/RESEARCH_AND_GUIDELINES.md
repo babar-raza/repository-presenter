@@ -1804,6 +1804,34 @@ leaving `absent` empty, and one lists `Box(2.0, 1.0, 1.0)`, a string in no fact 
 the original README. The reviewer filled `absent` on four of ten findings at its first version.
 Both reruns of the composition are identical, every stage reused, zero provider calls.
 
+**Measured (the loop, 2026-09-05, G2-W17, second).** With `absent` checked both ways - a claim the
+candidate contains, and a claim that occurs in no fact value and nowhere in the original README -
+the canary's composition reached `ACCEPT`: 0 blocking findings, 8 advisories, all eleven checks
+PASS, and the update was adopted by a fresh process that reproduced it byte for byte with zero
+provider calls. Of the 8 advisories, 5 are refuted because the candidate contains what they say it
+lacks (`python3 -m pip install -e .`, `AGENTS.md`, `34 test files`, whole import lines, a
+four-sentence COLLADA paragraph), 1 because it asks for `pip install -e '.[dev]'`, which no fact
+value and no line of the original README holds, and 2 by the renderer-owned-section rule. The
+sealed candidate this produced is **not committed**: its `calls.jsonl` measures 80.0% first-attempt
+acceptance against the 85 floor of §27.6 control 1. The cause is the control's subject, not the
+model. That ledger is a transaction's whole history - 309 records, 65 provider calls, 41 logical
+calls, four prompt versions - where the two compositions the floor rests on were single
+compositions of 46 and about 24 provider calls that called `targeted_repair` **zero** times. This
+one called it 22 times, and repair is the job with the lowest first-attempt rate: authoring 19/21
+(90.5%), review 10/13 (76.9%), repair 17/22 (77.3%), planning 4/7 (57.1%). No job regressed against
+§27.10's measured per-job rates (repair 74%, review 83%); the aggregate fell because the mix moved
+toward repair. An aggregate over a varying job mix is not a stable control.
+
+**Measured (the loop, 2026-09-05, G2-W17, third: a rejected mechanism).** A `claim` enum
+(`absence` / `contradiction` / `judgement`) was added to the review schema so that a validity check
+could require an absence claim to name its missing text. The reviewer classified **all eleven**
+findings as `judgement` and returned six near-identical findings of the form "the candidate's X
+section is not in the same order as the original README's X section" - a template, where the same
+composition had previously produced six substantive findings. The mechanism was reverted in the
+same iteration. A shape the constrained party declares is not a constraint: the enum gave the model
+a branch with no obligations and it took it. What survived is the rule that reads the model's
+output against the candidate and the evidence, neither of which the model controls.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -2683,6 +2711,17 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   Proposed for §27.9: G2-W20's acceptance gains "the canary's fresh composition ends ACCEPT
   with zero advisories", as the last of those families to land. Reverse via §27.9 or a
   state.yaml edit.
+- **2026-09-05 · G2-W17 · an absence claim that names text nobody wrote is refuted too, and the
+  accepting bundle is held back rather than sealed under a failing control.** Alternative rejected:
+  lowering §27.6 control 1's floor to the 80.0% this ledger measures, which would fit a threshold
+  to one sample and hide a real change. Evidence: §27.2, 2026-09-05 - the ledger is a transaction
+  history over four prompt versions with 22 `targeted_repair` calls where the floor's compositions
+  had none, and no job regressed. Reverse by committing the waiting bundle.
+- **2026-09-05 · G2-W17 · a `claim` enum in the review schema is rejected: a self-declared claim
+  shape is not a constraint.** Alternative rejected: keeping it and sharpening the wording, a
+  second attempt at the same mechanism. Evidence: §27.2, 2026-09-05 - the reviewer classified
+  eleven of eleven findings as `judgement` and collapsed into six templated order findings.
+  Reverse by restoring the enum and its validity check.
 - **2026-09-05 · G2-W17 · an absence claim is a field the code checks, and a refuted finding is
   not deferred work.** `independent_review` v8 carries `absent`; a string listed there that the
   candidate contains refutes the finding, and a refuted finding no longer counts against §6's
