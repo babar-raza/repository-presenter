@@ -37,6 +37,21 @@ def _clip(text: str) -> str:
     return text if len(text) <= _MAX_OUTPUT_CHARS else text[-_MAX_OUTPUT_CHARS:]
 
 
+# The receipt is sealed in the bundle, so it carries nothing that depends on where the run
+# happened: a traceback names the disposable workspace by absolute path, and two machines - or
+# two projects on one machine - would then seal different bytes for the same verification
+# (docs/README_CONTRACT.md section 7; RESEARCH_AND_GUIDELINES.md 27.2 RC4).
+WORKSPACE_TOKEN = "<workspace>"
+
+
+def _redact(text: str, workspace: Path) -> str:
+    """The run's own absolute path replaced by a stable token, in either separator."""
+    literal = str(workspace)
+    return text.replace(literal, WORKSPACE_TOKEN).replace(
+        literal.replace("\\", "/"), WORKSPACE_TOKEN
+    )
+
+
 def _string_literals(code: str) -> list[str]:
     try:
         tree = ast.parse(code)
@@ -151,8 +166,8 @@ def verify_python_examples(
                 ordinal=candidate.ordinal,
                 outcome=outcome,  # type: ignore[arg-type]
                 return_code=result.return_code,
-                stdout=_clip(result.stdout),
-                stderr=_clip(result.stderr),
+                stdout=_redact(_clip(result.stdout), workspace),
+                stderr=_redact(_clip(result.stderr), workspace),
                 detail=detail,
                 fixtures=tuple(fixtures),
             )

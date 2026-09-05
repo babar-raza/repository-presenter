@@ -1,27 +1,18 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-05T13:22:03Z",
+    "adopted_at": "2026-09-05T14:01:42Z",
     "changed": [
-      "README.md",
-      "README.patch",
-      "content_units.json",
-      "dependencies.json",
-      "dispositions.json",
-      "investigation.json",
-      "plan.json",
-      "repairs.json",
-      "review.json",
-      "validation.json"
+      "examples.json"
     ],
-    "classification": "factual",
-    "earliest_affected_stage": "PLANNING",
+    "classification": "presentation",
+    "earliest_affected_stage": "NONE",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-05T07:41:11Z",
+      "proven_at": "2026-09-05T13:48:16Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-05T13:20:58Z"
+    "recorded_at": "2026-09-05T14:00:54Z"
   },
   "composition": {
     "advisories": 3,
@@ -40,8 +31,8 @@
       "sha256": "81f590414224aaca8220fc6274aa2e41db1541328af61bc927a19d0e9134cae1"
     },
     "calls.jsonl": {
-      "bytes": 106938,
-      "sha256": "a1ede995fe0308ece3fb056ed759a2d40c23416f1e19674ece746c7d55918803"
+      "bytes": 209100,
+      "sha256": "1bd11ba0d031e994380084aa0d4021111b7699b24d0cb002ee493a526f23474b"
     },
     "content_units.json": {
       "bytes": 73255,
@@ -54,6 +45,10 @@
     "dispositions.json": {
       "bytes": 34051,
       "sha256": "7bf22a4419cf4dd41027a316a02cf9d782e3f5ac890f4ae239c7d9b74a32a2cf"
+    },
+    "examples.json": {
+      "bytes": 5248,
+      "sha256": "3e09be01a99dd3b3f69a5efca72b978dc6e3c9665a3ee8b9cb4d91afa9fb4210"
     },
     "facts.json": {
       "bytes": 1136750,
@@ -83,13 +78,13 @@
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-05T13:22:03Z",
+    "proven_at": "2026-09-05T14:01:42Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
-  "sealed_at": "2026-09-05T13:22:03Z",
+  "sealed_at": "2026-09-05T14:01:42Z",
   "state": "READY_FOR_PROPOSAL"
 }

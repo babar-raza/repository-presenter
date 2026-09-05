@@ -64,7 +64,16 @@ REQUIRED_ARTIFACTS = (
     "review.json",
     "calls.jsonl",
 )
-OPTIONAL_ARTIFACTS = ("investigation.json", "content_units.json", "repairs.json")
+# examples.json is the receipt every example fact cites as its evidence path, and repairs.json
+# is the record of what a repair attempted; a bundle that omits them carries facts whose
+# evidence dangles outside it (README_CONTRACT.md section 7, RESEARCH_AND_GUIDELINES.md 27.2
+# RC7). Optional because a transaction that composed without them seals without them.
+OPTIONAL_ARTIFACTS = (
+    "investigation.json",
+    "content_units.json",
+    "examples.json",
+    "repairs.json",
+)
 REPLAY_EXEMPT = frozenset({"calls.jsonl", BUNDLE_MANIFEST_NAME})
 STATE_ACCEPTED = "ACCEPTED"
 STATE_READY = "READY_FOR_PROPOSAL"

@@ -1,0 +1,110 @@
+[
+  {
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_001\\example.py\", line 7, in <module>\r\n    scene.open(\"model.obj\", options)\r\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_003\\example.py\", line 4, in <module>\r\n    scene.open(\"model.obj\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "{'baseColorFactor': [0.8, 0.2, 0.3, 1.0], 'metallicFactor': 0.5, 'roughnessFactor': 0.7}\r\n"
+  },
+  {
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_006\\example.py\", line 5, in <module>\r\n    scene.open(\"model.obj\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_007\\example.py\", line 4, in <module>\r\n    scene.open(\"model.gltf\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.gltf'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "TypeError",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_008\\example.py\", line 11, in <module>\r\n    scene.save(\"post.obj\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 181, in save\r\n    exporter.export(self, stream, options)\r\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\formats\\obj\\ObjExporter.py\", line 25, in export\r\n    self._write_obj(scene, stream, options)\r\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\formats\\obj\\ObjExporter.py\", line 50, in _write_obj\r\n    stream.write(content)\r\n    ~~~~~~~~~~~~^^^^^^^^^\r\nTypeError: a bytes-like object is required, not 'str'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "solid exported\r\n  facet normal 0.000000e+00 0.000000e+00 1.000000e+00\r\n    outer loop\r\n      vertex 0.000000e+00 0.000000e+00 0.000000e+00\r\n      vertex 1.000000e+00 0.000000e+00 0.000000e+00\r\n      vertex 1.000000e+00 1.000000e+00 0.000000e+00\r\n    endloop\r\n  endfacet\r\nendsolid exported\r\n"
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 10,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "Control points: 8\r\n"
+  },
+  {
+    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
+    "fixtures": [],
+    "ordinal": 11,
+    "outcome": "NEEDS_INPUT",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_011\\example.py\", line 6, in <module>\r\n    scene.open(\"model.dae\", options)\r\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.dae'\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 12,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

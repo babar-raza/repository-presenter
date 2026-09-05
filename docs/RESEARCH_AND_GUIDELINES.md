@@ -1862,6 +1862,19 @@ and `identifiers that are not accepted fact values` (`Scene.add_child_node`, `te
 Blocking review findings fell from 6 to 3; the composition still ends `EXIT_INCONSISTENT`, and both
 reruns are identical with zero provider calls at every stage.
 
+**Measured (the loop, 2026-09-05, G2-W17).** Every one of the canary's twelve `example` facts
+names `examples.json` as the evidence for its outcome, and the bundle did not carry that file: the
+verification receipt lived only in the gitignored transaction, so a reader of the sealed candidate
+could not see why an example was SUPPORTED or UNRESOLVED, and a fresh clone had no way to recover
+it. The seal now writes it, and `repairs.json` beside it, and the bundle is 13 files. Sealing it
+exposed a second defect the CLI's invalidation tests caught immediately: the receipt embedded the
+disposable workspace by absolute path in every traceback, so the same verification sealed different
+bytes under a different project root - four matrix tests failed on `examples.json changed` where
+nothing about the repository had changed. The run's own path is now replaced by `<workspace>`
+before the receipt is written, in either separator; the canary's receipt carries six such tokens
+and no absolute path, the bundle re-sealed with a presentation-only update, and a fresh process
+reproduced it byte for byte with zero provider calls.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -1980,6 +1993,9 @@ discipline (small commits, green CI, evidence per item).
 - §6 (G2-W17, 2026-09-05): a finding that alleges an absence states what it claims is missing as
   text the code can look for, and a required row admits zero advisories *left standing* - a finding
   a deterministic check refuted is not deferred work and never blocks.
+- §7 (G2-W17, 2026-09-05): the bundle's file list names `examples.json` and `repairs.json`, and
+  says why - a bundle carries every artifact its own facts cite as evidence, so nothing a fact
+  points at is left dangling outside the seal.
 - Check 11: fresh-state proof (fresh process and empty `runs/`).
 - §3 placement rule 3: visibility inheritance as a section property, and the `.code_block`
   carve-out documented or removed.
@@ -2831,3 +2847,9 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   have a slot the plan binds to no facts, so the union is the section's set again. Evidence: the
   probe and the composition in §27.10, 2026-09-05 - the slot-set family gone, 93.8% first attempt.
   Reverse by restoring uniform `items` in `authoring_schema` and the label pattern in `_MARKUP`.
+- **2026-09-05 · G2-W17 · the bundle seals the receipt its facts cite, and the receipt carries no
+  absolute path.** Alternative rejected: leaving `examples.json` in the transaction and treating
+  the dangling evidence path as acceptable, which makes an `example` fact unverifiable from the
+  bundle a reviewer opens. Evidence: §27.2, 2026-09-05 - twelve facts citing a file the bundle did
+  not hold, and four invalidation tests failing on a receipt that differed only by where the run
+  happened. Reverse by dropping the two names from `OPTIONAL_ARTIFACTS` and `_redact`.

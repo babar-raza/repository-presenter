@@ -112,6 +112,43 @@ def _inputs(
     )
 
 
+def test_the_sealed_canary_carries_the_receipt_its_example_facts_cite() -> None:
+    """README_CONTRACT.md section 7: a bundle carries the artifacts its own facts cite.
+
+    Measured 2026-09-05 (section 27.2 RC7): every one of the canary's twelve example facts
+    named examples.json as the evidence for its outcome, and the bundle did not hold that
+    file - the verification receipt lived only in the gitignored transaction, so a reader of
+    the sealed candidate could not see why an example was SUPPORTED or UNRESOLVED.
+    """
+    bundle = (
+        REPO_ROOT
+        / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+        / "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+    )
+    facts = json.loads((bundle / "facts.json").read_text(encoding="utf-8"))
+    receipts = {"examples.json"}
+    cited = {
+        evidence["path"]
+        for fact in facts["facts"]
+        for evidence in fact["evidence"]
+        if evidence["path"] in receipts
+    }
+    # The canary's example facts do cite the receipt, so this test is measuring something.
+    assert cited == {"examples.json"}
+    for name in sorted(cited):
+        assert (bundle / name).is_file(), name
+    sealed = json.loads((bundle / "examples.json").read_text(encoding="utf-8"))
+    ordinals = {int(receipt["ordinal"]) for receipt in sealed}
+    examples = [f for f in facts["facts"] if f["kind"] == "example"]
+    # One receipt per example fact, and each fact's polarity is the one its receipt supports.
+    assert ordinals == {index for index in range(1, len(examples) + 1)}
+    outcomes = {int(r["ordinal"]): r["outcome"] for r in sealed}
+    supported = {"EXECUTED"}
+    for index, fact in enumerate(sorted(examples, key=lambda f: f["id"]), start=1):
+        expected = "SUPPORTED" if outcomes[index] in supported else fact["polarity"]
+        assert fact["polarity"] == expected, fact["id"]
+
+
 def test_the_sealed_ledger_holds_the_calls_this_composition_consumed() -> None:
     """A transaction outlives its compositions, and the bundle accounts for one of them.
 
