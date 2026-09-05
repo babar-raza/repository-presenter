@@ -2545,14 +2545,17 @@ detail, the toolchain probe, and a digest of aspose.org's per-product `upstream-
 **Machine (verified 2026-09-05 23:55).** dotnet 10.0.204 · JDK 21.0.11 · Maven 3.9.16 and npx 11.8
 present **as `.cmd` shims** — `subprocess` without the extension reports them absent, so every
 verifier resolves tools with `shutil.which(name) or shutil.which(name + ".cmd")` and calls the
-resolved path · cmake 4.4.1 with **no compiler** (cl.exe/MSBuild absent — OWNER-06) · node 24.13 ·
-go 1.26.4 · gradle, cargo, rustup absent (Rust provisions workspace-locally, W16).
+resolved path · cmake 4.4.1; cl.exe/MSBuild absent, so **OWNER-06 was met on 2026-09-06 01:50 with a
+workspace-local GCC 16.2 (WinLibs, MinGW-w64 UCRT) and Ninja 1.13.2 under `C:\tools\rp-toolchains`**
+(`TOOLCHAIN_PATHS.txt` names the binaries; prepend the g++ and ninja directories to the *subprocess*
+PATH, never the user's; a cmake `-G Ninja` C++20 probe configured, built and ran) · node 24.13 ·
+go 1.26.4 · gradle, cargo, rustup absent (Rust provisions workspace-locally, LANE-B-00 / W16).
 
 **What the table says the cohorts will meet.** .NET: three of six unpublished (3D, Slides, Words);
 Words is a 11-project solution with a net462 target (a .NET Framework reference assembly pack the
 SDK restores from NuGet — usually fine offline-free, to be measured) and 5,794 fixture-like files;
 Cells .NET has no tests. Java: all four on Maven Central, floors 11/17/21 under JDK 21, one pom each
-— the cheapest cohort after Python. C++: no compiler until OWNER-06; Slides C++ carries a conanfile
+— the cheapest cohort after Python. C++: GCC 16.2 + Ninja per OWNER-06 (MSVC absent, so an MSVC-only construct in a repository becomes a disposition); Slides C++ carries a conanfile
 (8 deps — conan is not installed; `cmake` with FetchContent would be the fallback, else disposition);
 Email C++'s README fences are PowerShell. TypeScript: 3D has no licence file (badge floor is
 licence-based — the floor cannot be met; row 2 records that honestly); Cells TypeScript has no
@@ -2573,8 +2576,9 @@ will fail verification here too and belong in dispositions or omission, not in a
 **Facts.** The owner's deadline is 2026-09-07 00:00 +05:00 — about 24.5 hours from this writing.
 Measured rate over the last 24 hours: 6.0 hours per accepted item; queue 15 items, of which 7 produce
 candidates (G3-W01, G4-W11 to G4-W16). Toolchains on this machine: dotnet 10.0.204; JDK 21 with Maven
-3.9.16 (no gradle); cmake 4.4.1 but **no C++ compiler** (cl.exe and MSBuild absent — OWNER-06); node 24
-(tsc through `npx typescript`); go; no cargo/rustup (G4-W16 provisions workspace-locally).
+3.9.16 (no gradle); cmake 4.4.1 with a workspace-local GCC 16.2 + Ninja under `C:\tools\rp-toolchains`
+(OWNER-06 met 2026-09-06 01:50 without admin; MSVC absent); node 24 (tsc through `npx typescript`);
+go; no cargo/rustup (LANE-B-00 provisions workspace-locally).
 
 **Arithmetic.** At 6 h/item the seven candidate-producing items alone need ~42 h. Two things must be
 true at once: the rate roughly halves (xdist, three lanes, no CI waiting, W03 deferred — §30.9 expected

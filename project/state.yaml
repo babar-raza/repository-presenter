@@ -131,11 +131,13 @@ owner_items:
     consumed_by: [NONE]
     recorded_at: "2026-09-02T15:00:00+05:00"
   - id: OWNER-06
-    status: OPEN
-    summary: "Install a C++ toolchain the G4-W13 verifier can call: Visual Studio 2022 Build Tools with the Desktop development with C++ workload (cl.exe, MSBuild, Windows SDK) - for example winget install Microsoft.VisualStudio.2022.BuildTools --override \"--quiet --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\" (needs elevation, several GB). cmake 4.4.1 is present but has no compiler to drive (RESEARCH section 28.12)."
-    resume_predicate: "cmake -G \"Visual Studio 17 2022\" configures a trivial C++ project on this machine (or vswhere finds a VC tools installation); then G4-W13 leaves BLOCKED_EXTERNAL and the four C++ repositories can be verified."
+    status: SATISFIED
+    summary: "A C++ toolchain the G4-W13 verifier can call. Visual Studio Build Tools would need elevation this machine's shells do not have; the C++ repositories' own CI builds with GCC, Clang and MinGW as well as MSVC (RESEARCH section 28.11), so a workspace-local compiler was installed instead: WinLibs GCC 16.2 (MinGW-w64 UCRT) and Ninja 1.13.2 under C:/tools/rp-toolchains, binaries named in TOOLCHAIN_PATHS.txt, no PATH or profile edit, called by absolute path with their bin directories prepended to the subprocess PATH only."
+    resume_predicate: "cmake -G Ninja configures and builds a trivial C++20 project with the recorded g++ and ninja; met 2026-09-06 01:50 (probe built and ran). Reopens only if the recorded binaries disappear; MSVC remains optional."
     consumed_by: [G4_MULTI_LANGUAGE_COHORTS]
     recorded_at: "2026-09-05T23:35:00+05:00"
+    last_checked_at: "2026-09-06T01:50:00+05:00"
+    note: "Installed and verified by the owner's reviewer session on 2026-09-06 (RESEARCH section 28.11, 28.12, section 31); G4-W13 runs in lane B (project/lanes/lane-b.yaml) and reads TOOLCHAIN_PATHS.txt."
 
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
