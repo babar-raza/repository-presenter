@@ -13,7 +13,8 @@ from repository_presenter.core.errors import ConfigError
 
 
 def test_python_is_the_first_registered_plugin() -> None:
-    assert known_ecosystems() == ("python",)
+    # .NET joined at G4-W11; discovery finds it without this module listing it.
+    assert known_ecosystems() == ("net", "python")
     plugin = plugin_for("python")
     assert isinstance(plugin, PythonPlugin)
     assert plugin.manifest_globs == ("pyproject.toml", "setup.cfg", "setup.py")
@@ -24,8 +25,8 @@ def test_python_is_the_first_registered_plugin() -> None:
 
 
 def test_unknown_ecosystem_fails_closed() -> None:
-    with pytest.raises(ConfigError, match="no platform plugin registered for ecosystem 'net'"):
-        plugin_for("net")
+    with pytest.raises(ConfigError, match="no platform plugin registered for ecosystem 'cobol'"):
+        plugin_for("cobol")
 
 
 def test_a_plugin_is_discovered_by_module_name_and_its_plugin_attribute() -> None:
@@ -40,7 +41,7 @@ def test_a_plugin_is_discovered_by_module_name_and_its_plugin_attribute() -> Non
 
     assert python.PLUGIN is plugin_for("python")
     assert plugin_for("python") is plugin_for("python")  # resolved once, then cached
-    assert known_ecosystems() == ("python",)
+    assert known_ecosystems() == ("net", "python")
     # A module that exists in the package but exposes no PLUGIN is not an ecosystem.
     with pytest.raises(ConfigError, match="'python_surface'"):
         plugin_for("python_surface")

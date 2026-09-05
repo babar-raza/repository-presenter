@@ -62,7 +62,28 @@ PYTHON: Final = EcosystemSpec(
     source_suffixes=frozenset({".py"}),
 )
 
-SPECS: dict[str, EcosystemSpec] = {PYTHON.ecosystem: PYTHON}
+NET: Final = EcosystemSpec(
+    ecosystem="net",
+    language="C#",
+    fence="csharp",
+    registry="NuGet",
+    install_fact_id="install_command:dotnet",
+    version_badge=(
+        "[![NuGet](https://img.shields.io/nuget/v/{package}.svg)]"
+        "(https://www.nuget.org/packages/{package}/)"
+    ),
+    # `dotnet list package` needs a project; `--include-transitive` is the form that reports a
+    # reference added by `dotnet add package` without one.
+    verify_command="dotnet list package --include-transitive | findstr {module}",
+    # A restore and a build cost far more than an interpreted example: the ceiling in
+    # core.execution is 300 seconds and a cold restore has been seen to use most of it.
+    example_timeout_seconds=300.0,
+    install_timeout_seconds=300.0,
+    manifest_globs=("*.csproj", "*.fsproj", "Directory.Build.props"),
+    source_suffixes=frozenset({".cs"}),
+)
+
+SPECS: dict[str, EcosystemSpec] = {PYTHON.ecosystem: PYTHON, NET.ecosystem: NET}
 
 
 def spec_for(ecosystem: str) -> EcosystemSpec:
