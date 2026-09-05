@@ -2052,7 +2052,7 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
 - id: G2-W23
   status: PENDING
-  purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."
+  purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Also restate the ledger helper's section_authoring floor: the 97 set at b2c7ab3 rests on one 14-call composition, which loop-prompt section 3 forbids; hold it at the total floor (85) until three sealed compositions measure at or above 97, then set it at their observed minimum less one rejection's worth (reviewer reversal, section 31, 2026-09-05). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the authoring floor is derived from three compositions or held at 85; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."
 # G3, G4, G5 entries: append after the last G2 entry, in this order
 - id: G3-W01
   status: PENDING
@@ -2834,6 +2834,14 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   line. Hygiene: new entries were inserted mid-list; §31 is append-only, newest last. Watch metric:
   the share of findings refuted per composition — above one half, the reviewer prompt is the
   defect, not the candidate. Reverse any of these by a further entry.
+- **2026-09-05 20:40 · REVIEW · one entry confirmed, one reversal.** Confirmed: the bundle seals
+  the receipt its facts cite with no absolute path (G2-W17). Reversed: the `section_authoring`
+  regression floor of 97 set at `b2c7ab3` rests on a single 14-call composition (one rejection there
+  is seven points) — loop-prompt §3 forbids a threshold from one sample; the last three compositions
+  measured 88.9, 93.8, 100. Correction routed to G2-W23's purpose in §27.9: hold the job at the
+  85 total floor until three sealed compositions measure ≥97, then set it at their observed minimum
+  less one rejection's worth. W20's acceptance itself stands — 14 of 14 first-attempt, 95.0% ledger,
+  predicates restated honestly. Reverse by a further entry.
 - **2026-09-05 · G2-W20 · a slot is told what the renderer already prints beside it, and
   `fact_ids` is a per-call enum.** The two prose families are removed by making the restatement
   pointless rather than by asking for restraint. Alternative rejected: a per-slot `fact_ids` enum,
