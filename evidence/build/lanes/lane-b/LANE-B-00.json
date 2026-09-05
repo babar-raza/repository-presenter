@@ -1,0 +1,250 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-B-00",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-06T00:16:44+05:00",
+ "control_revision": "199b803064ac363fb943dee5e73600dcf52da3c9",
+ "control_revision_note": "lane-b is rebased onto this revision of origin/main. The acceptance commit carrying this receipt, the lane cursor and the RESEARCH_LANE_B.md entries is its child, landed on main through a pull request after hosted CI. The rebase took origin's version of G4-W13's purpose, which the owner rewrote at 81a10ac to name the GCC and Ninja this item verified.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+  "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+  "path_policy": "No toolchain is on the user or system PATH. Every tool is called by the absolute path recorded below; where a subprocess needs a directory on PATH (the g++ and ninja directories for a cmake Ninja build) it is prepended to the SUBPROCESS environment only (RESEARCH section 29.6 E5, loop-prompt section 1.5)."
+ },
+ "toolchains": {
+  "cpp": {
+   "provisioned_by": "the owner's reviewer session, 2026-09-06 (OWNER-06); verified, not reinstalled, by this item",
+   "source": "winlibs 16.2.0posix-14.0.0-ucrt-r1 (winlibs-x86_64-posix-seh-gcc-16.2.0-mingw-w64ucrt-14.0.0-r1.zip); ninja v1.13.2",
+   "tools": [
+    {
+     "name": "g++",
+     "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\g++.exe",
+     "version": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0"
+    },
+    {
+     "name": "gcc",
+     "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\gcc.exe",
+     "version": "gcc.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0"
+    },
+    {
+     "name": "ninja",
+     "path": "C:\\tools\\rp-toolchains\\ninja\\ninja.exe",
+     "version": "1.13.2"
+    },
+    {
+     "name": "mingw32-make",
+     "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\mingw32-make.exe",
+     "version": "GNU Make 4.4.1"
+    },
+    {
+     "name": "cmake",
+     "path": "C:\\Program Files\\CMake\\bin\\cmake.EXE",
+     "version": "cmake version 4.4.1",
+     "note": "Pre-existing machine install, not provisioned by this lane; it is the driver, not the compiler."
+    }
+   ]
+  },
+  "rust": {
+   "provisioned_by": "LANE-B-00, 2026-09-06",
+   "root": "C:\\tools\\rp-toolchains\\rustup",
+   "rustup_home": "C:\\tools\\rp-toolchains\\rustup\\rustup-home",
+   "cargo_home": "C:\\tools\\rp-toolchains\\rustup\\cargo-home",
+   "installer": "rustup-init.exe downloaded from https://win.rustup.rs/x86_64 (12721664 bytes) into C:\\tools\\rp-toolchains\\rustup, run as: rustup-init.exe -y --profile minimal --no-modify-path --default-toolchain stable",
+   "default_toolchain": "stable-x86_64-pc-windows-msvc (1.98.1, channel update of 2026-09-03)",
+   "path_modified": false,
+   "tools": [
+    {
+     "name": "rustup",
+     "path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\rustup.exe",
+     "version": "rustup 1.29.1 (d95a37b6a 2026-08-13)"
+    },
+    {
+     "name": "cargo",
+     "path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\cargo.exe",
+     "version": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+    },
+    {
+     "name": "rustc",
+     "path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\rustc.exe",
+     "version": "rustc 1.98.1 (48a229cea 2026-09-01)"
+    }
+   ]
+  },
+  "typescript": {
+   "provisioned_by": "LANE-B-00, 2026-09-06, ahead of G4-W14's time box (RESEARCH section 28.12 point 6); beyond this item's acceptance predicates, recorded so the cohort does not download inside its box",
+   "npm_prefix": "C:\\tools\\rp-toolchains\\npm\\prefix",
+   "npm_cache": "C:\\tools\\rp-toolchains\\npm\\cache",
+   "tools": [
+    {
+     "name": "node",
+     "path": "C:\\Program Files\\nodejs\\node.EXE",
+     "version": "v24.13.1"
+    },
+    {
+     "name": "npx",
+     "path": "C:\\Program Files\\nodejs\\npx.CMD",
+     "version": "11.8.0",
+     "note": "Resolved by shutil.which(name) or shutil.which(name + '.cmd'); on this machine only the .CMD shim exists."
+    },
+    {
+     "name": "npm",
+     "path": "C:\\Program Files\\nodejs\\npm.CMD",
+     "version": "11.8.0"
+    },
+    {
+     "name": "tsc",
+     "path": "C:\\tools\\rp-toolchains\\npm\\prefix\\tsc.cmd",
+     "version": "Version 5.9.3",
+     "note": "typescript@5.9.3 installed with npm_config_prefix and npm_config_cache pointed at the disposable profile; nothing written to the user profile, no PATH edit."
+    }
+   ]
+  },
+  "go": {
+   "provisioned_by": "pre-existing machine install; confirmed, not provisioned, by this item",
+   "tools": [
+    {
+     "name": "go",
+     "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+     "version": "go version go1.26.4 windows/amd64"
+    }
+   ]
+  }
+ },
+ "probes": [
+  {
+   "probe": "C++20 through cmake -G Ninja with the recorded g++ and ninja",
+   "workdir": "runs/toolchains/lane-b-00/cpp-probe (gitignored, disposable)",
+   "steps": [
+    {
+     "step": "configure",
+     "command": "cmake -S <probe> -B <build> -G Ninja -DCMAKE_MAKE_PROGRAM=<ninja> -DCMAKE_CXX_COMPILER=<g++> -DCMAKE_C_COMPILER=<gcc> -DCMAKE_BUILD_TYPE=Release",
+     "exit_code": 0
+    },
+    {
+     "step": "build",
+     "command": "cmake --build <build>",
+     "exit_code": 0
+    },
+    {
+     "step": "run",
+     "command": "<build>/rp_cpp_probe.exe",
+     "exit_code": 0,
+     "stdout": "cxx202002 total=12"
+    }
+   ],
+   "outcome": "The probe uses std::integral, std::views::filter and a constexpr template, so it compiles only under C++20; __cplusplus printing 202002 is the language level the binary was actually built at. The g++ and ninja directories were prepended to the subprocess PATH only."
+  },
+  {
+   "probe": "A trivial cargo crate under the provisioned CARGO_HOME, cargo called by absolute path",
+   "workdir": "runs/toolchains/lane-b-00/rust-probe and rust-clean (gitignored, disposable)",
+   "steps": [
+    {
+     "step": "cargo new rp_rust_probe",
+     "exit_code": 0
+    },
+    {
+     "step": "cargo check",
+     "exit_code": 0,
+     "output": "Finished `dev` profile [unoptimized + debuginfo] target(s)"
+    },
+    {
+     "step": "cargo build",
+     "exit_code": 0
+    },
+    {
+     "step": "cargo run --quiet",
+     "exit_code": 0,
+     "stdout": "Hello, world!"
+    }
+   ],
+   "outcome": "cargo check is the acceptance predicate and passes. build and run were added because the default host tuple is x86_64-pc-windows-msvc and this machine has no Visual Studio Build Tools (OWNER-06): the question was whether G4-W16 could link an example at all. It can - the second run repeated cargo new, build and run with an unmodified PATH and all three exited 0, so the link does not depend on the MinGW directory being prepended."
+  }
+ ],
+ "local_ci_equivalent": {
+  "note": "loop-prompt section 3: one full suite before the commit. This item adds no Python; the suite proves the tree it lands on is green.",
+  "runs": [
+   {
+    "python": "3.13",
+    "steps": [
+     {
+      "command": "ruff check .",
+      "exit_code": 0
+     },
+     {
+      "command": "ruff format --check .",
+      "exit_code": 0
+     },
+     {
+      "command": "mypy src",
+      "exit_code": 0
+     },
+     {
+      "command": "python -m pytest -n auto",
+      "exit_code": 0
+     }
+    ]
+   }
+  ]
+ },
+ "predicates": [
+  {
+   "predicate": "g++ --version, ninja --version, cargo --version, node --version, go version all print from the recorded absolute paths.",
+   "verdict": "PASS",
+   "evidence": "Each printed at exit 0 from the absolute path in this receipt, resolved with shutil.which(name) or shutil.which(name + '.cmd') for the machine tools and from TOOLCHAIN_PATHS.txt for the C++ set: g++ 16.2.0, ninja 1.13.2, cargo 1.98.1, node v24.13.1, go1.26.4. rustup 1.29.1, rustc 1.98.1, npm and npx 11.8.0, mingw32-make 4.4.1, cmake 4.4.1 and tsc 5.9.3 printed the same way."
+  },
+  {
+   "predicate": "cmake -G Ninja configures and builds a C++20 probe with the workspace-local GCC and Ninja recorded in TOOLCHAIN_PATHS.txt.",
+   "verdict": "PASS",
+   "evidence": "Configure, build and run each exit 0 and the built binary prints cxx202002 total=12; the probe's concepts and ranges use makes C++20 a compile-time requirement rather than a claim. The recorded 'verified' line in TOOLCHAIN_PATHS.txt is therefore reproduced by this lane, not taken on trust."
+  },
+  {
+   "predicate": "rustup is provisioned with a pinned stable toolchain under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME and CARGO_HOME there; cargo called by absolute path; version recorded), never system-wide.",
+   "verdict": "PASS",
+   "evidence": "rustup-init.exe ran with exactly those flags and with RUSTUP_HOME and CARGO_HOME pointed inside C:\\tools\\rp-toolchains\\rustup; it reported 'To get started you need Cargo's bin directory ... in your PATH ... This has not been done automatically', which is the no-PATH-edit proof. rustup, cargo and rustc resolve only by absolute path - shutil.which('rustup') and shutil.which('cargo') both returned None after the install, confirming nothing entered the PATH. The pinned toolchain is stable-x86_64-pc-windows-msvc 1.98.1. RESEARCH_LANE_B.md records why this root and not runs/toolchains/."
+  },
+  {
+   "predicate": "A trivial cargo new crate passes cargo check under the disposable CARGO_HOME.",
+   "verdict": "PASS",
+   "evidence": "cargo new rp_rust_probe then cargo check both exit 0 in runs/toolchains/lane-b-00/ (gitignored), with CARGO_HOME and RUSTUP_HOME set to the provisioned directories for the subprocess only. cargo build and cargo run also exit 0, so G4-W16 can run an example and not only type-check one."
+  },
+  {
+   "predicate": "node, npx.cmd and go are confirmed with their versions.",
+   "verdict": "PASS",
+   "evidence": "node v24.13.1 at C:\\Program Files\\nodejs\\node.EXE; npx 11.8.0 at npx.CMD, which shutil.which('npx') finds only through the .cmd fallback; go1.26.4 windows/amd64 at C:\\Program Files\\Go\\bin\\go.EXE."
+  },
+  {
+   "predicate": "evidence/build/lanes/lane-b/LANE-B-00.json records every path and version; RESEARCH_LANE_B.md has the entry.",
+   "verdict": "PASS",
+   "evidence": "This file. RESEARCH_LANE_B.md carries three entries in section 31 shape: the rustup root decision, the PROPOSAL that the workspace-local GCC satisfies OWNER-06, and the tsc warm-up."
+  }
+ ],
+ "next_work_item": "G4-W14",
+ "next_work_item_blocked_on": "G4-W10 and G4-W09 accepted on main; neither is accepted at revision 199b803 - no accept commit for either, and evidence/build/ holds manifests only for G0, G1 and G2 - so the lane reports and ends the run rather than polling. G4-W13's other prerequisite, OWNER-06, is SATISFIED in state.yaml and reproduced by this item's probe.",
+ "measurement": {
+  "tools_recorded": 12,
+  "provisioned_by_this_item": [
+   "rustup 1.29.1",
+   "cargo 1.98.1",
+   "rustc 1.98.1 (stable-x86_64-pc-windows-msvc)",
+   "tsc 5.9.3"
+  ],
+  "verified_not_reinstalled": [
+   "g++ 16.2.0",
+   "gcc 16.2.0",
+   "ninja 1.13.2",
+   "mingw32-make 4.4.1"
+  ],
+  "confirmed_pre_existing": [
+   "cmake 4.4.1",
+   "node v24.13.1",
+   "npx 11.8.0",
+   "npm 11.8.0",
+   "go1.26.4"
+  ],
+  "path_edits": 0,
+  "system_wide_installs": 0,
+  "note": "Every ecosystem this lane owns now has a working toolchain reachable by absolute path: C++ (g++/ninja/cmake, proven at C++20), Rust (cargo, proven through check, build and run), TypeScript (tsc 5.9.3 in a disposable npm profile) and Go (go1.26.4). Nothing remains for a cohort item to install inside its time box."
+ }
+}
