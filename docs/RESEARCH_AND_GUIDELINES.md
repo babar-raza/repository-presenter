@@ -1847,6 +1847,21 @@ Without W20's two, the same composition measures 89.3%, above the 85 floor; with
 it, so the accepting bundle stays uncommitted for a second iteration. The gate's own exit predicate
 asks 95%.
 
+**Measured (the loop, 2026-09-05, G2-W20).** A slot now carries `renders` - the material the
+deterministic renderer prints beside it, from the slot's own facts - and `fact_ids` is a per-call
+enum of the section's accepted set. Re-authoring the canary under `section_authoring` v11 made 18
+authoring calls, 16 accepted first (88.9%), and **neither prose family this item owns appeared in
+any rejection**: no URL, no host as a non-fact identifier, no command in text, where the same two
+calls carried six and one such rejection on 2026-09-05 before the change. The rendered Development
+and Testing sentence now reads "Install the package in editable mode and run the full test suite
+with unittest, or execute a specific test file to validate individual components", with the
+commands only in the blocks the renderer prints. The two rejections that remain are a different
+family the enum does not reach - `cites facts outside its slot's planned set` (the enum carries the
+section's set; the slot's narrower set varies per unit, which uniform array items cannot express)
+and `identifiers that are not accepted fact values` (`Scene.add_child_node`, `test_obj_importer`).
+Blocking review findings fell from 6 to 3; the composition still ends `EXIT_INCONSISTENT`, and both
+reruns are identical with zero provider calls at every stage.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -2783,3 +2798,10 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   line. Hygiene: new entries were inserted mid-list; §31 is append-only, newest last. Watch metric:
   the share of findings refuted per composition — above one half, the reviewer prompt is the
   defect, not the candidate. Reverse any of these by a further entry.
+- **2026-09-05 · G2-W20 · a slot is told what the renderer already prints beside it, and
+  `fact_ids` is a per-call enum.** The two prose families are removed by making the restatement
+  pointless rather than by asking for restraint. Alternative rejected: a per-slot `fact_ids` enum,
+  which uniform array items cannot express and which `prefixItems` would buy at the cost of an
+  unprobed gateway keyword. Evidence: §27.2, 2026-09-05 (G2-W20) - both families gone from 18
+  authoring calls that previously carried seven such rejections. Reverse by dropping `renders` from
+  `slot_records` and the enum from `authoring_schema`.

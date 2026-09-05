@@ -26,6 +26,7 @@ from repository_presenter.components.readme.composition.authoring import (
     section_spellings,
     slot_fact_sets,
     slot_records,
+    slot_rendering,
     surface_members,
     title_terms,
     unit_checks,
@@ -751,6 +752,75 @@ def test_slot_records_name_the_slot_its_subject_and_the_facts_it_may_cite() -> N
         {"slot": "capability:1", "title": "Save GLB", "fact_ids": ["a", "b"]},
         {"slot": "opening"},
     ]
+    # A slot whose neighbour the renderer prints carries it too, so the unit is not written
+    # blind beside it (section 27.2 RC1).
+    assert slot_records(("link:x",), {}, {}, {"link:x": "printed before your sentence"}) == [
+        {"slot": "link:x", "renders": "printed before your sentence"}
+    ]
+
+
+def test_a_slot_is_told_what_the_renderer_already_prints_beside_it() -> None:
+    """Measured on the canary on 2026-09-05, both as authoring rejections.
+
+    Three documentation units opened by repeating the link label the renderer had just printed
+    and wrote its URL as text; the development summary wrote the install and test commands the
+    renderer prints as fenced blocks below it. The facts were already the slot's own - what was
+    missing is where the renderer puts them (section 27.2 RC1, D1 in 27.5).
+    """
+    labelled = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            Fact(
+                "link_target:022",
+                "link_target",
+                "https://docs.example.com/3d/python/",
+                (Evidence("README.md", "link text 'Getting started guide'"),),
+            ),
+            Fact(
+                "inherited_unit:071.code_block",
+                "inherited_unit",
+                "python3 -m pip install -e .\npython3 -m unittest discover tests/",
+                (Evidence("README.md"),),
+            ),
+        ),
+    )
+    rendered = slot_rendering(
+        "documentation_resources", ("link:link_target:022",), labelled, {"dispositions": []}
+    )
+    assert rendered == {
+        "link:link_target:022": (
+            "- **[Getting started guide](https://docs.example.com/3d/python/)** - "
+            "before your sentence"
+        )
+    }
+    # A link fact whose evidence records no anchor text falls back to the target itself.
+    plain = slot_rendering("documentation_resources", ("link:link_target:002",), FACTS, {})
+    assert plain["link:link_target:002"].startswith("- **[https://docs.example.com/3d]")
+
+    placed = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:071.code_block",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "development_testing",
+            }
+        ]
+    }
+    assert slot_rendering("development_testing", ("summary",), labelled, placed) == {
+        "summary": (
+            "as fenced blocks after your sentence: python3 -m pip install -e . "
+            "python3 -m unittest discover tests/"
+        )
+    }
+    # A section the renderer prints nothing beside says nothing, and the packet rule stays out.
+    assert slot_rendering("opening", ("opening",), labelled, placed) == {}
+    tasks = {
+        task.section_id: task
+        for task in authoring_tasks(ENTRY, FACTS, INVESTIGATION, DISPOSITIONS, PLAN)
+    }
+    assert "renders" not in tasks["opening"].packet["objective"]
 
 
 def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
@@ -809,12 +879,27 @@ def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     assert units["minItems"] == units["maxItems"] == 3
     assert units["items"]["properties"]["section"] == {"const": "scope_limitations"}
     assert units["items"]["properties"]["slot"] == {"type": "string", "enum": list(slots)}
-    # Citations stay with the binding and unit_checks; the schema does not narrow them.
+    # The section's fact set is closed, so the schema carries it as a per-call enum: citing a
+    # fact outside it - the largest rejection family the canary recorded - is unrepresentable
+    # (section 27.1, D1 in 27.5). unit_checks still narrows a citation to its own slot's set.
     assert units["items"]["properties"]["fact_ids"] == {
         "type": "array",
         "minItems": 1,
-        "items": {"type": "string"},
+        "items": {"type": "string", "enum": ["identity:repository"]},
     }
+    outside = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": slot,
+                "text": "t",
+                "fact_ids": ["format:output.glb"],
+            }
+            for slot in slots
+        ],
+        "omitted": [],
+    }
+    assert not Draft202012Validator(schema).is_valid(outside)
     # The manifest's own schema is untouched: the specialisation is per call.
     assert "minItems" not in loaded.manifest.output.schema_["properties"]["units"]["items"]
 

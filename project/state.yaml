@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T16:40:28+05:00"
+updated_at: "2026-09-05T17:13:25+05:00"
 
 authority:
   product: plans/idea.md
@@ -30,7 +30,7 @@ accepted_gates:
 
 active_work_item:
   id: G2-W20
-  status: READY
+  status: IN_PROGRESS
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
   prerequisites:
     - G2-W17 waits on this item. Every one of its remaining predicates needs a bundle the repository can commit, and a bundle cannot be committed while the sealed composition's first-attempt acceptance is under the 85 floor of docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1 (measured 82.1 percent, 2026-09-05, section 27.2).

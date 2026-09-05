@@ -42,6 +42,7 @@ from repository_presenter.components.readme.composition.placement import (
     placements,
     renders_verbatim,
 )
+from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     banner_target,
     enterprise_target,
@@ -55,7 +56,6 @@ API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
-_LINK_TEXT = re.compile(r"text '(.*)'$")
 _LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
@@ -295,7 +295,7 @@ def _documentation_resources(context: RenderContext) -> list[str]:
                 f" It covers all {count} verified public types; the "
                 "[API Reference](#api-reference) section above covers the essentials."
             )
-        lines.append(f"- **[{_link_text(target)}]({target.value})** — {sentence}")
+        lines.append(f"- **[{link_text(target)}]({target.value})** — {sentence}")
     if issues is not None:
         lines.append(f"- Found a bug or have a feature request? [Open an issue]({issues}).")
     return lines
@@ -507,14 +507,6 @@ def _installation(context: RenderContext) -> list[str]:
 
 def _code_block(language: str, code: str) -> list[str]:
     return [f"```{language}", code.rstrip("\n"), "```"]
-
-
-def _link_text(fact: Fact) -> str:
-    for evidence in fact.evidence:
-        match = _LINK_TEXT.search(evidence.detail or "")
-        if match and match.group(1):
-            return match.group(1)
-    return fact.value
 
 
 # Display names for format extensions whose canonical form is not the bare upper case.

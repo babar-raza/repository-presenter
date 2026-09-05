@@ -19,6 +19,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from repository_presenter.components.readme.composition.components.ecosystems import (
@@ -33,6 +34,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     SEMANTIC_SHELL,
     section_ids,
 )
+from repository_presenter.components.readme.evidence.facts.links import link_text
 from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -212,10 +214,12 @@ def slot_records(
     slots: Sequence[str],
     slot_facts: Mapping[str, frozenset[str]],
     titles: Mapping[str, str],
+    renders: Mapping[str, str] = MappingProxyType({}),
 ) -> list[dict[str, Any]]:
-    """Each slot as the author is shown it: its id, the subject the plan gave it, and the only
-    facts its unit may cite. The title travels here and in ``SectionTask.slot_titles``, so the
-    packet and the guard name one subject (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D2)."""
+    """Each slot as the author is shown it: its id, the subject the plan gave it, the only facts
+    its unit may cite, and what the deterministic renderer already prints around it. The title
+    travels here and in ``SectionTask.slot_titles``, so the packet and the guard name one
+    subject (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D2)."""
     records: list[dict[str, Any]] = []
     for slot in slots:
         record: dict[str, Any] = {"slot": slot}
@@ -223,8 +227,48 @@ def slot_records(
             record["title"] = titles[slot]
         if slot_facts.get(slot):
             record["fact_ids"] = sorted(slot_facts[slot])
+        if renders.get(slot):
+            record["renders"] = renders[slot]
         records.append(record)
     return records
+
+
+def slot_rendering(
+    section: str,
+    slots: Sequence[str],
+    facts: FactsDocument,
+    dispositions: dict[str, Any],
+) -> dict[str, str]:
+    """What the renderer prints around a slot's unit, verbatim, for the slots that have such a
+    neighbour.
+
+    A unit that restates its neighbour is the same defect as one that restates its title
+    (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC1, D2): measured on the canary on
+    2026-09-05, the three documentation units each opened by repeating the link label the
+    renderer had just printed and wrote its URL as text, and the development summary wrote the
+    install and test commands the renderer prints as blocks below it. Both were rejections. The
+    facts are the same ones the slot already cites, so nothing new is disclosed - only where the
+    renderer will put them.
+    """
+    by_id = {fact.id: fact for fact in facts.facts}
+    rendered: dict[str, str] = {}
+    if section == "documentation_resources":
+        for slot in slots:
+            target = by_id.get(slot.removeprefix("link:"))
+            if slot.startswith("link:") and target is not None:
+                rendered[slot] = (
+                    f"- **[{link_text(target)}]({target.value})** - before your sentence"
+                )
+    elif section == "development_testing":
+        blocks = [
+            by_id[unit_id].value
+            for unit_id in _placed_units(dispositions, section)
+            if unit_id.endswith(".code_block") and unit_id in by_id
+        ]
+        if blocks and slots:
+            joined = "; ".join(" ".join(block.split()) for block in blocks)
+            rendered[slots[0]] = f"as fenced blocks after your sentence: {joined}"
+    return rendered
 
 
 def title_terms(title: str, facts: FactsDocument) -> set[str]:
@@ -425,6 +469,12 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
     properties = units["items"]["properties"]
     properties["section"] = {"const": task.section_id}
     properties["slot"] = {"type": "string", "enum": list(task.slots)}
+    # The section's fact set is closed and the code holds it, so the schema carries it as a
+    # per-call enum rather than asking for a free string and rejecting what is outside it - the
+    # largest rejection family the canary recorded (docs/RESEARCH_AND_GUIDELINES.md section 27.1;
+    # D1 in 27.5). The gateway answers HTTP 400 for a pattern in a strict schema but honours an
+    # enum, which is why this constraint takes this shape (27.10).
+    properties["fact_ids"]["items"] = {"type": "string", "enum": sorted(task.accepted_ids)}
     return schema
 
 
@@ -457,7 +507,17 @@ def authoring_tasks(
         spellings = section_spellings(ids, facts)
         slot_facts = slot_fact_sets(section, plan)
         titles = capability_titles(plan) if section == "key_capabilities" else {}
-        records = slot_records(slots, slot_facts, titles)
+        renders = slot_rendering(section, slots, facts, dispositions)
+        records = slot_records(slots, slot_facts, titles, renders)
+        # The renderer prints links, commands, and code blocks itself. A unit that repeats one
+        # of them is rejected for writing a URL or a command, which is how the canary lost two
+        # authoring calls on 2026-09-05; saying what is already printed removes the reason to.
+        renders_rule = (
+            "A slot's `renders` is what the renderer prints there from the same facts; write "
+            "only what it does not already say, and never repeat its link, label, or command. "
+            if any(record.get("renders") for record in records)
+            else ""
+        )
         bound_rule = (
             "Each slot below gives the subject its unit is about and the only facts that unit "
             "may cite; a unit describes its own slot, never another's. "
@@ -480,7 +540,7 @@ def authoring_tasks(
             "section_id": section,
             "objective": (
                 f"{objective} Slots to fill, each exactly once: {', '.join(slots)}. "
-                f"{bound_rule}{title_rule}"
+                f"{bound_rule}{title_rule}{renders_rule}"
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),

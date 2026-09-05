@@ -186,6 +186,24 @@ def check_relative(href: str, tree_paths: Sequence[str]) -> LinkResult:
     return LinkResult("MISSING", f"tree does not contain {path}")
 
 
+# The anchor text an existing README gave a link, recorded in the fact's evidence by the
+# extractor that read it.
+_LINK_TEXT = re.compile(r"text '(.*)'$")
+
+
+def link_text(fact: Fact) -> str:
+    """The words a reader clicks: the anchor text the source gave this target, else the URL.
+
+    The renderer prints it and the authoring packet shows it, so a unit is told what is already
+    on the page rather than restating it (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC1).
+    """
+    for evidence in fact.evidence:
+        match = _LINK_TEXT.search(evidence.detail or "")
+        if match and match.group(1):
+            return match.group(1)
+    return fact.value
+
+
 def check_anchor(href: str, slugs: set[str]) -> LinkResult:
     slug = unquote(href[1:]).lower()
     if slug in slugs:
