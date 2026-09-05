@@ -1566,8 +1566,15 @@ diagnosing. Each line names where the detail lives.
   check about a check; blocking checks stay ≤ 15 without an owner decision; from G3 on, three
   accepted items without the candidate count rising means the next item must raise it. G2's queue
   is frozen at W22, W17, W20, W23 — no new G2 items, by the owner's rule too.
-- **Order to 31/31**: G2 (W22, W16, W17, W20, W23) → G3 Python cohort with a facts-only preflight,
-  then freeze → G4 second source, spec layer, extractor, six cohorts → G5 durability and hosted (§28).
+- **Throughput (30.9, 2026-09-05 21:40)**: full suite once per commit with `pytest -n auto` (32
+  cores; the serial 7-minute suite cost 33% of the day); `present` on the canary only when a
+  predicate closes or at acceptance; push and continue. **G2-W17 accepts when the coverage ledger,
+  receipt sealing, volatile-observation sealing, and the proxy/CA environment hold** — fixtures for
+  file-reading examples move to G3-W01 as failure-class fixes; **G2-W23 is folded into G3-W01**
+  (cold-run measurement in the preflight, the parity test); its floor fix already landed at `9e5f780`.
+- **Order to 31/31**: G2 (W17 closes it) → G3 Python cohort — facts-only preflight, then twelve
+  compositions in **up to three repository lanes** — then freeze → G4 second source, spec layer,
+  extractor, six cohorts → G5 durability and hosted (§28).
 
 ### 27.1 Symptoms, measured
 
@@ -2023,8 +2030,9 @@ Execution order in `project/state.yaml` (list order is execution order; IDs are 
 positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture,
 G2-W12 D1 (accepted 2026-09-04 at the measured 91.7/8.3, §27.10), G2-W19 sampling determinism
 probe, G2-W21 output-shaping code as a recorded dependency, G2-W13 D2, G2-W16 D5 (review output
-bounded), G2-W22 plan-level repair escalation (split from W16, 2026-09-05), G2-W17 D6, G2-W20
-referential links and commands, G2-W23 cold-run determinism measurement; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+bounded), G2-W22 plan-level repair escalation (split from W16, 2026-09-05), G2-W17 D6 (accepts on
+the ledger, sealing, volatile observations, proxy/CA environment; fixtures move to G3-W01), G2-W20
+referential links and commands; G2-W23 folded into G3-W01 on 2026-09-05 (30.9); G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -2033,7 +2041,8 @@ inserts it verbatim at the stated position (loop-prompt §2), validates the sche
 one file. **Moved — remove from `state.yaml` if present:** G2-W09 → G3-W02, G2-W10 → G4-W11/W12,
 G2-W14 → G5-W01, G2-W15 → G5-W02, G2-W18 → G5-W03, and the §28 drafts G4-W01 → G4-W09, G4-W02 →
 G4-W11, G4-W03 → G4-W12, G4-W04 → G4-W13, G4-W05 → G4-W14, G4-W06 → G4-W15, G4-W07 → G4-W16
-(superseded by §29 on 2026-09-04; IDs are never reused).
+(superseded by §29 on 2026-09-04; IDs are never reused); **G2-W23 → G3-W01** (folded, 2026-09-05,
+30.9).
 **Pending state edits, applied in the same commit:** `owner_items` `consumed_by` gate IDs
 `G4_HOSTED_PORTFOLIO` → `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION` and `G5_PROPOSAL_EFFECT_PROOF`
 → `G6_PROPOSAL_EFFECT_PROOF`; `current_gate.purpose` restated from the ESM G2 goal and exit
@@ -2067,13 +2076,10 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G2-W20
   status: PENDING
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
-- id: G2-W23
-  status: PENDING
-  purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Also restate the ledger helper's section_authoring floor: the 97 set at b2c7ab3 rests on one 14-call composition, which loop-prompt section 3 forbids; hold it at the total floor (85) until three sealed compositions measure at or above 97, then set it at their observed minimum less one rejection's worth (reviewer reversal, section 31, 2026-09-05). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the authoring floor is derived from three compositions or held at 85; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."
 # G3, G4, G5 entries: append after the last G2 entry, in this order
 - id: G3-W01
   status: PENDING
-  purpose: "Python cohort (section 28.5). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls (section 30 A7); fix by class with a regression test each. Step two: run the twelve through the full pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not; compositions run in the background across iterations. Never per repository by hand. Family-specific format declarations and fixtures (section 27.5 D6) only where a repository's coverage ledger demands them. Acceptance: the preflight report and the cohort report (sealed, disposition, failure class per repository) are in the gate evidence manifest; status prints the sealed count; every sealed bundle is fresh-process zero-call proven; hosted CI green."
+  purpose: "Python cohort (section 28.5; 30.9). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls; in the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -2761,6 +2767,39 @@ proposed. C3's ceiling is a judgment (15), chosen so that the twelve contract ch
 margin fit; it is revisited only by the owner. None of this makes a wrong decision impossible; it
 makes a wrong *direction* visible within three items instead of three months.
 
+### 30.9 Throughput, measured (owner, 2026-09-05 21:40)
+
+The owner rejected the "stops cost the day" account, correctly: only ~2 hours were caps and stops,
+yet G2's exit slipped more than twelve. The loop's transcript from 09:50 to 21:37 (11.8 hours)
+answers where the time went: **tool wall-clock 7.7 hours (65%)**, of which **pytest 3.8 hours (33%,
+209 invocations, the full suite ~7 minutes)**, **canary compositions 1.8 hours (15%, 116 runs, 8–10
+minutes when composition reopens)**, other shell chains 1.6 hours, CI watching 0.4. Model thinking,
+reading and writing: ~4.1 hours (35%). Iterations averaged 44 minutes; 15 ran.
+
+**What went wrong.** G2-W11 was accepted "against a predicate rewritten to what the measurement
+proves" — the suite stayed at ~7 minutes, and every estimate since assumed the sub-3-minute suite
+W11 was queued to deliver. The loop also ran the full suite several times per iteration and a canary
+composition after most edits, both permitted by the rules as written. This machine has 32 cores and
+`pytest-xdist` was never installed.
+
+**Decisions (owner).** (1) `pytest -n auto`; the full local CI-equivalent runs once, immediately
+before the commit; focused tests while changing; a test that cannot run in parallel is fixed, not
+exempted. (2) `present` on the canary only when a predicate that names the candidate closes, and
+at acceptance. (3) Push and continue; red CI is the next Orient's first work. (4) G2-W17 accepts
+when the coverage ledger, receipt sealing, volatile-observation sealing, and the proxy/CA environment
+hold; fixtures for file-reading examples move to G3-W01 as failure-class fixes driven by real cohort
+repositories. (5) G2-W23 is folded into G3-W01 (cold-run measurement in the preflight; parity test);
+its floor fix landed at `9e5f780`. (6) G3-W01 composes in up to three repository lanes — the
+concurrency `plans/idea.md` admits once the transaction is stable, which G2 proves.
+
+**Expected.** Iterations ~20–25 minutes (pytest −6 minutes × ~3 runs, one fewer composition, no CI
+wait); roughly twice the items per running hour. G2 exits within one or two iterations of these
+rules landing; the cohort's twelve compositions take ~40 minutes of lanes instead of ~1.6 hours
+serial. **Controls.** The report's metric line gains: full-suite seconds and canary runs this
+iteration; the reviewer wake checks both against these ceilings (suite ≤ 120 s, ≤ 1 canary run per
+predicate closed). **Limits.** Parallel tests may expose shared-state assumptions (temp dirs,
+ports) — fixing them is real work, bounded; the model's ~35% is the thinking and is not cut.
+
 ## 31. Provisional decision log (the loop appends; the owner reviews asynchronously)
 
 The loop never stops to ask. When a decision is needed it decides by loop-prompt §5's order, appends
@@ -2859,6 +2898,13 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   85 total floor until three sealed compositions measure ≥97, then set it at their observed minimum
   less one rejection's worth. W20's acceptance itself stands — 14 of 14 first-attempt, 95.0% ledger,
   predicates restated honestly. Reverse by a further entry.
+- **2026-09-05 21:45 · OWNER · throughput decisions (30.9).** `pytest -n auto`, full suite once
+  before the commit; `present` only at predicate closure or acceptance; push and continue; **G2-W17
+  accepts on the ledger, receipt sealing, volatile observations, proxy/CA environment** — restate
+  its remaining predicates to that and move fixtures to G3-W01; **G2-W23 folded into G3-W01**;
+  G3-W01 composes in three repository lanes. Alternative rejected: keep the rules and the queue and
+  attribute the slip to caps — the transcript shows 33% of the day in a 7-minute suite that W11 was
+  accepted without fixing. Evidence: 30.9. Reverse by a further entry.
 - **2026-09-05 · G2-W20 · a slot is told what the renderer already prints beside it, and
   `fact_ids` is a per-call enum.** The two prose families are removed by making the restatement
   pointless rather than by asking for restraint. Alternative rejected: a per-slot `fact_ids` enum,

@@ -143,10 +143,11 @@ files, never from memory of a previous iteration.
   candidate for, a quick `gh api repos/{owner}/{repo}/contents/README.md` comparison is cheap,
   concrete evidence of what this candidate is actually replacing — a feature the live README already
   has that this candidate lacks is a real gap, not a hypothesis.
-- After the change, run the official entry point end to end on the canary. G0:
-  `repository-presenter --version` and `status`. G1 onward: `repository-presenter present --repo
-  aspose-3d-foss/Aspose.3D-FOSS-for-Python` and its immediate rerun, which must be byte-identical
-  with zero provider calls.
+- Run the official entry point end to end on the canary (`repository-presenter present --repo
+  aspose-3d-foss/Aspose.3D-FOSS-for-Python`, then its immediate rerun, byte-identical with zero
+  provider calls) **only when closing a predicate that names the candidate, and at acceptance** —
+  never after every edit. On 2026-09-05, 116 canary runs took 1.8 of 11.8 hours
+  (`RESEARCH_AND_GUIDELINES.md` §30.9); the fake-gateway tests are the per-edit check.
 - A module with no production importer is a defect. Wire it or delete it in this iteration.
 - A numeric threshold in a predicate or a regression control is never fitted to one sample: set it
   from at least three sealed compositions at the observed minimum less one rejection's worth,
@@ -155,14 +156,15 @@ files, never from memory of a previous iteration.
 - The LLM never writes Markdown or the document. Jobs return typed content units bound to fact IDs;
   the deterministic renderer owns headings, badges, Mermaid, commands, code, links, and license text
   (`docs/README_CONTRACT.md` §3). Claim checks are structural, never substring matching on prose.
-- Run focused checks, then the gate's required checks on the repo-local interpreter: `ruff check
-  .`, `ruff format --check .`, `mypy src`, `pytest`. That single-interpreter pass is the local
-  CI-equivalent. The hosted three-version matrix that every push triggers is the authoritative
-  3.11/3.12/3.13 proof (§4 watches it to completion and fixes red now); an acceptance predicate that
-  names all three interpreters is met by a green hosted run on the pushed commit
-  (`RESEARCH_AND_GUIDELINES.md` §27.5 D7). Disposable clones and run output go under `runs/`
-  (gitignored). Candidate bundles under `candidates/` and gate evidence under `evidence/` are
-  committed.
+- While changing, run only the focused tests for the files you touched. Run the full local
+  CI-equivalent **once, immediately before the commit**: `ruff check .`, `ruff format --check .`,
+  `mypy src`, `pytest -n auto` (`pytest-xdist`, a dev dependency the first item to run the suite
+  after 2026-09-05 adds to `pyproject.toml` and the lock; this machine has 32 cores and the serial
+  suite cost 3.8 of 11.8 hours that day — §30.9). A test that cannot run in parallel is fixed, not
+  exempted. The hosted three-version matrix is the authoritative 3.11/3.12/3.13 proof; an acceptance
+  predicate that names all three interpreters is met by a green hosted run on the pushed commit
+  (§27.5 D7). Disposable clones and run output go under `runs/` (gitignored). Candidate bundles under
+  `candidates/` and gate evidence under `evidence/` are committed.
 - Windows traps: write multi-line files and scripts with the Write tool, not big Bash heredocs;
   pass `newline="\n"` whenever Python writes a tracked text file; keep every path short.
 
@@ -177,12 +179,11 @@ files, never from memory of a previous iteration.
 - One coherent commit: `<type>(<scope>): <what> (<GATE_ID>/<WORK_ITEM_ID>)`, ending with
   the `Co-Authored-By:` trailer for the model actually executing the iteration (the owner plans on
   one model and executes on another by design; the trailer records which one wrote the commit).
-- Push per `publication.control_repository`, then watch the triggered run to completion (`gh run
-  list --limit 1` for the pushed SHA, or `gh run watch`) before ending the iteration. A red run is
-  fixed now, in this iteration — never deferred to the next iteration's Orient step. If your run
-  was cancelled because a later push superseded it, the later run's result is the verdict for your
-  tree too — wait for it, never treat `cancelled` as red or as green. Record the pushed commit and
-  its CI result in the report.
+- Push per `publication.control_repository` and **continue**; do not wait for the hosted run. The
+  next iteration's Orient reads the latest completed run for `main`: red is that iteration's first
+  work, before anything else (§1). A run cancelled because a later push superseded it is neither
+  red nor green — the later run's result is the verdict for your tree too. Record the pushed commit
+  and the CI state you last observed in the report.
 
 ## 5. Blockers and failures
 
@@ -301,6 +302,7 @@ Gate and work item with status. Files changed. Checks run with results. Progress
 and whether it was pushed, with the hosted CI state. Owner items still `OPEN` with the exact action.
 Next action. One metric line, always: items accepted since the candidate count last rose · blocking
 checks · §31 entries today · first-attempt acceptance on the last sealed composition · iterations
-on the active item. From G3 on, when the first number reaches 3 the next item must raise the count
+on the active item · full-suite seconds this iteration (ceiling 120) · canary runs this iteration
+(ceiling: one per predicate closed). From G3 on, when the first number reaches 3 the next item must raise the count
 or a §31 entry says why not, and no new check is admitted until it does (§30.8 C2). No wave
 numbers, requirement IDs, or evidence inventories.
