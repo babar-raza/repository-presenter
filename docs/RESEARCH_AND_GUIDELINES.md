@@ -2339,6 +2339,22 @@ After both fixes, TeX and Email cleared the opening and failed further in — `T
 examples are all `CONTRADICTED`) and `email.message`, a lowercase module path the noun rule
 deliberately excludes. Under §28.12 rule (4) each is a disposition, not a third attempt.
 
+**Measurement (the loop's, G3-W01, 2026-09-06, later).** Recomposed against the two fixes, Cells
+and Note each advanced a stage and stopped on a different cause. Cells reached `independent_review`
+and failed closed twice: both rejected findings were quotes that **trail off** — `subgraph
+StartingPoints["Starting Points"]...` and `Open an existing \`input.xlsx\` workbook...` — whose
+single normalised fragment is exact candidate text (verified against the rendered README: 43 and
+39 characters, present in the 35,942-character normalised haystack). `quote_located` handled an
+ellipsis only *between* two fragments, and the eighty-character anchor cannot reach a quote this
+short, so a reviewer abbreviating one line ended the transaction on a `JobError` rather than a
+verdict — the third instance of that failure mode after the Mermaid label quotes and the
+flattened fence. A single fragment now counts when the quote really carried an ellipsis. Note
+stopped at `section_authoring` on `capability:4`, titled "Export pages to PDF" while
+`format:output.pdf` is `UNRESOLVED`: the check is right — the title claims what the repository
+does not prove — but it fires at S6, where the plan is already fixed and a re-ask can only
+rewrite prose. `plan_checks` now asks the same question at S5, beside the rule that already
+governs the At a Glance formats, where the model can choose another title.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
@@ -3450,3 +3466,12 @@ p-toolchains`,
   `tests/test_isolation.py` asserts a session fixture sees none. Reproduced before the fix:
   `tests/test_cli.py` under `-n auto` failed with the variables set, 43 of 43 with them unset.
   No check weakened. Reverse by deleting the session fixture and that module.
+
+- **2026-09-06 05:05 · loop (PROVISIONAL) · a capability title is judged at planning, where a
+  re-ask can act on it.** Item G3-W01. Decision: `plan_checks` rejects a capability whose title
+  names a format fact that is not `SUPPORTED`, using `title_terms` so S5 and S6 cannot drift.
+  Alternative rejected: making `format` a neutral kind in the S6 check — that would have let a
+  title name an `UNRESOLVED` format, which is the claim the check exists to stop. Evidence: §27.10
+  (2026-09-06, later) — Note's `capability:4` "Export pages to PDF" against `format:output.pdf`
+  `UNRESOLVED`, rejected twice at S6 where nothing could change the title. Reverse by deleting the
+  loop over `capabilities` in `plan_checks` and its test.

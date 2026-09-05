@@ -252,6 +252,32 @@ def test_two_capabilities_rest_on_the_same_fact_only_when_both_declare_it() -> N
     ]
 
 
+def test_a_capability_title_names_only_a_format_the_facts_verify() -> None:
+    """Asked at planning, where a re-ask can change the title; at S6 nothing can.
+
+    Aspose.Note titled a capability "Export pages to PDF" while format:output.pdf is UNRESOLVED,
+    and section_authoring rejected it twice on the same title, ending the transaction (measured
+    2026-09-06). The same rule already governs the At a Glance formats.
+    """
+    unverified = [
+        {"title": "Import OBJ meshes", "fact_ids": ["public_symbol:widget.scene"]},
+        {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+        {"title": "Run examples", "fact_ids": ["example:001"]},
+    ]
+    glance = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in unverified],
+    }
+    assert plan_checks(_plan(core_capabilities=unverified, at_a_glance=glance), FACTS) == [
+        "core_capabilities 1 is titled 'Import OBJ meshes', which names .obj; no fact verifies "
+        "that format, so the title claims what the repository does not prove - title the "
+        "capability by what is verified"
+    ]
+    # A verified format is free to name, and prose that matches no format fact is just prose.
+    assert plan_checks(_plan(), FACTS) == []
+
+
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
     path = tmp_path / "t" / "plan.json"
     digest = write_plan(_plan(), path)

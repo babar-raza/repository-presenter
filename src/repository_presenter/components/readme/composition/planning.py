@@ -17,6 +17,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.composition.authoring import title_terms
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
     Section,
@@ -243,6 +244,24 @@ def plan_checks(
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")
     errors.extend(_capability_facts_apart(capabilities))
+    # A capability title names only formats the facts verify. S6 judges the same titles by the
+    # same rule (README_CONTRACT.md check 4), but by then the plan is fixed and the re-ask can
+    # only rewrite prose, so the transaction dies: Aspose.Note titled a capability "Export pages
+    # to PDF" while format:output.pdf is UNRESOLVED, and section_authoring failed twice on it
+    # (measured 2026-09-06). Asked here, the model can choose another title.
+    recorded = {fact.value: fact.polarity for fact in facts.by_kind("format")}
+    for index, item in enumerate(capabilities, start=1):
+        unverified = sorted(
+            term
+            for term in title_terms(str(item.get("title", "")), facts)
+            if recorded.get(term, "SUPPORTED") != "SUPPORTED"
+        )
+        if unverified:
+            errors.append(
+                f"core_capabilities {index} is titled {item.get('title')!r}, which names "
+                f"{', '.join(unverified)}; no fact verifies that format, so the title claims "
+                "what the repository does not prove - title the capability by what is verified"
+            )
 
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
     input_formats = {i for i in supported if i.startswith("format:input.")}
