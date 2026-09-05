@@ -965,25 +965,31 @@ def coverage_ledger(candidate: Candidate) -> list[dict[str, Any]]:
     that kind are SUPPORTED, how many were extracted, and - when some are not - the reason the
     evidence itself gives, never one invented here.
     """
-    by_kind: dict[str, list[Fact]] = {}
-    for fact in candidate.facts.facts:
-        by_kind.setdefault(fact.kind, []).append(fact)
     included = {
         str(entry.get("section_id"))
         for entry in candidate.plan.get("sections", [])
         if entry.get("include")
     }
+    return coverage_rows(candidate.facts, included)
+
+
+def coverage_rows(facts: FactsDocument, included: set[str]) -> list[dict[str, Any]]:
+    """The ledger's rows from the facts alone, so a facts-only pass can report coverage before
+    any plan exists (G3-W01's preflight; the plan decides only the ``included`` flag)."""
+    by_kind: dict[str, list[Fact]] = {}
+    for fact in facts.facts:
+        by_kind.setdefault(fact.kind, []).append(fact)
     ledger: list[dict[str, Any]] = []
     for section in SEMANTIC_SHELL:
         kinds: list[dict[str, Any]] = []
         for kind in ROW_FACT_KINDS.get(section.id, ()):
-            facts = by_kind.get(kind, [])
-            supported = [fact for fact in facts if fact.polarity == "SUPPORTED"]
-            unresolved = [fact for fact in facts if fact.polarity != "SUPPORTED"]
+            of_kind = by_kind.get(kind, [])
+            supported = [fact for fact in of_kind if fact.polarity == "SUPPORTED"]
+            unresolved = [fact for fact in of_kind if fact.polarity != "SUPPORTED"]
             record: dict[str, Any] = {
                 "kind": kind,
                 "supported": len(supported),
-                "extracted": len(facts),
+                "extracted": len(of_kind),
             }
             if unresolved:
                 record["reasons"] = sorted(

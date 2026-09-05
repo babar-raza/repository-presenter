@@ -520,6 +520,50 @@ def readme_only_upstream(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pat
     return source
 
 
+def test_facts_only_stops_after_the_facts_with_no_provider_call(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The cohort preflight reads every repository before any composition spends a token.
+
+    RESEARCH_AND_GUIDELINES.md section 28.12: one facts-only pass over the whole cohort, so
+    the failure classes surface at zero cost and the boxes are spent on repositories that
+    can seal.
+    """
+    monkeypatch.setenv("GH_TOKEN", "ghp_read_only_token_value")
+    revision = local_canary["revision"]
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry), "--facts-only"])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    # Nothing downstream of the facts ran, and the gateway was never called.
+    assert gateway_ready.requests == []
+    assert "investigation: " not in out and "readme: " not in out
+    assert "bundle: " not in out
+    transaction = (
+        project_with_registry
+        / "runs"
+        / "transactions"
+        / "aspose-3d-foss__Aspose.3D-FOSS-for-Python"
+        / revision
+    )
+    record = json.loads((transaction / "preflight.json").read_text("utf-8"))
+    assert record["repository"] == CANARY and record["source_revision"] == revision
+    assert record["processable"] is True
+    assert record["facts"]["total"] == sum(record["facts"]["by_polarity"].values())
+    # Every shell row is reported, and a row whose kinds produced nothing is named.
+    assert len(record["coverage"]) == 18
+    starved = record["required_rows_without_evidence"]
+    assert all(
+        row["section_id"] in starved
+        for row in record["coverage"]
+        if row["required"] and row["kinds"] and not any(k["supported"] for k in row["kinds"])
+    )
+    assert "preflight: runs/transactions" in out
+
+
 def test_present_admits_clones_and_captures_the_source_snapshot(
     project_with_registry: Path,
     local_canary: dict[str, Any],

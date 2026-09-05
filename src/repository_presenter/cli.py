@@ -68,6 +68,7 @@ from repository_presenter.components.readme.review.independent.review import (
 from repository_presenter.components.readme.validation.registry import (
     VALIDATION_FILENAME,
     blocking_failures,
+    coverage_rows,
     summarize_validation,
 )
 from repository_presenter.core.candidates import (
@@ -85,6 +86,7 @@ from repository_presenter.core.examples import (
 )
 from repository_presenter.core.facts import (
     FACTS_FILENAME,
+    FactsDocument,
     write_facts,
 )
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
@@ -104,6 +106,7 @@ from repository_presenter.core.registry.loader import (
     load_registry,
     require_listed,
 )
+from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
@@ -154,6 +157,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="repository coordinates exactly as listed in the registry",
     )
     present.add_argument("--root", type=Path, default=None, help=root_help)
+    present.add_argument(
+        "--facts-only",
+        action="store_true",
+        help=(
+            "stop after the facts stage with the processability and coverage record, making no "
+            "provider call; the cohort preflight (RESEARCH_AND_GUIDELINES.md section 28.12)"
+        ),
+    )
     preflight = subcommands.add_parser(
         "preflight",
         help="reach the LLM gateway from the process environment and record its model catalog",
@@ -169,7 +180,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "status":
         return run_status(args.root)
     if args.command == "present":
-        return run_present(args.repo, args.root)
+        return run_present(args.repo, args.root, facts_only=args.facts_only)
     if args.command == "preflight":
         return run_preflight(args.root)
     parser.error(f"unknown command {args.command!r}")
@@ -234,8 +245,65 @@ def run_status(root_argument: Path | None) -> int:
     return EXIT_OK
 
 
-def run_present(repository: str, root_argument: Path | None) -> int:
-    """Admit ``repository`` from the registry, then run the transaction stages."""
+PREFLIGHT_FILENAME = "preflight.json"
+
+
+def _report_facts_only(
+    root: Path,
+    entry: RegistryEntry,
+    revision: str,
+    document: FactsDocument,
+    transaction: Path,
+) -> int:
+    """Write and print what the facts alone say about this repository's readiness.
+
+    Per fact kind, how many resolved; per required contract row, whether the kinds it rests on
+    produced anything. A row with no supported fact of any kind it needs is the coverage gap the
+    cohort must see before it spends a composition on the repository.
+    """
+    polarity = Counter(fact.polarity for fact in document.facts)
+    kinds = {
+        kind: {
+            "supported": sum(
+                1 for f in document.facts if f.kind == kind and f.polarity == "SUPPORTED"
+            ),
+            "extracted": sum(1 for f in document.facts if f.kind == kind),
+        }
+        for kind in sorted({fact.kind for fact in document.facts})
+    }
+    rows = coverage_rows(document, set())
+    starved = [
+        row["section_id"]
+        for row in rows
+        if row["required"] and row["kinds"] and not any(kind["supported"] for kind in row["kinds"])
+    ]
+    record = {
+        "schema_version": 1,
+        "repository": entry.repository,
+        "source_revision": revision,
+        "processable": True,
+        "facts": {"total": len(document.facts), "by_polarity": dict(polarity), "by_kind": kinds},
+        "required_rows_without_evidence": starved,
+        "coverage": rows,
+    }
+    path = transaction / PREFLIGHT_FILENAME
+    path.write_bytes((json.dumps(record, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    print(
+        f"preflight: {path.relative_to(root).as_posix()} ({len(document.facts)} facts, "
+        f"{polarity.get('SUPPORTED', 0)} supported, {polarity.get('UNRESOLVED', 0)} unresolved, "
+        f"{polarity.get('CONTRADICTED', 0)} contradicted; required rows without evidence: "
+        f"{', '.join(starved) or 'none'})"
+    )
+    return EXIT_OK
+
+
+def run_present(repository: str, root_argument: Path | None, *, facts_only: bool = False) -> int:
+    """Admit ``repository`` from the registry, then run the transaction stages.
+
+    ``facts_only`` stops after S2 with the processability and coverage record and makes no
+    provider call: the cohort preflight reads every repository's failure class before any
+    composition spends a token (RESEARCH_AND_GUIDELINES.md section 28.12).
+    """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
@@ -334,6 +402,8 @@ def run_present(repository: str, root_argument: Path | None) -> int:
             f"evaluation: {(transaction / EVALUATION_FILENAME).relative_to(root).as_posix()} "
             f"({summarize_evaluation(evaluated)}; digest {evaluation_digest})"
         )
+        if facts_only:
+            return _report_facts_only(root, entry, clone.revision, document, transaction)
         original_bytes: bytes | None = None
         original = ""
         if snapshot.readme_path is not None:
