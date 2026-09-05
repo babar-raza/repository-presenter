@@ -105,9 +105,14 @@ def quote_located(quote: str, candidate_readme: str) -> bool:
     haystack = _normalized(candidate_readme)
     if not wanted or wanted in haystack:
         return True
-    # An ellipsis abbreviates: every fragment around it is exact candidate text.
+    # An ellipsis abbreviates: every fragment around it is exact candidate text. It abbreviates
+    # at either end too - a reviewer quoting one short line writes "subgraph StartingPoints[...]"
+    # and trails off - so a single fragment counts, provided the quote really carried an ellipsis
+    # (measured 2026-09-06: both of Aspose.Cells' rejected findings were quotes of exactly this
+    # shape, each 43 characters or fewer, so the eighty-character anchor below could not reach
+    # them and the review ended the transaction on a JobError instead of a verdict).
     fragments = [part.strip() for part in _ELLIPSIS.split(wanted) if part.strip()]
-    if len(fragments) > 1 and all(part in haystack for part in fragments):
+    if _ELLIPSIS.search(wanted) and fragments and all(part in haystack for part in fragments):
         return True
     return len(wanted) > _ANCHOR_LENGTH and wanted[:_ANCHOR_LENGTH] in haystack
 

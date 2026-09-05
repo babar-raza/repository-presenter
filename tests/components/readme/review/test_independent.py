@@ -565,6 +565,12 @@ def test_an_ellipsis_in_a_quote_abbreviates_between_exact_fragments() -> None:
     assert quote_located("Load formats. … Save.", candidate)
     assert not quote_located("Load formats. ... Write PDF.", candidate)
     assert not quote_located("...", candidate)
+    # A quote trails off at either end too. Both of Aspose.Cells' rejected findings were this
+    # shape and each was under 80 characters, so the anchor could not reach them and the review
+    # ended the transaction on a JobError (measured 2026-09-06).
+    assert quote_located("Key Capabilities - **Load formats.**...", candidate)
+    assert quote_located("...Read OBJ and STL files.", candidate)
+    assert not quote_located("Key Capabilities - **Load fonts.**...", candidate)
 
 
 def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:
