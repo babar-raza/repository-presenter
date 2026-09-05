@@ -358,6 +358,11 @@ def renderer_sentences(
             f"It covers all {count} verified public types; the "
             "[API Reference](#api-reference) section above covers the essentials."
         )
+    # The Enterprise closing sentence carries the verified target and names the edition exactly
+    # once (README_CONTRACT.md section 2 row 18); the unit beside it only adds context.
+    closing = _enterprise_paragraph(context)
+    if closing:
+        sentences.append(closing.split(". ", 1)[0] + ".")
     return tuple(sentences)
 
 
