@@ -681,6 +681,47 @@ def test_a_presentation_finding_against_the_documents_own_shape_is_the_reviewers
     assert scope_defect(factual, CANDIDATE, by_id) is None
 
 
+def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:
+    """Asking for an example that did not execute asks the contract to break its own check 3.
+
+    Measured 2026-09-06: Aspose.Slides was held unsealed by "the candidate omits the Markdown
+    export example entirely", quoting example:015 - CONTRADICTED, the one example of fifteen the
+    plan could not carry. The reviewer left `absent` empty, so absence_defect had nothing to
+    look up; the quote it did fill says the same thing.
+    """
+    broken = "from aspose.slides_foss.export import SaveFormat, MarkdownSaveOptions, NewLineType"
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("example:015", "example", broken, (Evidence("x"),), polarity="CONTRADICTED"),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    asks_for_it = {
+        **_finding("F04", "additional_examples", "S6", broken),
+        "criterion": "presentation",
+        "fact_ids": [],
+    }
+    assert scope_defect(asks_for_it, CANDIDATE, by_id) == (
+        "the quote is example:015, which is CONTRADICTED: the contract admits it only once the "
+        "evidence supports it, so no stage the loop can reopen would write it"
+    )
+    # Mutation: the same quote against a SUPPORTED fact stands, a short quote is never matched
+    # this way, and a finding quoting the candidate's own prose is untouched.
+    supported = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, Fact("example:015", "example", broken, (Evidence("x"),))),
+    )
+    assert scope_defect(asks_for_it, CANDIDATE, {f.id: f for f in supported.facts}) is None
+    brief = {**asks_for_it, "quote": broken[:20]}
+    assert scope_defect(brief, CANDIDATE, by_id) is None
+    own = {**asks_for_it, "quote": "It writes `.glb` files."}
+    assert scope_defect(own, CANDIDATE, by_id) is None
+
+
 def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:
     # README_CONTRACT.md section 2.1: the renderer owns every node, edge, and label of the
     # diagram, so a reviewer asking for a group the facts do not verify is out of scope.

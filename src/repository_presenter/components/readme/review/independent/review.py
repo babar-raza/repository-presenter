@@ -401,6 +401,36 @@ def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str 
     )
 
 
+# A quote shorter than this can coincide with unrelated text; the reviewer's own anchor rule
+# uses the same order of magnitude.
+_EXCLUDED_QUOTE_LENGTH = 40
+
+
+def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
+    """Why a finding quoting evidence the facts exclude is the reviewer's own defect, or None.
+
+    A finding may quote candidate text or text it says should be there. When the quote is the
+    value of a fact that is not ``SUPPORTED``, the second reading is the only one left - and
+    rendering it would break the contract's own check 3, which admits an example only if it
+    executed at this revision. There is nothing to restore and no stage would restore it.
+
+    Measured 2026-09-06: Aspose.Slides was held unsealed by *the candidate omits the Markdown
+    export example entirely*, quoting `example:015` - `CONTRADICTED`, one of fifteen examples,
+    the only one the plan could not carry. This is ``absence_defect``'s "nothing to restore"
+    rule, read from the quote the reviewer did fill rather than the ``absent`` list it left empty.
+    """
+    quote = _normalized(str(finding.get("quote", "")))
+    if len(quote) < _EXCLUDED_QUOTE_LENGTH:
+        return None
+    for fact in by_id.values():
+        if fact.polarity != "SUPPORTED" and quote in _normalized(fact.value):
+            return (
+                f"the quote is {fact.id}, which is {fact.polarity}: the contract admits it only "
+                "once the evidence supports it, so no stage the loop can reopen would write it"
+            )
+    return None
+
+
 def scope_defect(
     finding: Mapping[str, Any],
     candidate_readme: str,
@@ -418,11 +448,15 @@ def scope_defect(
 
     An absence the candidate disproves is judged first, whatever the criterion: a finding that
     names text the candidate contains is refuted by the document itself, and no reading of its
-    criterion changes that.
+    criterion changes that. So is a quote the facts exclude, for the same reason from the other
+    side - the document could not have carried it.
     """
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
         return absence
+    excluded = excluded_evidence_defect(finding, by_id)
+    if excluded is not None:
+        return excluded
     written = rendered_defect(finding, rendered)
     if written is not None:
         return written

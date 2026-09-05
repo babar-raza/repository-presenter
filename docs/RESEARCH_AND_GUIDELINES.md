@@ -3546,3 +3546,14 @@ p-toolchains`,
   `PIP_NO_INDEX`, so no install a test drives reaches an index. Measured: 118s red, then 76s green.
   This is the defect I recorded as contention twice and did not diagnose; the credential leak of
   `63a9eb5` was a second, separate cause. Reverse by deleting the fixture and the two dependencies.
+
+- **2026-09-06 07:55 · loop (PROVISIONAL) · a quote the facts exclude refutes its own finding.**
+  Item G3-W01. The two §31 refutations of 07:10 landed and cut the blocking set from four to two
+  on Cells and three to one on Slides. What remained on Slides was *the candidate omits the
+  Markdown export example entirely*, quoting `example:015`, which is `CONTRADICTED` - one of
+  fifteen, the only one the plan could not carry - so rendering it would break contract check 3.
+  Decision: `excluded_evidence_defect` refutes a finding whose quote (40 normalised characters or
+  more) is the value of a fact that is not `SUPPORTED`. This is `absence_defect`'s "nothing to
+  restore" rule read from the quote the reviewer filled rather than the `absent` list it left
+  empty. Alternative rejected: dispositioning Slides for a finding a check demonstrably answers.
+  Reverse by deleting the function and its call in `scope_defect`.
