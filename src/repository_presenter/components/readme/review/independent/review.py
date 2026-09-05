@@ -59,6 +59,11 @@ _TYPOGRAPHY = str.maketrans(
 
 _MARKUP = (
     re.compile(r"(?m)^\s*```[^\n]*$"),  # fence lines, with their language
+    # The same fence flattened into one quote: a reviewer copies "Verify the install:" and
+    # the block after it as a single line, and the language tag then survives where the
+    # candidate's own line dropped it, so the quote could never locate (measured 2026-09-05,
+    # the review failed closed twice on it).
+    re.compile(r"```[A-Za-z0-9_+-]*"),
     re.compile(r"<[^>\n]+>"),  # HTML tags such as details and summary
     re.compile(r"(?m)^\s*(?:[-*+]|\d+[.)])\s+"),  # list markers
     re.compile(r"(?m)^\s*#{1,6}\s+"),  # heading marks

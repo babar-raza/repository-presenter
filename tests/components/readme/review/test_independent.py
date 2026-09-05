@@ -107,6 +107,24 @@ def test_the_packet_is_bounded_and_carries_validation_as_context() -> None:
     assert set(packet) == REVIEWER.manifest.packet.names
 
 
+def test_a_fence_flattened_into_a_quote_locates_the_candidates_own_block() -> None:
+    """A reviewer quotes what it reads, on one line; the candidate carries it on four.
+
+    Measured 2026-09-05: the reviewer quoted the install verification as one string, the
+    fence's language tag survived where the candidate's own fence line dropped it, and the
+    review failed closed after two rejections rather than returning a verdict (section 27.2).
+    """
+    candidate = "Verify the install:\n```bash\n"
+    candidate += "python -c 'import aspose.threed'\n```\n"
+    flattened = "Verify the install: ```bash python -c 'import aspose.threed'"
+    assert quote_located(flattened, candidate)
+    # A fence with no language, and the candidate's own spelling, locate as they did before.
+    assert quote_located("```python -c 'import aspose.threed'", candidate)
+    assert quote_located("Verify the install:", candidate)
+    # Text the candidate does not carry is still invented.
+    assert not quote_located("Verify the install: ```bash pip install x", candidate)
+
+
 def test_a_mermaid_label_locates_without_the_diagrams_quotation_marks() -> None:
     """A reviewer reads the label, not the syntax that carries it.
 
