@@ -347,6 +347,12 @@ def renderer_sentences(
     context = RenderContext(entry, facts, plan, units, dispositions)
     sentences = list(_development_sentences(context))
     if any(section.id == "api_reference" for section in context.included):
+        kinds = [
+            (fact.attributes or {}).get("symbol_kind", "")
+            for fact in context.supported("public_symbol")
+        ]
+        types = sum(1 for kind in kinds if kind in ("class", "enum"))
+        sentences.append(f"The verified public surface has {types} types.")
         count = _public_type_count(context)
         sentences.append(
             f"It covers all {count} verified public types; the "

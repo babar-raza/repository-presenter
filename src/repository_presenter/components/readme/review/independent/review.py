@@ -75,10 +75,16 @@ _MARKUP = (
 )
 
 
+# A link reads as its text: the candidate carries [text](url) and a reviewer quotes the words
+# it clicked, so the destination is ours, like a code span's backticks. The third asymmetry of
+# this kind measured on 2026-09-05, after the Mermaid label and the fence.
+_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+
+
 def _normalized(text: str) -> str:
     """Text as a reader compares it: no code spans or Markdown syntax, plain dashes and
     quotes, single spaces. A reviewer quotes what it reads; the syntax around it is ours."""
-    plain = text.translate(_TYPOGRAPHY)
+    plain = _LINK.sub(r"\1", text.translate(_TYPOGRAPHY))
     for pattern in _MARKUP:  # fence lines first, while their backticks still mark them
         plain = pattern.sub("", plain)
     return re.sub(r"\s+", " ", plain.replace("`", "")).strip().lower()
@@ -295,15 +301,16 @@ def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str 
     unit can change it, so no stage the loop can reopen would act on the finding.
     """
     quote = _normalized(str(finding.get("quote", "")))
-    if not quote:
+    if not quote or not rendered:
         return None
-    for sentence in rendered:
-        if quote in _normalized(sentence):
-            return (
-                "the quoted sentence is the renderer's own, written from the facts beside a unit "
-                "that did not write it; no revision of that unit can change it"
-            )
-    return None
+    # A reviewer may quote two of these sentences at once - the renderer prints them adjacent -
+    # so the quote is measured against them joined in the order the renderer wrote them.
+    if quote not in _normalized(" ".join(rendered)):
+        return None
+    return (
+        "the quoted sentence is the renderer's own, written from the facts beside a unit that "
+        "did not write it; no revision of that unit can change it"
+    )
 
 
 def scope_defect(
