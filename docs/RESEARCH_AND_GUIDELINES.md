@@ -3425,3 +3425,19 @@ p-toolchains`,
   Evidence: §27.10 (2026-09-06) — five of seven cohort compositions died on this, 1–13 tokens
   admitted per repository, all format, standard or third-party names. Reverse by deleting
   `prose_nouns` and its two tests.
+
+- **2026-09-06 02:35 · owner (REVIEWED) · lane B's merge path proven; a live-gateway test defect
+  routed to the primary.** Evidence: PR #2 (`lane-b/LANE-B-00`, label `lane-b`) green on 3.11/3.12/3.13,
+  squash-merged as `9ccd621` touching exactly `docs/RESEARCH_LANE_B.md`,
+  `evidence/build/lanes/lane-b/LANE-B-00.json` and `project/lanes/lane-b.yaml`; PR #1 (old convention)
+  closed unmerged, branch deleted; rustup 1.29.1 / cargo 1.98.1 and tsc 5.9.3 provisioned under
+  `C:	oolsp-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect found
+  by the lane: `pytest -n auto` is nondeterministic on this machine because `tests/test_cli.py`
+  fixtures compose against the real gateway when `GPT_OSS_ENDPOINT`/`GPT_OSS_API_KEY` are in the
+  process environment (six runs: 503 passed; 501+2 errors; 500+3 errors+1 failed; 500+2 errors — a
+  different subset each time; unset both: 503/503; `ci.yml` sets neither). Decision: the suite never
+  reaches a live gateway — the fake-gateway fixture takes precedence over the process environment for
+  every test and one test asserts no test can see real credentials; the primary lands it as test
+  hygiene in its current iteration (`Reviewer:` message sent 02:35). This is also the likely cause of
+  the "commit after a failing full suite" observation. Reverse by removing the guard — which would
+  restore the flakiness. Lane B's next run starts at G4-W14 when W10 and W09 are accepted on main.
