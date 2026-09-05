@@ -1,0 +1,65 @@
+schema_version: 1
+lane: lane-b
+branch: lane-b
+purpose: 'Parallel lane for the small ecosystem cohorts (owner decision 2026-09-06 01:20, RESEARCH 28.12 Lane B): TypeScript, Go, Rust, then C++ - after G4-W10 and G4-W09 are accepted on main. Each item''s text was moved here verbatim from section 27.9 and has this single source; the primary loop never runs these IDs.'
+prerequisites_on_main:
+- G4-W10
+- G4-W09
+owned_paths:
+- src/repository_presenter/components/readme/extractors/platforms/typescript*.py
+- src/repository_presenter/components/readme/extractors/platforms/go*.py
+- src/repository_presenter/components/readme/extractors/platforms/rust*.py
+- src/repository_presenter/components/readme/extractors/platforms/cpp*.py
+- tests/components/readme/extractors/platforms/test_typescript*.py
+- tests/components/readme/extractors/platforms/test_go*.py
+- tests/components/readme/extractors/platforms/test_rust*.py
+- tests/components/readme/extractors/platforms/test_cpp*.py
+- candidates/<lane repositories only>/
+- evidence/build/lanes/lane-b/
+- project/lanes/lane-b.yaml
+- docs/RESEARCH_LANE_B.md
+- migration/reuse-manifest.yaml (append-only file records)
+repositories:
+- aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript
+- aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript
+- 'aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript (disabled: disposition only)'
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Go
+- aspose-pdf-foss/Aspose-PDF-FOSS-for-Go
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Rust
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp
+- aspose-email-foss/Aspose.Email-FOSS-for-Cpp
+- aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
+- aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
+progress:
+  sealed_by_lane: 0
+  dispositions_by_lane: 0
+items:
+- id: LANE-B-00
+  status: PENDING
+  prerequisites: []
+  purpose: 'Toolchains for the lane, never on PATH and never system-wide (loop-prompt section 1.5; OWNER-06): verify the workspace-local GCC and Ninja recorded in C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt (cmake -G Ninja configures and builds a C++20 probe with them); provision rustup with a pinned stable toolchain under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME and CARGO_HOME there; cargo called by absolute path; version recorded), and confirm node, npx.cmd and go with their versions. Acceptance: g++ --version, ninja --version, cargo --version, node --version, go version all print from the recorded absolute paths; a trivial cargo new crate passes cargo check under the disposable CARGO_HOME; evidence/build/lanes/lane-b/LANE-B-00.json records every path and version; RESEARCH_LANE_B.md has the entry.'
+- id: G4-W14
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted
+  purpose: 'TypeScript spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/typescript.py only for exports and ESM/CJS shape if the vendored reader lacks them), surface through the shared extractor''s barrel-resolving TypeScript adapter, a fresh verifier (tsc --noEmit via the resolved npx.cmd with a disposable npm profile), registry facts through the vendored RegistryProbe, a negative control; then the two active TypeScript repositories as a cohort (PDF-TS is disabled). Parity per repository; tsc --declaration corroboration (E6) only if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+- id: G4-W15
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted
+  purpose: 'Go spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; module paths with a major-version suffix such as Cells Go''s /v26 carried into the install line), exported surface through the shared extractor with interface and struct-embedding handling, a fresh verifier (go build and go vet with a disposable GOPATH and module cache), registry facts through the vendored RegistryProbe (Go proxy; module-path escaping per the legacy registry_request.py), a negative control; then the two Go repositories as a cohort. Parity per repository; go doc -all corroboration (E6) only if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+- id: G4-W16
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted
+  purpose: 'Rust spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/rust.py only for a field it lacks), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), registry facts through the vendored RegistryProbe (crates.io with the mandatory named User-Agent), a negative control; then the one Rust repository. If rustup is absent the verifier base provisions it workspace-locally with a pinned toolchain (rustup-init -y --profile minimal --no-modify-path, RUSTUP_HOME and CARGO_HOME under runs/toolchains/, cargo called by absolute path, the version recorded in the receipt), never system-wide; BLOCKED_EXTERNAL only if provisioning itself fails. Time box 2 hours from promotion (section 28.12). Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green.'
+- id: G4-W13
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted
+  - OWNER-06 resolved (a C++ compiler the verifier can call; the workspace-local GCC counts)
+  purpose: 'C++ spec and cohort (consumes OWNER-06, the C++ compiler; BLOCKED_EXTERNAL while it is OPEN, and the loop takes the next item): identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; CMakeLists and FetchContent; the legacy ecosystems/cpp.py only for a field it lacks), header surface through the shared extractor with internal-visibility handling, the legacy example_verifiers/cpp.py pulled with a small cut (cmake configure and build, syntax-only compile of the example with the installed Build Tools; Slides C++ carries a conanfile - FetchContent fallback or a disposition), registry facts through the vendored RegistryProbe where a manifest names a package (aspose.org notes cells/cpp ships NuGet), otherwise install_command stays UNRESOLVED and Installation renders the source-build fallback, a negative control; then the four C++ repositories as a cohort. Parity per repository. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'

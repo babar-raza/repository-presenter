@@ -170,6 +170,10 @@ files, never from memory of a previous iteration.
   one model and executes on another by design; the trailer records which one wrote the commit).
   The body says what changed, why, and what it measured, in at most 120 words; §31 and the RESEARCH
   measurement paragraph carry the rest.
+- If the push is rejected because `main` moved (lane B merged a PR — `project/lanes/lane-b.yaml`,
+  §28.12), `git pull --rebase origin main`, re-run the focused tests, push again; a conflict in a
+  file you do not own takes origin's version. Lane B's items (G4-W13 to G4-W16) are not yours: they
+  are absent from §27.9 by design and never re-enter `next_ready_items`.
 - Push per `publication.control_repository` and **continue**; do not wait for the hosted run. The
   next iteration's Orient reads the latest completed run for `main`: red is that iteration's first
   work, before anything else (§1). A run cancelled because a later push superseded it is neither

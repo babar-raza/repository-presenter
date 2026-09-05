@@ -75,11 +75,12 @@ prompts/                     one governed manifest per job (README_CONTRACT.md �
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
 data/                        registry, link, family, and priority data pulled per migration/reuse-manifest.yaml
 profiles/                    per-repository and per-family policy overlays (ADAPT_AS_PLUGIN)
-docs/                        authority documents (this tree's siblings)
+docs/                        authority documents (this tree's siblings); RESEARCH_LANE_B.md is lane B's append-only decision log (RESEARCH §28.12)
 plans/                       plans/idea.md, the human product authority
-project/                     state.yaml, loop-prompt.md
+project/                     state.yaml, loop-prompt.md; loop-prompt-lane-b.md and lanes/<lane>.yaml (a parallel lane's prompt and cursor, RESEARCH §28.12); portfolio-census.json (owner planning data, RESEARCH §28.11 — never a runtime input)
 migration/                   reuse-manifest.yaml
 evidence/build/<gate-id>/    one manifest.json per accepted gate (EXECUTION_STATE_MACHINE.md §10)
+evidence/build/lanes/<lane>/ one <ITEM>.json per item a parallel lane accepts (the work-item record shape)
 candidates/<owner>__<name>/<revision>/   sealed candidate bundles (README_CONTRACT.md §7)
 candidates/<owner>__<name>/CURRENT       pointer file naming the current revision
 tests/                       mirrors src/repository_presenter/ package for package (see §3)
@@ -102,7 +103,9 @@ another ecosystem's module or anything under `investigation/`, `reconciliation/`
 ecosystem module, and only to register them; an unregistered ecosystem fails closed. Every stage
 after facts consumes `facts.json` only — no later stage imports an extractor module directly. Each
 platform module's tests live and pass in isolation from every other platform's; adding a new
-ecosystem changes only its own file, its own test, and one registration line. `RESEARCH_AND_GUIDELINES.md`
+ecosystem changes only its own file and its own test — registration is discovered by module name
+from G4-W10 on (`platforms/<ecosystem>.py` exposes `PLUGIN`; until then, one registration line).
+`RESEARCH_AND_GUIDELINES.md`
 §7.4 records why, including what the legacy `ecosystems/registry.py` already got right.
 
 ## 3. Tests mirror source
