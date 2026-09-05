@@ -184,6 +184,55 @@ source:
   clean_inventory_captured: false
   runtime_dependency_allowed: false
 
+sources:
+  - id: legacy
+    repository: babar-raza/foss-readme-optimizer
+    url: https://github.com/babar-raza/foss-readme-optimizer
+    frozen_revision: a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815
+    revision_verified: true
+    revision_metadata:
+      verified_at: "2026-09-02"
+      author: Babar Raza <babar.raza@aspose.com>
+      authored_at: "2026-09-01T18:39:18+05:00"
+      subject: "fix(readme): drop the ungrounded Project Structure summary phrase (PWD-060-FOLLOWUP5)"
+    working_tree_at_freeze:
+      observed_at: "2026-09-02"
+      status: DIRTY
+      reconciliation: EXCLUDED_BY_DEFAULT
+      reconciliation_rule: >
+        The record above under `source` is this source's full one; this entry exists so a file
+        record can name which source it came from. Nothing here restates a measurement.
+    clean_inventory_captured: true
+    runtime_dependency_allowed: false
+  - id: aspose-org
+    repository: babar-raza/aspose.org
+    url: https://github.com/babar-raza/aspose.org
+    frozen_revision: 16d75e95d4e8205d8106896bf11c8167d00e7e1f
+    revision_verified: true
+    revision_metadata:
+      verified_at: "2026-09-06"
+      author: Babar Raza <babar.raza@aspose.com>
+      authored_at: "2026-09-05T23:26:43+05:00"
+      subject: "fix(seo): SEO-METADATA-NATURALNESS-EVALUATOR -- correct 3rd-person-singular inflection for sibilant-ending action verbs"
+    working_tree_at_freeze:
+      observed_at: "2026-09-06"
+      status: DIRTY
+      modified_tracked_files: 424
+      untracked_files: 60
+      insertions: 118175
+      deletions: 39238
+      untracked_paths_summary: >
+        Sixty untracked paths and eight staged additions beside 424 modified tracked files,
+        measured at 2026-09-06 03:45 +05:00 with the checkout at 0a4d627c.
+      reconciliation: EXCLUDED_BY_DEFAULT
+      reconciliation_rule: >
+        Every pull reads the file with `git show 16d75e95d4:<path>` and hashes what that returns,
+        never the working tree, so a dirty file cannot enter through a file record. The checkout's
+        HEAD has since moved to 0a4d627c; the pinned revision is an ancestor of it, verified.
+      decided_at: "2026-09-06"
+    clean_inventory_captured: false
+    runtime_dependency_allowed: false
+
 audit:
   model: INCREMENTAL_PULL
   status: PULLS_IN_PROGRESS

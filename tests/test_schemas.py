@@ -264,3 +264,54 @@ def test_prompt_manifest_schema_rejects_drift() -> None:
 def test_counted_states_are_sealed_bundle_states() -> None:
     schema = json.loads((SCHEMAS / "candidate-bundle.schema.json").read_text(encoding="utf-8"))
     assert set(schema["properties"]["state"]["enum"]) >= COUNTED_STATES
+
+
+def test_manifest_schema_names_every_source_a_record_may_cite() -> None:
+    """A second reuse source enters through `sources`, and a file record says which it came from.
+
+    G4-W09, section 29.12. `source` keeps the legacy source's own record, so the fields that
+    governed the first three gates stay where they were; `sources` carries the id each record
+    cites. A record without `source_id` means the legacy source, which is what every record
+    written before this item means.
+    """
+    validator = load_schema("reuse-manifest.schema.json")
+    manifest = load_yaml(MANIFEST)
+    assert errors(validator, manifest) == []
+    by_id = {source["id"]: source for source in manifest["sources"]}
+    assert set(by_id) == {"legacy", "aspose-org"}
+    # The pin is the item's, and the dirty working tree is recorded rather than hidden.
+    aspose = by_id["aspose-org"]
+    assert aspose["frozen_revision"] == "16d75e95d4e8205d8106896bf11c8167d00e7e1f"
+    assert aspose["working_tree_at_freeze"]["status"] == "DIRTY"
+    assert aspose["runtime_dependency_allowed"] is False
+
+    # An entry of `sources` must name itself; `source` needs no id.
+    nameless = copy.deepcopy(manifest)
+    del nameless["sources"][1]["id"]
+    assert errors(validator, nameless)
+
+    missing = copy.deepcopy(manifest)
+    del missing["sources"]
+    assert errors(validator, missing)
+
+    # A file record may cite a source, and the id has the same shape in both places.
+    record = {
+        "source_id": "aspose-org",
+        "source_path": "scripts/pipeline/extraction/api_surface.py",
+        "sha256": "c" * 64,
+        "disposition": "PORT_NEARLY_INTACT",
+        "destination": "src/repository_presenter/components/readme/extractors/surface/_vendor/x.py",
+        "retained_behavior": ["Tree-sitter surface extraction."],
+        "removed_behavior": [],
+        "tests_ported": ["tests/components/readme/extractors/surface/test_vendor.py"],
+        "acceptance": "The canary's facts are unchanged.",
+        "import_closure": [],
+        "pulled_at": "2026-09-06",
+        "work_item": "G4-W09",
+    }
+    cited = copy.deepcopy(manifest)
+    cited["file_records"] = [record]
+    assert errors(validator, cited) == []
+    shouting = copy.deepcopy(cited)
+    shouting["file_records"][0]["source_id"] = "AsposeOrg"
+    assert errors(validator, shouting)

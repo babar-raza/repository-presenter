@@ -108,6 +108,12 @@ from G4-W10 on (`platforms/<ecosystem>.py` exposes `PLUGIN`; until then, one reg
 `RESEARCH_AND_GUIDELINES.md`
 §7.4 records why, including what the legacy `ecosystems/registry.py` already got right.
 
+Code pulled from a reuse source that stays close to its origin lives under
+`extractors/surface/_vendor/<source>/`, reached only through a typed façade beside it and changed
+only by a patch its file record names (§29.6 E2). `mypy` and `ruff` overrides are confined to that
+directory, nothing outside it imports a vendored module directly, and no sibling checkout is ever
+imported at runtime — the vendored copy is the only copy this repository runs.
+
 ## 3. Tests mirror source
 
 `tests/<path>/test_<module>.py` mirrors `src/repository_presenter/<path>/<module>.py` exactly, so

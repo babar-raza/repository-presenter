@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-06T03:45:00+05:00"
+updated_at: "2026-09-06T04:00:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -31,7 +31,7 @@ accepted_gates:
 
 active_work_item:
   id: G4-W09
-  status: READY
+  status: IN_PROGRESS
   purpose: 'Shared surface extractor (section 29.6 E2): vendor aspose.org''s 17-file extraction closure (named in section 29.2) plus extraction/package_manifest.py, commands/foss/dependency_extract.py, lib/publication_probe.py and lib/package_registries.py (section 29.12) under extractors/surface/_vendor/aspose_extraction at revision 16d75e95d4 (the checkout''s committed HEAD on 2026-09-06; re-pinned from b3ad363a; the 509-file dirty working tree recorded, never pulled), one file record each, mypy and ruff overrides confined to _vendor, recorded patches only (sorted package-root and csproj picks, case-sensitive suffix matching, MAX_FILES a constant, family vocabularies as parameters). Minimal closure only, never wholesale; a file no test exercises is not pulled; known upstream defects (section 29) are patched by record or quarantined behind the facade. Folded in from G4-W08 (2026-09-05, section 28.12): schemas/reuse-manifest.schema.json gains a sources array with the legacy source''s fields per source and a per-record source_id (tests/test_schemas.py updated); aspose.org is recorded as the second source at D:/onedrive/Documents/GitHub/aspose.org pinned to b3ad363aaf69ce4d00d9aa02ecc59616b9705814 with working_tree_at_freeze DIRTY, honestly, with the seed dispositions (scripts/pipeline/extraction/** EXTRACT_AND_REFACTOR, its tests ported, the legacy vendored_asposeorg/** superseded as fixtures) and census_gate G4_MULTI_LANGUAGE_COHORTS; extractors/surface/_vendor/ is named in docs/REPOSITORY_LAYOUT.md under the vendor-boundary rule. Time box 4 hours together with G4-W10 (section 28.12). A typed SurfaceExtractor facade normalises node types to symbol_kind, maps :: + and generics to slug-safe values, emits defined_at from the declaring file and line, and serves surface, format, and manifest facts; beside it a ManifestReader facade over the vendored package_manifest.parse_manifest (identity, floor) and dependency_extract.extract_dependencies (the contract row 9 snapshot: required, optional, native and system, development, with versions), and a RegistryProbe facade over publication_probe for every registry (section 29.12); first consumer the .NET spec''s surface_facts, no cohort. Port the site-independent extraction tests (about 19 of 25); pin the three tree-sitter packages exactly with a parse-probe test per language. Acceptance: canary facts unchanged; run-twice and shuffled-order determinism identical; vendor-boundary grep test; parity control implemented; hosted CI green.'
   prerequisites:
   - G4-W10 is accepted - the ecosystem spec, discoverable plugin registration, the disposable profile and the per-ecosystem clock are in.
