@@ -5,20 +5,14 @@ files, never from memory of a previous iteration.
 ## 0. Rules that override everything else
 
 - Authority, in order: `AGENTS.md`, `project/state.yaml`, the current gate section only of
-  `docs/EXECUTION_STATE_MACHINE.md`, then `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (for
-  any work on facts, composition, validation, or review), `docs/REPOSITORY_LAYOUT.md` (before
-  creating any file or directory), `docs/RESEARCH_AND_GUIDELINES.md` §18 (before writing any new
-  mechanism — check its library registry first), §7.4 (before touching any platform extractor
-  module), §7.2.1 (before pulling any profile, policy, or link-catalog asset), §24 (before any
-  composition or rendering change — the section-by-section record of what the live portfolio does
-  and which of its conventions this contract matches, exceeds, or deliberately declines), and §27
-  (before any change to composition, review, repair, acceptance, or fact extraction — the eight
-  measured root causes RC1–RC8 and the design D1–D7; a change that reintroduces one of them is a
-  defect), and §29 (before any platform, plugin, verifier, or reuse-source work — the layered plugin
-  design E1–E6, the vendor boundary, and what the loop would otherwise get wrong, F1–F8),
-  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs:
-  §27.0 (the decisions in force, under forty lines) every iteration, the §27–§30 subsections the
-  work item cites, and a whole section only when diagnosing a defect it describes.
+  `docs/EXECUTION_STATE_MACHINE.md`, `docs/STATE_MACHINE.md`, `docs/README_CONTRACT.md` (facts,
+  composition, validation, review), `docs/REPOSITORY_LAYOUT.md` (before creating any path),
+  `docs/RESEARCH_AND_GUIDELINES.md` — §27.0 every iteration; §18 before any new mechanism (library
+  registry first); §7.4 before a platform module; §7.2.1 before pulling a profile, policy, or
+  catalog asset; §24 before composition or rendering changes; §27 before composition, review,
+  repair, acceptance, or extraction changes (reintroducing RC1–RC8 is a defect); §29 before
+  platform, plugin, verifier, or reuse-source work; the subsection an item cites, a whole section
+  only when diagnosing — then `plans/idea.md`, `migration/reuse-manifest.yaml`.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite. The
@@ -32,17 +26,13 @@ files, never from memory of a previous iteration.
   the start of each iteration with `gh run list --limit 3`; a red run is `FAILED_INTERNAL` and is
   fixed before any new work.
 - Never create a plan, roadmap, status, handover, investigation, wave, backlog, or decision
-  document. Writable governance files: `project/state.yaml`, file records and pull notes in
-  `migration/reuse-manifest.yaml`, `evidence/build/<gate>/manifest.json`, one coherent fix to a
-  document predicate that this iteration's implementation proved wrong, a dated, facts-only
-  measurement paragraph appended to the `RESEARCH_AND_GUIDELINES.md` section the active work item
-  names, and a `PROVISIONAL` decision entry appended to `RESEARCH_AND_GUIDELINES.md` §31 (§5) —
-  never a rewrite of the owner's existing text. `docs/README_CONTRACT.md`
-  changes only through a work item whose purpose names the revision and whose defect is recorded in
-  `RESEARCH_AND_GUIDELINES.md` (§26, §27.8); the revision, its code, and its tests land in that
-  item's commit together — never ahead of it, never as a side effect. G2-W13, G2-W16, G2-W17, and
-  G5-W02 carry such revisions. Any other gap between the contract and what is achievable is a
-  report line and a `RESEARCH_AND_GUIDELINES.md` note, not a contract edit.
+  document. Writable governance: `project/state.yaml`; file records and pull notes in
+  `migration/reuse-manifest.yaml`; `evidence/build/<gate>/manifest.json`; one coherent fix to a
+  document predicate this iteration proved wrong; a dated facts-only measurement paragraph in the
+  RESEARCH section the item names; a `PROVISIONAL` entry in §31 (§5) — never a rewrite of the
+  owner's text. `docs/README_CONTRACT.md` changes only through a work item that names the revision,
+  with its defect recorded (§26, §27.8), landed with its code and tests in one commit (G2-W13, W16,
+  W17, G5-W02 carry such revisions); any other gap is a report line and a RESEARCH note.
 - A work item's purpose stays under about a thousand characters and closes in a handful of
   iterations. When an item's scope grows past that, or three iterations move it without a predicate
   closing, split it in `project/state.yaml` into items that each seal something — never widen it.
@@ -64,15 +54,13 @@ files, never from memory of a previous iteration.
 3. Read the current gate's section and exit predicates in `docs/EXECUTION_STATE_MACHINE.md`.
 4. Re-check every `OPEN` owner item cheaply (`gh api` for branch protection, App installation) and
    update its `status` and `last_checked_at` if it changed.
-5. Environment: repo-local `.venv` from `C:\Python313\python.exe` with `pip install -e .[dev]`;
-   Python 3.11 and 3.12 interpreters were provisioned with `uv` under `runs/verify/` in a previous
-   iteration and may be reused or recreated. Any other toolchain a work item needs and this machine
-   lacks (rustup, or a later ecosystem's) is provisioned the same way: workspace-local under
-   `runs/toolchains/`, a pinned version, called by absolute path, recorded in the receipt — never a
-   system-wide install, never a PATH or profile edit (`RESEARCH_AND_GUIDELINES.md` §29.6 E5). An
-   owner item is raised only when provisioning itself is impossible. `GH_TOKEN`, `GPT_OSS_ENDPOINT`, and `GPT_OSS_API_KEY`
-   are present in the process environment (OWNER-02 is `OVERRIDDEN`; no `.env` file is read or
-   required). Read all three only through the configured loader, never print them.
+5. Environment: repo-local `.venv` from `C:\Python313\python.exe` (`pip install -e .[dev]`); 3.11
+   and 3.12 interpreters under `runs/verify/` via `uv`. Any toolchain an item needs and the machine
+   lacks is provisioned the same way — workspace-local under `runs/toolchains/`, pinned, called by
+   absolute path, recorded in the receipt; never system-wide, never a PATH or profile edit (§29.6
+   E5); an owner item only when provisioning is impossible. `GH_TOKEN`, `GPT_OSS_ENDPOINT`, and
+   `GPT_OSS_API_KEY` come from the process environment through the configured loader; never print
+   them (OWNER-02 is `OVERRIDDEN`; no `.env` file).
 
 ## 2. Select
 
@@ -94,16 +82,13 @@ files, never from memory of a previous iteration.
   a refactor, rename, or cleanup outside the work item's owned paths.
 - The order of `next_ready_items` is the execution order; an item's ID is its identity, not its
   position. Take the first `PENDING` item of the current gate. Never renumber items.
-- Before promoting any item, check `RESEARCH_AND_GUIDELINES.md` §27.9: if it lists entries whose
-  IDs are absent from `next_ready_items` and are neither the `active_work_item` nor an item the
-  gate evidence records as accepted, insert them verbatim at the positions it states; remove
-  any entry it lists as moved; apply the state edits it lists as pending (and the reuse-manifest
-  edit, in the same commit); validate against `schemas/state.schema.json`; commit as `chore(state)`
-  first. §27.9 is the single source for queued item text: if a non-active entry's `purpose` in
-  `state.yaml` differs from §27.9's, replace it verbatim in the same commit (the active item's text
-  is edited only by the owner at a clean checkpoint). The owner mirrors every queued item there
-  before it lands, so the queue never depends on a second session being alive. Items of a later
-  gate may sit in the list; take only the current gate's.
+- Before promoting any item, reconcile `next_ready_items` with `RESEARCH_AND_GUIDELINES.md` §27.9,
+  the single source for queued text: insert entries absent from the queue, the active item, and the
+  accepted evidence, verbatim at the stated positions; remove entries it lists as moved; replace a
+  non-active entry's `purpose` that differs from §27.9's (the active item's text is the owner's to
+  edit); apply the state and reuse-manifest edits it lists as pending; validate against
+  `schemas/state.schema.json`; commit as `chore(state)` first. Later-gate items may sit in the list;
+  take only the current gate's.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 
@@ -128,14 +113,12 @@ files, never from memory of a previous iteration.
   Compute the closure first; a pull that drags a `RETIRE`, `supervisor`, `capabilities`, or
   `specialists` module fails, and you cut the seam instead. Known chains: `CPL-01` to `CPL-08`.
 - Pulled code that stays close to its source lands under a `_vendor/` directory named in
-  `docs/REPOSITORY_LAYOUT.md`, with `mypy` and `ruff` overrides confined to that path; production
-  code reaches it only through a typed façade with its own tests; the vendor tree changes only by a
-  recorded patch (`RESEARCH_AND_GUIDELINES.md` §29.6 E2). Never import a sibling checkout at runtime.
-  Pull the minimal closure the item names — never a directory wholesale (§12's bulk vendoring is the
-  legacy's failure, not a model); every pulled file is exercised here by a ported or new test or it
-  is not pulled; a known upstream defect (§29.2 F-notes, §29.9) is patched by record or quarantined
-  behind the façade, never inherited silently; the extractor's output is admitted per ecosystem only
-  through the parity control and the contract's own checks — origin never makes a fact true.
+  `docs/REPOSITORY_LAYOUT.md`, `mypy`/`ruff` overrides confined to it, reached only through a typed
+  façade with its own tests, changed only by recorded patch (§29.6 E2); never a runtime import of a
+  sibling checkout. Pull the minimal closure the item names, never a directory wholesale; a file no
+  ported or new test exercises is not pulled; a known upstream defect (§29.2, §29.9) is patched by
+  record or quarantined behind the façade; the extractor's output is admitted only through the parity
+  control and the contract's checks — origin never makes a fact true.
 - A work item touching a sealed candidate's bundle reads its `review.json` `advisory` list first.
   A finding whose cause is deterministic code (the renderer, planning, or a fact extractor), not a
   prose judgment call, is real repair work that survived one `targeted_repair` attempt for a
@@ -145,11 +128,10 @@ files, never from memory of a previous iteration.
   candidate for, a quick `gh api repos/{owner}/{repo}/contents/README.md` comparison is cheap,
   concrete evidence of what this candidate is actually replacing — a feature the live README already
   has that this candidate lacks is a real gap, not a hypothesis.
-- Run the official entry point end to end on the canary (`repository-presenter present --repo
+- Run the official entry point on the canary (`repository-presenter present --repo
   aspose-3d-foss/Aspose.3D-FOSS-for-Python`, then its immediate rerun, byte-identical with zero
-  provider calls) **only when closing a predicate that names the candidate, and at acceptance** —
-  never after every edit. On 2026-09-05, 116 canary runs took 1.8 of 11.8 hours
-  (`RESEARCH_AND_GUIDELINES.md` §30.9); the fake-gateway tests are the per-edit check.
+  provider calls) only when closing a predicate that names the candidate, and at acceptance — never
+  after every edit (§30.9); the fake-gateway tests are the per-edit check.
 - A module with no production importer is a defect. Wire it or delete it in this iteration.
 - A numeric threshold in a predicate or a regression control is never fitted to one sample: set it
   from at least three sealed compositions at the observed minimum less one rejection's worth,
@@ -158,20 +140,17 @@ files, never from memory of a previous iteration.
 - The LLM never writes Markdown or the document. Jobs return typed content units bound to fact IDs;
   the deterministic renderer owns headings, badges, Mermaid, commands, code, links, and license text
   (`docs/README_CONTRACT.md` §3). Claim checks are structural, never substring matching on prose.
-- While changing, run only the focused tests for the files you touched. Run the full local
-  CI-equivalent **once, immediately before the commit**: `ruff check .`, `ruff format --check .`,
-  `mypy src`, `pytest -n auto` (`pytest-xdist`, a dev dependency the first item to run the suite
-  after 2026-09-05 adds to `pyproject.toml` and the lock; this machine has 32 cores and the serial
-  suite cost 3.8 of 11.8 hours that day — §30.9). A test that cannot run in parallel is fixed, not
-  exempted. The hosted three-version matrix is the authoritative 3.11/3.12/3.13 proof; an acceptance
-  predicate that names all three interpreters is met by a green hosted run on the pushed commit
-  (§27.5 D7). Disposable clones and run output go under `runs/` (gitignored). Candidate bundles under
-  `candidates/` and gate evidence under `evidence/` are committed.
+- While changing, run only the focused tests for the files you touched. Once, immediately before
+  the commit, the full local CI-equivalent: `ruff check .`, `ruff format --check .`, `mypy src`,
+  `pytest -n auto` (`pytest-xdist` is a dev dependency, added by the first item to run the suite; a
+  test that cannot run in parallel is fixed, not exempted — §30.9). The hosted three-version matrix
+  is the authoritative 3.11/3.12/3.13 proof; a predicate naming all three is met by a green hosted
+  run (§27.5 D7). Disposable clones and run output go under `runs/` (gitignored); `candidates/` and
+  `evidence/` are committed.
 - Windows traps: write multi-line files and scripts with the Write tool, not big Bash heredocs;
   pass `newline="\n"` whenever Python writes a tracked text file; keep every path short.
 - Read what you need, not whole files: grep, or Read with an offset and limit, first; a whole-file
-  read is for a file you are about to edit. ~312k tokens of tool output were read on 2026-09-05
-  (§30.9 E); every token read is time before the next thought and distance to the session cap.
+  read is for a file you are about to edit (§30.9 E).
 
 ## 4. Verify, record, commit, push
 
@@ -184,8 +163,8 @@ files, never from memory of a previous iteration.
 - One coherent commit: `<type>(<scope>): <what> (<GATE_ID>/<WORK_ITEM_ID>)`, ending with
   the `Co-Authored-By:` trailer for the model actually executing the iteration (the owner plans on
   one model and executes on another by design; the trailer records which one wrote the commit).
-  The body says what changed, why, and what it measured, in at most 120 words; the §31 entry and
-  the RESEARCH measurement paragraph carry the rest (§30.9 E: 225 words a commit was the average).
+  The body says what changed, why, and what it measured, in at most 120 words; §31 and the RESEARCH
+  measurement paragraph carry the rest.
 - Push per `publication.control_repository` and **continue**; do not wait for the hosted run. The
   next iteration's Orient reads the latest completed run for `main`: red is that iteration's first
   work, before anything else (§1). A run cancelled because a later push superseded it is neither
@@ -198,34 +177,25 @@ files, never from memory of a previous iteration.
   work items that consume them, and continue. Stop the loop only when every remaining work item in
   the current gate and the next gate consumes an unmet owner item; then tell the owner the exact
   actions, in order, with the item IDs.
-- Decisions (`RESEARCH_AND_GUIDELINES.md` §30 A1, §31). **You decide; you never ask.** There is no
-  class of decision that stops the loop or waits for a human, because a human in the path is the
-  measured bottleneck (§30.1). Decide from first principles, in this order: (1) the goal — every
-  processable repository has a sealed, honest candidate by the shortest path, without weakening any
-  check; (2) the current gate's exit predicates; (3) the item's predicates; (4) measured evidence
-  over anticipation; (5) the option that keeps candidates moving; (6) reversibility — prefer what
-  git can undo; (7) minimal scope — split, never widen. Record every non-trivial decision as an
-  entry in `RESEARCH_AND_GUIDELINES.md` §31 (date, item, decision, the alternative rejected, the
-  evidence, how to reverse), marked `PROVISIONAL`, and continue in the same iteration. The owner
-  reviews §31 asynchronously and may reverse an entry through §27.9 or a `state.yaml` edit; until
-  then your decision stands. This includes: thresholds from data, wording, order inside a gate,
-  measured fallbacks, restating a predicate to what was proven, a contract predicate fix or a new
-  contract sentence a sealed candidate's defect or the live oracle demands (recorded in §31 and
-  §27.8, landed with its code and tests), and an interpretation of `plans/idea.md` where it is
-  silent or ambiguous (interpret, record, continue — never edit idea.md itself). Scope growth is
-  queued as a §27.9-shaped entry, never done now. The only things you never do are prohibitions,
-  not questions: write a product repository, widen or print a credential, publish, or weaken a
-  check. Actions only a human can physically perform (create the GitHub App, protect the branch)
-  are owner items: record the exact action and resume predicate, skip the items that consume them,
-  and take the next item — never wait.
-- Scope is not yours to grow (`RESEARCH_AND_GUIDELINES.md` §30.8). Your autonomy covers *how* to
-  close queued items, never *what* to add: you never write to §27.9 and never add an item to
-  `state.yaml` on your own initiative — new work is proposed in a §31 entry, in §27.9 shape, and only
-  the owner admits it; meanwhile continue the queue, restating a blocked predicate to what is proven
-  rather than widening. Decide consistently with §31 precedent and cite the entry you follow, or say
-  how the evidence differs. A subject reversed twice is frozen until the owner rules; take other
-  work. The legacy died of self-admitted scope — the agent that found a gap was the agent that
-  admitted the machinery to fill it — and that is the one power this loop does not have.
+- Decisions (§30 A1, §31). **You decide; you never ask** — no decision stops the loop or waits for
+  a human. Decide from first principles, in order: (1) the goal — every processable repository has a
+  sealed, honest candidate by the shortest path, no check weakened; (2) the gate's exit predicates;
+  (3) the item's predicates; (4) measured evidence over anticipation; (5) what keeps candidates
+  moving; (6) reversibility; (7) minimal scope — split, never widen. Record each non-trivial
+  decision as a `PROVISIONAL` §31 entry (date, item, decision, alternative rejected, evidence,
+  reversal path) and continue in the same iteration; the owner reviews asynchronously and may
+  reverse through §27.9 or `state.yaml`. This covers thresholds from data, wording, order inside a
+  gate, measured fallbacks, restating a predicate to what was proven, a contract sentence a sealed
+  defect or the live oracle demands (§31, §27.8, landed with code and tests), and interpreting
+  `plans/idea.md` where it is silent (never edit it). Prohibitions are not questions: never write a
+  product repository, widen or print a credential, publish, or weaken a check. Actions only a human
+  can perform are owner items: record the exact action and resume predicate, skip the items that
+  consume them, take the next — never wait.
+- Scope is not yours to grow (§30.8): autonomy covers *how* to close queued items, never *what* to
+  add. Never write §27.9 or add a `state.yaml` item yourself — propose new work in a §31 entry in
+  §27.9 shape; only the owner admits it; meanwhile continue the queue, restating a blocked predicate
+  to what is proven. Follow §31 precedent and cite it, or say how the evidence differs. A subject
+  reversed twice is frozen until the owner rules.
 - Hosted CI red: reproduce locally, fix at the causal boundary, push. Never disable a check.
 - `FAILED_INTERNAL`: diagnose and repair at the causal stage in this or the next iteration; never
   acceptable completion, never a reason to weaken a check.
@@ -282,26 +252,21 @@ files, never from memory of a previous iteration.
 - After a productive iteration, schedule the next wakeup in 60 to 120 seconds with `noop: false`.
 - Waiting on a long local process or a hosted CI run: schedule a delay that matches it, at most
   ten minutes, then verify the result and continue.
-- Stop the loop (`ScheduleWakeup` with `stop: true`) only when: the definition of done in
-  `docs/EXECUTION_STATE_MACHINE.md` §11 is met; or every remaining work item in the current and
-  next gate consumes an unmet owner item, after you have recorded the exact owner actions and resume
-  predicates; or every remaining path would violate a prohibition in §5. Nothing else stops the
-  loop: not a clean checkpoint, not the end of a slice, not a prompt that read like a single task,
-  not the hour, not the owner's absence, not a decision you would have liked the owner's read on
-  (§5: decide, record in §31, continue), not three iterations without a predicate closing (that is
-  the §0 split rule and a §31 entry: split the item, or restate the predicate to what is proven, or
-  mark it `BLOCKED_EXTERNAL` with a resume predicate and take the next item). A productive iteration
-  always schedules the next wakeup, and so does an unproductive one. On 2026-09-04/05 two
-  self-stops outside these rules cost eleven of forty-eight hours (`RESEARCH_AND_GUIDELINES.md`
-  §30). Never wake only to check on yourself.
+- Stop the loop (`ScheduleWakeup` with `stop: true`) only when: the definition of done
+  (`docs/EXECUTION_STATE_MACHINE.md` §11) is met; every remaining item in this and the next gate
+  consumes an unmet owner item and you have recorded the exact actions and resume predicates; or
+  every remaining path would violate a §5 prohibition. Nothing else stops it — not a clean
+  checkpoint, the end of a slice, a task-shaped prompt, the hour, the owner's absence, a decision
+  you wanted a read on (§5), or three iterations without a predicate closing (split, restate, or
+  `BLOCKED_EXTERNAL` with a resume predicate, then the next item). Every iteration, productive or
+  not, schedules the next wakeup (§30.1 measured the cost of doing otherwise). Never wake only to
+  check on yourself.
 
 ## 9. Re-arm text
 
-The only `/loop` content is: `Read project/loop-prompt.md in full and follow it.` Every checkpoint
-fact — gate, active item, answers to your questions — lives in `project/state.yaml` and the
-RESEARCH sections; none of it belongs in the prompt. A prompt shaped like a task ("Resume X…") ends
-when the task ends, and that is how the 2026-09-05 00:38 self-stop happened. Your own
-`ScheduleWakeup` prompt is that same one line.
+The only `/loop` content is: `Read project/loop-prompt.md in full and follow it.` Checkpoint facts
+live in `project/state.yaml` and the RESEARCH sections, never in the prompt; a task-shaped prompt
+ends when the task ends (§30.2). Your own `ScheduleWakeup` prompt is that same one line.
 
 ## 8. Report (end of every iteration, at most twelve lines)
 
