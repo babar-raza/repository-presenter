@@ -384,3 +384,8 @@ class PythonPlugin:
                 )
             )
         return facts
+
+
+# The registry discovers a plugin by module name and this attribute; it never lists plugins
+# (docs/REPOSITORY_LAYOUT.md section 2.1, RESEARCH_AND_GUIDELINES.md section 29.6 E3).
+PLUGIN = PythonPlugin()

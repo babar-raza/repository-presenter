@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from importlib import import_module
 from pathlib import Path
+from pkgutil import iter_modules
+from types import ModuleType
 from typing import Protocol
 
-from repository_presenter.components.readme.extractors.platforms.python import PythonPlugin
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -55,19 +57,45 @@ class PlatformPlugin(Protocol):
         """The product's static format declarations and plugin registrations, from its tree."""
 
 
-_PLUGINS: dict[str, PlatformPlugin] = {plugin.ecosystem: plugin for plugin in (PythonPlugin(),)}
+_ATTRIBUTE = "PLUGIN"
+_loaded: dict[str, PlatformPlugin] = {}
+
+
+def _module_for(ecosystem: str) -> ModuleType | None:
+    """``platforms/<ecosystem>.py``, or None when the ecosystem names no module."""
+    try:
+        return import_module(f"{__package__}.{ecosystem}")
+    except ImportError:
+        return None
 
 
 def known_ecosystems() -> tuple[str, ...]:
-    return tuple(sorted(_PLUGINS))
+    """Every module beside this one that exposes ``PLUGIN``.
+
+    Discovery is by module name, so adding an ecosystem is adding its file: this module never
+    lists plugins and never grows a registration line (RESEARCH_AND_GUIDELINES.md section 29.6
+    E3; docs/REPOSITORY_LAYOUT.md section 2.1). A helper module beside a plugin - python_surface,
+    python_examples - exposes no PLUGIN and is not one.
+    """
+    found: list[str] = []
+    for info in iter_modules([str(Path(__file__).parent)]):
+        if info.name == Path(__file__).stem:
+            continue
+        module = _module_for(info.name)
+        if module is not None and hasattr(module, _ATTRIBUTE):
+            found.append(info.name)
+    return tuple(sorted(found))
 
 
 def plugin_for(ecosystem: str) -> PlatformPlugin:
-    """The registered plugin for ``ecosystem``; a missing plugin is a configuration failure."""
-    plugin = _PLUGINS.get(ecosystem)
-    if plugin is None:
-        raise ConfigError(
-            f"no platform plugin registered for ecosystem {ecosystem!r} "
-            f"(known: {', '.join(known_ecosystems())})"
-        )
-    return plugin
+    """The plugin ``platforms/<ecosystem>.py`` exposes; a missing one is a configuration failure."""
+    if ecosystem not in _loaded:
+        module = _module_for(ecosystem)
+        plugin = getattr(module, _ATTRIBUTE, None) if module is not None else None
+        if plugin is None:
+            raise ConfigError(
+                f"no platform plugin registered for ecosystem {ecosystem!r} "
+                f"(known: {', '.join(known_ecosystems())})"
+            )
+        _loaded[ecosystem] = plugin
+    return _loaded[ecosystem]

@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from repository_presenter.components.readme.extractors.examples.verify import example_facts
+from repository_presenter.components.readme.extractors.platforms import python_examples
 from repository_presenter.components.readme.extractors.platforms.python_examples import (
     stage_fixtures,
     verify_python_examples,
 )
 from repository_presenter.core.examples import ExampleCandidate
+from repository_presenter.core.execution import ExecutionResult
 
 
 def _package(root: Path) -> list[str]:
@@ -147,3 +152,36 @@ def test_an_uninstallable_package_leaves_every_candidate_unverified(tmp_path: Pa
     )
     assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "NOT_VERIFIED")]
     assert receipts[0].detail.startswith("package install failed")
+
+
+def test_a_toolchain_that_cannot_be_provisioned_leaves_every_example_unresolved(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A machine that cannot build is not evidence that the code is wrong.
+
+    RESEARCH_AND_GUIDELINES.md section 29.6 E5: a toolchain failure is UNRESOLVED, never
+    CONTRADICTED - the difference between "we could not check" and "we checked and it is false",
+    which is the whole basis of an honest disposition.
+    """
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    candidates = [_candidate(1, "import widget\n"), _candidate(2, "boom(\n")]
+
+    def refuse(argv: list[str], **kwargs: object) -> ExecutionResult:
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1,
+            stdout="",
+            stderr="python: No module named venv",
+            timed_out=False,
+            environment_names=(),
+        )
+
+    monkeypatch.setattr(python_examples, "execute", refuse)
+    receipts = verify_python_examples(root, tree, candidates, tmp_path / "run")
+    assert [r.outcome for r in receipts] == ["NOT_VERIFIED", "NOT_VERIFIED"]
+    assert all("venv creation failed" in (r.detail or "") for r in receipts)
+    facts = example_facts(candidates, receipts, "examples.json")
+    assert {f.polarity for f in facts} == {"UNRESOLVED"}
+    assert all(f.confidence == 0.5 for f in facts)

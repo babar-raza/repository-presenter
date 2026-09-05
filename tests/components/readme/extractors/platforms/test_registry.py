@@ -26,3 +26,21 @@ def test_python_is_the_first_registered_plugin() -> None:
 def test_unknown_ecosystem_fails_closed() -> None:
     with pytest.raises(ConfigError, match="no platform plugin registered for ecosystem 'net'"):
         plugin_for("net")
+
+
+def test_a_plugin_is_discovered_by_module_name_and_its_plugin_attribute() -> None:
+    """Adding an ecosystem is adding its file; this registry never lists plugins.
+
+    Section 29.6 E3 and docs/REPOSITORY_LAYOUT.md section 2.1. Six helper modules sit beside
+    python.py in the same package - python_surface, python_examples, python_registry,
+    python_formats, python_format_declarations, python_setup_py - and none of them is an
+    ecosystem, because none exposes PLUGIN.
+    """
+    from repository_presenter.components.readme.extractors.platforms import python
+
+    assert python.PLUGIN is plugin_for("python")
+    assert plugin_for("python") is plugin_for("python")  # resolved once, then cached
+    assert known_ecosystems() == ("python",)
+    # A module that exists in the package but exposes no PLUGIN is not an ecosystem.
+    with pytest.raises(ConfigError, match="'python_surface'"):
+        plugin_for("python_surface")
