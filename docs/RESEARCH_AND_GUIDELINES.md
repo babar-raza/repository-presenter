@@ -1628,6 +1628,19 @@ validation 10 pass, 0 fail, 1 pending. `README_CONTRACT.md` row 7 requires a des
 the classes or members it rests on and §8 forbids the product-name template; neither addresses a
 description that repeats its title.
 
+**Decision (owner, 2026-09-05), closing the gap the loop measured above.** The routing table in
+`targeted.py` gains one rule: a repair attempt at a content stage (S6/S7/S8, all currently
+collapsed to S6) that fails because its own binding proves the requested revision would change the
+plan's slot set or example selection — S6's per-task schema requires exactly the plan's existing
+slots, so a fix that would add, drop, or re-choose one is a planning decision by construction, never
+inferred from the finding's prose — escalates **once** to a plan-level repair at S5
+(`presentation_planning`), carrying the finding's context; the revised plan then re-enters S6
+through S8 normally, under the same two-attempt and one-fingerprint-per-defect rules as any other
+repair. A repair that still cannot produce a schema-valid revision after the escalation blocks, as
+today. This is the same principle dependency evaluation already applies to pre-composition changes
+(reopen at the earliest affected stage), extended to a gap discovered at repair time rather than
+before it. Owned by G2-W16, since it is what that item's own re-seal predicate requires.
+
 **Measured (the loop, 2026-09-05, G2-W16).** Bounding `independent_review`'s schema (`findings`
 `maxItems` 16; `text`, `quote`, `repair` each `maxLength`) moved the manifest to a new version, so
 the canary's next composition made a fresh, uncached review call rather than replaying the stored
