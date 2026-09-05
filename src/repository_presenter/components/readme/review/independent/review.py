@@ -21,6 +21,7 @@ from typing import Any
 
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
+    SUBSECTION_HEADINGS,
     section_ids,
 )
 from repository_presenter.components.readme.repair.targeted import defect_fingerprint
@@ -298,22 +299,57 @@ def presentation_defect(finding: Mapping[str, Any]) -> str | None:
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
     BC-07): its wording and its choice of command are the renderer's, so no stage the loop can
     reopen would change them. A factual error there is a factuality finding against the fact.
+
+    The document's own shape is the same case one level up. Which sections exist, in what order,
+    and under which headings is the semantic shell's, evaluated from the facts before any job
+    runs, so a finding against ``structure`` or ``document`` - or one quoting a heading the
+    renderer emits - names nothing a revision could write. Measured 2026-09-06: Aspose.Slides was
+    held unsealed by a finding asking for a "Links" section the shell does not define, and
+    Aspose.Cells by one calling the ``#### Detailed Member Reference`` block, which contract row
+    14 requires, too verbose; the repair loop answered both with *section structure is
+    deterministic; its blocks change only when facts change*.
     """
     if finding.get("criterion") != "presentation":
         return None
-    if finding.get("section_id") not in _DETERMINISTIC_SECTIONS:
+    section = finding.get("section_id")
+    if section in _STRUCTURAL_SECTIONS:
+        return (
+            "the semantic shell owns which sections exist, in what order, and under which "
+            "headings; it is evaluated from the facts, so no stage the loop can reopen would "
+            "add or remove one"
+        )
+    if _quoted_heading(finding):
+        return (
+            f"the quote is the heading {_quoted_heading(finding)!r}, which the renderer emits "
+            "because the contract's shell requires it; no unit wrote it and none can change it"
+        )
+    if section not in _DETERMINISTIC_SECTIONS:
         return None
     return (
-        f"section {finding.get('section_id')} renders from facts under the contract's own "
+        f"section {section} renders from facts under the contract's own "
         "checks; its presentation is the renderer's, and a factual error there is a "
         "factuality finding"
     )
+
+
+def _quoted_heading(finding: Mapping[str, Any]) -> str | None:
+    """The heading a finding quotes and nothing else, or None."""
+    quote = str(finding.get("quote", "")).strip()
+    if not quote.startswith("#"):
+        return None
+    text = quote.lstrip("#").strip()
+    return text if text in _RENDERED_HEADINGS else None
 
 
 # At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,
 # and label (README_CONTRACT.md section 2.1), so its presentation is likewise the renderer's.
 _DETERMINISTIC_SECTIONS = frozenset(
     {*(section.id for section in SEMANTIC_SHELL if section.owner == "D"), "at_a_glance"}
+)
+# Every heading in the document is the renderer's: the shell's own, and the subsections the
+# contract names inside Dependencies and the API Reference (README_CONTRACT.md rows 9 and 14).
+_RENDERED_HEADINGS = frozenset(
+    {*(section.heading for section in SEMANTIC_SHELL if section.heading), *SUBSECTION_HEADINGS}
 )
 
 

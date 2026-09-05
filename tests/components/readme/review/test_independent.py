@@ -639,6 +639,48 @@ def test_an_ellipsis_in_a_quote_abbreviates_between_exact_fragments() -> None:
     assert not quote_located("Key Capabilities - **Load fonts.**...", candidate)
 
 
+def test_a_presentation_finding_against_the_documents_own_shape_is_the_reviewers_defect() -> None:
+    """The shell owns which sections exist and what they are called; no unit can change either.
+
+    Measured 2026-09-06: Aspose.Slides was held unsealed by a finding asking for a "Links"
+    section the shell does not define, Aspose.Cells by one calling the Detailed Member Reference
+    block - required by contract row 14 - too verbose. Two independent readers raised each, so
+    the two-reader rule cannot answer them; only their scope can.
+    """
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    shape = {
+        **_finding("F07", "structure", "S6", "## Documentation & Resources"),
+        "criterion": "presentation",
+    }
+    assert scope_defect(shape, CANDIDATE, by_id) == (
+        "the semantic shell owns which sections exist, in what order, and under which headings; "
+        "it is evaluated from the facts, so no stage the loop can reopen would add or remove one"
+    )
+    heading = {
+        **_finding("F05", "api_reference", "S6", "#### Detailed Member Reference"),
+        "criterion": "presentation",
+    }
+    assert scope_defect(heading, CANDIDATE, by_id) == (
+        "the quote is the heading 'Detailed Member Reference', which the renderer emits because "
+        "the contract's shell requires it; no unit wrote it and none can change it"
+    )
+    # Mutation: the same section with prose the units own still stands, and a finding that only
+    # mentions a heading in its text rather than quoting one is untouched.
+    prose = {
+        **_finding("F05", "api_reference", "S6", "The intro names three entry points."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(prose, CANDIDATE, by_id) is None
+    invented = {
+        **_finding("F09", "api_reference", "S6", "### Frequently Asked Questions"),
+        "criterion": "presentation",
+    }
+    assert scope_defect(invented, CANDIDATE, by_id) is None
+    # A structural finding that is not a presentation judgment keeps its own route.
+    factual = _finding("F10", "structure", "S6", "It writes `.glb` files.")
+    assert scope_defect(factual, CANDIDATE, by_id) is None
+
+
 def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:
     # README_CONTRACT.md section 2.1: the renderer owns every node, edge, and label of the
     # diagram, so a reviewer asking for a group the facts do not verify is out of scope.
