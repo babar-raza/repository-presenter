@@ -1716,6 +1716,22 @@ check 4 at S9 (`authoring.py`, "cites facts outside its slot's planned set", G2-
 and two facts at one canonical defining location fail row 14 at S9 (`registry.py`, "one fact per
 canonical defining location"), both blocking before S10 runs.
 
+**Measured (the loop, 2026-09-05, RC7 observed on the canary).** RC7's link volatility invalidated
+the sealed candidate during a verification run, from one network hiccup and nothing else. A
+`present` whose extraction re-probed `https://pypi.org/project/aspose-3d-foss/` recorded
+`UNCHECKED: unreachable: ReadTimeout`, so `link_target:008` moved SUPPORTED (confidence 1.0) to
+UNRESOLVED (0.5). That is one altered fact record, which reopened EXTRACTING and re-composed
+everything downstream; BC-06 then failed at EXTRACTING on the same unreachable link, and because a
+factual failure invalidates an accepted candidate (`STATE_MACHINE.md` §9), `manifest.json` moved to
+`INVALIDATED` and `repository-presenter status` read 0/34. The probe answered HTTP 200 in 1.06 s
+about four minutes later; re-running restored every fact, replayed every stage from the store with
+zero provider calls, and re-sealed, and a second run proved the no-op again at
+`READY_FOR_PROPOSAL`, 1/34. Two artifacts of the recovery are worth naming: the degraded round
+wrote an entry into the transaction's `repairs.json`, which persists across invocations, so the
+re-seal carried a `repairs.json` recording a defunct attempt until that file was deleted; and a
+bundle that stops recording a file keeps the file on disk, since seal does not prune what its
+manifest no longer names. Nothing about the repository or the world changed in those four minutes.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt

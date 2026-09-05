@@ -16,7 +16,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -58,6 +58,9 @@ from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 VALIDATION_FILENAME = "validation.json"
 VALIDATOR_VERSION = "2"
+# The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
+# and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
+REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
 Verdict = Literal["PASS", "FAIL", "PENDING"]
 CausalStage = Literal["EXTRACTING", "INVESTIGATING", "RECONCILING", "PLANNING", "COMPOSING"]
 STAGE_ORDER: tuple[CausalStage, ...] = (
@@ -145,8 +148,9 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     Check("BC-09", "1", "No configured secret in the bundle", ("bundle",), "S9"),
     Check(
         "BC-10",
-        "1",
-        "Independent review returns ACCEPT under a reviewer identity separate from authoring",
+        "2",
+        "Independent review returns ACCEPT under a reviewer identity separate from authoring, "
+        "with no advisory left on a required row",
         ("review",),
         "S10",
     ),
@@ -1005,14 +1009,35 @@ def validate_candidate(
     }
 
 
+def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Advisory findings against a section the contract marks Required.
+
+    An advisory is deferred repair work, not accepted work (project/loop-prompt.md section 6
+    rule 5), so a required row carries none before READY_FOR_PROPOSAL (docs/README_CONTRACT.md
+    section 6, docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5). The advisories that reach this
+    point are the ones a deterministic check contradicted; that a required row keeps attracting
+    them is itself the signal, and it is reported rather than shipped.
+    """
+    return [
+        dict(finding)
+        for finding in review.get("advisory", [])
+        if str(finding.get("section_id", "")) in REQUIRED_SECTIONS
+    ]
+
+
 def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> dict[str, Any]:
     """validation.json with check 10 judged from review.json: PASS on ACCEPT under a separate
-    reviewer identity; otherwise FAIL, routed to the earliest causal state the findings name."""
+    reviewer identity and no advisory left on a required row; otherwise FAIL, routed to the
+    earliest causal state the findings name."""
     findings = list(review.get("findings", []))
+    deferred = deferred_on_required_rows(review)
     states = [f.get("causal_state") for f in findings if f.get("causal_state") in STAGE_ORDER]
-    accepted = review.get("verdict") == "ACCEPT" and bool(review.get("identity_separate"))
+    accepted = (
+        review.get("verdict") == "ACCEPT" and bool(review.get("identity_separate")) and not deferred
+    )
     if accepted:
         verdict, stage, details = "PASS", None, []
+        deferred = []
     else:
         verdict = "FAIL"
         stage = min(states, key=STAGE_ORDER.index) if states else None
@@ -1023,6 +1048,16 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
                 f"{f.get('id')} {f.get('section_id')} ({f.get('causal_state')}): {f.get('text')}"
                 for f in findings
             ]
+        details.extend(
+            f"{f.get('id')} {f.get('section_id')}: a required row admits no advisory "
+            f"({f.get('reviewer_scope_defect') or 'recorded advisory'})"
+            for f in deferred
+        )
+    # A deferred advisory names the row it sits on; the rest of check 10's details are about the
+    # review as a whole, so they name no section (section 27.5 D5: routing reads fields).
+    sections = [None] * (len(details) - len(deferred)) + [
+        str(f.get("section_id")) for f in deferred
+    ]
     checks = [
         {
             **check,
@@ -1033,7 +1068,8 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
             # is decided by this, never by reading details[0] (section 27.2 RC8).
             "review_verdict": str(review.get("verdict", "")),
             "failures": [
-                {"section_id": None, "causal_stage": stage, "detail": detail} for detail in details
+                {"section_id": section, "causal_stage": stage, "detail": detail}
+                for section, detail in zip(sections, details, strict=True)
             ],
         }
         if check.get("id") == "BC-10"

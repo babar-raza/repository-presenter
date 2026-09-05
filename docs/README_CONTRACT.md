@@ -11,13 +11,14 @@ enters only as a coherent fix to a predicate that a sealed candidate's defects p
 never as a new requirement ahead of output. The 2026-09-04 revisions are three such fixes — check 4's
 slot binding, check 4's title support (G2-W13, the defect measured in §27.2 RC2), and row 14's
 uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md` §26 or §27. The
-2026-09-05 revision is a fourth — §6's demotion rule (G2-W16, the defect measured in §27.2 RC5:
-acceptance depended on `repairs.json`'s directory history, not on content) — landed with the code
-that stops demoting a re-raised finding, in the same commit. §25 records the reasoning for the
-discipline itself. Pending revisions, each traced to a measured defect in §27 and carried by a
-named work item — §6's zero-advisory-on-required-rows clause by G2-W16, check 11 by G5-W02, a new
-check 12 by G2-W17 — are specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this document
-only in that item's commit, together with its code and tests.  
+2026-09-05 revisions are the fourth and fifth, both G2-W16's and both landed with their code in
+the commit that made them true: §6's demotion rule (the defect measured in §27.2 RC5: acceptance
+depended on `repairs.json`'s directory history, not on content), and §6's zero-advisory rule for
+required rows, which check 10 now judges — its version moves to 2 with the sentence. §25 records
+the reasoning for the discipline itself. Pending revisions, each traced to a measured defect in
+§27 and carried by a named work item — check 11 by G5-W02, a new check 12 by G2-W17 — are
+specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this document only in that item's
+commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
 aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
 how a reader receives it — evidence to check against, never a third authority (`EXECUTION_STATE_MACHINE.md`
@@ -209,7 +210,7 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 7 | Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the visible-length budget (content inside `<details>` is unbounded but verified) | structure |
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
-| 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring | review |
+| 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |
 | 11 | Fresh-process rerun is byte-identical with zero provider calls | bundle |
 
 Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per title, prose quality
@@ -233,7 +234,10 @@ re-raised after its one repair attempt never demotes on that account alone: it i
 deterministic check should have caught it, so the check is added and the cause fixed at its stage)
 or it blocks, reported as the transaction's outcome rather than retried a third time. Repair
 attempts are one per equivalent fingerprint; the second failure changes evidence, prompt, model
-route, or stage.
+route, or stage. A required row of §2 admits zero advisories before `READY_FOR_PROPOSAL`: an
+advisory is deferred repair work, not accepted work, so a finding left standing against a section
+every candidate must have blocks and is reported, whatever demoted it. An optional row may carry
+one; the bundle records the count either way.
 
 ## 7. Bundle layout
 

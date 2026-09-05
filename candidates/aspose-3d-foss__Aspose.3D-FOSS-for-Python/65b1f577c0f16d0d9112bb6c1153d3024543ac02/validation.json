@@ -132,13 +132,13 @@
       "failures": [],
       "id": "BC-10",
       "judged_at": "S10",
-      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring",
+      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no advisory left on a required row",
       "review_verdict": "ACCEPT",
       "sections": [
         "review"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
