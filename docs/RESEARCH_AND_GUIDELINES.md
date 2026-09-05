@@ -1639,7 +1639,7 @@ through S8 normally, under the same two-attempt and one-fingerprint-per-defect r
 repair. A repair that still cannot produce a schema-valid revision after the escalation blocks, as
 today. This is the same principle dependency evaluation already applies to pre-composition changes
 (reopen at the earliest affected stage), extended to a gap discovered at repair time rather than
-before it. Owned by G2-W16, since it is what that item's own re-seal predicate requires.
+before it. Owned by G2-W22, split from G2-W16 on 2026-09-05 because the extension pushed W16 past the size rule; W16's re-seal predicate now names the sealed candidate's replay, and the fresh-composition ACCEPT predicate travels with W22.
 
 **Measured (the loop, 2026-09-05, G2-W16).** Bounding `independent_review`'s schema (`findings`
 `maxItems` 16; `text`, `quote`, `repair` each `maxLength`) moved the manifest to a new version, so
@@ -1782,7 +1782,8 @@ Execution order in `project/state.yaml` (list order is execution order; IDs are 
 positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 — G2-W11 D7 fixture,
 G2-W12 D1 (accepted 2026-09-04 at the measured 91.7/8.3, §27.10), G2-W19 sampling determinism
 probe, G2-W21 output-shaping code as a recorded dependency, G2-W13 D2, G2-W16 D5 (review output
-bounded), G2-W17 D6, G2-W20 referential links and commands; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+bounded), G2-W22 plan-level repair escalation (split from W16, 2026-09-05), G2-W17 D6, G2-W20
+referential links and commands; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -1816,6 +1817,9 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G2-W16
   status: PENDING
   purpose: "Acceptance decided by content, never by directory history (27.2 RC5 and RC8). A reviewer finding demotes to advisory only when a deterministic check contradicts it; a finding with causal_stage unclear is classified by code from its section's owner, never auto-demoted; a finding re-raised after its one repair attempt never demotes: it is code-caused (section 26 rule: add the check) or it blocks; every failure record carries section_id and causal_stage as fields, retiring the bracket-prefix and detail-string regexes; the three-character substring demotion goes; required rows admit zero advisories before READY_FOR_PROPOSAL; README_CONTRACT.md section 6 is revised accordingly (27.8); independent_review's output is bounded (a capped findings list with anchored quotes) so its token budget never truncates, and a truncation is a defect routed to the prompt manifest, never a retry (the reviewer truncated at 6000 tokens during W12). Acceptance: the 65b1f577 review.json replayed under the new policy blocks on F02 and F04; a synthetic oversized review is bounded, not truncated; a synthetic re-raised finding blocks; a grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; canary re-seal ACCEPT with zero advisories."
+- id: G2-W22
+  status: PENDING
+  purpose: "Plan-level repair escalation (section 27.2 decision of 2026-09-05; split from G2-W16 for size): a repair attempt at a content stage that fails because its own binding proves the requested revision would change the plan's slot set or example selection (S6's per-task schema requires exactly the plan's slots, so such a fix is a planning decision by construction, never inferred from prose) escalates once to a plan-level repair at S5 carrying the finding's context; the revised plan re-enters S6 through S8 under the same two-attempt and one-fingerprint rules; a repair still unable to produce a schema-valid revision after escalation blocks as today. Acceptance: a synthetic finding whose fix drops or adds a plan slot escalates once and round-trips to ACCEPT; one still unrepairable after escalation blocks; the canary's fresh composition under the bounded-review manifest ends ACCEPT with zero advisories rather than EXIT_INCONSISTENT; rerun byte-identical with zero calls; hosted CI green."
 - id: G2-W17
   status: PENDING
   purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; a new blocking check 12 fails closed when a required row's facts are unresolved and routes to EXTRACTING, never to repair (27.8); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
