@@ -828,6 +828,153 @@ expected_asset_dispositions:
 
 file_records:
   - source_id: aspose-org
+    source_path: scripts/pipeline/lib/publication_probe.py
+    sha256: c5059f68c18af356e18a015144527d020efeccae73e0541fff300e7062b93751
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/publication_probe.py
+    retained_behavior:
+      - One publication probe over every registry adapter, with the offline path and the ambiguity flag that keep an unreachable registry from reading as unpublished.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. One recorded patch: the bare `from package_registries import` becomes this package's absolute path.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/__init__.py
+    sha256: 47b213890b33804aba307146f8d46db906dcd5b2cad66bb558f6efa7bfb96c77
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/__init__.py
+    retained_behavior:
+      - The shared fetch, the CheckResult shape, corroboration by project URL, and the debounce that stops one bad reading from flipping a published flag.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/cargo.py
+    sha256: 9a534ebda00874b9994320eec9e4fe74b7aeceb8dc93b7c3843314f6b16c5669
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/cargo.py
+    retained_behavior:
+      - crates.io, which answers only to a named User-Agent.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/go.py
+    sha256: 7b46ba9beca8713df6af12423a5c1a30634f7fa01a56788f5dde2eebda5b091a
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/go.py
+    retained_behavior:
+      - The Go module proxy, with the case-escaping its paths require.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/npm.py
+    sha256: 92c4fa0c6bfe029f95886d164c2436a74e6a65b1498bddff31d278c06f874df4
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/npm.py
+    retained_behavior:
+      - The npm registry, including scoped names.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/nuget.py
+    sha256: 376efbbe592059086f102783376d63d31282979648a0dcec389d1ca508db500f
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/nuget.py
+    retained_behavior:
+      - NuGet, whose index requires the lowercased package id.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
+    source_path: scripts/pipeline/lib/package_registries/pypi.py
+    sha256: e2c3db8bfddb7906c4537f8e367a0fc12b16106002eff62c3135a637fb2a1523
+    disposition: PORT_NEARLY_INTACT
+    destination: src/repository_presenter/components/readme/extractors/surface/_vendor/aspose_extraction/package_registries/pypi.py
+    retained_behavior:
+      - PyPI, the one registry this repository already reads, kept for parity.
+    removed_behavior: []
+    tests_ported:
+      - tests/test_vendor_boundary.py
+      - tests/components/readme/extractors/surface/test_registry.py
+    acceptance: >
+      The RegistryProbe facade reads every ecosystem's registry name, reaches no network
+      when offline or when the ecosystem has none, and answers inconclusively rather than
+      negatively when a registry cannot be reached. No test touches a real registry.
+    import_closure:
+      - scripts/pipeline/lib/package_registries/ (six modules, standard library only)
+    pulled_at: "2026-09-06"
+    work_item: G4-W09
+    note: >
+      Read with `git show 16d75e95d4:<path>`, never the dirty working tree. Pulled unmodified; the module imports only the standard library.
+  - source_id: aspose-org
     source_path: scripts/pipeline/extraction/package_manifest.py
     sha256: 3a60f9b732d7331373b9183eebfa84b842f7b0168d52b0668c0231acc97acf84
     disposition: PORT_NEARLY_INTACT
