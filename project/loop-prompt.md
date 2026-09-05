@@ -76,8 +76,10 @@ files, never from memory of a previous iteration.
 
 ## 2. Select
 
-- If `active_work_item` is `READY` or `IN_PROGRESS`, continue it: the single smallest change that
-  closes one unmet acceptance predicate. Set status `IN_PROGRESS`.
+- If `active_work_item` is `READY` or `IN_PROGRESS`, continue it: close as many unmet acceptance
+  predicates as the 90-minute budget allows, smallest first, one commit per predicate closed (the
+  full suite once per commit, §3). Set status `IN_PROGRESS`. One predicate per iteration was the rule
+  until 2026-09-05 and doubled the iterations an item cost (`RESEARCH_AND_GUIDELINES.md` §30.9 C).
 - If it is `VERIFYING`, run its complete acceptance now. If every predicate passes, accept it; if
   it was the gate's last item and every gate exit predicate passes, write the gate evidence
   manifest, append to `accepted_gates`, advance `current_gate`, promote the next gate's first work
@@ -167,6 +169,9 @@ files, never from memory of a previous iteration.
   `candidates/` and gate evidence under `evidence/` are committed.
 - Windows traps: write multi-line files and scripts with the Write tool, not big Bash heredocs;
   pass `newline="\n"` whenever Python writes a tracked text file; keep every path short.
+- Read what you need, not whole files: grep, or Read with an offset and limit, first; a whole-file
+  read is for a file you are about to edit. ~312k tokens of tool output were read on 2026-09-05
+  (§30.9 E); every token read is time before the next thought and distance to the session cap.
 
 ## 4. Verify, record, commit, push
 
@@ -179,6 +184,8 @@ files, never from memory of a previous iteration.
 - One coherent commit: `<type>(<scope>): <what> (<GATE_ID>/<WORK_ITEM_ID>)`, ending with
   the `Co-Authored-By:` trailer for the model actually executing the iteration (the owner plans on
   one model and executes on another by design; the trailer records which one wrote the commit).
+  The body says what changed, why, and what it measured, in at most 120 words; the §31 entry and
+  the RESEARCH measurement paragraph carry the rest (§30.9 E: 225 words a commit was the average).
 - Push per `publication.control_repository` and **continue**; do not wait for the hosted run. The
   next iteration's Orient reads the latest completed run for `main`: red is that iteration's first
   work, before anything else (§1). A run cancelled because a later push superseded it is neither
