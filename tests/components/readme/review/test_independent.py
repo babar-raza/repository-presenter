@@ -107,6 +107,24 @@ def test_the_packet_is_bounded_and_carries_validation_as_context() -> None:
     assert set(packet) == REVIEWER.manifest.packet.names
 
 
+def test_a_mermaid_label_locates_without_the_diagrams_quotation_marks() -> None:
+    """A reviewer reads the label, not the syntax that carries it.
+
+    Measured 2026-09-05: the At a Glance node c2 carrying the label Export to interchange
+    formats was quoted without its quotation marks, located nothing, and failed the review
+    twice - the transaction ended on a JobError rather than a verdict (section 27.2).
+    """
+    label = "```mermaid\nflowchart TD\n"
+    label += '  c2["Export to interchange formats"]\n```\n'
+    assert quote_located("c2[Export to interchange formats]", label)
+    assert quote_located('c2["Export to interchange formats"]', label)
+    # A label the diagram does not carry is still invented, and a quotation mark in ordinary
+    # prose is still the reader's text.
+    assert not quote_located("c9[Animation retargeting]", label)
+    prose = 'It writes "glb" files.\n'
+    assert quote_located(prose.strip(), prose)
+
+
 def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_finding() -> None:
     accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
     assert review_checks(accept, CANDIDATE) == []

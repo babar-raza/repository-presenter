@@ -63,6 +63,10 @@ _MARKUP = (
     re.compile(r"(?m)^\s*(?:[-*+]|\d+[.)])\s+"),  # list markers
     re.compile(r"(?m)^\s*#{1,6}\s+"),  # heading marks
     re.compile(r"\*\*|__|(?<!\w)[*_](?=\S)|(?<=\S)[*_](?!\w)"),  # emphasis
+    # A Mermaid node label's quotation marks are the diagram's syntax, not the reader's text:
+    # a reviewer reads c2["Export to interchange formats"] and quotes it without them, and the
+    # quote then located nothing and failed the review twice (measured 2026-09-05, section 27.2).
+    re.compile(r'(?<=\[)"|"(?=\])'),
 )
 
 

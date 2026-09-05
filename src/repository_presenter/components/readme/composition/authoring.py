@@ -466,16 +466,49 @@ def authoring_schema(manifest: LoadedManifest, task: SectionTask) -> dict[str, A
     units = schema["properties"]["units"]
     units["minItems"] = len(task.slots)
     units["maxItems"] = len(task.slots)
-    properties = units["items"]["properties"]
-    properties["section"] = {"const": task.section_id}
-    properties["slot"] = {"type": "string", "enum": list(task.slots)}
-    # The section's fact set is closed and the code holds it, so the schema carries it as a
-    # per-call enum rather than asking for a free string and rejecting what is outside it - the
-    # largest rejection family the canary recorded (docs/RESEARCH_AND_GUIDELINES.md section 27.1;
-    # D1 in 27.5). The gateway answers HTTP 400 for a pattern in a strict schema but honours an
-    # enum, which is why this constraint takes this shape (27.10).
-    properties["fact_ids"]["items"] = {"type": "string", "enum": sorted(task.accepted_ids)}
+    item = units["items"]
+    # One entry per slot, in the task's order: the slot it fills and the only facts its unit may
+    # cite. Both are the code's to state - the plan assigned them - so a reply that fills the
+    # wrong slot or cites another slot's fact is unrepresentable rather than rejected, which is
+    # the largest rejection family the canary recorded (RESEARCH_AND_GUIDELINES.md section 27.1;
+    # D1 in 27.5). The gateway answers HTTP 400 for a pattern in a strict schema, but honours an
+    # enum and enforces prefixItems by position: told to cite the wrong fact under this shape it
+    # cited the right one anyway (probe, 2026-09-05, section 27.10).
+    units["prefixItems"] = [
+        {
+            **item,
+            "properties": {
+                **item["properties"],
+                "section": {"const": task.section_id},
+                "slot": {"const": slot},
+                "fact_ids": {
+                    **item["properties"]["fact_ids"],
+                    "items": {"type": "string", "enum": citable(task, slot)},
+                },
+            },
+        }
+        for slot in task.slots
+    ]
+    del units["items"]
     return schema
+
+
+def citable(task: SectionTask, slot: str) -> list[str]:
+    """The fact IDs a slot's unit may cite: the set the plan assigned it, or the section's own
+    when the plan assigned none, plus the neutral facts every unit may rest on.
+
+    ``unit_checks`` judges the same three sets, so the schema and the guard cannot disagree
+    (docs/README_CONTRACT.md check 4). A fact ID is ``<kind>:<slug>`` by construction, so the
+    neutral kinds are read from the ID itself rather than looked up.
+    """
+    bound = task.slot_facts.get(slot)
+    allowed = set(task.accepted_ids if bound is None else bound)
+    allowed.update(i for i in task.accepted_ids if i.startswith(_NEUTRAL_KINDS))
+    return sorted(allowed)
+
+
+# identity and package facts belong to no slot and may support any unit (unit_checks).
+_NEUTRAL_KINDS = ("identity:", "package:")
 
 
 def authoring_tasks(

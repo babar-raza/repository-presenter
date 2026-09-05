@@ -2170,6 +2170,26 @@ the result per routed model. The composition after `seed` was adopted measured 2
 rejected (87.5%), against 24 with 2 (91.7%) before it; both are single compositions and neither
 is a threshold.
 
+**Probe and measurement (the loop, 2026-09-05, G2-W20; §18.4's discovery pattern).** The gateway
+was asked whether it honours `prefixItems` in a strict `json_schema`, the keyword that can give
+each array position its own constraint where uniform `items` cannot. Two bounded structured calls
+per shape, `temperature` 0, `seed` 1, the store bypassed. Both shapes returned HTTP 200 and both
+replies validated, so acceptance alone settles nothing; the discriminating call instructed the
+model to cite the wrong fact. Under uniform `items` it obeyed the instruction and cited `fact:b`
+for slot `alpha`; under `prefixItems` it cited `fact:a` anyway, for that position only. The
+keyword is therefore honoured **and enforced**, unlike `pattern`, which this gateway answers with
+HTTP 400. Authoring adopted it: one entry per slot, in the task's order, pinning the slot and the
+fact IDs the plan assigned it. On the canary that removed the family outright - `section_authoring`
+went from 16 of 18 first-attempt with two rejections (one of them `cites facts outside its slot's
+planned set`) to **15 of 16 (93.8%)** with one, the identifier family (`test_obj_importer`,
+`tests.test_obj_importer`, named from the command block the renderer prints). The 97% this item
+asks for means zero rejections in sixteen calls, so that family is what remains. Separately, the
+same run failed closed: the reviewer quoted the At a Glance node `c2` by its label without the
+quotation marks Mermaid wraps it in, `quote_located` found nothing, and two rejections ended the
+transaction on a `JobError` rather than a verdict. A label's quotation marks are the diagram's
+syntax, so the normaliser now drops them, and the review returned a verdict on the next run. Both
+reruns are identical with zero provider calls at every stage.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
@@ -2805,3 +2825,9 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   unprobed gateway keyword. Evidence: §27.2, 2026-09-05 (G2-W20) - both families gone from 18
   authoring calls that previously carried seven such rejections. Reverse by dropping `renders` from
   `slot_records` and the enum from `authoring_schema`.
+- **2026-09-05 · G2-W20 · `prefixItems` carries each slot's own fact set, and a Mermaid label
+  locates without its quotation marks.** Alternative rejected: narrowing the enum to the union of
+  the planned slot sets, which reaches nothing - `api_reference` and `development_testing` both
+  have a slot the plan binds to no facts, so the union is the section's set again. Evidence: the
+  probe and the composition in §27.10, 2026-09-05 - the slot-set family gone, 93.8% first attempt.
+  Reverse by restoring uniform `items` in `authoring_schema` and the label pattern in `_MARKUP`.

@@ -873,33 +873,63 @@ def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     # (RESEARCH_AND_GUIDELINES.md section 27.5 D1, cause RC1 in 27.2).
     loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
     slots = ("scope", "limitation:1", "limitation:2")
-    task = SectionTask("scope_limitations", {}, frozenset({"identity:repository"}), slots)
+    accepted = frozenset({"identity:repository", "format:output.glb", "example:001"})
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        accepted,
+        slots,
+        slot_facts={"limitation:1": frozenset({"format:output.glb"})},
+    )
     schema = authoring_schema(loaded, task)
     units = schema["properties"]["units"]
     assert units["minItems"] == units["maxItems"] == 3
-    assert units["items"]["properties"]["section"] == {"const": "scope_limitations"}
-    assert units["items"]["properties"]["slot"] == {"type": "string", "enum": list(slots)}
-    # The section's fact set is closed, so the schema carries it as a per-call enum: citing a
-    # fact outside it - the largest rejection family the canary recorded - is unrepresentable
-    # (section 27.1, D1 in 27.5). unit_checks still narrows a citation to its own slot's set.
-    assert units["items"]["properties"]["fact_ids"] == {
-        "type": "array",
-        "minItems": 1,
-        "items": {"type": "string", "enum": ["identity:repository"]},
-    }
-    outside = {
+    assert "items" not in units
+    # One entry per slot, in the task's order: the slot it fills and the only facts it may cite.
+    # A slot the plan bound sees its own set plus the neutral facts; one it did not bound sees
+    # the section's. The gateway enforces this by position (the probe in section 27.10), so a
+    # reply citing another slot's fact - the largest rejection family the canary recorded - is
+    # unrepresentable rather than rejected (section 27.1, D1 in 27.5).
+    assert [entry["properties"]["slot"] for entry in units["prefixItems"]] == [
+        {"const": slot} for slot in slots
+    ]
+    assert all(
+        entry["properties"]["section"] == {"const": "scope_limitations"}
+        for entry in units["prefixItems"]
+    )
+    assert [entry["properties"]["fact_ids"]["items"]["enum"] for entry in units["prefixItems"]] == [
+        ["example:001", "format:output.glb", "identity:repository"],
+        ["format:output.glb", "identity:repository"],
+        ["example:001", "format:output.glb", "identity:repository"],
+    ]
+
+    def cited(slot: str, fact: str) -> dict[str, Any]:
+        return {
+            "section": "scope_limitations",
+            "slot": slot,
+            "text": "t",
+            "fact_ids": [fact],
+        }
+
+    validator = Draft202012Validator(schema)
+    bound = {
         "units": [
-            {
-                "section": "scope_limitations",
-                "slot": slot,
-                "text": "t",
-                "fact_ids": ["format:output.glb"],
-            }
-            for slot in slots
+            cited("scope", "example:001"),
+            cited("limitation:1", "format:output.glb"),
+            cited("limitation:2", "example:001"),
         ],
         "omitted": [],
     }
-    assert not Draft202012Validator(schema).is_valid(outside)
+    assert validator.is_valid(bound)
+    # The bound slot cannot reach a fact the plan gave another slot, and no slot may be filled
+    # out of turn.
+    outside = {
+        **bound,
+        "units": [*bound["units"][:1], cited("limitation:1", "example:001"), bound["units"][2]],
+    }
+    assert not validator.is_valid(outside)
+    swapped = {**bound, "units": [bound["units"][1], bound["units"][0], bound["units"][2]]}
+    assert not validator.is_valid(swapped)
     # The manifest's own schema is untouched: the specialisation is per call.
     assert "minItems" not in loaded.manifest.output.schema_["properties"]["units"]["items"]
 
@@ -936,9 +966,8 @@ def test_the_forbidden_text_pattern_matches_what_unit_checks_judges() -> None:
     # per-call schema does not carry it, and unit_checks keeps judging these fragments.
     loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
     task = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
-    assert "pattern" not in authoring_schema(loaded, task)["properties"]["units"]["items"][
-        "properties"
-    ].get("text", {})
+    units = authoring_schema(loaded, task)["properties"]["units"]
+    assert "pattern" not in units["prefixItems"][0]["properties"].get("text", {})
 
     pattern = forbidden_text_pattern()
     assert re.match(pattern, "A clean sentence about GLB files.")
