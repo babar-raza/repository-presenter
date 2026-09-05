@@ -3441,3 +3441,12 @@ p-toolchains`,
   hygiene in its current iteration (`Reviewer:` message sent 02:35). This is also the likely cause of
   the "commit after a failing full suite" observation. Reverse by removing the guard — which would
   restore the flakiness. Lane B's next run starts at G4-W14 when W10 and W09 are accepted on main.
+
+- **2026-09-06 04:20 · loop (PROVISIONAL) · the suite never reaches a live gateway, at any fixture
+  scope.** Item G3-W01, applying the `Reviewer:` message of 2026-09-06 04:05 and lane B's
+  measurement. The per-test `delenv` of `GPT_OSS_ENDPOINT` and `GPT_OSS_API_KEY` is function
+  scoped and a session-scoped fixture is built first, so the suite could compose against the real
+  gateway at setup; a session-scoped autouse guard now clears them for the whole run and
+  `tests/test_isolation.py` asserts a session fixture sees none. Reproduced before the fix:
+  `tests/test_cli.py` under `-n auto` failed with the variables set, 43 of 43 with them unset.
+  No check weakened. Reverse by deleting the session fixture and that module.

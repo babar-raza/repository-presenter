@@ -887,7 +887,11 @@ def unit_checks(
         unsupported = sorted(
             term
             for term in title_terms(title, facts)
-            if term.lstrip(".").lower() not in cited and term.lstrip(".").lower() not in common
+            # A title names a format or a product the same way its prose does: "Parse OneNote
+            # .one files" asks nothing of the facts for OneNote, and everything for .one.
+            if term not in nouns
+            and term.lstrip(".").lower() not in cited
+            and term.lstrip(".").lower() not in common
         )
         if unsupported:
             errors.append(

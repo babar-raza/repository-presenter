@@ -338,6 +338,28 @@ def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifi
     assert unit_checks(output, task, facts, "Aspose.Note FOSS for Python") == [
         "unit opening: identifiers that are not accepted fact values: PageHistory"
     ]
+    # A capability title spells the same nouns its prose does, and asks nothing of the facts for
+    # them; the format it names is still the slot's to support.
+    titled = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"identity:repository"}),
+        ("capability:1",),
+        slot_facts={"capability:1": frozenset({"identity:repository"})},
+        slot_titles={"capability:1": "Parse OneNote Files"},
+    )
+    capability = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "It parses OneNote notebooks.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(capability, titled, facts, "Aspose.Note FOSS for Python") == []
 
 
 def test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun() -> None:
