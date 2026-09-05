@@ -1959,7 +1959,9 @@ discipline (small commits, green CI, evidence per item).
 - §6: advisory demotion is content-only; a re-raised finding never demotes; required rows admit
   zero advisories before READY_FOR_PROPOSAL.
 - New check 12 (coverage): a required row whose facts are unresolved fails closed and routes to
-  EXTRACTING.
+  EXTRACTING — admitted only when a sealed candidate exhibits the defect (loop-prompt §6 rule 14;
+  §31, 2026-09-05). None does at `65b1f577`; the G3 cohort supplies the evidence or shows the
+  check unnecessary.
 - §6 (G2-W17, 2026-09-05): a finding that alleges an absence states what it claims is missing as
   text the code can look for, and a required row admits zero advisories *left standing* - a finding
   a deterministic check refuted is not deferred work and never blocks.
@@ -2013,7 +2015,7 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   purpose: "Plan-level repair escalation (section 27.2 decision of 2026-09-05; split from G2-W16 for size): a repair attempt at a content stage that fails because its own binding proves the requested revision would change the plan's slot set or example selection (S6's per-task schema requires exactly the plan's slots, so such a fix is a planning decision by construction, never inferred from prose) escalates once to a plan-level repair at S5 carrying the finding's context; the revised plan re-enters S6 through S8 under the same two-attempt and one-fingerprint rules; a repair still unable to produce a schema-valid revision after escalation blocks as today. Acceptance: a synthetic finding whose fix drops or adds a plan slot escalates once and round-trips to ACCEPT; one still unrepairable after escalation blocks; the canary's fresh composition under the bounded-review manifest ends ACCEPT with zero advisories rather than EXIT_INCONSISTENT; rerun byte-identical with zero calls; hosted CI green."
 - id: G2-W17
   status: PENDING
-  purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; a new blocking check 12 fails closed when a required row's facts are unresolved and routes to EXTRACTING, never to repair (27.8); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
+  purpose: "Coverage defects stop dead-ending as presentation advisories (27.2 RC6: six of twelve examples and five of seven formats never SUPPORTED, 59 units omitted). A per-row coverage ledger records each contract row's required fact kinds and their resolution with reason; check 12 (a required row whose facts are unresolved fails closed and routes to EXTRACTING, never to repair, 27.8) is admitted only when a sealed candidate exhibits that defect - none does at 65b1f577, every required row has SUPPORTED facts - so per loop-prompt section 6 rule 14 it waits for the G3 cohort and is proposed in section 31 when a cohort candidate shows the gap (reviewer decision 2026-09-05); file-reading examples receive fixtures from the repository's test assets (build_test_asset facts) or from the saved output of an executed example, and are executed; examples.json is sealed (its evidence path dangles today); live probes record retrieval time and status, and volatile observations such as the PyPI latest version string leave the hashed fact; the execution environment passes proxy and CA variables. Acceptance: the canary's example:001, :007 and :011 execute; input formats OBJ, STL, glTF and COLLADA reach SUPPORTED; the ledger and coverage ratios are in the bundle; re-seal byte-identical."
 - id: G2-W20
   status: PENDING
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
@@ -2771,3 +2773,13 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   remainder after the shared ones is what separates two capabilities. Evidence: a from-scratch
   composition failed planning twice on it; the planner had listed Scene as shared by
   capabilities 2 and 3 while only capability 1 cited it. Reverse by restoring the v8 wording.
+- **2026-09-05 16:45 · REVIEW (owner's reviewer wake) · five entries confirmed, one proposal
+  admitted.** Confirmed: G2-W20 before G2-W17 (its two prose families are what holds W17's bundle
+  under the floor; lowering the floor rightly refused); holding the bundle rather than fitting the
+  floor to one sample; the `claim` enum dropped on evidence; the `absent` field with its §6 sentence
+  (a deterministic check contradicting a finding is D5's own principle; landed with code, recorded
+  in 27.8); sealing only the composition's ledger records. Admitted: check 12 waits for a sealed
+  candidate that exhibits the defect — applied to §27.9 (G2-W17), 27.8, and the contract status
+  line. Hygiene: new entries were inserted mid-list; §31 is append-only, newest last. Watch metric:
+  the share of findings refuted per composition — above one half, the reviewer prompt is the
+  defect, not the candidate. Reverse any of these by a further entry.

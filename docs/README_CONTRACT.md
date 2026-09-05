@@ -15,8 +15,11 @@ uniqueness — each traced to a verified defect in `RESEARCH_AND_GUIDELINES.md` 
 the commit that made them true: §6's demotion rule (the defect measured in §27.2 RC5: acceptance
 depended on `repairs.json`'s directory history, not on content), and §6's zero-advisory rule for
 required rows, which check 10 now judges — its version moves to 2 with the sentence. §25 records
-the reasoning for the discipline itself. Pending revisions, each traced to a measured defect in
-§27 and carried by a named work item — check 11 by G5-W02, a new check 12 by G2-W17 — are
+the reasoning for the discipline itself. A sixth landed on 2026-09-05 with G2-W17's code: §6's
+absence claims name text the code looks for, and a refuted finding is not deferred work (§27.8,
+§31). Pending revisions, each traced to a measured defect in §27 and carried by a named work item —
+check 11 by G5-W02; a new check 12 only when a sealed candidate exhibits a required-row coverage
+gap (none does at `65b1f577`; expected from the G3 cohort, per loop-prompt §6 rule 14) — are
 specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this document only in that item's
 commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
