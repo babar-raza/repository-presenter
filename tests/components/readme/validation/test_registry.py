@@ -14,6 +14,7 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     slot_fact_sets,
 )
+from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
 from repository_presenter.components.readme.composition.renderer import render_readme
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
@@ -279,7 +280,43 @@ def test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_later(
     assert document["readme_sha256"] == hashlib.sha256(candidate.readme.encode()).hexdigest()
     assert len(document["protected_content_fingerprint"]) == 64
     assert document["advisory"] == []
-    assert document["source_revision"] == REVISION and document["validator_version"] == "2"
+    assert document["source_revision"] == REVISION and document["validator_version"] == "3"
+
+
+def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Path) -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.2 RC6: a coverage defect used to dead-end as a
+    # presentation advisory because nothing recorded what a row needed against what the evidence
+    # gave it. The ledger says it per row, with the reason the evidence itself carries.
+    document = validate_candidate(_candidate(), tmp_path, ())
+    ledger = {row["section_id"]: row for row in document["coverage"]}
+    assert [row["section_id"] for row in document["coverage"]] == [s.id for s in SEMANTIC_SHELL]
+    # A structural row rests on no fact kind; navigation renders from the sections present.
+    assert ledger["navigation"]["kinds"] == [] and ledger["navigation"]["required"] is True
+    # A required row names its kinds and how far each resolved.
+    quick_start = ledger["quick_start"]
+    assert quick_start["required"] is True and quick_start["included"] is True
+    # A kind that resolved completely is a count and nothing else - no reasons to give.
+    assert quick_start["kinds"] == [{"kind": "example", "supported": 1, "extracted": 1}]
+    # A row the plan omitted is still recorded, so a gap cannot hide behind an omission.
+    assert ledger["third_party_notices"]["included"] is False
+
+    # An example the repository could not run leaves the row short, and the ledger says why in
+    # the extractor's own words - the case RC6 measured, where six of twelve never resolved.
+    needs_input = Fact(
+        "example:002",
+        "example",
+        "Scene().open('missing.obj')",
+        (Evidence("README.md", "example 2: NEEDS_INPUT; FileNotFoundError: no such input"),),
+        polarity="UNRESOLVED",
+    )
+    short = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, needs_input))
+    document = validate_candidate(_candidate(facts=short), tmp_path, ())
+    rows = {row["section_id"]: row for row in document["coverage"]}
+    (examples,) = rows["quick_start"]["kinds"]
+    assert examples["supported"] == 1 and examples["extracted"] == 2
+    assert examples["reasons"] == [
+        "UNRESOLVED: example 2: NEEDS_INPUT; FileNotFoundError: no such input"
+    ]
 
 
 def test_every_failure_record_carries_its_section_and_stage_as_fields(tmp_path: Path) -> None:

@@ -57,10 +57,35 @@ from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
 
 VALIDATION_FILENAME = "validation.json"
-VALIDATOR_VERSION = "2"
+VALIDATOR_VERSION = "3"
 # The shell rows README_CONTRACT.md section 2 marks Required: the sections every candidate has,
 # and so the ones that admit no deferred work before READY_FOR_PROPOSAL (section 6).
 REQUIRED_SECTIONS = frozenset(section.id for section in SEMANTIC_SHELL if section.required)
+# The fact kinds each shell row's content rests on, read from README_CONTRACT.md section 2's own
+# Content column. A row whose kinds resolve to nothing renders thin rather than absent, and
+# nothing today says so: the coverage ledger reports the resolution per row so a gap in the
+# evidence is visible as a gap (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC6, 27.5 D6).
+# Structural rows - navigation renders from the sections present - rest on no fact kind.
+ROW_FACT_KINDS: dict[str, tuple[str, ...]] = {
+    "identity": ("identity",),
+    "badges": ("license", "package", "link_target"),
+    "banner": ("link_target",),
+    "opening": ("identity", "package", "format", "public_symbol"),
+    "navigation": (),
+    "at_a_glance": ("format", "public_symbol"),
+    "key_capabilities": ("public_symbol", "example", "format", "import_path"),
+    "installation": ("install_command", "package"),
+    "dependencies": ("dependency",),
+    "quick_start": ("example",),
+    "additional_examples": ("example",),
+    "api_reference": ("public_symbol",),
+    "documentation_resources": ("link_target",),
+    "scope_limitations": ("inherited_unit", "example", "public_symbol"),
+    "development_testing": ("build_test_asset",),
+    "enterprise_relationship": ("link_target",),
+    "third_party_notices": ("third_party_notices",),
+    "license": ("license",),
+}
 Verdict = Literal["PASS", "FAIL", "PENDING"]
 CausalStage = Literal["EXTRACTING", "INVESTIGATING", "RECONCILING", "PLANNING", "COMPOSING"]
 STAGE_ORDER: tuple[CausalStage, ...] = (
@@ -931,6 +956,65 @@ def advisory_notes(candidate: Candidate) -> list[str]:
     return notes
 
 
+def coverage_ledger(candidate: Candidate) -> list[dict[str, Any]]:
+    """Every shell row with the fact kinds it rests on and how far they resolved.
+
+    RC6: a coverage defect used to dead-end as a presentation advisory, because nothing recorded
+    what a row needed against what the evidence gave it. Each entry says whether the row is
+    required, whether the plan included it, and for every kind the row rests on: how many facts of
+    that kind are SUPPORTED, how many were extracted, and - when some are not - the reason the
+    evidence itself gives, never one invented here.
+    """
+    by_kind: dict[str, list[Fact]] = {}
+    for fact in candidate.facts.facts:
+        by_kind.setdefault(fact.kind, []).append(fact)
+    included = {
+        str(entry.get("section_id"))
+        for entry in candidate.plan.get("sections", [])
+        if entry.get("include")
+    }
+    ledger: list[dict[str, Any]] = []
+    for section in SEMANTIC_SHELL:
+        kinds: list[dict[str, Any]] = []
+        for kind in ROW_FACT_KINDS.get(section.id, ()):
+            facts = by_kind.get(kind, [])
+            supported = [fact for fact in facts if fact.polarity == "SUPPORTED"]
+            unresolved = [fact for fact in facts if fact.polarity != "SUPPORTED"]
+            record: dict[str, Any] = {
+                "kind": kind,
+                "supported": len(supported),
+                "extracted": len(facts),
+            }
+            if unresolved:
+                record["reasons"] = sorted(
+                    {
+                        f"{fact.polarity}: {_evidence_detail(fact)}"
+                        for fact in unresolved[:_LEDGER_REASONS]
+                    }
+                )
+            kinds.append(record)
+        ledger.append(
+            {
+                "section_id": section.id,
+                "required": section.required,
+                "included": section.id in included,
+                "kinds": kinds,
+            }
+        )
+    return ledger
+
+
+def _evidence_detail(fact: Fact) -> str:
+    """The reason the evidence gives for a fact that did not resolve, as the extractor wrote it."""
+    detail = fact.evidence[-1].detail if fact.evidence else None
+    return str(detail or "no reason recorded")
+
+
+# A row's reasons are a sample, not an inventory: enough to see why a kind did not resolve
+# without the ledger growing with the corpus.
+_LEDGER_REASONS = 3
+
+
 def _earliest(failures: Sequence[Failure]) -> CausalStage | None:
     stages = [failure.stage for failure in failures if failure.stage is not None]
     if not stages:
@@ -1000,6 +1084,7 @@ def validate_candidate(
         "readme_sha256": _sha256(candidate.readme.encode("utf-8")),
         "protected_content_fingerprint": protected_fingerprint(protected_fragments(candidate)),
         "checks": checks,
+        "coverage": coverage_ledger(candidate),
         "advisory": advisory_notes(candidate),
         "summary": {
             "pass": verdicts.get("PASS", 0),
