@@ -16,7 +16,9 @@ files, never from memory of a previous iteration.
   measured root causes RC1–RC8 and the design D1–D7; a change that reintroduces one of them is a
   defect), and §29 (before any platform, plugin, verifier, or reuse-source work — the layered plugin
   design E1–E6, the vendor boundary, and what the loop would otherwise get wrong, F1–F8),
-  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs.
+  `plans/idea.md`, `migration/reuse-manifest.yaml`. Read only what the current work item needs:
+  §27.0 (the decisions in force, under forty lines) every iteration, the §27–§30 subsections the
+  work item cites, and a whole section only when diagnosing a defect it describes.
 - Never write to any product repository, never force-push, never widen a credential. Never modify
   the legacy checkout at `D:\Users\prora\OneDrive\Documents\GitHub\foss-readme-optimizer`; it is a
   read-only source at `a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815`. Do not rerun its test suite. The
@@ -94,9 +96,11 @@ files, never from memory of a previous iteration.
   gate evidence records as accepted, insert them verbatim at the positions it states; remove
   any entry it lists as moved; apply the state edits it lists as pending (and the reuse-manifest
   edit, in the same commit); validate against `schemas/state.schema.json`; commit as `chore(state)`
-  first. The owner mirrors every queued item there before it lands, so the queue never depends on a
-  second session being alive. Items of a later gate may sit in the list; take only the current
-  gate's.
+  first. §27.9 is the single source for queued item text: if a non-active entry's `purpose` in
+  `state.yaml` differs from §27.9's, replace it verbatim in the same commit (the active item's text
+  is edited only by the owner at a clean checkpoint). The owner mirrors every queued item there
+  before it lands, so the queue never depends on a second session being alive. Items of a later
+  gate may sit in the list; take only the current gate's.
 
 ## 3. Implement (at most 90 minutes of wall clock)
 
@@ -185,6 +189,17 @@ files, never from memory of a previous iteration.
   work items that consume them, and continue. Stop the loop only when every remaining work item in
   the current gate and the next gate consumes an unmet owner item; then tell the owner the exact
   actions, in order, with the item IDs.
+- Decisions (`RESEARCH_AND_GUIDELINES.md` §30 A1). Three classes. **Provisional — decide, record,
+  continue**: a threshold from data (§3's three-composition rule), the wording of a record, the
+  order of items inside the current gate, a measured fallback (a gateway limit, an unhonoured
+  parameter), restating a predicate to what the implementation proved, and any choice §27–§29
+  already sanction. Write a dated paragraph marked `PROVISIONAL` in the RESEARCH section the item
+  names, with the alternative you did not take, and continue; the owner reviews these at the next
+  check-in and may reverse any of them. **Queue, do not widen**: anything that adds scope becomes a
+  §27.9-shaped entry proposed in that same paragraph, never work done now. **Owner-only — stop and
+  ask**: a change to `plans/idea.md`; a new requirement in `docs/README_CONTRACT.md` (a predicate fix
+  proven by a sealed defect is not one); credentials, publication, or any effect on a product
+  repository; a safety invariant. A question for the owner is never by itself a reason to stop.
 - Hosted CI red: reproduce locally, fix at the causal boundary, push. Never disable a check.
 - `FAILED_INTERNAL`: diagnose and repair at the causal stage in this or the next iteration; never
   acceptable completion, never a reason to weaken a check.
@@ -233,10 +248,24 @@ files, never from memory of a previous iteration.
 - After a productive iteration, schedule the next wakeup in 60 to 120 seconds with `noop: false`.
 - Waiting on a long local process or a hosted CI run: schedule a delay that matches it, at most
   ten minutes, then verify the result and continue.
-- Stop the loop only when: every remaining work item in the current and next gate consumes an unmet
-  owner item; three consecutive iterations changed no acceptance predicate, reported with a
-  first-principles diagnosis; the definition of done in `docs/EXECUTION_STATE_MACHINE.md` §11 is
-  met; or continuing would violate a safety invariant. Never wake only to check on yourself.
+- Stop the loop (`ScheduleWakeup` with `stop: true`) only when: every remaining work item in the
+  current and next gate consumes an unmet owner item; three consecutive iterations changed no
+  acceptance predicate, reported with a first-principles diagnosis; the definition of done in
+  `docs/EXECUTION_STATE_MACHINE.md` §11 is met; continuing would violate a safety invariant; or the
+  next step needs one of the four owner-only decisions in §5. Nothing else stops the loop: not a
+  clean checkpoint, not the end of a slice, not a prompt that read like a single task, not the hour,
+  not the owner's absence, not a question you would like the owner's read on (§5 says what to do
+  with those). A productive iteration always schedules the next wakeup. On 2026-09-04/05 two
+  self-stops outside these rules cost eleven of forty-eight hours (`RESEARCH_AND_GUIDELINES.md`
+  §30). Never wake only to check on yourself.
+
+## 9. Re-arm text
+
+The only `/loop` content is: `Read project/loop-prompt.md in full and follow it.` Every checkpoint
+fact — gate, active item, answers to your questions — lives in `project/state.yaml` and the
+RESEARCH sections; none of it belongs in the prompt. A prompt shaped like a task ("Resume X…") ends
+when the task ends, and that is how the 2026-09-05 00:38 self-stop happened. Your own
+`ScheduleWakeup` prompt is that same one line.
 
 ## 8. Report (end of every iteration, at most twelve lines)
 

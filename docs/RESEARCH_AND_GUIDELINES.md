@@ -1532,6 +1532,35 @@ content units) and its predecessor `d9f3bfe5`. Every mechanism below is cited to
 every magnitude comes from one repository in one ecosystem and is indicative, not general. Where
 the evidence is thin it is said.
 
+### 27.0 Decisions in force (read this first; updated 2026-09-05)
+
+The loop reads this list every iteration and the subsection an item cites; whole sections only when
+diagnosing. Each line names where the detail lives.
+
+- **D1 constructive generation — landed (W12).** Per-call schemas for four jobs; measured
+  first-attempt acceptance 85–92%; the regression floor is 85% (27.10 f/u 3). Remaining prose
+  families (URL, command in a sentence) become referential in **G2-W20**. The gateway answers
+  HTTP 400 for `pattern` in strict `json_schema`: never use `pattern`; use enums, `minItems`/
+  `maxItems`, `maxLength` (27.10).
+- **D2 title binding — landed (W13). D5 content-only acceptance — W16 in progress** (bounded review
+  output landed; a re-raised finding blocks, never demotes). **D6 coverage ledger — W17.**
+  **D3 anchoring, D4 portable proof, fan-out — G5** (27.10: anchoring cannot help a first candidate).
+- **`seed` is honoured** by `qwen3-next` (two identical calls, identical bytes; `catalog.json`),
+  declared per manifest, versioned. Cold-run determinism is measured by **G2-W23**.
+- **Thresholds** come from at least three sealed compositions, never one (27.10 f/u 3).
+- **Repair routing**: structured fields, never regex over prose (W16); one plan-level escalation
+  when a content-stage repair would need a slot-set change (**G2-W22**, 27.2 decision).
+- **Contract**: a revision lands only with its item's code and tests (27.8); v1 freezes at G3-W02.
+- **Queue**: §27.9 is the single source for queued item text — moved entries, pending edits, and
+  purposes are reconciled from it (loop-prompt §2).
+- **Reuse**: aspose.org is a second reuse source under the pull discipline; vendor boundary; never a
+  runtime import; minimal closure only; every pulled file tested (§29, loop-prompt §3).
+- **Toolchains** are provisioned workspace-locally by the loop, never system-wide (29.6 E5).
+- **Autonomy**: `stop: true` only under loop-prompt §7; decisions are provisional-and-recorded, not
+  asked (§5, §30); the only re-arm text is one line (§9).
+- **Order to 31/31**: G2 (W22, W16, W17, W20, W23) → G3 Python cohort with a facts-only preflight,
+  then freeze → G4 second source, spec layer, extractor, six cohorts → G5 durability and hosted (§28).
+
 ### 27.1 Symptoms, measured
 
 | Symptom | Measure | Where |
@@ -1811,7 +1840,7 @@ positions), as restructured by §28 and §29 on the owner's go (2026-09-04): G2 
 G2-W12 D1 (accepted 2026-09-04 at the measured 91.7/8.3, §27.10), G2-W19 sampling determinism
 probe, G2-W21 output-shaping code as a recorded dependency, G2-W13 D2, G2-W16 D5 (review output
 bounded), G2-W22 plan-level repair escalation (split from W16, 2026-09-05), G2-W17 D6, G2-W20
-referential links and commands; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
+referential links and commands, G2-W23 cold-run determinism measurement; G3 — G3-W01 Python cohort, G3-W02 freeze v1; G4 —
 G4-W08 second reuse source and schema, G4-W10 layered plugins and generic shared code, G4-W09
 shared surface extractor (after W10, whose spec it serves), G4-W11 to G4-W16 ecosystem specs with their cohorts (.NET, Java, C++,
 TypeScript, Go, Rust); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. The entries below are the exact
@@ -1854,10 +1883,13 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G2-W20
   status: PENDING
   purpose: "Referential links and commands in authored units (D1 completion; the two prose families W12 left post-validated because the gateway answers HTTP 400 for a pattern in strict json_schema, 27.10): an authored unit never writes a URL or a command as text; it references link_target and install_command facts by ID from a per-call enum the packet and schema carry for the slot, and the renderer emits the link or command deterministically from the fact; unit_checks keeps rejecting a literal URL or command. Insert after G2-W17, before G3-W01. Acceptance: a synthetic reply with a literal URL is rejected while the referential form renders the same link; section_authoring first-attempt acceptance reaches at least 97 percent on the re-seal, measured by the ledger helper; the canary re-seals byte-identically or with its recorded delta; hosted CI green."
+- id: G2-W23
+  status: PENDING
+  purpose: "Cold-run determinism measurement (section 30 A8; seed is honoured per the two-call probe): with the sealed canary untouched, delete the canary's runs/ transaction, run present once from cold, and compare every artifact byte for byte against the sealed bundle; record the result and the classes of any difference (which stage, which job) as a dated measurement in 27.10. If identical, G5-W02's seeding of the call store from the bundle is demoted to a fallback in its purpose; if not, the differing stage is G5-W02's first target. Also add a test asserting that section 27.9 and state.yaml agree on every non-active queued item's purpose (the single-source rule, loop-prompt section 2). Acceptance: the measurement is recorded with the composition's call count and outcome; the parity test exists and passes; the sealed candidate stays READY_FOR_PROPOSAL; hosted CI green."
 # G3, G4, G5 entries: append after the last G2 entry, in this order
 - id: G3-W01
   status: PENDING
-  purpose: "Python cohort (section 28.5): run the twelve remaining Python registry repositories through the existing pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix causes by failure class, never per repository: a class fixed once carries a test that a later cohort cannot regress. Family-specific format declarations and fixtures (section 27.5 D6) are added only where a repository's coverage ledger demands them. Acceptance: status prints the sealed count; the gate evidence manifest carries the cohort report (sealed, disposition, failure class per repository); every sealed bundle is fresh-process zero-call proven; hosted CI green."
+  purpose: "Python cohort (section 28.5). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls (section 30 A7); fix by class with a regression test each. Step two: run the twelve through the full pipeline in registry order, one transaction each, sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not; compositions run in the background across iterations. Never per repository by hand. Family-specific format declarations and fixtures (section 27.5 D6) only where a repository's coverage ledger demands them. Acceptance: the preflight report and the cohort report (sealed, disposition, failure class per repository) are in the gate evidence manifest; status prints the sealed count; every sealed bundle is fresh-process zero-call proven; hosted CI green."
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after the Python cohort has sealed against it: the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -2352,3 +2384,102 @@ The §28 drafts G4-W01 to G4-W07 are superseded and listed as moved in §27.9; I
   `ecosystems/*.py` pulled), one verifier (cpp/rust pulled with a small cut; the rest fresh), one
   negative control, then the cohort with fixes by failure class and honest dispositions. Parity and
   E6 corroboration per ecosystem when parity fails.
+
+## 30. Autonomous execution: what stops the loop, and the design that keeps it running (2026-09-05)
+
+§27 fixed the pipeline, §28 the plan, §29 the ecosystems. This section is about the machine that
+executes them: the loop, the human it waits on, and the computer it runs on. Evidence: the loop's own
+session transcript (timestamps, `ScheduleWakeup` calls, re-arm prompts), `git log`, the ledgers, and
+this machine's power and sync configuration.
+
+### 30.1 Symptoms
+
+- **Eleven of the last forty-eight hours were lost to stops the loop's own rules do not sanction.**
+  At 17:53 on 09-04 it called `ScheduleWakeup {stop: true}` to ask whether D3 should move ("I'd
+  rather you steer than have me pick"); resumed 18:17. At 20:56 it paused for the owner's read on
+  W19's wording; resumed 21:36. At 00:38 on 09-05 it stopped "at a clean checkpoint" with W16 in
+  progress and one predicate closed; nothing ran until a re-arm at 09:50 — nine hours.
+- The night before (09-04 00:07–09:26) it ran fourteen iterations unattended under the prompt
+  "Follow project/loop-prompt.md exactly for one bounded iteration, then schedule the next wakeup
+  per its own section 7." The system can run all night; something about the day made it stop.
+- Cadence when running: 25–40 minutes per iteration, 4–9 iterations per item, 16 G2 items accepted
+  in ~30 running hours.
+
+### 30.2 Root causes
+
+- **RC-L1 The owner is a synchronous dependency.** Governance assigns thresholds, wording, plan
+  order, and contract changes to the owner; when the loop meets one it has two honest options —
+  stop, or decide and risk overreach — and it chose to stop (17:53, 20:56). Both stops were good
+  judgment under the rules as written; the rules were the defect.
+- **RC-L2 Task-shaped re-arm prompts.** The 00:03 re-arm read "Resume G2-W16 (READY): …" — a task.
+  The loop completed the task and closed out; §7's "stop only when" did not override a prompt that
+  framed the whole engagement as one bounded job. The neutral prompt the night before did not have
+  this shape. The owner (this session) wrote those resume texts.
+- **RC-L3 No channel for a provisional decision.** §0 allowed the loop to append facts, not
+  decisions; a decision it needed had nowhere to go but a stop.
+- **RC-L4 The owner's own cadence.** Sixteen governance pushes in a day cancelled the loop's CI runs
+  and changed files mid-iteration; each cost re-orientation. The manual `state.yaml` scripts depended
+  on this session being alive.
+- **RC-L5 Reading load.** §0 made the loop read §27 (463 lines) and §29 (202) before most changes;
+  ~800 lines per iteration across the reading list.
+
+**Ruled out (measured):** the machine (AC sleep and hibernate both never); the gateway (0 non-200
+responses in 816 ledger rows); OneDrive (no account registered in HKCU; the folder name is a legacy
+path); Windows file locks (the `PermissionError` hits are the code's own `rmtree` handling).
+
+### 30.3 Structural weakness
+
+A human sits inside an asynchronous system as a synchronous dependency. Every question the loop
+could not answer alone became idle time equal to the owner's absence.
+
+### 30.4 Preserve
+
+Fail-closed stops for safety, credentials, effects, and unmet owner items; the loop's habit of
+measuring rather than guessing and reporting what it did not do; the honest "I need a read" — now
+written down instead of blocking.
+
+### 30.5 Design
+
+- **A1 Decision protocol** (loop-prompt §5). Provisional-and-recorded for thresholds from data,
+  wording, intra-gate order, measured fallbacks, restated predicates, and anything §27–§29 already
+  sanction — a dated `PROVISIONAL` paragraph in the item's RESEARCH section, with the alternative
+  not taken; the owner reviews at the next check-in and may reverse. Scope growth is queued, never
+  done. Stop-and-ask only for `plans/idea.md`, a new contract requirement, credentials or effects,
+  and safety.
+- **A2 Canonical re-arm text** (loop-prompt §9): one line, no checkpoint facts in the prompt.
+- **A3 Hardened §7**: `stop: true` only under the enumerated conditions; a clean checkpoint, the end
+  of a slice, the hour, and the owner's absence are named as non-reasons.
+- **A4 Single-source queue** (loop-prompt §2): §27.9 governs queued item text; the loop reconciles
+  purposes for non-active items, so the owner's scripts are no longer load-bearing.
+- **A5 Reading load**: §27.0 (this file) is the every-iteration read; subsections by citation; whole
+  sections only when diagnosing.
+- **A6 Owner cadence** (this session's rule for itself): batch governance pushes into at most two
+  windows a day unless the loop is blocked; never edit a file the active item names mid-iteration.
+- **A7 Cohort preflight** (G3-W01): a facts-only pass over all twelve Python repositories before any
+  composition — every failure class known with zero provider calls, fixed by class, then compose.
+- **A8 Cold-run determinism measurement** (G2-W23): with `seed` honoured, does a cold run reproduce
+  the sealed bytes? If yes, D4's bundle-seeding is a fallback and RC4 is largely closed by `seed`
+  alone; if no, the differing stage is named. One composition of tool time, high information.
+
+### 30.6 Validation and regression controls
+
+1. Unsanctioned `stop: true` events per day: 0 (the loop's report names any stop and its §7 clause).
+2. Iterations per 24 hours: ≥30 running unattended, against 14–20 today.
+3. Provisional decisions: listed in §27.0 at each owner check-in, each reversed or confirmed.
+4. §27.9 ↔ `state.yaml` parity test (G2-W23) — a drift is a failing test, not a manual script.
+5. Time from a loop question to its answer: measured in the transcript; the target is zero blocking
+   questions outside the owner-only class.
+
+### 30.7 Trade-offs, risks, limits
+
+- Provisional decisions will sometimes be wrong. Every one is dated, recorded with the road not
+  taken, and reversible in git; the owner-only class is narrow and explicit. The alternative — nine
+  idle hours per question — is measured.
+- The loop may still pause on a genuine owner-only question; that is correct, and rarer.
+- A3 cannot prevent a stop the harness itself causes (context limit, a crash); the canonical
+  re-arm text makes recovery one line.
+- The cohorts' per-repository surprises remain the largest unknown for the calendar; A7 moves their
+  discovery to tool time but does not remove the fixes.
+- Estimate, with A1–A3 in force and the machine on AC: G2's five remaining items ≈ 12–15 running
+  hours; G3 ≈ 10–12; G4 ≈ 20–28. Roughly 45–55 running hours ≈ 2–2.5 unattended days to 31/31,
+  against ≈ 4 days at today's effective 14 running hours per day. The unattended day is the lever.
