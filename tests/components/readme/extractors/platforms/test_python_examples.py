@@ -62,6 +62,41 @@ def test_fixture_staging_prefers_a_same_name_file_then_the_smallest_same_suffix(
     assert not (workspace / "missing.xyz").exists()
 
 
+def test_a_fixture_may_come_from_an_executed_examples_output(tmp_path: Path) -> None:
+    """A repository that ships no sample data can still verify an example that reads one.
+
+    Measured on the canary on 2026-09-05 (section 27.2 RC6): five of twelve examples ended
+    NEEDS_INPUT on a model file, and the repository carries no model file of any kind - 751
+    .py, 9 .md, 4 .txt, one .yml, and nothing else. Two executed examples do write one.
+    """
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    workspace = tmp_path / "run"
+    workspace.mkdir()
+    # The tree has a .obj, so the repository's own file wins and the pool is not consulted.
+    made = tmp_path / "made.obj"
+    made.write_text("v 9 9 9\n", encoding="utf-8")
+    pool = {".obj": [(2, made)], ".gltf": [(4, made)]}
+    bindings = stage_fixtures('a = open("sample.obj")', root, tree, workspace, pool)
+    assert [(b.literal, b.source_path, b.produced_by) for b in bindings] == [
+        ("sample.obj", "tests/sample.obj", None)
+    ]
+    # An extension the tree never had is served by the earliest example that wrote one, and
+    # the binding names it, so the receipt says whose output this is.
+    other = tmp_path / "run2"
+    other.mkdir()
+    bindings = stage_fixtures('a = open("model.gltf")', root, tree, other, pool)
+    assert [(b.literal, b.source_path, b.produced_by) for b in bindings] == [
+        ("model.gltf", "made.obj", 4)
+    ]
+    assert (other / "model.gltf").read_text(encoding="utf-8")
+    # Without a pool the same example simply goes unserved, as it did before.
+    bare = tmp_path / "run3"
+    bare.mkdir()
+    assert stage_fixtures('a = open("model.gltf")', root, tree, bare) == []
+
+
 def test_every_candidate_gets_an_honest_receipt(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     root.mkdir()

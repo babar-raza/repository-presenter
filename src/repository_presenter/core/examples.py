@@ -53,10 +53,17 @@ class ExampleCandidate:
 
 @dataclass(frozen=True)
 class FixtureBinding:
-    """A repository-owned input file staged under the name the example opens."""
+    """An input file staged under the name the example opens.
+
+    ``source_path`` is the repository path the file came from, or the file name an earlier
+    example wrote; ``produced_by`` names that example's ordinal when the fixture is its output.
+    A repository that ships no sample data can still verify an example that reads one, provided
+    another example of the same README produced it (docs/RESEARCH_AND_GUIDELINES.md 27.2 RC6).
+    """
 
     literal: str
     source_path: str
+    produced_by: int | None = None
 
 
 @dataclass(frozen=True)

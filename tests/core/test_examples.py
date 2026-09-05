@@ -19,7 +19,9 @@ def test_receipts_are_sorted_and_deterministic(tmp_path: Path) -> None:
     first = (tmp_path / "examples.json").read_bytes()
     document = json.loads(first)
     assert [r["ordinal"] for r in document] == [1, 2]
-    assert document[0]["fixtures"] == [{"literal": "model.obj", "source_path": "tests/a.obj"}]
+    assert document[0]["fixtures"] == [
+        {"literal": "model.obj", "source_path": "tests/a.obj", "produced_by": None}
+    ]
     write_receipts(list(reversed(receipts)), tmp_path / "examples.json")
     assert (tmp_path / "examples.json").read_bytes() == first
     assert b"\r\n" not in first

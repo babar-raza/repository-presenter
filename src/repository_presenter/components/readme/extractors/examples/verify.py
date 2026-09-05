@@ -39,6 +39,12 @@ def example_facts(
         if receipt is not None:
             evidence.extend(
                 Evidence(binding.source_path, f"staged as {binding.literal}")
+                if binding.produced_by is None
+                else Evidence(
+                    receipts_path,
+                    f"staged as {binding.literal} from example {binding.produced_by}'s "
+                    f"output {binding.source_path}",
+                )
                 for binding in receipt.fixtures
             )
         facts.append(

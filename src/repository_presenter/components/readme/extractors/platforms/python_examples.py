@@ -64,10 +64,26 @@ def _string_literals(code: str) -> list[str]:
     ]
 
 
+# Files an executed example wrote, by lower-case suffix, in the order they were produced: an
+# example that reads a model can be given one the README's own examples made, when the repository
+# ships no sample data of its own (docs/RESEARCH_AND_GUIDELINES.md 27.2 RC6).
+ProducedFiles = dict[str, list[tuple[int, Path]]]
+
+
 def stage_fixtures(
-    code: str, root: Path, tree_paths: Sequence[str], workspace: Path
+    code: str,
+    root: Path,
+    tree_paths: Sequence[str],
+    workspace: Path,
+    produced: ProducedFiles | None = None,
 ) -> list[FixtureBinding]:
-    """Copy a repository-owned file under each file-like literal the example names."""
+    """Stage a file under each file-like literal the example names.
+
+    A repository-owned file of that name, then one of that extension, then - only when the tree
+    offers neither - the earliest output an executed example of this same README wrote with that
+    extension. The receipt names which, so a reader sees a fixture is the product's own output
+    and not something invented here.
+    """
     bindings: list[FixtureBinding] = []
     by_name = {Path(path).name.lower(): path for path in sorted(tree_paths)}
     for literal in _string_literals(code):
@@ -84,10 +100,16 @@ def stage_fixtures(
                 key=lambda path: ((root / path).stat().st_size, path),
             )
             source = same_suffix[0] if same_suffix else None
-        if source is None:
+        if source is not None:
+            shutil.copyfile(root / source, target)
+            bindings.append(FixtureBinding(literal, source))
             continue
-        shutil.copyfile(root / source, target)
-        bindings.append(FixtureBinding(literal, source))
+        made = (produced or {}).get(suffix) or []
+        if not made:
+            continue
+        ordinal, path = made[0]
+        shutil.copyfile(path, target)
+        bindings.append(FixtureBinding(literal, path.name, produced_by=ordinal))
     return bindings
 
 
@@ -147,13 +169,17 @@ def verify_python_examples(
     if install.return_code != 0:
         return _all_not_verified(candidates, f"package install failed: {_clip(install.stderr)}")
 
-    receipts: list[ExampleReceipt] = []
-    for candidate in candidates:
+    def run(
+        candidate: ExampleCandidate, produced: ProducedFiles
+    ) -> tuple[ExampleReceipt, tuple[Path, ...]]:
         run_dir = workspace / f"example_{candidate.ordinal:03d}"
+        if run_dir.exists():
+            shutil.rmtree(run_dir)
         run_dir.mkdir()
         script = run_dir / "example.py"
         script.write_bytes(candidate.code.encode("utf-8"))
-        fixtures = stage_fixtures(candidate.code, root, tree_paths, run_dir)
+        fixtures = stage_fixtures(candidate.code, root, tree_paths, run_dir, produced)
+        before = {path.name for path in run_dir.iterdir()}
         result = execute(
             [str(python), "-s", "-X", "utf8", str(script)],
             workspace=run_dir,
@@ -161,18 +187,54 @@ def verify_python_examples(
             extra_environment={"PYTHONPATH": str(site), "PYTHONNOUSERSITE": "1"},
         )
         outcome, detail = _classify(result, candidate.code)
-        receipts.append(
-            ExampleReceipt(
-                ordinal=candidate.ordinal,
-                outcome=outcome,  # type: ignore[arg-type]
-                return_code=result.return_code,
-                stdout=_redact(_clip(result.stdout), workspace),
-                stderr=_redact(_clip(result.stderr), workspace),
-                detail=detail,
-                fixtures=tuple(fixtures),
-            )
+        receipt = ExampleReceipt(
+            ordinal=candidate.ordinal,
+            outcome=outcome,  # type: ignore[arg-type]
+            return_code=result.return_code,
+            stdout=_redact(_clip(result.stdout), workspace),
+            stderr=_redact(_clip(result.stderr), workspace),
+            detail=detail,
+            fixtures=tuple(fixtures),
         )
+        written = sorted(
+            path for path in run_dir.iterdir() if path.is_file() and path.name not in before
+        )
+        return receipt, tuple(written)
+
+    produced: ProducedFiles = {}
+    receipts: list[ExampleReceipt] = []
+    for candidate in candidates:
+        receipt, written = run(candidate, produced)
+        receipts.append(receipt)
+        # Only an example that ran to completion has output worth handing on: a failed run may
+        # have left a file half written, as this canary's ObjExporter does.
+        if receipt.outcome == "EXECUTED":
+            for path in written:
+                produced.setdefault(path.suffix.lower(), []).append((candidate.ordinal, path))
+    # A producer may appear after its consumer, so the examples that lacked an input are given
+    # one more attempt against the complete pool. Order is the ordinals', so the pass is
+    # deterministic; an example the pool cannot serve is not run again.
+    by_ordinal = {candidate.ordinal: candidate for candidate in candidates}
+    for index, receipt in enumerate(receipts):
+        if receipt.outcome != "NEEDS_INPUT":
+            continue
+        candidate = by_ordinal[receipt.ordinal]
+        if not _serviceable(candidate.code, root, tree_paths, produced):
+            continue
+        retried, _ = run(candidate, produced)
+        receipts[index] = retried
     return receipts
+
+
+def _serviceable(code: str, root: Path, tree_paths: Sequence[str], produced: ProducedFiles) -> bool:
+    """Whether the pool now holds an extension this example opens and the tree never had."""
+    suffixes = {Path(path).suffix.lower() for path in tree_paths}
+    wanted = {
+        Path(literal).suffix.lower()
+        for literal in _string_literals(code)
+        if _FILE_LITERAL.match(literal) and "/" not in literal
+    }
+    return any(suffix in produced for suffix in wanted - suffixes)
 
 
 def _all_not_verified(candidates: Sequence[ExampleCandidate], detail: str) -> list[ExampleReceipt]:
