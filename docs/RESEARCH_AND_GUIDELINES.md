@@ -2394,6 +2394,22 @@ requires it, which is the case `rendered_defect` already makes for a renderer-wr
 Both are recorded in §31 rather than landed here: this iteration has already changed the review
 twice, and loop-prompt §6 rule 4 says stop.
 
+**Measurement (the loop's, G3-W01, 2026-09-06, the cold-run determinism question folded in from
+G2-W23).** The canary's `runs/transactions/` and `runs/clones/` were deleted and `present` run once
+from cold at the same source revision `65b1f577`, then compared byte for byte with the sealed
+bundle. **It does not reproduce it, and it does not seal.** Every one of the thirteen shared
+artifacts differs — `facts.json` included — and `dependencies.json` and `manifest.json` are absent
+because the run never reached a seal: validation ends 9 pass, 1 fail, 1 pending, the failure being
+BC-10 `REJECT_PRESENTATION` after two repair rounds that repaired nothing. The cold reviewer raised
+two findings the second reader corroborated: `key_capabilities`, that the Triangulate polygons
+capability attributes the implementation to the wrong type, and `development_testing`, that the
+section omits the AGENTS.md reference and the publish workflow link. Six classes were corroborated
+in all. **The differing stage is S2 onward — there is no single one.** Two consequences follow.
+G5-W02's bundle seeding is *not* demoted to a fallback: a sealed bundle is the only copy of its own
+composition, and the zero-call proof rests on the stored calls, not on reproducibility. And the
+two-reader rule is not a rubber stamp — on a fresh composition of the very repository that is
+already sealed, two independent readers agreed six times.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
