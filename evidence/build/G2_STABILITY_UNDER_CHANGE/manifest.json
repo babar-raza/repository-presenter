@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W13",
+ "work_item": "G2-W16",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-04T23:56:38+05:00",
- "control_revision": "d5fcd587cef217db974323d51aa6ab4079787a11",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest, the code, the contract revision and the cursor advance to G2-W16) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-05T13:00:58+05:00",
+ "control_revision": "a44a2a65d8a119e39776e4599617b8c7f3836b58",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the restated predicate and the cursor advance to G2-W22) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "d5fcd587cef217db974323d51aa6ab4079787a11",
+  "control_revision": "a44a2a65d8a119e39776e4599617b8c7f3836b58",
   "note": "loop-prompt section 3: one interpreter locally, the hosted matrix authoritative.",
   "runs": [
    {
@@ -39,18 +39,8 @@
     "canary": [
      {
       "run": 1,
-      "provider_calls": 19,
-      "outcome": "sealed with ACCEPT, 2 advisories, 10 blocking checks passing and 1 pending; valid update available"
-     },
-     {
-      "run": 2,
       "provider_calls": 0,
-      "outcome": "update adopted in a fresh process; check 11 judged"
-     },
-     {
-      "run": 3,
-      "provider_calls": 0,
-      "outcome": "no-op; reproduced byte for byte"
+      "outcome": "no-op: the proven bundle was reproduced byte for byte; READY_FOR_PROPOSAL, 11 files, review ACCEPT with zero advisories"
      }
     ]
    }
@@ -58,29 +48,34 @@
  },
  "predicates": [
   {
-   "predicate": "The planner assigns pairwise-disjoint fact sets per capability or declares shared facts explicitly, enforced by plan_check and proven by a synthetic violation.",
+   "predicate": "The two code-caused defects section 26 records as F02 and F04 are caught deterministically at S9, before a reviewer sees the document. Restated 2026-09-05 from the replay wording (section 27.2, PROVISIONAL).",
    "verdict": "PASS",
-   "evidence": "_capability_facts_apart in composition/planning.py fails a plan where a fact is cited by two capabilities unless every capability citing it lists the fact in shared_fact_ids, and fails a declaration of a fact the capability does not cite. The planning manifest declares the field and states the rule. tests/components/readme/composition/test_planning.py walks the synthetic violation through all four states: undeclared, declared by one, declared by both, and declared by a capability that does not cite it. Live, the planner earned exactly one rejection and corrected it on its re-ask."
+   "evidence": "A capability unit citing another slot's facts fails check 4 at S9 (tests/components/readme/validation/test_registry.py::test_check_four_blocks_a_unit_citing_another_slots_facts, the rule landed in G2-W07 and extended in G2-W13); two facts at one canonical defining location fail row 14 at S9 (::test_row_fourteen_refuses_two_facts_at_one_canonical_location). Both block before S10 runs, so neither defect can reach a reviewer as a finding. The replay the original wording asked for is not performable: the 65b1f577 review.json is the live artifact of a bundle re-sealed many times since section 26 was written and now carries zero findings and zero advisories."
   },
   {
-   "predicate": "Each capability title travels in the authoring packet and in the slot identity, and a deterministic check confirms the unit cites only its slot's facts and that the title's identifiers and format names appear among the cited facts' values.",
+   "predicate": "A synthetic oversized review is bounded, not truncated, and a truncation is a defect routed to the prompt manifest.",
    "verdict": "PASS",
-   "evidence": "The packet carries a slots record - slot, title, fact_ids - built by slot_records, and SectionTask.slot_titles carries the same titles into the guard, so packet and guard name one subject. unit_checks judges each capability unit against its own slot's title with title_terms, which reads the identifiers a title spells and the format names this repository's facts record. The canary's seven titles are judged and none flagged, because none names an identifier or a recorded format; that is the check's answer on this data, not an absence of judgment."
+   "evidence": "independent_review v7 caps findings at 16 and text, quote and repair at 600, 500 and 400 characters - margins over every count and length this canary has produced (max 7 findings, 503/364/288 characters) - so the gateway's structured-output generation cannot produce what would need truncating; maxItems and maxLength are the keywords this gateway honours, unlike pattern (section 27.10). test_a_synthetic_oversized_review_is_bounded_by_its_own_schema validates the cap and each length. A truncation that still occurred was already routed to the manifest rather than retried: run_job raises on finish_reason length naming the budget, proven generically by tests/core/llm/test_jobs.py::test_a_truncated_reply_fails_fast_naming_the_budget."
   },
   {
-   "predicate": "Swapping two capability sentences in a synthetic candidate fails the check, and the canary's capabilities each describe their own title, judged by the check.",
+   "predicate": "A synthetic re-raised finding blocks rather than demoting.",
    "verdict": "PASS",
-   "evidence": "test_a_capability_sentence_is_held_to_the_title_it_fills builds the case section 27.2 RC2 calls impossible for a subset check: two capabilities that both declare one shared example, each unit citing only that example, sentences exchanged. Check 4's subset rule is silent and the title check names both slots. On the canary all seven capability units passed both rules, and each cites its own slot's full planned set."
+   "evidence": "run_transaction records a re-raised defect and stops, whatever its source; demote_re_raised and demote_findings are deleted. tests/test_cli.py::test_present_reports_a_second_equivalent_failure_instead_of_retrying drives a review finding through its one repair, sees it re-raised, and gets EXIT_INCONSISTENT with BC-10 failing at COMPOSING - where the same fixture previously accepted the candidate with the finding recorded advisory. test_a_repair_that_cannot_satisfy_its_own_contract_stops_without_crashing covers the repair job's own exhausted failure, recorded unrepairable and reported."
   },
   {
-   "predicate": "README_CONTRACT.md check 4 gains the sentence section 27.8 names, in this item's own commit with its code and tests.",
+   "predicate": "A grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; every failure record carries section_id and causal_stage as fields.",
    "verdict": "PASS",
-   "evidence": "Check 4 now reads '...and the capability's title is supported by the facts its unit cites'. The revision-discipline paragraph records it as the third 2026-09-04 fix and drops it from the pending list. It lands in this commit with its code and tests, as the discipline requires."
+   "evidence": "tests/test_routing_fields.py is an AST guard over the five modules that route, judge and invalidate: it rejects a regular expression applied to a record's prose, directly or through a local name assigned from it, and an indexed read of a record's details inside a decision, with both retired shapes as synthetic violations. Every blocking check now records a failures list of {section_id, causal_stage, detail} (test_every_failure_record_carries_its_section_and_stage_as_fields), repair routes from those fields, and BC-10 carries the reviewer's verdict as a field that invalidation reads. A check whose detail prose reads exactly like the old section prefix now routes nowhere."
   },
   {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary re-seals and reruns byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
+   "predicate": "README_CONTRACT.md section 6 gains the sentences section 27.8 names, in this item's own commit with its code and tests.",
    "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. The canary sealed in 19 provider calls with ACCEPT, 2 advisories and no blocking failure, adopted in a fresh process with zero calls, and reproduced byte for byte with zero calls. The hosted matrix is green on the pushed commit."
+   "evidence": "All three clauses landed with the code that made each true: demotion is content-only and a re-raised finding never demotes on that account alone (with the routing and re-raise commits), and a required row of section 2 admits zero advisories before READY_FOR_PROPOSAL (with check 10's version 2 and test_a_required_row_admits_no_advisory_before_ready_for_proposal). Check 10's row in section 5 and the revision-discipline paragraph name the change; the eleven blocking checks stay eleven and section 27.8's check 12 is left to G2-W17."
+  },
+  {
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the sealed canary at 65b1f577 stays READY_FOR_PROPOSAL and replays byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
+   "verdict": "PASS",
+   "evidence": "Every local step exit 0 on 3.13. The canary replays as a no-op: READY_FOR_PROPOSAL, 11 files, zero provider calls, every artifact reproduced byte for byte, review ACCEPT with zero advisories and zero coverage advisories. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
   }
  ],
  "previous_items": [
@@ -94,10 +89,11 @@
   "G2-W08",
   "G2-W11",
   "G2-W12",
+  "G2-W13",
   "G2-W19",
   "G2-W21"
  ],
- "next_work_item": "G2-W16",
+ "next_work_item": "G2-W22",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -106,56 +102,35 @@
   "no_op_proof": {
    "byte_identical": true,
    "fresh_process": true,
-   "proven_at": "2026-09-04T18:46:13Z",
+   "proven_at": "2026-09-05T07:41:11Z",
    "provider_calls": 0
   },
   "composition": {
-   "advisories": 2,
+   "advisories": 0,
    "blocking_failures": [],
    "coverage_advisories": 0,
    "review_verdict": "ACCEPT",
-   "review_verdict_as_returned": "REJECT_PRESENTATION"
+   "review_verdict_as_returned": "ACCEPT"
   },
-  "blocking_checks": "BC-01 to BC-10 PASS, BC-11 judged on the adoption rerun"
+  "blocking_checks": "BC-01 to BC-11 all PASS"
  },
  "measurement": {
-  "capability_fact_overlap": {
-   "capabilities": 7,
-   "facts_in_two_or_more": [
-    "public_symbol:aspose.threed.scene",
-    "example:002",
-    "example:004",
-    "example:005",
-    "example:010"
-   ],
-   "capabilities_declaring_shared_facts": 6,
-   "live_plan_rejections": 1,
-   "note": "the one rejection (fact example:002 is cited by capabilities 4, 5, 6) was corrected on its single re-ask; RC2's overlap is real, so the declaration branch of D2 is what keeps a shared example usable"
-  },
-  "title_support": {
-   "titles_judged": 7,
-   "titles_flagged": 0,
-   "note": "every canary title is ordinary prose and names no identifier and no recorded format, so the check has nothing to require of them; it separates the synthetic pair a subset check cannot, where two capabilities declare one shared example and their sentences are exchanged"
-  },
-  "compositions": {
-   "count": 3,
-   "advisories": [
-    5,
-    0,
-    2
-   ],
-   "verdicts": [
-    "ACCEPT",
-    "ACCEPT",
-    "ACCEPT"
-   ],
-   "note": "three sealed while the title travelled, differing only in what the packet said about restating it; recorded facts-only in RESEARCH_AND_GUIDELINES.md section 27.2. No threshold is set from them (section 27.10 follow-up 3)."
+  "composition": {
+   "advisories": 0,
+   "blocking_failures": [],
+   "coverage_advisories": 0,
+   "review_verdict": "ACCEPT",
+   "review_verdict_as_returned": "ACCEPT"
   },
   "components_recorded": {
    "normalisation": "1",
    "renderer": "17",
    "shell": "5"
-  }
+  },
+  "validators_recorded": {
+   "BC-10": "2"
+  },
+  "note": "The candidate this item leaves sealed was composed on 2026-09-05 under the bounded review manifest: ACCEPT on the first review, no repair round, 24 provider calls, 3 rejections, 87.5 per cent first attempt. RC7's link volatility invalidated it once mid-verification on a transient PyPI ReadTimeout and it recovered on re-run with zero calls; both are recorded facts-only in section 27.2."
  },
  "defects_found_and_fixed": [
   {

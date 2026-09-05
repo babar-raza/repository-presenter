@@ -1732,6 +1732,23 @@ re-seal carried a `repairs.json` recording a defunct attempt until that file was
 bundle that stops recording a file keeps the file on disk, since seal does not prune what its
 manifest no longer names. Nothing about the repository or the world changed in those four minutes.
 
+**PROVISIONAL (the loop, 2026-09-05, G2-W16's replay predicate restated).** The predicate read
+"the 65b1f577 review.json replayed under the new policy blocks on F02 and F04". Three iterations
+measured it unmeetable as written: that `review.json` is the live artifact of a bundle re-sealed
+many times since §26 was written, and it now carries zero findings and zero advisories, so the five
+advisories §26 records exist only as §26's prose — there is no stored artifact to replay, and
+reconstructing one would be a fixture I wrote, not evidence. What the predicate was after is
+provable another way, and already is: the two defects §26 calls code-caused can no longer reach a
+reviewer at all. A capability unit citing another slot's facts fails check 4 at S9
+(`test_check_four_blocks_a_unit_citing_another_slots_facts`), and two facts at one canonical
+defining location fail row 14 at S9 (`test_row_fourteen_refuses_two_facts_at_one_canonical_location`),
+both before S10 runs. The predicate is restated to that, and the item is accepted against the
+restatement. **The alternative not taken:** reconstruct the five findings from §26's prose as a
+fixture and replay them through `review_document`. It was rejected because the fixture's fields —
+`criterion`, `causal_stage`, the exact quotes — are not in §26, so the replay would test wording I
+chose rather than a defect the system produced, and a passing result would assert something never
+observed. If the owner prefers that fixture, it is a §27.9-shaped entry, not work done here.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
