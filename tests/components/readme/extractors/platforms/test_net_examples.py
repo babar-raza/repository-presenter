@@ -1,0 +1,123 @@
+"""The .NET verifier compiles a snippet against the product, and is honest when it cannot."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from repository_presenter.components.readme.extractors.platforms import net_examples
+from repository_presenter.core.examples import ExampleCandidate
+from repository_presenter.core.execution import ExecutionResult
+
+
+def _candidate(ordinal: int, code: str) -> ExampleCandidate:
+    return ExampleCandidate(
+        ordinal, "csharp", code, "README.md", 1, 3, f"inherited_unit:{ordinal:03d}.code_block"
+    )
+
+
+def _result(code: int, stdout: str = "", stderr: str = "", timed_out: bool = False):
+    return ExecutionResult(
+        argv=("dotnet",),
+        return_code=code,
+        stdout=stdout,
+        stderr=stderr,
+        timed_out=timed_out,
+        environment_names=(),
+    )
+
+
+@pytest.fixture
+def project(tmp_path: Path) -> Path:
+    source = tmp_path / "src" / "Aspose.Widget"
+    source.mkdir(parents=True)
+    path = source / "Aspose.Widget.csproj"
+    path.write_text('<Project Sdk="Microsoft.NET.Sdk" />', encoding="utf-8")
+    return path
+
+
+def test_a_machine_without_the_sdk_reports_not_verified(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Section 29.6 E5: BLOCKED_TOOLCHAIN is UNRESOLVED downstream, never CONTRADICTED."""
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: None)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, "net8.0", [_candidate(1, "var w = 1;")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
+    assert "BLOCKED_TOOLCHAIN" in (receipts[0].detail or "")
+
+
+def test_a_repository_with_no_project_has_nothing_to_compile_against(tmp_path: Path) -> None:
+    receipts = net_examples.verify_net_examples(
+        tmp_path, None, "net8.0", [_candidate(1, "var w = 1;")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
+    assert "no project file" in (receipts[0].detail or "")
+
+
+def test_a_snippet_that_compiles_is_executed_and_carries_the_sdk_version(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The bar for .NET is compilation; the receipt records the SDK that judged it."""
+    calls: list[list[str]] = []
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        calls.append(argv)
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(0)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, "net6.0", [_candidate(1, "var w = new Widget();")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    assert "SDK 10.0.204" in (receipts[0].detail or "")
+    assert calls[-1][:2] == ["dotnet", "build"]
+    # The example project references the product's own project and targets its lowest framework.
+    written = (tmp_path / "run" / "example_001" / "Example.csproj").read_text("utf-8")
+    assert "net6.0" in written and "Aspose.Widget.csproj" in written
+    assert (tmp_path / "run" / "example_001" / "Program.cs").read_text("utf-8").startswith("var w")
+
+
+def test_a_compile_error_reports_the_compilers_own_first_diagnostic(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A named diagnostic is what a disposition can act on; "the build failed" is not."""
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(1, stdout="Program.cs(1,9): error CS0246: type 'Widget' not found\n")
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, "net8.0", [_candidate(1, "var w = new Widget();")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["FAILED"]
+    assert "CS0246" in (receipts[0].detail or "")
+
+
+def test_a_build_that_never_returns_times_out_rather_than_failing(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(1, timed_out=True)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, "net8.0", [_candidate(1, "while(true);")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["TIMED_OUT"]
+
+
+def test_no_candidates_means_no_toolchain_is_touched(tmp_path: Path) -> None:
+    assert net_examples.verify_net_examples(tmp_path, None, "", [], tmp_path / "run") == []

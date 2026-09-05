@@ -131,7 +131,11 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
         for node in ast.walk(ast.parse(source))
         if isinstance(node, ast.ImportFrom) and node.module
     }
-    assert not any(".platforms." in name for name in imported)
+    # Its own helper modules are allowed and are the established shape - python.py imports
+    # python_surface and python_examples the same way. What section 2.1 forbids is another
+    # ecosystem's module, so the rule is the prefix, not the package.
+    siblings = [name.rsplit(".", 1)[-1] for name in imported if ".platforms." in name]
+    assert siblings and all(name.startswith("net") for name in siblings), siblings
     assert all(
         name.startswith(
             (
@@ -142,6 +146,7 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
                 "typing",
                 "__future__",
                 "tree_sitter_language_pack",
+                "repository_presenter.components.readme.extractors.platforms.net",
             )
         )
         for name in imported

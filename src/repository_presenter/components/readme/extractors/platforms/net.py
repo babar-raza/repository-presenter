@@ -15,6 +15,9 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.extractors.platforms.net_examples import (
+    verify_net_examples,
+)
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
 from repository_presenter.components.readme.extractors.surface.registry import observe
@@ -194,18 +197,11 @@ class NetPlugin:
         A toolchain result this plugin cannot produce must read as "we did not check", so the
         facts stage writes UNRESOLVED (§29.6 E5). The verifier lands with the cohort run.
         """
-        return [
-            ExampleReceipt(
-                ordinal=candidate.ordinal,
-                outcome="NOT_VERIFIED",
-                return_code=None,
-                stdout="",
-                stderr="",
-                detail="the .NET example verifier is not built yet",
-                fixtures=(),
-            )
-            for candidate in candidates
-        ]
+        project = self.detect_manifest(root)
+        framework = ""
+        if project is not None:
+            framework = read_identity(root, self.ecosystem).floor
+        return verify_net_examples(root, project, framework, candidates, workspace)
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         """Not yet built; a claim this plugin cannot read is no claim at all."""
