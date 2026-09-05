@@ -1,0 +1,926 @@
+{
+ "census_date": "2026-09-05",
+ "machine": {
+  "dotnet": "10.0.204",
+  "java": "openjdk version \"21.0.11\" 2026-04-21 LTS",
+  "mvn": "Apache Maven 3.9.16 (2bdd9fddda4b155ebf8000e807eb73fd829a51d5) (via .cmd shim - call by resolved path)",
+  "gradle": "ABSENT",
+  "cmake": "cmake version 4.4.1",
+  "cl": "ABSENT",
+  "msbuild": "ABSENT",
+  "node": "v24.13.1",
+  "npx": "11.8.0 (via .cmd shim - call by resolved path)",
+  "go": "go version go1.26.4 windows/amd64",
+  "cargo": "ABSENT",
+  "rustup": "ABSENT"
+ },
+ "repositories": [
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "3d",
+   "mode": "dry_run",
+   "files": 312,
+   "license": true,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 2,
+   "readme": "README.md",
+   "readme_lines": 629,
+   "fences": {
+    "mermaid": 1,
+    "bash": 3,
+    "csharp": 7
+   },
+   "fences_with_file_literals": 4,
+   "images": 4,
+   "has_project_tree": false,
+   "manifest": "3 csproj",
+   "identity": "Aspose.3D.Converter",
+   "floor": "net10.0,net6.0,net8.0,netcoreapp3.1",
+   "deps": 4,
+   "sources": 298,
+   "headers": 0,
+   "registry": "NuGet not found"
+  },
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+   "ecosystem": "java",
+   "family": "3d",
+   "mode": "full",
+   "files": 285,
+   "license": true,
+   "ci_workflows": 1,
+   "tests_present": true,
+   "fixture_like_files": 1,
+   "readme": "README.md",
+   "readme_lines": 457,
+   "fences": {
+    "mermaid": 1,
+    "xml": 1,
+    "groovy": 1,
+    "java": 10,
+    "bash": 1
+   },
+   "fences_with_file_literals": 4,
+   "images": 5,
+   "has_project_tree": false,
+   "manifest": "1 pom",
+   "identity": "org.aspose:aspose-3d-foss",
+   "floor": "java 21",
+   "deps": 1,
+   "sources": 273,
+   "headers": 0,
+   "registry": "Maven Central published"
+  },
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+   "ecosystem": "typescript",
+   "family": "3d",
+   "mode": "dry_run",
+   "files": 182,
+   "license": false,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 0,
+   "readme": "README.md",
+   "readme_lines": 523,
+   "fences": {
+    "mermaid": 1,
+    "bash": 4,
+    "typescript": 9
+   },
+   "fences_with_file_literals": 6,
+   "images": 3,
+   "has_project_tree": false,
+   "manifest": "package.json + tsconfig",
+   "identity": "@aspose/3d",
+   "floor": "ts ^5.8.3",
+   "deps": 1,
+   "sources": 176,
+   "headers": 0,
+   "dev_deps": 10,
+   "module_shape": "main,types",
+   "registry": "npm not found"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "cells",
+   "mode": "dry_run",
+   "files": 432,
+   "license": false,
+   "ci_workflows": 0,
+   "tests_present": false,
+   "fixture_like_files": 119,
+   "readme": "README.md",
+   "readme_lines": 535,
+   "fences": {
+    "mermaid": 1,
+    "bash": 4,
+    "xml": 1,
+    "csharp": 9
+   },
+   "fences_with_file_literals": 9,
+   "images": 5,
+   "has_project_tree": false,
+   "manifest": "1 csproj + sln",
+   "identity": "Aspose.Cells.FOSS",
+   "floor": "net8.0,netstandard2.0",
+   "deps": 1,
+   "sources": 287,
+   "headers": 0,
+   "registry": "NuGet published"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+   "ecosystem": "cpp",
+   "family": "cells",
+   "mode": "dry_run",
+   "files": 297,
+   "license": false,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 4,
+   "readme": "README.md",
+   "readme_lines": 598,
+   "fences": {
+    "mermaid": 1,
+    "bash": 3,
+    "xml": 1,
+    "cmake": 2,
+    "cpp": 7
+   },
+   "fences_with_file_literals": 2,
+   "images": 5,
+   "has_project_tree": false,
+   "manifest": "4 CMakeLists",
+   "identity": "aspose_cells_foss_cpp",
+   "floor": "C++17",
+   "deps": 0,
+   "sources": 157,
+   "headers": 129,
+   "registry": "no registry (source build)"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+   "ecosystem": "go",
+   "family": "cells",
+   "mode": "dry_run",
+   "files": 51,
+   "license": true,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 0,
+   "readme": "README.md",
+   "readme_lines": 507,
+   "fences": {
+    "mermaid": 1,
+    "bash": 4,
+    "go": 10,
+    "(none)": 1
+   },
+   "fences_with_file_literals": 9,
+   "images": 5,
+   "has_project_tree": true,
+   "manifest": "go.mod",
+   "identity": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26",
+   "floor": "go 1.24.5",
+   "deps": 0,
+   "sources": 30,
+   "headers": 0,
+   "registry": "Go proxy lists versions"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+   "ecosystem": "java",
+   "family": "cells",
+   "mode": "full",
+   "files": 337,
+   "license": false,
+   "ci_workflows": 1,
+   "tests_present": true,
+   "fixture_like_files": 105,
+   "readme": "README.md",
+   "readme_lines": 515,
+   "fences": {
+    "mermaid": 1,
+    "xml": 1,
+    "groovy": 1,
+    "java": 3,
+    "(none)": 1,
+    "bash": 2
+   },
+   "fences_with_file_literals": 3,
+   "images": 5,
+   "has_project_tree": true,
+   "manifest": "1 pom",
+   "identity": "org.aspose:aspose-cells-foss",
+   "floor": "java 17",
+   "deps": 2,
+   "sources": 206,
+   "headers": 0,
+   "registry": "Maven Central published"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+   "ecosystem": "rust",
+   "family": "cells",
+   "mode": "dry_run",
+   "files": 259,
+   "license": true,
+   "ci_workflows": 2,
+   "tests_present": false,
+   "fixture_like_files": 2,
+   "readme": "README.md",
+   "readme_lines": 717,
+   "fences": {
+    "mermaid": 1,
+    "toml": 2,
+    "bash": 2,
+    "rust": 7,
+    "(none)": 1
+   },
+   "fences_with_file_literals": 1,
+   "images": 3,
+   "has_project_tree": true,
+   "manifest": "Cargo.toml",
+   "identity": "aspose-cells-foss-rust",
+   "floor": "edition 2021",
+   "deps": 7,
+   "sources": 249,
+   "headers": 0,
+   "registry": "crates.io not found"
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+   "ecosystem": "typescript",
+   "family": "cells",
+   "mode": "dry_run",
+   "files": 44,
+   "license": false,
+   "ci_workflows": 0,
+   "tests_present": false,
+   "fixture_like_files": 0,
+   "readme": "README.md",
+   "readme_lines": 343,
+   "fences": {
+    "mermaid": 1,
+    "bash": 2,
+    "typescript": 3
+   },
+   "fences_with_file_literals": 3,
+   "images": 3,
+   "has_project_tree": false,
+   "manifest": "package.json + tsconfig",
+   "identity": "excel-cells",
+   "floor": "ts ^5.9.3",
+   "deps": 3,
+   "sources": 37,
+   "headers": 0,
+   "dev_deps": 4,
+   "module_shape": "main",
+   "registry": "npm not found"
+  },
+  {
+   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+   "ecosystem": "net",
+   "family": "email",
+   "mode": "dry_run",
+   "files": 72,
+   "license": true,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 0,
+   "readme": "README.md",
+   "readme_lines": 320,
+   "fences": {
+    "mermaid": 1,
+    "bash": 3,
+    "xml": 1,
+    "csharp": 4
+   },
+   "fences_with_file_literals": 4,
+   "images": 4,
+   "has_project_tree": false,
+   "manifest": "5 csproj",
+   "identity": "Aspose.Email.Foss",
+   "floor": "net8.0",
+   "deps": 4,
+   "sources": 60,
+   "headers": 0,
+   "registry": "NuGet published"
+  },
+  {
+   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+   "ecosystem": "cpp",
+   "family": "email",
+   "mode": "dry_run",
+   "files": 75,
+   "license": true,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 3,
+   "readme": "README.md",
+   "readme_lines": 476,
+   "fences": {
+    "mermaid": 1,
+    "cmake": 1,
+    "powershell": 3,
+    "cpp": 4
+   },
+   "fences_with_file_literals": 3,
+   "images": 3,
+   "has_project_tree": false,
+   "manifest": "3 CMakeLists",
+   "identity": "AsposeEmailFoss",
+   "floor": "C++17",
+   "deps": 0,
+   "sources": 29,
+   "headers": 35,
+   "registry": "no registry (source build)"
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+   "ecosystem": "go",
+   "family": "pdf",
+   "mode": "dry_run",
+   "files": 732,
+   "license": true,
+   "ci_workflows": 2,
+   "tests_present": true,
+   "fixture_like_files": 69,
+   "readme": "README.md",
+   "readme_lines": 913,
+   "fences": {
+    "mermaid": 1,
+    "bash": 2,
+    "go": 6
+   },
+   "fences_with_file_literals": 2,
+   "images": 7,
+   "has_project_tree": false,
+   "manifest": "go.mod",
+   "identity": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
+   "floor": "go 1.24",
+   "deps": 0,
+   "sources": 271,
+   "headers": 0,
+   "registry": "Go proxy lists versions"
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "pdf",
+   "mode": "dry_run",
+   "files": 1238,
+   "license": true,
+   "ci_workflows": 1,
+   "tests_present": true,
+   "fixture_like_files": 4,
+   "readme": "README.md",
+   "readme_lines": 1724,
+   "fences": {
+    "bash": 3,
+    "xml": 1,
+    "csharp": 12
+   },
+   "fences_with_file_literals": 12,
+   "images": 5,
+   "has_project_tree": false,
+   "manifest": "2 csproj + sln",
+   "identity": "Aspose.PDF.FOSS",
+   "floor": "net8.0",
+   "deps": 6,
+   "sources": 1205,
+   "headers": 0,
+   "registry": "NuGet published"
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+   "ecosystem": "cpp",
+   "family": "pdf",
+   "mode": "dry_run",
+   "files": 1521,
+   "license": true,
+   "ci_workflows": 1,
+   "tests_present": true,
+   "fixture_like_files": 173,
+   "readme": "README.md",
+   "readme_lines": 899,
+   "fences": {
+    "mermaid": 1,
+    "cmake": 1,
+    "bash": 2,
+    "cpp": 11,
+    "(none)": 1
+   },
+   "fences_with_file_literals": 8,
+   "images": 5,
+   "has_project_tree": true,
+   "manifest": "2 CMakeLists",
+   "identity": "Aspose_PDF_FOSS",
+   "floor": "C++20",
+   "deps": 2,
+   "sources": 381,
+   "headers": 301,
+   "registry": "no registry (source build)"
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+   "ecosystem": "java",
+   "family": "pdf",
+   "mode": "dry_run",
+   "files": 1135,
+   "license": true,
+   "ci_workflows": 2,
+   "tests_present": true,
+   "fixture_like_files": 1,
+   "readme": "README.md",
+   "readme_lines": 1666,
+   "fences": {
+    "mermaid": 1,
+    "xml": 1,
+    "groovy": 1,
+    "bash": 2,
+    "java": 9
+   },
+   "fences_with_file_literals": 4,
+   "images": 5,
+   "has_project_tree": false,
+   "manifest": "1 pom",
+   "identity": "org.aspose:aspose-pdf-foss",
+   "floor": "java 11",
+   "deps": 1,
+   "sources": 1106,
+   "headers": 0,
+   "registry": "Maven Central published"
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+   "ecosystem": "typescript",
+   "family": "pdf",
+   "mode": "disabled",
+   "status": "NOT CLONED"
+  },
+  {
+   "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "psd",
+   "mode": "disabled",
+   "files": 1,
+   "license": false,
+   "ci_workflows": 0,
+   "tests_present": false,
+   "fixture_like_files": 0,
+   "readme": "README.md",
+   "readme_lines": 2,
+   "fences": {},
+   "fences_with_file_literals": 0,
+   "images": 0,
+   "has_project_tree": false,
+   "manifest": "0 csproj",
+   "identity": null,
+   "floor": null,
+   "deps": 0,
+   "sources": 0,
+   "headers": 0
+  },
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "slides",
+   "mode": "dry_run",
+   "files": 441,
+   "license": true,
+   "ci_workflows": 2,
+   "tests_present": true,
+   "fixture_like_files": 7,
+   "readme": "README.md",
+   "readme_lines": 539,
+   "fences": {
+    "mermaid": 1,
+    "bash": 2,
+    "xml": 2,
+    "csharp": 9,
+    "(none)": 3
+   },
+   "fences_with_file_literals": 7,
+   "images": 4,
+   "has_project_tree": false,
+   "manifest": "2 csproj + sln",
+   "identity": "Aspose.Slides.FOSS",
+   "floor": "net10.0,net8.0",
+   "deps": 5,
+   "sources": 408,
+   "headers": 0,
+   "registry": "NuGet not found"
+  },
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+   "ecosystem": "cpp",
+   "family": "slides",
+   "mode": "dry_run",
+   "files": 514,
+   "license": true,
+   "ci_workflows": 1,
+   "tests_present": true,
+   "fixture_like_files": 5,
+   "readme": "README.md",
+   "readme_lines": 601,
+   "fences": {
+    "mermaid": 1,
+    "cpp": 10,
+    "bash": 5,
+    "cmake": 1,
+    "sh": 1
+   },
+   "fences_with_file_literals": 10,
+   "images": 4,
+   "has_project_tree": false,
+   "manifest": "2 CMakeLists + conanfile",
+   "identity": "AsposeSlidesFoss",
+   "floor": null,
+   "deps": 8,
+   "sources": 220,
+   "headers": 264,
+   "registry": "no registry (source build)"
+  },
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+   "ecosystem": "java",
+   "family": "slides",
+   "mode": "dry_run",
+   "files": 383,
+   "license": true,
+   "ci_workflows": 2,
+   "tests_present": true,
+   "fixture_like_files": 4,
+   "readme": "README.md",
+   "readme_lines": 488,
+   "fences": {
+    "mermaid": 1,
+    "xml": 1,
+    "groovy": 1,
+    "java": 8,
+    "(none)": 2,
+    "bash": 1
+   },
+   "fences_with_file_literals": 8,
+   "images": 4,
+   "has_project_tree": false,
+   "manifest": "1 pom",
+   "identity": "org.aspose:aspose-slides-foss",
+   "floor": "java 21",
+   "deps": 5,
+   "sources": 362,
+   "headers": 0,
+   "registry": "Maven Central published"
+  },
+  {
+   "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+   "ecosystem": "net",
+   "family": "words",
+   "mode": "dry_run",
+   "files": 11754,
+   "license": true,
+   "ci_workflows": 0,
+   "tests_present": true,
+   "fixture_like_files": 5794,
+   "readme": "README.md",
+   "readme_lines": 961,
+   "fences": {
+    "mermaid": 1,
+    "bash": 3,
+    "csharp": 5
+   },
+   "fences_with_file_literals": 5,
+   "images": 1,
+   "has_project_tree": false,
+   "manifest": "11 csproj + sln",
+   "identity": "Aspose.Foundation",
+   "floor": "$(TestsFramework),net462,net8.0,netstandard2.0",
+   "deps": 19,
+   "sources": 3373,
+   "headers": 0,
+   "registry": "NuGet not found"
+  }
+ ],
+ "aspose_org_upstream_issues": {
+  "source": "D:/onedrive/Documents/GitHub/aspose.org/reports/repo-presenter-regen-full/{family}/{platform}/upstream-issues.md (gitignored there; this machine only; read-only)",
+  "digest": {
+   "3d/java": {
+    "lines": 70,
+    "issue_headings": [
+     "glTF and FBX import/export are silent no-op stubs, not disclosed as such",
+     "TODO.md's own glTF-export completion claim is contradicted by the current source",
+     "FILE_FORMATS.md contradicts itself on glTF and FBX support",
+     "OBJ export is an unimplemented stub",
+     "OBJ import works in the GitHub source but the published Maven Central artifact still ships an older, stub version (shipped-vs-source drift)",
+     "Old README's stated minimum Java version (8+) contradicts the project's actual compiler target (21)",
+     "Several primitive shapes implement `toMesh()` but always throw",
+     "`NurbsCurve` curve evaluation is unimplemented"
+    ],
+    "failure_words": 13,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\3d\\java\\upstream-issues.md"
+   },
+   "3d/net": {
+    "lines": 48,
+    "issue_headings": [
+     "Format-registry capability flags contradict actual (unimplemented) encode/decode/extract behavior for Draco, PLY, and PDF",
+     "`Watermark.EncodeWatermark`/`DecodeWatermark` are entirely unimplemented despite being a named,"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\3d\\net\\upstream-issues.md"
+   },
+   "3d/python": {
+    "lines": 239,
+    "issue_headings": [
+     "Four format-options classes imported from the top-level formats package are shadow duplicates, not the real submodule classes",
+     "glTF's own save-options factory leaves the format unset, unlike the equivalent STL factory",
+     "The COLLADA format submodule has no package-init file, so its top-level-style import resolves to a module, not a class",
+     "Ten format option-class pairs have no registered plugin, so opening or saving those extensions fails at runtime",
+     "One registered, importable exporter unconditionally fails on save",
+     "Saving one particular registered, working format silently fails because of exporter list ordering, not that format's own code",
+     "This repo's own knowledge-extraction format table disagrees with the real registered-plugin set, in both directions",
+     "Saving to OBJ through the public scene-save entry point always fails: the OBJ writer writes text into the binary stream the save path opens"
+    ],
+    "failure_words": 17,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\3d\\python\\upstream-issues.md"
+   },
+   "3d/typescript": {
+    "lines": 173,
+    "issue_headings": [
+     "`adm-zip` is required at runtime by the 3MF importer/exporter but is only declared as a devDependency",
+     "`package.json`'s declared `main`/`types` entry point is never produced by the real build",
+     "Old README's License section links a `LICENSE` file that does not exist in the repository",
+     "`Watermark.encodeWatermark()`/`decodeWatermark()` are entirely unimplemented despite being a",
+     "OBJ import recognizes `usemtl` but never assigns the referenced material",
+     "OBJ export silently produces no output for the standard scene-construction pattern",
+     "Binary glTF export throws `RangeError` for any non-empty mesh",
+     "Re-importing a glTF file this library exported can produce extra, duplicate top-level nodes"
+    ],
+    "failure_words": 11,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\3d\\typescript\\upstream-issues.md"
+   },
+   "barcode/python": {
+    "lines": 10,
+    "issue_headings": [],
+    "failure_words": 1,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\barcode\\python\\upstream-issues.md"
+   },
+   "cells/cpp": {
+    "lines": 83,
+    "issue_headings": [
+     "1. `Aspose.Cells.Foss.Cpp.Tests/README.md` documents a broken build path",
+     "2. Two false \"unimplemented stub\" signals in `knowledge/cells/cpp/merged/limitations.md`"
+    ],
+    "failure_words": 6,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\cpp\\upstream-issues.md"
+   },
+   "cells/go": {
+    "lines": 35,
+    "issue_headings": [
+     "Stale Go-version and dependency claims in the original README",
+     "examples/go.mod has an invalid version string, breaking builds under examples/",
+     "CSV import does not perform automatic type conversion"
+    ],
+    "failure_words": 2,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\go\\upstream-issues.md"
+   },
+   "cells/java": {
+    "lines": 52,
+    "issue_headings": [
+     "The old README's own Installation example quotes a stale dependency version",
+     "Four public API classes are unimplemented skeleton code, undisclosed in their own class descriptions"
+    ],
+    "failure_words": 4,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\java\\upstream-issues.md"
+   },
+   "cells/net": {
+    "lines": 1,
+    "issue_headings": [],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\net\\upstream-issues.md"
+   },
+   "cells/python": {
+    "lines": 35,
+    "issue_headings": [
+     "1. The old README's own repo/issue links point to a stale repository name",
+     "2. The old README's own License link has a case mismatch",
+     "3. Knowledge-pipeline version baseline is behind the checked-out clone cache"
+    ],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\python\\upstream-issues.md"
+   },
+   "cells/rust": {
+    "lines": 44,
+    "issue_headings": [
+     "No automated test suite ships in the repository",
+     "Old README's local-build path did not match the real repository name",
+     "Crate is not yet published to crates.io"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\rust\\upstream-issues.md"
+   },
+   "cells/typescript": {
+    "lines": 56,
+    "issue_headings": [
+     "`Workbook.save()` silently writes XLSX binary data when given a `.csv`, `.json`, or `.md`/`.markdown` filename",
+     "`package.json`'s package name is not Aspose-branded",
+     "A stray, empty top-level `License` file sits alongside the real license text"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\cells\\typescript\\upstream-issues.md"
+   },
+   "email/cpp": {
+    "lines": 29,
+    "issue_headings": [
+     "Stale examples directory path in the old README",
+     "No other issues found"
+    ],
+    "failure_words": 1,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\email\\cpp\\upstream-issues.md"
+   },
+   "email/net": {
+    "lines": 16,
+    "issue_headings": [
+     "Stale `csharp/` directory prefix in build and example instructions"
+    ],
+    "failure_words": 2,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\email\\net\\upstream-issues.md"
+   },
+   "email/python": {
+    "lines": 24,
+    "issue_headings": [],
+    "failure_words": 1,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\email\\python\\upstream-issues.md"
+   },
+   "font/python": {
+    "lines": 98,
+    "issue_headings": [
+     "Package is not yet published to PyPI",
+     "`FontConverter` is not re-exported from the top-level `aspose_font` package",
+     "`pyproject.toml`'s unbounded `mcp` extra is incompatible with the real, current `mcp` 2.0.0 release",
+     "No CI workflow file present in this clone snapshot",
+     "The upstream README's own \"Create a release-safe static instance\" Quick Start example raises `ValueError`"
+    ],
+    "failure_words": 4,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\font\\python\\upstream-issues.md"
+   },
+   "html/python": {
+    "lines": 58,
+    "issue_headings": [
+     "No `pip install` variant succeeds — broken build-backend name",
+     "Broken test fixture import — `tests.test_css.w3c` does not exist"
+    ],
+    "failure_words": 5,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\html\\python\\upstream-issues.md"
+   },
+   "note/python": {
+    "lines": 70,
+    "issue_headings": [
+     "`Document.FileFormat` always reports `OneNote2010`, regardless of the real source format",
+     "`License.SetLicense()` and `Metered.SetMeteredKey()` are silent no-ops in this edition, undisclosed by their own docstrings",
+     "`AsposeNoteError` is not re-exported from the top-level `aspose.note` package",
+     "`examples/README.md` links to a stale GitHub org"
+    ],
+    "failure_words": 4,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\note\\python\\upstream-issues.md"
+   },
+   "page/python": {
+    "lines": 21,
+    "issue_headings": [
+     "A Module-Import-Order Bug Breaks Several Natural Import Patterns in a Fresh Interpreter",
+     "Retired: \"Run MCP-focused checks\" command referencing a missing test module"
+    ],
+    "failure_words": 5,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\page\\python\\upstream-issues.md"
+   },
+   "pdf/cpp": {
+    "lines": 74,
+    "issue_headings": [
+     "Finding 1 — Stated CMake minimum version does not match either real build-configuration file",
+     "Finding 2 — Upstream README's own \"not yet wired\" scope note is stale; both cited examples are fully implemented",
+     "Verification-runner scope note"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\cpp\\upstream-issues.md"
+   },
+   "pdf/go": {
+    "lines": 40,
+    "issue_headings": [
+     "Stale \"Out of Scope\" Note in the Digital Signatures Section",
+     "Stale \"Out of Scope\" Note in the Forms Section"
+    ],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\go\\upstream-issues.md"
+   },
+   "pdf/java": {
+    "lines": 21,
+    "issue_headings": [
+     "README's Installation section is stale — the package is already published",
+     "README's stated JavaDoc output path doesn't match the build config",
+     "AGENTS.md's stated Java version is incomplete relative to the real build/CI matrix"
+    ],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\java\\upstream-issues.md"
+   },
+   "pdf/net": {
+    "lines": 1,
+    "issue_headings": [],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\net\\upstream-issues.md"
+   },
+   "pdf/python": {
+    "lines": 101,
+    "issue_headings": [
+     "1. Old README instructs a `pip install --pre` that has no live package to install",
+     "2. reference.aspose.org's generated API index has (at least) two mid-sentence-truncated class descriptions for this product",
+     "3. knowledge/pdf/python/merged/formats.md contains non-format tokens and misses the product's own primary format",
+     "Note: schema for this file was not specified in the shared briefing"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\python\\upstream-issues.md"
+   },
+   "pdf/typescript": {
+    "lines": 48,
+    "issue_headings": [
+     "`htmlFileToPdf` is documented as importable from `@asposefoss/pdf` but is never re-exported",
+     "Six worked examples span multiple `###` headings with no re-stated setup, by upstream design"
+    ],
+    "failure_words": 5,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\pdf\\typescript\\upstream-issues.md"
+   },
+   "slides/cpp": {
+    "lines": 64,
+    "issue_headings": [
+     "README \"Notes\" example does not compile — `add_notes_slide()` returns a pointer, not a reference",
+     "README \"Table\" example does not compile — `Cell::text_frame()` returns a pointer, not a reference",
+     "README \"Comments\" example does not compile — `add_comment()` takes `Slide&`, the example passes `Slide*`",
+     "README overstates `SlideCollection`'s capabilities — no slide-reorder/move method exists"
+    ],
+    "failure_words": 7,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\slides\\cpp\\upstream-issues.md"
+   },
+   "slides/java": {
+    "lines": 15,
+    "issue_headings": [
+     "`Presentation.save(path, format)` silently ignores the requested save format"
+    ],
+    "failure_words": 1,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\slides\\java\\upstream-issues.md"
+   },
+   "slides/net": {
+    "lines": 67,
+    "issue_headings": [
+     "SaveFormat parameter is accepted but silently ignored by Presentation.Save()",
+     "LoadOptions declares Ppt/Odp source formats but Presentation.Open only reliably reads PPTX-family OPC packages"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\slides\\net\\upstream-issues.md"
+   },
+   "slides/python": {
+    "lines": 48,
+    "issue_headings": [
+     "SaveFormat enum declares formats with no registered exporter",
+     "Previous README's transition-type count (\"60+\") overstates the real enum size"
+    ],
+    "failure_words": 0,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\slides\\python\\upstream-issues.md"
+   },
+   "tex/python": {
+    "lines": 56,
+    "issue_headings": [
+     "Package fails to import entirely — systemic indentation corruption",
+     "README's own Installation instructions cite a PyPI package that isn't published yet",
+     "Old README's intro paragraph overstates what's currently bundled"
+    ],
+    "failure_words": 2,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\tex\\python\\upstream-issues.md"
+   },
+   "words/net": {
+    "lines": 35,
+    "issue_headings": [
+     "Repo is unbuildable from a clean clone -- missing NuGet package dependency",
+     "Repo's own README and AGENTS.md still say the NuGet package is \"coming very soon\"",
+     "data/package_registry.json's `published: false` flag is stale for this product",
+     "Published NuGet package's real dependency graph is not obviously \"no native dependencies\"",
+     "Quick Start / Additional Examples code was not compiled in this environment"
+    ],
+    "failure_words": 1,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\words\\net\\upstream-issues.md"
+   },
+   "words/python": {
+    "lines": 48,
+    "issue_headings": [
+     "Old README's LICENSE link is broken",
+     "`SaveFormat.DOC` is defined but not a usable save target",
+     "`MarkdownSaveOptions.image_resolution` is dead code — assigned but never consumed anywhere"
+    ],
+    "failure_words": 3,
+    "path": "D:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\repo-presenter-regen-full\\words\\python\\upstream-issues.md"
+   }
+  }
+ }
+}

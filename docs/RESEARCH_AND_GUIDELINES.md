@@ -2090,6 +2090,13 @@ discipline (small commits, green CI, evidence per item).
   EXTRACTING — admitted only when a sealed candidate exhibits the defect (loop-prompt §6 rule 14;
   §31, 2026-09-05). None does at `65b1f577`; the G3 cohort supplies the evidence or shows the
   check unnecessary.
+- §6, two-reader rule (owner, 2026-09-06 00:15, §31; lands with G3-W01 before its step two): a
+  review finding classified as a prose judgment — no deterministic check expresses it (§26) — on a
+  required row blocks READY_FOR_PROPOSAL only when a second independent review under a different
+  seed raises an equivalent finding (same section, same fingerprint class); a single-reader finding
+  is recorded in `review.json` as `single_reader_advisory` and does not block. Deterministic checks
+  and code-caused findings are untouched. Evidence: the canary's composition of 2026-09-05 23:36,
+  unsealed by one such finding after its single repair.
 - §6 (G2-W17, 2026-09-05): a finding that alleges an absence states what it claims is missing as
   text the code can look for, and a required row admits zero advisories *left standing* - a finding
   a deterministic check refuted is not deferred work and never blocks.
@@ -2530,7 +2537,7 @@ detail, the toolchain probe, and a digest of aspose.org's per-product `upstream-
 | Cells Go | go | go.mod · …/Aspose.Cells-FOSS-for-Go/**v26** | go 1.24.5 | 0 | 30 | 507 | go 10, bash 4 | 9 | 5 | y | 0 | y | 0 | proxy lists versions |
 | Cells Java | java | pom · org.aspose:aspose-cells-foss | java 17 | 2 | 206 | 515 | java 3, bash 2 | 3 | 5 | y | 1 | n | 105 | Maven Central |
 | Cells Rust | rust | Cargo.toml · aspose-cells-foss-rust | edition 2021 | 7 | 249 | 717 | rust 7, toml 2 | 1 | 3 | n | 2 | y | 2 | crates.io not found |
-| Cells TypeScript | ts | clone failed twice (index-pack) — census pending | | | | | | | | | | | | |
+| Cells TypeScript | ts | package.json + tsconfig · **excel-cells** (not Aspose-branded; zip fetch, 44 files) | ts ^5.9 | 3 | 37 | 343 | typescript 3, bash 2 | 3 | 3 | **n** | 0 | **none** | 0 | npm not found |
 | Email .NET | net | 5 csproj · Aspose.Email.Foss | net8.0 | 4 | 60 | 320 | csharp 4, bash 3 | 4 | 4 | y | 0 | y | 0 | NuGet |
 | Email C++ | cpp | 3 CMakeLists · AsposeEmailFoss | C++17 | 0 | 29/35 | 476 | cpp 4, **powershell 3** | 3 | 3 | y | 0 | y | 3 | source build |
 | PDF Go | go | go.mod · …/aspose-pdf-foss-for-go | go 1.24 | 0 | 271 | 913 | go 6, bash 2 | 2 | 7 | y | 2 | y | 69 | proxy lists versions |
@@ -2557,9 +2564,11 @@ Cells .NET has no tests. Java: all four on Maven Central, floors 11/17/21 under 
 — the cheapest cohort after Python. C++: no compiler until OWNER-06; Slides C++ carries a conanfile
 (8 deps — conan is not installed; `cmake` with FetchContent would be the fallback, else disposition);
 Email C++'s README fences are PowerShell. TypeScript: 3D has no licence file (badge floor is
-licence-based — the floor cannot be met; row 2 records that honestly); both Cells and PDF
-TypeScript clones fail with `fetch-pack: invalid index-pack output` twice (zip fetch attempted; if
-that fails too, the loop's pinned clone will show whether the repository itself is at fault).
+licence-based — the floor cannot be met; row 2 records that honestly); Cells TypeScript has no
+licence and no tests either, and its package name is `excel-cells`; both TypeScript `git clone`s
+failed twice with `fetch-pack: invalid index-pack output` (Cells then fetched as a zip; PDF-TS is
+`disabled` and its zip hit the Windows path limit — disposition only) — the loop's pinned clone will
+show whether the repositories themselves are at fault.
 Go: Cells Go's module path carries a `/v26` major suffix (install line and `go get` must use it);
 neither has fixture files, but few examples read files. Rust: unpublished on crates.io; 7 deps.
 
