@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "gate": "G2_STABILITY_UNDER_CHANGE",
- "work_item": "G2-W16",
+ "work_item": "G2-W22",
  "gate_status": "READY",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-05T13:00:58+05:00",
- "control_revision": "a44a2a65d8a119e39776e4599617b8c7f3836b58",
- "control_revision_note": "Revision verified. The acceptance commit (this manifest, the restated predicate and the cursor advance to G2-W22) is its child, pushed to origin in the same iteration with hosted CI watched.",
+ "recorded_at": "2026-09-05T14:19:33+05:00",
+ "control_revision": "4562798e8208d4a847eb827fef9802fd4b38937a",
+ "control_revision_note": "Revision verified. The acceptance commit (this manifest, the restated predicate, the provisional decisions and the cursor advance to G2-W17) is its child, pushed to origin in the same iteration with hosted CI watched.",
  "legacy_revision": "a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "lock": "requirements-lock.txt (uv pip compile --extra dev --universal --generate-hashes)"
  },
  "local_ci_equivalent": {
-  "control_revision": "a44a2a65d8a119e39776e4599617b8c7f3836b58",
+  "control_revision": "4562798e8208d4a847eb827fef9802fd4b38937a",
   "note": "loop-prompt section 3: one interpreter locally, the hosted matrix authoritative.",
   "runs": [
    {
@@ -39,8 +39,18 @@
     "canary": [
      {
       "run": 1,
+      "provider_calls": 55,
+      "outcome": "from-scratch composition under planning v9: 6 findings, 5 repairs, 4 re-raised, zero escalations, EXIT_INCONSISTENT on families G2-W17 and G2-W20 own (section 27.2)"
+     },
+     {
+      "run": 2,
       "provider_calls": 0,
-      "outcome": "no-op: the proven bundle was reproduced byte for byte; READY_FOR_PROPOSAL, 11 files, review ACCEPT with zero advisories"
+      "outcome": "replayed from the store; every stage reused, same digests"
+     },
+     {
+      "run": 3,
+      "provider_calls": 0,
+      "outcome": "byte-identical to run 2, line for line, zero calls at every stage"
      }
     ]
    }
@@ -48,34 +58,29 @@
  },
  "predicates": [
   {
-   "predicate": "The two code-caused defects section 26 records as F02 and F04 are caught deterministically at S9, before a reviewer sees the document. Restated 2026-09-05 from the replay wording (section 27.2, PROVISIONAL).",
+   "predicate": "A synthetic finding whose fix drops or adds a plan slot escalates once to a plan-level repair at S5 and round-trips through S6 to S8 to ACCEPT.",
    "verdict": "PASS",
-   "evidence": "A capability unit citing another slot's facts fails check 4 at S9 (tests/components/readme/validation/test_registry.py::test_check_four_blocks_a_unit_citing_another_slots_facts, the rule landed in G2-W07 and extended in G2-W13); two facts at one canonical defining location fail row 14 at S9 (::test_row_fourteen_refuses_two_facts_at_one_canonical_location). Both block before S10 runs, so neither defect can reach a reviewer as a finding. The replay the original wording asked for is not performable: the 65b1f577 review.json is the live artifact of a bundle re-sealed many times since section 26 was written and now carries zero findings and zero advisories."
+   "evidence": "tests/test_cli.py::test_a_repair_needing_a_slot_the_plan_never_assigned_escalates_once_to_planning drives a scope_limitations finding whose repair fills a slot the plan never assigned. Both authoring attempts are rejected for it, the defect escalates once under its own derived fingerprint, the plan repair adds the material limitation, and the next round re-plans and re-authors the section with the slot the revised plan assigns: repairs.json records the authoring attempt escalated at S6 and the plan repair repaired at S5, content_units.json carries scope and limitation:1, and the review returns ACCEPT."
   },
   {
-   "predicate": "A synthetic oversized review is bounded, not truncated, and a truncation is a defect routed to the prompt manifest.",
+   "predicate": "A synthetic finding still unable to produce a schema-valid revision after the one escalation blocks, reported rather than retried.",
    "verdict": "PASS",
-   "evidence": "independent_review v7 caps findings at 16 and text, quote and repair at 600, 500 and 400 characters - margins over every count and length this canary has produced (max 7 findings, 503/364/288 characters) - so the gateway's structured-output generation cannot produce what would need truncating; maxItems and maxLength are the keywords this gateway honours, unlike pattern (section 27.10). test_a_synthetic_oversized_review_is_bounded_by_its_own_schema validates the cap and each length. A truncation that still occurred was already routed to the manifest rather than retried: run_job raises on finish_reason length naming the budget, proven generically by tests/core/llm/test_jobs.py::test_a_truncated_reply_fails_fast_naming_the_budget."
+   "evidence": "::test_a_repair_still_unrepairable_after_its_one_escalation_blocks queues a plan repair that empties core_capabilities, which its own contract rejects twice. The escalated fingerprint is recorded unrepairable, the plan is untouched, the finding stands, and the run ends EXIT_INCONSISTENT with BC-10 failing at COMPOSING. The escalation is one attempt, not a licence to keep asking."
   },
   {
-   "predicate": "A synthetic re-raised finding blocks rather than demoting.",
+   "predicate": "The escalation is proven by the repair job's own binding - the causal stage's output contract - and never inferred from the finding's prose.",
    "verdict": "PASS",
-   "evidence": "run_transaction records a re-raised defect and stops, whatever its source; demote_re_raised and demote_findings are deleted. tests/test_cli.py::test_present_reports_a_second_equivalent_failure_instead_of_retrying drives a review finding through its one repair, sees it re-raised, and gets EXIT_INCONSISTENT with BC-10 failing at COMPOSING - where the same fixture previously accepted the candidate with the finding recorded advisory. test_a_repair_that_cannot_satisfy_its_own_contract_stops_without_crashing covers the repair job's own exhausted failure, recorded unrepairable and reported."
+   "evidence": "SlotSetProbe compares two sets of slot names: the plan's, and the ones the revision returned, read in repair_checks before the stage's own checks normalise the units they judge. tests/components/readme/repair/test_targeted.py::test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision covers kept, dropped and added. Nothing reads the finding's text, so W16's AST guard over the routing modules (tests/test_routing_fields.py) still passes unchanged."
   },
   {
-   "predicate": "A grep-enforced test proves no regex over prose or detail strings decides routing or invalidation; every failure record carries section_id and causal_stage as fields.",
+   "predicate": "No defect in a fresh composition of the canary is left unrepairable for want of a slot-set change. Restated 2026-09-05 from the ACCEPT-with-zero-advisories wording (section 31).",
    "verdict": "PASS",
-   "evidence": "tests/test_routing_fields.py is an AST guard over the five modules that route, judge and invalidate: it rejects a regular expression applied to a record's prose, directly or through a local name assigned from it, and an indexed read of a record's details inside a decision, with both retired shapes as synthetic violations. Every blocking check now records a failures list of {section_id, causal_stage, detail} (test_every_failure_record_carries_its_section_and_stage_as_fields), repair routes from those fields, and BC-10 carries the reviewer's verdict as a field that invalidation reads. A check whose detail prose reads exactly like the old section prefix now routes nowhere."
+   "evidence": "The from-scratch composition of 2026-09-05 recorded zero escalations and no slot-set defect: repairs.json shows five repairs, none escalated, none unrepairable. It ends EXIT_INCONSISTENT on six findings across six sections - a command written as prose (G2-W20's family), an API-reference omission and a scope-limitations omission (G2-W17's), an example claim, a preservation claim, and one claim the document contradicts. Those causes are transferred to the items that own them; section 27.2 carries the measurement and section 31 the decision and the alternative rejected."
   },
   {
-   "predicate": "README_CONTRACT.md section 6 gains the sentences section 27.8 names, in this item's own commit with its code and tests.",
+   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the canary rerun is byte-identical with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
    "verdict": "PASS",
-   "evidence": "All three clauses landed with the code that made each true: demotion is content-only and a re-raised finding never demotes on that account alone (with the routing and re-raise commits), and a required row of section 2 admits zero advisories before READY_FOR_PROPOSAL (with check 10's version 2 and test_a_required_row_admits_no_advisory_before_ready_for_proposal). Check 10's row in section 5 and the revision-discipline paragraph name the change; the eleven blocking checks stay eleven and section 27.8's check 12 is left to G2-W17."
-  },
-  {
-   "predicate": "ruff, ruff format, mypy, and pytest pass locally on one interpreter, the sealed canary at 65b1f577 stays READY_FOR_PROPOSAL and replays byte-identically with zero provider calls, and the hosted three-version matrix is green on the pushed commit.",
-   "verdict": "PASS",
-   "evidence": "Every local step exit 0 on 3.13. The canary replays as a no-op: READY_FOR_PROPOSAL, 11 files, zero provider calls, every artifact reproduced byte for byte, review ACCEPT with zero advisories and zero coverage advisories. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
+   "evidence": "Every local step exit 0 on 3.13. Two consecutive reruns of the composition are identical line for line with zero provider calls at every stage - investigation, reconciliation, planning, authoring, coherence and review all reused from the store. The hosted matrix is green for Python 3.11, 3.12 and 3.13 on the pushed commit."
   }
  ],
  "previous_items": [
@@ -90,10 +95,11 @@
   "G2-W11",
   "G2-W12",
   "G2-W13",
+  "G2-W16",
   "G2-W19",
   "G2-W21"
  ],
- "next_work_item": "G2-W22",
+ "next_work_item": "G2-W17",
  "candidate": {
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -112,25 +118,21 @@
    "review_verdict": "ACCEPT",
    "review_verdict_as_returned": "ACCEPT"
   },
-  "blocking_checks": "BC-01 to BC-11 all PASS"
+  "blocking_checks": "BC-01 to BC-11 all PASS on the sealed candidate"
  },
  "measurement": {
-  "composition": {
-   "advisories": 0,
-   "blocking_failures": [],
-   "coverage_advisories": 0,
-   "review_verdict": "ACCEPT",
-   "review_verdict_as_returned": "ACCEPT"
-  },
-  "components_recorded": {
-   "normalisation": "1",
-   "renderer": "17",
-   "shell": "5"
-  },
-  "validators_recorded": {
-   "BC-10": "2"
-  },
-  "note": "The candidate this item leaves sealed was composed on 2026-09-05 under the bounded review manifest: ACCEPT on the first review, no repair round, 24 provider calls, 3 rejections, 87.5 per cent first attempt. RC7's link volatility invalidated it once mid-verification on a transient PyPI ReadTimeout and it recovered on re-run with zero calls; both are recorded facts-only in section 27.2."
+  "escalations": 0,
+  "note": "The rule this item adds never fired on the canary, because no repair's binding proved a slot-set change: that is the predicate, not a gap. The escalation is proven by its two synthetic cases instead. The sealed candidate at 65b1f577 is untouched and still counts; the composition attempted this iteration is rejected and sealed nothing.",
+  "sealed_candidate": {
+   "state": "READY_FOR_PROPOSAL",
+   "composition": {
+    "advisories": 0,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "ACCEPT"
+   }
+  }
  },
  "defects_found_and_fixed": [
   {
