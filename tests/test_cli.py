@@ -1036,6 +1036,61 @@ def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
     assert json.loads((transaction / "review.json").read_text("utf-8")) == review
 
 
+def test_a_repair_that_cannot_satisfy_its_own_contract_stops_without_crashing(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # The finding's own suggested repair can ask for something its stage cannot do - here, a
+    # slot the fixed authoring task must fill exactly once. Both of targeted_repair's attempts
+    # (its own one internal re-ask included) come back invalid, so the repair job itself fails
+    # (RESEARCH_AND_GUIDELINES.md section 27.5 D5): recorded unrepairable at this attempt and
+    # reported, never an uncaught crash.
+    broken_repair = {
+        **_opening_repair(),
+        "revised_output": {
+            "units": [_unit("opening", "wrong_slot", REVISED_OPENING, "identity:repository")],
+            "omitted": [],
+        },
+    }
+    gateway_ready.queues = {
+        "independent_review": [_rejection("F01")],
+        "targeted_repair": [broken_repair, broken_repair],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert (
+        "BC-10 failed at COMPOSING: REJECT_PRESENTATION; no repair could act on it"
+    ) in captured.err
+    assert (
+        "repair: 0 repaired, 1 unrepairable recorded advisory, "
+        "1 re-raised after repair; the equivalent failure stands; rounds 2"
+    ) in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    attempt = repairs["attempts"][OPENING_FINGERPRINT]
+    assert attempt["outcome"] == "unrepairable"
+    assert attempt["reason"] is not None and "output rejected twice" in attempt["reason"]
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "REJECT_PRESENTATION"
+    assert [f["id"] for f in review["findings"]] == ["F01"]
+    # A rerun reaches the identical, still-blocking outcome with zero further provider calls -
+    # the repair is never retried a third time from the same broken reply. Nothing was ever
+    # genuinely repaired, so the message names the same "no repair could act on it" cause both
+    # times, byte for byte.
+    calls_before_rerun = len(gateway_ready.requests)
+    again = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    rerun = capsys.readouterr()
+    assert again == EXIT_INCONSISTENT
+    assert (
+        "BC-10 failed at COMPOSING: REJECT_PRESENTATION; no repair could act on it"
+    ) in rerun.err
+    assert len(gateway_ready.requests) == calls_before_rerun
+    assert json.loads((transaction / "review.json").read_text("utf-8")) == review
+
+
 def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
     project_with_registry: Path,
     local_canary: dict[str, Any],

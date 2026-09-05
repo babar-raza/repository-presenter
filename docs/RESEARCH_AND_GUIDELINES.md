@@ -1628,6 +1628,24 @@ validation 10 pass, 0 fail, 1 pending. `README_CONTRACT.md` row 7 requires a des
 the classes or members it rests on and §8 forbids the product-name template; neither addresses a
 description that repeats its title.
 
+**Measured (the loop, 2026-09-05, G2-W16).** Bounding `independent_review`'s schema (`findings`
+`maxItems` 16; `text`, `quote`, `repair` each `maxLength`) moved the manifest to a new version, so
+the canary's next composition made a fresh, uncached review call rather than replaying the stored
+v6-era verdict. The reply named five presentation findings, one against `quick_start` (F01) whose
+suggested repair - drop the first example, keep only the second - asks for something no S6
+revision can do: `section_authoring`'s per-task schema requires the plan's exact slot set
+(`lead_in`, `lead_in:2`) filled once each, and dropping an example is a planning decision (S5),
+not an authoring one. `targeted_repair`'s own reply failed that requirement on both of its
+attempts (the manifest's one internal re-ask included), so the repair job itself was unable to
+produce a schema-valid revision - a different failure from a defect the loop knows in advance no
+stage can reach. `repair_defect` (rounds.py) now catches this and records the fingerprint
+unrepairable at this attempt rather than letting the exception cross the CLI boundary raw; the
+resulting BC-10 failure blocks under this item's own rule (a re-raised finding is code-caused or
+it blocks) rather than crashing, and the immediate rerun is byte-identical with zero further
+provider calls. The sealed candidate (`65b1f577`, built under manifest v6) is untouched and stays
+`READY_FOR_PROPOSAL`; a fresh composition on the canary under manifest v7 currently ends
+`EXIT_INCONSISTENT` on this finding, which is not yet closed by any work item.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt

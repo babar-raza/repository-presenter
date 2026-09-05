@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
@@ -344,6 +346,35 @@ def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() ->
         "section at_a_glance renders from facts under the contract's own checks; its "
         "presentation is the renderer's"
     )
+
+
+def test_a_synthetic_oversized_review_is_bounded_by_its_own_schema() -> None:
+    # G2-W12 measured a real review truncated at the 6000-token budget: an unbounded findings
+    # array and unbounded prose let one reply grow past it. The schema now caps both, so the
+    # gateway's own structured-output generation cannot produce what would need truncating
+    # (RESEARCH_AND_GUIDELINES.md section 27.2 RC8; section 27.10's pattern exception is the one
+    # keyword this gateway will not honour in a strict schema, not maxItems or maxLength).
+    schema = REVIEWER.manifest.output.schema_
+    validator = Draft202012Validator(schema)
+    at_cap = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [_finding(f"F{i:02d}", "opening", "S6") for i in range(16)],
+        "preserve": [],
+    }
+    validator.validate(at_cap)  # sixteen findings is the cap, not yet oversized
+    over_cap = {**at_cap, "findings": [*at_cap["findings"], _finding("F16", "opening", "S6")]}
+    errors = list(validator.iter_errors(over_cap))
+    assert any(error.validator == "maxItems" and error.validator_value == 16 for error in errors)
+    # A finding's own prose is bounded the same way: one paragraph, not a whole section.
+    oversized_quote = {**_finding("F01", "opening", "S6"), "quote": "x" * 501}
+    errors = list(validator.iter_errors({**at_cap, "findings": [oversized_quote]}))
+    assert any(error.validator == "maxLength" for error in errors)
+    oversized_text = {**_finding("F01", "opening", "S6"), "text": "x" * 601}
+    errors = list(validator.iter_errors({**at_cap, "findings": [oversized_text]}))
+    assert any(error.validator == "maxLength" for error in errors)
+    oversized_repair = {**_finding("F01", "opening", "S6"), "repair": "x" * 401}
+    errors = list(validator.iter_errors({**at_cap, "findings": [oversized_repair]}))
+    assert any(error.validator == "maxLength" for error in errors)
 
 
 # The sealed canary's advisories, adjudicated against the bundle rather than against the

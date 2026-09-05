@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -86,6 +86,7 @@ from repository_presenter.components.readme.validation.registry import (
     write_validation,
 )
 from repository_presenter.core.config import GatewayConfig
+from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
 from repository_presenter.core.llm.ledger import Ledger
@@ -325,7 +326,16 @@ def _stage_target(
 def repair_defect(
     tx: TransactionInputs, current: Round, defect: Defect, repairs: RepairLedger
 ) -> None:
-    """One targeted_repair call; the revised output supersedes the causal stage's stored output."""
+    """One targeted_repair call; the revised output supersedes the causal stage's stored output.
+
+    The stage a finding names is not always the stage that can actually satisfy its suggested
+    repair - removing an authored slot the plan assigned, for one, is a planning decision no
+    authoring revision can make. When the repair job's own output cannot pass its contract twice,
+    that is discovered here, not guessed at in advance; it is recorded unrepairable at this
+    attempt, exactly like a defect no stage could ever reach, and reported rather than crashing
+    the run (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5: it is code-caused or it blocks -
+    no code change here would make an impossible revision possible).
+    """
     assert defect.stage is not None
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
@@ -333,32 +343,36 @@ def repair_defect(
         current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
     )
     contract = causal.manifest.output.schema_
-    result = run_job(
-        tx.prompts["targeted_repair"],
-        repair_packet(
-            tx.entry,
-            defect,
-            target.output,
-            tx.facts,
-            current.review.get("preserve", []),
-            contract,
-            allowed,
-            slot_facts,
-        ),
-        config=tx.config,
-        facts=tx.facts,
-        ledger=tx.ledger,
-        store=tx.store,
-        context=tx.context,
-        checks=functools.partial(
-            repair_checks,
-            defect=defect,
-            output_contract=contract,
-            binding=causal.manifest.output.binding,
+    try:
+        result = run_job(
+            tx.prompts["targeted_repair"],
+            repair_packet(
+                tx.entry,
+                defect,
+                target.output,
+                tx.facts,
+                current.review.get("preserve", []),
+                contract,
+                allowed,
+                slot_facts,
+            ),
+            config=tx.config,
             facts=tx.facts,
-            stage_checks=stage_checks,
-        ),
-    )
+            ledger=tx.ledger,
+            store=tx.store,
+            context=tx.context,
+            checks=functools.partial(
+                repair_checks,
+                defect=defect,
+                output_contract=contract,
+                binding=causal.manifest.output.binding,
+                facts=tx.facts,
+                stage_checks=stage_checks,
+            ),
+        )
+    except JobError as exc:
+        repairs.record(replace(defect, reason=str(exc)), "unrepairable")
+        return
     tx.store.put(target.request_sha256, job, result.model_served, result.output["revised_output"])
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
 
