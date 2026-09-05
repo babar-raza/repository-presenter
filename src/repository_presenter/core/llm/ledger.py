@@ -103,6 +103,17 @@ class Ledger:
         """Provider calls this process made, across every job of the transaction."""
         return sum(1 for record in self.appended if record.disposition == "provider_call")
 
+    @property
+    def consumed_calls(self) -> frozenset[str]:
+        """The logical calls this run's composition consumed, made or reused.
+
+        A transaction outlives its compositions: a prompt version, a repair round, or a
+        superseded review leaves records of calls nothing in the current candidate came from.
+        This is the set the seal keeps, so a bundle's ledger accounts for the composition it
+        holds (docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+        """
+        return frozenset(record.logical_call_id for record in self.appended)
+
     def records(self) -> list[CallRecord]:
         return load_records(self.path)
 

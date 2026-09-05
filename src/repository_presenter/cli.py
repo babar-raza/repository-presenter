@@ -398,6 +398,7 @@ def run_present(repository: str, root_argument: Path | None) -> int:
                 transaction=transaction,
                 candidates=root / CANDIDATES_DIRNAME,
                 provider_calls=ledger.provider_calls_made,
+                consumed_calls=ledger.consumed_calls,
                 secrets=configured_secrets(os.environ),
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
             )

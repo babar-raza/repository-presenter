@@ -1832,6 +1832,21 @@ same iteration. A shape the constrained party declares is not a constraint: the 
 a branch with no obligations and it took it. What survived is the rule that reads the model's
 output against the candidate and the evidence, neither of which the model controls.
 
+**Measured (the loop, 2026-09-05, G2-W17, fourth).** The seal now keeps only the ledger records of
+the logical calls the composition consumed, made or reused. On the canary that is 312 records and
+**28 provider calls**, where the transaction holds 327 records and 65 provider calls across four
+prompt versions. First-attempt acceptance on the composition's own calls is **82.1%** (5 rejected
+of 28): `repository_investigation` 1/1, `source_reconciliation` 1/1, `section_authoring` 16/18
+(88.9%), `presentation_planning` 2/3, `independent_review` 3/5. The five rejections are named. Two
+are `section_authoring` calls carrying exactly the two prose families §27.0's D1 line leaves to
+**G2-W20** - three link units wrote `https://` with the host (`docs.aspose.org`, `kb.aspose.org`,
+`reference.aspose.org`) as a non-fact identifier, and a summary unit wrote `pip install` as text.
+One is `presentation_planning`'s `shared_fact_ids` family, whose wording the v9 prompt fixed after
+this call was made. Two are `independent_review` quoting a heading that is not the candidate's text.
+Without W20's two, the same composition measures 89.3%, above the 85 floor; with them it is below
+it, so the accepting bundle stays uncommitted for a second iteration. The gate's own exit predicate
+asks 95%.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -2711,6 +2726,19 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   Proposed for §27.9: G2-W20's acceptance gains "the canary's fresh composition ends ACCEPT
   with zero advisories", as the last of those families to land. Reverse via §27.9 or a
   state.yaml edit.
+- **2026-09-05 · G2-W17 · a bundle seals the ledger records of the calls its composition
+  consumed, not the transaction's whole history.** Alternative rejected: leaving the ledger whole
+  and reading §27.6 control 1 as a transaction measure, which makes the control insensitive to the
+  current code and sensitive to how long a transaction has lived. Evidence: §27.2, 2026-09-05 - 65
+  provider calls in the transaction against 28 in the composition. Reverse by dropping
+  `consumed_calls` from `SealInputs`.
+- **2026-09-05 · G2-W20 runs before G2-W17 finishes (order inside the gate, loop-prompt §5).**
+  Every remaining W17 predicate needs a committable bundle, and no bundle can be committed while
+  the composition measures 82.1% against the 85 floor; two of its five rejections are W20's own
+  families and removing them alone reaches 89.3%. Alternative rejected: lowering the floor, refused
+  once already today on the same evidence. Evidence: §27.2, 2026-09-05 (fourth). Reverse by making
+  G2-W17 active again in `state.yaml`; its acceptance text is derived from §27.9's purpose, which
+  is unchanged.
 - **2026-09-05 · G2-W17 · an absence claim that names text nobody wrote is refuted too, and the
   accepting bundle is held back rather than sealed under a failing control.** Alternative rejected:
   lowering §27.6 control 1's floor to the 80.0% this ledger measures, which would fit a threshold

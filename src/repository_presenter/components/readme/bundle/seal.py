@@ -45,7 +45,7 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.facts import FactsDocument
-from repository_presenter.core.llm.ledger import canonical_hash
+from repository_presenter.core.llm.ledger import LEDGER_FILENAME, canonical_hash
 from repository_presenter.core.llm.prompts import PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -94,6 +94,7 @@ class SealInputs:
     candidates: Path
     provider_calls: int
     secrets: Sequence[ConfiguredSecret]
+    consumed_calls: frozenset[str] = frozenset()
     earliest_affected_stage: str | None = None
 
 
@@ -214,8 +215,31 @@ def _staged_artifacts(inputs: SealInputs) -> dict[str, bytes]:
         path = inputs.transaction / name
         if path.is_file():
             staged[name] = path.read_bytes()
+    staged[LEDGER_FILENAME] = composition_ledger(staged[LEDGER_FILENAME], inputs.consumed_calls)
     staged[DEPENDENCIES_FILENAME] = _canonical_json(dependencies_document(inputs))
     return staged
+
+
+def composition_ledger(raw: bytes, consumed: frozenset[str]) -> bytes:
+    """The ledger records of the calls this composition consumed, in the order written.
+
+    A transaction outlives its compositions. A prompt version change, a repair round, a review
+    whose successor supersedes it - each leaves records of calls nothing in the current candidate
+    came from, and sealing them makes the bundle claim work it does not hold. It also measures
+    first-attempt acceptance over a job mix that never composed this candidate: the transaction
+    that produced the 2026-09-05 canary carried 65 provider calls across four prompt versions
+    where its composition consumed 28 (docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+    Every attempt of a consumed call is kept, its rejections included - that is what the control
+    measures. A run that consumed nothing has nothing to filter by and seals the ledger whole.
+    """
+    if not consumed:
+        return raw
+    kept = [
+        line
+        for line in raw.decode("utf-8").splitlines()
+        if line.strip() and json.loads(line).get("logical_call_id") in consumed
+    ]
+    return "".join(f"{line}\n" for line in kept).encode("utf-8")
 
 
 def _identical(name: str, staged: bytes, existing: bytes) -> bool:

@@ -14,6 +14,7 @@ from repository_presenter.components.readme.bundle.seal import (
     BundleLeakError,
     SealError,
     SealInputs,
+    composition_ledger,
     dependencies_document,
     invalidate_bundle,
     invalidates,
@@ -109,6 +110,30 @@ def _inputs(
         secrets=secrets,
         earliest_affected_stage=stage,
     )
+
+
+def test_the_sealed_ledger_holds_the_calls_this_composition_consumed() -> None:
+    """A transaction outlives its compositions, and the bundle accounts for one of them.
+
+    Measured on the canary on 2026-09-05: the transaction carried 65 provider calls across four
+    prompt versions where the composition it sealed consumed 28, so the sealed ledger measured
+    first-attempt acceptance over a job mix that never composed the candidate
+    (docs/RESEARCH_AND_GUIDELINES.md section 27.6 control 1).
+    """
+    lines = [
+        '{"logical_call_id": "a", "attempt": 1, "outcome": "response_invalid"}',
+        '{"logical_call_id": "a", "attempt": 2, "outcome": "success"}',
+        '{"logical_call_id": "superseded", "attempt": 1, "outcome": "success"}',
+        '{"logical_call_id": "b", "attempt": 1, "outcome": "success"}',
+    ]
+    raw = "".join(f"{line}\n" for line in lines).encode("utf-8")
+    kept = composition_ledger(raw, frozenset({"a", "b"})).decode("utf-8").splitlines()
+    # Every attempt of a consumed call survives, rejections included: that is what the control
+    # measures. The call no artifact came from does not.
+    assert [json.loads(line)["logical_call_id"] for line in kept] == ["a", "a", "b"]
+    assert composition_ledger(raw, frozenset({"a", "b"})).endswith(b"\n")
+    # A run that consumed nothing has nothing to filter by.
+    assert composition_ledger(raw, frozenset()) == raw
 
 
 def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
