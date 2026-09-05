@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T21:44:22+05:00"
+updated_at: "2026-09-05T21:57:17+05:00"
 
 authority:
   product: plans/idea.md
@@ -54,6 +54,9 @@ active_work_item:
   blocker: null
 
 next_ready_items:
+  - id: G3-W03
+    status: PENDING
+    purpose: "Facts-stage cache and stage timings (30.9 B; owner admission, section 31). A present whose source tree hash, extractor version, and environment fingerprint (Python version, OS, resolved site manifest - the RC7 record of 27.5 D4) match a stored result reuses facts.json, examples.json, and the probe records from runs/facts-cache under that key and skips venv creation, pip install, example execution, and the live probes; any mismatch runs the stage and stores the result. pip installs use a per-revision wheel cache and preinstalled build dependencies rather than fetching them from PyPI on every run. The CLI prints per-stage wall-clock (S1 snapshot; S2 facts with venv, install, examples, probes; S3 to S12) and the sealed manifest records them. Insert before G3-W01. Acceptance: the no-op rerun of the sealed canary completes in under 30 seconds with zero provider calls and identical bytes; a changed tree or fingerprint invalidates the cache, proven by test; timings appear in present output and the manifest; hosted CI green."
   - id: G3-W01
     status: PENDING
     purpose: "Python cohort (section 28.5; 30.9). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls; in the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
