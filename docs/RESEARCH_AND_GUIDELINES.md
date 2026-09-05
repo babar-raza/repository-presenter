@@ -1560,6 +1560,12 @@ diagnosing. Each line names where the detail lives.
   `PROVISIONAL` in §31 with the alternative rejected, and acted on in the same iteration; the owner
   reviews §31 asynchronously and may reverse. `stop: true` only for done, all-remaining-items-owner-
   blocked, or a prohibition (loop-prompt §5, §7, §9; §30).
+- **Scope is not the loop's to grow** (30.8). Autonomy covers *how* to close queued items, never
+  *what* to add: the loop proposes new work in §31 and only the owner admits it to §27.9; no new
+  blocking check without a sealed defect, a mutation test, and a subsumption review, and never a
+  check about a check; blocking checks stay ≤ 15 without an owner decision; from G3 on, three
+  accepted items without the candidate count rising means the next item must raise it. G2's queue
+  is frozen at W22, W17, W20, W23 — no new G2 items, by the owner's rule too.
 - **Order to 31/31**: G2 (W22, W16, W17, W20, W23) → G3 Python cohort with a facts-only preflight,
   then freeze → G4 second source, spec layer, extractor, six cohorts → G5 durability and hosted (§28).
 
@@ -1750,6 +1756,24 @@ fixture and replay them through `review_document`. It was rejected because the f
 `criterion`, `causal_stage`, the exact quotes — are not in §26, so the replay would test wording I
 chose rather than a defect the system produced, and a passing result would assert something never
 observed. If the owner prefers that fixture, it is a §27.9-shaped entry, not work done here.
+
+**Measured (the loop, 2026-09-05, G2-W22).** A from-scratch composition of the canary, the
+transaction directory deleted first, under `presentation_planning` v9 and the escalation: 6 review
+findings, 2 advisories, 5 repairs, 4 of them re-raised, `EXIT_INCONSISTENT`. Zero escalations - no
+repair's binding proved a slot-set change, so the rule this item adds never fired, and the block is
+elsewhere. The six: a command written as prose in Development and Testing (`pip install -e .` where
+the verified fact reads `python3 -m pip install -e .`), an API-reference omission, a
+scope-limitations omission, a quick-start example claim, an enterprise-relationship preservation
+claim, and one claim the document contradicts - the Additional Examples introduction it calls
+duplicated appears exactly once. Every round-two finding named S7, which `review_defects` maps to
+S6, so each shared a fingerprint with its round-one finding in the same section and blocked as
+re-raised. Two further facts. The planner failed twice, before the v9 wording, on `shared_fact_ids`:
+it read "shared" as facts a capability shares but does not itself list, declaring
+`public_symbol:aspose.threed.scene` shared by capabilities 2 and 3 while only capability 1 cited it.
+And deleting a transaction directory destroys the call store a sealed bundle's zero-call replay
+depends on: the bundle keeps its recorded proof and still counts, but reproducing it byte for byte
+afterwards would need the same 24 replies again. Both reruns of the rejected composition are
+identical with zero provider calls at every stage.
 
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
@@ -2525,13 +2549,84 @@ written down instead of blocking.
   hours; G3 ≈ 10–12; G4 ≈ 20–28. Roughly 45–55 running hours ≈ 2–2.5 unattended days to 31/31,
   against ≈ 4 days at today's effective 14 running hours per day. The unattended day is the lever.
 
+### 30.8 Autonomy without the legacy's growth (owner, 2026-09-05)
+
+**The question.** With no human in the path, what stops a loop that may decide anything from
+becoming the legacy — 619 commits, validators on validators, no tangible outcome? A bad decision is
+a reversal; a bad decision *loop* is the failure this project exists to escape.
+
+**Symptoms already visible here, honestly.** Fourteen G2 items accepted while the candidate count
+stayed at 1/34 since G1 — the legacy's numerical shape, even though every item traces to a measured
+defect on the one sealed candidate and each landed green. Blocking checks 11, a twelfth queued.
+`RESEARCH_AND_GUIDELINES.md` grew ~1,500 lines in three days, almost all of it the owner's. The
+differences from the legacy are real (defect-traced, measured rates, one ordered queue, honest
+records) but they are differences of discipline, not of structure — nothing *mechanical* yet stops
+the shape from continuing.
+
+**Root cause.** The legacy's engine was self-authorized scope: the agent that found a gap was the
+agent that admitted the work to fix it, so every defect became machinery and machinery found more
+defects. Yesterday's autonomy rules gave this loop the same power in one sentence ("scope growth is
+queued") without saying who admits the queue. Cleverness of either model is not the variable —
+both will add machinery if the rules reward closing items; §6 rule 9 says closed items are not
+progress, but nothing measured it.
+
+**Structural weakness.** No separation between *executing* scope and *admitting* scope, and no
+ceiling coupled to the outcome unit (candidates).
+
+**Preserve.** Defect-traced additions; §6's prohibitions; the document budgets; the §26 rule that a
+check exists only for a sealed defect; the loop's demonstrated restraint so far (its first two §31
+entries are measured and small).
+
+**Controls (design).**
+- **C1 Admission gate.** Autonomy covers *how* to close queued items, never *what* to add. The loop
+  proposes new work in §31 in §27.9 shape; only the owner admits it (moves it into §27.9 /
+  `state.yaml`). Meanwhile the loop continues the queue — it is full through 31/31 — restating a
+  blocked predicate to what is proven rather than widening.
+- **C2 Outcome tripwire.** Every report carries "items accepted since the candidate count last
+  rose". From G3 on, at 3 the next item must raise the count (a composition or cohort item) or a
+  §31 entry says why not, and no new check is admitted until it does. G2 is exempt only for its
+  frozen queue (W22, W17, W20, W23); no new G2 items, by the owner's rule as much as the loop's.
+- **C3 Check ceiling and admission criteria.** A new blocking check needs a sealed candidate's
+  measured defect, a mutation test, and a subsumption review against the existing checks; blocking
+  checks stay ≤ 15 without an owner decision recorded in §27.9; **no meta-checks** — a check whose
+  subject is another check's record rather than the candidate is the legacy's signature and is
+  forbidden outright.
+- **C4 Precedent and oscillation.** Decisions follow §31 precedent unless the evidence differs and
+  the entry says how; a subject reversed twice is frozen until the owner rules.
+- **C5 Governance freeze for the loop.** The loop writes measurements and §31 entries (≤ 6 lines),
+  never new sections or rules. Governance growth is the owner's, budgeted: `RESEARCH_AND_GUIDELINES.md`
+  is consolidated after G2 closes and does not exceed 2,700 lines before then.
+- **C6 Review cadence without a human relay.** The owner's steering session reviews §31 and
+  proposals asynchronously. A live message channel from the loop to that session was considered and
+  declined: it would make the loop wait on whether the steering session is awake — the dependency
+  §30 removed. If review latency itself becomes the bottleneck, the steering session can run as a
+  reviewer loop on a slow cadence (a cheap check of §31 for new entries; a full review only when
+  there are some) — an owner choice with a token cost, not a loop dependency.
+
+**Validation and regression controls.** The report's metric block each iteration (items since the
+count last rose; blocking checks; §31 entries today; re-ask share; iterations on the active item);
+a test that the blocking-check count is ≤ 15; the §27.9/state parity test (G2-W23); the owner's
+review confirming or reversing each §31 entry; a gate cannot accept more items than its ESM Work
+list plus the owner-admitted queue.
+
+**Trade-offs and limits.** C1 delays genuinely needed new work by the owner's review latency — hours,
+not the legacy's months — and the loop is never idle meanwhile. C2 may force a composition before a
+check the loop believes it needs; that is the intended pressure, and the check can still be
+proposed. C3's ceiling is a judgment (15), chosen so that the twelve contract checks plus a small
+margin fit; it is revisited only by the owner. None of this makes a wrong decision impossible; it
+makes a wrong *direction* visible within three items instead of three months.
+
 ## 31. Provisional decision log (the loop appends; the owner reviews asynchronously)
 
 The loop never stops to ask. When a decision is needed it decides by loop-prompt §5's order, appends
 one entry here, and continues. The owner reads this section at each check-in; an entry stands until
 reversed through §27.9 or a `state.yaml` edit, and a reversal is itself an entry. Format, six lines
 at most: **date · item · decision · alternative rejected · evidence · reversal path.** Never rewrite
-an earlier entry; append.
+an earlier entry; append. Three further rules (30.8): **precedent** — decide consistently with the
+entries already here and cite the one you follow, unless the evidence differs and you say how;
+**proposals, not admissions** — an entry may propose new work in §27.9 shape, but only the owner
+moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject reversed twice is frozen
+(no further change to it by the loop) until the owner rules, and the loop proceeds with other work.
 
 - **2026-09-04 · G2-W12 · D3 stays in G5** (decided by the owner after the loop stopped to ask —
   the stop this section exists to prevent). Alternative rejected: move anchoring ahead of the
@@ -2544,3 +2639,21 @@ an earlier entry; append.
 - **2026-09-05 · G2-W16 · the plan-level repair escalation is its own item, G2-W22** (owner).
   Alternative rejected: keep it inside W16. Evidence: W16 at 1,857 characters and four commits
   against the size rule. Reverse via §27.9 (fold back).
+- **2026-09-05 · G2-W22 · the fresh-composition ACCEPT predicate is restated and its cause
+  transferred.** W22 keeps what the escalation proves; the ACCEPT-with-zero-advisories outcome
+  belongs to the items that own what actually blocks. Alternative rejected: hold W22 open until
+  a fresh composition accepts, which would make this item's acceptance wait on G2-W17 and
+  G2-W20 landing first, against the queue order in §27.0. Evidence: the 2026-09-05 composition
+  blocked on six findings across six sections - a command written as prose (G2-W20's family),
+  an API-reference omission and a scope-limitations omission (G2-W17's), an example claim, a
+  preservation claim, and one claim the document contradicts (the Additional Examples intro it
+  calls duplicated appears once) - with zero escalations and no slot-set defect raised.
+  Proposed for §27.9: G2-W20's acceptance gains "the canary's fresh composition ends ACCEPT
+  with zero advisories", as the last of those families to land. Reverse via §27.9 or a
+  state.yaml edit.
+- **2026-09-05 · G2-W22 · presentation_planning v9 spells out that shared_fact_ids is a subset
+  of that capability's own fact_ids.** Alternative rejected: relax the check to accept a fact
+  declared shared but not cited, which would break the arithmetic the rule exists for - the
+  remainder after the shared ones is what separates two capabilities. Evidence: a from-scratch
+  composition failed planning twice on it; the planner had listed Scene as shared by
+  capabilities 2 and 3 while only capability 1 cited it. Reverse by restoring the v8 wording.

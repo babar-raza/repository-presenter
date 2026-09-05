@@ -210,6 +210,14 @@ files, never from memory of a previous iteration.
   check. Actions only a human can physically perform (create the GitHub App, protect the branch)
   are owner items: record the exact action and resume predicate, skip the items that consume them,
   and take the next item — never wait.
+- Scope is not yours to grow (`RESEARCH_AND_GUIDELINES.md` §30.8). Your autonomy covers *how* to
+  close queued items, never *what* to add: you never write to §27.9 and never add an item to
+  `state.yaml` on your own initiative — new work is proposed in a §31 entry, in §27.9 shape, and only
+  the owner admits it; meanwhile continue the queue, restating a blocked predicate to what is proven
+  rather than widening. Decide consistently with §31 precedent and cite the entry you follow, or say
+  how the evidence differs. A subject reversed twice is frozen until the owner rules; take other
+  work. The legacy died of self-admitted scope — the agent that found a gap was the agent that
+  admitted the machinery to fill it — and that is the one power this loop does not have.
 - Hosted CI red: reproduce locally, fix at the causal boundary, push. Never disable a check.
 - `FAILED_INTERNAL`: diagnose and repair at the causal stage in this or the next iteration; never
   acceptable completion, never a reason to weaken a check.
@@ -252,6 +260,14 @@ files, never from memory of a previous iteration.
     something an owner item does not gate.
 12. Never fabricate: a claim without an evidence ID, a fix you did not verify, or a passing result
     you did not observe is a defect.
+13. No check about a check. A blocking check's subject is the candidate — its facts, bytes, links,
+    structure — never another check's record, verdict, or history. Validators on validators were
+    the legacy's signature (`RESEARCH_AND_GUIDELINES.md` §30.8 C3).
+14. A new blocking check exists only with all three: a sealed candidate's measured defect it would
+    have caught, a mutation test proving it blocks, and a subsumption review showing no existing
+    check already covers it. Blocking checks stay at most fifteen without an owner decision in §27.9.
+15. You write measurements and §31 entries (six lines at most), never a new section, rule, or
+    document. Governance growth is the owner's and is budgeted; yours is the report.
 
 ## 7. Continue or stop the loop
 
@@ -283,4 +299,8 @@ when the task ends, and that is how the 2026-09-05 00:38 self-stop happened. You
 
 Gate and work item with status. Files changed. Checks run with results. Progress N/34. Commit hash
 and whether it was pushed, with the hosted CI state. Owner items still `OPEN` with the exact action.
-Next action. No wave numbers, requirement IDs, or evidence inventories.
+Next action. One metric line, always: items accepted since the candidate count last rose · blocking
+checks · §31 entries today · first-attempt acceptance on the last sealed composition · iterations
+on the active item. From G3 on, when the first number reaches 3 the next item must raise the count
+or a §31 entry says why not, and no new check is admitted until it does (§30.8 C2). No wave
+numbers, requirement IDs, or evidence inventories.
