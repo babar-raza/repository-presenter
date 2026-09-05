@@ -3648,3 +3648,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `formats`, `package_manifest`, `package_root`, `dependency_extract`, `publication_probe` and
   `package_registries` stay unpulled until their own façade needs them. Reverse by deleting the
   directory, its ten records, and the two linter overrides.
+
+- **2026-09-06 11:40 · loop (PROVISIONAL) · the façade, and what parity actually measures.** Item
+  G4-W09. `extractors/surface/extractor.py` is the only importer of `_vendor`: it maps a
+  tree-sitter node type to the `symbol_kind` vocabulary the Python extractor already emits, makes
+  every language's separator slug-safe (`Aspose::ThreeD::Scene`, C# `Outer+Inner`, `List<Widget>`
+  → the type, not the instantiation — §29.2 F8), and carries the declaring file and line. An
+  unmapped node type is `unknown`, never invented. Measured on the canary's clone against its
+  sealed `public_symbol` facts: the vendored engine found 2,906 symbols to the bundle's 1,531, and
+  by final segment **931 of 953 agree**, with 7 vendored-only (dunders and members the first-party
+  reader excludes) and 22 first-party-only (modules, which the vendored engine does not emit). The
+  parity control asserts the shape of that result on a fixture rather than the canary, because
+  `runs/clones/` is gitignored and hosted CI has no clone: every public class and method the
+  trusted reader finds is found by the vendored one, neither invents a private name, and every
+  difference is a module or a module-level function. Reverse by deleting the façade and its tests.
