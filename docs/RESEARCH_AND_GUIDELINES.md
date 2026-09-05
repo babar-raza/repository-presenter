@@ -1901,6 +1901,23 @@ not compared byte for byte - three files, none of which a candidate depends on. 
 files, the update was adopted by a fresh process with zero provider calls, and the run after it was
 a no-op.
 
+**Measured (the loop, 2026-09-05, G2-W17, fixtures).** An example that reads a file is now offered
+one an executed example of the same README wrote, when the repository ships none: the pool is keyed
+by extension, filled in ordinal order from runs that exited zero, and consulted only after a
+repository file of that name and then of that extension have failed. A second pass gives the
+examples that lacked an input one more attempt against the complete pool, so a producer may appear
+after its consumer. On the canary that moves **executed from 6 to 7 of 12**: `example:007` opens
+`model.gltf` and now runs on `crate.gltf`, the file `example:002` writes, recorded in the receipt as
+`staged as model.gltf from example 2's output crate.gltf`. The four that remain are the three
+opening a `.obj` and the one opening a `.dae`: no executed example writes either, because the only
+`.obj` producer is `example:008`, which the product's own `ObjExporter` fails with `TypeError: a
+bytes-like object is required, not 'str'`, and nothing anywhere produces COLLADA. A half-written
+file from a failed run is never handed on - only a run that exited zero contributes. The input
+formats OBJ, STL, glTF and COLLADA are all SUPPORTED from the product's own format declarations,
+and were before this change. The composition that followed the new fact ended `EXIT_INCONSISTENT`
+on seven findings, six of them prose judgments about ordering and density that the same document
+did not attract an hour earlier: composition variance (27.10), not a family this item owns.
+
 ### 27.3 Structural weaknesses (the design-level statements behind RC1–RC8)
 
 - **W1 Constraints have three homes and no machine-readable source.** Contract prose, prompt
@@ -2830,8 +2847,9 @@ ports) — fixing them is real work, bounded; the model's ~35% is the thinking a
   file reads); 29 commits with 6,528 body words (225 per commit); the loop prompt grew from 179 to
   308 lines under the owner's hand and is read in full every iteration. Decisions: grep or Read
   with offsets before any whole-file read; commit bodies at most 120 words (§31 and the RESEARCH
-  measurement carry the detail); the owner trims the loop prompt to rules plus pointers, ≤ 220
-  lines, history moved here.
+  measurement carry the detail); the owner trims the loop prompt to rules plus pointers, history
+  moved here — done the same evening: 316 → 280 lines with every rule verified by anchor; the 220
+  target was not reachable without cutting rules, and 280 is the honest number.
 - **F. Antivirus.** Defender's management interface is unavailable on this machine (0x800106ba —
   another product or the service is off); whether real-time scanning covers `.venv/` and `runs/`
   (thousands of files created per suite run) is unknown. Owner action to check; excluded if it is.
@@ -2977,3 +2995,9 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   rejected: keeping the version in the evidence and accepting a reopen whenever PyPI publishes,
   which is RC7 exactly. Evidence: §27.2, 2026-09-05 (RC7) - 15 probe records, no `latest` string
   in any hashed evidence. Reverse by restoring the version to `RegistryObservation.summary`.
+- **2026-09-05 · G2-W17 · a fixture may be an executed example's own output, never a fabricated
+  one.** Alternative rejected: writing a small generator that saves a `.obj` and a `.dae` so every
+  file-reading example runs, which would verify the product against inputs no one in the repository
+  produced. Evidence: §27.2, 2026-09-05 (fixtures) - 6 of 12 executed became 7 of 12, and the four
+  that remain need an `.obj` the product cannot write and a `.dae` nothing writes. Reverse by
+  dropping the `produced` argument from `stage_fixtures` and the second pass.
