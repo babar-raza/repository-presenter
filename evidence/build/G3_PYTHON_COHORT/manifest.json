@@ -4,8 +4,8 @@
  "gate_status": "READY",
  "work_item": "G3-W01",
  "work_item_status": "IN_PROGRESS",
- "recorded_at": "2026-09-06T00:16:02+05:00",
- "control_revision": "81a10ac0b172670cde783ba8dabe0f3dbf632bb3",
+ "recorded_at": "2026-09-06T02:25:15+05:00",
+ "control_revision": "6a42d72b537d6e66cf40b6a50a91ec737708d75f",
  "preflight": {
   "command": "repository-presenter present --repo <owner/name> --facts-only",
   "provider_calls": 0,
@@ -171,6 +171,108 @@
     "required_rows_without_evidence": [
      "quick_start"
     ]
+   }
+  ]
+ },
+ "cohort": {
+  "command": "repository-presenter present --repo <owner/name>",
+  "lanes": 3,
+  "processable": 12,
+  "sealed": 1,
+  "not_sealed": 6,
+  "not_processable": 1,
+  "still_to_run": [
+   "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+   "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+   "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+   "aspose-words-foss/Aspose.Words-FOSS-for-Python"
+  ],
+  "still_to_run_reason": "the preflight measured QUICK_START_WITHOUT_EXECUTED_EXAMPLE on all four: every README example opens an input file the repository does not ship, so the required Quick Start row rests on no evidence and a composition cannot seal. They are run when that class is fixed, not before.",
+  "classes_fixed_this_item": [
+   "PYTHON_KEYWORD_AVOIDING_SYMBOL_NAME - slug() lost a separator run (Aspose.Font)",
+   "IDENTIFIER_IS_A_PROPER_NOUN - TeX, BarCode, OneNote, EmailMessage, PowerPoint (5 of 7)",
+   "ABBREVIATION_IN_A_LIFTED_DOCSTRING - BC-07 on 'xlsx' (Aspose.Cells)",
+   "CAPABILITY_TITLE_NAMES_AN_UNVERIFIED_FORMAT - '.pdf' UNRESOLVED (Aspose.Note)",
+   "REVIEW_QUOTE_TRAILS_OFF - the review failed closed rather than returning a verdict (Cells)",
+   "PROSE_JUDGMENT_ON_A_REQUIRED_ROW - the owner's two-reader rule (Cells, Slides)",
+   "FINDING_AGAINST_THE_DOCUMENTS_OWN_SHAPE - the shell and its headings (Slides, Cells)",
+   "FINDING_QUOTES_EXCLUDED_EVIDENCE - a CONTRADICTED example (Slides)"
+  ],
+  "sealed_candidates": [
+   {
+    "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
+    "source_revision": "becd199a776682785768c60c778558d975b0c2f9",
+    "outcome": "SEALED",
+    "state": "READY_FOR_PROPOSAL",
+    "checks": "10 pass, 0 fail, 1 pending at seal",
+    "review": "ACCEPT, 0 findings, 8 advisory",
+    "zero_call_proof": "a fresh process reproduced every artifact byte for byte, 0 provider calls",
+    "bundle": "candidates/aspose-slides-foss__Aspose.Slides-FOSS-for-Python/becd199a776682785768c60c778558d975b0c2f9"
+   }
+  ],
+  "dispositions": [
+   {
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "source_revision": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
+    "outcome": "NOT_SEALED",
+    "failure_class": "CORROBORATED_PRESENTATION_JUDGMENT",
+    "stage": "S10 review, BC-10",
+    "detail": "Two findings survive repair and a second independent read under a different seed raises both classes again, so the two-reader rule does not demote them: key_capabilities 'omits critical details from the original, such as the specific number of chart types (16)', and scope_limitations 'reorders and rephrases the original limitations'. Both quote text the candidate does contain and allege the original README said more; no deterministic check expresses either, and the repair loop answered 'no failing check names an LLM-owned section'. Every other check passes: validation is 9 pass, 1 fail, and the only failure is BC-10.",
+    "resume_predicate": "a deterministic check expresses 'the candidate drops detail the original carried' - the natural shape is a reconciliation disposition per dropped claim, so the finding is answered by the dispositions file rather than by prose - or the reviewer states the missing text in its absent list, where absence_defect can look it up"
+   },
+   {
+    "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+    "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+    "outcome": "NOT_SEALED",
+    "failure_class": "PROSE_NAMES_A_PRIVATE_PARAMETER",
+    "stage": "S6 section_authoring",
+    "detail": "Both attempts write limitation units naming eci_assignment_number and gs1_enabled. Measured: each occurs in exactly one fact, an inherited_unit list from the source README, and in the clone only under _internal/encoders/. They are private parameters, so no public_symbol fact licenses them and the identifier check is right to reject them; documenting them would document a private API. The model will not write the limitation without naming them.",
+    "resume_predicate": "the section_authoring prompt is revised so a limitation is stated without naming a symbol the facts do not carry - a prompt change bumps its hash and invalidates every sealed candidate, so it belongs to an item that re-seals them"
+   },
+   {
+    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+    "outcome": "NOT_SEALED",
+    "failure_class": "PROSE_NAMES_A_FOREIGN_MODULE_PATH",
+    "stage": "S6 section_authoring",
+    "detail": "Both attempts write a limitation unit naming email.message, Python's own standard library module. The proper-noun rule admits EmailMessage - a capitalised name the source spells in running prose - but deliberately excludes a lowercase dotted path, which is what separates a name from code the source wrote without a span (ws.tables, io.BytesIO). Same family as BarCode, different token shape.",
+    "resume_predicate": "either the facts record the standard-library modules an executed example imports, so a foreign module path is licensed by evidence like any other identifier, or the prompt keeps the limitation from naming one"
+   },
+   {
+    "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+    "source_revision": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+    "outcome": "NOT_SEALED",
+    "failure_class": "ENTRY_POINT_WITHOUT_EXECUTED_EVIDENCE",
+    "stage": "S6 section_authoring",
+    "detail": "Both attempts name TeXJob, the library's entry-point class. All ten of its example candidates are CONTRADICTED - one executed, nine failed - so no SUPPORTED fact records the class and the identifier check is right to reject it. The rejection is the contract working: the candidate may not name an API this revision could not demonstrate. 153 facts, the smallest set in the cohort.",
+    "resume_predicate": "the nine failing examples execute - they open input files the repository does not ship, the QUICK_START_WITHOUT_EXECUTED_EXAMPLE class of the preflight - or the surface extractor records TeXJob as a public_symbol from the source itself"
+   },
+   {
+    "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+    "outcome": "NOT_SEALED",
+    "failure_class": "PLANNING_OUTPUT_INVALID_TWICE",
+    "stage": "S5 presentation_planning",
+    "detail": "Three separate blockers in three runs, each cleared by a class fix and replaced by the next: a capability titled by an UNRESOLVED format (fixed at S5), an output truncated at exactly the manifest's 3000-token cap where earlier plans used 2082 and 2193, and now 'unknown fact ID OMIT_UNSUPPORTED' - a disposition value written where a fact ID belongs. The plan sits at the edge of its budget and the job's output is unstable there.",
+    "resume_predicate": "presentation_planning's max_output_tokens is raised above 3000 - deferred here because the prompt hash is a recorded dependency of both sealed candidates, so raising it invalidates them and belongs to an item that re-seals"
+   },
+   {
+    "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    "source_revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+    "outcome": "NOT_SEALED",
+    "failure_class": "RECONCILIATION_CANNOT_PLACE_AN_EXCLUDED_SECTIONS_UNIT",
+    "stage": "S4 source_reconciliation",
+    "detail": "Both attempts fail on inherited_unit:011.heading with 'section installation renders nothing for this repository; choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED'. The same rejection appears as a first-attempt rejection on TeX and BarCode, which recovered on the re-ask; Page does not. The unit is the source README's Installation heading for a repository with no verified install command.",
+    "resume_predicate": "the reconciliation packet states, per unit, which destination sections are excluded at this revision, so the job cannot place a unit in one - the condition is already computed deterministically at planning and is simply not shown to this job"
+   },
+   {
+    "repository": "aspose-psd-foss/Aspose.PSD-FOSS-for-Python",
+    "source_revision": "2f6c746a8a3ebfaf686a7053e34abfad3a2fd8b3",
+    "outcome": "NOT_PROCESSABLE",
+    "failure_class": "NO_IMPLEMENTATION_EVIDENCE",
+    "stage": "S2 facts",
+    "detail": "The default branch carries no Python manifest and no source files.",
+    "resume_predicate": "a later default-branch revision adds a python manifest (pyproject.toml, setup.cfg, setup.py) or source files (.py)"
    }
   ]
  }
