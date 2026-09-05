@@ -64,6 +64,8 @@ from repository_presenter.components.readme.repair.targeted import (
     STAGE_JOBS,
     Defect,
     RepairLedger,
+    SlotSetProbe,
+    defect_fingerprint,
     merge_equivalent,
     repair_checks,
     repair_packet,
@@ -328,13 +330,15 @@ def repair_defect(
 ) -> None:
     """One targeted_repair call; the revised output supersedes the causal stage's stored output.
 
-    The stage a finding names is not always the stage that can actually satisfy its suggested
-    repair - removing an authored slot the plan assigned, for one, is a planning decision no
-    authoring revision can make. When the repair job's own output cannot pass its contract twice,
-    that is discovered here, not guessed at in advance; it is recorded unrepairable at this
-    attempt, exactly like a defect no stage could ever reach, and reported rather than crashing
-    the run (docs/RESEARCH_AND_GUIDELINES.md section 27.5 D5: it is code-caused or it blocks -
-    no code change here would make an impossible revision possible).
+    The stage a finding names is not always the stage that can satisfy its repair. S6's per-task
+    schema requires exactly the plan's slots, so a fix that would add, drop, or re-choose one is a
+    planning decision by construction - proven here by the repair's own reply, a comparison of two
+    slot sets, never inferred from the finding's prose. Such a repair escalates once to a
+    plan-level repair at S5 carrying the finding's context, and the revised plan re-enters S6
+    through S8 through the next round like any other planning change (section 27.2, the 2026-09-05
+    decision). Any other exhausted repair - and one still unable to produce a schema-valid
+    revision after the escalation - is recorded unrepairable at this attempt and reported, exactly
+    like a defect no stage could ever reach (section 27.5 D5).
     """
     assert defect.stage is not None
     job = STAGE_JOBS[defect.stage]
@@ -343,6 +347,7 @@ def repair_defect(
         current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
     )
     contract = causal.manifest.output.schema_
+    probe = _slot_set_probe(current, defect)
     try:
         result = run_job(
             tx.prompts["targeted_repair"],
@@ -368,13 +373,57 @@ def repair_defect(
                 binding=causal.manifest.output.binding,
                 facts=tx.facts,
                 stage_checks=stage_checks,
+                slots=probe,
             ),
         )
     except JobError as exc:
+        if probe is not None and probe.conflicts:
+            escalate_to_plan(tx, current, defect, repairs, probe)
+            return
         repairs.record(replace(defect, reason=str(exc)), "unrepairable")
         return
     tx.store.put(target.request_sha256, job, result.model_served, result.output["revised_output"])
     repairs.record(defect, "repaired", result.request_sha256, result.output.get("changes", []))
+
+
+def _slot_set_probe(current: Round, defect: Defect) -> SlotSetProbe | None:
+    """The plan's own slot set for an authored section's repair; None for every other stage."""
+    if defect.stage != "S6":
+        return None
+    task = next(
+        (task for task in current.tasks if task.section_id == defect.section_id),
+        None,
+    )
+    return None if task is None else SlotSetProbe(frozenset(task.slots))
+
+
+def escalate_to_plan(
+    tx: TransactionInputs,
+    current: Round,
+    defect: Defect,
+    repairs: RepairLedger,
+    probe: SlotSetProbe,
+) -> None:
+    """Route a slot-set change to the stage that owns it, once, carrying the finding's context.
+
+    The escalated defect keeps the finding's record and takes its own fingerprint, derived from
+    the attempt that proved the need, so run_transaction's one-attempt-per-fingerprint rule allows
+    exactly one escalation and no more.
+    """
+    returned = ", ".join(sorted(probe.returned or ())) or "no slot"
+    reason = (
+        f"the revision would leave {returned} where the plan assigned "
+        f"{', '.join(sorted(probe.required))}; escalated once to a plan-level repair at S5"
+    )
+    repairs.record(replace(defect, reason=reason), "escalated")
+    escalated = replace(
+        defect,
+        fingerprint=defect_fingerprint(defect.source, None, "S5", defect.label, defect.fingerprint),
+        section_id=None,
+        stage="S5",
+        reason=None,
+    )
+    repair_defect(tx, current, escalated, repairs)
 
 
 def run_transaction(tx: TransactionInputs) -> tuple[Round, RepairLedger, int]:

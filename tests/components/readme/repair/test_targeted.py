@@ -11,6 +11,7 @@ from repository_presenter.components.readme.repair.targeted import (
     EVIDENCE_REASON,
     Defect,
     RepairLedger,
+    SlotSetProbe,
     defect_fingerprint,
     merge_equivalent,
     repair_checks,
@@ -336,3 +337,18 @@ def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_cont
     assert repair_checks({**good, "revised_output": "x"}, defect, contract, "fact_ids", FACTS) == [
         "revised_output must be the causal stage's output object"
     ]
+
+
+def test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision() -> None:
+    # RESEARCH_AND_GUIDELINES.md section 27.2, the 2026-09-05 decision: S6's per-task schema
+    # requires exactly the plan's slots, so a fix that adds, drops, or re-chooses one belongs to
+    # planning. The proof is a comparison of two slot sets - never the finding's prose.
+    probe = SlotSetProbe(frozenset({"lead_in", "lead_in:2"}))
+    assert probe.returned is None and not probe.conflicts
+    kept = {"units": [{"slot": "lead_in"}, {"slot": "lead_in:2"}]}
+    dropped = {"units": [{"slot": "lead_in:2"}]}
+    added = {"units": [{"slot": "lead_in"}, {"slot": "lead_in:2"}, {"slot": "lead_in:3"}]}
+    for revised, conflicts in ((kept, False), (dropped, True), (added, True)):
+        probe = SlotSetProbe(frozenset({"lead_in", "lead_in:2"}))
+        probe.returned = frozenset(str(u["slot"]) for u in revised["units"])
+        assert probe.conflicts is conflicts

@@ -67,6 +67,25 @@ class Defect:
         return self.stage is not None
 
 
+@dataclass
+class SlotSetProbe:
+    """Whether a repair's own reply would change the plan's slot set.
+
+    The plan owns the slot set: S6's per-task schema requires exactly the slots the plan assigned,
+    so a revision that adds, drops, or re-chooses one is a planning decision by construction. The
+    escalation reads this comparison of two sets of slot names - the plan's, and the revision's -
+    and never the rejection's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2, the 2026-09-05
+    decision; RC8's rule that routing reads fields).
+    """
+
+    required: frozenset[str]
+    returned: frozenset[str] | None = None
+
+    @property
+    def conflicts(self) -> bool:
+        return self.returned is not None and self.returned != self.required
+
+
 def defect_fingerprint(
     source: str, section: str | None, stage: str | None, criterion: str, context: str = ""
 ) -> str:
@@ -251,8 +270,11 @@ class RepairLedger:
             if a["outcome"] == "repaired"
         )
         advisory = sum(1 for a in self.attempts.values() if a["outcome"] == "unrepairable")
+        escalated = sum(1 for a in self.attempts.values() if a["outcome"] == "escalated")
         re_raised = sum(len(a.get("re_raised", [])) for a in self.attempts.values())
         parts = [f"{len(repaired)} repaired" + (f" ({', '.join(repaired)})" if repaired else "")]
+        if escalated:
+            parts.append(f"{escalated} escalated to a plan-level repair")
         parts.append(f"{advisory} unrepairable recorded advisory")
         if re_raised:
             # Never "recorded advisory": a re-raised defect blocks and the transaction reports
@@ -305,9 +327,15 @@ def repair_checks(
     binding: str,
     facts: FactsDocument,
     stage_checks: Callable[[dict[str, Any]], list[str]] | None = None,
+    slots: SlotSetProbe | None = None,
 ) -> list[str]:
     """Why the repair may not be used: it must target the defect, and the revised output must
-    satisfy the causal stage's own contract, binding, and checks exactly as a fresh reply would."""
+    satisfy the causal stage's own contract, binding, and checks exactly as a fresh reply would.
+
+    ``slots``, when a content stage gave one, records the slot set this reply would leave behind
+    and rejects a revision that changes it: the plan owns that set, so such a fix is a planning
+    decision the escalation routes to S5 rather than a revision this stage may make.
+    """
     errors: list[str] = []
     if output.get("causal_stage") != defect.stage:
         errors.append(f"causal_stage must be {defect.stage}; got {output.get('causal_stage')!r}")
@@ -322,6 +350,20 @@ def repair_checks(
         for error in sorted(validator.iter_errors(revised), key=lambda error: error.json_path)
     )
     errors.extend(f"revised_output: {error}" for error in binding_errors(revised, facts, binding))
+    # Read before the stage's own checks, which normalise the units they judge.
+    if slots is not None:
+        slots.returned = frozenset(
+            str(unit.get("slot"))
+            for unit in revised.get("units", [])
+            if isinstance(unit, dict) and unit.get("slot") is not None
+        )
+        if slots.conflicts:
+            errors.append(
+                "revised_output: the plan owns this section's slot set "
+                f"({', '.join(sorted(slots.required))}); a revision filling "
+                f"{', '.join(sorted(slots.returned)) or 'none of them'} would add, drop, or "
+                "re-choose a slot, which is a planning decision, not an authoring one"
+            )
     if not errors and stage_checks is not None:
         errors.extend(f"revised_output: {error}" for error in stage_checks(revised))
     return errors

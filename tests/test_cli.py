@@ -423,7 +423,9 @@ class _ChatGateway:
 
     def __init__(self) -> None:
         self.requests: list[dict[str, Any]] = []
-        # Per-job queues consumed in order before the canned output applies.
+        # Per-job queues consumed in order before the canned output applies. An authoring queue
+        # may be scoped to one section as "section_authoring:<section_id>", so a test can script
+        # the reply for the section it is about without also scripting every section before it.
         self.queues: dict[str, list[dict[str, Any]]] = {}
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
@@ -432,7 +434,11 @@ class _ChatGateway:
         self.requests.append(payload)
         job = payload["response_format"]["json_schema"]["name"]
         user = payload["messages"][1]["content"]
-        if self.queues.get(job):
+        named = re.search(r"^Section: (\S+)$", user, re.M)
+        scoped = f"{job}:{named.group(1)}" if named else job
+        if self.queues.get(scoped):
+            content = json.dumps(self.queues[scoped].pop(0))
+        elif self.queues.get(job):
             content = json.dumps(self.queues[job].pop(0))
         elif job == "section_authoring":
             section = re.search(r"^Section: (\S+)$", user, re.M).group(1)  # type: ignore[union-attr]
@@ -1050,7 +1056,17 @@ def test_a_repair_that_cannot_satisfy_its_own_contract_stops_without_crashing(
     broken_repair = {
         **_opening_repair(),
         "revised_output": {
-            "units": [_unit("opening", "wrong_slot", REVISED_OPENING, "identity:repository")],
+            # The plan's slot, so this is not the slot-set change that escalates to planning - it
+            # is a revision the authoring stage owns and still cannot get right: a unit may not
+            # write a URL (README_CONTRACT.md section 8).
+            "units": [
+                _unit(
+                    "opening",
+                    "opening",
+                    "Read more at https://example.com/docs about the package.",
+                    "identity:repository",
+                )
+            ],
             "omitted": [],
         },
     }
@@ -1089,6 +1105,184 @@ def test_a_repair_that_cannot_satisfy_its_own_contract_stops_without_crashing(
     ) in rerun.err
     assert len(gateway_ready.requests) == calls_before_rerun
     assert json.loads((transaction / "review.json").read_text("utf-8")) == review
+
+
+SCOPE_QUOTE = "The package writes GLB files and nothing else."
+SCOPE_FINGERPRINT = defect_fingerprint(
+    "review",
+    "scope_limitations",
+    "S6",
+    "factuality",
+    f"{_PROMPTS['independent_review'].sha256}|{_PROMPTS['targeted_repair'].sha256}",
+)
+# The escalation takes its own fingerprint, derived from the attempt that proved the need, so
+# one-attempt-per-fingerprint allows exactly one escalation (section 27.2, 2026-09-05).
+PLAN_FINGERPRINT = defect_fingerprint("review", None, "S5", "F01", SCOPE_FINGERPRINT)
+LIMITATION = {"fact_ids": ["format:output.glb"], "unit_ids": []}
+
+
+def _scope_rejection(label: str = "F01") -> dict[str, Any]:
+    return {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [
+            {
+                "id": label,
+                "section_id": "scope_limitations",
+                "causal_stage": "S6",
+                "criterion": "factuality",
+                "text": "The section states one limitation where the product has two.",
+                "quote": SCOPE_QUOTE,
+                "fact_ids": ["identity:repository"],
+                "repair": "Add a bullet for the GLB-only export limitation.",
+            }
+        ],
+        "preserve": [],
+    }
+
+
+def _scope_repair_adding_a_slot() -> dict[str, Any]:
+    """A revision that fills a slot the plan never assigned: a planning decision, not authoring."""
+    return {
+        "fingerprint": SCOPE_FINGERPRINT,
+        "causal_stage": "S6",
+        "revised_output": {
+            "units": [
+                _unit("scope_limitations", "scope", SCOPE_QUOTE, "identity:repository"),
+                _unit(
+                    "scope_limitations",
+                    "limitation:1",
+                    "Export is limited to GLB files.",
+                    "format:output.glb",
+                ),
+            ],
+            "omitted": [],
+        },
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.units[1]",
+                "before": "",
+                "after": "Export is limited to GLB files.",
+                "fact_ids": ["format:output.glb"],
+            }
+        ],
+    }
+
+
+def _plan_repair_adding_the_limitation() -> dict[str, Any]:
+    return {
+        "fingerprint": PLAN_FINGERPRINT,
+        "causal_stage": "S5",
+        "revised_output": {**LOCAL_PLAN, "material_limitations": [LIMITATION]},
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.material_limitations",
+                "before": "[]",
+                "after": "one material limitation",
+                "fact_ids": ["format:output.glb"],
+            }
+        ],
+    }
+
+
+def test_a_repair_needing_a_slot_the_plan_never_assigned_escalates_once_to_planning(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # S6's per-task schema requires exactly the plan's slots, so a revision that fills another is
+    # a planning decision by construction - proven by comparing two slot sets, never by reading
+    # the finding's prose (RESEARCH_AND_GUIDELINES.md section 27.2, the 2026-09-05 decision).
+    revised_scope = {
+        "units": [
+            _unit("scope_limitations", "scope", SCOPE_QUOTE, "identity:repository"),
+            _unit(
+                "scope_limitations",
+                "limitation:1",
+                "Export is limited to GLB files.",
+                "format:output.glb",
+            ),
+        ],
+        "omitted": [],
+    }
+    gateway_ready.queues = {
+        "independent_review": [
+            _scope_rejection(),
+            {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        ],
+        "targeted_repair": [
+            _scope_repair_adding_a_slot(),
+            _scope_repair_adding_a_slot(),
+            _plan_repair_adding_the_limitation(),
+        ],
+        # Round one authors the section the plan describes today; round two, after the plan
+        # repair, authors the slot the revised plan assigns.
+        "section_authoring:scope_limitations": [
+            LOCAL_UNITS["scope_limitations"],
+            revised_scope,
+        ],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
+    assert "1 escalated to a plan-level repair" in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    # The authoring attempt is recorded escalated, naming both slot sets; the plan repair that
+    # answered it is a repair of its own, at S5.
+    escalated = repairs["attempts"][SCOPE_FINGERPRINT]
+    assert escalated["outcome"] == "escalated" and escalated["stage"] == "S6"
+    assert "would leave scope, limitation:1" in escalated["reason"].replace(
+        "limitation:1, scope", "scope, limitation:1"
+    )
+    assert repairs["attempts"][PLAN_FINGERPRINT]["outcome"] == "repaired"
+    assert repairs["attempts"][PLAN_FINGERPRINT]["stage"] == "S5"
+    # The revised plan re-entered S6: the section carries the slot the plan now assigns.
+    plan = json.loads((transaction / "plan.json").read_text("utf-8"))
+    assert plan["material_limitations"] == [LIMITATION]
+    units = json.loads((transaction / "content_units.json").read_text("utf-8"))
+    slots = [u["slot"] for u in units["units"] if u["section"] == "scope_limitations"]
+    assert slots == ["scope", "limitation:1"]
+    review = json.loads((transaction / "review.json").read_text("utf-8"))
+    assert review["verdict"] == "ACCEPT" and review["findings"] == []
+
+
+def test_a_repair_still_unrepairable_after_its_one_escalation_blocks(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # The escalation is one attempt, not a licence to keep asking: a plan repair that cannot
+    # produce a schema-valid revision leaves the finding standing, and the finding blocks.
+    invalid_plan_repair = {
+        **_plan_repair_adding_the_limitation(),
+        "revised_output": {**LOCAL_PLAN, "core_capabilities": []},
+    }
+    gateway_ready.queues = {
+        "independent_review": [_scope_rejection()],
+        "targeted_repair": [
+            _scope_repair_adding_a_slot(),
+            _scope_repair_adding_a_slot(),
+            invalid_plan_repair,
+            invalid_plan_repair,
+        ],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert "BC-10 failed at COMPOSING: REJECT_PRESENTATION" in captured.err
+    assert "1 escalated to a plan-level repair" in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    repairs = json.loads((transaction / "repairs.json").read_text("utf-8"))
+    assert repairs["attempts"][SCOPE_FINGERPRINT]["outcome"] == "escalated"
+    assert repairs["attempts"][PLAN_FINGERPRINT]["outcome"] == "unrepairable"
+    assert "rejected twice" in repairs["attempts"][PLAN_FINGERPRINT]["reason"]
+    # The plan is untouched, so the section keeps the slot set the plan assigned.
+    plan = json.loads((transaction / "plan.json").read_text("utf-8"))
+    assert plan["material_limitations"] == []
 
 
 def test_present_records_an_unrepairable_finding_as_advisory_and_stops(
