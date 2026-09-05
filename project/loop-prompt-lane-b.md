@@ -1,8 +1,8 @@
 You are the **lane-B** implementation agent for Repository Presenter (owner decision 2026-09-06,
 `docs/RESEARCH_AND_GUIDELINES.md` §28.12 "Lane B"). You work in your own git worktree on branch
 `lane-b`, beside the primary loop that works `main` from `project/state.yaml`. Run one bounded
-iteration, then yield; a subagent with no wakeup tool continues iteration after iteration in the
-same run until the lane file has no open item or a §7 stop rule holds, reporting at every boundary.
+iteration, then yield; a subagent with no wakeup tool works one item per run (§5) and ends with its
+report — the reviewer spawns the next run.
 
 ## 0. What you inherit, and what is different
 
@@ -18,9 +18,16 @@ Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them
 
 ## 1. Orient
 
-1. In your worktree: `git fetch origin && git rebase origin/main` on `lane-b`. A conflict in a file
-   you do not own takes `origin/main`'s version; then re-run your focused tests. Never touch the
-   primary checkout at `D:\Users\prora\OneDrive\Documents\GitHub\repository-presenter`.
+1. In your worktree: `git fetch origin`, then work on a **single-use branch per item**,
+   `lane-b/<ITEM>` (for example `lane-b/G4-W14`), created from `origin/main`: `git switch -c
+   lane-b/<ITEM> origin/main` (if it already exists from an earlier run, `git switch lane-b/<ITEM>
+   && git rebase origin/main`). Never reuse a branch after its PR merged — a squash merge leaves its
+   commits unreachable and a rebase would replay them into conflicts. A conflict in a file you do not
+   own takes `origin/main`'s version; then re-run your focused tests. A conflict in a file you own
+   (`project/lanes/lane-b.yaml`, `docs/RESEARCH_LANE_B.md`) keeps both sides: the owner's purpose or
+   prose text and your status, progress and entries — resolve by hand, `git add`, `git rebase
+   --continue`; never `--skip`, never `--abort` into a stale branch. Never touch the primary checkout
+   at `D:\Users\prora\OneDrive\Documents\GitHub\repository-presenter`.
 2. Prerequisite on `main`: your cohort items need **G4-W10** (EcosystemSpec, verifier base,
    discoverable plugin registration) and **G4-W09** (vendored facades) accepted — the evidence
    manifest `evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json` on `origin/main` names them, or
@@ -62,16 +69,20 @@ budget allows, smallest first; one commit per predicate.
 ## 4. Land
 
 After `ruff check .`, `ruff format --check .`, `mypy src`, `pytest -n auto` pass once: commit on
-`lane-b` with subject `<type>(<scope>): <what> (G4_MULTI_LANGUAGE_COHORTS/<ITEM>)`, the trailer for
-your model, body ≤120 words. `git push -u origin lane-b`; `gh pr create --base main --fill`; when the
-hosted run on the PR is green, `gh pr merge <n> --squash` (main is unprotected; merging your own PR
-is allowed; never `--admin`, never force). Then `git fetch origin && git rebase origin/main`. One PR
-per predicate closed or per accepted item; a PR never touches a path you do not own. After a merge,
-run `repository-presenter status` and record the sealed count in the lane file's `progress`.
+`lane-b/<ITEM>` with subject `<type>(<scope>): <what> (G4_MULTI_LANGUAGE_COHORTS/<ITEM>)`, the
+trailer for your model, body ≤120 words. `git push -u origin lane-b/<ITEM>`; `gh pr create --base
+main --label lane-b --fill`; wait for the PR's hosted run with `gh pr checks <n> --watch`; when green,
+`gh pr merge <n> --squash --delete-branch` (main is unprotected; merging your own PR is allowed;
+never `--admin`, never force; a red run is yours to fix on the same branch first). After the merge:
+`git fetch origin` and start the next item from a fresh `lane-b/<NEXT-ITEM>` off `origin/main` — never
+rebase the merged branch. One PR per predicate closed or per accepted item; a PR never touches a path
+you do not own. After a merge, run `repository-presenter status` from `origin/main`'s tree and record
+the sealed count in the lane file's `progress` in your next commit.
 
 ## 5. Report and continue
 
 The §8 report, plus the PR number and its CI state, and the lane file's item statuses. In an
 interactive session re-arm with exactly `/loop Read project/loop-prompt-lane-b.md in full and follow
-it.`; as a subagent, continue with the next iteration until the lane file is exhausted or a §7 stop
-rule holds, and end with one final report naming every sealed candidate and every disposition.
+it.`. As a subagent, work **one item per run**: close it (or reach its time box), land it, write the
+report, and end — the reviewer re-spawns a fresh run for the next item when its prerequisites hold. A
+run also ends, with a report, when the next item's prerequisites are not met on `main`.

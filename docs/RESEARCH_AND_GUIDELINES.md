@@ -3354,7 +3354,8 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   with a workspace-local compiler.** Evidence: the owner asked for a second loop ("yes, I want it") and
   for the compiler to be installed by an agent, not a human; this shell is not elevated, so Visual
   Studio Build Tools would stall on a UAC prompt, while the C++ repositories' own CI builds with GCC,
-  Clang and MinGW as well as MSVC (§28.11) — WinLibs GCC and Ninja under `C:	oolsp-toolchains`,
+  Clang and MinGW as well as MSVC (§28.11) — WinLibs GCC and Ninja under `C:	ools
+p-toolchains`,
   no PATH edit, called by absolute path, satisfy the resume predicate (cmake configures and builds a
   C++20 probe). Decision: G4-W14, G4-W15, G4-W16 and G4-W13 move verbatim out of §27.9 into
   `project/lanes/lane-b.yaml` (one source each); the primary removes them from `next_ready_items` at
@@ -3366,3 +3367,22 @@ moves it into §27.9 or `state.yaml`; **freeze on oscillation** — a subject re
   editing `registry.py`; the primary's §4 gains a rebase-on-rejected-push rule. Risk: two Opus
   sessions reach the account's usage cap sooner — lane B pauses first. Reverse by moving the four
   entries back into §27.9 and deleting the lane files.
+
+- **2026-09-06 02:10 · reviewer (REVIEWED) · control observations, second reading, and one message.**
+  Measured 00:15–01:15: 8 full-suite runs for 4 loop commits (2.0 per commit; first reading 2.4 at
+  22:54 — §3 says once, immediately before the commit), iterations now average 19 minutes (from 44:
+  xdist, present-at-closure and push-and-continue are working), one body over 120 words (137).
+  `3df90f5` (23:35) was committed after a failing full suite with no passing full run before the
+  commit — first observation, no action beyond this note. Per the ladder a second reading becomes a
+  `Reviewer:` message naming the rule and the number: sent to the primary at 02:10 (full suite once
+  per commit). No rule text changes.
+- **2026-09-06 02:10 · owner (REVIEWED) · lane B landing corrected before its first PR: single-use
+  branch per item, one item per run, no edits to lane files during a run.** Evidence: the first lane
+  run hit a rebase conflict in `project/lanes/lane-b.yaml` because the owner edited that lane-owned
+  file (G4-W13's compiler text) after the spawn; and the prompt's `lane-b` branch with squash-merge
+  plus rebase would have replayed merged commits into conflicts at the second PR, while a second run's
+  `git switch -c lane-b` would collide with the first worktree's branch. Decision: `lane-b/<ITEM>`
+  branches off `origin/main`, PRs labelled `lane-b`, squash-merge then a fresh branch (never rebase a
+  merged branch); a subagent works one item per run and ends; the owner never edits a lane-owned file
+  while a lane run is live — corrections go by `Reviewer:` message or between runs. Reverse by
+  restoring the prompt's previous §1/§4/§5 text.
