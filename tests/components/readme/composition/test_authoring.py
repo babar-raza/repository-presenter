@@ -22,11 +22,14 @@ from repository_presenter.components.readme.composition.authoring import (
     identifier_tokens,
     merge_repeated_slots,
     merge_units,
+    proper_noun,
+    prose_nouns,
     section_selections,
     section_spellings,
     slot_fact_sets,
     slot_records,
     slot_rendering,
+    source_prose,
     surface_members,
     title_terms,
     unit_checks,
@@ -282,6 +285,71 @@ def test_unit_checks_reject_markdown_urls_commands_stray_identifiers_and_outside
         "PbrMaterial.apply, apply(), control_points",
         "unit capability:1: cites facts outside this section's set: example:001",
     ]
+
+
+def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifier() -> None:
+    """A format or another product is a word here, an identifier only where code lives.
+
+    Measured 2026-09-06 over the Python cohort: TeX, BarCode, OneNote and EmailMessage each
+    failed section_authoring twice on the same token, because CamelCase alone cannot separate a
+    product name from a class name (docs/RESEARCH_AND_GUIDELINES.md section 27.10).
+    """
+    facts = FactsDocument(
+        "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+        "r",
+        (
+            _fact("identity:repository", "identity", "aspose-note-foss/Aspose.Note-FOSS"),
+            _fact("public_symbol:document", "public_symbol", "aspose_note.Document"),
+            _fact(
+                "inherited_unit:001.paragraph",
+                "inherited_unit",
+                "Reads OneNote notebooks through `Document`, exporting with ReportLab.\n"
+                "```python\nfrom aspose_note import PageHistory\n```\n"
+                "See [the guide](https://x.example/MetaHandler) for more.",
+            ),
+        ),
+    )
+    nouns = prose_nouns(facts, "Aspose.Note FOSS for Python")
+    # Running prose licenses the name; a fenced block, a code span and a link target do not, and
+    # a symbol the facts already carry keeps its identifier status so the renderer still wraps it.
+    assert "OneNote" in nouns and "ReportLab" in nouns and "Note" in nouns
+    assert not {"PageHistory", "MetaHandler", "Document"} & nouns
+    task = SectionTask(
+        "opening",
+        {},
+        frozenset({"identity:repository"}),
+        ("opening",),
+        slot_facts={"opening": frozenset({"identity:repository"})},
+        slot_titles={},
+    )
+    output = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "Aspose.Note reads OneNote files and exports them with ReportLab.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(output, task, facts, "Aspose.Note FOSS for Python") == []
+    output["units"][0]["text"] = "It returns a PageHistory for each page."  # type: ignore[index]
+    assert unit_checks(output, task, facts, "Aspose.Note FOSS for Python") == [
+        "unit opening: identifiers that are not accepted fact values: PageHistory"
+    ]
+
+
+def test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun() -> None:
+    """The rule admits names, never code the source wrote without a span (ws.tables, class_list)."""
+    assert proper_noun("OneNote") and proper_noun("Aspose.PDF") and proper_noun("BytesIO")
+    assert not proper_noun("ws.tables")
+    assert not proper_noun("io.BytesIO")
+    assert not proper_noun("class_list")
+    assert not proper_noun("CHANGELOG.md")
+    assert not proper_noun("run()")
+    # A link keeps its text and loses its target, so a word only a URL carries never survives.
+    assert source_prose("a `b` c ```d``` e [f](g) <h> i").split() == ["a", "c", "e", "[f", "i"]
 
 
 def test_units_merge_in_shell_order_and_write_deterministically(tmp_path: Path) -> None:

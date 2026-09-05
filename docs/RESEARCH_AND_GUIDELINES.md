@@ -2311,6 +2311,28 @@ transaction on a `JobError` rather than a verdict. A label's quotation marks are
 syntax, so the normaliser now drops them, and the review returned a verdict on the next run. Both
 reruns are identical with zero provider calls at every stage.
 
+**Measurement (the loop's, during G3-W01, 2026-09-06).** Seven cohort compositions ran in three
+lanes after the facts-only preflight; none sealed, and the seven failures fall into three classes.
+Five of seven — TeX, BarCode, Note, Email and Slides — ended at `section_authoring` after both
+attempts on the *same* token: `TeX`, `BarCode`, `OneNote`, `EmailMessage`, `PowerPoint`, each an
+`identifiers that are not accepted fact values` rejection. `identifier_tokens` cannot separate a
+product or format name from a class name by shape, and its all-capital carve-out (U3D, 3MF) does
+not reach a CamelCase one; the re-ask cannot help, because the sentence needs the word. Over all
+twelve extracted repositories, admitting a capitalised token the source README spells in running
+prose — outside every fenced block, code span, link destination, URL and tag — and the product
+name's own segments, minus everything the facts already license as an identifier, adds **1 to 13
+tokens per repository** (median 4): `OpenType`, `TrueType`, `PostScript`, `OpenDocument`,
+`SpreadsheetML`, `PowerPoint`, `LaTeX`, `MiKTeX`, `HarfBuzz`, `QuickJS`, `ReportLab`, the WHATWG
+interface names Aspose.HTML implements, and the PDF and DOC structure names (`AcroForm`,
+`ExtGState`, `PlcSpaMom`). Requiring every dotted segment to be capitalised and no underscore
+keeps `ws.tables`, `io.BytesIO`, `class_list`, `app.xml` and `CHANGELOG.md` identifiers. TeX's
+other two strays, `TeXJob` and `TeXJob.messages`, stay rejected — all ten of its examples are
+`CONTRADICTED`, so no fact records the class — which is the check working. The other two classes
+are one each: Cells reached validation and failed BC-07 on `abbreviation 'xlsx' is not in its
+canonical form XLSX`, unrepairable — the `glb` defect of 2026-09-04 above, recurring; and Page
+ended at `source_reconciliation` after two rejections of `inherited_unit:011.heading`, whose
+section renders nothing at this revision.
+
 ## 28. The delivery process as a production problem: fastest path to every candidate without losing quality (2026-09-04)
 
 §27 diagnosed the README pipeline. This section diagnoses the *delivery process* — the gate plan,
@@ -3386,3 +3408,14 @@ p-toolchains`,
   merged branch); a subagent works one item per run and ends; the owner never edits a lane-owned file
   while a lane run is live — corrections go by `Reviewer:` message or between runs. Reverse by
   restoring the prompt's previous §1/§4/§5 text.
+
+- **2026-09-06 03:05 · loop (PROVISIONAL) · a proper noun the source spells in prose is a word,
+  not an unsupported identifier.** Item G3-W01. Decision: `prose_nouns` admits a capitalised,
+  underscore-free token whose every dotted segment is capitalised, taken from the source README's
+  running prose or the product name's segments, minus anything the facts already license; the
+  identifier check stops rejecting it and the renderer leaves it unwrapped, as it already does for
+  registry and hosting names. Alternative rejected: a contract sentence carving out proper nouns —
+  G3-W01 carries no revision (§0), and the all-capital acronym carve-out is code-only precedent.
+  Evidence: §27.10 (2026-09-06) — five of seven cohort compositions died on this, 1–13 tokens
+  admitted per repository, all format, standard or third-party names. Reverse by deleting
+  `prose_nouns` and its two tests.

@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-05T23:38:23+05:00"
+updated_at: "2026-09-06T03:10:00+05:00"
 
 authority:
   product: plans/idea.md
@@ -31,7 +31,7 @@ accepted_gates:
 
 active_work_item:
   id: G3-W01
-  status: READY
+  status: IN_PROGRESS
   purpose: "Python cohort (section 28.5; 30.9; census 28.10). Step one, before any composition: a facts-only pass (a present flag that stops after S2 with the processability and coverage record) over all twelve remaining Python registry repositories, recording every failure class with zero provider calls, plus per-repository stage timings (venv, install, examples, probes), fixture availability by suffix, and registry publication status; each anticipated class in 28.10 is confirmed or refuted here before any fix. In the same preflight, the cold-run determinism measurement folded in from G2-W23 (delete the canary's runs/ transaction, present once from cold, compare byte for byte to the sealed bundle, record the result and any differing stage in 27.10; identical demotes G5-W02's bundle-seeding to a fallback). Before step two, the two-reader rule lands with a test (27.8; owner decision 2026-09-06 00:15, section 31): a review finding classified as a prose judgment on a required row blocks only when a second independent review under a different seed raises an equivalent finding (same section, same fingerprint class); a single-reader finding is recorded in review.json as single_reader_advisory and the candidate seals - the canary's fresh composition of 2026-09-05 23:36 already exhibits the class. Step two: compose the twelve in up to three repository lanes (separate transactions, serialised aggregation, per plans/idea.md; lanes scaled from the first lane's rate-limit evidence), sealing every candidate that passes all eleven checks and recording an evidence-bound disposition with its resume predicate for every one that does not. Fix by failure class with a regression test each, never per repository - including fixtures for file-reading examples from test assets or an executed example's output, moved here from G2-W17. The loop reads the cohort report, never a per-repository bundle, unless a failure class needs the look. Time box 6 hours from promotion (section 28.12): inside it, fix by failure class in yield order (published package, no native dependency, fixtures present, tests present first); at the box, seal what passes, give every other repository an evidence-bound disposition naming its failure class and resume predicate, and accept. Add the test that section 27.9 and state.yaml agree on every non-active queued item. Acceptance: preflight report, cold-run measurement, and cohort report (sealed, disposition, failure class per repository) in the gate evidence manifest; status prints the sealed count; every sealed bundle fresh-process zero-call proven; hosted CI green."
   prerequisites:
     - G2_STABILITY_UNDER_CHANGE is accepted (evidence/build/G2_STABILITY_UNDER_CHANGE/manifest.json) and the canary stays sealed at 1/34 with its no-op proof.

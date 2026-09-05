@@ -47,6 +47,15 @@ _DOTTED = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+\b")
 _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
 _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
+# Where a Markdown source keeps code rather than prose: a word inside any of these is not a word
+# the source wrote, so it never licenses a spelling (prose_nouns).
+_NOT_PROSE = (
+    re.compile(r"```.*?```", re.DOTALL),
+    re.compile(r"`[^`]*`"),
+    re.compile(r"\]\([^)]*\)"),
+    re.compile(r"<?https?://\S+"),
+    re.compile(r"<[^>]+>"),
+)
 _MEMBER_CAP = 60
 _TYPE_BATCH = 40  # types described per authoring call: within the manifest's output budget
 _TYPE_OBJECTIVE = (
@@ -679,6 +688,52 @@ def identifier_tokens(text: str) -> set[str]:
     return {token for token in found if not (token.isupper() and token.isalnum())}
 
 
+def source_prose(text: str) -> str:
+    """The running prose of a source unit: no fenced block, code span, link target, URL, or tag."""
+    for pattern in _NOT_PROSE:
+        text = pattern.sub(" ", text)
+    return text
+
+
+def proper_noun(token: str) -> bool:
+    """A name, not a path: every dotted segment capitalised, no underscore, no call parentheses."""
+    return (
+        "_" not in token
+        and "(" not in token
+        and all(part[:1].isupper() for part in token.split("."))
+    )
+
+
+def prose_nouns(facts: FactsDocument, name: str) -> frozenset[str]:
+    """Proper nouns this document may spell in plain text, beyond the identifiers it may cite.
+
+    ``identifier_tokens`` cannot tell ``OneNote`` from ``Document`` by shape, so a file format, a
+    standard, or another product reads as an unsupported identifier and the sentence cannot be
+    written at all: measured 2026-09-06 over the Python cohort, where ``TeX``, ``BarCode``,
+    ``OneNote`` and ``EmailMessage`` each failed ``section_authoring`` twice on the same token.
+    The all-capital carve-out in ``identifier_tokens`` already draws this line for acronyms
+    (U3D, 3MF); this draws it for the capitalised names the source itself uses.
+
+    A noun is admitted only when the source README spells it in running prose - outside every
+    fenced block, code span, link destination, URL and tag, where code lives - or when it is a
+    segment of the product's own name. Anything the facts already license as an identifier is
+    excluded, so a real symbol keeps its code span and its verification; a noun is never wrapped
+    and never carries a claim, exactly as a registry or hosting name does not.
+    """
+    candidates = {part for token in name.split(" ") for part in token.split(".") if part}
+    for fact in facts.by_kind("inherited_unit"):
+        if fact.polarity == "SUPPORTED":
+            candidates.update(identifier_tokens(source_prose(fact.value)))
+    allowed = allowed_identifiers(facts, name)
+    members = verified_members(facts)
+    methods = surface_members(facts)
+    return frozenset(
+        token
+        for token in candidates
+        if proper_noun(token) and not identifier_allowed(token, allowed, members, methods)
+    )
+
+
 def canonical_abbreviations(facts: FactsDocument) -> dict[str, str]:
     """Lowercase spelling to canonical form, for every abbreviation this document owns.
 
@@ -774,6 +829,7 @@ def unit_checks(
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
     methods = surface_members(facts)
+    nouns = prose_nouns(facts, name)
     merge_repeated_slots(output)
     expected = list(task.slots)
     # The plan owns the slot set: a unit for a slot the task never asked for (a repair adding
@@ -864,6 +920,7 @@ def unit_checks(
             token
             for token in identifier_tokens(text)
             if not identifier_allowed(token, allowed, members, methods)
+            and token not in nouns
             and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
         )
         if strays:
