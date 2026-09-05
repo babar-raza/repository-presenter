@@ -3674,3 +3674,16 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   identity plus a shuffled-order determinism test, since a surface reader that depended on
   filesystem iteration order would move a sealed bundle with no input changing. The stale-bundle
   half belongs to G5-W02, the item that can re-seal.
+
+- **2026-09-06 12:45 · loop (PROVISIONAL) · the second ecosystem's first preflight found two
+  crash classes Python could not have.** Item G4-W11. A facts-only pass over the six processable
+  .NET repositories, zero provider calls, three lanes: **one succeeded** (Aspose.3D for .NET) and
+  five died at S2 in two classes. `duplicate fact IDs` on Cells and Email — C# overloads a method
+  by signature and names a constructor after its type, so `Cell.GetStyle()` and
+  `Cell.GetStyle(int)` produced one fact ID twice and the facts document refused the lot; Python
+  has neither overloads nor that constructor convention, so the façade could not have been wrong
+  until now. `TypeError` on PDF, Slides and Words — the engine returns `line: null` for some C#
+  members, and a dictionary default applies only to an absent key, so the conversion raised and
+  took the whole stage down. Both fixed at the façade with a test each: a name appears once,
+  earliest declaration winning, and a null line reads as zero. This is what a preflight is for —
+  five crashes at no cost, before a single provider call was spent.

@@ -99,3 +99,56 @@ def test_the_facade_is_a_dataclass_the_contract_can_carry() -> None:
     assert symbol.doc == "" and symbol.signature == ""
     with pytest.raises(AttributeError):
         symbol.value = "changed"  # type: ignore[misc]
+
+
+OVERLOADED = """
+namespace P
+{
+    public class Cell
+    {
+        public Cell() { }
+        public Cell(int index) { }
+        public string GetStyle() { return null; }
+        public string GetStyle(int index) { return null; }
+        public void PutValue(int v) { }
+        public void PutValue(string v) { }
+    }
+}
+"""
+
+
+def test_an_overloaded_member_is_one_symbol_not_several(tmp_path: Path) -> None:
+    """A fact ID must be unique, and the API Reference lists a member once.
+
+    Measured 2026-09-06: Aspose.Cells and Aspose.Email for .NET both died at the facts stage with
+    "duplicate fact IDs" naming Cell.GetStyle, Cell.PutValue and CfbDocument.CfbDocument - C#
+    overloads a method by signature and names a constructor after its type, which Python never
+    does, so the defect could not appear until the second ecosystem arrived.
+    """
+    package = tmp_path / "src" / "P"
+    package.mkdir(parents=True)
+    (package / "Cell.cs").write_text(OVERLOADED, encoding="utf-8")
+    symbols = surface_symbols(get_parser("csharp"), "csharp", package, tmp_path, "p")
+    values = [symbol.value for symbol in symbols]
+    assert len(values) == len(set(values)), sorted(v for v in values if values.count(v) > 1)
+    assert "P.Cell.GetStyle" in values and "P.Cell.PutValue" in values
+    # The first declaration wins: the no-argument overload, whose signature carries no
+    # parameters. The engine leaves return_type empty for this shape, so the signature is the
+    # call alone - measured, not assumed.
+    by_value = {symbol.value: symbol for symbol in symbols}
+    assert by_value["P.Cell.GetStyle"].signature == "GetStyle()"
+
+
+def test_a_member_the_grammar_gives_no_line_for_is_kept_at_line_zero(tmp_path: Path) -> None:
+    """A null line is not a missing key, so a dictionary default never applied.
+
+    Measured 2026-09-06 on Aspose.PDF and Aspose.Slides for .NET, where converting it raised a
+    TypeError and took the whole facts stage down.
+    """
+    from repository_presenter.components.readme.extractors.surface.extractor import _line
+
+    assert _line({"line": 12}) == 12
+    assert _line({"line": None}) == 0
+    assert _line({}) == 0
+    assert _line({"line": ""}) == 0
+    assert _line({"line": "7"}) == 7

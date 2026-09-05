@@ -96,6 +96,17 @@ def symbol_kind(node_type: str) -> SymbolKind:
     return _KINDS.get(node_type, "unknown")
 
 
+def _line(entry: dict[str, Any]) -> int:
+    """The declaring line, or zero when the grammar gave none.
+
+    Measured 2026-09-06 on Aspose.PDF and Aspose.Slides for .NET: the key is present and null for
+    some C# members, and a dictionary default only applies when the key is absent, so converting
+    it raised a TypeError and the whole facts stage died.
+    """
+    value = entry.get("line")
+    return int(value) if isinstance(value, int | float | str) and str(value).strip() else 0
+
+
 def _signature(method: dict[str, Any]) -> str:
     parameters = ", ".join(
         f"{item.get('type', '')} {item.get('name', '')}".strip()
@@ -117,6 +128,12 @@ def surface_symbols(
 
     A type contributes itself, then one symbol per public method and property, so the API
     Reference's rows and its member bullets come from the same read of the same tree.
+
+    A name appears once. C# overloads a method by signature and names a constructor after its
+    type, so `Cell.GetStyle()` and `Cell.GetStyle(int)` are two declarations of one member;
+    emitting both gave two facts with the same ID and the facts document refused them outright
+    (measured 2026-09-06 on Aspose.Cells and Aspose.Email for .NET). The first declaration wins,
+    which is the earliest line, and the contract's API Reference lists a member once anyway.
     """
     types, *_ = api_surface.extract_api_surface(
         parser, language, package_root, repository_root, family
@@ -132,7 +149,7 @@ def surface_symbols(
                 value=qualified,
                 symbol_kind=symbol_kind(str(entry.get("kind", ""))),
                 source_path=path,
-                line=int(entry.get("line", 0)),
+                line=_line(entry),
                 doc=str(entry.get("doc", "")),
             )
         )
@@ -142,7 +159,7 @@ def surface_symbols(
                     value=f"{qualified}.{slug_safe(str(method.get('name', '')))}",
                     symbol_kind="method",
                     source_path=str(method.get("file", path)),
-                    line=int(method.get("line", 0)),
+                    line=_line(method),
                     doc=str(method.get("doc", "")),
                     signature=_signature(method),
                 )
@@ -153,9 +170,16 @@ def surface_symbols(
                     value=f"{qualified}.{slug_safe(str(prop.get('name', '')))}",
                     symbol_kind="method",
                     source_path=str(prop.get("file", path)),
-                    line=int(prop.get("line", 0)),
+                    line=_line(prop),
                     doc=str(prop.get("doc", "")),
                     signature=str(prop.get("type", "")),
                 )
             )
-    return symbols
+    seen: set[str] = set()
+    unique: list[SurfaceSymbol] = []
+    for symbol in symbols:
+        if symbol.value in seen:
+            continue
+        seen.add(symbol.value)
+        unique.append(symbol)
+    return unique
