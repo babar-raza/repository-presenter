@@ -88,11 +88,13 @@ SEALED_LEDGER = (
 )
 FIRST_ATTEMPT_FLOOR = 85.0
 REASK_CEILING = 15.0
-# G2-W20's own predicate, met when the two prose families became constructive: the slot, its
-# facts, and what the renderer prints beside it all travel in the call, so a section_authoring
-# reply cannot be short of a slot, cite another slot's fact, or need to restate a link or a
-# command. Measured 14 of 14 on the composition sealed 2026-09-05 (section 27.10).
-AUTHORING_FLOOR = 97.0
+# section_authoring is held to the total floor, not to the 97 its own predicate names: the 97 set
+# at b2c7ab3 rested on a single 14-call composition, where one rejection is seven points, and
+# loop-prompt section 3 forbids a threshold fitted to one sample (reviewer reversal, section 31,
+# 2026-09-05). The last three compositions measured 88.9, 93.8 and 100. G2-W23 raises it when
+# three sealed compositions measure at or above 97, at their observed minimum less one
+# rejection's worth.
+AUTHORING_FLOOR = FIRST_ATTEMPT_FLOOR
 
 
 def test_the_sealed_canarys_first_attempt_acceptance_holds_its_floor() -> None:
