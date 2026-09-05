@@ -2,49 +2,52 @@
  "schema_version": 1,
  "gate": "G4_MULTI_LANGUAGE_COHORTS",
  "gate_status": "READY",
- "work_item": "G4-W10",
+ "work_item": "G4-W09",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-06T03:36:03+05:00",
- "control_revision": "7a5fde06c5fc251d3d628560cee39bad218676d0",
+ "recorded_at": "2026-09-06T04:31:47+05:00",
+ "control_revision": "ff230ebfbc8e908d9eb15be35420db6de2e506fc",
  "work_item_acceptance": [
   {
-   "predicate": "Every sealed candidate renders to the bytes it was sealed with.",
-   "evidence": "tests/test_sealed_bytes.py over both bundles on disk; restated from the canary re-seal, whose wording transferred to G5-W02 (section 27.10, section 31)."
+   "predicate": "The vendored closure is pulled through a manifest file record each, under _vendor, with the linter relaxations confined there.",
+   "evidence": "19 file records with source_id aspose-org, each hashed with git show at 16d75e95d4; tests/test_vendor_boundary.py holds the ruff exclude, the mypy override and the single-importer rule."
   },
   {
-   "predicate": "A synthetic net spec renders csharp fences, a NuGet badge, and a dotnet install block in a test.",
-   "evidence": "tests/components/readme/composition/test_renderer.py::test_a_synthetic_net_spec_renders_csharp_fences_a_nuget_badge_and_a_dotnet_install"
+   "predicate": "The vendoring changed no fact; run-twice and shuffled-order determinism hold.",
+   "evidence": "Two facts-only passes over the canary are byte-identical; the two facts that differ from the sealed bundle are G3-W01's fixture work, named in their own evidence line (section 27.10). tests/.../test_determinism.py holds file-order independence."
   },
   {
-   "predicate": "Toolchain-absent and network-off tests.",
-   "evidence": "test_python_examples.py::test_a_toolchain_that_cannot_be_provisioned_leaves_every_example_unresolved; test_python.py already covers an unreachable registry leaving the install claim UNRESOLVED."
+   "predicate": "The vendor-boundary test passes and the parity control is implemented.",
+   "evidence": "tests/test_vendor_boundary.py and tests/components/readme/extractors/surface/test_parity.py; measured on the canary, 931 of 953 final segments agree with the sealed public_symbol facts."
   },
   {
    "predicate": "Hosted CI green.",
-   "evidence": "run for 1c6a364 and 7a5fde0, both success on 3.11, 3.12 and 3.13."
+   "evidence": "runs for 41676bb, 6ed5d18 and ff230eb, all success on 3.11, 3.12 and 3.13."
   }
  ],
  "landed": [
-  "EcosystemSpec in core/ecosystems.py, with the renderer reading fence, registry, badge, install fact and verify command from it",
-  "plugin discovery by module name and a PLUGIN attribute; registry.py lists no plugins",
-  "profile_environment: a disposable profile for every toolchain cache, wired where untrusted code runs",
-  "per-ecosystem example and install timeouts, read from the spec"
+  "SurfaceExtractor facade over api_surface, tree_helpers and the eight lang adapters",
+  "ManifestReader facade over package_manifest and package_root, reading each ecosystem's own floor key",
+  "RegistryProbe facade over publication_probe and its six registry adapters, inconclusive rather than negative when it cannot read",
+  "the vendor boundary, held by test in both directions"
  ],
  "deferred_to_consumers": [
   {
-   "element": "shared RegistryProbe ported from the legacy",
+   "element": "dependency_extract.py, the contract row 9 dependency snapshot",
    "consumer": "G4-W11",
-   "why": "first ecosystem needing a registry probe; untestable against a real registry until then"
+   "why": "1,114 lines whose only consumer is a cohort's dependency row; the .NET cohort is the first to need it and can pull it against a real repository"
   },
   {
-   "element": "full ExampleVerifier base",
+   "element": "formats.py and format_signals.py, the format facts",
    "consumer": "G4-W11",
-   "why": "the .NET verifier is its first implementation; the base is shaped by it, not before it"
+   "why": "2,384 lines serving format claims; no ecosystem needs them until a non-Python cohort renders At a Glance"
   },
   {
-   "element": "bounded_records depth from the spec",
+   "element": "the site-independent extraction tests, about 19 of 25",
    "consumer": "G4-W11",
-   "why": "no second ecosystem exists to differ from Python"
+   "why": "they exercise the vendored engine against fixtures this repository does not yet carry; the facades' own tests cover what is wired today"
   }
+ ],
+ "previous_items": [
+  "G4-W10"
  ]
 }
