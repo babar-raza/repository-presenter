@@ -201,14 +201,36 @@ def _named(clause: str) -> list[str]:
     return found
 
 
-def reexported_names(barrel: Path) -> frozenset[str]:
-    """Every name the entry point re-exports, following `export * from` into other barrels.
+def reexported_bindings(barrel: Path) -> dict[str, frozenset[Path] | None]:
+    """Every name the entry point re-exports, and the module each name is bound *from*.
+
+    `export { A } from './x'` publishes the `A` that `x` declares, not every `A` in the tree, so
+    the binding is a name *and* a module. A name maps to `None` when the barrel names no module
+    this can resolve for it - a local `export { A }`, a package specifier, or the namespace object
+    an `export * as ns from` binds - and the caller then has no file to check it against.
 
     Bounded by a visited set and a file ceiling, because a re-export cycle is legal TypeScript and
     a generated tree can be large. A `export * as ns from` binds a namespace object rather than
     the names inside it, so its own name is what the package exports and the recursion stops.
+
+    Measured 2026-09-06, which is why the module is carried at all: matching on the name alone
+    published `BoundingBoxExtent` twice for Aspose.3D for TypeScript - `utilities/BoundingBox.ts`
+    declares one at line 188 while the barrel re-exports only `BoundingBox` from that file and
+    takes `BoundingBoxExtent` from its own module - and forty times over for Aspose.Cells, whose
+    `util.ts` declares classes named `CellCoordinates` and `CellRange` that the barrel binds from
+    `./types` instead. BC-07 rejects exactly that: "recorded 2 times; one fact per canonical
+    defining location".
     """
-    names: set[str] = set()
+    bindings: dict[str, frozenset[Path] | None] = {}
+
+    def bind(name: str, module: Path | None) -> None:
+        if name in bindings and bindings[name] is None:
+            return
+        if module is None:
+            bindings[name] = None
+            return
+        bindings[name] = frozenset({module}) | (bindings.get(name) or frozenset())
+
     seen: set[Path] = set()
     queue = [barrel]
     while queue and len(seen) < _MAX_FILES:
@@ -222,16 +244,24 @@ def reexported_names(barrel: Path) -> frozenset[str]:
         except OSError:
             continue
         for clause, specifier in _NAMED_FROM.findall(text):
-            names.update(_named(clause))
-            _ = specifier
+            target = _resolve(current, specifier)
+            for name in _named(clause):
+                bind(name, target)
         for alias, specifier in _STAR_FROM.findall(text):
             if alias:
-                names.add(alias)
+                bind(alias, None)
                 continue
             target = _resolve(current, specifier)
             if target is not None:
                 queue.append(target)
         for clause in _LOCAL_NAMED.findall(text):
-            names.update(_named(clause))
-        names.update(_DECLARED.findall(text))
-    return frozenset(names)
+            for name in _named(clause):
+                bind(name, None)
+        for name in _DECLARED.findall(text):
+            bind(name, resolved)
+    return bindings
+
+
+def reexported_names(barrel: Path) -> frozenset[str]:
+    """Every name the entry point re-exports, without the module each is bound from."""
+    return frozenset(reexported_bindings(barrel))

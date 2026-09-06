@@ -20,7 +20,7 @@ Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared fa
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -28,7 +28,7 @@ from repository_presenter.components.readme.extractors.platforms.typescript_barr
     IGNORED_DIRECTORIES,
     entry_barrel,
     read_json,
-    reexported_names,
+    reexported_bindings,
 )
 from repository_presenter.components.readme.extractors.platforms.typescript_examples import (
     verify_typescript_examples,
@@ -144,7 +144,13 @@ def _dependency_facts(manifest: Path, where: str) -> list[Fact]:
     return facts
 
 
-def _public_name(value: str, kind: str, exported: frozenset[str]) -> str:
+def _public_name(
+    value: str,
+    kind: str,
+    exported: Mapping[str, frozenset[str] | None],
+    where: str,
+    declaring: Mapping[str, frozenset[str]],
+) -> str:
     """A symbol's name as a consumer of the package writes it, or empty when it has none.
 
     The shared extractor qualifies a TypeScript symbol by the file it was declared in, because
@@ -152,14 +158,92 @@ def _public_name(value: str, kind: str, exported: frozenset[str]) -> str:
     arrives as `aspose.threed.Scene.Scene`. A consumer never writes that - the entry point
     re-exports `Scene`, so `Scene` is the name, and a symbol the entry point does not re-export is
     not part of the surface at all.
+
+    Re-export is a name *and* a module, so `where` - the file this symbol was declared in - is
+    checked against the module the entry point binds that name from, whenever the barrel names
+    one. Without it a second declaration of the same name anywhere under the entry point was
+    published as if the package exported it twice (`typescript_barrel.reexported_bindings`).
+
+    A top-level function is the one kind the façade hands back unqualified (`colToIndex`, not
+    `aspose_cells.util.colToIndex`), so requiring a dotted value dropped every exported function
+    a package has - eight of them in Aspose.Cells for TypeScript, each named in its own barrel.
+    Only a `module` entry is never a symbol; every other kind is judged by the binding above,
+    which is a stricter test than the dot ever was.
     """
     parts = value.split(".")
-    if kind == "module" or len(parts) < 2:
+    if kind == "module":
         return ""
     if kind == "method":
+        if len(parts) < 2:
+            return ""
         owner, member = parts[-2], parts[-1]
-        return f"{owner}.{member}" if owner in exported else ""
-    return parts[-1] if parts[-1] in exported else ""
+        return f"{owner}.{member}" if _binds(exported, owner, where, declaring) else ""
+    name = parts[-1]
+    return name if _binds(exported, name, where, declaring) else ""
+
+
+def _binds(
+    exported: Mapping[str, frozenset[str] | None],
+    name: str,
+    where: str,
+    declaring: Mapping[str, frozenset[str]],
+) -> bool:
+    """Whether the entry point publishes ``name`` as declared in the file ``where``.
+
+    The file only disqualifies a symbol when it holds a *rival* declaration of that name: an
+    inherited member is declared in the base class's own file (the façade reports
+    `AssetInfo.AssetInfo.toString` from `A3DObject.ts`, where `toString` is written) and is still
+    the exported type's member, while `BoundingBoxExtent.toString` from `utilities/BoundingBox.ts`
+    belongs to that file's own second, unexported class of the same name. `declaring` says which
+    files declare a type called ``name``, so the two are told apart by evidence rather than by
+    whether the member happens to sit in its owner's module.
+
+    Known limitation, deliberately not built for: a barrel that re-exports a name from *another*
+    barrel rather than from the declaring file binds the intermediate `index.ts`, and the
+    declaration one level deeper reads as a rival. Neither cohort repository does this - both name
+    the declaring module directly and use `export *` for directories - so following the chain is
+    machinery with no consumer yet (`project/loop-prompt.md` section 6 rule 1).
+    """
+    if name not in exported:
+        return False
+    modules = exported[name]
+    if modules is None or where in modules:
+        return True
+    return where not in declaring.get(name, frozenset())
+
+
+def _declaring_files(symbols: Sequence[Any]) -> dict[str, frozenset[str]]:
+    """Which files declare a type of each name, from the extractor's own reading of the tree."""
+    found: dict[str, set[str]] = {}
+    for symbol in symbols:
+        if symbol.symbol_kind in ("method", "module"):
+            continue
+        found.setdefault(symbol.value.split(".")[-1], set()).add(symbol.source_path)
+    return {name: frozenset(paths) for name, paths in found.items()}
+
+
+def _bindings_under(root: Path, barrel: Path) -> dict[str, frozenset[str] | None]:
+    """`reexported_bindings` with each module as the tree path a symbol's evidence carries.
+
+    A module that resolves outside the clone is no constraint this can check, so the name it
+    binds keeps the unconstrained reading rather than being dropped on a path comparison that
+    could never match.
+    """
+    base = root.resolve()
+    bound: dict[str, frozenset[str] | None] = {}
+    for name, modules in reexported_bindings(barrel).items():
+        if modules is None:
+            bound[name] = None
+            continue
+        paths: set[str] = set()
+        for module in modules:
+            try:
+                paths.add(module.resolve().relative_to(base).as_posix())
+            except ValueError:
+                paths.clear()
+                break
+        bound[name] = frozenset(paths) if paths else None
+    return bound
 
 
 class TypeScriptPlugin:
@@ -267,15 +351,18 @@ class TypeScriptPlugin:
         barrel = entry_barrel(package)
         if barrel is None:
             return []
-        exported = reexported_names(barrel)
+        exported = _bindings_under(root, barrel)
         where = barrel.relative_to(root).as_posix()
         symbols = surface_symbols(
             get_parser(_PARSER_LANGUAGE), _PARSER_LANGUAGE, barrel.parent, root, self.ecosystem
         )
+        declaring = _declaring_files(symbols)
         facts: list[Fact] = []
         taken: dict[str, int] = {}
         for symbol in symbols:
-            name = _public_name(symbol.value, symbol.symbol_kind, exported)
+            name = _public_name(
+                symbol.value, symbol.symbol_kind, exported, symbol.source_path, declaring
+            )
             if not name:
                 continue
             key = slug(name)

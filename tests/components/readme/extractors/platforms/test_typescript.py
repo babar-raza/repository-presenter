@@ -143,6 +143,95 @@ def test_a_repository_with_no_entry_point_publishes_no_surface(tmp_path: Path) -
     assert typescript.PLUGIN.surface_facts(tmp_path, ["loose.ts"]) == []
 
 
+def test_a_rival_declaration_of_an_exported_name_is_not_published_twice(tmp_path: Path) -> None:
+    """A re-export names a module, so a same-named class in another file is not that export.
+
+    Measured 2026-09-06 on the two cohort repositories, which is what BC-07 rejected: Aspose.3D
+    for TypeScript declares `BoundingBoxExtent` in `utilities/BoundingBox.ts` *and* in its own
+    module while the barrel re-exports only `BoundingBox` from the first, and Aspose.Cells binds
+    `CellCoordinates` and `CellRange` from `./types` while `util.ts` declares classes of both
+    names - "verified public type BoundingBoxExtent is recorded 2 times; one fact per canonical
+    defining location". Here `Widget` is bound from `./Widget`, and `Rival.ts` - itself reachable
+    only because the barrel re-exports `Rival` from it - declares a second `Widget` that no
+    consumer of this package can reach.
+    """
+    tree = _repository(tmp_path)
+    (tmp_path / "src" / "Rival.ts").write_text(
+        "export class Rival {\n  poke(): void {}\n}\n"
+        "export class Widget {\n  save(path: string): void {}\n}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "src" / "index.ts").write_text(
+        BARREL + "export { Rival } from './Rival';\n", encoding="utf-8"
+    )
+    tree.append("src/Rival.ts")
+
+    facts = typescript.PLUGIN.surface_facts(tmp_path, tree)
+
+    widgets = [fact for fact in facts if fact.value == "Widget"]
+    assert len(widgets) == 1
+    assert widgets[0].evidence[0].path == "src/Widget.ts"
+    assert [fact.value for fact in facts].count("Widget.save") == 1
+    assert "Rival" in {fact.value for fact in facts}
+
+
+def test_an_inherited_member_is_published_though_its_base_declares_it(tmp_path: Path) -> None:
+    """The file check disqualifies a rival declaration, never a member written in a base class.
+
+    The façade reports an inherited member under the derived type's name with the base's file as
+    its evidence (`AssetInfo.AssetInfo.toString` from `src/aspose/threed/A3DObject.ts`, measured
+    2026-09-06 on Aspose.3D for TypeScript). Reading that path as "not the module the barrel binds
+    `AssetInfo` from" dropped 255 genuine members of that one repository, so the check asks
+    whether the file declares a rival type of the name, not merely whether it is the bound module.
+    """
+    tree = _repository(tmp_path)
+    (tmp_path / "src" / "Base.ts").write_text(
+        "export class Base {\n  toString(): string { return ''; }\n}\n", encoding="utf-8"
+    )
+    (tmp_path / "src" / "Widget.ts").write_text(
+        "import { Base } from './Base';\n"
+        "export class Widget extends Base {\n  save(path: string): void {}\n}\n",
+        encoding="utf-8",
+    )
+    tree.append("src/Base.ts")
+
+    values = {fact.value for fact in typescript.PLUGIN.surface_facts(tmp_path, tree)}
+
+    assert "Widget" in values and "Widget.save" in values
+    # The inherited member is the derived type's, written in the base's file and kept.
+    assert "Widget.toString" in values
+    # `Base` itself is re-exported by nothing, so it is not part of the surface.
+    assert not any(value.split(".")[0] == "Base" for value in values)
+
+
+def test_an_exported_top_level_function_is_published(tmp_path: Path) -> None:
+    """The façade hands a function back unqualified, and a dotted-value guard dropped every one.
+
+    Measured 2026-09-06: Aspose.Cells for TypeScript re-exports eight helpers from `./util`
+    (`colToIndex`, `cellRef`, `parseRange`, …) and its candidate carried none of them - the
+    surface held only `class`, `method` and `enum` facts, so a required part of the public API
+    reference was simply absent (`project/loop-prompt.md` section 6 rule 8).
+    """
+    tree = _repository(tmp_path)
+    (tmp_path / "src" / "util.ts").write_text(
+        "export function colToIndex(column: string): number { return 0; }\n"
+        "export function internalOnly(): void {}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "src" / "index.ts").write_text(
+        BARREL + "export { colToIndex } from './util';\n", encoding="utf-8"
+    )
+    tree.append("src/util.ts")
+
+    facts = typescript.PLUGIN.surface_facts(tmp_path, tree)
+
+    published = {fact.value: fact for fact in facts}
+    assert "colToIndex" in published
+    assert (published["colToIndex"].attributes or {})["symbol_kind"] == "function"
+    assert published["colToIndex"].evidence[0].path == "src/util.ts"
+    assert "internalOnly" not in published
+
+
 def test_manifest_facts_carry_identity_version_install_and_the_module_specifier(
     tmp_path: Path,
 ) -> None:

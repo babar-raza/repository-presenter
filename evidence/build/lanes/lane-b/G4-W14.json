@@ -162,5 +162,116 @@
   "examples_verified": 12,
   "examples_type_checked": 11,
   "provider_calls_in_the_facts_only_passes": 0
+ },
+ "rerun_2026_09_06_typescript": {
+  "recorded_at": "2026-09-06T19:28:00+05:00",
+  "control_revision": "2b88ea4",
+  "control_revision_note": "Both runs executed against origin/main at 2b88ea4 in a fresh worktree at C:\\w\\b14b with its own .venv; branch lane-b/rerun-typescript is cut from it. Unlike the C++ re-run this one is not code-free: two defects in the lane's own TypeScript files were exposed by the first pass and fixed here, so each repository was run twice - once on 2b88ea4 unchanged, once with the fix - and both readings are recorded below.",
+  "why": "The re-run request named G4-W17 arrival items (1) (12:37, the deterministic-section fold) and (2) (12:52, CallStore's shortened hash prefix) as plausibly clearing the two TypeScript dispositions. Item (2) did. Item (1) did not, and could not: it was declined as a prompt change (7c0e7e6, test only). What cleared 3D TypeScript's S4 refusal is d583d07 (G4-W11, 08:39), fourteen minutes after this work item was accepted.",
+  "which_g4_w17_items_cleared_what": {
+   "item_0_verified_source_build": "DID NOT CLEAR EITHER REPOSITORY, and the lane declines to close the gap in its own file. The gate opens for TypeScript where it could not for C++ - npm answers conclusively, so install_command:npm is CONTRADICTED rather than UNRESOLVED, and both repositories carry EXECUTED receipts - and then spec_for('typescript').clone_and_build() returns '' because TYPESCRIPT declares no source_install. Adding one would be a fabricated claim: item (0)'s evidence sentence asserts the source compiles on the strength of an EXECUTED example, and TypeScript's verifier reads diagnostics only from the example's own file by design. Measured 2026-09-06 with the lane's npm profile: Aspose.Cells has 3 of 3 examples EXECUTED while npm install (exit 0, 16.3 s) then npx tsc --noEmit exits 2 with three errors in its own sources, and its manifest declares no build script; Aspose.3D declares build: tsc and npm install (exit 0, 58.1 s) plus npm run build (exit 0, 6.9 s) both succeed. PROPOSAL in docs/RESEARCH_LANE_B.md: the gate consults a receipt for the command it names, per repository, not an example receipt.",
+   "item_1_deterministic_section_fold": "DECLINED UPSTREAM AND NOT THE CAUSE. 7c0e7e6 (12:42) changed no production code; it added a test pinning a fold it read as already unconditional. Against the tree this item actually ran (7ea433e, its own recorded control_revision) that fold did not exist - dispositions.normalize's rendering_fact_ids branch still called errors.append with the exact refusal this lane recorded. It became DEFER_UNRESOLVED in d583d07 (G4-W11, 08:39), measured there on Aspose.Slides for .NET. Same finding as this lane's C++ re-run, one commit later.",
+   "item_2_callstore_hash_prefix": "CLEARED Aspose.Cells for TypeScript. The re-run wrote the exact file whose write_bytes raised FileNotFoundError - ...\\calls\\eaa447337377.rejected-1.json and .rejected-2.json, 155 characters from C:\\w\\b14b - and the transaction ran to validation. This run's root is 94 characters shorter than the one that measured 261, so the run alone does not isolate the cause; the arithmetic does. The suffix under any root is 158 characters with the old 24-character hash and 146 with c0071d1's 12, so the same name from the original root is 261 - 12 = 249, under Windows' 260. Item (2) alone clears it.",
+   "items_16_17_19_20_21_24": "Not exercised or not applicable here. Item (24)'s UNRESOLVED carve-out is for a registry-less ecosystem and npm is in REGISTRY_TYPES; items (19) and (20) address C++ shapes that did not arise; item (16)'s hub trim did not fire (no repeated hub or over-ceiling link on either draw)."
+  },
+  "lane_owned_fixes_landed": [
+   {
+    "defect": "A re-export binds a name and a module, but reexported_names returned a flat name set and _public_name matched on the name alone, so a second declaration of an exported name anywhere under the entry point was published as if the package exported it twice.",
+    "measured": "Aspose.3D: BoundingBoxExtent declared at utilities/BoundingBox.ts:188 while the barrel re-exports only BoundingBox from that file - 1 duplicate type, 6 duplicate facts. Aspose.Cells: CellCoordinates, CellRange and Comment bound from ./types and ./comment while util.ts and types.ts declare rivals - 40 duplicate symbols. BC-07 refused both: 'verified public type BoundingBoxExtent is recorded 2 times; one fact per canonical defining location'.",
+    "fix": "typescript_barrel.reexported_bindings carries the resolved module per name; typescript._binds disqualifies a symbol only when its own file holds a rival declaration of the name, because the façade reports an inherited member under the derived type with the base's file as evidence (AssetInfo.AssetInfo.toString from A3DObject.ts). Checking the module alone dropped 255 genuine members of Aspose.3D, measured before the rule was narrowed.",
+    "test": "tests/.../test_typescript.py::test_a_rival_declaration_of_an_exported_name_is_not_published_twice and ::test_an_inherited_member_is_published_though_its_base_declares_it"
+   },
+   {
+    "defect": "_public_name required a dotted value and the surface façade returns a top-level function unqualified (colToIndex, not aspose_cells.util.colToIndex), so every function a TypeScript package exports was silently absent from its surface.",
+    "measured": "Aspose.Cells re-exports eight helpers from ./util (colToIndex, indexToCol, cellRef, parseCellRef, parseRange, escapeXml, unescapeXml, generateUuid) and its facts held only class, method and enum kinds - 0 function facts.",
+    "fix": "Only a module entry is never a symbol; every other kind is judged by the binding above, which is a stricter test than the dot ever was.",
+    "test": "tests/.../test_typescript.py::test_an_exported_top_level_function_is_published"
+   }
+  ],
+  "cohort": [
+   {
+    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+    "revision": "7b959706f2ad976db929f26ec079f43a07d578e1",
+    "outcome": "DISPOSITION (revised)",
+    "failure_class_before": "BLOCKED_RECONCILIATION",
+    "failure_class_now": "BLOCKED_VALIDATION (BC-02, BC-06)",
+    "first_pass_on_2b88ea4": "1178 facts, 1034 public symbols; S4 accepted first attempt (the five units the old disposition named fold to DEFER_UNRESOLVED); 190 visible lines of 766; validation 6 PASS, 3 FAIL, 2 PENDING - BC-02, BC-06 and BC-07.",
+    "second_pass_with_the_lane_fix": "1172 facts, 1028 public symbols; 8 of 9 examples EXECUTED; planning 17 of 18 sections, 12 hubs; 122 units across 9 sections; coherence revised 0 of 122; 190 visible lines of 765; validation 7 PASS, 2 FAIL, 2 PENDING - BC-07 now PASSES; BC-02 and BC-06 remain, both unrepairable, plus 3 advisories.",
+    "resume_predicate": "the item (0) gate PROPOSAL and the Navigation PROPOSAL in docs/RESEARCH_LANE_B.md; then re-run present."
+   },
+   {
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+    "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+    "outcome": "DISPOSITION (revised)",
+    "failure_class_before": "BLOCKED_ENVIRONMENT (Windows MAX_PATH)",
+    "failure_class_now": "BLOCKED_VALIDATION (BC-02)",
+    "first_pass_on_2b88ea4": "451 facts, 353 public symbols (40 of them duplicates); no path error - the rejected-reply files wrote at 155 characters; died at S5 presentation_planning, output rejected twice on unknown fact IDs public_symbol:ImageInfo, public_symbol:ShapeInfo, public_symbol:HtmlSaveOptions - all three real types the barrel does not re-export, named by the model from the repository's README.",
+    "second_pass_with_the_lane_fix": "419 facts, 321 public symbols (0 duplicates, 8 functions gained); 3 of 3 examples EXECUTED; S4 first attempt, 49 units; planning 17 of 18 sections, 8 hubs, no unknown-ID rejection on this draw; 60 units across 9 sections through 10 calls; coherence revised 1 of 60; 179 visible lines of 434; validation 8 PASS, 1 FAIL, 2 PENDING - BC-02 alone, with one advisory.",
+    "resume_predicate": "the item (0) gate PROPOSAL in docs/RESEARCH_LANE_B.md; then re-run present. This is the closest any lane B repository has come to sealing."
+   },
+   {
+    "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+    "revision": null,
+    "outcome": "DISPOSITION (unchanged)",
+    "failure_class_now": "DISABLED_UPSTREAM",
+    "detail": "data/registry.json still records mode: disabled; the re-run request said not to touch it and no clone was attempted.",
+    "resume_predicate": "unchanged."
+   }
+  ],
+  "proposals": [
+   "composition/renderer.py: _navigation is built from context.included while render_readme drops a section whose body renders nothing, so Aspose.3D for TypeScript carries - [License](#license) with no ## License heading and BC-06 fails at COMPOSING, unrepairable. The contract's own navigation row says 'the visible headed sections actually present'. General: installation is the same shape for every unpublished package. Fix: render bodies first, then build Navigation from what survived.",
+   "evidence/facts/extract.py: item (0)'s inference that an EXECUTED example proves the source compiles is unsound for any ecosystem whose verifier isolates the example from the library's own build health, which TypeScript's does by design. Measured counterexample: Aspose.Cells, 3 of 3 examples EXECUTED, npx tsc --noEmit exit 2 on its own sources. Fix: consult a receipt for the command the fact names, per repository.",
+   "composition/renderer.py: _api_reference reads class, enum and method kinds and no branch reads function, so the eight helpers Aspose.Cells for TypeScript exports are facts that render nowhere. Not blocking; the same gap awaits Go and Rust. Fix: a Functions subsection beside Enumerations."
+  ],
+  "proposals_not_repeated": "core/llm/binding.py rejecting a whole plan on an unknown cited fact ID (the S5 death of the first Cells draw) is recorded as latent in docs/RESEARCH_LANE_B.md rather than proposed: it did not recur on the second draw, and two draws are not evidence. If it recurs the fold is G4-W17 item (16)'s, one list further in.",
+  "environment": {
+   "os": "Windows 11 10.0.26200",
+   "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+   "worktree": "C:\\w\\b14b (9 characters, chosen so no transaction path nears MAX_PATH)",
+   "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+   "path_policy": "Unchanged from G4-W14: tsc is resolved by shutil.which('tsc'), then shutil.which('tsc.cmd'), then the registry key; node, npm and npx were already on PATH and nothing was added to it. The npm profile at C:\\tools\\rp-toolchains\\npm was used for the two source-build measurements via npm_config_prefix and npm_config_cache in the subprocess environment only."
+  },
+  "toolchain_used": [
+   {
+    "name": "tsc",
+    "path": "C:\\tools\\rp-toolchains\\npm\\prefix\\tsc.cmd",
+    "version": "Version 5.9.3",
+    "resolved_by": "the machine-local registry; shutil.which('tsc') returns None here"
+   },
+   {
+    "name": "node",
+    "path": "C:\\Program Files\\nodejs\\node.EXE",
+    "version": "v24.13.1",
+    "resolved_by": "shutil.which('node')"
+   },
+   {
+    "name": "npm",
+    "path": "C:\\Program Files\\nodejs\\npm.CMD",
+    "version": "11.8.0",
+    "resolved_by": "shutil.which('npm') then the .CMD shim; used only for the two source-build measurements, never by the transaction"
+   }
+  ],
+  "local_ci_equivalent": {
+   "note": "loop-prompt section 3: one full suite immediately before the commit, run with GPT_OSS_ENDPOINT and GPT_OSS_API_KEY unset (LANE-B-00's own finding: with real credentials the CLI fixtures compose against the live gateway and the suite is nondeterministic).",
+   "steps": [
+    "ruff check . - All checks passed!",
+    "ruff format --check . - 210 files already formatted",
+    "mypy src - Success: no issues found in 125 source files",
+    "pytest -n auto - exit 0, whole suite green"
+   ]
+  },
+  "measurement": {
+   "repositories_in_scope": 3,
+   "sealed": 0,
+   "dispositions": 3,
+   "dispositions_moved": 2,
+   "blocking_failures_before": "3D: S4 refusal (no rendering at all). Cells: S4 path death.",
+   "blocking_failures_now": "3D: BC-02 and BC-06. Cells: BC-02 alone.",
+   "facts_extracted": 1591,
+   "public_symbols": 1349,
+   "duplicate_public_symbols_removed": 41,
+   "exported_functions_recovered": 8,
+   "provider_calls_in_the_facts_only_passes": 0
+  }
  }
 }
