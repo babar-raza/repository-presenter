@@ -164,10 +164,23 @@
   "local_ci_equivalent": {
     "note": "loop-prompt section 3: one full suite immediately before each commit.",
     "steps": [
-      { "command": "ruff check .", "exit_code": 0 },
-      { "command": "ruff format --check .", "exit_code": 0 },
-      { "command": "mypy src", "exit_code": 0 },
-      { "command": "pytest -n auto", "exit_code": 0, "note": "651 passed in 113 s on the first commit's tree, with GPT_OSS_ENDPOINT and GPT_OSS_API_KEY unset (LANE-B-00 recorded why the local suite is otherwise nondeterministic on this machine)." }
+      {
+        "command": "ruff check .",
+        "exit_code": 0
+      },
+      {
+        "command": "ruff format --check .",
+        "exit_code": 0
+      },
+      {
+        "command": "mypy src",
+        "exit_code": 0
+      },
+      {
+        "command": "pytest -n auto",
+        "exit_code": 0,
+        "note": "651 passed in 113 s on the first commit's tree, with GPT_OSS_ENDPOINT and GPT_OSS_API_KEY unset (LANE-B-00 recorded why the local suite is otherwise nondeterministic on this machine)."
+      }
     ]
   },
   "hosted_ci": {
@@ -187,5 +200,139 @@
     "examples_failed": 14,
     "examples_not_verified": 2,
     "provider_calls_in_the_facts_only_passes": 0
+  },
+  "rerun_2026_09_06": {
+    "recorded_at": "2026-09-06T14:29:00+05:00",
+    "control_revision": "4e1157f8ed18759b3583ed0a726954a9a3b263e0",
+    "control_revision_note": "The tree every one of these four runs executed against: origin/main at 4e1157f, which was its head when this run fetched, in a fresh detached worktree at C:\\w\\b13b with its own .venv. Branch lane-b/rerun-cpp is cut from it. origin/main moved to 43962b4 while the runs were in flight (08137a0, the Go/Rust/Maven surface fix, and 43962b4, a state checkpoint); the branch is rebased onto that before landing, and neither commit touches a C++ path, but the measurements above are 4e1157f's and are not restated for 43962b4.",
+    "why": "Two G4-W17 arrival items had landed that plausibly cleared some of G4-W13's four dispositions: item 0 (12:30, a verified source build admits an unpublished install fact as SUPPORTED) and item 1 (12:37, the deterministic-section fold). All four repositories were re-run, one at a time, in the order Email, PDF, Cells, Slides.",
+    "toolchain_used": [
+      {
+        "name": "g++",
+        "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\g++.exe",
+        "version": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+        "resolved_by": "the registry key `gxx`; shutil.which('g++') returns None here"
+      },
+      {
+        "name": "gcc",
+        "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\gcc.exe",
+        "version": "gcc.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+        "resolved_by": "the registry key `gcc`"
+      },
+      {
+        "name": "ninja",
+        "path": "C:\\Users\\prora\\AppData\\Local\\Microsoft\\WinGet\\Links\\ninja.exe",
+        "version": "1.13.2",
+        "resolved_by": "shutil.which('ninja'), then the registry key `ninja` (same version)"
+      },
+      {
+        "name": "cmake",
+        "path": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+        "version": "4.4.1",
+        "resolved_by": "shutil.which('cmake'), deliberately before the winlibs bundle (G4-W13's own note: the bundled cmake has no certificate bundle and Aspose.PDF's FetchContent of GoogleTest dies in it)"
+      }
+    ],
+    "path_policy": "Unchanged from G4-W13: cpp_examples.toolchain_path prepends each tool's directory to the SUBPROCESS PATH only; os.environ is never written. Nothing was installed and nothing was put on the user or system PATH for this re-run.",
+    "which_g4_w17_items_cleared_what": {
+      "item_0_verified_source_build": "DID NOT CLEAR ANYTHING FOR C++, for two independent reasons measured here. evidence/facts/extract.py's _source_build_fact returns the fact untouched unless fact.polarity == 'CONTRADICTED', and C++'s install_command:cmake is UNRESOLVED (REGISTRY_TYPES has no cpp entry, so there is no registry to contradict it). And spec_for('cpp').clone_and_build(...) returns '' because CPP's source_install is empty, which EcosystemSpec's own docstring records as deliberate for a registry-less ecosystem. Item 0's downstream half did land usefully: _check_install now accepts 'verified source build' beside 'package registry', so BC-02 passes the moment the fact becomes SUPPORTED.",
+      "item_1_deterministic_section_fold": "NOTHING TO CLEAR. The 12:37 entry declined it as a prompt change and landed only a mutation test proving dispositions.normalize's fold already applied to any owner-D section; no production behaviour changed for anyone.",
+      "what_actually_cleared_S4": "7ea433e (G4-W11, 07:47): source_reconciliation v5's output budget raised 16000 to 32000, and a placement into a section whose condition is false deferred rather than failed closed. It reached the lane only in the 09:59 merge, after the runs that produced the four dispositions. Evidence: PDF's S4 was accepted on the first attempt this run (117 units, no .rejected- record) where it previously died twice on 'unknown fact ID api_reference' - the shape a reply truncated at 16000 tokens makes.",
+      "item_2_callstore_hash_prefix": "CONFIRMED WORKING incidentally: every .rejected-N.json written this run carries a 12-character prefix and no transaction died on Windows' MAX_PATH.",
+      "items_20_and_21": "NOT LANDED, as expected, and neither failure recurred - which is not the same as fixed. _FORBIDDEN still carries a bare ('- ', 'a Markdown list') and the stray-identifier branch still only re-asks the same stage. Cells and Slides both cleared section_authoring on this draw; both classes remain latent. Not re-proposed."
+    },
+    "cohort": [
+      {
+        "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+        "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+        "outcome": "DISPOSITION",
+        "failure_class_before": "BLOCKED_RECONCILIATION",
+        "failure_class_now": "BLOCKED_PLANNING",
+        "same_class_as_before": false,
+        "stage_reached": "S5 presentation_planning",
+        "facts": 348,
+        "public_symbols": 225,
+        "examples": "4 candidates; 2 EXECUTED, 2 FAILED",
+        "required_rows_without_evidence": [],
+        "detail": "S4 source_reconciliation now closes after one recovered rejection. S5 is rejected twice and the transaction reports: 'section additional_examples is excluded at this revision but the reconciliation placed inherited_unit:032.paragraph there'. Cause: dispositions.normalize reads the condition from section_conditions, where additional_examples is len(SUPPORTED examples) >= 2 - Email has exactly 2, so the section is not in `absent` and the placement stands; plan_checks then overwrites the same key with bool(set(verified_examples) - starts), the plan consumed both examples as quick starts, and the condition flipped True to False. The planner cannot answer the rejection: it did not make the placement and the inclusion list is composed, not asked for.",
+        "resume_predicate": "the plan_checks deferral PROPOSAL (defer an excluded placement as normalize already does, per 7ea433e's own stated principle); behind it BC-02, which this repository has not yet reached; then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+        "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+        "outcome": "DISPOSITION",
+        "failure_class_before": "BLOCKED_RECONCILIATION",
+        "failure_class_now": "BLOCKED_VALIDATION (BC-02)",
+        "same_class_as_before": false,
+        "stage_reached": "S9 validation (README rendered)",
+        "facts": 1839,
+        "public_symbols": 1651,
+        "examples": "11 candidates; 4 EXECUTED, 5 FAILED, 2 NOT_VERIFIED",
+        "required_rows_without_evidence": [],
+        "readme": "184 visible lines of 685",
+        "validation": "8 PASS, 1 FAIL, 2 PENDING",
+        "detail": "The 'unknown fact ID api_reference' refusal is gone: S4 accepted on the first attempt, 117 units (58 VERIFIED_PRESERVE, 28 SUPERSEDE_REDUNDANT, 24 OMIT_UNSUPPORTED, 6 DEFER_UNRESOLVED, 1 VERIFIED_REWRITE). Planning closed after one recovered rejection at 18/18 sections; authoring wrote 287 units across 9 sections in 17 calls with one recovered rejection; coherence revised 0 of 287. The single blocking failure is BC-02: 'install_command:cmake is UNRESOLVED: package registry: none could not be read'. targeted_repair correctly recorded it unrepairable - no repair can make a registry exist.",
+        "resume_predicate": "the BC-02 PROPOSAL (extend _source_build_fact's polarity gate to UNRESOLVED and give C++ a source_install); then re-run present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp"
+      },
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+        "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+        "outcome": "DISPOSITION",
+        "failure_class_before": "BLOCKED_AUTHORING",
+        "failure_class_now": "BLOCKED_VALIDATION (BC-02)",
+        "same_class_as_before": false,
+        "stage_reached": "S9 validation (README rendered)",
+        "facts": 2058,
+        "public_symbols": 1943,
+        "examples": "7 candidates; 1 EXECUTED, 6 FAILED",
+        "required_rows_without_evidence": [],
+        "readme": "143 visible lines of 691",
+        "validation": "8 PASS, 1 FAIL, 2 PENDING",
+        "detail": "The '- ' false positive did not recur - item 20 has not landed and _FORBIDDEN is byte-identical, so the class is latent, not closed. S4 accepted first attempt, 65 units; planning closed after one recovered rejection at 15/18 sections; authoring wrote 227 units across 7 sections in 15 calls, three rejections all recovered, none of them the hyphen; coherence revised 1 of 227. Example 2's WorksheetCollection::operator[] with a string is still a real README defect, and the library still does not build with GCC 16.2 (missing <limits>, -Werror=trigraphs); neither changed a verdict. Single failure: BC-02, same detail as PDF.",
+        "resume_predicate": "the BC-02 PROPOSAL; then re-run present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
+      },
+      {
+        "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+        "revision": "733de4bf72fa33d16ee153779e8ee924ea1faebe",
+        "outcome": "DISPOSITION",
+        "failure_class_before": "BLOCKED_AUTHORING",
+        "failure_class_now": "BLOCKED_VALIDATION (BC-02, BC-08)",
+        "same_class_as_before": false,
+        "stage_reached": "S9 validation (README rendered)",
+        "facts": 2999,
+        "public_symbols": 2845,
+        "examples": "10 candidates; 9 EXECUTED, 1 FAILED",
+        "required_rows_without_evidence": [],
+        "readme": "202 visible lines of 629",
+        "validation": "7 PASS, 2 FAIL, 2 PENDING",
+        "detail": "The unauthorable-limitation refusal did not recur - item 21 has not landed and the stray-identifier branch is byte-identical; this plan chose five limitations, none naming an _internal/ identifier, so get_inherited_xfrm and xml_node were simply not selected. The class is latent, not closed. S4 closed, 88 units; planning closed at 18/18 sections; authoring wrote 271 units across 9 sections in 17 calls; coherence revised 2 of 271. Two blocking failures: BC-02 as above, and BC-08 on inherited_unit:078.list - 'VERIFIED_REWRITE keeps the command 'python-pptx' but the candidate does not render it'. The span is a third-party Python reader named in prose in a CI description, matched by _COMMAND's python3? alternative through a word boundary, then required verbatim because _PLACING includes VERIFIED_REWRITE - the one disposition that by definition re-authors.",
+        "resume_predicate": "the BC-02 PROPOSAL and the _COMMAND/_PLACING PROPOSAL; then re-run present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+      }
+    ],
+    "proposals": [
+      "OWNER DECISION, then primary loop - evidence/facts/extract.py _source_build_fact with core/ecosystems.py and validation/registry.py _check_install: a registry-less ecosystem is structurally excluded from BC-02. The polarity gate admits only CONTRADICTED while C++ is UNRESOLVED (no registry to contradict it), and CPP.source_install is empty by documented intent. Together, no C++ repository can ever pass BC-02 - while its install command is the most verified of any ecosystem's, since cpp_examples itself drives `cmake -S . -B build` / `cmake --build build` to build each library before compiling its examples, and it succeeded for all four. Smallest fix: polarity gate to {CONTRADICTED, UNRESOLVED} plus a C++ source_install. Blocks all four.",
+      "primary loop, composition/planning.py plan_checks: 7ea433e deferred the impossible placement at S4 and left the identical failure at S5, for additional_examples - the one condition planning recomputes after the quick starts consume examples. On placement.outcome == 'excluded', defer the unit as dispositions.normalize already does, rather than appending an error no re-ask can answer. Blocks Email.",
+      "primary loop, validation/registry.py _COMMAND and _PLACING: `python-pptx` in prose is read as a command (the python3? alternative followed by \\b matches the hyphen boundary; python-docx, go-*, git-*, make-*, cargo-* are the same class), and _PLACING then requires VERIFIED_REWRITE - the disposition that re-authors by definition - to preserve it verbatim. Either fix alone clears it; both are worth landing. Blocks Slides on BC-08."
+    ],
+    "proposals_not_repeated": [
+      "G4-W17 item 20 (_FORBIDDEN's '- ' anchoring) and item 21 (an unknown-identifier authoring rejection reopens planning) are queued and unlanded; neither failure recurred on this draw, and neither is re-proposed. Both remain latent - the code that produced them is unchanged.",
+      "G4-W13's own BC-02 PROPOSAL is refined above, not re-filed: item 0 landed its downstream half, so what remains is the upstream polarity gate and the C++ source_install template."
+    ],
+    "local_ci_equivalent": {
+      "note": "Not run: this re-run changed no file under src/ or tests/. The three files it touches are docs/RESEARCH_LANE_B.md, evidence/build/lanes/lane-b/G4-W13.json and project/lanes/lane-b.yaml. Hosted CI is the proof for the commit."
+    },
+    "measurement": {
+      "repositories_in_scope": 4,
+      "sealed": 0,
+      "dispositions": 4,
+      "dispositions_whose_class_changed": 4,
+      "repositories_reaching_rendering_and_validation": 3,
+      "repositories_reaching_rendering_before_this_run": 0,
+      "blocked_on_bc_02_alone": 2,
+      "blocked_on_bc_02_and_one_more": 1,
+      "blocked_before_rendering": 1,
+      "status_after": "3/34 current reviewable no-op-proven (unchanged)",
+      "new_proposals": 3,
+      "provider_calls": "one full transaction per repository; no facts-only pass was needed"
+    }
   }
 }
