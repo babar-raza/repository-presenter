@@ -56,7 +56,22 @@ GO = EcosystemSpec(
     # path rather than by a short package name, which is why the template takes `{package}`
     # whole - suffix included.
     version_badge="[![Go Reference](https://pkg.go.dev/badge/{package}.svg)](https://pkg.go.dev/{package})",
-    verify_command="go list -m {module}",
+    # The renderer fills `{module}` with an `import_path` fact - the module path plus the
+    # subdirectory the package is declared in - never the module path alone, so `go list -m`
+    # is the wrong verb: measured 2026-09-06 in a disposable consumer module after `go get`,
+    # `go list -m …/v26/aspose/cells_foss` exits 1 ("not a known dependency") while
+    # `go list …/v26/aspose/cells_foss` exits 0 and prints the import path back. `go list` is
+    # right for both repositories in this cohort - Cells declares its package below the module
+    # root, Aspose.PDF at the root, and the same one line verifies each.
+    verify_command="go list {module}",
+    # Go names an import by its *quoted* path: `import "path"`, `import alias "path"`, or - most
+    # often - a line inside an `import ( … )` block, where the keyword sits on an earlier line
+    # entirely. The inherited Python-shaped default wants an unquoted module right after
+    # `import`, and matches none of those: measured 2026-09-06, 0 of 8 executed Cells examples
+    # and 0 of 5 Aspose.PDF ones, which is why no Go candidate has ever rendered a
+    # Verify-the-install block (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival item 11,
+    # whose mechanism is landed and whose pattern is each ecosystem's own to name).
+    import_pattern=r'(?m)^\s*(?:import\s+)?(?:[\w.]+\s+)?"{module}"',
     # A cold `go build` resolves the module graph and compiles the package before it can say
     # anything; the ceiling in core.execution is 300 seconds.
     example_timeout_seconds=300.0,
