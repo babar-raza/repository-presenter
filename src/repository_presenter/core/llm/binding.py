@@ -109,6 +109,43 @@ def resolve_symbol_ids(payload: Any, facts: FactsDocument) -> list[tuple[str, st
     return sorted(rewrites.items())
 
 
+def fold_duplicate_units(payload: Any) -> None:
+    """A repeated ``unit_id`` disposition is dropped in place, keeping the first.
+
+    The ``unit_ids`` binding requires every inherited unit exactly once; a second disposition
+    for the same unit answers nothing the first did not, so it is folded away rather than
+    rejecting a whole reply that got 83 of 85 units right for repeating one
+    (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival item 17, measured on
+    `aspose-slides-foss/Aspose.Slides-FOSS-for-Java`: 85 units, two with more than one
+    disposition, two with none). Structural, like every check in this module: any list of
+    records each carrying its own ``unit_id`` is folded, never a name specific to one job's
+    schema, so this has no effect on a payload with no such list - every binding but
+    ``unit_ids`` today.
+    """
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if (
+                isinstance(value, list)
+                and value
+                and all(isinstance(item, dict) and "unit_id" in item for item in value)
+            ):
+                seen: set[Any] = set()
+                kept = []
+                for item in value:
+                    unit_id = item.get("unit_id")
+                    if unit_id in seen:
+                        continue
+                    seen.add(unit_id)
+                    kept.append(item)
+                if len(kept) != len(value):
+                    payload[key] = kept
+            else:
+                fold_duplicate_units(value)
+    elif isinstance(payload, list):
+        for item in payload:
+            fold_duplicate_units(item)
+
+
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:
     """Why the output may not be used, or an empty list when every citation holds."""
     known = {fact.id: fact for fact in facts.facts}

@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
-from repository_presenter.core.llm.binding import binding_errors, collect_ids, resolve_symbol_ids
+from repository_presenter.core.llm.binding import (
+    binding_errors,
+    collect_ids,
+    fold_duplicate_units,
+    resolve_symbol_ids,
+)
 
 
 def _fact(fact_id: str, kind: str, polarity: str = "SUPPORTED") -> Fact:
@@ -84,6 +89,40 @@ def test_unit_bindings_name_every_inherited_unit_exactly_once() -> None:
         "no disposition for inherited units: inherited_unit:002.paragraph",
         "more than one disposition for: inherited_unit:001.heading",
     ]
+
+
+def test_a_repeated_disposition_is_folded_to_its_first_occurrence() -> None:
+    """G4-W17 arrival item 17 (first half). Measured on aspose-slides-foss/Aspose.Slides-FOSS-
+    for-Java: 85 units, two with more than one disposition, two with none - the whole reply was
+    rejected and the same full ask repeated rather than keeping the 83 the job answered once.
+    Folding the duplicate away first (the caller's job, before binding_errors runs) leaves only
+    the missing-units error, which a partial re-ask - not landed here - could close without
+    discarding what the reply already got right."""
+    payload = {
+        "dispositions": [
+            {"unit_id": "inherited_unit:001.heading", "disposition": "a"},
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "b"},
+            {"unit_id": "inherited_unit:001.heading", "disposition": "c"},
+        ]
+    }
+    fold_duplicate_units(payload)
+    assert payload["dispositions"] == [
+        {"unit_id": "inherited_unit:001.heading", "disposition": "a"},
+        {"unit_id": "inherited_unit:002.paragraph", "disposition": "b"},
+    ]
+    assert binding_errors(payload, FACTS, "unit_ids") == []
+
+
+def test_folding_duplicate_units_never_touches_a_list_without_that_shape() -> None:
+    """Structural, not named to one job's schema: a list whose items carry no `unit_id` at all,
+    or that is empty, is left exactly as it was."""
+    untouched = {
+        "findings": [{"fact_ids": ["example:001"]}, {"fact_ids": ["example:002"]}],
+        "empty": [],
+    }
+    before = {"findings": list(untouched["findings"]), "empty": []}
+    fold_duplicate_units(untouched)
+    assert untouched == before
 
 
 def test_a_symbol_cited_by_its_read_path_binds_to_the_shortest_supported_fact() -> None:

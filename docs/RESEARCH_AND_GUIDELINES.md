@@ -4775,3 +4775,26 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   ruff/mypy clean, before this entry. Not attempted here: item 17's own "re-ask only the units
   with no disposition" half, and item 21's second half - both need a genuinely new partial-re-ask
   capability, unlike this item's pure post-processing fold.
+
+- **2026-09-06 17:23 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 17, first half
+  landed: a repeated disposition is folded, keeping the first.** Lane C PROPOSAL F named two
+  causes on `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` (85 units): two with no disposition,
+  two with more than one - the whole reply rejected either way. The duplicate half is
+  deterministic and lossless exactly like item 16's folds; the missing-units half needs the
+  re-ask-a-subset capability the proposal's own second half asks for, which this does not land.
+  `binding: unit_ids` (`prompts/source_reconciliation.yaml`) is the only manifest using that
+  binding, so the fold is scoped there with certainty rather than by convention. New function
+  `fold_duplicate_units` (`core/llm/binding.py`) is structural like every check in that module -
+  it walks for any list whose items each carry their own `unit_id` and keeps the first occurrence
+  of a repeat, never a name specific to reconciliation's own schema - called from `jobs.py::_parse`
+  immediately before `binding_errors`, gated on `binding == "unit_ids"` so no other job's parsing
+  is touched even in principle. New tests: `tests/core/llm/test_binding.py::test_a_repeated_
+  disposition_is_folded_to_its_first_occurrence` and `::test_folding_duplicate_units_never_
+  touches_a_list_without_that_shape` (a list with no `unit_id` field, or empty, is left alone).
+  Because this touches the shared job-parsing path every job goes through, verified beyond the
+  full suite: re-ran `present` against the sealed `aspose-email-foss/Aspose.Email-FOSS-for-Python`
+  bundle (item 7's own seal, no duplicate dispositions to fold) and it reproduced byte for byte
+  with zero provider calls, unchanged - the fold is a true no-op when there is nothing to fold.
+  Full suite green, ruff/mypy clean, before this entry. The re-ask-a-subset half remains open,
+  grouped with item 21's second half as a genuinely new capability for a future iteration with
+  room for it.
