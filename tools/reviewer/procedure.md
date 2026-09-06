@@ -23,6 +23,15 @@ Loop transcript: C:\Users\prora\.claude\projects\d--Users-prora-OneDrive-Documen
 Never touch src/, tests/, prompts/, schemas/, or a path the active item owns (README_CONTRACT.md is
 usually one). state.yaml only at a clean checkpoint, schema-validated. Stage own paths only; guard the
 index (`git diff --cached --name-only` equals the intended list).
+Reusable tooling discipline (owner, 2026-09-06 20:23, after the same anchor-replace-then-validate
+script got written twice in one session as a scratchpad throwaway): a helper script for a governance
+edit that is more than a trivial one-liner — a safe text insertion, a table cross-check, a registry
+probe — is written under `tools/reviewer/`, named for what it does, with a short header saying so, not
+the session scratchpad. Check `tools/reviewer/` first; extend an existing script (e.g.
+`research_edit.py` for anchor-replace-and-YAML-validate edits to RESEARCH_AND_GUIDELINES.md) before
+writing a new one that duplicates it. This directory is versioned and outlives the session; a
+scratchpad script vanishes with it (2026-09-05/06, before this directory existed, is the standing
+example of what that cost).
 
 ## 1. Run the check (one Bash)
 

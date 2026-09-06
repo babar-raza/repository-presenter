@@ -27,6 +27,12 @@ governance tracks, two directories, no overlap.
     timestamp drifts more than 20 minutes from the real clock, or an accept-shaped claim appears
     with no predicate/evidence word nearby. Added 2026-09-06 after catching three fabricated
     timestamps from a model change (see `procedure.md`'s weaker-model-watch note).
+  - `research_edit.py` — reusable anchor-replace-and-validate helpers for editing
+    `docs/RESEARCH_AND_GUIDELINES.md` safely: `safe_replace` asserts the anchor's occurrence count
+    before writing (never a silent no-op against a moved file), `load_yaml_block` re-parses the
+    §27.9 fenced YAML block afterward so a broken edit is caught before it is staged. Written
+    2026-09-06 to replace two near-identical scratchpad throwaways written the same session — check
+    here first before writing a new one-off script for this shape of edit.
   - `procedure.md` — the wake procedure both cron and a human reviewer follow: cheap check, full
     review, the lane-supervision addendum, commit discipline, the report shape.
   - `.local/` — gitignored. `reviewer_state.json` (wake history, the `watch` field for the next

@@ -13,6 +13,17 @@ Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them
   prompt, `RESEARCH_AND_GUIDELINES.md` (§27.9 or §31), `migration/reuse-manifest.yaml`,
   `pyproject.toml`, `requirements-lock.txt`, `tools/` (owner/reviewer tooling, `tools/README.md`),
   or another lane's files.
+- **One narrow, named exception** (owner, 2026-09-06 20:21, after lane C's Java re-run sealed a
+  candidate and found this prohibition unhonourable as written): when your own PR seals a candidate,
+  `project/state.yaml`'s `progress.current_candidates` is the one field of that file you may touch,
+  in the same commit as the seal, and only by this method — `git fetch origin && git rebase
+  origin/main` (or the equivalent merge) immediately first, then set the field to a fresh count of
+  sealed bundles on disk in that just-rebased tree (`repository-presenter status`'s own method),
+  never to "the value you last read, plus one". A stale or incremented-by-hand value is exactly what
+  produced a lost update on 2026-09-06 (two concurrent commits each read `4` and each wrote `5`
+  instead of `6`); recomputing fresh from the rebased tree is immune to that race because it already
+  contains whatever the other side just landed. Every other field and byte of `state.yaml` stays
+  untouched — a change anywhere else in the file is still not yours to make.
 - Your decision log is `docs/RESEARCH_<LANE>.md` (for `lane-c`: `docs/RESEARCH_LANE_C.md`; entries in
   §31's shape: date, item, decision, alternative rejected, evidence, reversal path; the owner merges).
 - Your evidence is `evidence/build/lanes/<lane>/<ITEM>.json` (the shape of a gate manifest's
