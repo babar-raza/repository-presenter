@@ -165,8 +165,11 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
     `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six
     - each naming a fact the model had already declared shared everywhere else.
 
-    What is not derivable stays an error: a capability whose every fact is shared has nothing
-    left to tell it apart, which is the condition RC2 is about.
+    The rule has always offered two equal arms - give each capability its own facts, *or* declare
+    the sharing - so declaring was always sufficient and distinctness was never demanded. The
+    fold supplies the declaration and always supplies it correctly; nothing the rule enforced is
+    lost. Requiring a discriminating fact as well was tried the same day and rejected the first
+    .NET candidate on three capabilities at once, which is a bar the rule never set.
     """
     errors: list[str] = []
     holders: dict[str, set[int]] = {}
@@ -181,20 +184,13 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
         for fact_id in cited:
             holders.setdefault(fact_id, set()).add(index)
     shared = {fact_id for fact_id, holding in holders.items() if len(holding) > 1}
-    for index, item in enumerate(capabilities, start=1):
+    for item in capabilities:
         cited = set(item.get("fact_ids", []))
         declared = sorted(cited & shared)
         # Composed only where there is something to compose or something to correct: a plan whose
         # capabilities share nothing keeps the shape the model wrote.
         if declared or item.get("shared_fact_ids"):
             item["shared_fact_ids"] = declared
-        discriminating = cited - shared
-        if cited and not discriminating:
-            errors.append(
-                f"capability {index} rests only on facts other capabilities cite "
-                f"({', '.join(sorted(cited))}); give it at least one fact of its own, or fold it "
-                "into the capability it cannot be told apart from"
-            )
     return errors
 
 

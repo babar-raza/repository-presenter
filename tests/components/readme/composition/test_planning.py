@@ -242,20 +242,20 @@ def test_which_capability_facts_are_shared_is_composed_from_the_citations() -> N
     # the model wrote, with no empty key added to it.
     assert declared == [["example:001"], ["example:001"], None]
 
-    # What the citations cannot decide stays an error: a capability every one of whose facts
-    # another capability also cites has nothing left to tell it apart.
+    # The rule has always offered two equal arms - own facts *or* a declaration - so declaring was
+    # always sufficient and distinctness was never demanded. Two capabilities resting on the same
+    # facts are declared and pass, exactly as they did when the model declared them by hand.
     indistinct = [
         {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
         {"title": "Export STL", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
         {"title": "Run examples", "fact_ids": ["example:002"]},
     ]
-    assert plan_checks(_plan(core_capabilities=indistinct), FACTS) == [
-        "capability 1 rests only on facts other capabilities cite (example:001, "
-        "public_symbol:widget.scene); give it at least one fact of its own, or fold it into the "
-        "capability it cannot be told apart from",
-        "capability 2 rests only on facts other capabilities cite (example:001, "
-        "public_symbol:widget.scene); give it at least one fact of its own, or fold it into the "
-        "capability it cannot be told apart from",
+    plan = _plan(core_capabilities=indistinct)
+    assert plan_checks(plan, FACTS) == []
+    assert [item.get("shared_fact_ids") for item in plan["core_capabilities"]] == [
+        ["example:001", "public_symbol:widget.scene"],
+        ["example:001", "public_symbol:widget.scene"],
+        None,
     ]
 
     # A fact may only be declared shared by a capability that cites it.

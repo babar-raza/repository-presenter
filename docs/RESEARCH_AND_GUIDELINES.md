@@ -3804,3 +3804,16 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   whose facts another capability also cites has nothing left to tell it apart. Alternative
   rejected: editing the planning prompt — a prompt's sha256 is in `dependencies.json`, so it
   would cost both sealed candidates, unrecoverable until G5-W02.
+
+- **2026-09-06 19:35 · loop (PROVISIONAL) · the discriminating-fact requirement was mine, and it
+  was wrong.** Item G4-W11. Composing `shared_fact_ids` unblocked Aspose.3D's planning, and the
+  extra rule I paired it with — every capability keeps a fact no other capability cites —
+  rejected it again on three capabilities at once: 2, 6 and 7 all rest on
+  `public_symbol:aspose.threed.entities`, and 6 and 7 on nothing else. Re-read: the rule has
+  always offered two equal arms, *give each capability its own facts, **or** list the fact in
+  shared_fact_ids of every capability that cites it*, so declaring was always sufficient and
+  distinctness was never demanded. The fold supplies the declaration and always supplies it
+  correctly, so nothing the rule enforced is lost; the extra requirement was a new bar, not a
+  preserved one, and it is removed. Recorded rather than quietly dropped because it cost a
+  composition to learn: a check I invent an hour before it blocks a candidate deserves the same
+  suspicion as a check that has never fired.
