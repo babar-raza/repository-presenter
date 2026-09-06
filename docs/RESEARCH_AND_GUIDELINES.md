@@ -4336,3 +4336,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   same ecosystem in every path that exists today, so nothing is currently blocked by the order
   dependency the proposal was written to remove. Full suite green, ruff/mypy clean, before this
   entry. Proceeding to item 4.
+
+- **2026-09-06 13:18 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 4 landed:
+  `_KINDS` now maps `abstract_class_declaration` to `class`.** Lane B's evidence: Aspose.3D for
+  TypeScript declares 8 abstract classes, 2 of them public, and every one rendered `unknown`
+  because `extractors/surface/extractor.py`'s `_KINDS` table had no entry for TypeScript's
+  grammar name for that declaration - understating the renderer's public-type count by 2 for a
+  repository the lane cannot fix itself, since the raw tree-sitter node type is gone by the time a
+  `SurfaceSymbol` reaches a plugin (the façade is shared, owned by this item, not any lane). One
+  line: `"abstract_class_declaration": "class"`, beside the existing `"class_declaration": "class"`
+  it is a sibling of. `tests/components/readme/extractors/surface/test_extractor.py` gains
+  `test_an_abstract_class_is_a_class_not_unknown`, pinning `symbol_kind("abstract_class_declaration")
+  == "class"` directly - no tree-sitter parse needed, since the façade's own contract is the node
+  type string in, the kind out. Full suite green, ruff/mypy clean, before this entry. Proceeding to
+  item 5.

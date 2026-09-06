@@ -94,6 +94,15 @@ def test_an_unmapped_node_type_is_unknown_rather_than_invented() -> None:
     assert symbol_kind("something_the_grammar_added_last_week") == "unknown"
 
 
+def test_an_abstract_class_is_a_class_not_unknown() -> None:
+    """G4-W17 arrival item 4. TypeScript's grammar names an abstract class declaration
+    differently from a plain one; Aspose.3D for TypeScript declares 8, 2 of them public, and
+    before this entry every one of them was `unknown` - understating the renderer's public-type
+    count by 2 for a repository the lane cannot fix, since the raw node type is gone by the time
+    a `SurfaceSymbol` reaches a plugin."""
+    assert symbol_kind("abstract_class_declaration") == "class"
+
+
 def test_the_facade_is_a_dataclass_the_contract_can_carry() -> None:
     symbol = SurfaceSymbol("A.B", "class", "src/a.cs", 3)
     assert symbol.doc == "" and symbol.signature == ""

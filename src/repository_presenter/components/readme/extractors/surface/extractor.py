@@ -29,6 +29,7 @@ SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 # it is. A node type with no entry is "unknown", which is honest and still citable.
 _KINDS: dict[str, SymbolKind] = {
     "class_declaration": "class",
+    "abstract_class_declaration": "class",
     "class_specifier": "class",
     "class_definition": "class",
     "struct_declaration": "class",
