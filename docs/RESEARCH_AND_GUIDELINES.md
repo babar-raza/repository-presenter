@@ -4838,3 +4838,27 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   before the change (the prompt file carries no code); this landing is the prompt file alone,
   verified by the live run above rather than a unit test, matching how prompt-wording fixes are
   verified throughout this session.
+
+- **2026-09-06 18:59 (`date` checked) · loop (PROVISIONAL) · reviewer correction applied: items
+  24-26 (added 15:04-15:05) were missing from this loop's own running tally; item 24 landed.**
+  The 17:27 checkpoint's landed/declined list never mentioned them - a genuine miss, not an
+  intentional deferral, exactly as the reviewer's message read. Re-read G4-W17's full current
+  purpose text fresh (12,771 characters) rather than from memory before acting, per the reviewer's
+  own instruction. **Item 24, landed first and out of numeric order as marked:** a registry-less
+  ecosystem's install fact can never become CONTRADICTED - there is no registry to read as "not
+  there" - so it starts and stays UNRESOLVED forever and item 0's admission gate never opened for
+  it; measured on the whole C++ cohort (`cpp` has no `REGISTRY_TYPES` entry). `_source_build_fact`
+  (`evidence/facts/extract.py`) now admits `UNRESOLVED` too, but only when `entry.ecosystem not in
+  REGISTRY_TYPES` - never for a registry-having ecosystem's transient UNRESOLVED, which keeps
+  failing closed exactly as before. `platforms/cpp.py`'s `EcosystemSpec` gains `source_install`
+  (`cmake -S . -B build`, lane B's own measured value, working for all four C++ repositories) and
+  `source_install_lead` - a lane-owned file, edited here because the reviewer specified the exact
+  file and value directly, coupled to the same commit as the shared gate change. Mutation test,
+  exactly as specified: `tests/.../test_extract.py::test_a_registry_having_ecosystems_unresolved_
+  install_stays_unresolved` proves a NET (registry-having) UNRESOLVED install fact does not flip
+  to SUPPORTED even with an EXECUTED receipt; `::test_a_registry_less_ecosystems_unresolved_
+  install_is_admitted_too` proves the CPP case does, using the real registered `CPP` spec (import
+  side effect via `plugin_for("cpp")`, not a synthetic stand-in). Full suite green, ruff/mypy
+  clean, before this entry. Structural note taken for future checkpoints: re-read the full current
+  item text fresh before declaring "everything remaining," never from an earlier read's memory -
+  the list can grow silently between checkpoints, as it just did. Proceeding to items 25, 26.

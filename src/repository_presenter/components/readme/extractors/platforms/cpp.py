@@ -56,6 +56,12 @@ CPP = EcosystemSpec(
     registry="any package registry",
     install_fact_id="install_command:cmake",
     version_badge="",
+    # G4-W17 arrival item 24: with no registry, install_command:cmake can never become
+    # CONTRADICTED - there is nothing to read as "not there" - so it starts and stays UNRESOLVED,
+    # and the source-build admission (item 0) never had anything to admit for this ecosystem.
+    # Measured working for all four C++ repositories in the cohort (2026-09-06).
+    source_install="git clone https://github.com/{repository}.git\ncd {name}\ncmake -S . -B build",
+    source_install_lead="configure the clone with cmake",
     # Nothing a consumer can run to verify an install: there is no install. The renderer only
     # reaches this template when an `import_path` fact matches an executed example's import
     # statement, and C++ writes `#include`, not `import`.

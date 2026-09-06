@@ -176,6 +176,15 @@ NET_ENTRY = RegistryEntry.model_validate(
         "ecosystem": "net",
     }
 )
+CPP_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp",
+        "family": "widget",
+        "platform": "cpp",
+        "ecosystem": "cpp",
+    }
+)
 
 
 def test_a_verified_source_build_is_admitted_when_the_registry_says_not_yet_published() -> None:
@@ -208,3 +217,29 @@ def test_a_verified_source_build_is_not_admitted_without_reason() -> None:
     # Not an install_command fact at all: nothing to admit.
     not_install = replace(_install(), kind="package", id="package:name")
     assert _source_build_fact(not_install, NET_ENTRY, [_receipt("EXECUTED")]) is not_install
+
+
+def test_a_registry_less_ecosystems_unresolved_install_is_admitted_too() -> None:
+    """G4-W17 arrival item 24. With no registry to read as "not there", a registry-less
+    ecosystem's install fact can never become CONTRADICTED - it starts and stays UNRESOLVED
+    forever, so item 0's gate never opened for it. Measured 2026-09-06 on the whole C++ cohort:
+    `cpp` has no `REGISTRY_TYPES` entry, and PDF and Cells C++ had no other blocker."""
+    plugin_for("cpp")  # imports platforms/cpp.py, which registers its own EcosystemSpec
+    admitted = _source_build_fact(_install("UNRESOLVED"), CPP_ENTRY, [_receipt("EXECUTED")])
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Cpp.git\n"
+        "cd Aspose.Widget-FOSS-for-Cpp\ncmake -S . -B build"
+    )
+    assert admitted.attributes == {"install_kind": "source"}
+
+
+def test_a_registry_having_ecosystems_unresolved_install_stays_unresolved() -> None:
+    """G4-W17 arrival item 24's own mutation test. UNRESOLVED for a registry-having ecosystem
+    means the probe could not be read this time - a transient reading, never "not published" -
+    so it must keep failing closed even with an EXECUTED receipt, exactly as it did before this
+    item; only a registry-less ecosystem's UNRESOLVED is admitted."""
+    assert (
+        _source_build_fact(_install("UNRESOLVED"), NET_ENTRY, [_receipt("EXECUTED")]).polarity
+        == "UNRESOLVED"
+    )

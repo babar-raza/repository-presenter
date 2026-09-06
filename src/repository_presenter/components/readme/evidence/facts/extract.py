@@ -14,6 +14,7 @@ from repository_presenter.components.readme.evidence.facts.links import link_fac
 from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
+from repository_presenter.components.readme.extractors.surface.registry import REGISTRY_TYPES
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
@@ -59,8 +60,22 @@ def _source_build_fact(
     registry command, so the renderer never tells a reader to `pip install <name>` or
     `cargo add <name>` for a package no registry lists. An ecosystem with no `source_install`
     template (a registry-less spec has nothing to admit either way) leaves the fact untouched.
+
+    Item (24): a registry-less ecosystem's install fact can never become CONTRADICTED - there is
+    no registry to read as "not there" - so it starts and stays UNRESOLVED forever, and this gate
+    never opened for it (measured 2026-09-06 on the whole C++ cohort: `cpp` has no `REGISTRY_TYPES`
+    entry). UNRESOLVED is admitted too, but only when the ecosystem has no registry at all; for a
+    registry-having ecosystem, UNRESOLVED means the probe could not be read this time - a
+    transient reading, not a "not published" one - so it must keep failing closed rather than being
+    treated as if the registry had spoken.
     """
-    if fact.kind != "install_command" or fact.polarity != "CONTRADICTED":
+    if fact.kind != "install_command":
+        return fact
+    registry_less = entry.ecosystem not in REGISTRY_TYPES
+    admissible = fact.polarity == "CONTRADICTED" or (
+        fact.polarity == "UNRESOLVED" and registry_less
+    )
+    if not admissible:
         return fact
     if not any(receipt.outcome == "EXECUTED" for receipt in receipts):
         return fact
