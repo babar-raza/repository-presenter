@@ -3791,3 +3791,16 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   cannot turn a resolved link into a missing one, only the reverse, and it costs one extra
   request only where the first answer was already a failure. Alternative rejected: special-casing
   nuget.org, which would leave the next HEAD-hostile host to be found by a failed candidate.
+
+- **2026-09-06 19:05 · loop (PROVISIONAL) · which capability facts are shared is composed, not
+  restated.** Item G4-W11. With BC-02 and BC-06 fixed, Aspose.3D reached
+  `presentation_planning` and was rejected twice for `public_symbol:aspose.threed.entities` being
+  cited by capabilities 2, 6 and 7 but declared shared by only 6 and 7 — the same class that
+  rejected Cells, Email and Words, so four of the six died on bookkeeping the citations already
+  carry. That is RC1 exactly, and `plan_checks` already composes the shell's inclusion decisions
+  and appends a missing Additional Example for the same reason. `shared_fact_ids` is now composed
+  from the citations, only where there is something to compose or correct. What the citations
+  cannot decide stays an error, and it is the one RC2 is really about: a capability every one of
+  whose facts another capability also cites has nothing left to tell it apart. Alternative
+  rejected: editing the planning prompt — a prompt's sha256 is in `dependencies.json`, so it
+  would cost both sealed candidates, unrecoverable until G5-W02.

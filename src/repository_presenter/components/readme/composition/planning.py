@@ -152,13 +152,21 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
 
 
 def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
-    """Why two capabilities may not rest on the same fact without saying so.
+    """Why two capabilities may not rest on the same facts, with the bookkeeping composed here.
 
     Overlapping fact sets are why a subset check cannot separate one capability's prose from
-    another's even in principle (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC2). The sets are
-    therefore pairwise disjoint unless every capability citing a shared fact declares it, which
-    keeps a genuinely shared example usable and leaves the rest of each set discriminating
-    (section 27.5 D2).
+    another's even in principle (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC2). What matters
+    is that the rest of each set still discriminates (section 27.5 D2) - and *which* facts are
+    shared is derivable from the citations themselves, so it is composed rather than asked for.
+    Asking the model to restate a decision and then rejecting it for restating it wrongly is
+    RC1, the same reason the shell's inclusion decisions are composed below.
+
+    Measured 2026-09-06: `shared_fact_ids` unstated by one of the citing capabilities rejected
+    `presentation_planning` twice on Aspose.3D, Cells, Email and Words for .NET - four of the six
+    - each naming a fact the model had already declared shared everywhere else.
+
+    What is not derivable stays an error: a capability whose every fact is shared has nothing
+    left to tell it apart, which is the condition RC2 is about.
     """
     errors: list[str] = []
     holders: dict[str, set[int]] = {}
@@ -172,20 +180,20 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
             )
         for fact_id in cited:
             holders.setdefault(fact_id, set()).add(index)
-    for fact_id, holding in sorted(holders.items()):
-        if len(holding) < 2:
-            continue
-        undeclared = sorted(
-            index
-            for index in holding
-            if fact_id not in set(capabilities[index - 1].get("shared_fact_ids") or [])
-        )
-        if undeclared:
+    shared = {fact_id for fact_id, holding in holders.items() if len(holding) > 1}
+    for index, item in enumerate(capabilities, start=1):
+        cited = set(item.get("fact_ids", []))
+        declared = sorted(cited & shared)
+        # Composed only where there is something to compose or something to correct: a plan whose
+        # capabilities share nothing keeps the shape the model wrote.
+        if declared or item.get("shared_fact_ids"):
+            item["shared_fact_ids"] = declared
+        discriminating = cited - shared
+        if cited and not discriminating:
             errors.append(
-                f"fact {fact_id} is cited by capabilities "
-                f"{', '.join(str(index) for index in sorted(holding))}; give each capability its "
-                "own facts, or list the fact in shared_fact_ids of every capability that cites it "
-                f"(missing from {', '.join(str(index) for index in undeclared)})"
+                f"capability {index} rests only on facts other capabilities cite "
+                f"({', '.join(sorted(cited))}); give it at least one fact of its own, or fold it "
+                "into the capability it cannot be told apart from"
             )
     return errors
 
