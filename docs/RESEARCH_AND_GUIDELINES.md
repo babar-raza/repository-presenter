@@ -4930,3 +4930,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   §0 of `project/loop-prompt-lane.md` (which already directs every lane to read and follow §6 in
   full), for lanes B, C and D without a second edit. Applies from the next spawn or wakeup of each;
   it does not retroactively reopen a disposition already recorded before this entry.
+
+- **2026-09-06 20:29 (`date` checked) · loop (PROVISIONAL) · item 31 landed: `aspose-pdf-foss/
+  Aspose.PDF-FOSS-for-TypeScript`'s `disabled` mode was a stale flag, not a content defect.**
+  `evidence/build/lanes/lane-b/G4-W14.json`'s own record: `revision: null`, `DISABLED_UPSTREAM`,
+  "`data/registry.json` records `mode: disabled`... No clone was attempted", resume predicate
+  "the registry entry's mode becomes `dry_run`... the plugin and verifier need no change to take
+  it" - exactly as the reviewer's directive read, and aspose.org's own independent regen run
+  already proved this repository clones, builds and executes. `data/registry.json`'s one field
+  flipped `disabled` to `dry_run`; `tests/core/registry/test_loader.py::test_real_registry_is_
+  the_frozen_portfolio` hard-coded `len(enabled_entries(registry)) == 31`, now `32` - the reachable
+  ceiling correcting by exactly the one entry this item re-enables, one below the frozen portfolio
+  denominator of 34 (`registry.entries` itself unchanged at 34; `disabled` still appears in the
+  mode set, so other disabled entries remain). Full suite green, ruff/mypy clean, before this
+  entry. Live-verifying the standard PDF pipeline against it now.

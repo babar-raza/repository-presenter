@@ -342,7 +342,7 @@
       "family": "pdf",
       "platform": "typescript",
       "ecosystem": "typescript",
-      "mode": "disabled",
+      "mode": "dry_run",
       "policy_profile": "aspose-pdf-foss-typescript",
       "active": true,
       "provider_identity": {

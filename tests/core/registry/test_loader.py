@@ -59,7 +59,11 @@ def test_real_registry_is_the_frozen_portfolio() -> None:
     )
     assert all(e.active for e in registry.entries)
     assert {e.mode for e in registry.entries} == {"full", "dry_run", "disabled"}
-    assert len(enabled_entries(registry)) == 31
+    # G4-W17 arrival item 31: aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's `disabled` mode
+    # was a stale flag, not a content defect - no clone had ever been attempted
+    # (evidence/build/lanes/lane-b/G4-W14.json). Flipped to dry_run; the reachable ceiling moves
+    # 31 to 32, one below the frozen portfolio denominator of 34.
+    assert len(enabled_entries(registry)) == 32
 
 
 def test_real_registry_admits_the_canary_read_only() -> None:
