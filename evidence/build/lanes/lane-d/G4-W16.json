@@ -206,5 +206,99 @@
       "runs_this_rerun": 1
     },
     "status_line_observed": "candidates: 3/34 current reviewable no-op-proven (unchanged; no seal)"
+  },
+  "rerun_2_2026_09_06": {
+    "why": "PROPOSAL P6's resume predicate for aspose-cells-foss/Aspose.Cells-FOSS-for-Rust was met: G4-W17 arrival item 22 landed on main at 638a7ac, so validation/registry.py's narration guard now matches at a word boundary and exempts a repository's own symbols.",
+    "control_revision": "638a7ac",
+    "worktree": "C:\\w\\d16r (fresh, branch lane-d/G4-W16-r2 off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+    "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+    "lane_owned_changes": [],
+    "lane_owned_changes_note": "No code changed this run; the blockers were and remain shared code.",
+    "resume_predicate_met": true,
+    "class_cleared": {
+      "class": "BC07_PUBLIC_SYMBOL_READ_AS_NARRATION",
+      "proposal": "P6 / G4-W17 item 22",
+      "verdict": "CLOSED for aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+      "evidence": {
+        "before": "The 14:05 re-run: BC-07 failed on the bare word 'validator', matched inside this crate's own public type WorkbookValidator, and no composition could pass without lying about the surface.",
+        "after": "BC-07 PASSES. Same repository, same 2,084-symbol surface, check green."
+      }
+    },
+    "candidate": {
+      "facts": "2224 records: public_symbol 2084, inherited_unit 81, link_target 32, dependency 7, example 7, identity 5, package 3, license 2, build_test_asset 1, import_path 1, install_command 1",
+      "examples": "7 candidates; executed 1, not_verified 6",
+      "plan": "sections 16/18, capabilities 8, hubs 12, examples 1+0, links 5, limitations 1",
+      "units": "140 units across 8 sections",
+      "coherence": "0 of 140 units revised",
+      "readme": "173 visible lines of 1068",
+      "readme_digest": "904b65986a9278328edc101c59c93463e718a47b2d8ab1142fe674deedffa31f",
+      "validation_digest": "ca7293a1351f58470143a5ad602bd88840dc169c989833ac96220780ca311cd7"
+    },
+    "checks_passed": [
+      "BC-01",
+      "BC-03",
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07",
+      "BC-09"
+    ],
+    "checks_pending": {
+      "BC-10": "PENDING, judged at S10 - never reached",
+      "BC-11": "PENDING, judged at S12 - never reached"
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "check": "BC-02",
+        "causal_stage": "EXTRACTING",
+        "section_id": null,
+        "detail": "install_command:cargo is UNRESOLVED: package registry: cargo could not be read; no repair could act on it",
+        "class": "BC02_REGISTRY_UNREADABLE_FAILS_CLOSED",
+        "proposal": "P17",
+        "shared_code": "extract.py::_source_build_fact (G4-W17 item (24)'s gate) and validation/registry.py::_check_install; the vendored RegistryProbe's crates.io request",
+        "measured": {
+          "the_fact": "install_command:cargo, polarity UNRESOLVED, confidence 0.5, evidence https://crates.io/api/v1/crates/aspose-cells-foss-rust - 'package registry: cargo could not be read'.",
+          "it_passed_before": "At the 14:05 re-run crates.io answered conclusively (404 on the crate), the fact read CONTRADICTED, item (0)'s source-build path fired on a measured cargo build (exit 0), and BC-02 PASSED. The candidate did not change; the registry read did.",
+          "why_the_fallback_did_not_fire": "Item (24)'s _source_build_fact admits UNRESOLVED only when entry.ecosystem is not in REGISTRY_TYPES. Rust is in it ('cargo'), so the source-build path is skipped and BC-02 fails closed - by item (24)'s own design and mutation test.",
+          "the_read_looks_refused_not_answered": "probes.json records https://crates.io/ itself returning HTTP 404 after 17,563 ms, where every other probed host answered 200 in about a second. A 404 on the crates.io root is not a real answer about a crate; crates.io requires a named User-Agent (RESEARCH section 29).",
+          "repair": "'EXTRACTING is not repairable by revision', unrepairable."
+        }
+      },
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "check": "BC-08",
+        "causal_stage": "COMPOSING",
+        "section_id": null,
+        "detail": "inherited_unit:079.paragraph: VERIFIED_PRESERVE keeps the command 'cargo bench' but the candidate does not render it; the same for 'cargo doc --no-deps --open'",
+        "class": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "proposal": "P18 (P7 / G4-W17 item 23, third occurrence, and wider than item 23's own wording)",
+        "shared_code": "validation/registry.py BC-08 and repair/targeted.py::validation_defects",
+        "measured": {
+          "third_repository": "Cells Rust (14:05), PDF Go (22:51, P15), Cells Rust again - two ecosystems, three occurrences, identical wording.",
+          "wider_than_item_23": "The disposition kind here is VERIFIED_PRESERVE, not VERIFIED_REWRITE. Item 23 is written about 'a VERIFIED_REWRITE placement's dropped protected command'; the fix must carry the destination section id into the Failure for every disposition kind that names one.",
+          "repair": "outcome 'unrepairable', reason 'no failing check names an LLM-owned section'; rounds 1, 0 repaired, 2 unrepairable recorded advisory."
+        }
+      }
+    ],
+    "proposals": [
+      "P17 a registry-having ecosystem's install fact reads UNRESOLVED both when the registry answered inconclusively and when it could not be read at all, and item (24) fails closed on both - so this candidate's BC-02 verdict depends on whether crates.io answers on the day, though the source-build evidence item (0) admits was measured green in both runs. Fix smallest first: harden the crates.io request (named User-Agent; the probe got 404 on the site root), and only if that is insufficient, record why a fact is UNRESOLVED so item (24)'s gate can admit a verified source build for 'registry unreachable' while still failing closed on 'registry inconclusive'.",
+      "P18 P7 / G4-W17 item 23 confirmed a third time and wider than its wording: the dropped-command Failure carries section_id null for a VERIFIED_PRESERVE unit as well as a VERIFIED_REWRITE one, so repair records 'unrepairable' for a defect whose destination_section the disposition already names."
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "BC02_REGISTRY_UNREADABLE_FAILS_CLOSED",
+        "beside_it": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "supersedes": "BC07_PUBLIC_SYMBOL_READ_AS_NARRATION - cleared by G4-W17 item 22, measured: BC-07 green on the same crate whose WorkbookValidator failed it before",
+        "resume_predicate": "PROPOSAL P17 (step 1, the probe fix, may suffice alone) and G4-W17 item 23 as widened by PROPOSAL P18, landed on main; then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` from a fresh lane-d branch"
+      }
+    ],
+    "observation_not_a_proposal": "Example verification returned 1 executed of 7 candidates where the 14:05 run type-checked its Quick Start, and the plan carries 'examples 1+0'. Not investigated and not the blocker - BC-03 passed on what was rendered - but worth a look before the next attempt.",
+    "not_claimed": "BC-10 and BC-11 are PENDING and were never judged."
   }
 }
