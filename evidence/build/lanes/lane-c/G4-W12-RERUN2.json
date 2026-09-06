@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (single repository)",
+  "recorded_at": "2026-09-06T23:06:52-08:00",
+  "control_revision": "638a7ac",
+  "control_revision_note": "origin/main at the start of this re-run; the tip commit is G4-W17 arrival item 22 itself, 'fix(validation): match narration at a word boundary, exempt a repository's own symbols'.",
+  "trigger": "Reviewer re-spawn after G4-W17 arrival item 22 landed at 22:53. Item 22 is the recorded resume predicate of this lane's Aspose.Cells for Java disposition (evidence/build/lanes/lane-c/G4-W12-RERUN.json, cohort[2]). Scope of this run is that one repository: 3D Java still waits on item 32 (PROPOSAL J) and Slides Java on item 33 (PROPOSAL L), neither landed; PDF Java is sealed and untouched.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\c12r - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "path_policy": "No toolchain resolution was needed this run: the transaction reached S9 from the same clone and the same facts as the previous re-run, and the example verifier's javac path is recorded in project/lanes/lane-c.yaml."
+  },
+  "what_was_measured": [
+    "repository-presenter preflight: gateway reachable, 7 models, 6 prompt manifests routed to qwen3-next, catalog digest 8f3d53592400b37d451f880e99a92331c34b47de4f40f8556bee5ef47f4ad1fb.",
+    "repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Java: exit 1, validation BC-07 failed at COMPOSING: internal narration 'validator'; after one repair attempt the equivalent failure stands."
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION (BC-07 internal narration 'validator', resume predicate: G4-W17 arrival item 22)",
+      "failure_class": "BLOCKED_VALIDATION (BC-07 internal narration 'validator')",
+      "stage_reached": "S9 validation; unchanged from the previous re-run",
+      "facts": 2829,
+      "public_symbols": 2728,
+      "examples": "3 candidates; 3 EXECUTED",
+      "validation_summary": "pass 8, fail 1, pending 2 (BC-10 and BC-11 never run; the transaction stops at S9). Failing check BC-07, causal_stage COMPOSING, section_id api_reference. Advisory list holds one entry, inherited_unit:010.list.",
+      "readme_measured": "runs/transactions/aspose-cells-foss__Aspose.Cells-FOSS-for-Java/779c9640ee38ed9e80c53e8db1e850f6be24372f/README.md, 241 visible lines of 452, digest 2fe7d17bba0113c0b945ab7be69901a7efd405dfeaf30f06c2b18bbddd448b37",
+      "resume_predicate_status": "MET AND LIVE, AND INSUFFICIENT. Item 22 is present in the tree under test (registry.py lines 261-268: _NARRATION_PATTERNS compiles each phrase as \\b<phrase>\\b; lines 856-872: the SUPPORTED public_symbol last-segment exemption). Both halves are exercised and both work as written. Neither reaches the text that actually matches.",
+      "diagnosis": "The matched text is not the symbol name. `validator` occurs exactly once in the whole document, at README.md line 350, inside <details> (depth 1) in the collapsed API Reference table: | `WorkbookValidator` | A validator for workbook models that produces validation messages. |. The backticked symbol name is removed by _prose's code-span rule before matching, and would not match at a word boundary anyway. The standalone English word in the description is what matches. That description is the repository's own Javadoc, verbatim from src/main/java/org/aspose/cells_foss/validation/WorkbookValidator.java line 9, carried as the `docstring` attribute of public_symbol:org.aspose.cells_foss.validation.workbookvalidator and rendered deterministically by the renderer. The item 22 exemption compares each phrase to symbol NAMES only, and no symbol in this repository is named `Validator`, so it cannot reach it.",
+      "why_repair_cannot_close_it": "The phrase appears in no content unit: content_units.json for this transaction (28 units across 9 sections) holds no occurrence of `validator`. targeted_repair routed the failure to S6 api_reference, re-authored, and the equivalent failure re-raised; the repair record reads `1 repaired (BC-07 S6 api_reference), 0 unrepairable recorded advisory, 1 re-raised after repair; the equivalent failure stands; rounds 2`. There is nothing an LLM-owned unit can revise, because the text is bound to a fact and rendered deterministically.",
+      "new_resume_predicate": "PROPOSAL N merged on main (the narration exemption is anchored to a SUPPORTED public_symbol fact's `docstring` attribute as well as its name), then re-run present for Cells Java.",
+      "not_fixed_in_lane_because": "The exemption lives in src/repository_presenter/components/readme/validation/registry.py, which this lane does not own (loop-prompt-lane section 0 and section 3). The one fix available inside this lane's own paths - rewording the Javadoc in platforms/java.py's _javadoc_prose so the word never reaches the document - would have sealed the candidate inside the box and was rejected: it falsifies the repository's own documentation to satisfy a check, which is patching around the defect (section 2), and it would degrade every Java candidate."
+    }
+  ],
+  "not_touched_this_run": [
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - SEALED at 099e70a8 in the previous re-run; its bundle was not read or rewritten.",
+    "aspose-3d-foss/Aspose.3D-FOSS-for-Java - DISPOSITION BLOCKED_VALIDATION (BC-06 Aspose-link ceiling over a VERIFIED_MOVE unit's own links); resume predicate G4-W17 item 32 / PROPOSAL J, not landed at 638a7ac.",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Java - DISPOSITION BLOCKED_REVIEW (BC-10 REJECT_PRESENTATION over renderer-owned structure); resume predicate G4-W17 item 33 / PROPOSAL L, not landed at 638a7ac."
+  ],
+  "proposals": {
+    "raised": [
+      "N - the item 22 narration exemption is anchored to a public_symbol fact's NAME; the same fact's `docstring` attribute is rendered verbatim into the collapsed API Reference and scanned as authored prose. Aspose.Cells for Java's only blocker. Full entry, with the mutation test and the two rejected alternatives, in docs/RESEARCH_LANE_C.md."
+    ],
+    "closed_in_lane": [
+      "The symbol-NAME half of the class this lane reported as G4-W17 arrival item 22 is closed by 638a7ac and verified live here: `validator` no longer matches inside `workbookvalidator`. The class as a whole is not closed; PROPOSAL N is its remaining half."
+    ],
+    "still_open_elsewhere": [
+      "J (= G4-W17 item 32) - 3D Java's only blocker; the primary was working it at spawn time.",
+      "L (= G4-W17 item 33) - Slides Java's only blocker.",
+      "I - the Maven badge's landing URL; non-blocking.",
+      "M - a sealing lane must move project/state.yaml's progress.current_candidates; not exercised this run, since nothing sealed."
+    ]
+  },
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 1,
+    "dispositions_by_lane": 3,
+    "candidates_on_disk": 6,
+    "candidates_on_disk_method": "repository-presenter status from this worktree at 638a7ac before any commit: 'candidates: 6/34 current reviewable no-op-proven'. Unchanged by this run - nothing sealed and nothing was invalidated.",
+    "state_yaml_untouched": "progress.current_candidates was not read for arithmetic and not written: the sealing exception in loop-prompt-lane section 0 applies only when a PR seals a candidate, and this one does not."
+  }
+}
