@@ -1,286 +1,406 @@
 {
- "schema_version": 1,
- "lane": "lane-d",
- "gate": "G4_MULTI_LANGUAGE_COHORTS",
- "work_item": "G4-W15",
- "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-06T09:15:00+05:00",
- "control_revision": "907b6c6cc7e53132b5f622473bda4b666c4cbbf8",
- "control_revision_note": "The single-use branch lane-d/G4-W15 is rebased onto this revision of origin/main and landed through one squashed pull request after the hosted three-version run. The lane moved its worktree to C:\\w\\d15 mid-item on the reviewer's instruction: the harness worktree path plus runs/transactions/<owner>__<name>/<rev>/calls/<sha>.rejected-1.json exceeds the Windows path limit, which had already killed lane B's Cells TypeScript composition.",
- "environment": {
-  "os": "Windows 11 10.0.26200",
-  "python": "3.13 (.venv from C:\\Python313)",
-  "worktree": "C:\\w\\d15"
- },
- "toolchains": [
-  {
-   "tool": "go",
-   "resolved_by": "shutil.which(\"go\")",
-   "path": "C:\\Program Files\\Go\\bin\\go.EXE",
-   "version": "go1.26.4 windows/amd64",
-   "note": "On PATH on this machine; the verifier resolves it with shutil.which and calls the resolved path. GOPATH, GOMODCACHE and every other cache are redirected under runs/verify/<key>/example_NNN by core.execution.profile_environment, and the workspace is made absolute first because the go command refuses a relative GOPATH."
-  }
- ],
- "preflight": {
-  "command": "repository-presenter present --repo <owner/name> --facts-only",
-  "provider_calls": 0,
-  "repositories": 2,
-  "processable": 2,
-  "report": [
-   {
-    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-    "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
-    "processable": true,
-    "facts": 231,
-    "supported": 227,
-    "unresolved": 3,
-    "contradicted": 1,
-    "required_rows_without_evidence": [],
-    "module_path": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26",
-    "import_path": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss",
-    "go_version": "1.24.5",
-    "dependencies": "verified zero (no require directive)",
-    "public_symbols": 109,
-    "examples": "10 candidates; 8 EXECUTED, 1 FAILED, 1 NOT_VERIFIED"
-   },
-   {
-    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
-    "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
-    "processable": true,
-    "facts": 1620,
-    "supported": 1618,
-    "unresolved": 2,
-    "contradicted": 0,
-    "required_rows_without_evidence": [],
-    "module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
-    "import_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
-    "go_version": "1.24",
-    "dependencies": "verified zero (no require directive)",
-    "public_symbols": 1467,
-    "examples": "6 candidates; 5 EXECUTED, 1 NOT_VERIFIED"
-   }
+  "schema_version": 1,
+  "lane": "lane-d",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W15",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-06T09:15:00+05:00",
+  "control_revision": "907b6c6cc7e53132b5f622473bda4b666c4cbbf8",
+  "control_revision_note": "The single-use branch lane-d/G4-W15 is rebased onto this revision of origin/main and landed through one squashed pull request after the hosted three-version run. The lane moved its worktree to C:\\w\\d15 mid-item on the reviewer's instruction: the harness worktree path plus runs/transactions/<owner>__<name>/<rev>/calls/<sha>.rejected-1.json exceeds the Windows path limit, which had already killed lane B's Cells TypeScript composition.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\d15"
+  },
+  "toolchains": [
+    {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64",
+      "note": "On PATH on this machine; the verifier resolves it with shutil.which and calls the resolved path. GOPATH, GOMODCACHE and every other cache are redirected under runs/verify/<key>/example_NNN by core.execution.profile_environment, and the workspace is made absolute first because the go command refuses a relative GOPATH."
+    }
   ],
-  "failure_classes": [
-   {
-    "class": "GO_TEST_FILES_IN_THE_PUBLIC_SURFACE",
-    "repositories": [
-     "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+  "preflight": {
+    "command": "repository-presenter present --repo <owner/name> --facts-only",
+    "provider_calls": 0,
+    "repositories": 2,
+    "processable": 2,
+    "report": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+        "processable": true,
+        "facts": 231,
+        "supported": 227,
+        "unresolved": 3,
+        "contradicted": 1,
+        "required_rows_without_evidence": [],
+        "module_path": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26",
+        "import_path": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss",
+        "go_version": "1.24.5",
+        "dependencies": "verified zero (no require directive)",
+        "public_symbols": 109,
+        "examples": "10 candidates; 8 EXECUTED, 1 FAILED, 1 NOT_VERIFIED"
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+        "processable": true,
+        "facts": 1620,
+        "supported": 1618,
+        "unresolved": 2,
+        "contradicted": 0,
+        "required_rows_without_evidence": [],
+        "module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
+        "import_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go",
+        "go_version": "1.24",
+        "dependencies": "verified zero (no require directive)",
+        "public_symbols": 1467,
+        "examples": "6 candidates; 5 EXECUTED, 1 NOT_VERIFIED"
+      }
     ],
-    "detail": "the shared extractor returned 3,056 symbols for the module, 1,589 of them declared in _test.go files and one under _examples/. Fixed in the lane's own module: go.importable drops every file the go command will not let a consumer import (_test.go, internal/, testdata/, vendor/, a directory whose name starts with _ or .), leaving 1,467.",
-    "status": "FIXED"
-   },
-   {
-    "class": "GO_FRAGMENT_WRAPPED_AS_TOP_LEVEL_DECLARATIONS",
-    "repositories": [
-     "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
-    ],
-    "detail": "a README writes a function body unindented, so `var buf bytes.Buffer` sits at column 0 in the middle of a run of statements; searching the snippet for a declaration called two of six fences top-level declarations and reported `syntax error: non-declaration statement outside function body` for a defect the examples do not have. Fixed: the shape test is anchored at the snippet's first token.",
-    "status": "FIXED"
-   },
-   {
-    "class": "GO_IMPORT_ONLY_FENCE_REPORTED_AS_FALSE",
-    "repositories": [
-     "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
-    ],
-    "detail": "the README's first Go fence is a lone `import cells_foss \"…/aspose/cells_foss\"`. Wrapped in func main it is a syntax error, declared at file scope it is an unused import, and either way the example fact read CONTRADICTED about a true statement. Fixed: a fence that declares only imports is NOT_VERIFIED - there is nothing in it to compile.",
-    "status": "FIXED"
-   },
-   {
-    "class": "GO_MODULE_MAJOR_SUFFIX_IN_A_REQUIREMENT",
-    "repositories": [
-     "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
-    ],
-    "detail": "Go rejects `require …/Aspose.Cells-FOSS-for-Go/v26 v0.0.0` outright (\"version v0.0.0 invalid: should be v26, not v0\"), so the verifier's wrapper module would not parse at all. Fixed: require_version derives the requirement's major version from the module path's own suffix. The same suffix is carried into `go get` on the install line.",
-    "status": "FIXED"
-   },
-   {
-    "class": "GO_SYMBOL_KIND_UNKNOWN_EMPTIES_THE_API_REFERENCE",
-    "repositories": [
-     "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-     "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
-    ],
-    "detail": "the shared façade's _KINDS table has no entry for the vendored engine's Go kinds (`type_spec`, and the literal `function`), so every Go type is `unknown` and the renderer's Core API table, which lists `class` and `enum` only, would render empty. Cause is in extractors/surface/extractor.py, outside lane D's paths: PROPOSAL P1 in docs/RESEARCH_LANE_D.md.",
-    "status": "PROPOSED"
-   },
-   {
-    "class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
-    "repositories": [
-     "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-     "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
-    ],
-    "detail": "the shared registry façade maps ecosystem `go` to registry type `goproxy` while the vendored probe's adapter table is keyed `go_modules`, so the Go proxy is never asked and `install_command:go` stays UNRESOLVED with \"package registry: goproxy could not be read\"; correcting the key alone raises KeyError because the Go adapter reads candidate[\"module_path\"] and the façade passes only \"name\". BC-02 fails every install fact that is not SUPPORTED, so no Go candidate can pass validation. Cause is in extractors/surface/registry.py, outside lane D's paths: PROPOSAL P2.",
-    "status": "PROPOSED"
-   }
-  ]
- },
- "dispositions": [
-  {
-   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-   "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
-   "reason_code": "BLOCKED_SHARED_CODE",
-   "failure_class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
-   "detail": "Facts are complete: 231 records, 227 supported, no required contract row without evidence, 8 of 10 README examples compiled and vetted against the module at this revision. The candidate cannot be composed because BC-02 fails closed on an install command the shared registry façade never resolved, and its API Reference would be empty because the shared kind table does not know Go's node types.",
-   "resume_predicate": "PROPOSAL P1 and PROPOSAL P2 in docs/RESEARCH_LANE_D.md are landed on main (G4-W17); then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch."
+    "failure_classes": [
+      {
+        "class": "GO_TEST_FILES_IN_THE_PUBLIC_SURFACE",
+        "repositories": [
+          "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+        ],
+        "detail": "the shared extractor returned 3,056 symbols for the module, 1,589 of them declared in _test.go files and one under _examples/. Fixed in the lane's own module: go.importable drops every file the go command will not let a consumer import (_test.go, internal/, testdata/, vendor/, a directory whose name starts with _ or .), leaving 1,467.",
+        "status": "FIXED"
+      },
+      {
+        "class": "GO_FRAGMENT_WRAPPED_AS_TOP_LEVEL_DECLARATIONS",
+        "repositories": [
+          "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+        ],
+        "detail": "a README writes a function body unindented, so `var buf bytes.Buffer` sits at column 0 in the middle of a run of statements; searching the snippet for a declaration called two of six fences top-level declarations and reported `syntax error: non-declaration statement outside function body` for a defect the examples do not have. Fixed: the shape test is anchored at the snippet's first token.",
+        "status": "FIXED"
+      },
+      {
+        "class": "GO_IMPORT_ONLY_FENCE_REPORTED_AS_FALSE",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
+        ],
+        "detail": "the README's first Go fence is a lone `import cells_foss \"…/aspose/cells_foss\"`. Wrapped in func main it is a syntax error, declared at file scope it is an unused import, and either way the example fact read CONTRADICTED about a true statement. Fixed: a fence that declares only imports is NOT_VERIFIED - there is nothing in it to compile.",
+        "status": "FIXED"
+      },
+      {
+        "class": "GO_MODULE_MAJOR_SUFFIX_IN_A_REQUIREMENT",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
+        ],
+        "detail": "Go rejects `require …/Aspose.Cells-FOSS-for-Go/v26 v0.0.0` outright (\"version v0.0.0 invalid: should be v26, not v0\"), so the verifier's wrapper module would not parse at all. Fixed: require_version derives the requirement's major version from the module path's own suffix. The same suffix is carried into `go get` on the install line.",
+        "status": "FIXED"
+      },
+      {
+        "class": "GO_SYMBOL_KIND_UNKNOWN_EMPTIES_THE_API_REFERENCE",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+          "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+        ],
+        "detail": "the shared façade's _KINDS table has no entry for the vendored engine's Go kinds (`type_spec`, and the literal `function`), so every Go type is `unknown` and the renderer's Core API table, which lists `class` and `enum` only, would render empty. Cause is in extractors/surface/extractor.py, outside lane D's paths: PROPOSAL P1 in docs/RESEARCH_LANE_D.md.",
+        "status": "PROPOSED"
+      },
+      {
+        "class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+          "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
+        ],
+        "detail": "the shared registry façade maps ecosystem `go` to registry type `goproxy` while the vendored probe's adapter table is keyed `go_modules`, so the Go proxy is never asked and `install_command:go` stays UNRESOLVED with \"package registry: goproxy could not be read\"; correcting the key alone raises KeyError because the Go adapter reads candidate[\"module_path\"] and the façade passes only \"name\". BC-02 fails every install fact that is not SUPPORTED, so no Go candidate can pass validation. Cause is in extractors/surface/registry.py, outside lane D's paths: PROPOSAL P2.",
+        "status": "PROPOSED"
+      }
+    ]
   },
-  {
-   "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
-   "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
-   "reason_code": "BLOCKED_SHARED_CODE",
-   "failure_class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
-   "detail": "Facts are complete: 1,620 records, 1,618 supported, no required contract row without evidence, 5 of 6 README examples compiled and vetted against the module at this revision. Blocked by the same two shared-code defects, with nothing repository-specific outstanding.",
-   "resume_predicate": "PROPOSAL P1 and PROPOSAL P2 in docs/RESEARCH_LANE_D.md are landed on main (G4-W17); then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch."
-  }
- ],
- "proposals": [
-  "P1 extractors/surface/extractor.py _KINDS has no entry for the vendored engine's Go kinds (type_spec, the literal function), so every Go type is `unknown` and the Core API table renders empty.",
-  "P2 extractors/surface/registry.py maps go to `goproxy` where the vendored adapter table is keyed `go_modules`, and observe() passes no module_path for the Go adapter; the proxy is never probed and BC-02 fails closed.",
-  "P3 composition/renderer.py::_installation appends a hard-coded `pip install .` source-install block for any ecosystem with an executed example; EcosystemSpec's docstring names a `source_install` template the dataclass does not have.",
-  "P4 composition/renderer.py::_IMPORT matches only Python-shaped imports, so a Go (or C#) import path never matches an executed example and spec.verify_command never renders."
- ],
- "predicates": [
-  {
-   "predicate": "Go spec: identity, floor and the dependency snapshot from the vendored ManifestReader, major-version suffix carried into the install line",
-   "met": true,
-   "evidence": "platforms/go.py declares GO and registers it by setdefault; manifest_facts emit package:name (module path), install_command:go (`go get …/v26`), import_path (module path plus the package subdirectory the reader reports), package:go_version and the dependency snapshot or its verified-zero marker; tests/.../test_go.py covers each."
-  },
-  {
-   "predicate": "Exported surface through the shared extractor with interface and struct-embedding handling",
-   "met": true,
-   "evidence": "surface_facts calls surface_symbols with the Go parser over the importable package directory; the vendored engine's Go branch already reads struct embedding and interface type_elem embedding as bases. 109 symbols for Cells, 1,467 for PDF, symbols below the module root qualified by their package."
-  },
-  {
-   "predicate": "A fresh verifier: go build and go vet in a disposable GOPATH and module cache",
-   "met": true,
-   "evidence": "platforms/go_examples.py, written fresh on core.execution with the legacy read-only; profile_environment redirects GOPATH and GOMODCACHE into the run directory; 13 of 16 cohort fences compiled and vetted."
-  },
-  {
-   "predicate": "Registry facts through the vendored RegistryProbe (Go proxy; module-path escaping)",
-   "met": false,
-   "evidence": "registry_facts calls the shared observe() façade and records the reading and its probe record faithfully, but the façade never reaches the Go adapter: PROPOSAL P2. The adapter's own module-path escaping is intact and untouched."
-  },
-  {
-   "predicate": "A negative control",
-   "met": true,
-   "evidence": "test_go_examples.py: no toolchain, no module file, an uncleanable workspace and a toolchain that reports no version are all NOT_VERIFIED (UNRESOLVED downstream), never CONTRADICTED; a timeout is TIMED_OUT; a diagnostic carries no path from this machine."
-  },
-  {
-   "predicate": "Cohort report; zero-call proofs",
-   "met": true,
-   "evidence": "This record. Both preflights ran with `--facts-only`, provider calls 0."
-  },
-  {
-   "predicate": "Both Go repositories sealed",
-   "met": false,
-   "evidence": "Neither could be composed: BC-02 fails closed on the unresolved install command (P2) and the API Reference would be empty (P1). Both have an evidence-bound disposition above naming those proposals as their resume predicate."
-  }
- ],
- "local_ci_equivalent": {
-  "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
-  "result": "pass",
-  "runs_this_item": 1
- },
- "hosted_ci": "green on the pull request before the squash merge",
- "next_work_item": "G4-W16",
- "next_work_item_blocked_on": null,
- "measurement": "16 Go fences across two repositories: 13 compiled and vetted against their own module, 1 genuinely failed (`undefined: generateSmallPNG`, a helper the README never defines), 2 not verified (an import-only fence; a fence naming six standard-library packages behind an alias). Five failure classes fixed inside the lane's own paths in one iteration, one test each; two proposed.",
- "rerun_2026_09_06": {
-  "why": "Both dispositions named the same resume predicate: PROPOSAL P1 and PROPOSAL P2 landed on main (G4-W17), then rerun present. They landed together at 14:46 as arrival items (8) and (9), commit 08137a0, confirmed present in this worktree's log. This is a re-run of an ACCEPTED item's dispositions, not a new item.",
-  "control_revision": "2b88ea4",
-  "worktree": "C:\\w\\d15b (fresh, branch lane-d/rerun-go off origin/main; .venv from C:\\Python313)",
-  "toolchain": {
-   "tool": "go",
-   "resolved_by": "shutil.which(\"go\")",
-   "path": "C:\\Program Files\\Go\\bin\\go.EXE",
-   "version": "go1.26.4 windows/amd64",
-   "note": "GOPATH, GOMODCACHE and GOCACHE redirected under runs/ for every subprocess."
-  },
-  "resume_predicate_met": true,
-  "class_cleared": {
-   "class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
-   "verdict": "CLOSED for both repositories",
-   "evidence": {
-    "aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "install_command:go SUPPORTED, evidence 'package registry: found on go_modules' from a live probe of proxy.golang.org/github.com/aspose-cells-foss/!aspose.!cells-!f!o!s!s-for-!go/v26/@v/list; 109 public_symbol facts split {class: 14, method: 79, function: 16}, zero unknown; 228 of 231 facts SUPPORTED. BC-02 PASS in both composition rounds.",
-    "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "install_command:go SUPPORTED, same evidence from a live probe of proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list; 1,467 public_symbol facts split {class: 213, method: 1114, function: 139, module: 1}, zero unknown; 1,619 of 1,620 facts SUPPORTED."
-   }
-  },
-  "lane_owned_changes": [
-   "platforms/go.py: GO.import_pattern, Go's quoted import path (decision D14)",
-   "platforms/go.py: GO.verify_command go list, not go list -m (decision D15)",
-   "test_go.py: two tests, one per decision"
-  ],
-  "why_code_changed_on_a_rerun": "G4-W17 item (11) landed the renderer mechanism only and left the pattern to each ecosystem's spec, which lives in a lane-owned platforms/<ecosystem>.py - lane D proposed that item from Go and had set the field for Rust only. Setting Go's exposed that GO.verify_command's `-m` form is wrong for the import_path fact the renderer feeds it (measured exit 1), so the two land together. No shared file was touched.",
-  "measurement": {
-   "go_verify_command_probe": "Disposable consumer module, go mod init then go get, GOPATH/GOMODCACHE/GOCACHE under runs/: `go list -m github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss` exits 1 ('not a known dependency'); `go list <same path>` exits 0 and prints the import path. For aspose-pdf-foss the package is at the module root and both forms exit 0; go list is the one form correct for both.",
-   "import_pattern_probe": "Against the executed example facts at these revisions, the inherited Python-shaped default matches 0 of 8 Cells fences and 0 of 5 Aspose.PDF fences; the D14 pattern matches exactly the one importing fence in each (Cells: aliased single line; Aspose.PDF: indented inside an import ( ... ) block).",
-   "cells_run_1": "18:54-19:11, before D14/D15. 231 facts; 8 of 10 fences executed; 66 units dispositioned; plan 16/18 sections; 42 content units across 8 sections; README 218 visible lines of 497. Validation pass 9, fail 1, pending 1. Repair 0 repaired, 1 unrepairable, 1 re-raised, rounds 2.",
-   "cells_run_2": "19:35-19:44, after D14/D15. Same nine PASS; Installation now renders 'Verify the install:' with `go list .../aspose/cells_foss`, the first Verify-the-install block any Go candidate has produced. Review round 1 REJECT_PRESENTATION (F03, F07); the repair loop closed both in round 2; the round-2 review was then rejected at the binder and BC-10 was left PENDING. 70 provider calls across both runs.",
-   "pdf_run": "Never reached composition: repository_investigation output rejected twice, 24 unknown public_symbol fact IDs, 21 of which exist qualified as <type>.<member>."
-  },
-  "checks_failed": [
-   {
-    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-    "id": "BC-10",
-    "causal_stage": "S10",
-    "detail": "independent_review: output rejected twice; last rejection: finding F07: quote is not the candidate's text: 'Run `go run main.go` to produce `hello.xlsx`' - the reviewer quoted the inherited README. One unlocatable quote among eight findings rejects the whole review output, so BC-10 could not be judged.",
-    "class": "BC10_REVIEW_REJECTED_WHOLE_FOR_ONE_UNLOCATABLE_QUOTE",
-    "proposal": "P11",
-    "shared_code": "review/independent/review.py::review_checks line 376 - a per-finding quote error rejects the entire output, pre-empting the reviewer_scope_defect demotion the same output already uses for six other findings"
-   },
-   {
-    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-    "id": "BC-10",
-    "causal_stage": "S7",
-    "detail": "review F03 in both runs: each Quick Start lead-in describes the sibling slot's example - 'To read an existing Excel file ... LoadWorkbook' sits above a fence that calls NewWorkbook() and saves hello.xlsx. BC-04 compares fact IDs, not whether the prose is about the example beside it, so it passes.",
-    "class": "QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE",
-    "proposal": "P8 (with P9 for the repair round it costs)",
-    "shared_code": "composition/authoring.py _SECTIONS['quick_start'] line 131 restates README_CONTRACT row 10's ordering rule to a job whose slots _bound (line 309) has already bound to specific examples"
-   },
-   {
-    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
-    "id": "S3",
-    "causal_stage": "S3",
-    "detail": "repository_investigation: output rejected twice; 24 unknown fact IDs (public_symbol:savehtml, :split, :append, :optimize, ...). core/facts.py::bounded_records admits public symbols in fact-ID (alphabetical) order until SYMBOL_CAP=150; with 1,467 symbols the packet ends at public_symbol:bmpdevice.process, so Document and all its methods are invisible to the job.",
-    "class": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE",
-    "proposal": "P10",
-    "shared_code": "core/facts.py::bounded_records line 145, SYMBOL_CAP line 142"
-   }
-  ],
-  "controlled_comparison": "Cells Go (109 symbols, under the cap) investigated on the first attempt and composed end to end; Aspose.PDF Go (1,467) was rejected twice. Same ecosystem, same plugin, same shared code, same prompt - surface size is the only variable, which is what makes P10 portfolio-wide rather than Go-specific.",
-  "rendered_evidence": [
-   "Installation renders 'Install the published package from pkg.go.dev (`github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26`)' and `go get .../v26` - the registry path items (8) and (9) opened",
-   "Verify the install renders `go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss` - the first such block any Go candidate has produced (D14, D15)",
-   "The Core API table is populated: 14 classes where every Go type previously rendered unknown (item (9))"
-  ],
-  "sealed": false,
-  "dispositions_now": [
-   {
-    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
-    "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
-    "reason_code": "BLOCKED_SHARED_CODE",
-    "failure_class": "BC10_REVIEW_REJECTED_WHOLE_FOR_ONE_UNLOCATABLE_QUOTE (+ QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE)",
-    "supersedes": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS - cleared, BC-02 PASS",
-    "resume_predicate": "PROPOSAL P11 landed on main (P8 with it, or the repair loop keeps paying a round per run), then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch"
-   },
-   {
-    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
-    "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
-    "reason_code": "BLOCKED_SHARED_CODE",
-    "failure_class": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE",
-    "supersedes": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS - cleared, install fact SUPPORTED",
-    "resume_predicate": "PROPOSAL P10 landed on main, then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch"
-   }
+  "dispositions": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+      "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+      "reason_code": "BLOCKED_SHARED_CODE",
+      "failure_class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
+      "detail": "Facts are complete: 231 records, 227 supported, no required contract row without evidence, 8 of 10 README examples compiled and vetted against the module at this revision. The candidate cannot be composed because BC-02 fails closed on an install command the shared registry façade never resolved, and its API Reference would be empty because the shared kind table does not know Go's node types.",
+      "resume_predicate": "PROPOSAL P1 and PROPOSAL P2 in docs/RESEARCH_LANE_D.md are landed on main (G4-W17); then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch."
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+      "reason_code": "BLOCKED_SHARED_CODE",
+      "failure_class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
+      "detail": "Facts are complete: 1,620 records, 1,618 supported, no required contract row without evidence, 5 of 6 README examples compiled and vetted against the module at this revision. Blocked by the same two shared-code defects, with nothing repository-specific outstanding.",
+      "resume_predicate": "PROPOSAL P1 and PROPOSAL P2 in docs/RESEARCH_LANE_D.md are landed on main (G4-W17); then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch."
+    }
   ],
   "proposals": [
-   "P8 composition/authoring.py _SECTIONS['quick_start'] restates the ordering rule to the stage that cannot honour it, so each lead-in describes the sibling slot's example.",
-   "P9 the targeted_repair packet never says a slot's fact set is fixed and only the prose may move, costing one rejected round and one false `unrepairable` record per occurrence.",
-   "P10 core/facts.py::bounded_records truncates public symbols alphabetically at 150, so a large surface loses its central types and repository_investigation is rejected twice.",
-   "P11 review/independent/review.py::review_checks rejects the whole review output for one finding whose quote is not the candidate's text, aborting the run at S10."
+    "P1 extractors/surface/extractor.py _KINDS has no entry for the vendored engine's Go kinds (type_spec, the literal function), so every Go type is `unknown` and the Core API table renders empty.",
+    "P2 extractors/surface/registry.py maps go to `goproxy` where the vendored adapter table is keyed `go_modules`, and observe() passes no module_path for the Go adapter; the proxy is never probed and BC-02 fails closed.",
+    "P3 composition/renderer.py::_installation appends a hard-coded `pip install .` source-install block for any ecosystem with an executed example; EcosystemSpec's docstring names a `source_install` template the dataclass does not have.",
+    "P4 composition/renderer.py::_IMPORT matches only Python-shaped imports, so a Go (or C#) import path never matches an executed example and spec.verify_command never renders."
+  ],
+  "predicates": [
+    {
+      "predicate": "Go spec: identity, floor and the dependency snapshot from the vendored ManifestReader, major-version suffix carried into the install line",
+      "met": true,
+      "evidence": "platforms/go.py declares GO and registers it by setdefault; manifest_facts emit package:name (module path), install_command:go (`go get …/v26`), import_path (module path plus the package subdirectory the reader reports), package:go_version and the dependency snapshot or its verified-zero marker; tests/.../test_go.py covers each."
+    },
+    {
+      "predicate": "Exported surface through the shared extractor with interface and struct-embedding handling",
+      "met": true,
+      "evidence": "surface_facts calls surface_symbols with the Go parser over the importable package directory; the vendored engine's Go branch already reads struct embedding and interface type_elem embedding as bases. 109 symbols for Cells, 1,467 for PDF, symbols below the module root qualified by their package."
+    },
+    {
+      "predicate": "A fresh verifier: go build and go vet in a disposable GOPATH and module cache",
+      "met": true,
+      "evidence": "platforms/go_examples.py, written fresh on core.execution with the legacy read-only; profile_environment redirects GOPATH and GOMODCACHE into the run directory; 13 of 16 cohort fences compiled and vetted."
+    },
+    {
+      "predicate": "Registry facts through the vendored RegistryProbe (Go proxy; module-path escaping)",
+      "met": false,
+      "evidence": "registry_facts calls the shared observe() façade and records the reading and its probe record faithfully, but the façade never reaches the Go adapter: PROPOSAL P2. The adapter's own module-path escaping is intact and untouched."
+    },
+    {
+      "predicate": "A negative control",
+      "met": true,
+      "evidence": "test_go_examples.py: no toolchain, no module file, an uncleanable workspace and a toolchain that reports no version are all NOT_VERIFIED (UNRESOLVED downstream), never CONTRADICTED; a timeout is TIMED_OUT; a diagnostic carries no path from this machine."
+    },
+    {
+      "predicate": "Cohort report; zero-call proofs",
+      "met": true,
+      "evidence": "This record. Both preflights ran with `--facts-only`, provider calls 0."
+    },
+    {
+      "predicate": "Both Go repositories sealed",
+      "met": false,
+      "evidence": "Neither could be composed: BC-02 fails closed on the unresolved install command (P2) and the API Reference would be empty (P1). Both have an evidence-bound disposition above naming those proposals as their resume predicate."
+    }
   ],
   "local_ci_equivalent": {
-   "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
-   "result": "pass",
-   "runs_this_rerun": 1
+    "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+    "result": "pass",
+    "runs_this_item": 1
   },
-  "status_line_observed": "candidates: 4/34 current reviewable no-op-proven (unchanged; no seal this re-run)"
- }
+  "hosted_ci": "green on the pull request before the squash merge",
+  "next_work_item": "G4-W16",
+  "next_work_item_blocked_on": null,
+  "measurement": "16 Go fences across two repositories: 13 compiled and vetted against their own module, 1 genuinely failed (`undefined: generateSmallPNG`, a helper the README never defines), 2 not verified (an import-only fence; a fence naming six standard-library packages behind an alias). Five failure classes fixed inside the lane's own paths in one iteration, one test each; two proposed.",
+  "rerun_2026_09_06": {
+    "why": "Both dispositions named the same resume predicate: PROPOSAL P1 and PROPOSAL P2 landed on main (G4-W17), then rerun present. They landed together at 14:46 as arrival items (8) and (9), commit 08137a0, confirmed present in this worktree's log. This is a re-run of an ACCEPTED item's dispositions, not a new item.",
+    "control_revision": "2b88ea4",
+    "worktree": "C:\\w\\d15b (fresh, branch lane-d/rerun-go off origin/main; .venv from C:\\Python313)",
+    "toolchain": {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64",
+      "note": "GOPATH, GOMODCACHE and GOCACHE redirected under runs/ for every subprocess."
+    },
+    "resume_predicate_met": true,
+    "class_cleared": {
+      "class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
+      "verdict": "CLOSED for both repositories",
+      "evidence": {
+        "aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "install_command:go SUPPORTED, evidence 'package registry: found on go_modules' from a live probe of proxy.golang.org/github.com/aspose-cells-foss/!aspose.!cells-!f!o!s!s-for-!go/v26/@v/list; 109 public_symbol facts split {class: 14, method: 79, function: 16}, zero unknown; 228 of 231 facts SUPPORTED. BC-02 PASS in both composition rounds.",
+        "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "install_command:go SUPPORTED, same evidence from a live probe of proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list; 1,467 public_symbol facts split {class: 213, method: 1114, function: 139, module: 1}, zero unknown; 1,619 of 1,620 facts SUPPORTED."
+      }
+    },
+    "lane_owned_changes": [
+      "platforms/go.py: GO.import_pattern, Go's quoted import path (decision D14)",
+      "platforms/go.py: GO.verify_command go list, not go list -m (decision D15)",
+      "test_go.py: two tests, one per decision"
+    ],
+    "why_code_changed_on_a_rerun": "G4-W17 item (11) landed the renderer mechanism only and left the pattern to each ecosystem's spec, which lives in a lane-owned platforms/<ecosystem>.py - lane D proposed that item from Go and had set the field for Rust only. Setting Go's exposed that GO.verify_command's `-m` form is wrong for the import_path fact the renderer feeds it (measured exit 1), so the two land together. No shared file was touched.",
+    "measurement": {
+      "go_verify_command_probe": "Disposable consumer module, go mod init then go get, GOPATH/GOMODCACHE/GOCACHE under runs/: `go list -m github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss` exits 1 ('not a known dependency'); `go list <same path>` exits 0 and prints the import path. For aspose-pdf-foss the package is at the module root and both forms exit 0; go list is the one form correct for both.",
+      "import_pattern_probe": "Against the executed example facts at these revisions, the inherited Python-shaped default matches 0 of 8 Cells fences and 0 of 5 Aspose.PDF fences; the D14 pattern matches exactly the one importing fence in each (Cells: aliased single line; Aspose.PDF: indented inside an import ( ... ) block).",
+      "cells_run_1": "18:54-19:11, before D14/D15. 231 facts; 8 of 10 fences executed; 66 units dispositioned; plan 16/18 sections; 42 content units across 8 sections; README 218 visible lines of 497. Validation pass 9, fail 1, pending 1. Repair 0 repaired, 1 unrepairable, 1 re-raised, rounds 2.",
+      "cells_run_2": "19:35-19:44, after D14/D15. Same nine PASS; Installation now renders 'Verify the install:' with `go list .../aspose/cells_foss`, the first Verify-the-install block any Go candidate has produced. Review round 1 REJECT_PRESENTATION (F03, F07); the repair loop closed both in round 2; the round-2 review was then rejected at the binder and BC-10 was left PENDING. 70 provider calls across both runs.",
+      "pdf_run": "Never reached composition: repository_investigation output rejected twice, 24 unknown public_symbol fact IDs, 21 of which exist qualified as <type>.<member>."
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "id": "BC-10",
+        "causal_stage": "S10",
+        "detail": "independent_review: output rejected twice; last rejection: finding F07: quote is not the candidate's text: 'Run `go run main.go` to produce `hello.xlsx`' - the reviewer quoted the inherited README. One unlocatable quote among eight findings rejects the whole review output, so BC-10 could not be judged.",
+        "class": "BC10_REVIEW_REJECTED_WHOLE_FOR_ONE_UNLOCATABLE_QUOTE",
+        "proposal": "P11",
+        "shared_code": "review/independent/review.py::review_checks line 376 - a per-finding quote error rejects the entire output, pre-empting the reviewer_scope_defect demotion the same output already uses for six other findings"
+      },
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "id": "BC-10",
+        "causal_stage": "S7",
+        "detail": "review F03 in both runs: each Quick Start lead-in describes the sibling slot's example - 'To read an existing Excel file ... LoadWorkbook' sits above a fence that calls NewWorkbook() and saves hello.xlsx. BC-04 compares fact IDs, not whether the prose is about the example beside it, so it passes.",
+        "class": "QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE",
+        "proposal": "P8 (with P9 for the repair round it costs)",
+        "shared_code": "composition/authoring.py _SECTIONS['quick_start'] line 131 restates README_CONTRACT row 10's ordering rule to a job whose slots _bound (line 309) has already bound to specific examples"
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "id": "S3",
+        "causal_stage": "S3",
+        "detail": "repository_investigation: output rejected twice; 24 unknown fact IDs (public_symbol:savehtml, :split, :append, :optimize, ...). core/facts.py::bounded_records admits public symbols in fact-ID (alphabetical) order until SYMBOL_CAP=150; with 1,467 symbols the packet ends at public_symbol:bmpdevice.process, so Document and all its methods are invisible to the job.",
+        "class": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE",
+        "proposal": "P10",
+        "shared_code": "core/facts.py::bounded_records line 145, SYMBOL_CAP line 142"
+      }
+    ],
+    "controlled_comparison": "Cells Go (109 symbols, under the cap) investigated on the first attempt and composed end to end; Aspose.PDF Go (1,467) was rejected twice. Same ecosystem, same plugin, same shared code, same prompt - surface size is the only variable, which is what makes P10 portfolio-wide rather than Go-specific.",
+    "rendered_evidence": [
+      "Installation renders 'Install the published package from pkg.go.dev (`github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26`)' and `go get .../v26` - the registry path items (8) and (9) opened",
+      "Verify the install renders `go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss` - the first such block any Go candidate has produced (D14, D15)",
+      "The Core API table is populated: 14 classes where every Go type previously rendered unknown (item (9))"
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "BC10_REVIEW_REJECTED_WHOLE_FOR_ONE_UNLOCATABLE_QUOTE (+ QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE)",
+        "supersedes": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS - cleared, BC-02 PASS",
+        "resume_predicate": "PROPOSAL P11 landed on main (P8 with it, or the repair loop keeps paying a round per run), then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch"
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE",
+        "supersedes": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS - cleared, install fact SUPPORTED",
+        "resume_predicate": "PROPOSAL P10 landed on main, then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch"
+      }
+    ],
+    "proposals": [
+      "P8 composition/authoring.py _SECTIONS['quick_start'] restates the ordering rule to the stage that cannot honour it, so each lead-in describes the sibling slot's example.",
+      "P9 the targeted_repair packet never says a slot's fact set is fixed and only the prose may move, costing one rejected round and one false `unrepairable` record per occurrence.",
+      "P10 core/facts.py::bounded_records truncates public symbols alphabetically at 150, so a large surface loses its central types and repository_investigation is rejected twice.",
+      "P11 review/independent/review.py::review_checks rejects the whole review output for one finding whose quote is not the candidate's text, aborting the run at S10."
+    ],
+    "local_ci_equivalent": {
+      "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+      "result": "pass",
+      "runs_this_rerun": 1
+    },
+    "status_line_observed": "candidates: 4/34 current reviewable no-op-proven (unchanged; no seal this re-run)"
+  },
+  "rerun_2_2026_09_06": {
+    "why": "PROPOSAL P10's resume predicate for aspose-pdf-foss/Aspose-PDF-FOSS-for-Go was met: G4-W17 arrival item 27 landed on main at 0d8767f (2026-09-06 21:27), raising core/facts.py SYMBOL_CAP from 150 to 6000. Only that repository was re-run; the lane's other two repositories' predicates (items 28-30 for Cells Go, item 22 for Cells Rust) are still open and were deliberately not touched.",
+    "control_revision": "ffdf4c7",
+    "worktree": "C:\\w\\d15b (fresh, branch lane-d/rerun-go-2 off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+    "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+    "toolchain": {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64"
+    },
+    "lane_owned_changes": [],
+    "lane_owned_changes_note": "No code changed this run. The lane's platforms/go.py needed nothing; the blocker was and remains shared code.",
+    "resume_predicate_met": true,
+    "class_cleared": {
+      "class": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE",
+      "verdict": "CLOSED for aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "evidence": {
+        "before": "Every earlier attempt: repository_investigation output rejected twice, 24 unknown public_symbol fact IDs; the packet's 150 admissions ended at public_symbol:bmpdevice.process, so Document and its methods were never shown.",
+        "after": "S3 repository_investigation SUCCEEDED (attempt 2) and wrote investigation.json - 8 capabilities, 6 workflows, 4 problems_solved, 6 limitations, 0 uncertainties. The single rejected attempt cited public_symbol:document.validate: the job was reading Document and mis-spelled one member, not blind to the type.",
+        "downstream": "S4 source_reconciliation success on attempt 1; S5 presentation_planning success on attempt 2, an 18-section plan; S6 section_authoring authored 7 of its 8 sections clean on attempt 1. Three stages this repository had never reached."
+      }
+    },
+    "stage_outcomes": [
+      {
+        "stage": "S3",
+        "job": "repository_investigation",
+        "calls": 3,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": [
+          "fact example:004 is UNRESOLVED, not SUPPORTED",
+          "unknown fact ID public_symbol:document.validate"
+        ]
+      },
+      {
+        "stage": "S4",
+        "job": "source_reconciliation",
+        "calls": 1,
+        "result": "success on attempt 1"
+      },
+      {
+        "stage": "S5",
+        "job": "presentation_planning",
+        "calls": 3,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": "unknown fact IDs format:pdf, format:png, format:jpeg, format:gif, format:bmp, format:tiff, ... (the plan named format facts this repository has none of)"
+      },
+      {
+        "stage": "S6",
+        "job": "section_authoring",
+        "calls": 10,
+        "result": "FAILED - output rejected twice for the scope_limitations section; 7 of 8 sections authored clean on attempt 1"
+      }
+    ],
+    "facts": {
+      "total": 1620,
+      "by_kind": {
+        "public_symbol": 1467,
+        "inherited_unit": 90,
+        "link_target": 43,
+        "example": 6,
+        "identity": 5,
+        "license": 2,
+        "package": 2,
+        "build_test_asset": 2,
+        "dependency": 1,
+        "import_path": 1,
+        "install_command": 1
+      },
+      "digest": "403bdbf1e2d1e193aa0494bd0d3203eeb38ee085e19e2daa82000e5a826c7d51",
+      "examples": "6 candidates; executed 5, not_verified 1",
+      "source": "3 files, 735 tree entries, readme README.md, digest bcbf4712a57de2c543562a676881c0e6498fecd944b9a66f0d00b2ef5fc0f53d"
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "stage": "S6",
+        "causal_stage": "S6",
+        "detail": "section_authoring: output rejected twice; last rejection: unit limitation:3: identifiers that are not accepted fact values: ZapfDingbats. The unit is a faithful restatement of inherited_unit:081.list, the repository's own Scope-and-Limitations bullet, and cites exactly that fact: 'ConvertToPDFA auto-embeds Standard-14 fonts but does not auto-fix Symbol, ZapfDingbats, composite fonts, or PDF/A-1 transparency, requiring validation with a dedicated tool such as veraPDF.' Both attempts wrote the same true sentence.",
+        "class": "SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE",
+        "proposal": "P12 (with P13 for the wholesale rejection it triggers)",
+        "shared_code": "composition/authoring.py::prose_nouns line 713, via source_prose line 697 / _NOT_PROSE line 52 and unit_checks' stray-identifier test line 932",
+        "measured": {
+          "zapfdingbats_is_not_a_symbol": "0 of 1,467 public_symbol values spell ZapfDingbats, bare or as any dotted suffix.",
+          "only_spellings_are_code_spans": "Both SUPPORTED inherited_unit facts that carry it (066.list, 081.list) spell it as `Symbol`/`ZapfDingbats` inside a code span; source_prose strips both, so prose_nouns never admits it.",
+          "controlled_comparison_same_repository": "36 nouns were admitted, including TrueType, OpenType, Type1C, DeviceCMYK, DeviceGray, DeviceRGB, DeviceN and PostScript - the same class of thing - solely because this README spells those outside backticks. Type0, from the same sentence, is rejected the same way ZapfDingbats is. Symbol, named in the same breath, passes only by the accident that CaretAnnotation.Symbol exists in the surface."
+        }
+      }
+    ],
+    "proposals": [
+      "P12 composition/authoring.py::prose_nouns refuses a standard's or format's name whose only source spellings sit inside code spans, so a true limitation about it cannot be written at all; admit such a token when no public_symbol fact spells it, since nouns are rendered unwrapped and carry no claim.",
+      "P13 composition/authoring.py::unit_checks rejects a section's whole output for one stray token in one unit; folding that unit out - the pattern items (16)/(17) already landed elsewhere - would have kept seven clean sections and the run."
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE",
+        "supersedes": "INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE - cleared by G4-W17 item 27, S3 succeeded",
+        "resume_predicate": "PROPOSAL P12 landed on main (P13 with it or beside it), then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch"
+      }
+    ],
+    "not_claimed": "The run ends at S6. S7 through S11 - repair, validation, the independent review, the seal - remain unmeasured for this repository. Three of the four stages it passed this run it had never reached before; nothing here predicts the remaining five.",
+    "other_repositories_not_run": {
+      "aspose-cells-foss/Aspose.Cells-FOSS-for-Go": "resume predicate unmet - G4-W17 items 28-30 (the BC-10 whole-review rejection, PROPOSAL P11) have not landed on main. Not run.",
+      "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust": "resume predicate unmet - G4-W17 item 22 (the WorkbookValidator narration false positive, PROPOSAL P6) has not landed on main. Not run."
+    },
+    "provider_calls": 17,
+    "local_ci_equivalent": {
+      "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+      "result": "pass",
+      "detail": "ruff check: All checks passed. ruff format --check: 210 files already formatted. mypy src: no issues in 125 source files. pytest -n auto: 781 passed in 84.03s, exit 0.",
+      "runs_this_rerun": 3,
+      "runs_note": "Three full suite runs, all green on the same tree: the first two inherited pyproject's own -q and added another, and -qq suppresses the count line, so a third was run only to record the number."
+    },
+    "status_line_observed": "candidates: 6/34 current reviewable no-op-proven (from origin/main at ffdf4c7; unchanged by this re-run, which did not seal)"
+  }
 }
