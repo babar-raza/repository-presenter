@@ -4373,3 +4373,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   render it correctly with the right module. Full suite green, ruff/mypy clean, before this entry.
   Once a lane sets its own `import_pattern`, its cohort's Verify-the-install block starts
   rendering on the next `present` with no further shared-code change. Proceeding to item 6.
+
+- **2026-09-06 13:41 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 6 landed:
+  `test_registry.py` proves the discovery property, never a roster.** Lane B's own note
+  (RESEARCH_LANE_B.md, G4-W14): the file hard-coded `known_ecosystems() == ("net", "python")`
+  twice, so the moment `platforms/typescript.py` existed both assertions went false, and the lane
+  had to edit a shared test outside its own `owned_paths` to land anything at all - the exact
+  friction G4-W17 exists to remove, and the reviewer noted the same lines would go stale again for
+  every ecosystem after. `_package_module_names()` reads the actual files beside `registry.py`
+  from the package directory itself (`iter_modules`, the same call `known_ecosystems()` makes
+  internally); the two tests that named seven ecosystems and six specific helper modules by hand
+  (`python_surface`, `typescript_barrel`, `cpp_examples`, `go_examples`, `java_examples`,
+  `rust_examples`) now derive both lists from that directory listing instead: for every module
+  found, it is an ecosystem `known_ecosystems()` must carry if it exposes `PLUGIN`, or a
+  `ConfigError` `plugin_for` must raise if it does not. No name is hard-coded anywhere in the
+  file; a new lane adding a seventh, eighth, or twentieth ecosystem's platform module changes this
+  file not at all. `test_python_is_the_first_registered_plugin` keeps only the one durable claim a
+  literal roster cannot express better - Python is registered, and the tuple is sorted, matching
+  the registry's own contract - dropping the other six names it no longer needs. Full suite green
+  (all seven existing ecosystems still individually verified as ecosystems, all six known helper
+  modules still individually verified as not), ruff/mypy clean, before this entry. Proceeding to
+  item 7.
