@@ -4528,3 +4528,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   ruff/mypy clean, before this entry. Every Go and Java disposition blocked on `install_command`
   or an empty API table (3D, Cells, Slides, PDF for Java; both Go repositories) is now a candidate
   for the reviewer to re-spawn lanes C and D on, per this item's own acceptance language.
+
+- **2026-09-06 14:50 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint.** Box
+  opened 13:46. `repository-presenter status`: `gate: G3_PYTHON_COHORT (READY)`, `work item:
+  G4-W17 (IN_PROGRESS)`, `candidates: 4/34 current reviewable no-op-proven`. Delta since the box
+  opened: six items landed (4, 5, 6, 7, 8-9, 12; item 5 also closed item 11), each with hosted CI
+  green; one new sealed, no-op-proven candidate (`aspose-email-foss/Aspose.Email-FOSS-for-Python`,
+  `current_candidates` 3 to 4) as a direct result of item 7; two named repositories (BarCode,
+  Note) live-verified as advancing past their recorded blocker into a further, distinct,
+  already-tracked failure class each, not this item's to chase further; two more (the Go and Java
+  cohorts, items 8-9 and 12) live-verified as unblocked at the facts stage, pending the reviewer's
+  re-spawn to convert their dispositions. Sealed-candidate count moved for the first time this
+  work item (3 to 4) - not a zero-delta box by any measure. A new box opens now; the remaining
+  arrival list (13-21, plus 22-23 the 8728985 entry above queued from lane D's Rust re-run) is
+  unevaluated - continuing there.
