@@ -354,3 +354,178 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   ceiling of 4: 5"); `section_authoring` then rejected `limitation:3` and `:4` twice for the
   reason above. Resume predicate: the PROPOSAL above; behind it, the queued
   `source_reconciliation` fix and BC-02.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · the four C++ dispositions re-run against
+  `origin/main` at `4e1157f`: every one of them moved, none of them sealed, and all four now
+  converge on a single check.** The re-run was asked for because two G4-W17 arrival items had
+  landed. Measured, one repository at a time, from a fresh worktree at `C:\w\b13b` with its own
+  `.venv`, `g++` 16.2.0 and `gcc` 16.2.0 from `TOOLCHAIN_PATHS.txt`, `ninja` 1.13.2 and `cmake`
+  4.4.1 resolved by `shutil.which` first (`cpp_examples.toolchain_path` puts their directories on
+  the subprocess `PATH` only; `os.environ` is never written):
+
+  | repository | G4-W13 class | this run | stage reached |
+  | --- | --- | --- | --- |
+  | Email C++ | `BLOCKED_RECONCILIATION` (S4) | `BLOCKED_PLANNING` (S5) | S5 |
+  | PDF C++ | `BLOCKED_RECONCILIATION` (S4) | `BLOCKED_VALIDATION` (BC-02) | rendered, validated |
+  | Cells C++ | `BLOCKED_AUTHORING` (S6) | `BLOCKED_VALIDATION` (BC-02) | rendered, validated |
+  | Slides C++ | `BLOCKED_AUTHORING` (S6) | `BLOCKED_VALIDATION` (BC-02, BC-08) | rendered, validated |
+
+  Three of the four now render a complete README and reach validation - PDF 184 visible lines of
+  685, Cells 143 of 691, Slides 202 of 629 - where none of them previously reached rendering at
+  all. `repository-presenter status` still reads `candidates: 3/34`: nothing sealed, so the lane's
+  `sealed_by_lane` stays 0 and its four dispositions are restated, not added to.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · which G4-W17 item actually cleared the S4
+  refusals: neither of the two named.** Item 0 (12:30, a verified source build admits an
+  unpublished install fact as SUPPORTED) cannot engage for C++ at all, for two independent
+  reasons measured here, not inferred: `evidence/facts/extract.py`'s `_source_build_fact` returns
+  the fact untouched unless `fact.polarity == "CONTRADICTED"`, and C++'s `install_command:cmake`
+  is `UNRESOLVED` - `REGISTRY_TYPES` has no `cpp` entry, so there is no registry to contradict it
+  and the reading is "package registry: none could not be read"; and `spec_for("cpp")
+  .clone_and_build(...)` returns `''`, because `EcosystemSpec`'s own docstring records the empty
+  template as deliberate ("A spec that needs none leaves them empty and the renderer prints
+  nothing, which is what a registry-less ecosystem (C++) requires"). Item 1 (12:37) was declined
+  as a prompt change and landed only a mutation test, so it changed no behaviour for anyone.
+  What did clear S4 is `7ea433e` (G4-W11, 07:47) - `source_reconciliation` v5's output budget
+  raised 16000 to 32000 and a placement into a section whose condition is false deferred rather
+  than failed closed. That commit reached the lane only in the 09:59 merge, *after* the runs that
+  produced the four dispositions, which is why the lane recorded refusals its own tree had already
+  been fixed for. Evidence: PDF's `source_reconciliation` was accepted on the first attempt this
+  run (117 units dispositioned, no `.rejected-` record) where it previously died twice on
+  `unknown fact ID api_reference` - the shape a reply truncated at 16000 tokens produces. Item 2
+  (12:52, `CallStore`'s hash prefix 24 to 12) is confirmed working incidentally: every
+  `.rejected-N.json` written this run carries a 12-character prefix and no transaction died on
+  Windows' MAX_PATH.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · PROPOSAL (owner decision, then primary loop -
+  `evidence/facts/extract.py` `_source_build_fact` with `validation/registry.py` `_check_install`
+  and `core/ecosystems.py`): a registry-less ecosystem is structurally excluded from BC-02 by two
+  decisions that are each locally right.** This is the single check now blocking all four C++
+  repositories, and it is the same PROPOSAL G4-W13 already filed, refined by what item 0 actually
+  landed. BC-02's downstream half is ready: `_check_install` accepts `"verified source build"`
+  beside `"package registry"` as manifest evidence (item 0's own change), so the moment the fact
+  is SUPPORTED the check passes. The upstream half never fires for C++: the polarity gate admits
+  only `CONTRADICTED`, and the empty `source_install` is documented as what a registry-less
+  ecosystem requires. Neither half is wrong on its own - a registry that says "not published" is
+  genuinely different evidence from no registry at all, and C++ genuinely has no `pip install`
+  line to print. But the composition of the two is that no C++ repository in this portfolio can
+  ever pass BC-02, while its install command is in fact the *most* verified of any ecosystem's:
+  `cmake -S . -B build` / `cmake --build build` is the command `cpp_examples` itself drives to
+  configure and build each library before compiling its examples, and it succeeded for all four
+  (Email in 15 s, PDF in 95 s). The fact is UNRESOLVED because "there is no registry" is recorded
+  as an inconclusive reading, not because anything about the build is unverified. Fix, smallest
+  first: extend the polarity gate to `{"CONTRADICTED", "UNRESOLVED"}` and give C++ a
+  `source_install` that is the cmake pair the fact already carries. Alternative rejected: lane B
+  landing the C++ half alone, which is its own path - it would seal nothing while the shared gate
+  discards the fact, and `EcosystemSpec`'s docstring names the empty template as intended, so
+  changing it is an owner call, not a lane's. Reversal: revert both; the four dispositions stand
+  as they are today. Resume predicate: `install_command:cmake` is SUPPORTED with source-build
+  evidence; then re-run `present` for all four.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · PROPOSAL (primary loop,
+  `composition/planning.py` `plan_checks`): `7ea433e` deferred the impossible placement at S4 and
+  left the identical failure standing at S5, for the one condition planning recomputes.**
+  Measured on Aspose.Email for C++, the only repository of the four that still dies before
+  rendering. `dispositions.normalize` reads `additional_examples`' condition from
+  `section_conditions`, where it is `len(SUPPORTED examples) >= 2`; Email has exactly two, so the
+  section is not in `absent` and a placement into it is correctly left alone. `plan_checks` then
+  *overwrites* that same key - `conditions["additional_examples"] = bool(set(verified_examples) -
+  starts)` - because the plan's quick starts consume examples; the plan took both, the set went
+  empty, the condition flipped True to False, and `inherited_unit:032.paragraph` became a
+  placement into an excluded section. `presentation_planning` was rejected twice with "section
+  additional_examples is excluded at this revision but the reconciliation placed
+  inherited_unit:032.paragraph there" and the transaction failed closed. The planner cannot
+  answer that rejection: it did not make the placement and cannot withdraw it, and the inclusion
+  list is composed deterministically, not asked for. `7ea433e`'s own commit message states the
+  principle - "no re-ask can honour a placement no plan may include" - and applied it in
+  `normalize`; the same reasoning applies verbatim here, where planning's own recomputation is
+  what excludes the section. Fix: on `placement.outcome == "excluded"`, defer the unit as
+  `normalize` does rather than appending an error. Alternative rejected: making reconciliation
+  conservative (treat `additional_examples` as absent whenever `<= 2` examples exist) - it would
+  defer units for repositories whose plans leave an example over, losing real content to a
+  condition that does hold. Reversal: revert; Email returns to this disposition. Resume
+  predicate: the deferral lands; then re-run `present --repo
+  aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · PROPOSAL (primary loop,
+  `validation/registry.py` `_COMMAND` and `_PLACING`): a third party's package name in prose is
+  read as a command, and `VERIFIED_REWRITE` is then required to preserve it verbatim.** Measured
+  on Aspose.Slides for C++, the only repository carrying a second failure. BC-08 reports
+  "`inherited_unit:078.list`: VERIFIED_REWRITE keeps the command `'python-pptx'` but the candidate
+  does not render it". The unit is a Markdown list in the upstream README describing the CI
+  suite, and the span it protects is `` `python-pptx` `` - the name of a third-party Python reader
+  the conformance test opens files with, named in prose, never invoked. `_COMMAND` matches it
+  because its `python3?` alternative is followed by `\b`, and the boundary between `python` and
+  `-pptx` is a word boundary; the same false positive is waiting for `python-docx`, and for any
+  hyphenated name beginning `go-`, `git-`, `make-` or `cargo-`. Independently, `_PLACING` includes
+  `VERIFIED_REWRITE` in a check that demands the fragment appear verbatim in the rendered
+  candidate - but a rewrite is precisely the disposition that re-authors rather than preserves, so
+  the demand contradicts the disposition's own meaning (the reconciler's rationale here reads "its
+  substance is re-authored in Development and Testing", which is exactly what it did). Either fix
+  alone clears Slides: require a whitespace or end-of-span boundary after the interpreter name,
+  or drop `VERIFIED_REWRITE` from `_PLACING` for the `command` category. Both are worth landing;
+  they are different defects that happened to meet on one unit. Alternative rejected: adding
+  `python-pptx` to a word list - the pattern is wrong for a family of names, not for this one.
+  Reversal: revert; Slides returns to this disposition.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · not re-proposed: G4-W17 items 20 and 21 did not
+  land, and neither failure recurred - which is not the same as fixed.** Item 20 (anchoring
+  `composition/authoring.py`'s `_FORBIDDEN` Markdown-list entries to the start of a unit) and item
+  21 (an authoring rejection naming an unknown identifier reopens planning rather than authoring)
+  are both still queued and unlanded; `_FORBIDDEN` still carries a bare `("- ", "a Markdown
+  list")` and the stray-identifier branch still only appends an error for the same stage to
+  retry. Cells nevertheless cleared `section_authoring` this run (three rejections raised, all
+  three recovered on the retry, none of them the hyphen) and Slides cleared it too (its plan chose
+  five limitations, none naming an `_internal/` identifier - `get_inherited_xfrm` and `xml_node`
+  were not selected this time). Both classes are latent, not closed: the code that produced them
+  is byte-identical. Recorded here so the queue is not read as shorter than it is, and not
+  re-proposed, per the instruction that already-queued items are not re-filed.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · DISPOSITION (revised) ·
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93` - `BLOCKED_PLANNING`.** Was
+  `BLOCKED_RECONCILIATION`. 75 tree entries, 348 facts (225 public symbols), 4 examples of which 2
+  are EXECUTED and 2 FAILED - unchanged from G4-W13, as is the library's clean 15-second configure
+  and build. S4 `source_reconciliation` now closes after one recovered rejection where it
+  previously died on placements into `installation`. S5 `presentation_planning` is rejected twice
+  and the transaction reports: `section additional_examples is excluded at this revision but the
+  reconciliation placed inherited_unit:032.paragraph there`. Preflight: required rows without
+  evidence, none. Resume predicate: the `plan_checks` deferral PROPOSAL above; behind it, BC-02,
+  which this repository has not yet reached.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · DISPOSITION (revised) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_VALIDATION (BC-02)`.** Was
+  `BLOCKED_RECONCILIATION`. 1521 tree entries, 1839 facts (1651 public symbols after 393 from
+  `include/internal/` are dropped), 11 examples - 4 EXECUTED, 5 FAILED, 2 NOT_VERIFIED for the
+  incomplete-type defect in `facades/facade.hpp` recorded at G4-W13. The `unknown fact ID
+  api_reference` refusal is gone: S4 accepted on the first attempt, 117 units (58
+  VERIFIED_PRESERVE, 28 SUPERSEDE_REDUNDANT, 24 OMIT_UNSUPPORTED, 6 DEFER_UNRESOLVED, 1
+  VERIFIED_REWRITE). Planning closed after one recovered rejection, 18 of 18 sections; authoring
+  wrote 287 units across 9 sections through 17 provider calls with one recovered rejection;
+  coherence revised 0 of 287; the renderer produced 184 visible lines of 685. Validation: 8 PASS,
+  1 FAIL, 2 PENDING - the single failure is BC-02, `install_command:cmake is UNRESOLVED: package
+  registry: none could not be read`, and `targeted_repair` correctly recorded it unrepairable
+  (no repair can make a registry exist). Resume predicate: the BC-02 PROPOSAL above; then re-run.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · DISPOSITION (revised) ·
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` at `9f852d0` - `BLOCKED_VALIDATION (BC-02)`.**
+  Was `BLOCKED_AUTHORING`. 401 tree entries, 2058 facts (1943 public symbols), 7 examples of which
+  1 is EXECUTED and 6 FAILED - example 2's `WorksheetCollection::operator[]` with a string is
+  still a real README defect, and the library still does not build with GCC 16.2 (missing
+  `<limits>`, `-Werror=trigraphs`), neither of which changed a verdict. The `- ` false positive
+  did not recur (see the entry above; the code is unchanged). S4 accepted first attempt, 65 units;
+  planning closed after one recovered rejection at 15 of 18 sections; authoring wrote 227 units
+  across 7 sections through 15 calls, three rejections all recovered; coherence revised 1 of 227;
+  143 visible lines of 691. Validation: 8 PASS, 1 FAIL, 2 PENDING - BC-02 alone, the same detail
+  as PDF. Resume predicate: the BC-02 PROPOSAL above; then re-run.
+
+- **2026-09-06 14:29 (`date` checked) · G4-W13 · DISPOSITION (revised) ·
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` at `733de4b` -
+  `BLOCKED_VALIDATION (BC-02, BC-08)`.** Was `BLOCKED_AUTHORING`. 518 tree entries, 2999 facts
+  (2845 public symbols after 401 from `_internal/` are dropped), 10 examples of which 9 are
+  EXECUTED and the tenth is the continuation fragment naming a `pres`. The unauthorable-limitation
+  refusal did not recur (see above; the code is unchanged). S4 closed, 88 units; planning closed
+  at 18 of 18 sections with 5 limitations; authoring wrote 271 units across 9 sections through 17
+  calls; coherence revised 2 of 271; 202 visible lines of 629. Validation: 7 PASS, 2 FAIL, 2
+  PENDING - BC-02 as above, plus BC-08 on `inherited_unit:078.list`, the `python-pptx` false
+  positive the PROPOSAL above names. This is the only one of the four carrying a second blocking
+  failure. Resume predicate: both PROPOSALs above; then re-run.
