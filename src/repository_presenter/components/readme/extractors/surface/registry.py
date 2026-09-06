@@ -28,7 +28,7 @@ REGISTRY_TYPES: dict[str, str] = {
     "net": "nuget",
     "java": "maven",
     "typescript": "npm",
-    "go": "goproxy",
+    "go": "go_modules",
     "rust": "cargo",
 }
 
@@ -89,8 +89,19 @@ def observe(
     wrong.
     """
     kind = registry_type(ecosystem)
+    # The vendored adapters key their own coordinate differently per registry: the Go adapter
+    # reads candidate["module_path"] (package_registries/go.py), and the Maven check reads
+    # candidate["group_id"]/["artifact_id"] rather than a single name (publication_probe.py's
+    # _maven_check) - name alone, which every other registry takes, leaves both UNRESOLVED
+    # rather than probed. Java's package:name fact is already the "group:artifact" coordinate
+    # a reader writes, so splitting it costs no plugin a fact of its own.
+    candidate: dict[str, Any] = {"name": package_name}
+    if kind == "go_modules":
+        candidate["module_path"] = package_name
+    elif kind == "maven" and ":" in package_name:
+        candidate["group_id"], candidate["artifact_id"] = package_name.split(":", 1)
     result: dict[str, Any] = publication_probe.probe_publication(
-        {"registry_type": kind, "candidate": {"name": package_name}},
+        {"registry_type": kind, "candidate": candidate},
         repo_url=repository_url,
         fetch=fetch,
         offline=offline or not kind,

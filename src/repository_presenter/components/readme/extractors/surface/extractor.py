@@ -40,12 +40,21 @@ _KINDS: dict[str, SymbolKind] = {
     "type_alias_declaration": "class",
     "trait_item": "class",
     "impl_item": "class",
+    # Go: `type X struct {...}` or `type X int` is a `type_spec` inside a `type_declaration`.
+    "type_spec": "class",
+    "type_declaration": "class",
     "enum_declaration": "enum",
     "enum_specifier": "enum",
     "enum_item": "enum",
     "function_declaration": "function",
     "function_definition": "function",
     "function_item": "function",
+    # The vendored engine's own literal for a top-level function, set in api_surface.py for
+    # every language rather than read from a tree-sitter node type - not a language-specific
+    # grammar name like the others in this table, but the same façade contract either way
+    # (measured 2026-09-06 on Go and Rust: every top-level function rendered unknown for want
+    # of this one entry).
+    "function": "function",
     "method_declaration": "method",
     "method_definition": "method",
 }

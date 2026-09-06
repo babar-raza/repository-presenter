@@ -4487,3 +4487,44 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   defect (planning content quality, not a shared-code or prompt-mechanism gap this item's
   arrival list names), and not re-dispositioned here since G4-W17 does not own G3's cohort record;
   noted for whichever item next re-runs Note.
+
+- **2026-09-06 14:46 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival items 8, 9 and 12
+  landed together, each live-verified against the exact repository its evidence named.** All
+  three are "no install fact reaches SUPPORTED for an entire ecosystem" in the same shared façade
+  (`extractors/surface/registry.py` and `extractor.py`), matching the arrival list's own grouping.
+
+  **Item 8** (lane D PROPOSAL P2): `REGISTRY_TYPES["go"]` was `"goproxy"`, but the vendored
+  adapter table is keyed `"go_modules"` - `probe_publication` took its "unknown registry" branch
+  and never issued a request. Corrected the key, and `observe()` now also passes
+  `candidate["module_path"]` for the Go registry (`check_published` reads that key directly, an
+  uncaught `KeyError` once the key alone was fixed - both had to land together, exactly as lane D
+  found). **Item 9** (lane D PROPOSAL P1): `extractors/surface/extractor.py`'s `_KINDS` had no
+  entry for Go's `type_spec`/`type_declaration` or the vendored engine's own literal `"function"`
+  (set in `api_surface.py` for every language's top-level functions, not a tree-sitter node type) -
+  every Go type and every language's free function rendered `unknown`. Added `"type_spec":
+  "class"`, `"type_declaration": "class"`, `"function": "function"`. **Item 12** (lane C PROPOSAL
+  A, a three-line patch already drafted in `docs/RESEARCH_LANE_C.md`): `observe()` built
+  `candidate={"name": package_name}` for every ecosystem, but `_maven_check` needs
+  `group_id`/`artifact_id` separately and returns ambiguous before fetching anything when either
+  is missing; Java's `package:name` fact is already the `group:artifact` coordinate a reader
+  writes, so `observe()` splits on the one colon when `kind == "maven"` - no plugin gains a fact
+  of its own.
+
+  Live-verified with `present --facts-only` (no provider call, both fixes are facts-stage only)
+  against the exact repositories each lane's evidence named: `aspose-cells-foss/Aspose.Cells-
+  FOSS-for-Go` at `9f0a4033b59e9127afec7662ec9079b500af8032` now reads `install_command:go`
+  SUPPORTED with evidence "package registry: found on go_modules" from a live probe of
+  `proxy.golang.org/github.com/aspose-cells-foss/!aspose.!cells-!f!o!s!s-for-!go/v26/@v/list`
+  (the case-escaping the adapter's own docstring describes), and its 109 `public_symbol` facts
+  now split `{method: 79, function: 16, class: 14}` with zero `unknown` - previously 30 of them.
+  `aspose-3d-foss/Aspose.3D-FOSS-for-Java` at `e308de58888635956cd66e5b0e2994dd42cd4356` now reads
+  `install_command:maven` SUPPORTED with evidence "package registry: found on maven" from a live
+  probe of `repo1.maven.org/maven2/org/aspose/aspose-3d-foss/maven-metadata.xml`. New tests:
+  `tests/.../surface/test_registry.py` gains
+  `test_a_go_module_path_reaches_the_proxy_under_the_key_the_adapter_reads` and
+  `test_a_maven_coordinate_splits_into_the_group_and_artifact_the_probe_needs`;
+  `tests/.../surface/test_extractor.py` gains
+  `test_gos_type_declaration_and_every_languages_literal_function_are_known`. Full suite green,
+  ruff/mypy clean, before this entry. Every Go and Java disposition blocked on `install_command`
+  or an empty API table (3D, Cells, Slides, PDF for Java; both Go repositories) is now a candidate
+  for the reviewer to re-spawn lanes C and D on, per this item's own acceptance language.

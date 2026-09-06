@@ -33,8 +33,48 @@ def test_every_ecosystem_the_portfolio_uses_names_its_registry() -> None:
     """Section 29.12: one probe, every registry - and C++ honestly has none."""
     assert registry_type("python") == "pypi" and registry_type("net") == "nuget"
     assert registry_type("java") == "maven" and registry_type("rust") == "cargo"
+    # G4-W17 arrival item 8: the vendored adapter table is keyed "go_modules", not "goproxy" -
+    # the wrong key took probe_publication's "unknown registry" branch and never issued a
+    # request at all, so install_command:go could never leave UNRESOLVED.
+    assert registry_type("go") == "go_modules"
     assert registry_type("cpp") == "", "C++ has no package registry; the façade must not invent one"
     assert set(REGISTRY_TYPES) == {"python", "net", "java", "typescript", "go", "rust"}
+
+
+def test_a_go_module_path_reaches_the_proxy_under_the_key_the_adapter_reads() -> None:
+    """G4-W17 arrival item 8. `check_published` (package_registries/go.py) reads
+    candidate["module_path"], never candidate["name"] alone - passing only "name" is an
+    uncaught KeyError, not a graceful miss. Measured 2026-09-06 on both Go repositories in the
+    cohort: this crashed the facts stage outright once the registry key above was fixed alone."""
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> _Response:
+        calls.append(url)
+        return _Response(200, {}) if url.endswith("/@v/list") else _Response(404)
+
+    module_path = "github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Go"
+    reading = observe("go", module_path, fetch=fetch)
+    assert calls, "the Go proxy was never reached"
+    assert "proxy.golang.org" in calls[0]
+    assert reading.registry == "go_modules"
+
+
+def test_a_maven_coordinate_splits_into_the_group_and_artifact_the_probe_needs() -> None:
+    """G4-W17 arrival item 12 (lane C's PROPOSAL A). `_maven_check` addresses
+    repo1.maven.org/maven2/{group_path}/{artifact_id}/maven-metadata.xml and returns ambiguous
+    before fetching anything when group_id or artifact_id is missing; Java's package:name fact
+    is already the "group:artifact" coordinate a reader writes, so no plugin needs a fact of its
+    own to supply what observe() can derive by splitting on the one colon."""
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> _Response:
+        calls.append(url)
+        return _Response(200)
+
+    reading = observe("java", "org.aspose:aspose-3d-foss", fetch=fetch)
+    assert calls, "Maven Central was never reached"
+    assert "org/aspose/aspose-3d-foss/maven-metadata.xml" in calls[0]
+    assert reading.conclusive and reading.published is True
 
 
 def test_an_offline_probe_is_inconclusive_rather_than_negative() -> None:

@@ -94,6 +94,18 @@ def test_an_unmapped_node_type_is_unknown_rather_than_invented() -> None:
     assert symbol_kind("something_the_grammar_added_last_week") == "unknown"
 
 
+def test_gos_type_declaration_and_every_languages_literal_function_are_known() -> None:
+    """G4-W17 arrival item 9. The vendored engine names a Go type `type_spec` (inside a
+    `type_declaration`) and names a top-level function of any language by the literal string
+    `function`, set in `api_surface.py` rather than read from a tree-sitter node type - neither
+    was a key here, so every Go type and Rust free function rendered `unknown` and the Core API
+    table had nothing to show for them (measured 2026-09-06: 109 and 1,467 public symbols across
+    the two Go repositories, 30 and 352 of them `unknown`, 0 `class`)."""
+    assert symbol_kind("type_spec") == "class"
+    assert symbol_kind("type_declaration") == "class"
+    assert symbol_kind("function") == "function"
+
+
 def test_an_abstract_class_is_a_class_not_unknown() -> None:
     """G4-W17 arrival item 4. TypeScript's grammar names an abstract class declaration
     differently from a plain one; Aspose.3D for TypeScript declares 8, 2 of them public, and
