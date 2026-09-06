@@ -4700,3 +4700,38 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   on the same reasoning as every other item deferred this session) and item 21 (a planning-stage
   defect the current retry misroutes to authoring, per lane B's own Slides C++ finding). A new
   box opens now.
+
+- **2026-09-06 16:21 (`date` checked) · loop (PROVISIONAL) · item 19 confirmed to resolve item
+  21's exact measured symptom; a new, unrelated defect surfaces one stage further in.** Lane B's
+  item 21 finding named two identifiers, `get_inherited_xfrm` and `xml_node`, as the cause of
+  Aspose.Slides for C++ losing its transaction to two `section_authoring` rejections - both
+  declared under `include/Aspose/Slides/Foss/_internal/`, the exact directory item 19's
+  `visibility: "internal"` filter now excludes. Live-verified against the same revision
+  (`733de4bf72fa33d16ee153779e8ee924ea1faebe`) lane B measured: `--facts-only` shows 2845
+  `public_symbol` facts (matching lane B's own recorded post-filter count exactly) with zero
+  facts naming `get_inherited_xfrm` or `xml_node` in either direction; a full `present` re-run no
+  longer hits that rejection at all. Item 21's first resume-predicate branch ("the investigation
+  and the plan are constrained to the public fact set") is satisfied by item 19 alone, for this
+  repository, without needing the packet change item 21 also proposed. The second branch (an
+  authoring rejection reopening planning rather than retrying authoring) remains a genuinely
+  unaddressed architectural gap - not closed by this, and grouped with items 16 and 17 as a new
+  capability rather than a table or routing fix, not attempted today.
+
+  The same re-run then failed at a **new, distinct** `section_authoring` rejection, twice,
+  identically: the `development_testing` section's `summary` unit wrote "...citing
+  `build_test_asset:ci`, `build_test_asset:tests`, `package:cmake_minimum`, and
+  `package:cxx_standard`" - literal fact-ID syntax pasted into the visible sentence as if listing
+  sources, not an unlicensed concept (every one of those IDs is genuinely in the unit's own
+  `fact_ids`) and not one of the nine phrases `_NARRATION` already catches. This is a third shape
+  of the same family item 7 and item 18 already fixed two shapes of: item 7 was an identifier no
+  fact licenses at all; item 18 was a fixed vocabulary phrase with nowhere to route the failure;
+  this is the model narrating its own citation list into prose, which the existing
+  `rejection_template` addition ("a stray identifier that names no accepted fact at all...") does
+  not describe, since these identifiers are not stray - they are exactly what is cited, just
+  written where prose belongs. Two identical rejections stand at temperature 0, seed 1; not
+  re-attempted a third time, per this session's own established rule. **PROPOSAL (primary loop,
+  `prompts/section_authoring.yaml`):** the rejection template (or the system prompt directly)
+  states, alongside the existing stray-identifier rule, that a unit's `fact_ids` field is where
+  citations belong and its `text` field never lists or names which facts support it - closing the
+  third shape without touching the first two. Not landed here: it needs the same live-verified
+  care as item 7's own landing, in a fresh iteration with room for it.
