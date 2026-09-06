@@ -138,6 +138,30 @@ def test_placements_into_deterministic_sections_fold_into_supersessions() -> Non
     assert reconcile_checks(output, FACTS) == errors + remaining
 
 
+def test_two_deterministic_sections_rendering_nothing_both_fold_in_one_pass() -> None:
+    """G4-W17 arrival item 1. Lane B's Aspose.3D for TypeScript disposition: no npm package
+    (install_command:pip here stands in, CONTRADICTED) and no licence file at all, so both
+    `installation` and `license` render nothing - the reported failure was two placements
+    rejected together, not one. `rendering_fact_ids` already reads a `FACTS` fixture with no
+    license fact of any kind, exactly that repository's shape; the fold in `normalize` is
+    generic over every owner-D section, not installation-specific, so both units fold to
+    DEFER_UNRESOLVED with zero remaining errors and no re-ask - the prompt needs nothing added
+    to tell the model what already never reaches it as a live choice."""
+    assert rendering_fact_ids("license", FACTS) == []
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:001.heading", "CORRECT_WITH_EVIDENCE", "installation"),
+            _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "license"),
+        ]
+    }
+    assert reconcile_checks(output, FACTS) == []
+    assert [d["disposition"] for d in output["dispositions"]] == [
+        "DEFER_UNRESOLVED",
+        "DEFER_UNRESOLVED",
+    ]
+    assert [d["destination_section"] for d in output["dispositions"]] == [None, None]
+
+
 def test_placement_rules_are_checked_before_use() -> None:
     assert contradicted_code_units(FACTS) == {"inherited_unit:004.code_block"}
     good = {

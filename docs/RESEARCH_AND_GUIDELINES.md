@@ -4248,3 +4248,26 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   resume predicate becomes the same one already on record: the structural review-side fix for
   unabsorbed-into-`absent` fabrications. Proceeding to commit item 0 and continue the G4-W17
   arrival list.
+
+- **2026-09-06 12:37 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 1 declined as a
+  prompt change; already covered by existing code, closed with a mutation test.** Item 1 asked for
+  `prompts/source_reconciliation.yaml` to name, in the packet, which sections render nothing for
+  a repository, so the model never places a unit into one - lane B's evidence was
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` rejecting its own S4 output twice over exactly two
+  such placements (`installation`, no npm package; `license`, no licence file at all).
+  `dispositions.normalize`'s deterministic-section fold (the block ending "the model cannot invent
+  evidence a section lacks", added for Aspose.Slides' `installation`) is not installation-specific:
+  it applies to any `destination in deterministic` (every owner-"D" section) with empty
+  `rendering_fact_ids`, regardless of the disposition the model chose, and runs before
+  `placement_errors` ever sees the output - so a placement into a section that renders nothing
+  already folds to `DEFER_UNRESOLVED` with zero errors and no re-ask, structurally, for every
+  owner-D section at once. Added
+  `test_two_deterministic_sections_rendering_nothing_both_fold_in_one_pass` to
+  `tests/components/readme/reconciliation/test_dispositions.py`, reproducing the exact reported
+  shape (two placements, two empty-rendering sections, one `reconcile_checks` call) against the
+  file's own `FACTS` fixture, which already carries no license fact of any kind: `reconcile_checks
+  (output, FACTS) == []` and both entries land on `DEFER_UNRESOLVED` with no destination - passed
+  on the unmodified code, no production change needed. Declining the packet change: it would only
+  restate, one more place, an invariant the fold already enforces unconditionally, and a prompt
+  edit is scoped to this item precisely so it needs the evidence a code fix does not. Full suite
+  green, ruff/mypy clean, before this entry. Proceeding to item 2.
