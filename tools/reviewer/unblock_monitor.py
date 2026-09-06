@@ -59,6 +59,17 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
     ],
     25: [("lane-b", "Aspose.Email-FOSS-for-Cpp")],
     26: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
+    # 27 landed 21:27 (SYMBOL_CAP 150->6000); confirmed re-spawn target below, added by hand since
+    # this table update and the re-spawn happened in the same reviewer turn, not from this signal.
+    27: [("lane-d", "Aspose-PDF-FOSS-for-Go")],
+    # 28-30 (lane D's own PROPOSALs) and 32-35 not yet landed as of this table update - add their
+    # targets here the moment §31 records them landed, not reactively after noticing a gap.
+    28: [("lane-d", "Aspose.Cells-FOSS-for-Go")],  # BC-10 whole-review-rejection fold, not reject
+    32: [("lane-c", "Java")],  # 3D Java's link-ceiling-over-preserved-units blocker
+    33: [("lane-c", "Java")],  # Slides Java's renderer-mandated BC-10 shape
+    # 31 (PDF-TypeScript registry flip) has no lane target: this repository was never assigned to a
+    # lane (registry mode was `disabled`, disposition-only); the primary itself runs the pipeline on
+    # it directly, not a lane re-spawn - intentionally absent from this table, not a missed entry.
 }
 
 # Matches "item N landed", "item N declined ...; closed with a mutation test" (item 1's actual shape
@@ -68,9 +79,18 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
 # 2026-09-06, silently costing lane C its whole re-run window; fixed once found). Free text is
 # inherently fuzzy here; this errs toward over-notifying (a false positive costs one wasted check)
 # rather than under-notifying (a false negative costs another silent multi-hour gap).
+#
+# The "G4-W17 arrival item(s)" prefix requirement (dropped 2026-09-06 21:48) was itself an instance
+# of the exact defect class this docstring already warns about: fitted to early phrasing, silently
+# blind to later drift. A restart at 21:47 replayed only items 0-20 as "landed" - items 21 through
+# 35, all landed or confirmed the same evening, were invisible because §31 had moved to plainer
+# phrasing ("item 24 ... live-verified", "item 31 ... flipped", "item 27 ... both landed") with no
+# "G4-W17 arrival item" prefix at all. The prefix is now optional and the verb list wider; a bare
+# "item N" is enough, on the same over-notify-rather-than-miss philosophy as the list-length fix.
 LANDED_CLAUSE_RE = re.compile(
-    r"G4-W17 arrival item[s]?\s*((?:\(?\d+\)?[\s,]*(?:and)?[\s,]*)+)"
-    r"[^.\n]{0,80}?\b(?:land(?:ed|s)|closed with a mutation test)\b",
+    r"(?:G4-W17 arrival )?item[s]?\s*((?:\(?\d+\)?[\s,]*(?:and)?[\s,]*)+)"
+    r"[^.\n]{0,100}?\b(?:land(?:ed|s)|live-verified|flipped|raised|both\s+landed|"
+    r"closed with a mutation test)\b",
     re.I,
 )
 NUMBER_RE = re.compile(r"\d+")
