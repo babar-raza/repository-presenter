@@ -15,6 +15,7 @@ version goes into the receipt, because a build is only as reproducible as the to
 
 from __future__ import annotations
 
+import re
 import shutil
 from collections.abc import Sequence
 from pathlib import Path
@@ -41,6 +42,7 @@ _PROJECT = """<Project Sdk="Microsoft.NET.Sdk">
 </Project>
 """
 _FALLBACK_FRAMEWORK = "net8.0"
+_SDK_VERSION = re.compile(r"^(\d+)\.(\d+)\.")
 
 
 def dotnet_executable() -> str | None:
@@ -71,6 +73,20 @@ def _blocked(candidates: Sequence[ExampleCandidate], detail: str) -> list[Exampl
     ]
 
 
+def _sdk_framework(version: str) -> str:
+    """The framework the wrapper project targets: the one this SDK builds by default.
+
+    Not the package's floor. Measured 2026-09-06 on the .NET cohort: Aspose.3D declares its
+    multi-target list only under Release, so a Debug build of the library produces `net10.0`
+    alone and a `netcoreapp3.1` wrapper failed every example with NU1201; Cells and Words
+    declare `netstandard2.0`, which no executable may target at all. A current framework
+    consumes a library built for any lower one, which is what the wrapper needs, while the floor
+    stays what it is - the requirement the Dependencies row reports to a reader.
+    """
+    match = _SDK_VERSION.match(version.strip())
+    return f"net{match.group(1)}.{match.group(2)}" if match else _FALLBACK_FRAMEWORK
+
+
 def _sdk_version(dotnet: str, workspace: Path) -> str:
     result = execute(
         [dotnet, "--version"],
@@ -84,7 +100,6 @@ def _sdk_version(dotnet: str, workspace: Path) -> str:
 def verify_net_examples(
     root: Path,
     project: Path | None,
-    framework: str,
     candidates: Sequence[ExampleCandidate],
     workspace: Path,
 ) -> list[ExampleReceipt]:
@@ -109,7 +124,7 @@ def verify_net_examples(
         run_dir.mkdir()
         (run_dir / "Example.csproj").write_text(
             _PROJECT.format(
-                framework=framework or _FALLBACK_FRAMEWORK,
+                framework=_sdk_framework(version),
                 reference=project.resolve().as_posix(),
             ),
             encoding="utf-8",

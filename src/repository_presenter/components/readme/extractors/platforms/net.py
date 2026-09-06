@@ -345,16 +345,15 @@ class NetPlugin:
         candidates: Sequence[ExampleCandidate],
         workspace: Path,
     ) -> list[ExampleReceipt]:
-        """Not yet built: every candidate is reported unverified, never contradicted.
+        """Compile each candidate against the product's own project in a disposable profile.
 
-        A toolchain result this plugin cannot produce must read as "we did not check", so the
-        facts stage writes UNRESOLVED (§29.6 E5). The verifier lands with the cohort run.
+        A toolchain this machine lacks is NOT_VERIFIED, which the facts stage records as
+        UNRESOLVED - never CONTRADICTED, because "we could not check" is not "we checked and it
+        is false" (§29.6 E5). The wrapper's framework is the verifier's to choose from the SDK it
+        found; the package's floor is a fact about the package, not a build setting.
         """
         project = self.detect_manifest(root)
-        framework = ""
-        if project is not None:
-            framework = _floor(read_identity(root, self.ecosystem, project))
-        return verify_net_examples(root, project, framework, candidates, workspace)
+        return verify_net_examples(root, project, candidates, workspace)
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
         """Not yet built; a claim this plugin cannot read is no claim at all."""

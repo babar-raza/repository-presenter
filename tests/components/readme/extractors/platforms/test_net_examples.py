@@ -44,7 +44,7 @@ def test_a_machine_without_the_sdk_reports_not_verified(
     """Section 29.6 E5: BLOCKED_TOOLCHAIN is UNRESOLVED downstream, never CONTRADICTED."""
     monkeypatch.setattr(net_examples, "dotnet_executable", lambda: None)
     receipts = net_examples.verify_net_examples(
-        tmp_path, project, "net8.0", [_candidate(1, "var w = 1;")], tmp_path / "run"
+        tmp_path, project, [_candidate(1, "var w = 1;")], tmp_path / "run"
     )
     assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
     assert "BLOCKED_TOOLCHAIN" in (receipts[0].detail or "")
@@ -52,7 +52,7 @@ def test_a_machine_without_the_sdk_reports_not_verified(
 
 def test_a_repository_with_no_project_has_nothing_to_compile_against(tmp_path: Path) -> None:
     receipts = net_examples.verify_net_examples(
-        tmp_path, None, "net8.0", [_candidate(1, "var w = 1;")], tmp_path / "run"
+        tmp_path, None, [_candidate(1, "var w = 1;")], tmp_path / "run"
     )
     assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
     assert "no project file" in (receipts[0].detail or "")
@@ -73,14 +73,14 @@ def test_a_snippet_that_compiles_is_executed_and_carries_the_sdk_version(
     monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
     monkeypatch.setattr(net_examples, "execute", fake)
     receipts = net_examples.verify_net_examples(
-        tmp_path, project, "net6.0", [_candidate(1, "var w = new Widget();")], tmp_path / "run"
+        tmp_path, project, [_candidate(1, "var w = new Widget();")], tmp_path / "run"
     )
     assert [r.outcome for r in receipts] == ["EXECUTED"]
     assert "SDK 10.0.204" in (receipts[0].detail or "")
     assert calls[-1][:2] == ["dotnet", "build"]
-    # The example project references the product's own project and targets its lowest framework.
+    # The wrapper references the product's own project and targets what this SDK builds.
     written = (tmp_path / "run" / "example_001" / "Example.csproj").read_text("utf-8")
-    assert "net6.0" in written and "Aspose.Widget.csproj" in written
+    assert "net10.0" in written and "Aspose.Widget.csproj" in written
     assert (tmp_path / "run" / "example_001" / "Program.cs").read_text("utf-8").startswith("var w")
 
 
@@ -97,7 +97,7 @@ def test_a_compile_error_reports_the_compilers_own_first_diagnostic(
     monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
     monkeypatch.setattr(net_examples, "execute", fake)
     receipts = net_examples.verify_net_examples(
-        tmp_path, project, "net8.0", [_candidate(1, "var w = new Widget();")], tmp_path / "run"
+        tmp_path, project, [_candidate(1, "var w = new Widget();")], tmp_path / "run"
     )
     assert [r.outcome for r in receipts] == ["FAILED"]
     assert "CS0246" in (receipts[0].detail or "")
@@ -114,10 +114,24 @@ def test_a_build_that_never_returns_times_out_rather_than_failing(
     monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
     monkeypatch.setattr(net_examples, "execute", fake)
     receipts = net_examples.verify_net_examples(
-        tmp_path, project, "net8.0", [_candidate(1, "while(true);")], tmp_path / "run"
+        tmp_path, project, [_candidate(1, "while(true);")], tmp_path / "run"
     )
     assert [r.outcome for r in receipts] == ["TIMED_OUT"]
 
 
 def test_no_candidates_means_no_toolchain_is_touched(tmp_path: Path) -> None:
-    assert net_examples.verify_net_examples(tmp_path, None, "", [], tmp_path / "run") == []
+    assert net_examples.verify_net_examples(tmp_path, None, [], tmp_path / "run") == []
+
+
+def test_the_wrapper_targets_the_sdk_rather_than_the_packages_floor() -> None:
+    """Measured 2026-09-06 on the .NET cohort, two ways.
+
+    Aspose.3D declares its multi-target list only under Release, so a Debug build of the library
+    produces `net10.0` alone and a `netcoreapp3.1` wrapper - the true declared floor - failed
+    every example with NU1201. Cells and Words declare `netstandard2.0`, which no executable may
+    target at all. A current framework consumes a library built for any lower one.
+    """
+    assert net_examples._sdk_framework("10.0.204") == "net10.0"
+    assert net_examples._sdk_framework("8.0.404") == "net8.0"
+    assert net_examples._sdk_framework("9.0.100-preview.3") == "net9.0"
+    assert net_examples._sdk_framework("") == net_examples._FALLBACK_FRAMEWORK
