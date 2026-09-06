@@ -142,8 +142,15 @@
   ]
  },
  "hosted_ci": {
-  "note": "The authoritative 3.11/3.12/3.13 proof (loop-prompt section 3).",
-  "runs": []
+  "note": "The authoritative 3.11/3.12/3.13 proof (loop-prompt section 3). The first run failed on the pull request and is kept here because what it found is a real defect in this item, not flake: the runner image carries tsc 7.0.2 on PATH (this machine carries none, so the registry path is used), and on TypeScript 7 a tsconfig.json beside a file named on the command line raises error TS5112 - the run exits 1 having checked nothing, and no diagnostic carries a file. The verdict rule read only filed diagnostics, so it saw none in the example and called the negative control a pass. Two fixes landed on the same branch: the repository's configuration file is no longer staged into the workspace, and a non-zero exit with no filed diagnostic is NOT_VERIFIED. A new test stages a configuration file deliberately and asserts the outcome is never EXECUTED.",
+  "runs": [
+   {
+    "pull_request": 3,
+    "run_id": 34008182929,
+    "conclusion": "fail",
+    "found": "tsc 7.0.2 error TS5112; the verdict rule accepted a refused compiler as a pass"
+   }
+  ]
  },
  "next_work_item": "G4-W15 (Go spec and cohort); its prerequisites - G4-W10 and G4-W09 accepted on main, LANE-B-00 accepted - already hold, so the reviewer can spawn it immediately.",
  "measurement": {

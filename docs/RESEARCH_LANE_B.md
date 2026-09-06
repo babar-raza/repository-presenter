@@ -125,6 +125,19 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   behaviour changed. A second assertion was added, that `typescript_barrel` is not an ecosystem, to
   keep the file's own point (a helper module beside a plugin exposes no `PLUGIN`) true for the two
   helper modules this item adds. Owner: fold this line into `owned_paths` or say the lane must ask.
+- **2026-09-06 · G4-W14 · the hosted runner's `tsc` is 7.0.2, and it caught a rule that would have
+  passed every example silently.** The first hosted run failed both real-compiler tests: GitHub's
+  image has `tsc` on `PATH` (this machine has none, so the registry path is used), and on
+  TypeScript 7 a `tsconfig.json` beside a file named on the command line is `error TS5112` - the
+  run exits 1 having checked nothing, and the diagnostic carries no file. The verdict rule read
+  only *filed* diagnostics, so it saw none in the example and called the negative control a pass.
+  Two fixes, one each: the repository's configuration file is no longer staged (its options are
+  read from the clone and passed as flags), and a non-zero exit with no filed diagnostic at all is
+  `NOT_VERIFIED` - a compiler that refused checked nothing, and nothing checked is not a pass
+  (section 29.6 E5). Alternative rejected: pin the assertion to `tsc 5`, which would have hidden
+  the rule's gap behind a version. Evidence: the failing hosted job, and the new test that stages a
+  configuration file deliberately and asserts the outcome is never `EXECUTED`. Reversal: none
+  wanted; the local run (5.9.3) and the hosted run (7.0.2) now agree.
 - **2026-09-06 · G4-W14 · DISPOSITION · `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at
   `7b95970` - `BLOCKED_RECONCILIATION`.** Everything up to S3 holds: 190 tree entries, 1178 facts
   (1034 public symbols, 11 dependencies), 9 examples of which 8 type-check and the ninth is a real

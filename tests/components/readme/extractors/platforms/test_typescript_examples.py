@@ -85,10 +85,45 @@ def test_the_build_output_the_manifest_declares_is_staged_from_the_sources_it_ma
     typescript_examples.stage_sources(root, workspace)
     assert (workspace / "src" / "index.ts").is_file()
     assert (workspace / "dist" / "index.ts").is_file()
+    # The configuration file stays behind: its options are passed as flags, and its presence beside
+    # a file named on the command line is `error TS5112` on TypeScript 7 (the hosted runner's).
+    assert not (workspace / "tsconfig.json").exists()
+    assert (workspace / typescript_examples._HOST_DECLARATIONS).is_file()
 
 
 def test_no_candidate_needs_no_workspace(tmp_path: Path) -> None:
     assert typescript_examples.verify_typescript_examples(tmp_path, None, [], tmp_path, 60.0) == []
+
+
+@needs_tsc
+def test_a_compiler_that_refuses_without_naming_a_file_verifies_nothing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Section 29.6 E5, the case that nearly passed silently.
+
+    Measured 2026-09-06 on the hosted runner (tsc 7.0.2): a `tsconfig.json` beside the file named
+    on the command line raises `error TS5112`, the run exits 1, and no diagnostic carries a file -
+    so a rule that reads only filed diagnostics would have called every example, true or false, a
+    pass. A compiler that refused checked nothing, and nothing checked is NOT_VERIFIED.
+    """
+    root = tmp_path / "repository"
+    root.mkdir()
+    barrel = _repository(root)
+    workspace = tmp_path / "run"
+    candidate = ExampleCandidate(1, "typescript", BAD, "README.md", 1, 4, "unit:001")
+    original = typescript_examples.stage_sources
+
+    def stage_with_config(source: Path, target: Path) -> None:
+        original(source, target)
+        (target / "tsconfig.json").write_text(json.dumps(TSCONFIG), encoding="utf-8")
+
+    monkeypatch.setattr(typescript_examples, "stage_sources", stage_with_config)
+    receipts = typescript_examples.verify_typescript_examples(
+        root, barrel, [candidate], workspace, 180.0
+    )
+    # tsc 5 checks the file anyway and reports the real error; tsc 7 refuses. Either verdict is
+    # honest, and neither is the silent pass the missing branch would have produced.
+    assert receipts[0].outcome in {"FAILED", "NOT_VERIFIED"}
 
 
 @needs_tsc
@@ -102,7 +137,8 @@ def test_an_example_whose_calls_exist_type_checks(tmp_path: Path) -> None:
     )
     assert [receipt.outcome for receipt in receipts] == ["EXECUTED"]
     # The receipt names the compiler that ran, because a check is only as reproducible as it is.
-    assert "--noEmit" in receipts[0].detail and "5." in receipts[0].detail
+    # The version itself is not asserted: this machine has 5.9.3 and the hosted runner has 7.0.2.
+    assert "--noEmit" in receipts[0].detail and "Version" in receipts[0].detail
     assert receipts[0].return_code == 0
 
 

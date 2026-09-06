@@ -63,6 +63,9 @@ _BUNDLER_MODULES = frozenset({"bundler", "node16", "nodenext"})
 # Aspose.3D for TypeScript's nine examples failed on `console` alone).
 _HOST_LIBRARY = "DOM"
 _HOST_DECLARATIONS = "rp_host_environment.d.ts"
+# A configuration file beside a file named on the command line is `error TS5112` on TypeScript 7,
+# and the compiler then reports nothing else at all. Its options are read from the clone instead.
+_CONFIG_FILES = frozenset({"tsconfig.json", "jsconfig.json"})
 # The runtime a README script runs in, and the modules it may import from it. Declared as a
 # shorthand ambient module - a name with no body, whose imports are `any` - so a missing
 # `@types/node` cannot make a true example look false. The claim the contract makes about an
@@ -186,11 +189,15 @@ def stage_sources(root: Path, workspace: Path) -> None:
     from. Copying `src` to `dist` is that declared mapping, so the example is checked against the
     sources its import names - not against a guess, and not against nothing.
 
-    The host declarations go in beside them, for the reason `_HOST_SOURCE` records.
+    The host declarations go in beside them, for the reason `_HOST_SOURCE` records. The
+    repository's own `tsconfig.json` does not come along: its options are read from the clone and
+    passed as flags, and a configuration file sitting beside a file named on the command line is
+    `error TS5112` on TypeScript 7 - measured 2026-09-06 on the hosted runner, whose `tsc` is
+    7.0.2, where it made the compiler refuse to run and report nothing at all.
     """
     ignore = shutil.ignore_patterns(*sorted(IGNORED_DIRECTORIES))
     for child in root.iterdir():
-        if child.name in IGNORED_DIRECTORIES:
+        if child.name in IGNORED_DIRECTORIES or child.name in _CONFIG_FILES:
             continue
         if child.is_dir():
             shutil.copytree(child, workspace / child.name, ignore=ignore, dirs_exist_ok=True)
@@ -317,6 +324,16 @@ def verify_typescript_examples(
             outcome, detail = "TIMED_OUT", f"no exit within {timeout_seconds:g}s"
         elif mine:
             outcome, detail = "FAILED", mine[0][:400]
+        elif result.return_code != 0 and not theirs:
+            # The compiler refused, and named no file: nothing was checked, so nothing is proven
+            # either way. Measured 2026-09-06 on the hosted runner, whose tsc is 7.0.2: a
+            # `tsconfig.json` beside the file raised `TS5112` and the run exited 1 with no filed
+            # diagnostic at all, which the two branches above would have read as a pass.
+            said = (stdout + "\n" + stderr).strip().splitlines()
+            outcome = "NOT_VERIFIED"
+            detail = "BLOCKED_TOOLCHAIN: " + (
+                said[0][:300] if said else f"tsc exited {result.return_code} and said nothing"
+            )
         else:
             outcome = "EXECUTED"
             detail = f"type-checked against {root.name} with {version.strip()} --noEmit{aside}"
