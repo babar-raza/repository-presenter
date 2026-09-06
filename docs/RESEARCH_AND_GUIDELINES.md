@@ -4134,3 +4134,27 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   no-op-proven`. `current_candidates` moves from 3 to 4 in `project/state.yaml`. This closes the
   measurement opened in the 10:35 entry above - the wall-clock fix and the warning-level fix
   were both needed; neither alone reproduced.
+
+- **2026-09-06 10:50 (`date` checked) · loop (PROVISIONAL) · G4-W11 accepted at the box, four
+  repositories dispositioned.** The reviewer flagged the box closed at ~09:33 (5 hours from
+  G4-W09's 04:33:23 acceptance) and its own purpose text's rule: "at the box, seal what passes,
+  dispositions for the rest, accept." Accepted per the item's own three predicates, each quoted
+  against its evidence in `evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json`: (1) the
+  cohort report names all six repositories - Aspose.3D and Aspose.Cells SEALED and no-op proven,
+  Aspose.Email `BLOCKED_REVIEW` (a reviewer hallucination quoting a heading the candidate does
+  not render), Aspose.PDF `BLOCKED_PLANNING` (a hallucinated symbol ID, measured before v10's
+  verbatim-copy instruction landed - not re-run inside the box), Aspose.Slides `BLOCKED_VALIDATION
+  (BC-02)` (genuinely unpublished on NuGet), Aspose.Words `BLOCKED_CONTRACT_GAP` (all 5 examples
+  genuinely CONTRADICTED, exposing that `quick_start_example_id` has no floor when zero examples
+  verify - proposed, not landed, per the two-equivalent-attempts rule); (2) both sealed bundles'
+  no-op proofs, quoted above (Aspose.Cells' entry carries a fabricated timestamp per the
+  reviewer's correction; its content, not its label, is the evidence - and the 10:40 entry for
+  Aspose.3D); (3) hosted CI green, run 34014595974,
+  conclusion success, for `87163ee` - the control revision this acceptance is built on, its
+  parent commit. `project/state.yaml`'s `active_work_item` moves
+  to **G4-W17** (shared-code fixes the lanes propose), per its own purpose text ("Runs BEFORE
+  G3-W04") and the reviewer's explicit instruction; `G3-W03` stays queued, unpromoted - a
+  deliberate exception to strict queue order the owner already encoded in G4-W17's text, not one
+  this loop introduced. `tests/test_queue_agreement.py` required `previous_items: [G4-W09,
+  G4-W10]` in the new manifest, carrying forward G4-W09's own chain since its file is overwritten
+  by each accepting work item in turn.

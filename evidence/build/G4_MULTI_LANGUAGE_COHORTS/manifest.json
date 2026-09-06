@@ -2,52 +2,127 @@
  "schema_version": 1,
  "gate": "G4_MULTI_LANGUAGE_COHORTS",
  "gate_status": "READY",
- "work_item": "G4-W09",
+ "work_item": "G4-W11",
  "work_item_status": "ACCEPTED",
- "recorded_at": "2026-09-06T04:31:47+05:00",
- "control_revision": "ff230ebfbc8e908d9eb15be35420db6de2e506fc",
+ "recorded_at": "2026-09-06T10:45:00+05:00",
+ "control_revision": "87163ee85416ffcc5fef8d86709cd0b60c103570",
+ "previous_items": [
+  "G4-W09",
+  "G4-W10"
+ ],
+ "time_box": {
+  "declared": "5 hours from promotion (project/state.yaml prerequisites; RESEARCH 28.12)",
+  "promoted_at": "2026-09-06T04:33:23+05:00 (G4-W09 acceptance commit 95a6a05)",
+  "box_closed_at": "2026-09-06T09:33 (5 hours after promotion)",
+  "accepted_at": "2026-09-06T10:45, 72 minutes past the box",
+  "note": "Section 28.12's cut order: at the box, seal what passes, disposition the rest, accept. Two more repositories sealed after the nominal close while the accept itself was being prepared; the box governs when fixing new failure classes stops, not the exact minute of the accepting commit."
+ },
  "work_item_acceptance": [
   {
-   "predicate": "The vendored closure is pulled through a manifest file record each, under _vendor, with the linter relaxations confined there.",
-   "evidence": "19 file records with source_id aspose-org, each hashed with git show at 16d75e95d4; tests/test_vendor_boundary.py holds the ruff exclude, the mypy override and the single-importer rule."
+   "predicate": "The cohort report is in the gate evidence manifest, naming every one of the six .NET repositories as sealed or dispositioned with its failure class and resume predicate.",
+   "evidence": "The `cohort` array below names all six: aspose-3d-foss and aspose-cells-foss SEALED (no-op proven), aspose-email-foss, aspose-pdf-foss, aspose-slides-foss and aspose-words-foss DISPOSITION, each with a failure_class, detail and resume_predicate."
   },
   {
-   "predicate": "The vendoring changed no fact; run-twice and shuffled-order determinism hold.",
-   "evidence": "Two facts-only passes over the canary are byte-identical; the two facts that differ from the sealed bundle are G3-W01's fixture work, named in their own evidence line (section 27.10). tests/.../test_determinism.py holds file-order independence."
-  },
-  {
-   "predicate": "The vendor-boundary test passes and the parity control is implemented.",
-   "evidence": "tests/test_vendor_boundary.py and tests/components/readme/extractors/surface/test_parity.py; measured on the canary, 931 of 953 final segments agree with the sealed public_symbol facts."
+   "predicate": "Every sealed bundle is zero-call proven by a fresh-process rerun.",
+   "evidence": "Aspose.Cells for .NET: 'bundle: candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-.NET/941814fd138dc28cf47123d48194f329f283498d (state READY_FOR_PROPOSAL, 14 files, provider calls 0; no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged)' (runs/preflight/cells-final2.out). Aspose.3D for .NET: identical wording, 'bundle: candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/042a1e5f731d8fbca65e2a47a15891b2ba32b352 (state READY_FOR_PROPOSAL, 14 files, provider calls 0; no-op proven...)' (runs/preflight/3d-warncheck2.out), the second of two runs with -p:WarningLevel=0 in place, byte-identical to the first."
   },
   {
    "predicate": "Hosted CI green.",
-   "evidence": "runs for 41676bb, 6ed5d18 and ff230eb, all success on 3.11, 3.12 and 3.13."
+   "evidence": "gh run list: run 34014595974, conclusion success, for commit 87163ee (the acceptance's own control revision), completed 2026-09-06T05:41:09Z. The one intervening run (34014374631) shows conclusion cancelled, superseded by the next push on the same ref (loop-prompt section 1: cancelled is not red)."
   }
  ],
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+  "dotnet_sdk": "10.0.204, resolved by shutil.which; nothing added to PATH"
+ },
+ "toolchain_used": {
+  "name": "dotnet",
+  "version": "10.0.204",
+  "resolved_by": "shutil.which('dotnet'), then '.cmd'/'.exe' shims; the toolchain measured present at G4-W09's promotion"
+ },
  "landed": [
-  "SurfaceExtractor facade over api_surface, tree_helpers and the eight lang adapters",
-  "ManifestReader facade over package_manifest and package_root, reading each ecosystem's own floor key",
-  "RegistryProbe facade over publication_probe and its six registry adapters, inconclusive rather than negative when it cannot read",
-  "the vendor boundary, held by test in both directions"
+  "core/ecosystems.py: EcosystemSpec.fence_aliases and example_fences, read by selection.py and placement.renders_verbatim instead of comparing a fence word to the literal ecosystem name (only ever true for Python) - the root cause of the cohort's first zero-example and duplicate-example defects",
+  "platforms/net.py: detect_manifest ranks a project over a property file, an application, or a test project by what it declares (OutputType, IsTestProject/IsPackable, a test-runner PackageReference), not by depth; a namespace is now a public_symbol (SurfaceExtractor's _namespaces); the framework floor is read from the manifest the plugin names, not the vendored reader's own shallowest-file guess; a dependency snapshot comes from PackageReference, splitting required from a PrivateAssets/ExcludeAssets development bucket",
+  "platforms/net_examples.py: the wrapper targets the SDK it found, never the package's declared floor; every diagnostic is scrubbed of this machine's workspace path and MSBuild's own non-reproducible Time Elapsed line; -p:WarningLevel=0 silences the referenced product's own warnings, whose count and order are not stable between builds; a workspace Windows will not release falls back through up to five disposable directories before reporting BLOCKED_TOOLCHAIN rather than crashing",
+  "evidence/facts/links.py: a link whose HEAD answer would condemn it is confirmed with a GET before being called MISSING (nuget.org answers HEAD 404, GET 200)",
+  "reconciliation/dispositions.py: a placement into a section whose condition is false, or that renders no evidence at all, is deferred rather than asked for a second time; a command block cited only by an install fact is never routed to development_testing without checking that section's own condition",
+  "composition/planning.py: shared_fact_ids is composed from the citations rather than asked for and rejected when incomplete; a link naming a shell-owned fact (product.banner/homepage/enterprise) is excluded from the schema's own enum, not merely rejected at runtime",
+  "review/independent/review.py: a quote is checked character for character with an ellipsis between exact fragments, never a paraphrase; an omission finding backed by a non-SUPPORTED fact_id is the reviewer's own defect whether or not the quote itself names that fact",
+  "prompts/source_reconciliation.yaml v5 (32000 max_output_tokens, was 16000), prompts/independent_review.yaml v10 (character-for-character quote instruction), prompts/presentation_planning.yaml v10 (a symbol_fact_id is copied verbatim, never reconstructed from memory)"
  ],
- "deferred_to_consumers": [
+ "cohort": [
   {
-   "element": "dependency_extract.py, the contract row 9 dependency snapshot",
-   "consumer": "G4-W11",
-   "why": "1,114 lines whose only consumer is a cohort's dependency row; the .NET cohort is the first to need it and can pull it against a real repository"
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+   "revision": "941814fd138dc28cf47123d48194f329f283498d",
+   "outcome": "SEALED",
+   "facts": 777,
+   "public_symbols": 648,
+   "examples": "9 candidates; executed 3, failed 6",
+   "review": "verdict ACCEPT, findings 0, advisory 7",
+   "no_op_proof": "two runs, both zero provider calls, byte-identical examples.json after the Time Elapsed scrub"
   },
   {
-   "element": "formats.py and format_signals.py, the format facts",
-   "consumer": "G4-W11",
-   "why": "2,384 lines serving format claims; no ecosystem needs them until a non-Python cohort renders At a Glance"
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+   "revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+   "outcome": "SEALED",
+   "facts": 3931,
+   "public_symbols": 3812,
+   "examples": "7 candidates; executed 5, failed 2",
+   "review": "verdict ACCEPT, findings 0, advisory 5",
+   "no_op_proof": "two runs, both zero provider calls and both after -p:WarningLevel=0, byte-identical examples.json"
   },
   {
-   "element": "the site-independent extraction tests, about 19 of 25",
-   "consumer": "G4-W11",
-   "why": "they exercise the vendored engine against fixtures this repository does not yet carry; the facades' own tests cover what is wired today"
+   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+   "revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_REVIEW",
+   "facts": 334,
+   "public_symbols": 220,
+   "examples": "4 candidates; executed 4",
+   "detail": "Reached independent_review with a passing plan (the link_fact_id schema enum fix closed the presentation_planning class this repository was blocked on all iteration) and was rejected twice: \"finding F03: quote is not the candidate's text: '### Development Dependencies ... None of these are reference'\" - a heading the candidate does not render at all (no PackageReference is declared, so Development Dependencies is a verified-zero omission, not a section). A reviewer hallucination, correctly rejected by quote_located; not a code defect measured this iteration.",
+   "resume_predicate": "re-run present; independent_review is deterministic (temperature 0, seed 1) against an unchanged packet, so a fresh attempt reproduces this unless the reviewer prompt changes or the underlying facts move (e.g. the referenced source project's own dependency set)."
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+   "revision": "b7172877651413cff57a8bfe41fb8a8befb2406b",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_PLANNING",
+   "facts": 12574,
+   "public_symbols": 12270,
+   "examples": "12 candidates; executed 11, failed 1",
+   "detail": "presentation_planning rejected twice for \"unknown fact ID public_symbol:aspose.pdf.devices.svgsdevice; unknown fact ID public_symbol:aspose.pdf.logicalstructure.element-logicalstructure\" - the real symbol is aspose.pdf.devices.svgdevice (one letter off, identical on both attempts, before presentation_planning v10's verbatim-copy instruction was added) and the second ID's shape (a hyphenated compound) matches no symbol this facade emits. This measurement predates v10; not re-run inside the box per the reviewer's stop-fixing instruction.",
+   "resume_predicate": "re-run present now that presentation_planning v10 tells the model a symbol_fact_id is copied verbatim; if the same IDs recur unchanged, this is a hallucination this prompt wording does not fix and needs a different mechanism (§31 2026-09-06, two-equivalent-attempts rule)."
+  },
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+   "revision": "622cd5ede213ff1af1c8ff282fdcb300729c6d85",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_VALIDATION (BC-02)",
+   "facts": 2730,
+   "public_symbols": 2589,
+   "examples": "9 candidates; executed 1, failed 8",
+   "detail": "\"validation: BC-02 failed at EXTRACTING: install_command:dotnet is CONTRADICTED: package registry: distribution not found on nuget; no repair could act on it\" - Aspose.Slides.FOSS is genuinely not published on NuGet at this revision; no repository fix and no code fix changes that fact.",
+   "resume_predicate": "G4-W17 arrival-list item (0) - BC-02 admits a verified source build as an alternate SUPPORTED path when a registry says not-yet-published - lands and this repository's install fact is re-evaluated; or the package is published to NuGet."
+  },
+  {
+   "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+   "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_CONTRACT_GAP",
+   "facts": 6773,
+   "public_symbols": 6638,
+   "examples": "5 candidates; failed 5",
+   "detail": "All 5 examples are genuinely CONTRADICTED (real compile errors, confirmed after clearing an unrelated BLOCKED_TOOLCHAIN lock from a leftover VBCSCompiler.exe process). presentation_planning rejected twice for \"fact example:002 is CONTRADICTED, not SUPPORTED\": with zero verified examples, planning_schema()'s enum restriction on quick_start_example_id never applies (`if not verified: return schema`), yet Quick Start is required=True unconditionally in SEMANTIC_SHELL and its schema type is `string, minLength: 1`, never nullable - no deterministic value exists for the model to supply. Recorded as a proposal (RESEARCH 2026-09-06 23:05 entry, mistimed per the reviewer's correction - see the 10:35 log for the accurate sequence), not landed: a README_CONTRACT.md revision needs its own defect record and code+tests, more than this box can absorb.",
+   "resume_predicate": "the proposal lands (Quick Start's condition becomes bool(verified_examples), required false, rendered as any other conditional row), or a later revision of the repository fixes the compile errors independently of this loop."
   }
  ],
- "previous_items": [
-  "G4-W10"
- ]
+ "next_work_item": "G4-W17 (shared-code fixes the lanes propose), per its own purpose text ('Runs BEFORE G3-W04') and the reviewer's explicit instruction; G3-W03 remains queued behind it, unpromoted.",
+ "measurement": {
+  "repositories_in_scope": 6,
+  "sealed": 2,
+  "no_op_proven": 2,
+  "dispositions": 4,
+  "candidates_current": "4/34 (repository-presenter status)"
+ }
 }
