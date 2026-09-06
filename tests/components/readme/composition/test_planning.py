@@ -492,3 +492,37 @@ def test_a_deviation_may_only_name_a_shell_section() -> None:
         for error in validator.iter_errors(plan)
         if error.json_path == "$.deviations[0].section_id"
     ] == [f"'links' is not one of {list(section_ids())!r}"]
+
+
+def test_a_link_target_the_shell_already_renders_cannot_be_written_at_all() -> None:
+    """A rejection message asks the model to notice its own mistake; an enum makes the mistake
+    impossible to write in the first place - the same reason a contradicted example is never
+    left to a rejection message either.
+
+    Measured 2026-09-06 on Aspose.Email for .NET: the prompt's own instruction not to assign
+    `product.enterprise` as a link was not enough - the model made the identical choice on three
+    independent attempts across two composition runs, at temperature zero.
+    """
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("link_target:product.enterprise", "link_target", "https://products.aspose.com/w"),
+        ),
+    )
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, facts)
+    link_fact_id = schema["properties"]["links"]["items"]["properties"]["link_fact_id"]
+    assert link_fact_id["enum"] == ["link_target:001", "link_target:002"]
+    assert "link_target:product.enterprise" not in link_fact_id["enum"]
+
+    validator = Draft202012Validator(schema)
+    plan = _plan(
+        links=[{"link_fact_id": "link_target:product.enterprise", "section_id": "opening"}]
+    )
+    assert [
+        error.message
+        for error in validator.iter_errors(plan)
+        if error.json_path == "$.links[0].link_fact_id"
+    ] == [f"'link_target:product.enterprise' is not one of {link_fact_id['enum']!r}"]

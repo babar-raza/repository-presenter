@@ -186,7 +186,16 @@ def verify_net_examples(
         )
         (run_dir / "Program.cs").write_text(candidate.code, encoding="utf-8", newline="\n")
         result: ExecutionResult = execute(
-            [dotnet, "build", "--nologo", "-v", "quiet"],
+            # WarningLevel=0 silences the compiler entirely, not just this project: the
+            # ProjectReference rebuilds the product from source every time (§29.6 E5 - the
+            # workspace is disposable, so nothing about the product is ever cached), and its own
+            # warnings drown out the one thing this build proves. Measured 2026-09-06 on
+            # Aspose.3D for .NET: two runs of the identical wrapper produced two different
+            # truncated receipts, because the product alone emits far more than the 4000-
+            # character clip and the compiler's own warning order is not stable between builds -
+            # a receipt that changes for a reason the repository did not cause voids the seal's
+            # no-op proof exactly as the wall-clock line did.
+            [dotnet, "build", "--nologo", "-v", "quiet", "-p:WarningLevel=0"],
             workspace=run_dir,
             timeout_seconds=NET.example_timeout_seconds,
             extra_environment=profile_environment(run_dir),

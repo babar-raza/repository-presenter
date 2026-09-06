@@ -140,7 +140,16 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     """The planning schema specialised for this repository: the example selections carry the
     verified example IDs as an enum, so a schema-valid plan cannot name a contradicted or
     unresolved example (RESEARCH_AND_GUIDELINES.md section 27.5 D1; the canary was rejected
-    twice for naming a CONTRADICTED example, which is cause RC1 in section 27.2)."""
+    twice for naming a CONTRADICTED example, which is cause RC1 in section 27.2).
+
+    A link's target carries the same treatment, excluding the three IDs the shell renders at
+    its own fixed place. Measured 2026-09-06 on Aspose.Email for .NET: the prompt's own
+    instruction not to assign `product.enterprise` as a link was not enough - the model made the
+    identical choice on three independent attempts across two composition runs, at temperature
+    zero. A rejection message asks the model to notice its own mistake; an enum makes the mistake
+    impossible to write in the first place, which is the same reason a contradicted example was
+    never left to a rejection message either.
+    """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     verified = sorted(fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED")
     properties = schema["properties"]
@@ -148,6 +157,14 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     if "section_id" in deviations:
         # The canary's planner named a deviation against 'links', which is not a shell section.
         deviations["section_id"] = {"type": "string", "enum": list(section_ids())}
+    link_properties = properties.get("links", {}).get("items", {}).get("properties", {})
+    if "link_fact_id" in link_properties:
+        assignable = sorted(
+            fact.id
+            for fact in facts.by_kind("link_target")
+            if fact.polarity == "SUPPORTED" and fact.id not in _SHELL_OWNED_LINKS
+        )
+        link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
     if not verified:
         return schema
     properties["quick_start_example_id"]["enum"] = verified

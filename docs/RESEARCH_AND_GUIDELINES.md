@@ -4104,3 +4104,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   34 dispositions" G4-W16's original acceptance line assumed - the lane recorded the observed number
   rather than treating the assumption as met. All three lanes are now idle, waiting on G4-W17.
   Reverse by restoring the previous item (0) and (11) text.
+
+- **2026-09-06 10:35 · loop (PROVISIONAL) · the link enum fix works; a second non-determinism
+  hides behind the first.** Item G4-W11. Aspose.Email for .NET's plan finally passed with the
+  `link_fact_id` enum in place - no re-ask needed, since the schema-invalid choice is no longer
+  representable - confirming the schema-level fix succeeds where the runtime check plus a
+  rejection message did not. Chasing Aspose.3D's still-unproven no-op seal past the wall-clock
+  fix found a second: two runs of the same wrapper build produced two different 4000-character
+  clips of `stdout`, first-diverging inside a warning about the *referenced product's own*
+  `RectangleShape.cs`, not the wrapper's `Program.cs`. The `ProjectReference` rebuilds
+  Aspose.ThreeD from source every time - the workspace is disposable by design (§29.6 E5) - so
+  its own `CS0108`/`CS8765` warnings recompile and reprint on every run, in an order MSBuild does
+  not guarantee, and there are far more of them than the 4000-character clip holds. Fixed with
+  `-p:WarningLevel=0` on the build invocation: warnings carry nothing check 3 needs (only
+  "0 Error(s)" or a named diagnostic does), and silencing them removes the non-determinism at
+  its source rather than trying to normalise an unbounded, unordered warning stream after the
+  fact. Separately, Aspose.Email reached `independent_review` and failed there: finding F03
+  quoted "### Development Dependencies ... None of these are reference" - a heading this
+  candidate does not render at all (it declares no `PackageReference`, so the bucket is a
+  verified zero with no heading). A genuine reviewer hallucination, correctly rejected by
+  `quote_located`; not chased further as a code question today (§5's two-equivalent-attempts
+  rule) - the schema and clip fixes above are the changes this iteration is answering for.
