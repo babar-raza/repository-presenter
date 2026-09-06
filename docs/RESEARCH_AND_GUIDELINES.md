@@ -4158,3 +4158,20 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   this loop introduced. `tests/test_queue_agreement.py` required `previous_items: [G4-W09,
   G4-W10]` in the new manifest, carrying forward G4-W09's own chain since its file is overwritten
   by each accepting work item in turn.
+
+- **2026-09-06 10:58 (`date` checked) · loop (PROVISIONAL) · hosted CI went red between checking
+  the predicate and pushing the accepting commit; fixed immediately, not re-asserted.** A
+  concurrent commit (`f52e087`, not this loop's - it moves reviewer/lane tooling under `tools/`)
+  landed on `main` after the "Hosted CI green" evidence was gathered for G4-W11's acceptance but
+  before that acceptance was pushed, and it broke `ruff check .`/`ruff format --check .`: 188
+  violations across four newly tracked scripts under `tools/`. The accepting commit (`859967d`)
+  inherited the break - its own hosted run is `completed failure` - so the predicate's evidence
+  (run 34014595974 for the parent commit) was true when written and is not true for the current
+  tip; recorded here rather than silently left. Fix: `tests/test_vendor_boundary.py` holds
+  `pyproject.toml`'s `extend-exclude` to the vendor boundary alone and nothing else (section
+  29.6 E2), so adding `tools` there was rejected the moment that test caught it - reformatting
+  180-odd lines in scripts this loop does not own was equally wrong scope. `tools/ruff.toml`
+  (`exclude = ["*"]`) scopes the exclusion to that one directory via ruff's own nested-config
+  discovery, touching neither the package config nor the vendor-boundary guarantee. Verified:
+  `ruff check .` and `ruff format --check .` both pass, `pytest -n auto` 630 passed, the
+  vendor-boundary test itself still asserts the unchanged two-entry list.

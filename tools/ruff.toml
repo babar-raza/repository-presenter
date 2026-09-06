@@ -1,0 +1,8 @@
+# tools/ is owner/reviewer tooling (tools/README.md): it supervises the loop and lanes from
+# outside, is never imported by src/, and is never touched by the loop or a lane. It follows its
+# own conventions, not the package's - a nested config scopes ruff to this directory without
+# widening pyproject.toml's own extend-exclude, which tests/test_vendor_boundary.py holds to the
+# vendor boundary alone (section 29.6 E2) and nothing else. Measured 2026-09-06: adding "tools"
+# to that list broke the vendor-boundary test's own guarantee, and reformatting these scripts to
+# the package's line length and style is scope this loop does not own.
+exclude = ["*"]
