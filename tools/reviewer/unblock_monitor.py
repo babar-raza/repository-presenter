@@ -54,17 +54,19 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
     26: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
 }
 
-# Matches both "item N landed" and "item N declined ...; closed with a mutation test" (item 1's
-# actual shape on 2026-09-06: the literal proposal was declined but its underlying defect was fixed
-# under a different mechanism — that counts as landed for unblock purposes). Free text is inherently
-# fuzzy here; this errs toward over-notifying (a false positive costs one wasted check) rather than
-# under-notifying (a false negative costs another silent hour, which is the incident this exists to
-# prevent).
-LANDED_RE = re.compile(
-    r"G4-W17 arrival item[s]?\s*\(?(\d+)\)?(?:\s+and\s+\(?(\d+)\)?)?[^.\n]{0,80}?"
-    r"\b(?:land(?:ed|s)|closed with a mutation test)\b",
+# Matches "item N landed", "item N declined ...; closed with a mutation test" (item 1's actual shape
+# on 2026-09-06: the literal proposal was declined but its underlying defect was fixed under a
+# different mechanism), and a comma/and-separated list of any length ("items 8, 9 and 12 landed
+# together" — the exact phrasing that hid item 12 from this monitor for over four hours on
+# 2026-09-06, silently costing lane C its whole re-run window; fixed once found). Free text is
+# inherently fuzzy here; this errs toward over-notifying (a false positive costs one wasted check)
+# rather than under-notifying (a false negative costs another silent multi-hour gap).
+LANDED_CLAUSE_RE = re.compile(
+    r"G4-W17 arrival item[s]?\s*((?:\(?\d+\)?[\s,]*(?:and)?[\s,]*)+)"
+    r"[^.\n]{0,80}?\b(?:land(?:ed|s)|closed with a mutation test)\b",
     re.I,
 )
+NUMBER_RE = re.compile(r"\d+")
 
 
 def landed_items() -> set[int]:
@@ -73,10 +75,9 @@ def landed_items() -> set[int]:
     text = RESEARCH.read_text(encoding="utf-8", errors="replace")
     body = text[text.find("## 31"):]
     found: set[int] = set()
-    for m in LANDED_RE.finditer(body):
-        for g in m.groups():
-            if g:
-                found.add(int(g))
+    for m in LANDED_CLAUSE_RE.finditer(body):
+        for num in NUMBER_RE.findall(m.group(1)):
+            found.add(int(num))
     return found
 
 
