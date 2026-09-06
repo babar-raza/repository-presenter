@@ -4944,3 +4944,33 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   denominator of 34 (`registry.entries` itself unchanged at 34; `disabled` still appears in the
   mode set, so other disabled entries remain). Full suite green, ruff/mypy clean, before this
   entry. Live-verifying the standard PDF pipeline against it now.
+
+- **2026-09-06 21:11 (`date` checked) · loop (PROVISIONAL) · item 31 confirmed: the flag was
+  genuinely the whole problem; composition then found its own, new limit.** `present --repo
+  aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` at `92446cce4a639215de3027226fcdff50eff3bcf5`
+  did what the resume predicate said it would: admitted, cloned (1,848 tree entries), and
+  extracted 2,922 facts (391 inherited units, 2,388 public symbols, 87 example candidates) with
+  no plugin or verifier change - the repository genuinely clones, builds, and its facts stage
+  runs clean, exactly as aspose.org's independent regen run had already shown. Composition then
+  raised `RetryableOperationError: timeout` inside `run_job`'s S4 `source_reconciliation` call
+  (`core/llm/jobs.py:262`, the 360-second `DEFAULT_TIMEOUT_SECONDS` ceiling in `core/config.py`),
+  uncaught by `run_present`'s own `except PresenterError` handler - a bare Python traceback to
+  stderr rather than the usual clean `repository-presenter: ...` message, itself worth noting.
+  Repeated once, identically: the same stage, the same packet shape, the same exception, both
+  within the 360-second ceiling. Two equivalent failed attempts; not tried a third time. This
+  repository's `source_reconciliation` packet (391 units, one disposition record each) is larger
+  than any measured so far this session - `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java`, the next
+  largest measured, needed a 32000-token *output* budget for 231 units, and this packet is nearly
+  double that unit count on the *input* side, which is a request-size and likely a request-
+  duration problem the output-token fixes already landed for other jobs do not touch. Also
+  observed but not yet investigated: all 87 example candidates read `not_verified`, not a single
+  `EXECUTED` or `FAILED` - worth its own look before this repository's next attempt, independent
+  of the timeout. **PROPOSAL (primary loop, `core/config.py` or `prompts/source_reconciliation.
+  yaml`'s own packet):** either raise the gateway timeout for a `source_reconciliation` call
+  specifically (a shared, portfolio-wide ceiling change, not scoped to this one repository) or cap
+  the job's own packet the way `presentation_planning`/`section_authoring` already batch, with
+  evidence for which; and `run_present`'s exception handling catches `RetryableOperationError`
+  (and any exhausted-retry error) the same clean way `PresenterError` already prints, rather than
+  a bare traceback. Not landed here - this needs its own measurement, not a guess made at the tail
+  of an already-long session. The registry flip itself stands regardless: this repository is
+  correctly reachable now, whatever composition eventually does with it.
