@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "lane": "lane-d",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W16",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-06T11:05:00+05:00",
+  "control_revision": "8f29144af900873ac2842e778b910c94f364849e",
+  "control_revision_note": "The single-use branch lane-d/G4-W16 was cut from origin/main at 460f03e and rebased onto 8f29144 before its one squashed pull request; lane C's Java plugin (a507acc) and lane B's C++ plugin (a2bb0c0) landed in between, which is why the shared test_registry.py literal this item edits already read ('cpp', 'go', 'java', 'net', 'python', 'typescript'). The lane worked from C:\\w\\d16, per loop-prompt-lane.md section 1.1; the harness worktree path is long enough to break a transaction file on Windows.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\d16"
+  },
+  "toolchains": [
+    {
+      "name": "cargo",
+      "resolved_path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\cargo.exe",
+      "version": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+      "resolution": "not on PATH; resolved by the `cargo` key of C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt (RP_TOOLCHAIN_REGISTRY overrides the path)"
+    },
+    {
+      "name": "rustc",
+      "resolved_path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\rustc.exe",
+      "version": "rustc 1.98.1 (48a229cea 2026-09-01)",
+      "resolution": "invoked by cargo through the rustup proxy; stable-x86_64-pc-windows-msvc"
+    },
+    {
+      "name": "rustup",
+      "resolved_path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\rustup.exe",
+      "version": "rustup 1.29.1 (d95a37b6a 2026-08-13)",
+      "resolution": "provisioned by LANE-B-00; RUSTUP_HOME C:\\tools\\rp-toolchains\\rustup\\rustup-home is set in the subprocess environment only, because the disposable profile moves USERPROFILE away from the .rustup beside it"
+    }
+  ],
+  "provisioning": "Not needed: rustup was already present from LANE-B-00, so the verifier base's workspace-local provisioning path (rustup-init -y --profile minimal --no-modify-path under runs/toolchains/) was neither exercised nor written. The item's BLOCKED_EXTERNAL branch did not arise.",
+  "preflight": {
+    "command": "repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust --facts-only",
+    "provider_calls": 0,
+    "repositories": 1,
+    "processable": 1,
+    "report": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+        "processable": true,
+        "facts": 2224,
+        "supported": 2216,
+        "unresolved": 6,
+        "contradicted": 2,
+        "required_rows_without_evidence": [],
+        "crate_name": "aspose-cells-foss-rust",
+        "crate_version": "26.7.0",
+        "import_path": "aspose_cells_foss_rust",
+        "floor": "edition 2021 (no rust-version declared)",
+        "dependencies": "7, each with the version requirement the manifest declares",
+        "public_symbols": 2084,
+        "public_symbol_kinds": {
+          "method": 1865,
+          "class": 178,
+          "enum": 35,
+          "unknown": 6
+        },
+        "examples": "7 candidates; 1 EXECUTED, 6 NOT_VERIFIED, 0 FAILED",
+        "registry": "crates.io conclusive: distribution not found (HTTP 404, crates-io-api)"
+      }
+    ],
+    "failure_classes": [
+      {
+        "class": "RUST_FRAGMENT_REPORTED_AS_A_FALSE_EXAMPLE",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "six of the seven Rust fences are excerpts whose opening lines use `sheet`, `workbook`, `valid_path` or `links_sheet` - bindings the README establishes in the prose above each fence, under a heading that points at samples/ for the complete programs. The first run reported all six FAILED, so six example facts read CONTRADICTED about statements that are not false. Fixed in the lane's own verifier: a check whose every error is E0425 (cannot find value) is NOT_VERIFIED, and the glob `use <crate>::*` the wrapper adds resolves every type the fences name, so the unbound values are the only diagnostic left.",
+        "status": "FIXED"
+      },
+      {
+        "class": "CARGO_SUMMARY_LINE_COUNTED_AS_A_SECOND_ERROR",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "cargo restates a failure after the diagnostics as `error: could not compile ... due to 1 previous error`, with no error code. The first version of the classifier counted it, so a pure excerpt looked like one E0425 plus one uncoded error and every fence would still have reported FAILED. Fixed: the closing summary is dropped before the codes are compared, with a test built from the literal cargo output.",
+        "status": "FIXED"
+      },
+      {
+        "class": "RUST_MODULE_PATH_PREFIXED_WITH_THE_SOURCE_DIRECTORY",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "the vendored engine derives a Rust symbol's module path from its file's location relative to the root it is handed, so passing the manifest's own directory named every symbol `src::widget::Widget` - a path no consumer can write. Invisible on this crate (its sources sit under src/Aspose.Cells_FOSS/, a segment that is not a valid Rust identifier, so the engine already falls back to the crate-root name) and caught on a two-module fixture. Fixed: the plugin passes the package root the vendored reader resolves.",
+        "status": "FIXED"
+      },
+      {
+        "class": "RUSTUP_HOME_LOST_TO_THE_DISPOSABLE_PROFILE",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "core.execution.profile_environment redirects USERPROFILE and HOME into the run directory, and the cargo proxy looks for its toolchain in %USERPROFILE%\\.rustup when RUSTUP_HOME is unset. Left unset, every check would have failed with `no default toolchain configured` - a toolchain failure recorded as an example that does not compile. Fixed in the lane's own verifier: RUSTUP_HOME is named explicitly in the subprocess environment, from the ambient value, then the machine-local registry, then the home beside the proxy's cargo-home.",
+        "status": "FIXED"
+      },
+      {
+        "class": "COLD_CARGO_CHECK_NEARLY_EXCEEDS_THE_EXECUTION_CEILING",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "a cold `cargo check` with a disposable CARGO_HOME resolves the crate's seven requirements and compiles two native build scripts (zstd-sys, bzip2-sys) in 253 seconds, against core.execution's 300-second hard ceiling. Handled rather than fixed: the crate is checked once per composition in one copied workspace and every fence after it reuses that target directory, returning in about half a second. A crate whose cold check exceeds 300 seconds would be BLOCKED_TOOLCHAIN, and the verifier says so rather than reporting its examples false.",
+        "status": "HANDLED"
+      },
+      {
+        "class": "BC02_PUBLICATION_ONLY_SUPPORTED_PATH (G4-W17 item (0))",
+        "repositories": [
+          "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+        ],
+        "detail": "crates.io answers HTTP 404 for `aspose-cells-foss-rust` - a conclusive reading, and the state the repository's own upstream-issues digest records. install_command:cargo is therefore CONTRADICTED, and validation/registry.py::_check_install fails every install fact whose polarity is not SUPPORTED, at EXTRACTING. README_CONTRACT.md section 2 row 8 requires the Installation section to state an unpublished package plainly instead, and composition/renderer.py::_installation already renders exactly that - the branch is unreachable. The reviewer had already queued this class as G4-W17 item (0) from lane B's C++ cohort; PROPOSAL P5 in docs/RESEARCH_LANE_D.md corroborates it with Rust's reading and adds the refinement its fix needs - the verified-source-build path must support a source install fact, not the registry command, or the sealed README tells a Rust reader to `cargo add` a crate crates.io does not have.",
+        "status": "PROPOSAL_P5 (corroborates G4-W17 item (0))"
+      }
+    ]
+  },
+  "dispositions": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+      "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+      "reason_code": "BLOCKED_SHARED_CODE",
+      "failure_class": "BC02_PUBLICATION_ONLY_SUPPORTED_PATH (G4-W17 item (0))",
+      "detail": "Facts are complete: 2,224 records, 2,216 supported, no required contract row without evidence, 2,084 public symbols (178 types, 35 enums, 6 free functions the shared kind table still calls unknown), 7 versioned requirements, and the README's Quick Start compiled against the crate at this revision by cargo 1.98.1. The candidate was not composed and no provider call was made, because BC-02 fails closed on install_command:cargo whatever the composition says: the crate is not on crates.io, the reading is conclusive, and there is no polarity a plugin can honestly emit that the check accepts. G4-W17 items (10) and (11) would also leave the Installation section offering `pip install .` to a Rust reader and the Verify-the-install block absent.",
+      "resume_predicate": "G4-W17 item (0) is landed on main with PROPOSAL P5's refinement in docs/RESEARCH_LANE_D.md (the source-build path supports a source install fact, not `cargo add`), preferably with items (10) and (11); then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` from a fresh lane-d branch."
+    }
+  ],
+  "proposals": [
+    {
+      "id": "P5",
+      "file": "src/repository_presenter/components/readme/validation/registry.py",
+      "symbol": "_check_install (with composition/renderer.py::_installation)",
+      "summary": "Corroborates G4-W17 item (0) on the portfolio's only Rust repository, and names the refinement item (0)'s fix needs: admitting a verified source build must support a source install fact, not the registry command, or the renderer's published-package branch prints `cargo add` for a crate crates.io does not carry.",
+      "blocking": true,
+      "arrival": "joins G4-W17 item (0), already first in the arrival list"
+    }
+  ],
+  "predicates": [
+    "The Rust spec is declared by platforms/rust.py and registered with SPECS.setdefault; no shared table was edited.",
+    "known_ecosystems() == ('cpp', 'go', 'java', 'net', 'python', 'rust', 'typescript'); the shared test_registry.py literal took the minimal edit G4-W17 item (6) will make unnecessary, and a negative control for rust_examples beside the ones for cpp_examples, go_examples and java_examples.",
+    "The dependency snapshot carries a version for every requirement, in the manifest's own three tables (dependencies, dev-dependencies, build-dependencies).",
+    "The floor is the manifest's own vocabulary: package:rust_edition always, package:rust_version when declared.",
+    "Every example check ran under a disposable profile with CARGO_HOME inside the run directory; the toolchain was called by absolute path and nothing was added to PATH.",
+    "A toolchain this machine lacks, a crate that does not check, and a fence that is an excerpt are all NOT_VERIFIED - never CONTRADICTED.",
+    "Zero provider calls: the preflight is facts-only and the candidate was dispositioned before composition."
+  ],
+  "local_ci_equivalent": {
+    "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+    "result": "pass",
+    "runs_this_item": 1
+  },
+  "hosted_ci": "green on the pull request before the squash merge",
+  "next_work_item": null,
+  "next_work_item_blocked_on": "lane-d has no further PENDING item; G4-W15's two Go dispositions and G4-W16's Rust disposition all resume on G4-W17 landings.",
+  "measurement": "7 Rust fences in one repository: 1 compiled and type-checked against the crate at this revision, 6 excerpts the compiler named by their unbound values, 0 false. 2,084 public symbols read through the shared extractor, 2,078 of them with a real kind. One conclusive crates.io reading, one blocking shared-code proposal, zero seals, one disposition."
+}
