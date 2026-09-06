@@ -4663,3 +4663,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   modifiers rather than a directory tag), ruff/mypy clean, before this entry. Lane B's own
   directory-name filter in its C++ plugin becomes redundant once it reads this field instead,
   which is theirs to simplify in their own file.
+
+- **2026-09-06 15:54 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 18 landed: an
+  internal-narration failure now names the section that wrote it.** Lane C PROPOSAL G: BC-07's
+  "internal narration" check (`validation/registry.py`) scans the whole rendered document's prose
+  for machinery vocabulary ("fact id" among others) but never recorded which section it came
+  from; `repair/targeted.py::validation_defects` can only route a defect to S6 when a failure
+  names an LLM-owned `section_id` (`if section is None: stage, reason = None, "no failing check
+  names an LLM-owned section"`), so the finding was recorded unrepairable on both attempts,
+  measured on `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` and `aspose-pdf-foss/Aspose.PDF-
+  FOSS-for-Java` (29 units, 12 provider calls before the failure). The prompt half of the
+  proposal was already true: `section_authoring`'s system prompt already states "Fact IDs, fact
+  kinds, and packet field names... are provenance, never words in prose" (present before this
+  item). The gap was purely in localisation: `_check_structure` now reuses `_section_texts`
+  (already called twice elsewhere in the same function) to find which LLM-owned section's own
+  prose contains each narrated phrase, and sets `Failure.section` to it - the same field
+  `validation_defects` already reads as `section_id` for every other authored-prose defect,
+  wired through with zero changes to the repair mechanism itself. New test:
+  `tests/.../validation/test_registry.py::test_internal_narration_names_the_llm_owned_section_
+  that_wrote_it`, inserting the phrase into a real rendered Scope and Limitations section and
+  asserting the failure's `section_id` is `scope_limitations`. Full suite green, ruff/mypy clean,
+  before this entry.

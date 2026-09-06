@@ -352,6 +352,28 @@ def test_every_failure_record_carries_its_section_and_stage_as_fields(tmp_path: 
     assert all("failures" in check for check in document["checks"] if check["verdict"] != "PENDING")
 
 
+def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: Path) -> None:
+    """G4-W17 arrival item 18. `internal narration 'fact id'` carried no `section_id`, so
+    `repair/targeted.py::validation_defects` could not route it to any stage and recorded it
+    unrepairable both times it was measured (2026-09-06, Aspose.Slides and Aspose.PDF for Java) -
+    the same class of failure as any other authored-prose defect, just never localised. Locating
+    the phrase in whichever LLM-owned section's own prose contains it lets repair reach it like
+    any other."""
+    readme = _candidate().readme
+    narrated = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nThis mentions a fact id in prose.\n\n",
+    )
+    assert narrated != readme, "the fixture's Scope and Limitations heading was not found"
+    document = validate_candidate(_candidate(narrated), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    assert "internal narration 'fact id'" in structure["details"]
+    located = next(
+        f for f in structure["failures"] if f["detail"] == "internal narration 'fact id'"
+    )
+    assert located["section_id"] == "scope_limitations"
+
+
 def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     readme = _candidate().readme
 

@@ -847,9 +847,24 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
     for body in graphs:
         failures.extend(_topology_failures(body, has_inputs))
     lowered = prose.lower()
-    for phrase in _NARRATION:
-        if phrase in lowered:
-            failures.append(Failure("COMPOSING", f"internal narration {phrase!r}"))
+    if any(phrase in lowered for phrase in _NARRATION):
+        # A repair can only revise a specific LLM-owned section's units (repair/targeted.py's
+        # validation_defects), never "the document" - a narration failure with no section_id
+        # recorded unrepairable both times it was measured (2026-09-06, Aspose.Slides and
+        # Aspose.PDF for Java) even though the causal unit is exactly as reachable as any other
+        # authored-prose defect. Locating the phrase in the one LLM-owned section whose own
+        # prose contains it routes the same failure to S6 like any other.
+        llm_owned = {section.id for section in SEMANTIC_SHELL if section.owner != "D"}
+        section_prose = {
+            section_id: _prose(text.splitlines()).lower()
+            for section_id, text in _section_texts(candidate.readme).items()
+            if section_id in llm_owned
+        }
+        for phrase in _NARRATION:
+            if phrase not in lowered:
+                continue
+            located = next((sid for sid, text in section_prose.items() if phrase in text), None)
+            failures.append(Failure("COMPOSING", f"internal narration {phrase!r}", located))
     visible, total = line_counts(candidate.readme)
     policy = candidate.policy
     # Check 7 judges the visible-length budget; collapsed content is unbounded (contract row 14).
