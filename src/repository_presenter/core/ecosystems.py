@@ -38,6 +38,18 @@ class EcosystemSpec:
     # apart from the command itself only so Python's sealed wording never moves a single byte.
     source_install_lead: str = ""
     verify_command: str = ""
+    # Whether an executed example's own source actually names a given import_path fact, so the
+    # renderer knows which module to plug into verify_command - a template over {module}, matched
+    # against one line of the example. The default is Python's own shape (also TypeScript's or
+    # Java's plain `import x`); an ecosystem whose examples name a module differently (a quoted
+    # specifier after `from`, C++'s `#include`, Rust's `use`) names its own here instead of the
+    # renderer guessing a syntax that will never match. Measured 2026-09-06 on Aspose.3D for
+    # TypeScript (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival items 5 and 11): every
+    # TypeScript example writes `import { Scene } from '@aspose/3d'`, which the Python-shaped
+    # default never matches, so no TypeScript or Rust candidate has ever rendered a Verify-the-
+    # install block - the mechanism is landed here; each ecosystem's own pattern is its spec's to
+    # set, the same as source_install.
+    import_pattern: str = r"(?m)^\s*(?:import|from)\s+{module}\b"
     # Per-ecosystem, up to core.execution's ceiling (section 29.6 E5): an interpreted example
     # returns in seconds, a compiled one pays for a restore and a build first.
     example_timeout_seconds: float = 120.0

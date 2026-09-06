@@ -68,7 +68,6 @@ _MIT_PROSE = (
     "copyright and permission notice are retained. The software is provided without warranty."
 )
 _GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
-_IMPORT = r"(?m)^\s*(?:import|from)\s+{module}\b"
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
 _FILE_COUNT = re.compile(r"(\d+) files")
@@ -560,7 +559,10 @@ def _installation(context: RenderContext) -> list[str]:
     imported = [
         fact.value
         for fact in context.supported("import_path")
-        if any(re.search(_IMPORT.format(module=re.escape(fact.value)), e.value) for e in executed)
+        if any(
+            re.search(context.spec.import_pattern.format(module=re.escape(fact.value)), e.value)
+            for e in executed
+        )
     ]
     if imported:
         module = max(imported, key=len)

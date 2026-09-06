@@ -4350,3 +4350,26 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   == "class"` directly - no tree-sitter parse needed, since the façade's own contract is the node
   type string in, the kind out. Full suite green, ruff/mypy clean, before this entry. Proceeding to
   item 5.
+
+- **2026-09-06 13:29 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival items 5 and 11 landed
+  together: the Verify-the-install match is the spec's own, not hard-coded to Python's shape.**
+  `composition/renderer.py`'s module-level `_IMPORT` matched only `import|from {module}` with no
+  quotes - Python's own shape, and (checked directly) `net.py` emits no `import_path` fact at all,
+  so .NET was never affected either way; TypeScript writes `import { Scene } from '@aspose/3d'`,
+  the module a quoted specifier after `from` (lane B, Aspose.3D for TypeScript, item 5), and lane D
+  confirmed the identical mismatch for Rust's `use` syntax independently (item 11) - one regex, one
+  fix, landed once rather than twice. `EcosystemSpec` gains `import_pattern: str`, defaulting to
+  the exact string `_IMPORT` held, so Python's rendering is unchanged and confirmed by
+  `test_sealed_bytes.py`; the renderer now reads `context.spec.import_pattern.format(module=...)`
+  instead of the removed module constant. This lands the mechanism only: `import_pattern` for
+  TypeScript, Rust, C++ and Go is each lane's own field to set in its own `platforms/<ecosystem>.py`
+  spec construction (the same file that already self-registers via `SPECS.setdefault`, item 3
+  above) - this item cannot set it for them without editing a lane-owned file, and guessing at a
+  syntax none of them has verified would be worse than the honest absence today (loop-prompt's own
+  standard). `tests/components/readme/composition/test_renderer.py` gains
+  `test_import_pattern_is_the_spec_own_not_hard_coded_to_pythons_shape`: a TypeScript-shaped
+  import against the unmodified default renders no Verify-the-install block (reproducing the bug
+  directly), and the identical facts against a synthetic spec carrying a quoted-specifier pattern
+  render it correctly with the right module. Full suite green, ruff/mypy clean, before this entry.
+  Once a lane sets its own `import_pattern`, its cohort's Verify-the-install block starts
+  rendering on the next `present` with no further shared-code change. Proceeding to item 6.

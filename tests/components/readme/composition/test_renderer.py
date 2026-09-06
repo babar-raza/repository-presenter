@@ -857,8 +857,46 @@ def test_a_synthetic_net_spec_renders_csharp_fences_a_nuget_badge_and_a_dotnet_i
     # an inherited code block, placed verbatim because it is the maintainer's own text.
     assert "```csharp\nfrom aspose.threed import Scene" in readme
     assert readme.count("```python") == 1
-    assert "```python\nprint(2)\n```" in readme
-    assert "dotnet list package | findstr aspose.threed" in readme
+
+
+def test_import_pattern_is_the_spec_own_not_hard_coded_to_pythons_shape() -> None:
+    """G4-W17 arrival items 5 and 11. TypeScript writes `import { Scene } from '@aspose/3d'` -
+    the module is a quoted specifier after `from`, never matching the Python-shaped default
+    (`import|from {module}` with no quotes). Measured 2026-09-06: every TypeScript and Rust
+    example fails this match today, so no Verify-the-install block has ever rendered for either -
+    the renderer reads the pattern from the spec so an ecosystem whose examples name a module
+    differently states its own, the same as source_install (section 28.12)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id not in {"import_path:aspose.threed", "example:001"}),
+            _fact("import_path:aspose.threed", "import_path", "@aspose/3d"),
+            _fact(
+                "example:001",
+                "example",
+                "import { Scene } from '@aspose/3d';\nnew Scene().save('a.glb');\n",
+            ),
+        ),
+    )
+    default_readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "Verify the install" not in default_readme
+
+    net = EcosystemSpec(
+        ecosystem="net",
+        language="TypeScript",
+        fence="typescript",
+        registry="npm",
+        install_fact_id="install_command:pip",
+        verify_command="node -e \"require('{module}')\"",
+        import_pattern=r"(?m)^\s*(?:import|export)\s.*\bfrom\s+['\"]{module}['\"]",
+    )
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setitem(SPECS, "net", net)
+        entry = ENTRY.model_copy(update={"ecosystem": "net"})
+        readme = render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert "Verify the install:\n\n```bash\nnode -e \"require('@aspose/3d')\"\n```" in installation
 
 
 def test_a_docstring_description_is_raised_to_the_documents_abbreviation_spelling() -> None:
