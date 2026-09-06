@@ -37,6 +37,9 @@ active_work_item:
   - G4-W11 is accepted - two of six .NET repositories sealed and no-op proven, four dispositioned with failure class and resume predicate (evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json).
   - Lanes B, C and D have recorded PROPOSAL entries in their own logs (docs/RESEARCH_LANE_B.md, _C, _D); the arrival list above is the reviewer-maintained landing order.
   - Runs before G3-W04 (owner, 2026-09-06 09:00) and stays active while any lane has an open item.
+  - Time box 90 minutes per landing pass (owner, 2026-09-06 10:45, RESEARCH section 28.12); at each
+    box, run repository-presenter status and report the sealed-candidate delta; two consecutive
+    zero-delta boxes freezes new PROPOSAL intake to items with two or more corroborating lanes.
   owned_paths:
   - src/repository_presenter/components/readme/composition/
   - src/repository_presenter/components/readme/review/
