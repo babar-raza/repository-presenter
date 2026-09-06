@@ -529,3 +529,177 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   PENDING - BC-02 as above, plus BC-08 on `inherited_unit:078.list`, the `python-pptx` false
   positive the PROPOSAL above names. This is the only one of the four carrying a second blocking
   failure. Resume predicate: both PROPOSALs above; then re-run.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · neither G4-W17 item named in the re-run
+  request cleared 3D TypeScript; `d583d07` (G4-W11, 08:39) did, fourteen minutes after this item
+  was accepted.** Both TypeScript dispositions were re-run against `origin/main` at `2b88ea4` from
+  a fresh worktree at `C:\w\b14b` with its own `.venv`; branch `lane-b/rerun-typescript` is cut
+  from it. Item (1) is `7c0e7e6` (12:42), a test-only commit that *declined* the prompt change
+  ("zero production change needed") because `dispositions.normalize` already folded any owner-D
+  section rendering nothing; item (2) is `c0071d1` (12:53). Reading the tree this item actually
+  ran against - `7ea433e`, its own recorded `control_revision` - that fold did **not** exist:
+  `git show 7ea433e:.../reconciliation/dispositions.py` line 300 still reads
+  `errors.append(f"{unit}: section {destination} renders nothing for this repository; choose
+  OMIT_UNSUPPORTED or DEFER_UNRESOLVED")`, which is verbatim the refusal this lane recorded. The
+  `errors.append` became `entry["disposition"] = "DEFER_UNRESOLVED"` in `d583d07` (G4-W11,
+  08:39) - measured there on Aspose.Slides for .NET, not on anything of this lane's. So the
+  12:42 entry's reading ("the fold already exists, unconditional") was true when it was written
+  and false when this lane measured; item (1) is correctly declined, but the credit for
+  unblocking 3D TypeScript belongs to G4-W11, exactly as this lane's C++ re-run found for its own
+  S4 refusals. Alternative rejected: recording item (1) as the cause because the re-run request
+  named it. Evidence: the three commits above; `dispositions.json` for this run folds the same
+  five units (`023.heading`, `024.paragraph`, `025.code_block`, `088.heading`, `089.paragraph`)
+  to `DEFER_UNRESOLVED` with `destination_section: null`, and S4 accepted first attempt. Reversal:
+  none; this is a reading of history, not a change.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · item (2) cleared Cells TypeScript, and the
+  arithmetic separates it from this run's shorter root.** The re-run wrote
+  `C:\w\b14b\runs\transactions\aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript\<revision>\
+  calls\eaa447337377.rejected-1.json` and `.rejected-2.json` - **155** characters, the exact file
+  whose `write_bytes` raised `FileNotFoundError` before - and the transaction ran to validation.
+  This run's root is 94 characters shorter than the worktree that measured 261, so the run alone
+  does not isolate the cause; the name does. The suffix below any root is 158 characters with the
+  old 24-character hash and 146 with `c0071d1`'s 12, so the same name from the original root is
+  **261 - 12 = 249**, under Windows' 260. Item (2) alone clears it, from that root, without a
+  short checkout. Alternative rejected: claiming the re-run proved it. Evidence: the two rejected
+  files above at 155 characters; `git show c0071d1 -- src/repository_presenter/core/llm/jobs.py`.
+  Reversal: none.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · a re-export binds a name *and* a module,
+  and a top-level function is the one symbol the façade hands back unqualified.** Two defects in
+  this lane's own files, both exposed by the re-run and both fixed here with a mutation test each
+  (`src/.../platforms/typescript_barrel.py`, `typescript.py`,
+  `tests/.../platforms/test_typescript.py`). (a) `reexported_names` returned a flat set of names
+  and `_public_name` matched on the name alone, so a *second* declaration of an exported name
+  anywhere under the entry point was published as though the package exported it twice. Measured:
+  Aspose.3D declares `BoundingBoxExtent` at `utilities/BoundingBox.ts:188` while its barrel
+  re-exports only `BoundingBox` from that file and takes `BoundingBoxExtent` from its own module,
+  and Aspose.Cells binds `CellCoordinates`, `CellRange` and `Comment` from `./types` and
+  `./comment` while `util.ts` and `types.ts` declare rivals of all three - 1 duplicate type on 3D
+  and **40** duplicate symbols on Cells, which is what BC-07 refused ("verified public type
+  BoundingBoxExtent is recorded 2 times; one fact per canonical defining location"). New
+  `reexported_bindings` carries the resolved module per name; `_binds` disqualifies a symbol only
+  when its file holds a *rival declaration* of the name, because the façade reports an inherited
+  member under the derived type with the base's file as evidence
+  (`AssetInfo.AssetInfo.toString` from `A3DObject.ts`) - checking the module alone dropped 255
+  genuine members of Aspose.3D, measured before the rule was narrowed. (b) `_public_name`
+  required a dotted value, and the façade returns a top-level function unqualified
+  (`colToIndex`, not `aspose_cells.util.colToIndex`), so every function a TypeScript package
+  exports was silently absent: Aspose.Cells re-exports eight from `./util` and its surface held
+  only `class`, `method` and `enum` facts. Measured effect: 3D 1034 -> 1028 public symbols
+  (BC-07 now PASSES, validation 6 pass/3 fail -> 7 pass/2 fail); Cells 353 -> 321 with the eight
+  functions gained and all 40 duplicates gone. Alternative rejected: deduplicating by name at the
+  fact layer, which would have kept whichever declaration was read first and still published a
+  class no consumer can reach. Tests:
+  `test_a_rival_declaration_of_an_exported_name_is_not_published_twice`,
+  `test_an_inherited_member_is_published_though_its_base_declares_it`,
+  `test_an_exported_top_level_function_is_published`. Deliberately not built (loop-prompt section
+  6 rule 1): following a named re-export through an *intermediate* barrel to the declaring file -
+  neither cohort repository does that, both name the declaring module directly and use `export *`
+  for directories, and the limitation is stated in `_binds`'s own docstring. Reversal: revert the
+  two modules; `reexported_names` is kept as a wrapper so nothing else moves.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · PROPOSAL (primary loop,
+  `composition/renderer.py`): Navigation links a section `render_readme` has already dropped.**
+  `render_readme` skips a section whose body renders nothing (`if not any(line.strip() for line
+  in body): continue`), but `_navigation` is built from `context.included`, which still holds it,
+  and Navigation is emitted before the later bodies are known. Aspose.3D for TypeScript ships no
+  licence file, so `license` renders nothing and the document still carries
+  `- [License](#license)` with no `## License` heading: `BC-06 failed at COMPOSING: #license: no
+  heading #license`, recorded unrepairable both attempts (no `section_id`, so
+  `repair/targeted.py` cannot route it). `docs/README_CONTRACT.md`'s own `navigation` row says
+  "in-page links to the visible headed sections **actually present**", so the renderer
+  contradicts the row it implements. General, not this repository's: `installation` renders
+  nothing for every unpublished package in the portfolio and is the same shape one section
+  earlier. Fix: render every section's body first, then build Navigation from the sections that
+  survived the empty-body skip. Disposition below names this as a resume predicate.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · PROPOSAL (primary loop,
+  `evidence/facts/extract.py`): G4-W17 item (0)'s "an EXECUTED example proves the source
+  compiles" is unsound for TypeScript, and this lane must not paper over it with a
+  `source_install` string.** `_source_build_fact` opens for both TypeScript repositories - the
+  npm probe answers conclusively, so `install_command:npm` is `CONTRADICTED` (not C++'s
+  `UNRESOLVED`, so item (24)'s carve-out is irrelevant here), and both have EXECUTED receipts -
+  and then returns the fact untouched because `TYPESCRIPT` declares no `source_install`. The
+  obvious lane-side fix is wrong on measurement, not on principle: TypeScript's verifier reads
+  diagnostics only from the example's own file by design (`typescript_examples.py`: "a diagnostic
+  in the library's sources is a fact about the library's build environment"), so an EXECUTED
+  TypeScript receipt says nothing about whether the library builds. Measured today against the
+  two clones, with the lane's own npm profile: Aspose.Cells has **3 of 3** examples EXECUTED, yet
+  `npm install` (exit 0, 16.3 s) followed by `npx tsc --noEmit` exits **2** with three real
+  errors in its own sources (`aspose_cells/chartLoader.ts(210,11) TS2345`,
+  `html/htmlDocument.ts(92,54) TS7006`, `workbook.ts(482,63) TS2345`) and its manifest declares no
+  `build` script at all (only `start: tsx index.ts`); Aspose.3D declares `build: tsc` and both
+  `npm install` (exit 0, 58.1 s) and `npm run build` (exit 0, 6.9 s) succeed. So no single
+  ecosystem-wide command is verified by the receipts item (0) consults - one repository builds,
+  the other has nothing to build and does not compile - and writing item (0)'s evidence sentence
+  ("verified source build: an example executed against this revision, proving the source
+  compiles") for Aspose.Cells would be a fabricated claim (loop-prompt section 6 rule 12).
+  Alternative rejected: `source_install="…npm install"`, which renders under the renderer's own
+  "build it from a source checkout instead, verified against this revision" lead for a step that
+  builds nothing. Fix: item (0)'s gate consults a receipt for the *command it names*, per
+  repository, rather than an example receipt - a plugin that can drive the manifest's own build
+  records that receipt and the fact becomes SUPPORTED for the repository that earns it, while a
+  repository whose sources do not compile keeps BC-02 honestly failing. This is the single
+  blocker between Aspose.Cells for TypeScript and a seal (8 pass, 1 fail, 2 pending) and one of
+  two for Aspose.3D.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · PROPOSAL (primary loop,
+  `composition/renderer.py`): a `function` public symbol renders nowhere.** `_api_reference`
+  groups `public_symbol` facts by `symbol_kind` and builds the Core API table from `class` and
+  `enum` only, with `method` facts feeding the Detailed Member Reference; a `function` fact is
+  read by no branch. With the fix above, Aspose.Cells for TypeScript now records its eight
+  exported helpers (`colToIndex`, `indexToCol`, `cellRef`, `parseCellRef`, `parseRange`,
+  `escapeXml`, `unescapeXml`, `generateUuid`) as facts that appear in no section, so the
+  collapsed reference is still not the complete public surface (loop-prompt section 6 rule 8).
+  Not blocking today - no check requires it, and the facts are honest - but the same gap awaits
+  Go and Rust, whose packages export free functions as a matter of course, and it is the
+  rendering half of the G4-W17 items (9) and (11) family. Fix: the Core API table gains a
+  Functions subsection beside Enumerations, keyed on the `function` kind the façade already sets.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 re-run · latent, not re-proposed: a plan naming a
+  fact ID that does not exist rejects the whole reply.** On the first draw of this re-run
+  Aspose.Cells died at S5 with `presentation_planning: output rejected twice; last rejection:
+  unknown fact ID public_symbol:ImageInfo; unknown fact ID public_symbol:ShapeInfo; unknown fact
+  ID public_symbol:HtmlSaveOptions` - `core/llm/binding.py::binding_errors` fails the reply whole
+  on any unknown cited ID, the same shape G4-W17 item (16) folded for a repeated hub and an
+  over-ceiling link and item (17) folded for a repeated disposition. All three names are real
+  types of the repository that its own README describes and its barrel does not re-export
+  (`ImageInfo` and `ShapeInfo` are `export interface` in `types.ts`; `HtmlSaveOptions` is
+  exported by `aspose_cells/html/index.ts`, which the main barrel never reaches), so the surface
+  was right and the plan was wrong. It did **not** recur on the second draw after the surface fix
+  above changed the packet: the plan closed in 2 calls with 8 hubs. Two draws is not evidence of
+  a fix, so the class is recorded here as latent rather than proposed as landed work; if it
+  recurs, the fold is item (16)'s, one list further in.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 · DISPOSITION (revised) ·
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at `7b95970` -
+  `BLOCKED_VALIDATION (BC-02, BC-06)`.** Was `BLOCKED_RECONCILIATION`. The S4 refusal is gone
+  (`d583d07`, above) and the transaction now runs end to end where it previously reached no
+  rendering at all: 190 tree entries, 1172 facts (1028 public symbols after the duplicate fix),
+  9 examples of which 8 are EXECUTED; S4 accepted first attempt, 89 units with the same five
+  deferred; planning closed at 17 of 18 sections with 12 hubs; authoring wrote 122 units across
+  9 sections; coherence revised 0 of 122; **190 visible lines of 765**. Validation: 7 PASS, 2
+  FAIL, 2 PENDING - BC-02 (`install_command:npm is CONTRADICTED: package registry: distribution
+  not found on npm`) and BC-06 (`#license: no heading #license`), both recorded unrepairable,
+  plus three advisories, all "the rewrite no longer names …" on inherited units. Resume
+  predicate: both PROPOSALs above (the item (0) gate and the Navigation fix); then re-run
+  `present --repo aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 · DISPOSITION (revised) ·
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` at `fc18650` -
+  `BLOCKED_VALIDATION (BC-02)`.** Was `BLOCKED_ENVIRONMENT (Windows MAX_PATH)`. The path death is
+  gone (`c0071d1`, above) and this repository now reaches validation with **one** blocking
+  failure: 44 tree entries, 419 facts (321 public symbols - 40 duplicates removed and 8 exported
+  functions gained), 3 of 3 examples EXECUTED, no required contract row without evidence; S4
+  accepted first attempt, 49 units; planning closed at 17 of 18 sections with 8 hubs; authoring
+  wrote 60 units across 9 sections through 10 calls; coherence revised 1 of 60; **179 visible
+  lines of 434**. Validation: 8 PASS, 1 FAIL, 2 PENDING - BC-02 alone, the same detail as every
+  unpublished repository in the portfolio - with one advisory. This is the closest any lane B
+  repository has come to sealing. Resume predicate: the item (0) PROPOSAL above; then re-run
+  `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript`.
+
+- **2026-09-06 19:28 (`date` checked) · G4-W14 · DISPOSITION (unchanged) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` - `DISABLED_UPSTREAM`.** `data/registry.json`
+  still records `mode: disabled`; the re-run request said not to touch it and no clone was
+  attempted. Resume predicate unchanged.
