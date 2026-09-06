@@ -191,3 +191,166 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   says "disposition only". No clone was attempted and no fact was read. Resume predicate: the
   registry entry's mode becomes `dry_run` and the repository clones; the plugin and verifier this
   item lands need no change to take it.
+- **2026-09-06 · G4-W13 · C++'s install command is the source build the verifier itself drives, and
+  it stays UNRESOLVED.** `install_command:cmake` carries
+  `cmake -S <the manifest's directory> -B build` and `cmake --build build`, evidenced by the
+  manifest and by the `RegistryProbe`'s own reading; `registry_facts` calls `observe("cpp", name)`,
+  which makes no network call at all because `REGISTRY_TYPES` has no `cpp` entry, and re-issues
+  the fact UNRESOLVED with that reading appended. `CPP.registry` is the phrase "any package
+  registry" so the only sentence the renderer builds from it - "could not be confirmed on any
+  package registry at this revision" - reads correctly; `version_badge` is empty, so no badge can
+  render. Alternative rejected, and measured first: writing no `install_command` fact at all,
+  which is what the first pass did. Evidence: with no such fact, `rendering_fact_ids` finds
+  nothing for `installation`, and `source_reconciliation` rejected its own output twice on both
+  Cells and Email with "section installation renders nothing for this repository" - the plugin was
+  contributing to a failure whose cause is elsewhere. The UNRESOLVED fact does not fix that (the
+  section still needs a **SUPPORTED** install command), but it states what is true and puts the
+  real commands in the document. Reversal: drop the fact and the `observe` call.
+- **2026-09-06 · G4-W13 · a C++ symbol is public only if a consumer may include the header it is
+  declared in.** `cpp.public_symbols` drops every symbol whose evidence path has a directory
+  segment named `internal`, `_internal`, `detail`, `details` or `impl`, and keeps a namespace only
+  while something public is still declared inside it, re-evidenced at the first such declaration.
+  Measured: Aspose.PDF for C++ extracts 2044 symbols of which 393 come from `include/internal/`
+  (they surface as a `foundation.*` namespace no consumer can name), and Aspose.Slides 3243 of
+  which 401 come from `include/Aspose/Slides/Foss/_internal/`; after the filter, 1651 and 2845.
+  Alternative rejected: rely on the vendored engine, which already has a C++-only `internal`
+  segment rule. Evidence: that rule computes a `visibility` field the shared façade
+  `surface/extractor.py` never reads, and upstream lists `_internal` in `_EXEMPT_PRIVATE_DIRS`, so
+  neither tree was filtered at all. Reversal: drop the call in `surface_facts`.
+  **PROPOSAL (primary loop, `extractors/surface/extractor.py`):** `surface_symbols` discards the
+  `visibility` key `api_surface.extract_api_surface` returns, so every ecosystem publishes what the
+  engine already marked internal. Carrying it on `SurfaceSymbol` would let each plugin decide once,
+  and would make this lane's path filter redundant rather than parallel.
+- **2026-09-06 · G4-W13 · a README C++ body is given a `main`, and CMake is what supplies a
+  third party's headers.** C++ has no top-level statements, and six of Aspose.Cells' seven examples,
+  eight of Aspose.PDF's eleven and nine of Aspose.Slides' ten are bodies rather than programs:
+  `wrap_example` keeps the preprocessor lines, comments, `using` declarations and namespace aliases
+  at file scope and puts the rest in `main`. Separately, Aspose.Slides' public
+  `shape_collection.h` opens with `#include <pugixml.hpp>`; before the verifier added the configure
+  step's `_deps/<name>-src/{include,src}` directories to the include path, all ten of its examples
+  stopped at that line with a fatal error and none was checked, and after it nine compile and the
+  tenth fails for a real reason (`'pres' was not declared`, a continuation fragment).
+  Alternatives rejected: compiling each snippet as a translation unit as written, which fails every
+  body; and installing pugixml, which RESEARCH 28.12 point 6 forbids inside the box. Reversal:
+  drop `fetched_includes` and accept ten unchecked examples.
+- **2026-09-06 · G4-W13 · CMake is resolved from the machine before the lane's own toolchain
+  directory, and the compiler the other way round.** `shutil.which("cmake")` finds
+  `C:\Program Files\CMake\bin\cmake.exe`; the winlibs GCC bundle also ships a `cmake.exe`, and
+  Aspose.PDF for C++, whose configure fetches GoogleTest over HTTPS, dies in the bundled one with
+  "SSL certificate verification failed: certificate signer not trusted" and configures and builds
+  in 95 seconds under the machine's. `g++` is on no PATH here at all, so it comes from
+  `TOOLCHAIN_PATHS.txt`; its directory and Ninja's are prepended to the *subprocess* PATH only.
+  Alternative rejected: prepend the toolchain directory and let `which` pick the bundled CMake,
+  which is what the first probe did. Evidence: both runs are in this item's receipt. Reversal:
+  record `cmake` in `TOOLCHAIN_PATHS.txt` and the registry lookup wins again.
+- **2026-09-06 · G4-W13 · an example the compiler never reached is `NOT_VERIFIED`, and the
+  library's own build never decides an example's verdict.** The syntax check's verdict is read from
+  where the errors were raised: in the example's own file it is `FAILED`, and with no error in the
+  example at all - a header it includes stopped the compiler first - it is `NOT_VERIFIED`, because
+  "we could not check" is not "we checked and it is false" (§29.6 E5). Measured: two of
+  Aspose.PDF's eleven examples include `facades/facade.hpp`, which holds a
+  `unique_ptr<Document>` with a defaulted destructor over an incomplete type, and stop there.
+  Separately, Aspose.Cells for C++ does not build with GCC 16.2 - `XlsxWorkbookSerializerCommon.cpp`
+  uses `std::numeric_limits` without including `<limits>` and `NumberFormat.cpp` trips
+  `-Werror=trigraphs` - and its first example still type-checks, which is why the CMake build's
+  outcome is carried in the receipt as a phrase and never used as a gate. Alternative rejected: the
+  legacy `example_verifiers/cpp.py` shape, where a failed build is `BUILD_FAILED` for every
+  example. Evidence: that rule would have produced zero verdicts for two of the four repositories
+  for reasons that are facts about the library's portability, not about its README. Reversal:
+  return `_blocked(...)` when `build_product` does not say "succeeded".
+- **2026-09-06 · G4-W13 · PROPOSAL (primary loop, `validation/registry.py` `_check_install`, BC-02
+  and `docs/README_CONTRACT.md` §5): an install command is only ever `SUPPORTED` when a package
+  registry says the package is published, so no unpublished repository in this portfolio can pass
+  BC-02.** The check fails closed twice over - "no install command fact" when a plugin writes none,
+  and "`{id}` is UNRESOLVED" when it writes an honest one - and C++ is the sharpest case because
+  there is no registry to ask at all (`surface/registry.py`: "C++ has no registry"). All four C++
+  repositories and both TypeScript ones are in this position; the two sealed Python candidates are
+  published on PyPI, which is why the gap has not been seen before. Resume predicate: BC-02 admits
+  a *verified source build* as an install - the command the examples stage itself ran, exiting 0
+  at this revision - as evidence equal to a registry reading; then re-run the four C++
+  repositories. This is downstream of the reconciliation defect below and would block them even
+  after it is fixed.
+- **2026-09-06 · G4-W13 · PROPOSAL (primary loop, `composition/renderer.py` `_installation`): the
+  source-checkout block is hardcoded to `pip install .` for every ecosystem.** Lines 521-533 render
+  "To work from a source checkout instead, install the clone with pip:" and a bash block of
+  `git clone ... && cd ... && pip install .` whenever `context.supported("example")` is non-empty
+  and `identity:repository` exists - neither condition mentions the ecosystem. Aspose.Slides for
+  C++ has 9 supported examples and Aspose.PDF 4, so the block would render a command no C++ reader
+  can run; .NET is in the same position and neither of its repositories has reached rendering yet.
+  `core/ecosystems.py`'s `EcosystemSpec` docstring already names a `source_install` template
+  "over `{package}` and `{repository}` and `{name}`" that the dataclass has no field for. Resume
+  predicate: `EcosystemSpec` carries `source_install` and `_installation` renders it, empty meaning
+  no block; C++'s is the two `cmake` lines its `install_command:cmake` fact already carries.
+- **2026-09-06 · G4-W13 · PROPOSAL (primary loop, `composition/authoring.py` `_FORBIDDEN`): the
+  Markdown-list check matches `"- "` anywhere in a unit, so a suspended hyphen in ordinary prose
+  is rejected as a list.** Measured on Aspose.Cells for C++, which reached S6 and then lost the
+  whole transaction to two rejections of the same unit: `capability:7` read "Attach hyperlinks to
+  cells with HyperlinkCollection and manage **workbook-** or sheet-scoped named ranges via
+  DefinedNameCollection...", and `("- ", "a Markdown list")` fired on `workbook- or`. The job was
+  told to fix a defect it had not committed, so it could not, and the second attempt produced the
+  same sentence. A list marker is only a list at the start of a line, and `("\n", "a line break; a
+  unit is one paragraph")` already forbids a unit from having a second line - so anchoring the
+  `"- "` and `"* "` entries to the start of the text loses nothing and stops a whole class of
+  false rejections. Resume predicate: the two entries anchor to the start of the text; then
+  re-run `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`.
+- **2026-09-06 · G4-W13 · DISPOSITION · `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` at
+  `9f852d0` - `BLOCKED_AUTHORING`.** Everything up to S6 holds: 401 tree entries, 2058 facts
+  (1943 public symbols, a verified-zero dependency marker, C++17 and CMake 3.16 from the library's
+  own `Aspose.Cells.Foss.Cpp/CMakeLists.txt`), 7 examples of which 1 compiles and 6 fail for real
+  reasons - example 2 calls `WorksheetCollection::operator[]` with a string, which the class does
+  not declare, and four more are continuation fragments naming a `sheet` or a `workbook` from an
+  earlier block. Preflight: required rows without evidence, none. Investigation, reconciliation and
+  planning all closed; `section_authoring` then rejected its own output twice on `capability:7`
+  for the false positive above. Resume predicate: the `_FORBIDDEN` anchoring above; behind it, the
+  queued `source_reconciliation` fix and BC-02, which the run before this one hit at S4 with
+  `inherited_unit:011.heading`, `:012.paragraph` and `:013.code_block` placed into `installation`.
+  Separately measured and not a blocker: the library does not build with GCC 16.2 -
+  `src/aspose/cells_foss/XlsxWorkbookSerializerCommon.cpp:965` uses `std::numeric_limits` without
+  including `<limits>`, and `NumberFormat.cpp:30` trips `-Werror=trigraphs`; MSVC accepts both.
+- **2026-09-06 · G4-W13 · DISPOSITION · `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at
+  `fef9c93` - `BLOCKED_RECONCILIATION`.** 75 tree entries, 348 facts (225 public symbols), 4
+  examples of which 2 compile; example 3 names a `read_option` nothing declares and example 4 uses
+  `std::cerr` while including only `<fstream>`, which GCC does not pull it in through. The library
+  configures and builds cleanly in 15 seconds. Preflight: required rows without evidence, none. S4
+  rejected twice on `inherited_unit:012.paragraph` and `:013.code_block` placed into
+  `installation`. Resume predicate: as above.
+- **2026-09-06 · G4-W13 · DISPOSITION · `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` -
+  `BLOCKED_RECONCILIATION`.** 1521 tree entries, 1839 facts (1651 public symbols after 393 from
+  `include/internal/` are dropped), 11 examples of which 4 compile, 5 fail and 2 are NOT_VERIFIED
+  because `include/aspose/pdf/facades/facade.hpp` holds a `unique_ptr<Document>` with a defaulted
+  destructor over an incomplete type and stops the compiler before either example's own calls are
+  reached - a real defect in a public header, and the honest verdict for the example is "not
+  checked". The library configures and builds in 95 seconds under the machine's CMake. Preflight:
+  required rows without evidence, none. S4 rejected twice, here for a different reason than Cells
+  and Email: `unknown fact ID api_reference` - the job cited section IDs (`navigation`,
+  `at_a_glance`, `key_capabilities`, `installation`, ... thirteen of them) in `fact_ids`, which is
+  the reconciliation job's own confusion between a destination and a citation. Resume predicate:
+  the queued `source_reconciliation` fix, then BC-02 above.
+- **2026-09-06 · G4-W13 · PROPOSAL (primary loop, `prompts/repository_investigation.yaml` and the
+  planning stage): a planned limitation whose only vocabulary is non-public is unauthorable, and
+  the rejection loop retries authoring rather than the stage that chose it.** Measured on
+  Aspose.Slides for C++, which reached S6 with everything green and then lost the transaction to
+  two rejections of `limitation:3` ("identifiers that are not accepted fact values:
+  get_inherited_xfrm, get_inherited_xfrm()") and `limitation:4` (`xml_node`). Both identifiers are
+  real, and both are declared under `include/Aspose/Slides/Foss/_internal/`, which this plugin
+  withholds from the public surface for the reason recorded above - so the investigation read them
+  from the tree, the plan asked for a limitation about them, and no authoring attempt could cite a
+  fact that does not exist. Resume predicate: the investigation and the plan are constrained to
+  the public fact set, or an authoring rejection naming an unknown identifier reopens planning
+  rather than authoring (`docs/STATE_MACHINE.md` §8's routing); then re-run the repository.
+- **2026-09-06 · G4-W13 · DISPOSITION · `aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` at
+  `733de4b` - `BLOCKED_AUTHORING`.** 518 tree entries, 2999 facts (2845 public symbols after
+  401 from `_internal/` are dropped), 10 examples of which 9 compile and the tenth is a
+  continuation fragment naming a `pres` from an earlier block. `pugixml` is the one required
+  dependency, read from the library target's PUBLIC link interface; miniz, GTest and googletest
+  are development. The `conanfile.py` under `packaging/conan/` is not on the build path - the root
+  `CMakeLists.txt` fetches pugixml and miniz with `FetchContent` when `find_package` finds none,
+  so conan was never needed and nothing was installed. Worth recording against the census: the
+  three examples `aspose_org_upstream_issues` lists as not compiling (Notes, Table, Comments) all
+  compile at this revision, and the Table example's own comment now documents that
+  `Cell::text_frame()` returns a pointer. Preflight: required rows without evidence, none. S4
+  rejected once on `inherited_unit:043.heading` and `:044.code_block` placed into `installation`
+  and then passed; planning closed after one rejection of its own ("Aspose links exceed the
+  ceiling of 4: 5"); `section_authoring` then rejected `limitation:3` and `:4` twice for the
+  reason above. Resume predicate: the PROPOSAL above; behind it, the queued
+  `source_reconciliation` fix and BC-02.
