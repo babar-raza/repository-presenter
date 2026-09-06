@@ -172,3 +172,156 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   does not forward `excluded_package_segments`, so the spec parameter §29.9 asks for cannot be
   passed from a plugin today; that is a one-argument façade change and becomes a PROPOSAL the first
   time a repository's parity fails on it. Reversal: none needed while parity passes.
+
+## Re-run of the four G4-W12 dispositions (2026-09-06, after G4-W17 item 12 and the rest)
+
+- **2026-09-06 19:59 (`date` checked) · G4-W12 re-run · item 12 reached every Java repository, and
+  by itself sealed none of them — the other half of BC-02 was this lane's own sentence.**
+  `install_command:maven` is now SUPPORTED for all four, from a live probe of
+  `repo1.maven.org/maven2/org/aspose/<artifact>/maven-metadata.xml` (evidence "package registry:
+  found on maven"), exactly as the 14:46 §31 entry recorded. All four still failed `BC-02` on the
+  first re-run, identically: `install_command:maven lacks manifest, package-registry, or
+  source-build evidence: install command for the coordinate declared by the POM package registry:
+  found on maven`. `_check_install` asks the install fact's evidence for a manifest reading *and*
+  a registry reading; the registry half has a shared owner (`RegistryObservation.summary`, whose
+  docstring says outright that the wording is shared so "no plugin should have to remember the
+  phrase"), the manifest half has none, and every other plugin retypes it correctly — `go`, `net`,
+  `rust` and `typescript` all say "manifest" while this one said "declared by the POM". Decision:
+  conform this lane's own sentence to "install command for the coordinate the `pom.xml` manifest
+  declares", which is honest — the evidence's own `path` is `pom.xml`. Alternative rejected:
+  leaving all four blocked behind a shared-code PROPOSAL the lane could close in one line of its
+  own file. Evidence: with the change, Slides went from `BC-02` to nine of nine S9 checks passing
+  and PDF to a seal. Reversal: one string in `platforms/java.py::manifest_facts`. The shared-code
+  half is PROPOSAL H below, non-blocking.
+- **2026-09-06 19:59 (`date` checked) · G4-W12 re-run · a Javadoc comment is not Markdown, and
+  saying so is Java's own job.** `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java`'s only remaining
+  blocker once BC-02 cleared was `BC-06 failed at EXTRACTING: xfa:datasets: tree does not contain
+  datasets`, and EXTRACTING is a stage no repair can act on. Cause, measured: `Datasets`'s Javadoc
+  first line is `The {@code <xfa:datasets>} packet wrapper.`, the plugin stored it in
+  `attributes["docstring"]` verbatim, and the renderer's API Reference cell is prose —
+  `_symbol_description` strips backticks outright — so bare angle brackets reached the document,
+  where CommonMark reads `<xfa:datasets>` as an autolink and BC-06 resolved it as a relative path.
+  The same docstrings carry 4,444 `{@code}`, 1,063 `{@link}` and 74 `{@inheritDoc}` tags plus raw
+  HTML; 104 reached the rendered table ("Represents a collection of {@link Artifact} objects"), and
+  a dozen more `<element>` names sat one plan away from the same crash. Decision:
+  `platforms/java.py` renders Javadoc as plain prose before it becomes a fact attribute — inline
+  tags resolved to their own text (brace-balanced, since Aspose.PDF's JavaScript-AST types
+  document themselves as `{@code { k: v, ... }}` and the engine hands over the first line only, so
+  six arrive already cut mid-tag), presentation HTML removed, entities decoded, and the brackets
+  dropped from anything still angled — the element name is the sentence's subject, and deleting it
+  would leave "The packet wrapper." Alternatives rejected: a code span, which the renderer strips;
+  and a shared-code PROPOSAL, since only the plugin knows its docstrings are Javadoc (.NET will
+  need the same for XML doc comments, in its own file). Evidence: PDF sealed, 11 of 11 checks,
+  review ACCEPT, zero `{@code`/`{@link` left in the sealed README. Reversal: `_javadoc_prose` and
+  its two helpers are one contiguous block.
+- **2026-09-06 19:59 (`date` checked) · G4-W12 re-run · this lane changed one integer in
+  `project/state.yaml`, which the lane contract forbids, because a lane that seals cannot avoid
+  it.** `progress.current_candidates` was 4; five bundles are now sealed on disk, and
+  `cli.py` fails `status` closed on the mismatch ("cursor records 4 current candidates but 5
+  sealed on disk"), which turns `tests/test_cli.py::test_status_reports_this_repository_cursor`
+  red for everyone, not only this branch. Decision: change that one integer and nothing else — not
+  `updated_at`, not a status, not an item. Alternatives rejected: landing a red suite (forbidden),
+  and withholding a candidate that is sealed and no-op proven (the point of the re-run). Evidence:
+  the field is a measured count in a `progress` block, the same kind of number the lane prompt
+  already has a lane maintain in its own `progress`; lane C is the first lane to seal anything, so
+  no earlier lane met this. Reversal: set it back to 4. Recorded as PROPOSAL M so the owner can
+  give the field an owner rather than leave the next sealing lane to decide again.
+- **PROPOSAL 2026-09-06 H · BC-02's manifest half is a bare substring match on prose, while only
+  its registry half has a shared owner.** File:
+  `src/repository_presenter/components/readme/validation/registry.py`, `_check_install`. Defect:
+  `"manifest" not in details` reads the joined `evidence[].detail` prose, though the fact already
+  carries the manifest structurally — `evidence[0].path` is `pom.xml`. Repositories: all four
+  Java, which it cost a full re-run cycle; the class is the one the owner named at 15:05, a check
+  accepted against too narrow a sample. Finding: `RegistryObservation.summary` centralises the
+  registry half for every plugin precisely so no plugin has to remember a phrase; the manifest
+  half has no equivalent, so each plugin retypes it and one got it wrong. Fix: judge the manifest
+  half from the evidence's own `path` against `spec.manifest_globs`, or give the manifest reading
+  a shared wording helper beside `summary`. Resume predicate: none — closed in-lane for Java; this
+  is for the next ecosystem, not this cohort.
+- **PROPOSAL 2026-09-06 I · item 13 fitted the Maven badge's image URL but not its landing URL, so
+  Java still renders no version badge — and all four upstream READMEs have one.** Files:
+  `src/repository_presenter/core/ecosystems.py` (`EcosystemSpec.badge`) and
+  `src/repository_presenter/components/readme/validation/registry.py` (`_RENDERER_HOSTS`).
+  Defect: `badge()` now offers `{group}`/`{artifact}`, which fits
+  `img.shields.io/maven-central/v/org.aspose/aspose-3d-foss.svg` (live 200, checked 2026-09-06) —
+  but a badge is a *link*, and the URL the upstream READMEs point it at is
+  `repo1.maven.org/maven2/org/aspose/aspose-3d-foss/`, whose group segment is the coordinate's
+  dots rewritten as path separators; no token renders that. The one-token alternative
+  `central.sonatype.com/artifact/{group}/{artifact}` (also live 200) is neither a `link_target`
+  fact nor a `_RENDERER_HOSTS` entry, so `_check_links` fails it as "not a verified link target".
+  Repositories: all four; visible now, because the candidate drops a badge the live README has.
+  Fix: offer `{group_path}` beside `{group}`, or admit the registry host an ecosystem's spec
+  names. Resume predicate: PROPOSAL I merged, then set `version_badge` in `platforms/java.py`.
+  Not a blocker — PDF sealed without it.
+- **PROPOSAL 2026-09-06 J · the Aspose-link ceiling is a *plan* budget that BC-06 counts over the
+  *whole document*, so a placed inherited unit's own links break a ceiling the plan cannot get
+  under.** File: `src/repository_presenter/components/readme/validation/registry.py`,
+  `_check_links`, with `composition/planning.py::plan_checks` as the other half. Defect: the
+  comment at that check says the ceiling "bounds the contextual Aspose links **the plan assigns**",
+  and item 16 now makes planning trim to exactly that — but `_check_links` counts every
+  non-mandated Aspose URL the rendered document contains, and a placed inherited unit brings its
+  own. Repository: `aspose-3d-foss/Aspose.3D-FOSS-for-Java`, reproduced in three consecutive runs:
+  the plan assigns four links (`link_target:023`, `:024`, `:025` countable, plus `:035`, which is
+  mandated and exempt), and `inherited_unit:043.paragraph` — `VERIFIED_MOVE` to
+  `documentation_resources`, citing `link_target:021` and `link_target:022` — carries
+  `docs.aspose.com/3d/java/` and `reference.aspose.com/3d/java/` in its own preserved bytes. Five
+  counted against a ceiling of four: `BC-06 failed at PLANNING: 5 Aspose links exceed the ceiling
+  of 4`. Finding: the failure routes to PLANNING, where re-planning provably cannot act — the S5
+  repair returned a links list byte-identical to the one it was given (`repairs.json`, `before` ==
+  `after`) and BC-06 re-raised. Fix: count a placed unit's own links into the budget at a stage
+  that can still act — give reconciliation the ceiling so a placement that would breach it is
+  folded, or let the plan see the links its dispositions already committed to and trim its own
+  accordingly. Resume predicate: PROPOSAL J merged on `main`, then re-run 3D.
+- **PROPOSAL 2026-09-06 K · a repair whose stage re-ran and returned identical output is recorded
+  `repaired`, not `unrepairable`.** File:
+  `src/repository_presenter/components/readme/repair/targeted.py` (the attempt's outcome). Defect:
+  3D's BC-06 attempt records `"outcome": "repaired"` with `re_raised: ["BC-06"]` and a `changes`
+  entry whose `before` and `after` are the same four link assignments, byte for byte. Finding: a
+  stage that cannot act on a defect reads, in the record and in the run's own summary line ("1
+  repaired ... 1 re-raised"), exactly like a stage that acted and was overruled — which is what
+  made PROPOSAL J's cause take three runs to see rather than one. Fix: when an attempt's output is
+  identical to its input, record `unrepairable` with the reason "the stage re-ran and produced
+  identical output", and do not spend the round. Resume predicate: diagnostic only; blocks nothing
+  by itself.
+- **PROPOSAL 2026-09-06 L · BC-10 rejects the document shape `README_CONTRACT.md` mandates, and
+  the finding is routed to authoring, which cannot change it.** Files:
+  `prompts/independent_review.yaml` and
+  `src/repository_presenter/components/readme/repair/targeted.py`. Defect: both of
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Java`'s blocking findings object to deterministic,
+  renderer-owned structure — `F05 additional_examples`: "uses a collapsible 'Additional Examples'
+  section with a 'View Additional Examples' summary, which is not present in the original README
+  and adds unnecessary UI" (that exact string is `renderer.py:54`'s
+  `ADDITIONAL_EXAMPLES_SUMMARY`, emitted at `renderer.py:744`); `F07 scope_limitations`: "moving
+  the edition comparison table to a separate section", which is the semantic shell's own fixed
+  topology. Repository: Slides Java, the only one to reach S10 this re-run — nine of nine S9
+  checks pass and it fails `BC-10 ... REJECT_PRESENTATION`. Finding: F05 was routed to S6
+  `additional_examples`, the unit was re-authored, and the finding re-raised identically, because
+  no unit's prose can remove the renderer's own `<details>` wrapper. Fix: state the
+  contract-mandated structures in the review prompt as not open to presentation objection, and
+  treat a finding naming only renderer-owned structure as advisory rather than blocking. Resume
+  predicate: PROPOSAL L merged on `main`, then re-run Slides.
+- **PROPOSAL 2026-09-06 M · a lane that seals a candidate must move
+  `project/state.yaml`'s `progress.current_candidates`, which the lane contract forbids it to
+  touch.** Files: `project/loop-prompt-lane.md` §0 (the substitution list) and
+  `project/state.yaml`. Defect: `cli.py` fails `status` closed when the cursor's count and the
+  bundles on disk disagree, and `tests/test_cli.py::test_status_reports_this_repository_cursor`
+  asserts `status` exits OK — so the first lane to seal anything turns the suite red until that
+  integer moves. Finding: lane C moved it (4 to 5) and recorded the decision above; no lane before
+  this one had sealed a candidate, so the collision had not been met. Fix: either name
+  `progress.current_candidates` as the one `state.yaml` field a lane maintains, or derive it from
+  disk rather than storing it. Resume predicate: owner ruling; the count is correct either way.
+- **2026-09-06 19:59 (`date` checked) · G4-W12 re-run · which G4-W17 items cleared which
+  repository, measured.** Cleared: **item 12** (the Maven coordinate) for all four — the reading
+  is live and positive everywhere; **item 15's fold** (declined as redundant at 15:20, and the
+  live run confirms the decline was right) — 3D and Cells both died at S4
+  `source_reconciliation` in G4-W12 and both now pass it; **item 17's first half** — Slides'
+  85-unit reconciliation no longer dies on duplicate dispositions, in every run; **item 14** —
+  taken up here, the floor parenthetical now names this POM's own property; **item 18** — Cells'
+  BC-07 now routes to S6 `api_reference` instead of being recorded unrepairable. Did not clear:
+  **item 13**, half only (PROPOSAL I); **item 16**, which cleared its own S5 rejection but the
+  breach re-surfaces at S9 (PROPOSAL J); **item 22**, unlanded, and now Cells Java's *only*
+  remaining blocker — `BC-07 failed at COMPOSING: internal narration 'validator'` on the API
+  Reference row `` | `WorkbookValidator` | A validator for workbook models... | ``, the same
+  product family and the same public type lane D measured on Cells **Rust**, so the class is
+  confirmed independently in a second ecosystem and is not Rust-local. Items 0 and 24 are not
+  Java's: `maven` is in `REGISTRY_TYPES` and the registry path opens.

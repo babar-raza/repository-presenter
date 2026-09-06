@@ -405,6 +405,106 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
     ), sorted(imported)
 
 
+def test_a_published_install_fact_shows_both_readings_bc02_asks_for(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    """BC-02 reads the install fact's own evidence for a manifest reading and a registry one.
+
+    Measured 2026-09-06, after G4-W17 item 12 made the Maven coordinate reachable: all four Java
+    repositories reached S9 with the registry half SUPPORTED and still failed
+    `BC-02 ... lacks manifest, package-registry, or source-build evidence`, because this plugin
+    named the file by its ecosystem nickname ("declared by the POM") while go, net, rust and
+    typescript all say "manifest" - the word the check looks for. `RegistryObservation.summary`
+    already owns the registry half's wording for every plugin; the manifest half has no such
+    helper, so this test pins the predicate rather than the sentence.
+    """
+    tree = _repository(tmp_path)
+    manifest = java.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = java.PLUGIN.manifest_facts(tmp_path, manifest, tree)
+
+    def published(*args: Any, **kwargs: Any) -> Any:
+        from repository_presenter.components.readme.extractors.surface.registry import (
+            RegistryObservation,
+        )
+
+        return RegistryObservation(
+            "maven",
+            "org.aspose:aspose-widget",
+            True,
+            False,
+            "https://repo1.maven.org/maven2/org/aspose/aspose-widget/maven-metadata.xml",
+            "maven-metadata",
+            "live",
+        )
+
+    monkeypatch.setattr(java, "observe", published)
+    resolved, _ = java.PLUGIN.registry_facts(facts)
+    install = resolved[0]
+    assert install.polarity == "SUPPORTED"
+    details = " ".join(evidence.detail or "" for evidence in install.evidence)
+    assert "manifest" in details and "package registry" in details
+
+
+def test_the_floor_fact_names_this_poms_own_property_not_the_family(tmp_path: Path) -> None:
+    """G4-W17 item 14's per-fact override, which the ecosystem-wide field cannot express.
+
+    The spec keeps `maven.compiler` because a POM may declare the floor as `release`, `target`
+    or `source` and this cohort uses all three; the fact carries the one this POM declares.
+    """
+    _repository(tmp_path)
+    manifest = java.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = {fact.id: fact for fact in java.PLUGIN.manifest_facts(tmp_path, manifest, [])}
+    floor = facts["package:java_release"]
+    assert (floor.attributes or {})["floor_declaration"] == "maven.compiler.target"
+    assert spec_for("java").floor_declaration == "maven.compiler"
+
+
+def test_a_javadoc_comment_becomes_prose_and_never_a_markdown_autolink() -> None:
+    """Javadoc is not Markdown, and the API Reference cell is prose with its backticks stripped.
+
+    Measured 2026-09-06 on `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java`: 104 `{@code ...}` and
+    `{@link ...}` tags reached the rendered table verbatim, and `Datasets`'s own docstring,
+    `The {@code <xfa:datasets>} packet wrapper.`, left bare angle brackets that CommonMark reads
+    as an autolink - `BC-06 failed at EXTRACTING: xfa:datasets: tree does not contain datasets`,
+    the repository's only remaining blocker, at a stage no repair can act on.
+    """
+    from repository_presenter.components.readme.evidence.facts.links import extract_links
+
+    assert java._javadoc_prose("The {@code <xfa:datasets>} packet wrapper.") == (
+        "The xfa:datasets packet wrapper."
+    )
+    # The element name is the sentence's subject: dropping the brackets keeps it, dropping the
+    # tag whole would leave "The packet wrapper." saying nothing.
+    cell = java._javadoc_prose("The {@code <xfa:datasets>} packet wrapper.")
+    assert extract_links(f"| `Datasets` | {cell} |") == []
+    assert java._javadoc_prose("Collection of {@link Artifact} objects.") == (
+        "Collection of Artifact objects."
+    )
+    assert java._javadoc_prose("Options for {@link Document#compactFlow(Options)}.") == (
+        "Options for Document.compactFlow(Options)."
+    )
+    assert java._javadoc_prose("Set via {@link #setTarget(BaseParagraph)}.") == (
+        "Set via setTarget(BaseParagraph)."
+    )
+    # Presentation markup goes; an element name that merely looks like a tag stays.
+    assert java._javadoc_prose("Re-flows the text <b>and images</b> of a PDF.") == (
+        "Re-flows the text and images of a PDF."
+    )
+    assert java._javadoc_prose("The <pageSet> element.") == "The pageSet element."
+    assert java._javadoc_prose("Named &quot;Collections&quot;.") == 'Named "Collections".'
+    assert java._javadoc_prose("{@inheritDoc}") == ""
+    assert java._javadoc_prose("A plain sentence.") == "A plain sentence."
+    # Aspose.PDF's JavaScript-AST types document themselves in braces all the way down, and the
+    # vendored engine keeps only the docstring's first line - so a tag can also arrive already
+    # cut, with its closing brace on a line that was never handed over.
+    assert java._javadoc_prose("{@code try { } catch (p) { } finally { }}") == (
+        "try { } catch (p) { } finally { }"
+    )
+    assert java._javadoc_prose("{@code {...") == "{..."
+
+
 def test_every_fact_the_plugin_emits_is_typed_as_a_fact(tmp_path: Path) -> None:
     tree = _repository(tmp_path)
     manifest = java.PLUGIN.detect_manifest(tmp_path)

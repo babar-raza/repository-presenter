@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run",
+  "recorded_at": "2026-09-06T19:59:00-08:00",
+  "control_revision": "fb078a7",
+  "control_revision_note": "origin/main at the start of the re-run; G4-W17 arrival item 12 is commit 08137a0, present in this log, and items 13, 14, 16, 17 (first half), 18, 19 and 20 are also present.",
+  "trigger": "Reviewer re-spawn after G4-W17 arrival items 8, 9 and 12 landed together at 14:46 (RESEARCH_AND_GUIDELINES.md section 31). Item 12 is this lane's own PROPOSAL A and is the recorded resume predicate of all four G4-W12 dispositions.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\c12b - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "path_policy": "Every tool resolved with shutil.which(name) or shutil.which(name + '.cmd') and called by the resolved absolute path; nothing added to the user or system PATH."
+  },
+  "toolchain_used": {
+    "javac": "C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11)",
+    "maven": "C:/tools/apache-maven-3.9.16/bin/mvn.CMD (3.9.16) - resolved, and again not needed: every declared dependency of all four POMs is test scope, so the verifier stays offline by construction"
+  },
+  "what_landed": [
+    "platforms/java.py: the install fact's manifest evidence names the manifest, not 'the POM' - the half of BC-02 item 12 does not supply, and the only reason all four repositories still failed BC-02 after item 12 landed.",
+    "platforms/java.py: _javadoc_prose renders a Javadoc comment as the plain prose the API Reference cell needs - inline tags resolved brace-balanced, presentation HTML removed, entities decoded, angle brackets dropped from anything still angled.",
+    "platforms/java.py: the floor fact carries its own floor_declaration attribute, taking up G4-W17 item 14 (this lane's PROPOSAL C).",
+    "project/state.yaml: progress.current_candidates 4 -> 5, the one field a sealing lane cannot avoid; recorded as a decision and as PROPOSAL M in docs/RESEARCH_LANE_C.md."
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+      "revision": "099e70a8b309fdd6ce349607dd589dfde96f2989",
+      "outcome": "SEALED",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION (BC-02)",
+      "facts": 25032,
+      "public_symbols": 24830,
+      "examples": "9 candidates; 9 EXECUTED",
+      "detail": "11 of 11 blocking checks PASS, zero advisories, independent review ACCEPT with 0 findings, README.md 185 visible lines of 1491. BC-02 passed once the install fact's evidence named the manifest; BC-06's 'xfa:datasets: tree does not contain datasets' - the second, independent defect the G4-W12 disposition already recorded and could not route - was the Javadoc autolink and is fixed in the plugin's own file.",
+      "no_op_proof": {
+        "byte_identical": true,
+        "fresh_process": true,
+        "provider_calls": 0,
+        "proven_at": "2026-09-06T14:55:06Z",
+        "evidence": "bundle: candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-Java/099e70a8b309fdd6ce349607dd589dfde96f2989 (state READY_FOR_PROPOSAL, 14 files, provider calls 0; no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged)",
+        "readme_sha256": "bcea89a8a9a45a0b56eebf03b1006ee2edd916f1b2200115ffbe557c02e95bbe"
+      }
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+      "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+      "outcome": "DISPOSITION",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION (BC-02)",
+      "failure_class": "BLOCKED_REVIEW (BC-10 REJECT_PRESENTATION)",
+      "facts": 5235,
+      "public_symbols": 5097,
+      "examples": "8 candidates; 5 EXECUTED, 3 FAILED",
+      "detail": "Advanced a full stage: all nine S9 blocking checks now PASS (BC-02 among them) and the transaction reaches S10, where the independent reviewer returns REJECT_PRESENTATION on two findings that both object to deterministic renderer-owned structure - F05 additional_examples (the collapsible 'View Additional Examples' block, renderer.py:54 and :744) and F07 scope_limitations (the semantic shell's separate enterprise section). F05 was routed to S6 additional_examples, the unit was re-authored, and the finding re-raised identically: no unit's prose can remove the renderer's own wrapper.",
+      "resume_predicate": "PROPOSAL L merged on main (the review prompt states which structures the contract mandates, and a finding naming only renderer-owned structure is advisory), then re-run present."
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION",
+      "previous_outcome": "DISPOSITION BLOCKED_RECONCILIATION (died at S4)",
+      "failure_class": "BLOCKED_VALIDATION (BC-07 internal narration)",
+      "facts": 2829,
+      "public_symbols": 2728,
+      "examples": "3 candidates; 3 EXECUTED",
+      "detail": "Advanced from S4 to S9: 8 of 9 checks PASS, BC-02 among them, and the only failure is BC-07 at COMPOSING, `internal narration 'validator'`, on the API Reference row `| `WorkbookValidator` | A validator for workbook models that produces validation messages. |`. That is G4-W17 arrival item (22) exactly - _NARRATION matches its nine phrases as a bare substring with no word boundary and no exemption for a value that is itself a SUPPORTED public_symbol fact - and it is now confirmed independently in a second ecosystem: lane D measured the same public type on Aspose.Cells for Rust. Item 18 works as landed (the failure now names api_reference and routes to S6), which is what proves the remaining defect is item 22's and not the routing's: re-authoring cannot remove the repository's own public type name.",
+      "resume_predicate": "G4-W17 arrival item (22) merged on main, then re-run present. Not re-proposed here - it is already on the arrival list."
+    },
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+      "revision": "e308de58888635956cd66e5b0e2994dd42cd4356",
+      "outcome": "DISPOSITION",
+      "previous_outcome": "DISPOSITION BLOCKED_RECONCILIATION (died at S4)",
+      "failure_class": "BLOCKED_VALIDATION (BC-06 Aspose link ceiling)",
+      "facts": 5508,
+      "public_symbols": 5366,
+      "examples": "10 candidates; 8 EXECUTED, 2 FAILED",
+      "detail": "Advanced from S4 to S9: 8 of 9 checks PASS, BC-02 among them, and the only failure is `BC-06 failed at PLANNING: 5 Aspose links exceed the ceiling of 4`. Item 16 works as landed - the plan is trimmed to exactly four links - but BC-06 counts the rendered document, and inherited_unit:043.paragraph (VERIFIED_MOVE to documentation_resources, citing link_target:021 and :022) carries docs.aspose.com/3d/java/ and reference.aspose.com/3d/java/ in its own preserved bytes. Reproduced in three consecutive runs. The S5 repair returned a links list byte-identical to its input and was still recorded 'repaired'.",
+      "resume_predicate": "PROPOSAL J merged on main (a placed unit's own links count into the budget at a stage that can still act), then re-run present. PROPOSAL K is the diagnostic half and blocks nothing."
+    }
+  ],
+  "proposals": {
+    "closed_in_lane": [
+      "PROPOSAL A (= G4-W17 item 12): landed by the loop at 14:46 and live-verified here on all four repositories.",
+      "PROPOSAL C (= G4-W17 item 14): the mechanism landed at 15:04 and is taken up in platforms/java.py here.",
+      "PROPOSAL D (= item 15): declined by the loop at 15:20 as redundant; the live re-run confirms the decline - 3D and Cells both pass S4 now.",
+      "PROPOSAL E (= item 16) and PROPOSAL F (= item 17, first half): both landed and both do what they promised; 3D's ceiling breach re-surfaces at S9 instead, which is PROPOSAL J.",
+      "PROPOSAL G (= item 18): landed; Cells' BC-07 now names its section and routes to S6."
+    ],
+    "raised": [
+      "H - BC-02's manifest half is a substring match on prose while only its registry half has a shared owner; non-blocking, closed in-lane for Java.",
+      "I - item 13 fitted the Maven badge's image URL but not its landing URL, so Java still renders no version badge and drops one the live READMEs have.",
+      "J - the Aspose-link ceiling is a plan budget that BC-06 counts over the whole document; a VERIFIED_MOVE unit's own links break a ceiling the plan cannot get under. Aspose.3D for Java's only blocker.",
+      "K - a repair whose stage re-ran and returned byte-identical output is recorded 'repaired', not 'unrepairable'; diagnostic.",
+      "L - BC-10 rejects the document shape README_CONTRACT.md mandates, routed to authoring, which cannot change it. Aspose.Slides for Java's only blocker.",
+      "M - a lane that seals a candidate must move project/state.yaml's progress.current_candidates, which the lane contract forbids it to touch."
+    ],
+    "corroborated_not_re_proposed": [
+      "G4-W17 arrival item (22), lane D's Cells Rust finding, is Aspose.Cells for Java's only remaining blocker - the same product family, the same public type (WorkbookValidator), a different ecosystem."
+    ]
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full run immediately before the commit. Two full runs happened here - one that went red on tests/test_cli.py::test_status_reports_this_repository_cursor (the sealed-candidate count, not a code defect), and one green after the cursor moved.",
+    "runs": [
+      {
+        "python": "3.13.2",
+        "steps": [
+          {"command": "ruff check .", "exit_code": 0},
+          {"command": "ruff format --check .", "exit_code": 0, "files": 210},
+          {"command": "mypy src", "exit_code": 0, "files": 125},
+          {"command": "python -m pytest -n auto", "exit_code": 0}
+        ]
+      }
+    ]
+  },
+  "hosted_ci": {},
+  "measurement": {
+    "repositories_in_scope": 4,
+    "sealed": 1,
+    "dispositions": 3,
+    "candidates_on_disk_after": 5,
+    "facts_extracted": 38604,
+    "public_symbols": 38021,
+    "examples_verified": 30,
+    "examples_compiled": 25,
+    "stages_advanced": "3D S4 -> S9, Cells S4 -> S9, Slides S9 -> S10, PDF S9 -> sealed",
+    "failure_classes_fixed_in_lane_paths": 2,
+    "note": "Item 12 is necessary for all four and sufficient for none: it makes install_command:maven SUPPORTED everywhere, and BC-02 still failed everywhere until this lane's own evidence sentence named the manifest. Every remaining blocker is a different check on a different repository, and no two share a cause."
+  }
+}

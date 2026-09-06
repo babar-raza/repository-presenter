@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 628,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/pdf/java/"
+  },
+  {
+    "elapsed_ms": 2746,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/actions/workflows/build.yml"
+  },
+  {
+    "elapsed_ms": 1104,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/actions/workflows/build.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1180,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/issues"
+  },
+  {
+    "elapsed_ms": 490,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Java-11%2B-blue.svg"
+  },
+  {
+    "elapsed_ms": 500,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-yellow.svg"
+  },
+  {
+    "elapsed_ms": 494,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/maven-central/v/org.aspose/aspose-pdf-foss.svg"
+  },
+  {
+    "elapsed_ms": 1824,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/pdf/java/"
+  },
+  {
+    "elapsed_ms": 1883,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://openjdk.org/projects/jdk/11/"
+  },
+  {
+    "elapsed_ms": 687,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/pdf/java/"
+  },
+  {
+    "elapsed_ms": 1008,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/pdf/java/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 886,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/pdf/java/"
+  },
+  {
+    "elapsed_ms": 638,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/pdf/java/"
+  },
+  {
+    "elapsed_ms": 1693,
+    "kind": "link",
+    "observation": null,
+    "outcome": "UNCHECKED",
+    "status": 403,
+    "target": "https://search.maven.org/artifact/org.aspose/aspose-pdf-foss"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "maven-metadata-xml",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "maven:org.aspose:aspose-pdf-foss"
+  }
+]

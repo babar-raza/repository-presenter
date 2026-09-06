@@ -1,0 +1,603 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "key_capabilities/capability:5",
+      "documentation_resources/link:link_target:022",
+      "documentation_resources/link:link_target:023",
+      "documentation_resources/link:link_target:024",
+      "development_testing/summary"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "example:001",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "example fact, not used in opening unit",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:010.list",
+      "reason": "inherited unit, not used in opening paragraph",
+      "section": "opening"
+    },
+    {
+      "fact_id": "link_target:006",
+      "reason": "excluded per do_not_claim",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:024.paragraph",
+      "reason": "inherited_unit, not a fact about the product or example",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:025.code_block",
+      "reason": "inherited_unit, not a fact about the product or example",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Not needed in this summary; repository identity is handled by the renderer's context.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Not needed in this summary; revision is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Not needed in this summary; family identity is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Not needed in this summary; platform identity is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Not needed in this summary; ecosystem identity is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Not needed in this summary; package name is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Not needed in this summary; version is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:java_release",
+      "reason": "Not needed in this summary; Java release is not referenced in the build/test instructions.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:java_release",
+        "license:spdx",
+        "dependency:none",
+        "inherited_unit:004.paragraph"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents. It targets ISO 32000-1:2008 compliance and depends only on the standard Java platform — no third-party runtime libraries. Developers use it to build, inspect, and process PDFs in Java 11 and later applications without external dependencies. The package org.aspose:aspose-pdf-foss version 26.8.0 provides APIs for text handling, form filling, annotations, page manipulation, and export to raster images or HTML."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:005"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and edit PDF content by adding pages, inserting text fragments, and building tables with cells, rows, and paragraphs using the Document, Page, and Table APIs."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Extract text and images from PDF pages using TextAbsorber for plain text and XImage objects for image resources, saving images to files in formats such as PNG."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Work with AcroForm fields including text boxes, check boxes, combo boxes, list boxes, radio button groups, and signature fields through the Form API, supporting field value access and iteration."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "example:009"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Configure widget annotation appearance by setting border color, background color, and border style using WidgetAnnotation characteristics and the Border class."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Optimize and secure documents by reducing file size with Document.optimizeResources and applying encryption with AES or RC4 using StandardSecurityHandler."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Convert and validate PDF/A documents to standards from PDF/A-1 through PDF/A-4 using PdfAConverter and PdfAValidator with detailed validation results."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Render pages to images using device classes such as PngDevice, JpegDevice, and TiffDevice for multi-page TIFF output, or extract text per page with TextDevice."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Manage document structure by building and inspecting the logical structure tree through TaggedContent and StructTreeRoot, or editing the outline tree with OutlineCollection."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a page-level widget annotation and set its border color, then read it back:"
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The following workflows demonstrate common tasks with Aspose.PDF FOSS for Java, including mixing text and form fields, extracting content, and manipulating annotations."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Mix plain text and a radio button field in a table cell."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Extract all text from an existing PDF document."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Extract images from a specific page in a PDF."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Create a new PDF and add a text fragment."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Read and update form fields in an existing PDF form."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Append multiple radio button fields to a cell in order."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Set and read the background color of a widget annotation."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Set and retrieve the border style of a radio button option."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The Aspose.PDF FOSS for Java library exposes its core functionality through the org.aspose.pdf package, where the Document class serves as the primary entry point for creating, reading, and manipulating PDF documents."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org",
+      "text": "The top-level package namespace org organizes the Aspose.PDF FOSS for Java library under the standard Java package hierarchy."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org.aspose"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose",
+      "text": "The org.aspose namespace groups all Aspose product families for Java, including the Aspose.PDF FOSS for Java library."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose.pdf",
+      "text": "The org.aspose.pdf package contains the core classes for working with PDF documents, such as Document, Page, and TextFragment."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "Introduces installation, step-by-step walkthroughs, and feature guides for using Aspose.PDF FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "Provides task-focused answers and frequently asked questions for common PDF-processing scenarios."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "Offers the complete, browsable reference for the public API surface of the library."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list",
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.PDF FOSS for Java provides a Java library for creating, editing, and converting PDF documents, targeting developers who need PDF processing capabilities in Java 11 or later applications using the org.aspose:aspose-pdf-foss package at version 26.8.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:127.list",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "OCR functionality, conversion to non-PDF formats beyond HTML and XML, conversion from non-PDF formats beyond HTML, full XFA form rendering, and 3D annotations with PRC/U3D streams or PDF/X support are not included in this edition."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:129.list",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "The PdfFileSecurity.setAllowExceptions method throws UnsupportedOperationException, text replacement with non-Latin scripts has limited support for complex bidirectional reordering, resource optimization lacks advanced strategies, tagged PDF structure tree coverage is partial, and public-key-encrypted PDFs require custom security handlers without built-in helpers."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list",
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Concurrency is limited because a single Document instance is not thread-safe, requiring one Document per thread for parallel processing."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list",
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Text replacement with non-Latin scripts such as CJK, Arabic, and Hebrew works for basic cases but may differ from a reference renderer in complex bidirectional reordering and shaping scenarios."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list",
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Resource optimization supports basic stream recompression but lacks advanced strategies including image downsampling profiles and font merging across resources."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list",
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Tagged PDF logical structure is readable and supports programmatic construction of structure trees, but coverage for building fully well-formed structure trees remains partial."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "inherited_unit:133.paragraph",
+        "inherited_unit:134.code_block"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the project using Maven commands such as mvn clean compile to compile, mvn test to run all tests, or mvn test with a specific test class and method to run a targeted test; mvn clean install performs a full build including test jar and javadoc generation, with javadoc:javadoc output directed to target/apidocs per the project configuration."
+    },
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:java_release",
+        "package:name"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.PDF FOSS for Java provides open-source PDF processing capabilities for Java 11 and later, and the commercial Aspose.PDF for Java extends this with additional features and support."
+    }
+  ]
+}
