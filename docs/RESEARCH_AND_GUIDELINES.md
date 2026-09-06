@@ -4997,3 +4997,25 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   request-size concern the 21:11 entry above raised for PDF-TypeScript's `source_reconciliation` -
   worth a quick per-repository symbol-count glance before composing, as the reviewer's own
   directive already said.
+
+- **2026-09-06 21:36 (`date` checked) · loop (PROVISIONAL) · the reviewer's one-minute check found
+  a second, confirmed instance of item 27's own shape: `investigation/dossier.py`'s `UNIT_CAP`.**
+  Same mechanism as `SYMBOL_CAP` (`investigation_packet` admits `heading`/`paragraph`/`list`
+  inherited units in document order and stops at the cap), same repository exposing it: measured
+  2026-09-06, `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` carries 272 of these three types
+  against an `UNIT_CAP` of 80 - a 3.4x overflow, so `repository_investigation` never saw 192 of
+  them. Not the only one over the old cap either: `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`, a
+  repository this session already composed successfully, measured 83 - already past 80, the
+  smallest overflow found, not the largest. Raised to 400: headroom over the measured maximum,
+  the same threshold rule item 27 already applied, not a second guess. New test:
+  `tests/.../test_dossier.py::test_inherited_units_are_bounded_at_a_value_larger_repositories_
+  actually_need`, constructing `UNIT_CAP + 5` paragraphs and asserting exactly `UNIT_CAP` survive
+  - the existing `SYMBOL_CAP` test in the same file already proved that cap's boundary the same
+  way; this one had no equivalent before now. Full suite green, ruff/mypy clean, before this
+  entry. The reviewer's own broader point stands unaddressed beyond these two: `MAX_TIMEOUT_
+  SECONDS=300` and `CLONE_TIMEOUT_SECONDS=600` are flagged but not yet checked against a measured
+  maximum, and the `source_reconciliation` timeout itself (21:11 entry) is still an open proposal,
+  not a landed fix - three same-shaped constants confirmed tonight (this, item 27, and the earlier
+  presentation_planning/source_reconciliation token budgets), which is itself worth a name if a
+  fourth turns up: a fixed ceiling read from early, smaller measurements is not safe to leave
+  unchecked once a portfolio-wide composition pass exists to outgrow it.

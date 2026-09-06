@@ -18,7 +18,14 @@ from repository_presenter.core.llm.prompts import PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 INVESTIGATION_FILENAME = "investigation.json"
-UNIT_CAP = 80
+# The same shape as core/facts.py's SYMBOL_CAP (G4-W17 arrival item 27), found while checking
+# whether it was also silently truncating: capped in document order, so a long original README's
+# later headings, paragraphs and lists never reach investigation at all. Measured 2026-09-06:
+# aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript carries 272 of these three types, and
+# aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp already exceeded the old 80 at 83 - the smallest
+# overflow measured this session, not the largest. Raised with headroom over the observed
+# maximum, the same threshold rule (section 27.10 follow-up 3) item 27 already applied.
+UNIT_CAP = 400
 _UNIT_TYPES = ("heading", "paragraph", "list")
 
 

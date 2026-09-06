@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from repository_presenter.components.readme.investigation.dossier import (
+    UNIT_CAP,
     investigation_packet,
     write_investigation,
 )
@@ -65,6 +66,24 @@ def test_packet_admits_only_supported_facts_of_listed_kinds_bounded_as_documente
         {"id": "inherited_unit:003.paragraph", "type": "paragraph", "text": "Prose."},
     ]
     assert investigation_packet(ENTRY, facts, MANIFEST) == packet
+
+
+def test_inherited_units_are_bounded_at_a_value_larger_repositories_actually_need() -> None:
+    """G4-W17 arrival item 27's own follow-up check. Found while confirming SYMBOL_CAP's shape
+    was not repeated here: it was. Measured 2026-09-06, aspose-pdf-foss/Aspose.PDF-FOSS-for-
+    TypeScript carries 272 headings, paragraphs and lists - `UNIT_CAP` was 80."""
+    units = [
+        _fact(f"inherited_unit:{i:03d}.paragraph", "inherited_unit", f"Paragraph {i}.")
+        for i in range(UNIT_CAP + 5)
+    ]
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (_fact("identity:repository", "identity", ENTRY.repository), *units),
+    )
+    packet = investigation_packet(ENTRY, facts, MANIFEST)
+    assert len(packet["inherited_units"]) == UNIT_CAP
+    assert packet["inherited_units"][0]["id"] == "inherited_unit:000.paragraph"
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
