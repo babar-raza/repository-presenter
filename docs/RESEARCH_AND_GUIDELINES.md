@@ -4798,3 +4798,19 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   Full suite green, ruff/mypy clean, before this entry. The re-ask-a-subset half remains open,
   grouped with item 21's second half as a genuinely new capability for a future iteration with
   room for it.
+
+- **2026-09-06 17:27 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint.** Box
+  opened 15:57. `repository-presenter status`: `gate: G3_PYTHON_COHORT (READY)`, `work item:
+  G4-W17 (IN_PROGRESS)`, `candidates: 4/34`. Delta since the box opened: item 21 confirmed
+  resolved for its measured repository and a new narration-shape proposed rather than landed
+  (16:21 and 16:26 entries above); item 16 and item 17's first half landed on a fresh read that
+  found both were deterministic post-processing folds mis-scoped alongside the genuinely
+  architectural items at the box's own start (16:55 tick). Running total since promotion at
+  10:50: sixteen items landed (0, 2, 4, 5 closing 11, 6, 7, 8, 9, 12, 13, 14, 16, 17 in part, 18,
+  19, 20), three declined with evidence (1, 3, 15), one confirmed resolved as a side effect of
+  another (21's first half, via 19), one sealed candidate, and one new finding proposed rather
+  than rushed (the third narration shape). Genuinely remaining and unevaluated: item 17's own
+  re-ask-a-subset half, item 21's second half, and the proposed narration fix - all three need
+  either a new repair capability or a live-verified prompt iteration with room to get it right,
+  not a re-read with fresh eyes the way 16 and 17's first half turned out to need. A new box opens
+  now.
