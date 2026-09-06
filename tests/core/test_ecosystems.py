@@ -75,3 +75,24 @@ def test_a_spec_is_registered_by_name_and_nothing_else_is_needed(
     )
     monkeypatch.setitem(SPECS, "net", added)
     assert spec_for("net") is added
+
+
+def test_the_source_checkout_command_is_the_ecosystems_own() -> None:
+    """Measured 2026-09-06: `_installation` hard-coded `pip install .` for every ecosystem with
+    an executed example, so Aspose.Cells and Aspose.3D for .NET - both sealed - told a reader to
+    run `pip install .` against a C# project. The command is the ecosystem's own to name."""
+    assert PYTHON.clone_and_build("org/Widget-Python", "Widget-Python") == (
+        "git clone https://github.com/org/Widget-Python.git\ncd Widget-Python\npip install ."
+    )
+    assert NET.clone_and_build("org/Widget-NET", "Widget-NET") == (
+        "git clone https://github.com/org/Widget-NET.git\ncd Widget-NET\ndotnet build"
+    )
+    # A spec that declares no source install (C++, until it has one) renders nothing at all.
+    silent = EcosystemSpec(
+        ecosystem="cpp",
+        language="C++",
+        fence="cpp",
+        registry="no package registry",
+        install_fact_id="install_command:cmake",
+    )
+    assert silent.clone_and_build("org/Widget-CPP", "Widget-CPP") == ""

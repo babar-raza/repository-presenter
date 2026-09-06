@@ -1,4 +1,24 @@
 {
+  "adopted": {
+    "adopted_at": "2026-09-06T06:25:48Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "plan.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "presentation",
+    "earliest_affected_stage": "NONE",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-06T04:45:16Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-06T06:21:26Z"
+  },
   "composition": {
     "advisories": 7,
     "blocking_failures": [],
@@ -8,20 +28,20 @@
   },
   "files": {
     "README.md": {
-      "bytes": 23481,
-      "sha256": "93f4b3812a4cfb82e9e5ded9bc2c8a010a990ec5d4d2a3cdd7bca570c583cfd3"
+      "bytes": 26104,
+      "sha256": "628f772e7e8cd17d8252ccde41bbcaf31e27613f9da030ae4c70362163aaddea"
     },
     "README.patch": {
-      "bytes": 36329,
-      "sha256": "3feb686a6688afe63f2d995792dcac1e4fded4d8bcf97b4415287898f685adf0"
+      "bytes": 38879,
+      "sha256": "edbf5892c6f372f705342e8c8e799d1e761f9825bce95a2e645a2f54803b0eec"
     },
     "calls.jsonl": {
-      "bytes": 84313,
-      "sha256": "6902c5ca02a84888b1bf90c63e1947258c3cafad200a16ed500ef577ed3e4b20"
+      "bytes": 83325,
+      "sha256": "5a39da9e5ad06d1fceeb702b1bbbe07f6bc859aa3ab2afb851af2e6d4e33d9f4"
     },
     "content_units.json": {
-      "bytes": 19631,
-      "sha256": "24b31888dfee28b60aef50de0e888f732b77e9ac103b30913542ea1f9d09a49e"
+      "bytes": 19785,
+      "sha256": "57960a81516847ba9f80fa477f2837fa61beacd63507d2ab00ff347281a1e9c4"
     },
     "dependencies.json": {
       "bytes": 99349,
@@ -44,36 +64,36 @@
       "sha256": "38dfd3e0415bb81f214d7fdb4a10abed000b0a11d30eb810bedb5cd8503ba87e"
     },
     "plan.json": {
-      "bytes": 7176,
-      "sha256": "f914ef327e43192335ab3fc2975f482a163456b779a4e3e9537a43b251a82157"
+      "bytes": 8460,
+      "sha256": "f3c0e4552ab5b99fe27b7b513529de8ab3e17a7826f62dc36a80f2ca4f2b77a7"
     },
     "probes.json": {
-      "bytes": 2972,
-      "sha256": "6783c227fc805f14f9305e60585853b2d75d2629e846f15f8be8ce821724f4ca"
+      "bytes": 2973,
+      "sha256": "0c9741646fc517605e2742bd1274f41fc94103fa8b0d0057f788afa684cf934f"
     },
     "repairs.json": {
       "bytes": 2464,
       "sha256": "95693e769dbbd03285519bdfa053e7e95305c8638da52443b0813104c2157a38"
     },
     "review.json": {
-      "bytes": 7763,
-      "sha256": "c69dfd3678767728bc1f051059d5aabdb16eaf6554ceae914bc98dd8aca95490"
+      "bytes": 7750,
+      "sha256": "131f3e45a859839110b54b63719231280458fc8335b28bf3f74df52f7bd98e38"
     },
     "validation.json": {
       "bytes": 12841,
-      "sha256": "f64d03e26dcc23dbc02e06dfb4028fbe8ca20f8d6405488889b7799e94321510"
+      "sha256": "45c33f05aaf7daa966c515823c2aa51b5c406e261c476d3075eb6dfa718bf33c"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-06T04:45:16Z",
+    "proven_at": "2026-09-06T06:25:48Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
   "revision": "941814fd138dc28cf47123d48194f329f283498d",
   "schema_version": 1,
-  "sealed_at": "2026-09-06T04:45:16Z",
+  "sealed_at": "2026-09-06T06:25:48Z",
   "state": "READY_FOR_PROPOSAL"
 }

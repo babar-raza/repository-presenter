@@ -58,11 +58,6 @@
       "fact_id": "inherited_unit:023.paragraph",
       "reason": "inherited unit, not a fact about the product",
       "section": "additional_examples"
-    },
-    {
-      "fact_id": "public_symbol:aspose.cells_foss.font",
-      "reason": "FontSetting type referenced in public API table and Style member details not supported by facts; FontSetting is not a public symbol in the supported list.",
-      "section": "api_reference"
     }
   ],
   "schema_version": 1,
@@ -294,7 +289,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.workbook",
-      "text": "The Workbook class serves as the entry point for creating, loading, and saving spreadsheet documents, providing access to Worksheets, Settings, Properties, DocumentProperties, DefinedNames, and LoadDiagnostics, and exposing constructors for file, stream, and options-based initialization along with Save and Dispose methods."
+      "text": "The Workbook class serves as the entry point for creating and manipulating spreadsheets, providing access to Worksheets through its Worksheets property and supporting operations such as saving to file or stream, managing document properties, and handling load diagnostics."
     },
     {
       "fact_ids": [
@@ -312,7 +307,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.style",
-      "text": "The Style class enables formatting control through properties such as Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, HorizontalAlignment, VerticalAlignment, WrapText, IsLocked, and IsHidden, and supports copying from a source style as well as equality and hash code operations."
+      "text": "The Style class enables formatting control through properties such as Font, Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, and HorizontalAlignment, with methods like Copy, Equals, and GetHashCode for style management."
     },
     {
       "fact_ids": [
@@ -329,7 +324,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.validation",
-      "text": "The Validation class defines data validation rules with properties for Areas, Type, Operator, Formula1, Formula2, AlertStyle, and InCellDropDown, and supports adding or removing cell areas, while ValidationCollection manages a collection of validations with methods to add, retrieve, and remove validations by cell or area."
+      "text": "The Validation class defines data validation rules with properties such as Areas, Type, Operator, Formula1, Formula2, AlertStyle, and InCellDropDown, while ValidationCollection provides methods to add, remove, and retrieve validations within a worksheet."
     },
     {
       "fact_ids": [
@@ -346,7 +341,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.pdfsaveoptions",
-      "text": "PdfSaveOptions controls PDF export behavior with properties such as SaveFormat, OnePagePerSheet, AllColumnsInOnePagePerSheet, and DefaultFont, and works in conjunction with PageSetup to define per-sheet layout and print settings for export operations."
+      "text": "PdfSaveOptions controls how a workbook is exported to PDF, offering properties such as SaveFormat, OnePagePerSheet, AllColumnsInOnePagePerSheet, and DefaultFont to customize the output layout and appearance."
     },
     {
       "fact_ids": [
@@ -363,7 +358,24 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.listobject",
-      "text": "ListObject represents a table in a worksheet with properties such as DisplayName, TableStyleType, ShowTotals, and ListColumns, and supports resizing, toggling auto-filter display, and converting to a regular range, while Chart provides chart-specific properties like Name, ChartType, and position coordinates."
+      "text": "ListObject represents a table in a worksheet, supporting operations like resizing, converting to a range, and toggling the auto-filter, with properties such as DisplayName, TableStyleType, ShowTotals, and ListColumns for structured data management."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.pageorientationtype",
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.pagesetup",
+      "text": "PageSetup configures page layout settings for a worksheet, including orientation via PageOrientationType, margins, header/footer options, and print area definitions to prepare documents for printing or PDF export."
     },
     {
       "fact_ids": [

@@ -580,6 +580,39 @@ def test_the_runtime_floor_is_the_ecosystems_own_and_not_pythons() -> None:
     )
 
 
+def test_the_source_checkout_command_is_the_ecosystems_own_not_a_hard_coded_pip_install() -> None:
+    """Measured 2026-09-06: `_installation` hard-coded `git clone ...; pip install .` for every
+    ecosystem with an executed example, so Aspose.Cells and Aspose.3D for .NET - both sealed -
+    told a reader to run `pip install .` against a C# project. The command and its lead-in verb
+    now come from the spec; Python's own wording is unchanged, byte for byte (test_sealed_bytes.py
+    holds every other sealed candidate to it)."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+            "family": "widget",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "identity:repository"),
+            Fact("identity:repository", "identity", entry.repository, (Evidence("x"),)),
+        ),
+    )
+    readme = render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert (
+        "To work from a source checkout instead, build the clone with dotnet build:\n\n"
+        "```bash\ngit clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build\n```"
+    ) in installation
+    assert "pip install" not in installation
+
+
 def test_a_package_registry_name_stays_plain_in_prose() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."

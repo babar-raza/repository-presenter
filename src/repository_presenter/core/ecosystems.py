@@ -22,8 +22,8 @@ from repository_presenter.core.errors import ConfigError
 class EcosystemSpec:
     """One ecosystem's presentation and identity vocabulary.
 
-    ``version_badge`` and ``source_install`` are templates over ``{package}`` and ``{repository}``
-    and ``{name}``; a spec that needs none leaves them empty and the renderer prints nothing,
+    ``version_badge`` is a template over ``{package}``; ``source_install`` over ``{repository}``
+    and ``{name}``. A spec that needs none leaves them empty and the renderer prints nothing,
     which is what a registry-less ecosystem (C++) requires.
     """
 
@@ -33,6 +33,10 @@ class EcosystemSpec:
     registry: str
     install_fact_id: str
     version_badge: str = ""
+    source_install: str = ""
+    # The verb phrase that completes "To work from a source checkout instead, {...}:" - carried
+    # apart from the command itself only so Python's sealed wording never moves a single byte.
+    source_install_lead: str = ""
     verify_command: str = ""
     # Per-ecosystem, up to core.execution's ceiling (section 29.6 E5): an interpreted example
     # returns in seconds, a compiled one pays for a restore and a build first.
@@ -60,6 +64,19 @@ class EcosystemSpec:
         """The registry's version badge for this package, or an empty string when it has none."""
         return self.version_badge.format(package=package) if self.version_badge else ""
 
+    def clone_and_build(self, repository: str, name: str) -> str:
+        """The shell commands that build this ecosystem's package from a source checkout, or an
+        empty string when the ecosystem declares none.
+
+        Measured 2026-09-06: `_installation` hard-coded `pip install .` for every ecosystem with
+        an executed example, so Aspose.Cells and Aspose.3D for .NET - both sealed - told a reader
+        to run `pip install .` against a C# project. The command is the ecosystem's own to name;
+        shared code only ever fills in the repository and its checkout directory name.
+        """
+        if not self.source_install:
+            return ""
+        return self.source_install.format(repository=repository, name=name)
+
 
 PYTHON: Final = EcosystemSpec(
     ecosystem="python",
@@ -71,6 +88,8 @@ PYTHON: Final = EcosystemSpec(
         "[![PyPI](https://img.shields.io/pypi/v/{package}.svg)]"
         "(https://pypi.org/project/{package}/)"
     ),
+    source_install="git clone https://github.com/{repository}.git\ncd {name}\npip install .",
+    source_install_lead="install the clone with pip",
     verify_command='python -c "import {module}"',
     fence_aliases=frozenset({"python", "py", "python3"}),
     floor_fact_id="package:python_requires",
@@ -90,6 +109,11 @@ NET: Final = EcosystemSpec(
         "[![NuGet](https://img.shields.io/nuget/v/{package}.svg)]"
         "(https://www.nuget.org/packages/{package}/)"
     ),
+    # There is no single-line "install into your own project" step without knowing the
+    # consumer's own setup; a build is the honest claim - it proves the source compiles, which is
+    # what "work from a source checkout" can mean for .NET.
+    source_install="git clone https://github.com/{repository}.git\ncd {name}\ndotnet build",
+    source_install_lead="build the clone with dotnet build",
     # `dotnet list package` needs a project; `--include-transitive` is the form that reports a
     # reference added by `dotnet add package` without one.
     verify_command="dotnet list package --include-transitive | findstr {module}",

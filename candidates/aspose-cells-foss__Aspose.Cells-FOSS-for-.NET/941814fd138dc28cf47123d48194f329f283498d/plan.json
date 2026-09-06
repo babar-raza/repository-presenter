@@ -39,14 +39,23 @@
         "public_symbol:aspose.cells_foss.chart"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.listobject"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.pageorientationtype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.pagesetup"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Create and edit workbooks",
       "Apply cell formatting",
+      "Add data validation and conditional formatting",
       "Export to PDF",
-      "Support structured tables and charts"
+      "Support structured tables and charts",
+      "Configure page layout and print settings"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -120,25 +129,48 @@
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:023.paragraph"
+        "inherited_unit:024.heading",
+        "inherited_unit:025.code_block",
+        "inherited_unit:027.heading",
+        "inherited_unit:028.code_block",
+        "inherited_unit:029.heading",
+        "inherited_unit:030.code_block",
+        "inherited_unit:031.heading",
+        "inherited_unit:032.code_block",
+        "inherited_unit:033.heading",
+        "inherited_unit:034.code_block",
+        "inherited_unit:035.heading",
+        "inherited_unit:036.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "The Additional Examples section in the inherited README contains multiple examples that are marked as CONTRADICTED and omitted per dispositions; only the lead-in paragraph is retained."
+      "text": "The Additional Examples section omits all example headings and code blocks from the inherited README because they are marked as CONTRADICTED in the dispositions."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss"
+        "inherited_unit:042.table",
+        "inherited_unit:044.table",
+        "inherited_unit:046.table",
+        "inherited_unit:048.table"
       ],
       "section_id": "api_reference",
-      "text": "The API Reference section omits the full public symbol tables beyond the core surface to stay within the 12-symbol hub limit and policy ceilings."
+      "text": "The API Reference section includes only the public symbols explicitly listed in the public_symbol facts; other symbols from the inherited table are omitted."
     },
     {
       "fact_ids": [
-        "link_target:product.enterprise"
+        "inherited_unit:066.heading",
+        "inherited_unit:067.paragraph",
+        "inherited_unit:068.code_block",
+        "inherited_unit:069.paragraph",
+        "inherited_unit:070.code_block",
+        "inherited_unit:071.paragraph",
+        "inherited_unit:072.code_block",
+        "inherited_unit:073.html_block",
+        "inherited_unit:074.paragraph",
+        "inherited_unit:075.list",
+        "inherited_unit:076.html_block"
       ],
-      "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition relationship is included as a separate section per policy, even though the inherited README places it within the Scope and Limitations section."
+      "section_id": "development_testing",
+      "text": "The Development and Testing section is omitted because the condition (build or test assets exist) is not satisfied per the dispositions."
     }
   ],
   "flagship_example_id": null,
@@ -158,6 +190,10 @@
     {
       "link_fact_id": "link_target:025",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "enterprise_relationship"
     }
   ],
   "material_limitations": [

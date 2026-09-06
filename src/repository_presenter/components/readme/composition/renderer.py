@@ -522,15 +522,14 @@ def _installation(context: RenderContext) -> list[str]:
     repository = context.fact("identity:repository")
     if executed and repository is not None:
         name = repository.value.split("/")[-1]
-        lines.append("")
-        lines.append("To work from a source checkout instead, install the clone with pip:")
-        lines.append("")
-        lines.extend(
-            _code_block(
-                "bash",
-                f"git clone https://github.com/{repository.value}.git\ncd {name}\npip install .",
+        command = context.spec.clone_and_build(repository.value, name)
+        if command and context.spec.source_install_lead:
+            lines.append("")
+            lines.append(
+                f"To work from a source checkout instead, {context.spec.source_install_lead}:"
             )
-        )
+            lines.append("")
+            lines.extend(_code_block("bash", command))
     imported = [
         fact.value
         for fact in context.supported("import_path")

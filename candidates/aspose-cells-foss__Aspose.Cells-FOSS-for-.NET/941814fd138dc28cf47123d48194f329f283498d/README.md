@@ -25,11 +25,19 @@ Aspose.Cells FOSS for .NET is a free, open-source library for creating, editing,
 flowchart TD
   PRODUCT["Aspose.Cells FOSS for .NET"]
   subgraph Capabilities["Core Capabilities"]
-    direction TB
-    c1["Create and edit workbooks"]
-    c2["Apply cell formatting"]
-    c3["Export to PDF"]
-    c4["Support structured tables and charts"]
+    direction LR
+    subgraph capl[" "]
+      direction TB
+      c1["Create and edit workbooks"]
+      c2["Apply cell formatting"]
+      c3["Add data validation and conditional formatting"]
+    end
+    subgraph capr[" "]
+      direction TB
+      c4["Export to PDF"]
+      c5["Support structured tables and charts"]
+      c6["Configure page layout and print settings"]
+    end
   end
   PRODUCT --> Capabilities
 ```
@@ -51,12 +59,12 @@ Install the published package from NuGet (`Aspose.Cells.FOSS`, version 26.9.0.0)
 dotnet add package Aspose.Cells.FOSS
 ```
 
-To work from a source checkout instead, install the clone with pip:
+To work from a source checkout instead, build the clone with dotnet build:
 
 ```bash
 git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.git
 cd Aspose.Cells-FOSS-for-.NET
-pip install .
+dotnet build
 ```
 
 ## Dependencies
@@ -275,7 +283,7 @@ The verified public surface has 98 types.
 
 ### Workbook
 
-The `Workbook` class serves as the entry point for creating, loading, and saving spreadsheet documents, providing access to Worksheets, Settings, Properties, `DocumentProperties`, `DefinedNames`, and `LoadDiagnostics`, and exposing constructors for file, stream, and options-based initialization along with Save and Dispose methods.
+The `Workbook` class serves as the entry point for creating and manipulating spreadsheets, providing access to Worksheets through its Worksheets property and supporting operations such as saving to file or stream, managing document properties, and handling load diagnostics.
 
 - `DefinedNames`: Gets the workbook-defined names collection.
 - `Dispose`: Releases resources associated with the workbook instance.
@@ -289,7 +297,7 @@ The `Workbook` class serves as the entry point for creating, loading, and saving
 
 ### Style
 
-The `Style` class enables formatting control through properties such as `Borders`, Pattern, `ForegroundColor`, `BackgroundColor`, `NumberFormat`, `HorizontalAlignment`, `VerticalAlignment`, `WrapText`, `IsLocked`, and `IsHidden`, and supports copying from a source style as well as equality and hash code operations.
+The `Style` class enables formatting control through properties such as `Font`, `Borders`, Pattern, `ForegroundColor`, `BackgroundColor`, `NumberFormat`, and `HorizontalAlignment`, with methods like Copy, Equals, and `GetHashCode` for style management.
 
 - `BackgroundColor`: Gets or sets the fill background color.
 - `Borders`: Gets or sets border settings.
@@ -317,7 +325,7 @@ The `Style` class enables formatting control through properties such as `Borders
 
 ### Validation
 
-The `Validation` class defines data validation rules with properties for Areas, Type, Operator, Formula1, Formula2, `AlertStyle`, and `InCellDropDown`, and supports adding or removing cell areas, while `ValidationCollection` manages a collection of validations with methods to add, retrieve, and remove validations by cell or area.
+The `Validation` class defines data validation rules with properties such as Areas, Type, Operator, Formula1, Formula2, `AlertStyle`, and `InCellDropDown`, while `ValidationCollection` provides methods to add, remove, and retrieve validations within a worksheet.
 
 - `AddArea`: Adds the specified item.
 - `AlertStyle`: Gets or sets the alert style.
@@ -338,7 +346,7 @@ The `Validation` class defines data validation rules with properties for Areas, 
 
 ### PdfSaveOptions
 
-`PdfSaveOptions` controls PDF export behavior with properties such as `SaveFormat`, `OnePagePerSheet`, `AllColumnsInOnePagePerSheet`, and `DefaultFont`, and works in conjunction with `PageSetup` to define per-sheet layout and print settings for export operations.
+`PdfSaveOptions` controls how a workbook is exported to PDF, offering properties such as `SaveFormat`, `OnePagePerSheet`, `AllColumnsInOnePagePerSheet`, and `DefaultFont` to customize the output layout and appearance.
 
 - `AllColumnsInOnePagePerSheet`: Gets or sets whether all columns of each worksheet are rendered on a single page width.
 - `CompactStyles`: Gets or sets whether equivalent styles should be compacted during save.
@@ -352,7 +360,7 @@ The `Validation` class defines data validation rules with properties for Areas, 
 
 ### ListObject
 
-`ListObject` represents a table in a worksheet with properties such as `DisplayName`, `TableStyleType`, `ShowTotals`, and `ListColumns`, and supports resizing, toggling auto-filter display, and converting to a regular range, while `Chart` provides chart-specific properties like Name, `ChartType`, and position coordinates.
+`ListObject` represents a table in a worksheet, supporting operations like resizing, converting to a range, and toggling the auto-filter, with properties such as `DisplayName`, `TableStyleType`, `ShowTotals`, and `ListColumns` for structured data management.
 
 - `Comment`: Gets or sets an optional comment for the table.
 - `ConvertToRange`: Removes the table structure, leaving the cell data in place.
@@ -373,6 +381,48 @@ The `Validation` class defines data validation rules with properties for Areas, 
 - `StartRow`: Gets the zero-based row index of the first row (header or first data row).
 - `TableStyleName`: Gets or sets the raw table style name used in the SpreadsheetML tableStyleInfo element.
 - `TableStyleType`: Gets or sets the built-in table style type.
+
+### PageSetup
+
+`PageSetup` configures page layout settings for a worksheet, including orientation via `PageOrientationType`, margins, header/footer options, and print area definitions to prepare documents for printing or PDF export.
+
+- `AddHorizontalPageBreak`: Adds a horizontal page break at the specified zero-based row index.
+- `AddVerticalPageBreak`: Adds a vertical page break at the specified zero-based column index.
+- `BottomMargin`: Gets or sets the bottom margin in centimeters.
+- `BottomMarginInch`: Gets or sets the bottom margin in inches.
+- `CenterFooter`: Gets or sets the center footer text.
+- `CenterHeader`: Gets or sets the center header text.
+- `CenterHorizontally`: Gets or sets whether content is centered horizontally on the page.
+- `CenterVertically`: Gets or sets whether content is centered vertically on the page.
+- `ClearHorizontalPageBreaks`: Removes all horizontal page breaks.
+- `ClearVerticalPageBreaks`: Removes all vertical page breaks.
+- `FirstPageNumber`: Gets or sets the first printed page number.
+- `FitToPagesTall`: Gets or sets the number of pages tall to fit when printing.
+- `FitToPagesWide`: Gets or sets the number of pages wide to fit when printing.
+- `FooterMargin`: Gets or sets the footer margin in centimeters.
+- `FooterMarginInch`: Gets or sets the footer margin in inches.
+- `HeaderMargin`: Gets or sets the header margin in centimeters.
+- `HeaderMarginInch`: Gets or sets the header margin in inches.
+- `HorizontalPageBreaks`: Gets the horizontal page breaks as sorted zero-based row indexes.
+- `LeftFooter`: Gets or sets the left footer text.
+- `LeftHeader`: Gets or sets the left header text.
+- `LeftMargin`: Gets or sets the left margin in centimeters.
+- `LeftMarginInch`: Gets or sets the left margin in inches.
+- `Orientation`: Gets or sets the page orientation.
+- `PaperSize`: Gets or sets the paper size.
+- `PrintArea`: Gets or sets the print area reference.
+- `PrintGridlines`: Gets or sets whether gridlines are printed.
+- `PrintHeadings`: Gets or sets whether row and column headings are printed.
+- `PrintTitleColumns`: Gets or sets the repeating title columns reference.
+- `PrintTitleRows`: Gets or sets the repeating title rows reference.
+- `RightFooter`: Gets or sets the right footer text.
+- `RightHeader`: Gets or sets the right header text.
+- `RightMargin`: Gets or sets the right margin in centimeters.
+- `RightMarginInch`: Gets or sets the right margin in inches.
+- `Scale`: Gets or sets the print scaling percentage.
+- `TopMargin`: Gets or sets the top margin in centimeters.
+- `TopMarginInch`: Gets or sets the top margin in inches.
+- `VerticalPageBreaks`: Gets the vertical page breaks as sorted zero-based column indexes.
 
 
 - `CellsException` - base type for the library's exceptions

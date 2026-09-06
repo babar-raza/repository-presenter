@@ -4175,3 +4175,39 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   discovery, touching neither the package config nor the vendor-boundary guarantee. Verified:
   `ruff check .` and `ruff format --check .` both pass, `pytest -n auto` 630 passed, the
   vendor-boundary test itself still asserts the unchanged two-entry list.
+
+- **2026-09-06 11:22 (`date` checked) · loop (PROVISIONAL) · a hard-coded `pip install .` was
+  sealed into two .NET candidates.** Item G4-W17 (arrival list item 10). Checking my own two
+  sealed .NET candidates' rendered bytes for something unrelated, both told a reader to run
+  `pip install .` against a C# project: `_installation`'s "To work from a source checkout
+  instead" block hard-coded `git clone ...; pip install .` for every ecosystem with an executed
+  example, never reading the spec. `EcosystemSpec` gains `source_install` (the command template)
+  and `source_install_lead` (the verb phrase completing "To work from a source checkout
+  instead, {...}:"), split apart from each other for one reason only: Python's sealed wording -
+  "install the clone with pip" - must not move a single byte, and `tests/test_sealed_bytes.py`
+  confirms it does not (only the two .NET bundles differ, exactly where the command changes from
+  `pip install .` to `dotnet build`). `EcosystemSpec`'s own docstring already promised a
+  `source_install` field the dataclass lacked - the same gap item (10) named. Re-sealing both
+  .NET candidates now; `git diff` between candidates/ and this rerun's output will replace the
+  sealed bytes once each confirms it reproduces with zero provider calls, matching every other
+  seal this session.
+
+- **2026-09-06 11:38 (`date` checked) · loop (PROVISIONAL) · Aspose.Cells re-sealed clean;
+  Aspose.3D could not, and is un-sealed rather than left stale.** Item G4-W17. Cells' Installation
+  fix cost one fresh reviewer call (the changed candidate text invalidates the cached request
+  hash) and then adopted with zero calls on the very next run - `tests/test_sealed_bytes.py`
+  confirms it. Aspose.3D's re-seal hit `independent_review` twice, identically both times: a
+  fabricated paragraph about `PlyReader`/`PlyWriter`/`Encode`/`Decode` in Scope and Limitations
+  that exists nowhere in the candidate - `absent: []`, `fact_ids: []`, so neither `absence_defect`
+  nor `excluded_evidence_defect` has anything to check; only `quote_located`'s literal match
+  catches it, correctly. Two identical runs at temperature 0, seed 1 (loop-prompt's
+  two-equivalent-attempts rule): this is not cache bleed, the reviewer genuinely regenerates the
+  same fabrication for this input, and it is unrelated to Installation - the finding never
+  mentions it. Nothing in the review pipeline offers a third lever without inventing one under
+  time pressure. Leaving the stale bundle sealed would make `test_sealed_bytes.py` permanently red
+  in hosted CI, since its stored bytes no longer match what the corrected renderer produces; that
+  is exactly the check working as designed. Un-sealed instead: `candidates/aspose-3d-foss__Aspose.
+  3D-FOSS-for-.NET/` removed, `current_candidates` reverts 4 to 3, `repository-presenter status`
+  confirms 3/34 with no cursor-mismatch warning. Resume predicate: re-run `present`; a later
+  attempt may draw a different completion, or a review-side fix for unabsorbed-into-`absent`
+  fabrications (a class no current mechanical check reaches) would close it structurally.
