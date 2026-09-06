@@ -20,10 +20,14 @@ Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them
 
 ## 1. Orient
 
-1. In your worktree: `git fetch origin`, then work on a **single-use branch per item**,
-   `<lane>/<ITEM>` (for example `lane-c/G4-W12`), created from `origin/main`: `git switch -c
-   <lane>/<ITEM> origin/main` (if it exists from an earlier run: `git switch <lane>/<ITEM> && git
-   rebase origin/main`). Never reuse a branch after its PR merged. A conflict in a file you do not
+1. **Work from a short path.** The worktree you are spawned into sits under
+   `…\.claude\worktrees\agent-<id>\` — long enough that a transaction file crosses Windows' 260-character
+   limit (Cells TypeScript died there, 2026-09-06). Before anything else: `git fetch origin`, then
+   `git worktree add C:\w\<lane-short><item-digits> -b <lane>/<ITEM> origin/main` (for example
+   `C:\w\c12` for lane-c/G4-W12, `C:\w\b13` for lane-b/G4-W13; `mkdir C:\w` if absent), `cd` there,
+   create `.venv` there, and do every step of this run from that directory. Remove it at the end of the
+   run (`git worktree remove C:\w\<…> --force` after the merge). One **single-use branch per item**; if
+   the branch exists from an earlier run: `git switch <lane>/<ITEM> && git rebase origin/main`. Never reuse a branch after its PR merged. A conflict in a file you do not
    own takes `origin/main`'s version; a conflict in a file you own keeps both sides (the owner's text,
    your status and entries) — resolve by hand, `git add`, `git rebase --continue`; never `--skip`.
    Never touch the primary checkout at `D:\Users\prora\OneDrive\Documents\GitHub\repository-presenter`

@@ -2121,9 +2121,9 @@ referential links and commands; G2-W23 folded into G3-W01 on 2026-09-05 (30.9); 
 cohort first (its preflight measures; census §28.10), G3-W03 facts cache only if that measurement
 admits it (30.9 decision 7); G4 — G4-W10 layered plugins and generic shared code, G4-W09 shared
 surface extractor carrying the second reuse source's schema and records (G4-W08 folded in,
-2026-09-05 23:30, §28.12), then the cohorts in deadline order G4-W11 .NET, **G3-W04 Python second
-pass** (inserted 2026-09-06 07:45 — the first pass sealed one of eleven; its blockers are removed),
-G4-W17 shared-code fixes the lanes propose (stays active while any lane is open); in lanes — G4-W12
+2026-09-05 23:30, §28.12), then G4-W11 .NET, **G4-W17 shared-code fixes the lanes and the Python dispositions need** (moved
+ahead 2026-09-06 09:00; stays active while any lane is open), **G3-W04 Python second pass** (inserted
+07:45 — the first pass sealed one of eleven); in lanes — G4-W12
 Java (lane C), G4-W14 TypeScript then G4-W13 C++ (lane B), G4-W15 Go then G4-W16 Rust (lane D); then
 G3-W02 freeze v1 after
 every cohort (moved 2026-09-05 23:30, §28.12); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. Each
@@ -2191,12 +2191,12 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G4-W11
   status: PENDING
   purpose: ".NET spec and cohort (section 29.6 E3-E6): identity, floor and the dependency snapshot from the vendored ManifestReader (aspose.org package_manifest and dependency_extract, section 29.12; the legacy ecosystems/dotnet.py only for a field they lack), surface through the shared extractor with the C# preprocessor rules, a fresh verifier on the base (dotnet build in the isolated workspace, restore disabled where a lock exists, NuGet config redirected; tools resolved with shutil.which including .cmd shims), registry facts through the vendored RegistryProbe, a negative control that rejects one realistic invalid example; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions (the Email .NET CS1929 build failure; PSD-.NET NON_PROCESSABLE). Parity per repository; a reflection-stub corroboration (E6) only if parity fails. Time box 5 hours from promotion (section 28.12): yield order from the section 28.11 census; at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; hosted CI green."
+- id: G4-W17
+  status: PENDING
+  purpose: "Shared-code fixes the lanes propose (owner, 2026-09-06 08:00; section 28.12 Lanes). While lanes B, C and D compose their cohorts they may not edit composition/, review/, repair/, the renderer, prompts/, core/ or the facades; each shared-code defect they meet is a PROPOSAL entry in their lane log (docs/RESEARCH_LANE_B.md, _C, _D) with the exact file, defect, repository and finding, and the repository gets a disposition naming that proposal. This item lands those fixes in arrival order, each with a mutation test, every class a round exposes in the same iteration, and after each landing notifies nothing - the reviewer re-spawns the lane, whose re-run converts the dispositions. Runs BEFORE G3-W04 (reordered 2026-09-06 09:00: lane B's first cohort sealed nothing for want of shared fixes, and the Python dispositions need the same prompts) and stays active while any lane has an open item; it never composes a lane repository itself and never edits a lane path. Acceptance: every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31; hosted CI green. Arrival list (reviewer-maintained; land in this order, each with a mutation test): (1) prompts/source_reconciliation - the packet names the sections that render nothing for this repository (no registry package, no licence file) so a unit is never placed into an empty section [lane B, 3D TypeScript, BLOCKED_RECONCILIATION at S4]; (2) core/llm CallStore.reject - the rejected-reply filename is the longest path any transaction writes; shorten it (hash prefix) so a 260-character Windows limit is not hit from a long checkout root [lane B, Cells TypeScript, BLOCKED_ENVIRONMENT]; (3) core/ecosystems.spec_for discovers SPEC by module name as registry.py discovers PLUGIN, so a lane never edits a shared table [lane B]; (4) the surface facade's _KINDS lacks abstract_class_declaration [lane B]; (5) the renderer's _IMPORT verify line is Python-shaped; read it from the spec [lane B]; (6) tests/.../test_registry.py asserts known_ecosystems() literally - make it discovery-based so registering an ecosystem needs no shared test edit [lane B]; (7) the prompt changes the Python dispositions name for BarCode, Email and Note (G3-W01 cohort report) - authoring and planning; (8) items the lanes C and D logs add. After (1)-(2) land, the reviewer re-spawns lane B on TypeScript."
 - id: G3-W04
   status: PENDING
   purpose: "Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02's; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green."
-- id: G4-W17
-  status: PENDING
-  purpose: "Shared-code fixes the lanes propose (owner, 2026-09-06 08:00; section 28.12 Lanes). While lanes B, C and D compose their cohorts they may not edit composition/, review/, repair/, the renderer, prompts/, core/ or the facades; each shared-code defect they meet is a PROPOSAL entry in their lane log (docs/RESEARCH_LANE_B.md, _C, _D) with the exact file, defect, repository and finding, and the repository gets a disposition naming that proposal. This item lands those fixes in arrival order, each with a mutation test, every class a round exposes in the same iteration, and after each landing notifies nothing - the reviewer re-spawns the lane, whose re-run converts the dispositions. Runs after G3-W04 and stays active while any lane has an open item; it never composes a lane repository itself and never edits a lane path. Acceptance: every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31; hosted CI green."
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after every cohort has sealed against it (moved behind the cohorts 2026-09-05, section 28.12): the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -3902,3 +3902,20 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   closed, symmetric with the supersession branch beside it, because no re-ask can honour a
   placement no plan may include (Cells and Words each routed build snippets into
   `development_testing` in repositories that record no `build_test_asset`).
+
+- **2026-09-06 09:05 · owner (REVIEWED) · lane B's TypeScript run: landed, sealed nothing, and moved
+  G4-W17 ahead of the Python second pass.** Evidence: PR #3 → `b901a98`, green on the three versions
+  after a rebase; 1,629 facts and 1,387 public symbols from two repositories with no provider call, 11
+  of 12 examples type-checked; three dispositions — 3D `BLOCKED_RECONCILIATION` (the
+  `source_reconciliation` prompt places units into sections that render nothing: no npm package, no
+  licence file), Cells `BLOCKED_ENVIRONMENT` (a 261-character `calls/<sha>.rejected-1.json` under the
+  harness worktree path crosses Windows MAX_PATH; the census's `invalid index-pack` clone failure did
+  not reproduce), PDF `DISABLED_UPSTREAM`. Five `PROPOSAL`s, all shared code, now G4-W17's arrival
+  list (1)–(6) with the Python dispositions' prompt needs as (7). Decisions: **G4-W17 runs before
+  G3-W04** — a lane cohort cannot seal until the shared fixes land, and the Python second pass needs
+  the same prompts; lanes work from a short worktree root (`C:\w\<lane><item>`) from now on, lanes C
+  and D told to move before composing; lane-b.yaml drops W15/W16 (moved to lane D at 08:00); lane B
+  is re-spawned on G4-W13 C++ now and on TypeScript again after (1)–(2) land. Also recorded: the
+  lane had to edit `tests/.../test_registry.py` (a literal `known_ecosystems()` assertion) — proposal
+  (6) makes that test discovery-based so no lane edits a shared test again. Reverse by restoring the
+  §27.9 order and the lane prompt's §1.
