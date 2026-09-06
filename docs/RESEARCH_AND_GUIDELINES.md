@@ -5019,3 +5019,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   presentation_planning/source_reconciliation token budgets), which is itself worth a name if a
   fourth turns up: a fixed ceiling read from early, smaller measurements is not safe to leave
   unchecked once a portfolio-wide composition pass exists to outgrow it.
+
+- **2026-09-06 21:39 (`date` checked) · loop (PROVISIONAL) · checkpoint after the reviewer's
+  items 24-31 pass: `repository-presenter status` confirms `candidates: 6/34`, hosted CI green.**
+  All items the reviewer marked time-critical or ahead-of-order are now landed or fully diagnosed:
+  item 24 (registry-less UNRESOLVED admission) live-verified against both named repositories -
+  Aspose.Cells for C++ sealed and no-op proven (a genuinely new candidate, 5 to 6), Aspose.PDF for
+  C++ cleared BC-02 and stands on an unrelated review finding; item 31 (PDF-TypeScript's stale
+  `disabled` flag) flipped and live-verified - the repository now genuinely clones, builds, and
+  extracts facts, with composition blocked on a newly-found, precisely diagnosed request-size
+  timeout, proposed rather than guessed at; item 27 (`SYMBOL_CAP`) and its own follow-up
+  (`UNIT_CAP`) both landed with measured, evidence-based values and mutation tests, correcting the
+  reviewer's own proposed number where this session's direct measurements already showed it
+  insufficient. A genuine lost-update CI break (two independent PRs both bumping the shared
+  candidate counter from the same stale base) was diagnosed and found already fixed by a peer
+  session before any duplicate work landed. Two items reached only by inference and not
+  independently re-verified this checkpoint: (28)-(30) (lane D's own PROPOSALs, reviewer-confirmed
+  non-duplicative) and (32)-(34) (from lane C's Java re-run, item 22 corroborated and reprioritized
+  ahead of them) - genuinely unevaluated, next in queue. Not attempted: item 35 (the timeout/cap
+  constant audit the reviewer opened after this session's own `SYMBOL_CAP` and timeout findings),
+  items 25-26, and the `source_reconciliation` timeout fix itself - each needs its own measurement
+  or careful prompt iteration, the same discipline every deferred item this session has used.
