@@ -5062,3 +5062,30 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   same finding named - `unit_checks` rejecting a whole section for one stray token rather than
   folding it out, the same `d707693` shape as items 16 and 17 - is not landed here; a fresh pick
   once this lands, per the reviewer's own item-by-item sequencing tonight.
+
+- **2026-09-06 22:49 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 22 landed:
+  BC-07's narration guard now matches at a word boundary and exempts the repository's own public
+  symbols.** `validation/registry.py`'s `_NARRATION` check read its nine guarded phrases as a bare
+  substring with no word boundary, so the continuous word "workbookvalidator" always matched
+  "validator" even though "validator" never occurs there as its own word - Cells Rust's real
+  public type `WorkbookValidator` failed BC-07 on every composition attempt, corroborated
+  independently on Cells Java's own `WorkbookValidator` (same product family, second ecosystem,
+  reviewer bumped this ahead of items 25-30 for that reason). Fix, two parts: `_NARRATION_PATTERNS`
+  compiles each phrase to a `\b`-anchored regex, so a match now requires the phrase's own word
+  boundaries; and a `symbol_names` set (the lowercased bare suffix of every `SUPPORTED`
+  `public_symbol` fact) exempts a matched phrase that is itself the repository's own API - a class
+  a product genuinely calls `Validator` (bare, not embedded in a longer name) is not narration
+  leaking through, it is the surface being described accurately. The existing item-18
+  section-localization (`Failure.section` via `_section_texts`/`llm_owned`) is preserved unchanged,
+  now keyed off `pattern.search(text)` instead of the old `phrase in text`. New tests in
+  `tests/.../test_registry.py`:
+  `test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring` (the exact
+  `WorkbookValidator` false positive is gone; a genuine standalone "a validator" mention still
+  fails BC-07) and
+  `test_narration_exempts_a_phrase_that_is_the_repositorys_own_public_symbol` (a bare `Validator`
+  public_symbol fact exempts the same word narrated in prose). All 11 pre-existing tests in that
+  file pass unchanged under word-boundary matching, including the item-18 two-word "fact id" phrase
+  test. Full suite green, ruff/mypy clean, before this entry. Resume predicate: re-run
+  `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` and
+  `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Java` - this was each repository's only
+  named blocker.

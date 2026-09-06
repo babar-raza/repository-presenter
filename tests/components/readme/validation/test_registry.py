@@ -374,6 +374,53 @@ def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: 
     assert located["section_id"] == "scope_limitations"
 
 
+def test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 22. `_NARRATION`'s bare substring check read a repository's own
+    public type, `WorkbookValidator`, as the narration phrase "validator" - "validator" is one
+    continuous word inside "workbookvalidator", never a word-boundary match on its own. Measured
+    2026-09-06, corroborated independently on Cells Rust and Cells Java; no composition for
+    either could pass without lying about its own surface. A genuine standalone mention of the
+    word must still be caught."""
+    readme = _candidate().readme
+    embedded = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nThe library exposes WorkbookValidator for checks.\n\n",
+    )
+    assert embedded != readme
+    document = validate_candidate(_candidate(embedded), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+
+    standalone = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nThis uses a validator internally.\n\n",
+    )
+    document = validate_candidate(_candidate(standalone), tmp_path, ())
+    assert "internal narration 'validator'" in _failed(document, "BC-07")["details"]
+
+
+def test_narration_exempts_a_phrase_that_is_the_repositorys_own_public_symbol(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 22's own public_symbol exemption: a class the product actually calls
+    `Validator` (bare, not embedded in a longer name) is its own API, not the pipeline's
+    vocabulary leaking through."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (*BASE_FACTS, _fact("public_symbol:widget.validator", "public_symbol", "widget.Validator")),
+    )
+    readme = _candidate(facts=facts).readme
+    narrated = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nThe library exposes a Validator for checks.\n\n",
+    )
+    assert narrated != readme
+    document = validate_candidate(_candidate(narrated, facts=facts), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+
+
 def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     readme = _candidate().readme
 
