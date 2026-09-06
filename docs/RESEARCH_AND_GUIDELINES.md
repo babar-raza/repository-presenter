@@ -3949,3 +3949,23 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `public_symbol:aspose.pdf.devices.svgsdevice` (real: `svgdevice`) identically on both attempts -
   a single hallucination among 12,241 symbols, diagnosed and prompted against rather than chased
   further per §5's two-equivalent-attempts rule.
+
+- **2026-09-06 21:55 · loop (PROVISIONAL) · an omission finding can name excluded evidence
+  without ever quoting it.** Item G4-W11. With the fence-vocabulary fix landed, Aspose.3D reached
+  BC-10 again with one finding left: *the candidate omits 'Enumerate a Scene's Node Hierarchy'*,
+  citing `example:003` - `CONTRADICTED` - in `fact_ids`, and naming the heading in `absent`.
+  `absence_defect` let it stand: the heading was genuinely written by the maintainer, so it is
+  not invented text, and `absence_defect` only asks whether a claim occurs somewhere in evidence,
+  never whether the fact backing the *claim itself* is excluded.
+  `excluded_evidence_defect` already existed for exactly this shape of defect - measured on
+  Aspose.Slides, section 31 above - but only by matching the finding's `quote` against a
+  non-SUPPORTED fact's value; Aspose.3D's finding quoted the section's ordinary lead-in instead
+  and made the same claim through `absent`/`fact_ids`. Extended to also check: when a finding
+  claims an absence, any fact_id it cites that is not SUPPORTED is the same excluded-evidence
+  defect, regardless of what the quote says. A factuality finding citing a CONTRADICTED fact to
+  disprove existing text is untouched - it names no `absent` strings, which is the schema's own
+  rule for a finding that alleges no absence. Two existing tests broke on the extension: both
+  built their finding from `_finding()`'s default `fact_ids: ["format:input.obj"]` (UNRESOLVED)
+  purely as unrelated schema-shape boilerplate, unrelated to what each test was actually
+  measuring (`absence_defect` alone); corrected to `fact_ids: []`, which the schema allows and
+  neither test's assertions depend on.
