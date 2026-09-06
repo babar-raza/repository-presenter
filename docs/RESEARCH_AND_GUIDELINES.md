@@ -4469,3 +4469,21 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   resume predicate the 13:46 entry above found already satisfied by the earlier
   `presentation_planning` token-budget fix) remain candidates for the reviewer to re-spawn G3-W04's
   second pass on, per this item's own acceptance language.
+
+- **2026-09-06 14:32 (`date` checked) · loop (PROVISIONAL) · Note's own resume predicate held; the
+  next blocker in its own recorded sequence replaced it, exactly as its disposition already
+  described.** Live-verified: re-running `present --repo aspose-note-foss/Aspose.Note-FOSS-
+  for-Python` no longer truncates at `presentation_planning` (its recorded `PLANNING_OUTPUT_
+  INVALID_TWICE` blocker) - the plan now runs to completion and is rejected on content instead:
+  "core_capabilities 4 is titled 'Export to PDF', which names .pdf; no fact verifies that format...
+  additional_example_ids must be distinct and exclude the quick start", rejected twice. The
+  repository's own disposition record already named this exact pattern - "Three separate
+  blockers in three runs, each cleared by a class fix and replaced by the next: a capability
+  titled by an UNRESOLVED format (fixed at S5)... and now 'unknown fact ID OMIT_UNSUPPORTED'" -
+  and this is that sequence continuing, a fourth instance of the plan naming an unverified format
+  in a capability title, now `.pdf` rather than the earlier one. Two rejections already stand at
+  temperature 0, seed 1; not attempted a third time on the same reasoning as BarCode's and
+  Slides' `independent_review` findings above - nothing about the request changed. Not this item's
+  defect (planning content quality, not a shared-code or prompt-mechanism gap this item's
+  arrival list names), and not re-dispositioned here since G4-W17 does not own G3's cohort record;
+  noted for whichever item next re-runs Note.
