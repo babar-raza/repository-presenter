@@ -87,6 +87,9 @@ tests/                       mirrors src/repository_presenter/ package for packa
   fixtures/oracles/           development-only fixtures and oracles (FIXTURE_OR_ORACLE_ONLY)
   fixtures/readme_only/      README-only placeholder repository (the non-processable negative control)
 .github/workflows/           ci.yml now; monitor.yml, present.yml, propose.yml from G4
+tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
+  reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, procedure.md; .local/ gitignored (state, never portfolio content)
+  census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)
 runs/                        disposable clones and run output (gitignored, never committed)
 ```
 

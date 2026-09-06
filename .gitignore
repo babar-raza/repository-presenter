@@ -24,3 +24,7 @@ venv/
 .idea/
 /.claude/settings.local.json
 /.claude/worktrees/
+
+# Owner/reviewer tooling state - machine-local, never portfolio content (docs/REPOSITORY_LAYOUT.md)
+tools/reviewer/.local/
+tools/census/.local/

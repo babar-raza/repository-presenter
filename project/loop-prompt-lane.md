@@ -11,7 +11,8 @@ Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them
 - Your cursor is `project/lanes/<lane>.yaml` — never `project/state.yaml`. You never edit
   `state.yaml`, `docs/EXECUTION_STATE_MACHINE.md`, `docs/README_CONTRACT.md`, `AGENTS.md`, any loop
   prompt, `RESEARCH_AND_GUIDELINES.md` (§27.9 or §31), `migration/reuse-manifest.yaml`,
-  `pyproject.toml`, `requirements-lock.txt`, or another lane's files.
+  `pyproject.toml`, `requirements-lock.txt`, `tools/` (owner/reviewer tooling, `tools/README.md`),
+  or another lane's files.
 - Your decision log is `docs/RESEARCH_<LANE>.md` (for `lane-c`: `docs/RESEARCH_LANE_C.md`; entries in
   §31's shape: date, item, decision, alternative rejected, evidence, reversal path; the owner merges).
 - Your evidence is `evidence/build/lanes/<lane>/<ITEM>.json` (the shape of a gate manifest's

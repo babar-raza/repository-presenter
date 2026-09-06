@@ -19,6 +19,8 @@ files, never from memory of a previous iteration.
   sibling checkout at `D:\onedrive\Documents\GitHub\aspose.org` is the second reuse source (owner
   decision 2026-09-04, `plans/idea.md`; `RESEARCH_AND_GUIDELINES.md` §29), read-only, pinned at
   `b3ad363aaf69ce4d00d9aa02ecc59616b9705814`; never modify it, never import from it at runtime.
+  `tools/` is owner/reviewer tooling (`tools/README.md`) — never read for an acceptance predicate,
+  never edited, never imported by anything under `src/`.
 - Pushing THIS repository to its own `origin` is required, not forbidden, so hosted CI runs. Follow
   `publication.control_repository` in `project/state.yaml`: after the full local CI-equivalent
   passes, push `main` directly while `main_protected: false`; once protected, push a branch, open a
