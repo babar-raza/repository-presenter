@@ -1,0 +1,75 @@
+{
+  "composition": {
+    "advisories": 7,
+    "blocking_failures": [],
+    "coverage_advisories": 3,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 35518,
+      "sha256": "da0302d3d9c654e1f3e74a3a24f5ca1bccce08eb546fba9d1ae0626b13b191dd"
+    },
+    "README.patch": {
+      "bytes": 53979,
+      "sha256": "ee88bc018e814683e5707099b68e8cf14342536d474008132108f2bbd120e169"
+    },
+    "calls.jsonl": {
+      "bytes": 44278,
+      "sha256": "354c9239bbd8287414d8701ab8681e7467ac4d6dd25b9813d4f3707b6d10b275"
+    },
+    "content_units.json": {
+      "bytes": 47401,
+      "sha256": "8affdfa181ef941262f88a0aa170f7676462ca8abc60c5d32c4e2004b9921c37"
+    },
+    "dependencies.json": {
+      "bytes": 720606,
+      "sha256": "c69ea1a113be3e04235571f484f6d4c464bf5645284c82cac1f73c426985fa7d"
+    },
+    "dispositions.json": {
+      "bytes": 26140,
+      "sha256": "af31e082c3c3dee9343b47b26939f5faa740fd4df8060517b790ee55da5d199a"
+    },
+    "examples.json": {
+      "bytes": 3321,
+      "sha256": "78c1b0a4828650c1f5fa720790733c3137ddc1182e56b05d58afb37ded430f22"
+    },
+    "facts.json": {
+      "bytes": 3060809,
+      "sha256": "d9d540f4f2c930c98f74b2f254445b9349fe0be7ba124a9362bb665892bb340d"
+    },
+    "investigation.json": {
+      "bytes": 5718,
+      "sha256": "2b826fd2fd709eecf2f035dc52829808d6f87249fff87114c960fb63d5f3c52b"
+    },
+    "plan.json": {
+      "bytes": 6185,
+      "sha256": "498a066e7cac7d15ee767b8599681e7778cbfd1aa8d4c1270c7f92d177759e99"
+    },
+    "probes.json": {
+      "bytes": 3287,
+      "sha256": "3214aae09bbd53fa98dcc35ba9860fe6acd6f3d9382b88cf8e44f81536d279ac"
+    },
+    "review.json": {
+      "bytes": 6805,
+      "sha256": "fdd39ae6dd5287e309ac3b1744509f16bd6d4eab7b3ffb98bdf60f86873201b5"
+    },
+    "validation.json": {
+      "bytes": 11397,
+      "sha256": "ac76c124151811e633cdcc6a50498ad751275a3c181a355982df9aab61a942c4"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-06T18:27:50Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+  "revision": "e308de58888635956cd66e5b0e2994dd42cd4356",
+  "schema_version": 1,
+  "sealed_at": "2026-09-06T18:27:50Z",
+  "state": "READY_FOR_PROPOSAL"
+}

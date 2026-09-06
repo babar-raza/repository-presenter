@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (single repository)",
+  "recorded_at": "2026-09-06T23:29:19-08:00",
+  "control_revision": "63fbc2d",
+  "control_revision_note": "origin/main at the start of this re-run; the tip commit is G4-W17 arrival item 32 itself, 'fix(planning): trim reserves headroom for a preserved unit's own Aspose links'. The branch was afterwards rebased onto 8b93070 (two lane-d records landed meanwhile) before the recount and the commit.",
+  "trigger": "Coordinator message mid-run: item 32 landed for real at 63fbc2d. Item 32 is this lane's PROPOSAL J and the single recorded resume predicate of the aspose-3d-foss/Aspose.3D-FOSS-for-Java disposition (evidence/build/lanes/lane-c/G4-W12-RERUN.json, cohort[3]). Scope is that one repository: Slides Java still waits on item 33 (PROPOSAL L), not landed; Cells Java's new predicate is PROPOSAL N, raised an hour earlier in G4-W12-RERUN2.json; PDF Java is sealed and untouched.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\c12r - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "path_policy": "Every tool resolved by the pipeline's own resolver and called by absolute path; nothing added to the user or system PATH. javac is the recorded C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE; no Maven local repository was created, every declared dependency of this POM being test scope."
+  },
+  "cohort": [
+    {
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+      "revision": "e308de58888635956cd66e5b0e2994dd42cd4356",
+      "outcome": "SEALED",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION (BC-06 failed at PLANNING: 5 Aspose links exceed the ceiling of 4), resume predicate G4-W17 item 32 / PROPOSAL J",
+      "stage_reached": "S11 - the whole transaction, no-op proof judged",
+      "facts": 5508,
+      "public_symbols": 5366,
+      "content_units": "144 units across 9 sections",
+      "validation_summary": "pass 10, fail 0, pending 1 on the sealing run (BC-11 is the no-op proof, judged by the rerun); the rerun records pass 10, fail 0, pending 1 with check 11 judged. BC-06 PASS. Repair rounds 1, 0 repaired, 0 unrepairable.",
+      "review": "verdict ACCEPT, findings 0, advisory 7, preserve 0. All seven advisories carry criterion 'presentation' and causal_stage S7; none is blocking. F03 is the one worth routing later - the reviewer asserts 195 public classes against the document's 'The verified public surface has 266 types', which is a claim about the reviewer's own reading, not about the fact set (5366 SUPPORTED public_symbol facts stand behind the rendered count).",
+      "readme": "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Java/e308de58888635956cd66e5b0e2994dd42cd4356/README.md, 187 visible lines of 535",
+      "resume_predicate_status": "MET AND SUFFICIENT. Item 32 does exactly what its commit message claims and it is the whole of what this repository needed.",
+      "why_it_cleared": "BC-06 counts Aspose links over the whole rendered document; item 16 had bounded only the plan's own links list. inherited_unit:043.paragraph is a VERIFIED_MOVE placed into documentation_resources and renders its own docs.aspose.com/3d/ links verbatim - reconciliation's decision, which no re-ask of planning can withdraw - so the plan could be at its ceiling of 4 and the document still at 5, with nothing left for a repair to trim. Item 32 (planning.py plan_checks) now sums the Aspose links inside every placement whose outcome is 'placed' and trims the plan's own list to aspose_links_max minus that count. The plan therefore reserves headroom for what is already committed to render, and the document lands at or under the ceiling on the first pass: BC-06 PASS with zero repair rounds spent on it.",
+      "no_op_proof": {
+        "byte_identical": true,
+        "fresh_process": true,
+        "provider_calls": 0,
+        "readme_sha256_or_digest": "da0302d3d9c654e1f3e74a3a24f5ca1bccce08eb546fba9d1ae0626b13b191dd",
+        "evidence": "Sealing run: bundle state ACCEPTED, 13 files, provider calls 28, 'the no-op proof needs a rerun in a fresh process'. Immediate rerun of the same command in a fresh process: identical README digest da0302d3..., identical validation digest e850a88569844858d203c97996875f15bc75be55c3f4612e41323ebfbf59ee19, identical review digest fdd39ae6dd5287e309ac3b1744509f16bd6d4eab7b3ffb98bdf60f86873201b5, 'provider calls 0; no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged'; bundle state READY_FOR_PROPOSAL."
+      }
+    }
+  ],
+  "not_touched_this_run": [
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - SEALED at 099e70a8; its bundle was not read or rewritten.",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-Java - DISPOSITION BLOCKED_VALIDATION (BC-07 internal narration 'validator' on the repository's own Javadoc); re-run an hour earlier this evening, see G4-W12-RERUN2.json; new resume predicate PROPOSAL N.",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Java - DISPOSITION BLOCKED_REVIEW (BC-10 REJECT_PRESENTATION over renderer-owned structure); resume predicate G4-W17 item 33 / PROPOSAL L, not landed."
+  ],
+  "proposals": {
+    "closed_in_lane": [
+      "J (= G4-W17 item 32) - closed. Raised by this lane at 19:59, landed by the primary at 63fbc2d, and verified live here: it is the whole of what Aspose.3D for Java needed and the candidate seals on the first pass."
+    ],
+    "raised": [],
+    "still_open_elsewhere": [
+      "N - the narration exemption is anchored to a public_symbol fact's name and not to its docstring. Cells Java's only blocker.",
+      "L (= G4-W17 item 33) - Slides Java's only blocker.",
+      "I - the Maven badge's landing URL; non-blocking.",
+      "M - the state.yaml counter a sealing lane must move; exercised again here, see below."
+    ]
+  },
+  "state_yaml_touched": {
+    "field": "progress.current_candidates",
+    "from": 6,
+    "to": 7,
+    "method": "The narrow exception in loop-prompt-lane section 0: git fetch origin and git rebase origin/main first (the branch moved from 63fbc2d to 8b93070, picking up two lane-d records), then a fresh count of sealed bundles on disk in that rebased tree - 'repository-presenter status' reads 'candidates: 7/34 current reviewable no-op-proven' and candidates/ holds 7 directories. Never read-and-increment; the recount is immune to the lost update PROPOSAL M records.",
+    "everything_else": "No other field or byte of project/state.yaml was changed."
+  },
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 2,
+    "dispositions_by_lane": 2,
+    "candidates_on_disk": 7,
+    "java_cohort": "2 of 4 sealed (PDF, 3D); 2 dispositioned, each on one named blocker with a landed-and-verified resume predicate elsewhere in the queue (Cells on PROPOSAL N, Slides on item 33 / PROPOSAL L)."
+  }
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "Example.java:10: error: cannot find symbol",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "Example.java:10: error: cannot find symbol\r\n        scene.save(\"output.stl\", FileFormat.STLASCII);\r\n        ^\r\n  symbol:   variable scene\r\n  location: class Example\r\nExample.java:13: error: cannot find symbol\r\n        scene.save(\"output.stl\", new StlSaveOptions());\r\n        ^\r\n  symbol:   variable scene\r\n  location: class Example\r\n2 errors\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*, com.aspose.threed.FileFormat, com.aspose.threed.Mesh, com.aspose.threed.Node, com.aspose.threed.Scene, com.aspose.threed.Stream",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*, com.aspose.threed.Node, com.aspose.threed.Scene",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "Example.java:9: error: cannot find symbol",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "Example.java:9: error: cannot find symbol\r\n        Node node = scene.getRootNode().createChildNode(\"TestNode\");\r\n                    ^\r\n  symbol:   variable scene\r\n  location: class Example\r\n1 error\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*, com.aspose.threed.Vector3",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, com.aspose.threed.*",
+    "fixtures": [],
+    "ordinal": 10,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

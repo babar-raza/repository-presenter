@@ -1,0 +1,138 @@
+[
+  {
+    "elapsed_ms": 689,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.com/3d/java/"
+  },
+  {
+    "elapsed_ms": 1380,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/3d/java/"
+  },
+  {
+    "elapsed_ms": 1046,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1324,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues"
+  },
+  {
+    "elapsed_ms": 1566,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/tree/master/src/test/java/com/aspose/threed"
+  },
+  {
+    "elapsed_ms": 461,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Java-21%2B-blue.svg"
+  },
+  {
+    "elapsed_ms": 829,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 911,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-3d-foss/Aspose.3D-FOSS-for-Java.svg"
+  },
+  {
+    "elapsed_ms": 846,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/maven-central/v/org.aspose/aspose-3d-foss.svg"
+  },
+  {
+    "elapsed_ms": 919,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/3d/java/"
+  },
+  {
+    "elapsed_ms": 1166,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://openjdk.org/projects/jdk/21/"
+  },
+  {
+    "elapsed_ms": 750,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/3d/java/"
+  },
+  {
+    "elapsed_ms": 841,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/3d/java/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 709,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.com/3d/java/"
+  },
+  {
+    "elapsed_ms": 941,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/3d/java/"
+  },
+  {
+    "elapsed_ms": 446,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://repo1.maven.org/maven2/org/aspose/aspose-3d-foss/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "maven-metadata-xml",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "maven:org.aspose:aspose-3d-foss"
+  }
+]
