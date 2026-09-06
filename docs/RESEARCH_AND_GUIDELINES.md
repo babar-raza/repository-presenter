@@ -4610,3 +4610,35 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   for_its_own_badge_url`; `tests/components/readme/composition/test_renderer.py::test_a_floor_
   fact_names_its_own_declaration_when_the_ecosystems_is_too_generic`. Full suite green, ruff/mypy
   clean, before this entry.
+
+- **2026-09-06 15:20 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 15 (lane C
+  PROPOSAL D) declined - already covered by the exact code item 1 already tested.** PROPOSAL D
+  asks `reconciliation/dispositions.py::normalize` to fold a placement into a deterministic
+  section whose `rendering_fact_ids` is empty into `DEFER_UNRESOLVED`, citing
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-Java` dying at S4 on exactly this shape. Reading the
+  named lines (295-320) directly: the fold already exists, unconditional on which owner-D section
+  or which disposition value arrived, and the 12:37 entry above (item 1) already pins it with
+  `test_two_deterministic_sections_rendering_nothing_both_fold_in_one_pass`, which places a unit
+  into `installation` with zero `rendering_fact_ids` and asserts `reconcile_checks(...) == []`
+  and `DEFER_UNRESOLVED` - the identical shape PROPOSAL D describes, already proven. Lane C's own
+  evidence was gathered before this session's item 1 landed the fold's current, general form (the
+  code comment at that branch already reads "Measured 2026-09-06 on Aspose.Slides for .NET",
+  predating PROPOSAL D's own dateline); no code gap remains to close. Declining a redundant
+  change; PROPOSAL D's own coupling note stands unaffected - the placement stays genuinely
+  impossible for every unpublished package regardless.
+
+- **2026-09-06 15:23 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 20 landed:
+  a Markdown list marker is judged only where a list can open, not anywhere a hyphen appears.**
+  Lane B's evidence: Aspose.Cells for C++ was rejected twice at `section_authoring` for "a
+  Markdown list ('-')" on the phrase "workbook- or sheet-scoped" - `_FORBIDDEN`'s check was a
+  plain substring test, so a hyphenated compound split mid-sentence matched exactly as a genuine
+  `- ` list opening a line would. A unit is one paragraph (`"\n"` is itself forbidden), so "only
+  at line start" is exactly "only at the start of the string": `"- "` and `"* "` now check
+  `text.startswith(marker)` while every other forbidden fragment (a fence, a URL, a link, HTML, a
+  command) keeps the unconditional substring check, since none of those legitimately occurs
+  inside ordinary prose the way a hyphen does. `forbidden_text_pattern` (unused in production,
+  kept only because its own test promises parity with `unit_checks`) is updated the same way, so
+  that promise stays true rather than drifting the moment this landed. New test:
+  `tests/.../test_authoring.py::test_a_hyphen_or_asterisk_mid_sentence_is_prose_not_a_markdown_
+  list`, reproducing the exact phrase alongside a genuine list-opening unit that must still
+  reject. Full suite green, ruff/mypy clean, before this entry.

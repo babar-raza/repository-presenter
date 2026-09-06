@@ -113,6 +113,12 @@ _FORBIDDEN = (
     ("pip install", "a command"),
     ("$ ", "a command"),
 )
+# A genuine Markdown list marker opens the paragraph; the same two characters followed by a
+# space also occur mid-sentence in ordinary prose (a hyphenated compound split across a line,
+# "workbook- or sheet-scoped"). Measured 2026-09-06 on Aspose.Cells for C++: that exact phrase
+# rejected an otherwise-clean limitation twice. A unit is one paragraph (no "\n" above), so
+# "only at line start" is exactly "only at the start of the string".
+_ANCHORED_ONLY = frozenset({"- ", "* "})
 _OBJECTIVES: dict[str, tuple[str, str]] = {
     "opening": (
         "Two to four sentences: what the product does, the problems it solves, who uses it.",
@@ -757,9 +763,11 @@ def forbidden_text_pattern(extra: Sequence[str] = ()) -> str:
     anticipated and section 27.10 allows. The URL, command and edition families therefore stay
     post-validated by unit_checks until a normalisation owns them.
     """
-    fragments = [fragment for fragment, _ in _FORBIDDEN] + list(extra)
-    alternation = "|".join(re.escape(fragment) for fragment in fragments)
-    return f"^(?!(?:.|\\n)*(?:{alternation}))(?:.|\\n)*$"
+    anywhere = [fragment for fragment, _ in _FORBIDDEN if fragment not in _ANCHORED_ONLY]
+    anywhere += list(extra)
+    anywhere_alternation = "|".join(re.escape(fragment) for fragment in anywhere)
+    anchored_alternation = "|".join(re.escape(fragment) for fragment in _ANCHORED_ONLY)
+    return f"^(?!(?:{anchored_alternation}))(?!(?:.|\\n)*(?:{anywhere_alternation}))(?:.|\\n)*$"
 
 
 def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
@@ -917,7 +925,8 @@ def unit_checks(
             text = text.replace("`", "")
             unit["text"] = text
         for marker, meaning in _FORBIDDEN:
-            if marker in text:
+            matched = text.startswith(marker) if marker in _ANCHORED_ONLY else marker in text
+            if matched:
                 errors.append(f"unit {slot}: text contains {meaning} ({marker.strip()!r})")
                 break
         strays = sorted(

@@ -287,6 +287,45 @@ def test_unit_checks_reject_markdown_urls_commands_stray_identifiers_and_outside
     ]
 
 
+def test_a_hyphen_or_asterisk_mid_sentence_is_prose_not_a_markdown_list() -> None:
+    """G4-W17 arrival item 20. Measured 2026-09-06 on Aspose.Cells for C++: a limitation reading
+    "workbook- or sheet-scoped" was rejected twice as "a Markdown list ('- ')" - the marker
+    matched a hyphenated compound split across a sentence, not a list opening the paragraph. A
+    unit is one paragraph, so "only at line start" is exactly "only at the start of the text"."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:aspose.threed.scene"}),
+        ("capability:1",),
+    )
+    mid_sentence = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Some settings are workbook- or sheet-scoped for `Scene` objects.",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(mid_sentence, task, FACTS, NAME) == []
+    at_start = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "- Scene objects hold a scene graph.",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(at_start, task, FACTS, NAME) == [
+        "unit capability:1: text contains a Markdown list ('-')"
+    ]
+
+
 def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifier() -> None:
     """A format or another product is a word here, an identifier only where code lives.
 
@@ -1068,3 +1107,7 @@ def test_the_forbidden_text_pattern_matches_what_unit_checks_judges() -> None:
     edition = forbidden_text_pattern(("Enterprise Edition",))
     assert re.match(edition, "The Enterprise Edition adds formats.") is None
     assert re.match(edition, "The commercial edition adds formats.")
+    # G4-W17 arrival item 20: "- " and "* " are Markdown list markers only at the start of the
+    # paragraph; mid-sentence (a hyphenated compound) is ordinary prose unit_checks also allows.
+    assert re.match(pattern, "Some settings are workbook- or sheet-scoped.")
+    assert re.match(pattern, "- A bullet opens the paragraph.") is None
