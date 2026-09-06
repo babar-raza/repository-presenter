@@ -32,7 +32,8 @@ repositories:
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
   sealed_by_lane: 0
-  dispositions_by_lane: 0
+  dispositions_by_lane: 3
+  note: 'G4-W14 closed its box with the TypeScript spec, plugin, barrel resolver and tsc verifier in and every predicate but one green: 1629 facts and 1387 public symbols read from the two active repositories with no provider call, 11 of 12 README examples type-checked. Nothing sealed, and neither failure is the ecosystem module''s - 3D dies in the S4 source_reconciliation job, Cells in a Windows 260-character path limit inside core/llm/jobs.py, PDF is disabled upstream. All three dispositions and five PROPOSALs are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14.json.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -49,7 +50,9 @@ items:
   prerequisites: []
   purpose: 'Toolchains for the lane, never on PATH and never system-wide (loop-prompt section 1.5; OWNER-06): verify the workspace-local GCC and Ninja recorded in C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt (cmake -G Ninja configures and builds a C++20 probe with them); provision rustup with a pinned stable toolchain under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME and CARGO_HOME there; cargo called by absolute path; version recorded), and confirm node, npx.cmd and go with their versions. Acceptance: g++ --version, ninja --version, cargo --version, node --version, go version all print from the recorded absolute paths; a trivial cargo new crate passes cargo check under the disposable CARGO_HOME; evidence/build/lanes/lane-b/LANE-B-00.json records every path and version; RESEARCH_LANE_B.md has the entry.'
 - id: G4-W14
-  status: PENDING
+  status: ACCEPTED
+  accepted_at: '2026-09-06T08:25:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14.json
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted
