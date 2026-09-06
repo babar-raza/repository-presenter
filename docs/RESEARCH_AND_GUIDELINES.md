@@ -4271,3 +4271,20 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   restate, one more place, an invariant the fold already enforces unconditionally, and a prompt
   edit is scoped to this item precisely so it needs the evidence a code fix does not. Full suite
   green, ruff/mypy clean, before this entry. Proceeding to item 2.
+
+- **2026-09-06 12:45 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint.**
+  The owner's own rule (10:45 entry above) times a box from when the landing pass opened; G4-W17
+  was promoted at 10:50, so the first box closed around 12:20 and this checkpoint runs eighteen
+  minutes past it - stopping now rather than reaching for a third item first, per the same rule
+  that named G4-W11 running unnoticed past its own box as the failure shape to avoid.
+  `repository-presenter status`: `gate: G3_PYTHON_COHORT (READY)`, `work item: G4-W17
+  (IN_PROGRESS)`, `candidates: 3/34 current reviewable no-op-proven`. Delta since the box opened:
+  two shared-code fixes landed (item 0, verified end-to-end against Aspose.Slides for .NET - BC-02
+  and BC-06 both now PASS at S9 where they previously failed; item 1, declined as a prompt change
+  and closed with a mutation test proving the existing code already covers it) and hosted CI green
+  after each (runs 34019469398, 34019889679). Sealed-candidate count is unchanged at 3/34: item 0's
+  target repository, Slides, cleared two more validation stages than before but is not sealed -
+  it now fails at `independent_review`, a defect item 0 does not touch (12:30 entry above). Not a
+  zero-delta box by the rule's own test (two items landed, one lane's TypeScript path newly
+  unblocked in principle - the reviewer's re-spawn is what would confirm it), so no
+  freeze-and-escalate condition applies. A new box opens now; continuing to item 2.
