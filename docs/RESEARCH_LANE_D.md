@@ -778,3 +778,125 @@ findings the reviewer raised were both repaired.
 PROPOSAL P10 landed on `main`, then rerun `present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`
 from a fresh lane-d branch. This repository has never been composed past S3, so its next run is an
 investigation, not a seal.
+
+## 2026-09-06 22:05 — G4-W15 second re-run, Aspose.PDF for Go, after G4-W17 item 27
+
+Item 27 landed on `main` at `0d8767f` (21:27): `core/facts.py`'s `SYMBOL_CAP` raised from 150 to
+6000. That is the exact resume predicate PROPOSAL P10 named for
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`, so this run re-ran only that repository, from a fresh
+worktree `C:\w\d15b` on branch `lane-d/rerun-go-2` off `origin/main` at `ffdf4c7`. No lane-owned
+code changed; nothing in this run is a code change at all.
+
+### The resume predicate is met and `INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE` is closed
+
+`repository_investigation` had been rejected twice on every previous attempt, with 24 unknown fact
+IDs, because the packet's 150 admissions ran out inside the letter `b` and `Document` was never
+shown. This run:
+
+- `S3 repository_investigation` **succeeded**, on the second attempt, and produced the first
+  investigation this repository has ever had: 8 capabilities, 6 workflows, 4 problems solved, 6
+  limitations, 0 uncertainties. Its one rejected attempt cited `public_symbol:document.validate` —
+  the model was now *reading* `Document` and mis-spelled one member of it, rather than being blind
+  to the type entirely. That is the class closing, measured, not assumed.
+- `S4 source_reconciliation` succeeded on the first attempt.
+- `S5 presentation_planning` succeeded on the second attempt; an 18-section plan.
+- `S6 section_authoring` authored **seven of its eight sections on the first attempt**, clean.
+
+Facts at this revision are unchanged from the previous run and confirm the surface is intact: 1,620
+records — `public_symbol` 1,467, `inherited_unit` 90, `link_target` 43, `example` 6, `identity` 5,
+`license` 2, `package` 2, `build_test_asset` 2, `dependency` 1, `import_path` 1, `install_command`
+1; digest `403bdbf1e2d1e193aa0494bd0d3203eeb38ee085e19e2daa82000e5a826c7d51`. Examples: 6 candidates,
+5 executed, 1 not verified.
+
+### The run still did not seal — it now fails at S6 on a single token
+
+`section_authoring: output rejected twice; last rejection: unit limitation:3: identifiers that are
+not accepted fact values: ZapfDingbats`. One unit, one token, both attempts, and the whole run ends
+with no candidate. This is a **new** class, reached only because item 27 cleared the old one.
+
+### PROPOSAL P12 — a standard's name the source spells only inside a code span is unwritable
+
+**File.** `src/repository_presenter/components/readme/composition/authoring.py::prose_nouns`
+(line 713), through `unit_checks`' stray-identifier test (line 932) and `source_prose` (line 697)
+with `_NOT_PROSE` (line 52).
+
+**Defect.** `prose_nouns` admits a proper noun "only when the source README spells it in running
+prose — outside every fenced block, code span, link destination, URL and tag, where code lives".
+That rule is right for an *identifier*: a backticked `Document` should be checked against the
+surface, not waved through. It is wrong for a token the surface has never heard of. Aspose.PDF for
+Go's README states its own PDF/A limitation as
+
+> `ConvertToPDFA` auto-embeds non-embedded Standard-14 fonts but does not auto-fix
+> `Symbol`/`ZapfDingbats`, composite (Type0/CJK) fonts, or PDF/A-1 transparency
+
+`ZapfDingbats` is a PDF Standard-14 **font name** — a standard's name, exactly the class
+`prose_nouns` exists to admit — and this README's only two spellings of it are inside code spans, so
+`source_prose` strips both and the noun is never admitted. `section_authoring` wrote the limitation
+faithfully, citing `inherited_unit:081.list`, the very fact that carries the sentence, and was
+rejected; the retry wrote the same true sentence again, because the limitation cannot be stated
+without naming the font. Two rejections end the stage and the run.
+
+**The controlled comparison is inside this one repository.** 36 nouns were admitted for it, among
+them `TrueType`, `OpenType`, `Type1C`, `DeviceCMYK`, `DeviceGray`, `DeviceRGB`, `DeviceN` and
+`PostScript` — the same class of thing as `ZapfDingbats`, admitted only because this README happens
+to spell *those* outside backticks. `Type0`, from the same sentence, is rejected for the same reason
+`ZapfDingbats` is. Sharper still: `Symbol`, named in the same breath as `ZapfDingbats` in the same
+sentence, passes — not as a font, but by the accident that an unrelated annotation type has a field
+`CaretAnnotation.Symbol`. A rule whose verdict on two adjacent font names differs by an unrelated
+coincidence is not tracking the property it means to track.
+
+**Fix, as this lane reads it.** In `prose_nouns`, also admit a proper-noun token spelled inside a
+code span of a `SUPPORTED` `inherited_unit` **when no `public_symbol` fact spells that token at
+all**, bare or as any dotted suffix. A token the extracted surface has never heard of is not an API
+identifier, whatever typography the upstream author chose for it; and the admission is safe by
+`prose_nouns`' own stated reasoning — "a noun is never wrapped and never carries a claim, exactly as
+a registry or hosting name does not". The renderer leaves nouns in plain text, so nothing asserts
+that `ZapfDingbats` is part of this library's API. Verified against this repository's facts: 0 of
+1,467 `public_symbol` values spell `ZapfDingbats`.
+
+**Rejected alternative.** Matching a standard-name shape (a capitalised word ending in a digit, a
+known font list) — a rule fitted to one sample, and it would still miss the next format name. Also
+rejected: leaving it to the prompt, which cannot work, since the sentence is true and the model is
+right to write it.
+
+**Portfolio-wide, not Go-specific.** Any repository whose README backticks the name of a format,
+standard, font or codec is exposed the moment a unit needs to state a limitation about it.
+
+**Repository and finding.** `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at
+`2306eeb06216be4d9cb663adcb85155594572c11`; `section_authoring: output rejected twice; last
+rejection: unit limitation:3: identifiers that are not accepted fact values: ZapfDingbats`;
+rejected unit text, both attempts, citing `inherited_unit:081.list`: "ConvertToPDFA auto-embeds
+Standard-14 fonts but does not auto-fix Symbol, ZapfDingbats, composite fonts, or PDF/A-1
+transparency, requiring validation with a dedicated tool such as veraPDF."
+
+### PROPOSAL P13 — one unwritable unit ends the run, where folding it would not
+
+**Subordinate to P12; recorded because it is what turned a one-token defect into a dead candidate.**
+
+**File.** `src/repository_presenter/components/readme/composition/authoring.py::unit_checks`
+(line 932), whose non-empty error list rejects a section's whole output.
+
+**Defect.** Seven of eight sections were authored clean on the first attempt. The eighth carried
+four limitation units, three of them faultless, and one stray token in the fourth discarded the
+section twice and ended the transaction. This is the shape G4-W17 has already fixed twice — item
+(16), `planning.py` rejecting a whole candidate for a trimmable ceiling breach (landed `d707693`,
+"folded, not rejected"), and item (17) — and once more in PROPOSAL P11 for the independent review.
+`unit_checks` is a third site with the same wholesale behaviour.
+
+**Fix, as this lane reads it.** Drop the single offending unit and keep the section, exactly as
+`merge_repeated_slots` (line 809) already repairs a malformed output in place, when the remaining
+units still satisfy the section's own contract requirements. Fixing P12 removes this occurrence;
+fixing P13 removes the class of one-unit-kills-the-run. P12 is the better fix and should land first.
+
+### The disposition this second re-run leaves
+
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at `2306eeb06216be4d9cb663adcb85155594572c11`,
+`BLOCKED_SHARED_CODE`, failure class `SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE`. Supersedes
+`INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE`, which item 27 closed — S3 succeeded and produced a
+real investigation, measured, and S4, S5 and seven eighths of S6 followed it. Resume predicate:
+PROPOSAL P12 landed on `main` (P13 with it, or beside it), then rerun `present --repo
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch.
+
+**What is not claimed.** The run ends at S6, so S7 through S11 — repair, validation, the independent
+review, the seal — are still unmeasured for this repository. Three of the four stages it has now
+passed it had never reached before; nothing here says the remaining five will pass.
