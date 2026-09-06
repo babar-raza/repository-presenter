@@ -4394,3 +4394,28 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   (all seven existing ecosystems still individually verified as ecosystems, all six known helper
   modules still individually verified as not), ruff/mypy clean, before this entry. Proceeding to
   item 7.
+
+- **2026-09-06 13:46 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint, and
+  item 7 triaged rather than rushed at the edge of it.** Box opened 12:45 (previous checkpoint,
+  10:50 entry's own box having closed); `repository-presenter status`: `gate: G3_PYTHON_COHORT
+  (READY)`, `work item: G4-W17 (IN_PROGRESS)`, `candidates: 3/34`. Delta: items 4, 5 and 6 landed
+  (item 5 closed item 11 too - one fix, two lanes' identical finding), each with hosted CI green
+  (runs 34021514272, 34022026122, 34022606120). Sealed-candidate count unchanged at 3/34 - the
+  landed items are shared-code correctness fixes a lane's own re-run converts into a seal, not a
+  seal this loop performs itself.
+
+  Read `evidence/build/G3_PYTHON_COHORT/manifest.json` for item 7's current, exact state (its text
+  names a G3-W01 cohort report written before several fixes landed since): **Note**'s recorded
+  resume predicate - "`presentation_planning`'s `max_output_tokens` is raised above 3000... belongs
+  to an item that re-seals" - is already satisfied: this item's own 12:30 entry above raised it to
+  6000 while fixing Slides' truncation, for the identical reason. Re-running Note is now a
+  candidate, not a further fix. **BarCode** (`PROSE_NAMES_A_PRIVATE_PARAMETER`) and **Email**
+  (`PROSE_NAMES_A_FOREIGN_MODULE_PATH`) both name `prompts/section_authoring.yaml` as their resume
+  predicate - a live-verified prompt wording change, unlike items 0-6, which a local test suite
+  proves without a provider call. A prompt edit bumps its hash and invalidates every sealed
+  candidate depending on it (their own recorded predicates say so), and getting the wording right
+  typically costs more than one round trip - not something to start at the closing minutes of a
+  box on the strength of not wanting to leave an item untouched. Deferring BarCode and Email's
+  prompt change to the box that opens now, with full runway rather than the one that just closed;
+  not a zero-delta box by the rule's own test (three items landed), so no freeze condition applies.
+  A new box opens now.
