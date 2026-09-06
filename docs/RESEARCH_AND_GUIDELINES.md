@@ -4735,3 +4735,21 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   citations belong and its `text` field never lists or names which facts support it - closing the
   third shape without touching the first two. Not landed here: it needs the same live-verified
   care as item 7's own landing, in a fresh iteration with room for it.
+
+- **2026-09-06 16:26 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint.** Box
+  opened 15:57. `repository-presenter status`: `gate: G3_PYTHON_COHORT (READY)`, `work item:
+  G4-W17 (IN_PROGRESS)`, `candidates: 4/34`. Delta since the box opened: item 21 confirmed
+  resolved for its measured repository (Aspose.Slides for C++) as a direct consequence of item
+  19's earlier landing, live-verified against the exact revision lane B measured; one new defect
+  found and proposed via this section rather than landed under time pressure (a third
+  narration-leak shape - fact-ID syntax pasted into a unit's own prose as a citation list).
+  Everything remaining in the arrival list this loop has not yet closed - 16, 17, item 21's own
+  second half, and the newly-proposed narration fix - needs either a genuinely new repair
+  capability (16, 17, 21) or a live-verified prompt iteration with its own room to get the wording
+  right rather than being rushed at the tail of an already long run (the narration proposal, the
+  same discipline item 7's landing already used). Items 22-26 are lane D's and the reviewer's own
+  concurrent thread (`e147cd8`, `fd51bb7`, `5a794c7` above), not idle. This is a natural point to
+  slow this loop's cadence rather than reach for a harder item on momentum alone: fourteen items
+  landed and three declined with evidence since promotion at 10:50, one new sealed candidate, and
+  every fix live-verified against the real repository its evidence named where a live check was
+  possible. A new box opens now, at a longer interval.
