@@ -5119,3 +5119,40 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   All 17 pre-existing planning tests pass unchanged. Full suite green, ruff/mypy clean, before this
   entry. Resume predicate: re-run `present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Java` - this
   was its only named blocker.
+
+- **2026-09-06 23:27 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 33, first half
+  (F05) landed; second half (F07) honestly not landed - no verbatim quote survived to build a
+  grounded fix.** Both of `aspose-slides-foss/Aspose.Slides-FOSS-for-Java`'s blocking findings
+  (`review/independent/review.py`'s `presentation_defect`) objected to deterministic,
+  renderer-owned structure, and each was routed to authoring, which cannot change it [lane C,
+  Slides Java, BC-10 `REJECT_PRESENTATION`, only blocker]. **F05** (`additional_examples`) quoted
+  `renderer.py`'s own `ADDITIONAL_EXAMPLES_SUMMARY` text ("View Additional Examples") exactly,
+  calling the collapsible `<details>`/`<summary>` wrapper "unnecessary UI"; routed to authoring's
+  `additional_examples` unit, the re-ask rewrote the unit's own prose and left the renderer's
+  wrapper - and the finding - unchanged. `additional_examples` and `api_reference` are mixed-owned
+  (`M`) sections, so they were never wholesale-exempted by the existing `_DETERMINISTIC_SECTIONS`
+  check, and the quote carries no leading `#` so `_quoted_heading` missed it too - a real section
+  of a mixed section can be exactly as deterministic as a heading. Fix: a new `_quoted_chrome`
+  exact-matches a finding's quote against `_RENDERED_CHROME` (`ADDITIONAL_EXAMPLES_SUMMARY` and
+  `API_SURFACE_SUMMARY`, both from `composition/renderer.py`), wired into `presentation_defect`
+  alongside `_quoted_heading` - same reasoning, same place, one more exact-match set. New test:
+  `test_a_presentation_finding_against_a_collapsible_sections_chrome_is_the_reviewers_defect`
+  reproduces the exact quote and confirms genuine prose in the same section still stands (the
+  mutation guarding against a blanket section-wide exemption, which would wrongly silence a real
+  defect in the unit's own words). **F07** (`scope_limitations`) objected to "the semantic shell's
+  separate enterprise section" per the lane's own receipt (`evidence/build/lanes/lane-c/
+  G4-W12-RERUN.json` line 56) - almost certainly the deterministic Enterprise cross-reference
+  sentence README_CONTRACT.md row 18 requires inside Scope and Limitations
+  (`renderer.py::_enterprise_paragraph`, "These limitations don't apply to ... Enterprise
+  Edition"), the same class as F05 one level over. Not landed: no `review.json` survived from that
+  run (it lived only in the disposable `runs/` tree) and no verbatim `quote` field is in the
+  receipt, only the section_id and a paraphrase - and `_enterprise_paragraph`'s sentence
+  interpolates the live product name and target URL, so it cannot be exact-matched the way
+  `_RENDERED_CHROME` is; a template/regex match built on a paraphrase risks missing the real quote
+  entirely or, worse, matching something it should not, and I would rather land nothing than land
+  a guess against invented data (loop-prompt.md rule 12). Full suite green, ruff/mypy clean, before
+  this entry (24 pre-existing review tests pass unchanged). `unblocked.jsonl`'s line for this entry
+  is `"unlocks": []` - F07 still blocks Slides Java on its own, so this half does not unblock the
+  repository by itself. Resume predicate: F07 needs a fresh Slides Java run with `review.json`
+  preserved (not cleaned up) so its real `quote`/`section_id` fields can ground a fix; F05 alone
+  will not seal this repository.

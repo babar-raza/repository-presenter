@@ -24,6 +24,10 @@ from repository_presenter.components.readme.composition.components.shell import 
     SUBSECTION_HEADINGS,
     section_ids,
 )
+from repository_presenter.components.readme.composition.renderer import (
+    ADDITIONAL_EXAMPLES_SUMMARY,
+    API_SURFACE_SUMMARY,
+)
 from repository_presenter.components.readme.repair.targeted import defect_fingerprint
 from repository_presenter.core.facts import FACT_KINDS, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest
@@ -308,6 +312,14 @@ def presentation_defect(finding: Mapping[str, Any]) -> str | None:
     Aspose.Cells by one calling the ``#### Detailed Member Reference`` block, which contract row
     14 requires, too verbose; the repair loop answered both with *section structure is
     deterministic; its blocks change only when facts change*.
+
+    A collapsible section's own wrapper is the same case again, one level lower: the ``<details>``
+    /``<summary>`` chrome around Additional Examples and the API surface is the renderer's, not a
+    unit's, even though the section itself is mixed-owned and so is never wholesale exempted above
+    (G4-W17 arrival item 33). Measured 2026-09-06 on Aspose.Slides for Java: a finding quoted
+    ``ADDITIONAL_EXAMPLES_SUMMARY`` exactly, calling the collapsible structure "unnecessary UI";
+    routed to authoring's ``additional_examples`` unit, the re-ask rewrote the unit's own prose and
+    left the renderer's wrapper - and the finding - unchanged.
     """
     if finding.get("criterion") != "presentation":
         return None
@@ -322,6 +334,11 @@ def presentation_defect(finding: Mapping[str, Any]) -> str | None:
         return (
             f"the quote is the heading {_quoted_heading(finding)!r}, which the renderer emits "
             "because the contract's shell requires it; no unit wrote it and none can change it"
+        )
+    if _quoted_chrome(finding):
+        return (
+            f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-summary "
+            "text; no unit wrote it and none can change it"
         )
     if section not in _DETERMINISTIC_SECTIONS:
         return None
@@ -339,6 +356,18 @@ def _quoted_heading(finding: Mapping[str, Any]) -> str | None:
         return None
     text = quote.lstrip("#").strip()
     return text if text in _RENDERED_HEADINGS else None
+
+
+# The renderer's own collapsible-details summary text (README_CONTRACT.md rows 12 and 14, the
+# "collapsible" visibility): unlike a heading it carries no leading '#', so it needs its own exact
+# match rather than _quoted_heading's.
+_RENDERED_CHROME = frozenset({ADDITIONAL_EXAMPLES_SUMMARY, API_SURFACE_SUMMARY})
+
+
+def _quoted_chrome(finding: Mapping[str, Any]) -> str | None:
+    """The renderer's own collapsible-summary text a finding quotes and nothing else, or None."""
+    quote = str(finding.get("quote", "")).strip()
+    return quote if quote in _RENDERED_CHROME else None
 
 
 # At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,

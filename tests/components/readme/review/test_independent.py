@@ -9,6 +9,9 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.composition.renderer import (
+    ADDITIONAL_EXAMPLES_SUMMARY,
+)
 from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
@@ -743,6 +746,37 @@ def test_a_presentation_finding_against_the_documents_own_shape_is_the_reviewers
     # A structural finding that is not a presentation judgment keeps its own route.
     factual = _finding("F10", "structure", "S6", "It writes `.glb` files.")
     assert scope_defect(factual, CANDIDATE, by_id) is None
+
+
+def test_a_presentation_finding_against_a_collapsible_sections_chrome_is_the_reviewers_defect() -> (
+    None
+):
+    """G4-W17 arrival item 33. `additional_examples` and `api_reference` are mixed-owned (an `M`
+    section), so they are never wholesale exempted like a `D` section - but the `<details>`/
+    `<summary>` wrapper the renderer puts around them is exactly as deterministic as a heading.
+
+    Measured 2026-09-06 on Aspose.Slides for Java: a finding quoted `ADDITIONAL_EXAMPLES_SUMMARY`
+    ("View Additional Examples") exactly, calling the collapsible structure "unnecessary UI" not
+    present in the original README. Routed to authoring's `additional_examples` unit (the only
+    LLM-owned content in that section), the re-ask rewrote the unit's own prose and left the
+    renderer's wrapper - and the finding - unchanged, the same shape as the heading and structural
+    cases above.
+    """
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    chrome = {
+        **_finding("F05", "additional_examples", "S6", ADDITIONAL_EXAMPLES_SUMMARY),
+        "criterion": "presentation",
+    }
+    assert scope_defect(chrome, CANDIDATE, by_id) == (
+        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-summary "
+        "text; no unit wrote it and none can change it"
+    )
+    # Mutation: the unit's own prose in the same section still stands.
+    prose = {
+        **_finding("F06", "additional_examples", "S6", "Shows how to merge two documents."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(prose, CANDIDATE, by_id) is None
 
 
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:
