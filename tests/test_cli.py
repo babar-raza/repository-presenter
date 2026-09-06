@@ -25,6 +25,7 @@ from repository_presenter.core.errors import GitSafetyError
 from repository_presenter.core.git_safety.clone import ReadOnlyClone, pinned_read_only_clone
 from repository_presenter.core.git_safety.verify import PushBlockProof
 from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.retry import RetryableOperationError
 from support import (
     REPO_ROOT,
     commit_all,
@@ -2240,3 +2241,30 @@ def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_cand
     # A presentation failure never invalidates: the proven candidate stands as sealed.
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "READY_FOR_PROPOSAL" and "invalidated" not in manifest
+
+
+def test_an_exhausted_retry_is_reported_cleanly_and_never_as_a_traceback(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G4-W17 arrival item 35. ``run_with_retry`` re-raises the last
+    ``RetryableOperationError`` once a policy's attempts are spent, and no stage between the job
+    boundary and the CLI typed it: three ``source_reconciliation`` timeouts against the gateway
+    ended ``present`` with a bare Python traceback on stderr rather than the
+    ``repository-presenter: ...`` line every other failure prints (measured twice on
+    aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-09-06)."""
+
+    def exhausted(*args: Any, **kwargs: Any) -> None:
+        raise RetryableOperationError("timeout")
+
+    monkeypatch.setattr(cli, "run_transaction", exhausted)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_INCONSISTENT
+    assert captured.err.splitlines() == [
+        "repository-presenter: the gateway did not answer after the bounded retries: timeout"
+    ]
+    assert "Traceback" not in captured.err
