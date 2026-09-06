@@ -22,10 +22,14 @@ toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
-  sealed_by_lane: 0
-  dispositions_by_lane: 4
-  candidates_on_main_after_merge: 2
-  note: 'G4-W12 closed its box with the Java spec, plugin and javac verifier in and every predicate green: 38,604 facts and 38,021 public symbols read from the four repositories with no provider call, 25 of 30 README examples compiled against the products'' own classes. Nothing sealed, and no failure is the ecosystem module''s - one shared facade limitation blocks all four (extractors/surface/registry.py cannot carry a Maven coordinate, so no Java install fact can be SUPPORTED). 3D and Cells die at S4 because Installation then renders nothing; Slides and PDF reach a complete rendered README and die at S9 on BC-02. All four dispositions and seven PROPOSALs are in docs/RESEARCH_LANE_C.md and evidence/build/lanes/lane-c/G4-W12.json.'
+  sealed_by_lane: 1
+  dispositions_by_lane: 3
+  candidates_on_disk_after_reseal: 5
+  note: 'Re-run of all four G4-W12 dispositions on 2026-09-06 after G4-W17 items 8, 9 and 12 landed at 14:46 (evidence/build/lanes/lane-c/G4-W12-RERUN.json). Item 12 reached every repository - install_command:maven is SUPPORTED from a live repo1.maven.org probe for all four - and by itself sealed none: BC-02 also asks the install fact for a manifest reading, and this lane''s own evidence sentence said "declared by the POM" where go, net, rust and typescript all say "manifest". With that conformed, and with Javadoc rendered as prose before it becomes a fact attribute, aspose-pdf-foss/Aspose.PDF-FOSS-for-Java is SEALED and no-op proven (11 of 11 checks, review ACCEPT, zero advisories) - lane C''s first seal and the portfolio''s first Java candidate. The other three each advanced a stage and each now stops on a different single check, no two sharing a cause: Slides at S10 on BC-10 REJECT_PRESENTATION over renderer-owned structure (PROPOSAL L); Cells at S9 on BC-07 internal narration ''validator'' over its own public WorkbookValidator type, which is G4-W17 arrival item (22) confirmed in a second ecosystem; 3D at S9 on BC-06''s Aspose-link ceiling, which a VERIFIED_MOVE unit''s own links breach and no re-plan can withdraw (PROPOSAL J). Old progress for the record: G4-W12 closed its box with nothing sealed and four dispositions, all naming PROPOSAL A (item 12) as their resume predicate.'
+  earlier:
+    sealed_by_lane: 0
+    dispositions_by_lane: 4
+    candidates_on_main_after_merge: 2
 toolchains_used:
   javac: C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11)
   maven: C:/tools/apache-maven-3.9.16/bin/mvn.CMD (3.9.16) - resolved, and not needed - every declared dependency of all four POMs is test scope, so the verifier is offline by construction and no local repository was created

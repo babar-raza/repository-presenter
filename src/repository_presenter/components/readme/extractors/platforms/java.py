@@ -43,11 +43,15 @@ JAVA: Final = EcosystemSpec(
     fence="java",
     registry="Maven Central",
     install_fact_id="install_command:maven",
-    # No version badge: shields.io's Maven Central endpoint takes the group and the artifact as
-    # two path segments, and `EcosystemSpec.badge` formats a single `{package}` - so the only
-    # template that would fit needs `package:name` to be `group/artifact`, which is not the
-    # coordinate a Java reader writes. An empty template prints nothing, which is honest
-    # (docs/RESEARCH_LANE_C.md, PROPOSAL 2026-09-06 B).
+    # Still no version badge, but for a different reason than before: G4-W17 item 13 gave
+    # `badge()` the `{group}`/`{artifact}` pair the shields.io *image* URL needs
+    # (`img.shields.io/maven-central/v/org.aspose/aspose-3d-foss.svg`, live 200), so half the
+    # gap PROPOSAL B named is closed. What is left is the badge's *landing* URL: the upstream
+    # READMEs point it at `repo1.maven.org/maven2/<group as a path>/<artifact>/`, and no token
+    # `badge()` offers renders a dotted group as a path, while the one-token alternative
+    # (`central.sonatype.com/artifact/{group}/{artifact}`, also live 200) is neither a
+    # `link_target` fact nor a `_RENDERER_HOSTS` entry, so BC-06 rejects it as an unverified
+    # target. Measured 2026-09-06; PROPOSAL I in docs/RESEARCH_LANE_C.md.
     version_badge="",
     # A javac run compiles the product sources the snippet reaches, not just the snippet, so it
     # pays for the library's own compilation once per example; the ceiling in core.execution
@@ -235,6 +239,95 @@ def _coordinate(identity: PackageIdentity) -> str:
     return f"{group}:{artifact}" if group else artifact
 
 
+_INLINE_TAG_OPEN = re.compile(r"\{@(\w+)\s*")
+# Only the tags that are presentation and nothing else are removed with their text position.
+# Everything else in angle brackets keeps its word: Aspose.PDF's Javadoc describes XFA, whose
+# element names (`<xfa:datasets>`, `<pageSet>`, `<caption>`, `<value>`) are the subject of the
+# sentence, and deleting them would leave "The packet wrapper." saying nothing.
+_FORMATTING = (
+    "a|b|i|u|s|em|strong|code|tt|pre|p|br|hr|span|div|font|center|small|big|sup|sub"
+    "|ul|ol|li|dl|dt|dd|table|thead|tbody|tfoot|tr|td|th|blockquote|cite|var|kbd|samp"
+    "|h1|h2|h3|h4|h5|h6"
+)
+_HTML_TAG = re.compile(rf"</(?:[A-Za-z][^<>]*)>|<(?:{_FORMATTING})\b[^<>]*>", re.IGNORECASE)
+_ANGLED = re.compile(r"<([^<>]+)>")
+_ENTITIES = (
+    ("&lt;", "<"),
+    ("&gt;", ">"),
+    ("&quot;", '"'),
+    ("&apos;", "'"),
+    ("&nbsp;", " "),
+    ("&#39;", "'"),
+    ("&amp;", "&"),
+)
+
+
+def _javadoc_prose(doc: str) -> str:
+    """A Javadoc comment as the plain prose the API Reference table renders.
+
+    Javadoc is not Markdown, and the renderer's table cell is prose: `_symbol_description`
+    strips backticks outright (a docstring is the source's spelling, not the document's), so a
+    code span cannot be the escape hatch here and the markup has to go rather than be requoted.
+    Measured 2026-09-06 on Aspose.PDF for Java: 104 `{@code ...}`/`{@link ...}` tags reached the
+    rendered table verbatim ("Represents a collection of {@link Artifact} objects"), along with
+    raw HTML ("the text <b>and images</b>") and `&quot;` entities - and one docstring,
+    `Datasets`'s `The {@code <xfa:datasets>} packet wrapper.`, put bare angle brackets around a
+    colon-qualified name, which CommonMark reads as an autolink: BC-06 then failed the whole
+    candidate at EXTRACTING with `xfa:datasets: tree does not contain datasets`, at a stage no
+    repair can act on. Six of PDF's docstrings carry `<xfa:data>` and a dozen more carry other
+    `<element>` names, so which symbol the plan happens to pick decides whether the transaction
+    survives - the brackets are dropped for every one of them, not just the one that broke.
+    """
+    text = doc
+    for entity, character in _ENTITIES:
+        text = text.replace(entity, character)
+    # `{@code X}`, `{@literal X}` and `{@value X}` are their own argument; `{@link ref label}`
+    # and `{@linkplain ref label}` read as the label when they carry one, else the reference
+    # with Javadoc's `#` member separator written the way a caller writes it; `{@inheritDoc}`
+    # and `{@docRoot}` carry no text at all. An unknown tag keeps its argument and loses only
+    # the braces, which is the conservative reading for a tag this cohort has not met.
+    text = _resolve_inline_tags(text)
+    text = _HTML_TAG.sub(" ", text)
+    text = _ANGLED.sub(r"\1", text)
+    # A removed tag leaves the space it stood in, which reads as "docs ." before punctuation.
+    return re.sub(r"\s+([.,;:)\]])", r"\1", " ".join(text.split()))
+
+
+def _resolve_inline_tags(text: str) -> str:
+    """Replace every `{@tag ...}` with its own text, innermost brace counted.
+
+    A regex over `[^{}]*` cannot do this: Aspose.PDF's Javascript-AST types document themselves
+    with `{@code { k: v, ... }}` and `{@code try { } catch (p) { } finally { }}`, whose argument
+    is braces all the way down, and the vendored engine hands over the docstring's *first line*
+    only - so six of them arrive already cut mid-tag (`{@code {...`). A scan closes what it can
+    and treats an unterminated tag as running to the end of the line, which is the only reading
+    left once the closing brace is on a line the extractor did not keep.
+    """
+    out: list[str] = []
+    index = 0
+    while (match := _INLINE_TAG_OPEN.search(text, index)) is not None:
+        out.append(text[index : match.start()])
+        depth, cursor = 1, match.end()
+        while cursor < len(text) and depth:
+            depth += (text[cursor] == "{") - (text[cursor] == "}")
+            cursor += 1
+        argument = text[match.end() : cursor - 1 if depth == 0 else len(text)]
+        out.append(_inline_tag_text(match.group(1), argument))
+        index = cursor
+    out.append(text[index:])
+    return "".join(out)
+
+
+def _inline_tag_text(tag: str, raw: str) -> str:
+    argument = _resolve_inline_tags(raw).strip()
+    if tag in {"inheritDoc", "docRoot"}:
+        return ""
+    if tag in {"link", "linkplain"}:
+        reference, _, label = argument.partition(" ")
+        return label.strip() or reference.lstrip("#").replace("#", ".")
+    return argument
+
+
 class JavaPlugin:
     """What the facts stage asks of Java."""
 
@@ -296,7 +389,18 @@ class JavaPlugin:
                     fact_id("install_command", "maven"),
                     "install_command",
                     f"mvn dependency:get -Dartifact={artifact}",
-                    (Evidence(where, "install command for the coordinate declared by the POM"),),
+                    # "the manifest", not "the POM": BC-02 reads the install fact's own evidence
+                    # for the manifest's identity reading beside the registry's, and every other
+                    # ecosystem's plugin says "manifest" (go, net, rust, typescript). Naming the
+                    # file by its ecosystem nickname alone left the coordinate's own manifest
+                    # reading invisible to the check - measured 2026-09-06 on all four Java
+                    # repositories, which reached S9 with the registry half already SUPPORTED.
+                    (
+                        Evidence(
+                            where,
+                            "install command for the coordinate the `pom.xml` manifest declares",
+                        ),
+                    ),
                     polarity="UNRESOLVED",
                     confidence=0.5,
                 )
@@ -325,6 +429,11 @@ class JavaPlugin:
                             else "Java release declared by the build",
                         ),
                     ),
+                    # G4-W17 arrival item 14 (this lane's PROPOSAL C) landed the per-fact
+                    # override the spec's ecosystem-wide `maven.compiler` family cannot express:
+                    # this POM's own property, so the rendered parenthetical cites what this
+                    # repository declares rather than a family three of the four do not.
+                    attributes={"floor_declaration": declaration} if declaration else None,
                 )
             )
         facts.extend(_dependency_facts(pom, where))
@@ -365,7 +474,10 @@ class JavaPlugin:
             if symbol.signature:
                 attributes["signature"] = symbol.signature
             if symbol.doc:
-                attributes["docstring"] = symbol.doc
+                # Javadoc, not Markdown, and not prose either until its tags are resolved.
+                prose = _javadoc_prose(symbol.doc)
+                if prose:
+                    attributes["docstring"] = prose
             facts.append(
                 Fact(
                     fact_id("public_symbol", symbol.fact_slug),
@@ -386,11 +498,14 @@ class JavaPlugin:
         """Resolve the install claim against Maven Central; the fact keeps its ID, gains evidence.
 
         The shared probe reads `repo1.maven.org`'s `maven-metadata.xml`, never
-        `search.maven.org` (§29.6 E3) - but `observe` carries only a package *name*, and that
-        metadata path is built from the group and the artifact id separately, so the reading comes
-        back inconclusive for every Java package. The evidence says exactly that rather than
-        borrowing the façade's "answered ambiguously", which would claim a read that never
-        happened (docs/RESEARCH_LANE_C.md, PROPOSAL 2026-09-06 A).
+        `search.maven.org` (§29.6 E3). `observe` once carried only a package *name* while that
+        metadata path is built from the group and the artifact id separately, so no read ever
+        happened for a Java package (docs/RESEARCH_LANE_C.md, PROPOSAL 2026-09-06 A); G4-W17
+        arrival item 12 landed the split on 2026-09-06 and the reading is live - measured the
+        same day, all four repositories come back SUPPORTED from
+        `repo1.maven.org/maven2/org/aspose/<artifact>/maven-metadata.xml`. The inconclusive
+        branch below keeps saying what did not happen rather than borrowing the façade's
+        "answered ambiguously", which would claim a read that never happened.
         """
         by_id = {fact.id: fact for fact in facts}
         install = by_id.get(JAVA.install_fact_id)

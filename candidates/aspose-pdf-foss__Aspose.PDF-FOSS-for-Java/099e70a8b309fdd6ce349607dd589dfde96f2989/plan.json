@@ -1,0 +1,279 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008",
+    "example:009"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.pdf"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose.pdf"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and edit PDF content",
+      "Extract text and images",
+      "Work with AcroForm fields",
+      "Configure widget annotation appearance",
+      "Optimize and secure documents",
+      "Convert and validate PDF/A",
+      "Render pages to images",
+      "Manage document structure"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:005"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Create and edit PDF content"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "shared_fact_ids": [],
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "shared_fact_ids": [],
+      "title": "Work with AcroForm fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "example:009"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Configure widget annotation appearance"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Optimize and secure documents"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Convert and validate PDF/A"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Render pages to images"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Manage document structure"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "install_command:maven",
+        "package:version"
+      ],
+      "section_id": "installation",
+      "text": "The Maven and Gradle dependency versions in the inherited README (26.6.0) contradict the verified version 26.8.0."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "section_id": "installation",
+      "text": "The 'build from source' paragraph and code block are omitted because no supporting facts about building from source exist."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "section_id": "api_reference",
+      "text": "The inherited README claims 1026 public types and includes extensive tables for Core API, Annotations, Devices, Drawing, Engine, Facades, Forms, HTML, Logicalstructure, Operators, Optimization, Printing, Security, Tagged, Text, and Detailed Member Reference sections. None of these tables or the 1026-count claim are supported by facts, so they are omitted."
+    }
+  ],
+  "flagship_example_id": "example:006",
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:037",
+      "section_id": "scope_limitations"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:127.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:127.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:129.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:129.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

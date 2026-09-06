@@ -1,0 +1,83 @@
+[
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*, org.aspose.pdf.Cell, org.aspose.pdf.Document, org.aspose.pdf.Page, org.aspose.pdf.forms.RadioButtonOptionField",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*, org.aspose.pdf.Document, org.aspose.pdf.Page, org.aspose.pdf.annotations.WidgetAnnotation",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

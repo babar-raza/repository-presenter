@@ -1,0 +1,207 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "dependency:none",
+      "inherited_unit:004.paragraph"
+    ],
+    "text": "Java developers building server-side or desktop applications that require PDF document generation, manipulation, and extraction without third-party runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:005"
+      ],
+      "text": "Build pages from scratch using Document, Page, Paragraphs, and objects like TextFragment, Table, Cell, and WidgetAnnotation.",
+      "title": "Create and edit PDF content"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "Use TextAbsorber to extract plain text and iterate Resources.getImages() to extract XImage objects from pages.",
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007"
+      ],
+      "text": "Access and modify form fields such as TextBoxField and RadioButtonOptionField through the Form API.",
+      "title": "Work with AcroForm fields"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "example:009"
+      ],
+      "text": "Set and read border color, background color, and border style for annotations like WidgetAnnotation and RadioButtonOptionField.",
+      "title": "Configure widget annotation appearance"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Reduce file size with optimizeResources() and apply encryption or digital signatures using AES/RC4 and PKCS#7.",
+      "title": "Optimize and secure documents"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Validate and convert documents to PDF/A-1 through PDF/A-4 using PdfAValidator and PdfAConverter.",
+      "title": "Convert and validate PDF/A"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Export PDF pages to raster formats such as BMP, GIF, JPEG, PNG, and multi-page TIFF using device classes.",
+      "title": "Render pages to images"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Build and inspect tagged PDF structure trees and outline bookmarks using TaggedContent and OutlineItemCollection.",
+      "title": "Manage document structure"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:127.list"
+      ],
+      "text": "OCR functionality is not included; dedicated OCR libraries must be used for text recognition in scanned images."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:127.list"
+      ],
+      "text": "Conversion to non-PDF formats other than HTML/XML is not supported; DOCX, XLSX, PPTX, EPUB, and similar are out of scope."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:127.list"
+      ],
+      "text": "Full XFA form rendering is not reproduced; XFA data can be flattened to AcroForm but dynamic layout is not rendered."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:129.list"
+      ],
+      "text": "PdfFileSecurity.setAllowExceptions throws UnsupportedOperationException; the legacy AllowExceptions=false path is not implemented."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:129.list"
+      ],
+      "text": "Text replacement with non-Latin scripts may differ from a reference renderer due to limited bidirectional reordering and shaping."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:129.list"
+      ],
+      "text": "Resource optimization supports basic stream recompression but advanced strategies like image downsampling and font merging are limited."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006"
+      ],
+      "text": "Enables programmatic creation and editing of PDF documents including text, tables, forms, annotations, and images using a consistent object model."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004"
+      ],
+      "text": "Supports extraction of plain text and images from existing PDFs via absorber and resource APIs."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009"
+      ],
+      "text": "Provides form field population and interaction with AcroForm widgets such as text boxes and radio button options."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Offers document optimization, PDF/A validation/conversion, encryption, and digital signing capabilities."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "license:spdx",
+      "package:name",
+      "package:version",
+      "package:java_release"
+    ],
+    "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents compliant with ISO 32000-1:2008."
+  },
+  "uncertainties": [
+    "The exact set of public symbols beyond org, org.aspose, and org.aspose.pdf is not fully enumerated in facts.",
+    "Support for public-key-encrypted PDFs via ICustomSecurityHandler is mentioned but no concrete usage example is provided in facts.",
+    "Coverage for building fully well-formed tagged PDF structure trees is described as partial but specific gaps are not detailed in facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:005"
+      ],
+      "name": "Create PDF from scratch",
+      "text": "Instantiate a Document, add a Page, insert TextFragment or WidgetAnnotation objects, and save to disk."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Extract text from PDF",
+      "text": "Load a Document, create a TextAbsorber, accept it on pages, and retrieve extracted text as a String."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "name": "Extract images from PDF",
+      "text": "Iterate over XImage objects in a page's Resources collection and save each to a file stream."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "name": "Populate form fields",
+      "text": "Load a Document, access Form via getForm(), retrieve fields by name, set values, and save the filled form."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "example:008",
+        "example:009"
+      ],
+      "name": "Build interactive form widgets",
+      "text": "Create WidgetAnnotation or RadioButtonOptionField instances with a Rectangle, add them to a Page or Cell, and configure characteristics such as border color or style."
+    }
+  ]
+}
