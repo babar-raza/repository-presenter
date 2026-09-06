@@ -26,7 +26,23 @@ OWNER_ITEM = "OWNER-02"
 RESUME_PREDICATE = (
     f"{ENDPOINT_VARIABLE} and {API_KEY_VARIABLE} are present in the process environment"
 )
-DEFAULT_TIMEOUT_SECONDS = 360.0
+# One request's total budget at the gateway, from this session's own ledger records rather than
+# from an estimate (G4-W17 arrival item 35). A least-squares fit over the 783 successful provider
+# calls in ``candidates/*/calls.jsonl`` and ``runs/transactions/*/*/calls.jsonl`` on 2026-09-06 is
+# ``latency_ms = 0.090 * prompt_tokens + 18.67 * completion_tokens + 689``: latency is governed by
+# the tokens generated, not by the packet read. The longest call that *succeeded* took 355.4 s
+# (Aspose.PDF for .NET, 67,468 prompt and 15,828 completion tokens) - 98.7% of the old 360 s
+# ceiling - and nine calls timed out against it across three repositories (Aspose.PDF for
+# TypeScript six times, Aspose.Cells for C++ twice, Aspose.PDF for .NET once), every one of them
+# ``source_reconciliation``. The old ceiling also silently contradicted the prompt manifests: at
+# the measured rate, ``source_reconciliation``'s declared ``max_output_tokens: 32000`` needs 597 s
+# of generation alone, so 360 s capped a job's reachable output near 18,900 tokens - well under
+# the budget its own manifest grants it. The largest declared budget, taken with the largest
+# prompt any job has measured (81,792 tokens), projects to 606 s; this value clears that with
+# headroom, the threshold rule (RESEARCH_AND_GUIDELINES.md section 27.10 follow-up 3) that
+# ``SYMBOL_CAP`` and ``UNIT_CAP`` already used. ``tests/core/test_config.py`` holds those figures
+# as a fast regression control, so a future oversized budget fails a test rather than a job.
+DEFAULT_TIMEOUT_SECONDS = 900.0
 
 
 @dataclass(frozen=True)

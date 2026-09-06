@@ -77,7 +77,7 @@ from repository_presenter.core.candidates import (
     count_current_candidates,
 )
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
-from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.errors import JobError, PresenterError
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -107,6 +107,7 @@ from repository_presenter.core.registry.loader import (
     require_listed,
 )
 from repository_presenter.core.registry.models import RegistryEntry
+from repository_presenter.core.retry import RetryableOperationError
 from repository_presenter.core.secrets import configured_secrets, find_secret_leaks, redact
 from repository_presenter.core.snapshot.capture import (
     capture_snapshot,
@@ -431,9 +432,10 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
                 secrets=configured_secrets(os.environ),
             )
         )
-    except PresenterError as exc:
-        _fail(redact(str(exc), live_values))
-        return exc.exit_code
+    except (PresenterError, RetryableOperationError) as exc:
+        failure = _typed(exc)
+        _fail(redact(str(failure), live_values))
+        return failure.exit_code
     _print_round(root, transaction, final)
     print(f"repair: {repairs.summary()}; rounds {rounds}")
     failed = blocking_failures(final.validation)
@@ -475,9 +477,10 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
                 earliest_affected_stage=evaluated["earliest_affected_stage"],
             )
         )
-    except PresenterError as exc:
-        _fail(redact(str(exc), live_values))
-        return exc.exit_code
+    except (PresenterError, RetryableOperationError) as exc:
+        failure = _typed(exc)
+        _fail(redact(str(failure), live_values))
+        return failure.exit_code
     print(
         f"bundle: {sealed.bundle.relative_to(root).as_posix()} (state {sealed.state}, "
         f"{len(sealed.files)} files, provider calls {ledger.provider_calls_made}; {sealed.note})"
@@ -553,6 +556,23 @@ def _resolve_root(root_argument: Path | None) -> Path | None:
         _fail(f"no {CURSOR_RELATIVE_PATH.as_posix()} under {root}")
         return None
     return root
+
+
+def _typed(exc: PresenterError | RetryableOperationError) -> PresenterError:
+    """Every failure this CLI reports is typed; an exhausted bounded retry becomes a JobError.
+
+    ``run_with_retry`` re-raises the last ``RetryableOperationError`` once a policy's attempts are
+    spent (``core/retry.py``), and the job boundary deliberately leaves it retryable rather than
+    converting it, so nothing between there and here typed it: ``present`` printed a bare Python
+    traceback instead of its usual ``repository-presenter: ...`` line whenever a job's three
+    attempts all timed out against the gateway (measured twice on
+    aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, 2026-09-06; G4-W17 arrival item 35). A
+    provider that never answered is exactly what ``JobError`` describes, so it carries that exit
+    code and reads like every other typed failure.
+    """
+    if isinstance(exc, PresenterError):
+        return exc
+    return JobError(f"the gateway did not answer after the bounded retries: {exc}")
 
 
 def _fail(message: str) -> None:
