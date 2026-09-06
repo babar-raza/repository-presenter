@@ -1,0 +1,143 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "implementation 'org.aspose:aspose-3d-foss:26.5.0'"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-3d-foss`, version 26.5.0):",
+      "repair": "Add the Gradle Groovy DSL snippet: `implementation 'org.aspose:aspose-3d-foss:26.5.0'` to match the original README and project configuration.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation section omits the Gradle Groovy DSL snippet that is present in the original README and supported by the project's build configuration."
+    },
+    {
+      "absent": [
+        "Required Package Dependencies"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "### Required Package Dependencies",
+      "repair": "Remove the 'Required Package Dependencies' subsection and retain the original concise dependency description: 'The library targets Java 21 and has no third-party runtime dependencies.'",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Required Package Dependencies', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The dependencies section introduces a new 'Required Package Dependencies' subsection that was not in the original README and misrepresents the dependency structure."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "id": "F03",
+      "quote": "The verified public surface has 266 types.",
+      "repair": "Correct the count to 195 public classes to match the original README and project facts.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API reference section claims the verified public surface has 266 types, contradicting the original README's 195 public classes and the project's actual API surface."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "| Class | Description |",
+      "repair": "Remove the exhaustive class table and retain only the concise summary of the public API surface as in the original README.",
+      "section_id": "api_reference",
+      "single_reader_advisory": true,
+      "text": "The API reference section includes an exhaustive class table with 266 entries that was not in the original README and adds no value beyond the deterministic section."
+    },
+    {
+      "absent": [
+        "UnsupportedOperationException",
+        "Scene.render",
+        "Camera.moveForward"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "These limitations don't apply to [Aspose.3D for Java — Enterprise Edition](https://products.aspose.com/3d/java/).",
+      "repair": "Add the explicit mention of `UnsupportedOperationException` for `Scene.render` and `Camera.moveForward` to match the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Camera.moveForward', 'Scene.render', 'UnsupportedOperationException', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The scope and limitations section omits the explicit mention of `UnsupportedOperationException` for `Scene.render` and `Camera.moveForward`, which is present in the original README."
+    },
+    {
+      "absent": [
+        "toMesh()",
+        "Pyramid",
+        "Torus",
+        "RectangularTorus",
+        "RevolvedAreaSolid",
+        "LinearExtrusion"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "These limitations don't apply to [Aspose.3D for Java — Enterprise Edition](https://products.aspose.com/3d/java/).",
+      "repair": "Add the explicit mention of `toMesh()` conversion not being implemented for `Pyramid`, `Torus`, `RectangularTorus`, `RevolvedAreaSolid`, and `LinearExtrusion` to match the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'LinearExtrusion', 'Pyramid', 'RectangularTorus', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The scope and limitations section omits the explicit mention of `toMesh()` conversion not being implemented for several parametric primitives, which is present in the original README."
+    },
+    {
+      "absent": [
+        "StlSaveOptions"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "Create a tetrahedron mesh programmatically and save it as an STL file without specifying an output format.",
+      "repair": "Add the explicit mention of `StlSaveOptions` to match the original README and project API.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'StlSaveOptions', which the candidate contains",
+      "section_id": "quick_start",
+      "text": "The quick start section omits the explicit mention of `StlSaveOptions`, which is present in the original README and supported by the project's API."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "da0302d3d9c654e1f3e74a3a24f5ca1bccce08eb546fba9d1ae0626b13b191dd",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "2b06bea189f3d0d28382df47",
+      "5b4af6802e28f2886ef081a2",
+      "7bf2dd6eda183d6293dbc405",
+      "949e03aa2a199c11ad781c51",
+      "dcdff0a647163c5adef33c0b"
+    ],
+    "read": true
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

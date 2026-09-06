@@ -1,0 +1,164 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:java_release",
+      "dependency:none",
+      "license:spdx"
+    ],
+    "text": "Java developers building 3D applications who need a free, open-source library for basic scene graph construction, mesh processing, and STL file I/O without licensing or runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007"
+      ],
+      "text": "Detects 3D file formats automatically from file paths or binary streams using `FileFormat.detect` and `FileFormat.getFormatByExtension`.",
+      "title": "Automatic format detection"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005"
+      ],
+      "text": "Builds and traverses scene graphs using `Scene`, `Node.createChildNode`, and `Mesh` with control points and polygons.",
+      "title": "Scene graph construction"
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008"
+      ],
+      "text": "Supports `LambertMaterial`, `PhongMaterial`, and `PbrMaterial` with configurable diffuse, ambient, specular, albedo, metallic, and roughness properties.",
+      "title": "Material system"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:com.aspose.threed"
+      ],
+      "text": "Reads and writes STL files in ASCII and binary formats using `StlLoadOptions` and `StlSaveOptions`.",
+      "title": "STL import and export"
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:com.aspose.threed"
+      ],
+      "text": "Provides `Vector2`, `Vector3`, `Vector4`, `Matrix4`, `BoundingBox`, and `Transform` classes for geometric calculations and node transformations.",
+      "title": "Math utilities"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:com.aspose.threed"
+      ],
+      "text": "Constructs and inspects `NurbsCurve` instances with degree, order, knot vectors, and control points.",
+      "title": "NURBS curve support"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "text": "Only STL import and export are fully functional; other format encoders are not wired up in this FOSS build."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "text": "Wavefront OBJ import does not currently work despite being format-detectable."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "text": "Draco encoding/decoding, `Scene.render`, and `Camera.moveForward` explicitly throw `UnsupportedOperationException`."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "text": "Some parametric primitives (`Pyramid`, `Torus`, `RectangularTorus`, `RevolvedAreaSolid`, `LinearExtrusion`) do not implement `toMesh()` conversion."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "example:002",
+        "example:004"
+      ],
+      "text": "Enables Java developers to programmatically build and manipulate 3D scene graphs using a familiar API without commercial licensing."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "public_symbol:com.aspose.threed"
+      ],
+      "text": "Provides automatic format detection and loading for STL files, supporting both ASCII and binary representations."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "inherited_unit:010.list"
+      ],
+      "text": "Supports construction of parameterized primitives and IFC-style profiles for 3D modeling workflows."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Aspose.3D FOSS for Java is a clean-room, open-source Java library implementing a subset of the Aspose.3D API for 3D scene graph manipulation, targeting Java 21 with no runtime dependencies."
+  },
+  "uncertainties": [
+    "The exact set of formats supported beyond STL is not fully specified beyond OBJ and STL mentions.",
+    "Whether `FileFormat` constants for non-STL formats (e.g., `WAVEFRONTOBJ`) are functional beyond detection is unclear.",
+    "The behavior of `Node` transform manipulation beyond `getTranslation`/`setTranslation` is not demonstrated in examples."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007"
+      ],
+      "name": "Load and re-export STL",
+      "text": "Load an STL file using `Scene.fromFile` or `Scene.open` with `FileFormat.getFormatByExtension`, then save it in ASCII or binary STL format using `scene.save` with `FileFormat.STLASCII` or `FileFormat.STL_BINARY`."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004"
+      ],
+      "name": "Build scene from scratch",
+      "text": "Create a `Scene`, add `Node` children with `Mesh` entities containing control points and polygons, then export to STL."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "name": "Inspect mesh properties",
+      "text": "Access `Mesh` objects via `Node.getEntities`, then query control point count and polygon count using `getControlPoints().size()` and `getPolygonCount()`."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008"
+      ],
+      "name": "Apply materials",
+      "text": "Create `LambertMaterial` or `PbrMaterial` instances with configurable colors, transparency, and reflection factors, then assign to scene entities."
+    }
+  ]
+}

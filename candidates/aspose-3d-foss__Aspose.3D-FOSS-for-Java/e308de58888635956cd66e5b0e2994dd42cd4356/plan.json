@@ -1,0 +1,270 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:005",
+    "example:007",
+    "example:008",
+    "example:009",
+    "example:010"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "symbol_fact_id": "public_symbol:com.aspose.threed"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Automatic format detection",
+      "Scene graph construction",
+      "Material system",
+      "STL import and export",
+      "Math utilities",
+      "NURBS curve support"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "example:007"
+      ],
+      "title": "Automatic format detection"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Scene graph construction"
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008"
+      ],
+      "shared_fact_ids": [
+        "example:007"
+      ],
+      "title": "Material system"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:com.aspose.threed"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "STL import and export"
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:com.aspose.threed"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "Math utilities"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:com.aspose.threed"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "title": "NURBS curve support"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "section_id": "installation",
+      "text": "Gradle Groovy DSL snippet is omitted because no fact supports it; only Maven is verified."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:010"
+      ],
+      "section_id": "additional_examples",
+      "text": "Examples for transform manipulation and explicit format save are omitted because they are CONTRADICTED by example:006 and lack verified support."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "section_id": "api_reference",
+      "text": "Detailed API tables and member references are omitted; the full surface is rendered by the deterministic api_reference section."
+    }
+  ],
+  "flagship_example_id": "example:004",
+  "links": [
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:033",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

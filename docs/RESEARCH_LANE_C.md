@@ -381,3 +381,37 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   documentation to satisfy a check, which is patching around the defect (§2) and would degrade
   every Java candidate. Resume predicate: PROPOSAL N merged on `main`, then re-run `present` for
   Cells Java. Reversal path: drop the `docstring` clause and the exemption is item 22's again.
+
+## Third re-run, 3D Java alone (2026-09-06 23:29, after G4-W17 item 32 landed at `63fbc2d`)
+
+- **2026-09-06 23:29 (`date` checked) · G4-W12 third re-run · PROPOSAL J is closed: item 32 is the
+  whole of what Aspose.3D for Java needed, and the candidate seals on the first pass.**
+  `aspose-3d-foss/Aspose.3D-FOSS-for-Java` at `e308de58` is **SEALED and no-op proven** — 10 of 10
+  blocking checks PASS with BC-06 among them, independent review `ACCEPT` with 0 findings and 7
+  presentation advisories, repair rounds 1 with nothing to repair, `README.md` 187 visible lines of
+  535, bundle state `READY_FOR_PROPOSAL`, 13 files. The immediate rerun in a fresh process
+  reproduced the README digest `da0302d3…`, the validation digest `e850a885…` and the review
+  digest `fdd39ae6…` byte for byte with **0 provider calls** (the sealing run made 28), and check
+  11 is judged. Lane C's second seal; the portfolio's second Java candidate; `repository-presenter
+  status` reads **7/34**.
+- **Why it cleared, checked against item 32's own claim rather than assumed.** BC-06 counts Aspose
+  links over the whole *rendered document*; item 16 had bounded only the plan's own `links` list.
+  `inherited_unit:043.paragraph` is a VERIFIED_MOVE placed into `documentation_resources` and
+  renders its own `docs.aspose.com/3d/` links verbatim — reconciliation's decision, which no
+  re-ask of planning can withdraw — so the plan could sit at its ceiling of 4 and the document
+  still count 5, with nothing left for a repair to trim. That was PROPOSAL J exactly. Item 32
+  (`composition/planning.py`, `plan_checks`) now sums the Aspose links inside every placement whose
+  outcome is `placed` and trims the plan's own list to `aspose_links_max` minus that count, so the
+  plan reserves headroom for what is already committed to render. Measured result: BC-06 PASS with
+  zero repair rounds spent on it, not a repair that finally succeeded.
+- **2026-09-06 23:29 · `project/state.yaml`'s `progress.current_candidates` 6 → 7, by recount.**
+  The narrow exception in `project/loop-prompt-lane.md` §0: `git fetch origin && git rebase
+  origin/main` first — the branch moved from `63fbc2d` to `8b93070`, picking up two lane-d records
+  landed meanwhile — then a fresh count of sealed bundles in that rebased tree (`status` reads
+  `7/34`; `candidates/` holds 7 directories). Never read-and-increment, which is the lost update
+  PROPOSAL M records. No other field or byte of `state.yaml` was touched.
+- **Java cohort, final state for this lane.** 2 of 4 sealed — PDF (`099e70a8`) and 3D
+  (`e308de58`). 2 dispositioned, each on exactly one named blocker: Cells on PROPOSAL N (BC-07
+  matching the repository's own Javadoc), Slides on item 33 / PROPOSAL L (BC-10 rejecting
+  renderer-owned structure). Both are one landed shared-code change away, and both predicates are
+  now precisely diagnosed rather than merely named.

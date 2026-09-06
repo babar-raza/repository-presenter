@@ -1,0 +1,1258 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "key_capabilities/capability:1",
+      "documentation_resources/link:link_target:033",
+      "enterprise_relationship/context"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:042.paragraph",
+      "reason": "The renderer already includes this paragraph verbatim; prose units must not repeat it.",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "build_test_asset:ci",
+      "reason": "The summary unit focuses on local build and test commands, not CI workflow assets.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "The summary unit focuses on build and test, not documentation assets.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "The repository name is not needed in the summary sentence, as the product name and artifact version already identify the project.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "The revision hash is not relevant to the build and test instructions in the summary.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "The family is implied by the product name and not needed in the summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "The ecosystem is implied by the Java target and not needed in the summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "The artifact name is not needed in the summary sentence; the version and Java target are sufficient to describe the build and test setup.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:java_release",
+        "license:spdx",
+        "dependency:none",
+        "public_symbol:com.aspose.threed",
+        "inherited_unit:010.list"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.3D FOSS for Java is a Java library that enables developers to read, create, and manipulate 3D scenes and geometry. It supports automatic format detection and explicit format resolution for file I/O, with full support for loading and saving STL files. Users can build scenes from scratch using primitives like Mesh, Box, and Cylinder, apply materials such as LambertMaterial and PbrMaterial, and work with mathematical utilities including Vector3 and Matrix4. The library is distributed under the MIT license, requires no external dependencies, and targets Java 21 runtime environments."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Detect a 3D file's format automatically or resolve an explicit format from a file path or binary stream using FileFormat.getFormatByExtension."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "example:005"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Build a scene graph from scratch using Scene, Node.createChildNode, and Mesh with control points and polygons."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "example:008"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Apply materials such as LambertMaterial and PbrMaterial with configurable diffuse and ambient colors, transparency, metallic factor, and roughness factor."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:com.aspose.threed"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Import and export STL files in ASCII or binary form using Scene.fromFile and FileFormat.STLASCII, with support for reading control points and polygon counts from loaded meshes."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:com.aspose.threed"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Use Vector3, Matrix4, and BoundingBox math utilities including static operations like Vector3.add and instance methods like dot and cross products."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:com.aspose.threed"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Work with NurbsCurve objects by setting order and inspecting degree, dimension, and curve type through CurveDimension and NurbsType."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Load an STL file and re-save it in ASCII STL format using the automatic format detection for input."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Create a tetrahedron mesh programmatically and save it as an STL file without specifying an output format."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The following examples demonstrate loading and inspecting scenes, building scene graphs, creating materials, constructing NURBS curves, and performing vector math using the package version 26.5.0 on Java 21."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Load an STL file from a stream and inspect mesh data."
+    },
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Create a child node in the scene graph and inspect its name and count."
+    },
+    {
+      "fact_ids": [
+        "example:007"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Create a Lambert material with custom diffuse, ambient, and transparency settings."
+    },
+    {
+      "fact_ids": [
+        "example:008"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Create a PBR material with albedo, metallic, and roughness properties."
+    },
+    {
+      "fact_ids": [
+        "example:009"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Construct a NURBS curve and inspect its degree, dimension, and type."
+    },
+    {
+      "fact_ids": [
+        "example:010"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:010",
+      "text": "Perform vector addition, dot product, and cross product with Vector3."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:com.aspose.threed"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.3D FOSS for Java provides the package at version 26.5.0 for Java 21, with com.aspose.threed as the root namespace for its 3D scene graph and file I/O APIs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:com.aspose.threed",
+      "text": "The com.aspose.threed namespace hosts the core 3D scene graph classes including Scene, Node, Entity, and primitive types like Box and Mesh, along with material classes such as LambertMaterial and PhongMaterial, and format-specific load and save options resolved via FileFormat."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.a3dobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.a3dobject",
+      "text": "A3DObject is the base class for all objects in Aspose.3D FOSS for Java that supports property management and naming."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.animationclip"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.animationclip",
+      "text": "AnimationClip represents a container for animation data that can be applied to 3D scenes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.arraylistadapter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.arraylistadapter",
+      "text": "ArrayListAdapter provides a wrapper to support list operations in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.assetinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.assetinfo",
+      "text": "AssetInfo holds metadata about a 3D file such as author, creation date, and application details."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.axis"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.axis",
+      "text": "Axis defines a single axis in 3D space with direction and magnitude."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.axissystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.axissystem",
+      "text": "AxisSystem specifies the coordinate system used in a 3D scene including axis orientation and handedness."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.camera"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.camera",
+      "text": "Camera represents a viewing device in a 3D scene that determines how the scene is projected onto a 2D surface."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.cancellation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.cancellation",
+      "text": "Cancellation provides a mechanism to signal and handle cancellation of long-running operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.colladasaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.colladasaveoptions",
+      "text": "ColladaSaveOptions controls how a 3D scene is exported to the COLLADA format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.colladatransformstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.colladatransformstyle",
+      "text": "ColladaTransformStyle specifies how transformation data is represented in COLLADA exports."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.coordinatesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.coordinatesystem",
+      "text": "CoordinateSystem defines the orientation and handedness of axes in a 3D coordinate system."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.cubeface"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.cubeface",
+      "text": "CubeFace identifies one of the six faces of a cube map texture."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.customobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.customobject",
+      "text": "CustomObject allows users to define and manage custom 3D objects within Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.deformer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.deformer",
+      "text": "Deformer represents an object that modifies the geometry of a mesh through vertex manipulation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.drawoperation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.drawoperation",
+      "text": "DrawOperation describes a single drawing command used during rendering of 3D geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.dummyfilesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.dummyfilesystem",
+      "text": "DummyFileSystem provides a minimal file system implementation for testing or embedded scenarios."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.entity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.entity",
+      "text": "Entity is a base class for all scene elements that can be rendered or manipulated in a 3D scene."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.exportexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.exportexception",
+      "text": "ExportException is thrown when an error occurs during the export of a 3D scene to a file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fmatrix4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fmatrix4",
+      "text": "FMatrix4 represents a 4x4 matrix of single-precision floating-point numbers used for transformations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fvector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fvector2",
+      "text": "FVector2 represents a 2D vector of single-precision floating-point numbers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fvector3"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fvector3",
+      "text": "FVector3 represents a 3D vector of single-precision floating-point numbers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fvector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fvector4",
+      "text": "FVector4 represents a 4D vector of single-precision floating-point numbers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.filecontenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.filecontenttype",
+      "text": "FileContentType specifies the MIME type of a file being loaded or saved in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fileformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fileformat",
+      "text": "FileFormat identifies a supported 3D file format and its properties for import or export operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.fileformattype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.fileformattype",
+      "text": "FileFormatType enumerates the different types of file formats supported by Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.geometry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.geometry",
+      "text": "Geometry encapsulates vertex and index data used to define the shape of a 3D object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.ibuffer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.ibuffer",
+      "text": "IBuffer is an interface for managing raw data buffers used in rendering pipelines."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.idescriptorset"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.idescriptorset",
+      "text": "IDescriptorSet defines a collection of resources used by a rendering pipeline stage."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.iindexbuffer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.iindexbuffer",
+      "text": "IIndexBuffer manages index data used to define the order of vertices in rendering operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.imeshconvertible"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.imeshconvertible",
+      "text": "IMeshConvertible is an interface that allows an object to be converted into mesh geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.inamedobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.inamedobject",
+      "text": "INamedObject is an interface for objects that can be assigned a unique name within a scene."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.ipipeline"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.ipipeline",
+      "text": "IPipeline defines the sequence of operations and resources used to render 3D content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.irenderqueue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.irenderqueue",
+      "text": "IRenderQueue manages a list of renderable items to be processed in a rendering pass."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.irendertarget"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.irendertarget",
+      "text": "IRenderTarget represents a destination where rendered output can be drawn, such as a window or texture."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.irendertexture"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.irendertexture",
+      "text": "IRenderTexture is a render target that writes output to a texture instead of a window."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.irenderwindow"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.irenderwindow",
+      "text": "IRenderWindow provides an interface for rendering content to a window on the screen."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.itextureunit"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.itextureunit",
+      "text": "ITextureUnit represents a single texture binding point in a rendering pipeline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.ivertexbuffer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.ivertexbuffer",
+      "text": "IVertexBuffer manages vertex data used for rendering 3D geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.imagerenderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.imagerenderoptions",
+      "text": "ImageRenderOptions controls how a 3D scene is rendered to an image file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.importexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.importexception",
+      "text": "ImportException is thrown when an error occurs during the import of a 3D file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.indexdatatype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.indexdatatype",
+      "text": "IndexDataType specifies the data type used for vertex indices in a mesh."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.interpolation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.interpolation",
+      "text": "Interpolation defines the method used to calculate values between keyframes during animation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.keyframe"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.keyframe",
+      "text": "KeyFrame represents a single keyframe in an animation curve, storing time, value, and tangent information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.light"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.light",
+      "text": "Light defines a light source in a scene, including properties such as color, intensity, and falloff."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.lighttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.lighttype",
+      "text": "LightType categorizes the kind of light source, such as point, directional, or spot light."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.localfilesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.localfilesystem",
+      "text": "LocalFileSystem provides file system access to the local file system for reading and writing assets."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.mappingmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.mappingmode",
+      "text": "MappingMode describes how texture coordinates are mapped onto a surface."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.matrix4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.matrix4",
+      "text": "Matrix4 represents a 4x4 transformation matrix used for 3D geometry operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.memoryfilesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.memoryfilesystem",
+      "text": "MemoryFileSystem provides an in-memory file system for temporary asset storage during processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.mesh"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.mesh",
+      "text": "Mesh defines the geometric structure of a 3D object, including vertices, normals, and faces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.microsoft3mfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.microsoft3mfsaveoptions",
+      "text": "Microsoft3MFSaveOptions configures settings for saving scenes to the Microsoft 3MF format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.node"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.node",
+      "text": "Node represents an element in the scene graph that can hold geometry, transforms, and properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.nurbsdirection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.nurbsdirection",
+      "text": "NurbsDirection specifies the parametric direction of a NURBS curve or surface."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.objloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.objloadoptions",
+      "text": "ObjLoadOptions provides configuration options for loading OBJ files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.objsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.objsaveoptions",
+      "text": "ObjSaveOptions provides configuration options for saving scenes to OBJ files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.parseexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.parseexception",
+      "text": "ParseException is thrown when an error occurs during parsing of a 3D file format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.plyloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.plyloadoptions",
+      "text": "PlyLoadOptions provides configuration options for loading PLY files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.plysaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.plysaveoptions",
+      "text": "PlySaveOptions provides configuration options for saving scenes to PLY files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.presetshaders"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.presetshaders",
+      "text": "PresetShaders contains predefined shader programs for common rendering scenarios."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.propertycollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.propertycollection",
+      "text": "PropertyCollection holds a set of named properties associated with a 3D object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.quaternion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.quaternion",
+      "text": "Quaternion represents a four-dimensional vector used to describe 3D rotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.referencemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.referencemode",
+      "text": "ReferenceMode determines how external references are handled during scene loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderfactory"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderfactory",
+      "text": "RenderFactory creates and manages rendering resources for the renderer."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderparameters"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderparameters",
+      "text": "RenderParameters specifies settings that control the rendering process."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderqueuegroupid"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderqueuegroupid",
+      "text": "RenderQueueGroupId identifies a group of render operations within the rendering pipeline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderresource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderresource",
+      "text": "RenderResource is the base class for all resources used during rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderstage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderstage",
+      "text": "RenderStage represents a distinct phase in the rendering pipeline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderstate",
+      "text": "RenderState encapsulates the current configuration of the rendering pipeline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderer",
+      "text": "Renderer executes the rendering process using configured resources and parameters."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.rendererexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.rendererexception",
+      "text": "RendererException is thrown when an error occurs during rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.renderervariablemanager"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.renderervariablemanager",
+      "text": "RendererVariableManager manages variables used by the renderer during rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.scene"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.scene",
+      "text": "Scene represents a complete 3D scene containing nodes, geometry, lights, and cameras."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.sceneobject"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.sceneobject",
+      "text": "SceneObject is the base class for all objects that can appear in a scene."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.shaderprogram"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.shaderprogram",
+      "text": "ShaderProgram defines a complete shader program composed of vertex and fragment shaders."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.shadersource"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.shadersource",
+      "text": "ShaderSource holds the source code for a shader program."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.struct"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.struct",
+      "text": "Struct represents a structured data container used in scene properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.texturedata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.texturedata",
+      "text": "TextureData stores the pixel data and metadata for a texture."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.texturemapping"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.texturemapping",
+      "text": "TextureMapping defines how a texture is applied to a surface."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.texturetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.texturetype",
+      "text": "TextureType specifies the kind of texture, such as diffuse, normal, or specular."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.transform"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.transform",
+      "text": "Transform encapsulates translation, rotation, and scale for positioning objects in 3D space."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vector2",
+      "text": "Vector2 represents a two-dimensional vector with floating-point components for 2D geometry operations in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vector3"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vector3",
+      "text": "Vector3 represents a three-dimensional vector with floating-point components for 3D geometry operations in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vector4",
+      "text": "Vector4 represents a four-dimensional vector with floating-point components for advanced 3D transformations in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.version"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.version",
+      "text": "Version provides version information about the Aspose.3D FOSS for Java library."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexdeclaration"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexdeclaration",
+      "text": "VertexDeclaration defines the structure of vertex data for mesh geometry in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementbinormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementbinormal",
+      "text": "VertexElementBinormal stores binormal data per vertex for lighting calculations in mesh geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementdoublestemplate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementdoublestemplate",
+      "text": "VertexElementDoublesTemplate provides a template for vertex elements containing double-precision floating-point values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementedgecrease"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementedgecrease",
+      "text": "VertexElementEdgeCrease stores edge crease values used for controlling subdivision surface behavior."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementfvector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementfvector",
+      "text": "VertexElementFVector stores floating-point vector data per vertex for custom vertex attributes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementhole"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementhole",
+      "text": "VertexElementHole identifies holes in polygonal geometry for rendering and processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementintstemplate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementintstemplate",
+      "text": "VertexElementIntsTemplate provides a template for vertex elements containing integer values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementmaterial"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementmaterial",
+      "text": "VertexElementMaterial assigns material indices to vertices for rendering with specific materials."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementnormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementnormal",
+      "text": "VertexElementNormal stores normal vectors per vertex for lighting calculations in mesh geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementpolygongroup"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementpolygongroup",
+      "text": "VertexElementPolygonGroup organizes polygons into logical groups for rendering and processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementsmoothinggroup"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementsmoothinggroup",
+      "text": "VertexElementSmoothingGroup defines smoothing groups to control how normals are interpolated across polygon faces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementspecular"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementspecular",
+      "text": "VertexElementSpecular stores specular color or intensity values per vertex for lighting effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementtangent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementtangent",
+      "text": "VertexElementTangent stores tangent vectors per vertex for normal mapping and advanced lighting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementtemplate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementtemplate",
+      "text": "VertexElementTemplate defines the base structure for all vertex element types in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementtype",
+      "text": "VertexElementType enumerates the supported types of vertex elements in mesh geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementuv"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementuv",
+      "text": "VertexElementUV stores texture coordinate data per vertex for mapping textures onto geometry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementuserdata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementuserdata",
+      "text": "VertexElementUserData allows storing custom user-defined data per vertex for application-specific purposes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementvector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementvector4",
+      "text": "VertexElementVector4 stores four-component vector data per vertex for specialized vertex attributes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementvertexcolor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementvertexcolor",
+      "text": "VertexElementVertexColor stores per-vertex color data for vertex coloring effects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementvertexcrease"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementvertexcrease",
+      "text": "VertexElementVertexCrease stores vertex crease values used for controlling local sharpness in subdivision surfaces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementvisibility"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementvisibility",
+      "text": "VertexElementVisibility controls the visibility state of individual vertices during rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexelementweight"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexelementweight",
+      "text": "VertexElementWeight stores skinning weights per vertex for skeletal animation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.vertexfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.vertexfield",
+      "text": "VertexField describes a single field within a vertex declaration, such as position or normal."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.windowhandle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.windowhandle",
+      "text": "WindowHandle encapsulates a platform-specific window handle for rendering output in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:com.aspose.threed.zipfilesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:com.aspose.threed.zipfilesystem",
+      "text": "ZipFileSystem provides a file system abstraction for reading and writing ZIP archives in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "The how-to guides and FAQ provide task-focused answers for common 3D processing questions encountered when using Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "FILE_FORMATS.md documents the support status for each 3D file format available in Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "TODO.md outlines the current porting progress and planned work for Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:028"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:028",
+      "text": "The contributor guide provides architecture notes and coding conventions for developers contributing to Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:029"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:029",
+      "text": "The publishing guide explains how Aspose.3D FOSS for Java is built and released to Maven Central."
+    },
+    {
+      "fact_ids": [
+        "link_target:030"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:030",
+      "text": "The API diff since 26.1.0 details changes in the public API surface between those versions of Aspose.3D FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:031"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:031",
+      "text": "The directory structures document describes the layout and organization of source files within the Aspose.3D FOSS for Java repository."
+    },
+    {
+      "fact_ids": [
+        "link_target:032"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:032",
+      "text": "The project progress document tracks the implementation status of features and classes from the commercial Aspose.3D for Java library."
+    },
+    {
+      "fact_ids": [
+        "link_target:033"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:033",
+      "text": "Found a bug or have a feature request? Open an issue on GitHub."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:071.list",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.3D FOSS for Java provides open-source support for 3D scene manipulation in Java applications, focusing exclusively on the STL format for import and export operations, and targeting Java 21 runtime environments."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Only STL import and export (ASCII and binary) is fully functional; Wavefront OBJ import is not supported despite format detection."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Save options classes exist for other formats such as Collada, glTF, FBX-family, AMF, and Draco, but their encoders are not wired up in this FOSS build."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Draco encoding and decoding, Scene.render, and Camera.moveForward explicitly throw UnsupportedOperationException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:071.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "toMesh conversion is not implemented for several parametric primitives including Pyramid, Torus, RectangularTorus, RevolvedAreaSolid, and LinearExtrusion."
+    },
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:version",
+        "package:java_release",
+        "inherited_unit:074.paragraph",
+        "inherited_unit:075.code_block"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test from source using Maven with the commands shown below; the project targets Java 21 and uses the artifact at version 26.5.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "package:name",
+        "package:version",
+        "package:java_release"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "This package provides open-source access to Aspose.3D functionality for Java developers, while Aspose.3D for Java — commercial edition adds additional file format support, advanced conversion options, and commercial licensing terms."
+    }
+  ]
+}
