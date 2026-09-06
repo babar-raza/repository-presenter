@@ -19,6 +19,7 @@ from repository_presenter.components.readme.composition.renderer import render_r
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
+    _check_install,
     _check_links,
     blocking_failures,
     summarize_validation,
@@ -557,3 +558,57 @@ def test_row_fourteen_refuses_two_facts_at_one_canonical_location(tmp_path: Path
         "verified public type aspose.threed.Camera is recorded 2 times; one fact per canonical "
         "defining location"
     ) in _failed(document, "BC-07")["details"]
+
+
+def _install_candidate(fact: Fact, readme: str) -> Candidate:
+    facts = FactsDocument(ENTRY.repository, REVISION, (fact,))
+    return Candidate(
+        ENTRY,
+        facts,
+        PLAN,
+        UNITS,
+        DISPOSITIONS,
+        readme,
+        ORIGINAL,
+        REVISION,
+        hashlib.sha256(ORIGINAL).hexdigest(),
+        (),
+        TASKS,
+    )
+
+
+def test_a_verified_source_build_satisfies_bc_02_without_a_registry_reading() -> None:
+    """G4-W17 arrival item 0: a source-kind install fact carries manifest evidence and a
+    verified-source-build reading instead of a package-registry one, and BC-02 accepts it."""
+    command = "git clone https://github.com/org/Widget.git\ncd Widget\ndotnet build"
+    supported = Fact(
+        "install_command:dotnet",
+        "install_command",
+        command,
+        (
+            Evidence(
+                "Widget.csproj", "install command for the package id declared by the manifest"
+            ),
+            Evidence(
+                "examples.json", "verified source build: an example executed against this revision"
+            ),
+        ),
+        attributes={"install_kind": "source"},
+    )
+    readme = f"```bash\n{command}\n```"
+    assert _check_install(_install_candidate(supported, readme)) == []
+
+    # A registry-only reading (no "verified source build" phrase) still needs "package registry".
+    registry_only = Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Widget",
+        (Evidence("Widget.csproj", "install command for the package id declared by the manifest"),),
+    )
+    failures = _check_install(
+        _install_candidate(registry_only, "```bash\ndotnet add package Widget\n```")
+    )
+    assert failures[0].detail == (
+        "install_command:dotnet lacks manifest, package-registry, or source-build evidence: "
+        "install command for the package id declared by the manifest"
+    )

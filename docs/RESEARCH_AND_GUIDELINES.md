@@ -4211,3 +4211,40 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   confirms 3/34 with no cursor-mismatch warning. Resume predicate: re-run `present`; a later
   attempt may draw a different completion, or a review-side fix for unabsorbed-into-`absent`
   fabrications (a class no current mechanical check reaches) would close it structurally.
+
+- **2026-09-06 12:30 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 0 landed; the
+  version badge carried the same bug the Installation block did.** Testing item 0 (a verified
+  source build admits an unpublished install fact as SUPPORTED) against Aspose.Slides for .NET -
+  the repository G4-W11 dispositioned `BLOCKED_VALIDATION (BC-02)` - first cleared BC-02, then hit
+  `presentation_planning`'s `max_output_tokens` (fixed, version 10 to 11, 3000 to 6000, same
+  reasoning as `source_reconciliation`'s own prior budget correction), then a third failure:
+  `validation: BC-06 failed at PLANNING: https://www.nuget.org/packages/Aspose.Slides.FOSS/ is not
+  a verified link target`. Root cause: `_badges` rendered the registry version badge whenever the
+  install fact was SUPPORTED - true for a registry-confirmed install, now also true for a
+  source-kind one, which names no registry page at all. Fix: `_badges` gates the badge on `not
+  source_kind`, the same attribute check `_installation` already used to keep the two renderings
+  from repeating each other. Re-ran `present` against the same repository and revision
+  (`622cd5ede213ff1af1c8ff282fdcb300729c6d85`): `runs/transactions/.../validation.json` records
+  `BC-02` `PASS` ("Install command verified against the manifest and the package-registry
+  observation") and `BC-06` `PASS` ("Every link resolves..."), both `judged_at: "S9"`; the
+  rendered `README.md` badge row carries only the License and Contributors badges, no NuGet
+  badge or link, and line 59 reads "`Aspose.Slides.FOSS` is not yet published on NuGet; build it
+  from a source checkout instead, verified against this revision:" - the source-kind wording,
+  doing its job. `tests/components/readme/composition/test_renderer.py`'s new
+  `test_a_verified_source_build_never_badges_a_registry_page_that_does_not_exist` pins this
+  without a provider call. Full suite (`pytest -q`, all passed), `ruff check .`, `ruff format
+  --check .`, and `mypy src` all clean before this entry.
+
+  The same run then failed at `independent_review`, unrelated to item 0: "output rejected twice;
+  last rejection: finding F02: quote is not the candidate's text: 'The table comparing editions is
+  deferred due to unresolved d'; finding F03: quote is not the candidate's text: \"The '## What it
+  cannot do' heading is superseded by the dete\"" - two fabricated quotes, at temperature 0 and
+  seed 1, rejected by the job's own quote-verbatim gate both times before the job gives up. This is
+  the same defect class the 11:38 entry above named for Aspose.3D (a reviewer-invented sentence
+  that names no real candidate text), not a new one, and not something item 0 caused or is scoped
+  to fix - `validation.json` already shows BC-02 and BC-06 passing before this stage runs. Not
+  re-attempted a third time on the strength of one lucky draw, per the same reasoning as the 3D
+  entry: nothing about the request changed, so nothing about the outcome is likely to. Slides'
+  resume predicate becomes the same one already on record: the structural review-side fix for
+  unabsorbed-into-`absent` fabrications. Proceeding to commit item 0 and continue the G4-W17
+  arrival list.

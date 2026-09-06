@@ -613,6 +613,92 @@ def test_the_source_checkout_command_is_the_ecosystems_own_not_a_hard_coded_pip_
     assert "pip install" not in installation
 
 
+def test_a_verified_source_build_is_the_installation_not_an_additional_suggestion() -> None:
+    """G4-W17 arrival item 0. `extract.py` promotes an unpublished package's install fact to
+    SUPPORTED with `install_kind: source` once an example proves the source compiles; the
+    renderer states plainly that the registry does not have it yet and never also prints the
+    ordinary "To work from a source checkout instead" suggestion beside it - that would repeat
+    the same command as if it were a second, optional path rather than the only one."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+            "family": "widget",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    command = (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build"
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id not in {"identity:repository", "install_command:pip"}),
+            Fact("identity:repository", "identity", entry.repository, (Evidence("x"),)),
+            Fact(
+                "install_command:dotnet",
+                "install_command",
+                command,
+                (
+                    Evidence("Widget.csproj", "manifest"),
+                    Evidence("examples.json", "verified source build"),
+                ),
+                attributes={"install_kind": "source"},
+            ),
+        ),
+    )
+    readme = render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert installation.startswith(
+        "`aspose-3d-foss` is not yet published on NuGet; build it from a source checkout "
+        f"instead, verified against this revision:\n\n```bash\n{command}\n```"
+    )
+    assert installation.count("git clone") == 1
+    assert "To work from a source checkout instead" not in installation
+
+
+def test_a_verified_source_build_never_badges_a_registry_page_that_does_not_exist() -> None:
+    """BC-06 regression (measured 2026-09-06 on Aspose.Slides for .NET): the version badge used
+    to render whenever the install fact was SUPPORTED, which a source-kind fact now also is -
+    but the package is not on the registry, so the badge linked to a NuGet page that was never
+    verified and does not exist. The badge is a registry-confirmed claim; a source build is not
+    one, so it stays absent instead."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+            "family": "widget",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id not in {"identity:repository", "install_command:pip"}),
+            Fact("identity:repository", "identity", entry.repository, (Evidence("x"),)),
+            Fact(
+                "install_command:dotnet",
+                "install_command",
+                "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+                "cd Aspose.Widget-FOSS-for-.NET\ndotnet build",
+                (
+                    Evidence("Widget.csproj", "manifest"),
+                    Evidence("examples.json", "verified source build"),
+                ),
+                attributes={"install_kind": "source"},
+            ),
+        ),
+    )
+    readme = render_readme(entry, facts, PLAN, UNITS, DISPOSITIONS)
+    assert "nuget.org/packages" not in readme
+    assert "img.shields.io/nuget" not in readme
+
+
 def test_a_package_registry_name_stays_plain_in_prose() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."

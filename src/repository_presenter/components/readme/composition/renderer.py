@@ -178,7 +178,16 @@ def _badges(context: RenderContext) -> list[str]:
     spec = context.spec
     install = context.fact(spec.install_fact_id)
     package = context.fact("package:name")
-    if install is not None and install.polarity == "SUPPORTED" and package is not None:
+    # A source-kind install (G4-W17 arrival item 0) is SUPPORTED because an executed example
+    # proved the source compiles, not because the registry confirmed the package - the version
+    # badge links straight to a registry package page that, for this package, does not exist.
+    source_kind = install is not None and (install.attributes or {}).get("install_kind") == "source"
+    if (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and not source_kind
+        and package is not None
+    ):
         badge = spec.badge(package.value)
         if badge:
             badges.append(badge)
@@ -493,16 +502,34 @@ def _installation(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 8, every command verified at this revision.
 
     The registry install renders only when the manifest and the package registry agree it is
-    published; an unpublished or unchecked package is stated plainly instead. The source install
-    is the form the examples stage itself ran (a clone installed with pip) and appears only when
-    that install produced an executed example; the verify command imports a module an executed
-    example imported; the runtime sentence restates the manifest's own declarations.
+    published; an unpublished or unchecked package is stated plainly instead, unless a verified
+    source build already stands in for it (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17
+    arrival item 0: a registry's CONTRADICTED reading means the package is not there, not that
+    the repository cannot be used, so an EXECUTED example - proof the source compiles at this
+    revision - promotes the fact to SUPPORTED with a source install kind, never a registry
+    command). The plain source-checkout suggestion below is for a reader who could use the
+    registry package but prefers a clone; it never repeats what a source-kind install already
+    said.
     """
     lines: list[str] = []
     install = context.fact(context.spec.install_fact_id)
     package = context.fact("package:name")
     version = context.fact("package:version")
-    if install is not None and install.polarity == "SUPPORTED" and package is not None:
+    source_kind = install is not None and (install.attributes or {}).get("install_kind") == "source"
+    if (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and source_kind
+        and package is not None
+    ):
+        registry = context.spec.registry
+        lines.append(
+            f"`{package.value}` is not yet published on {registry}; build it from a source "
+            "checkout instead, verified against this revision:"
+        )
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
+    elif install is not None and install.polarity == "SUPPORTED" and package is not None:
         registry = context.spec.registry
         lead = f"Install the published package from {registry} (`{package.value}`"
         lead += f", version {version.value}):" if version is not None else "):"
@@ -520,7 +547,7 @@ def _installation(context: RenderContext) -> list[str]:
         lines.append(f"The package `{package.value}` {state} ({detail}).")
     executed = context.supported("example")
     repository = context.fact("identity:repository")
-    if executed and repository is not None:
+    if executed and repository is not None and not source_kind:
         name = repository.value.split("/")[-1]
         command = context.spec.clone_and_build(repository.value, name)
         if command and context.spec.source_install_lead:

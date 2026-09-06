@@ -1,12 +1,17 @@
 prompt_id: presentation_planning
-version: "10"
+version: "11"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output and for instruction-critical planning steps; this job returns a JSON plan built only from supplied IDs, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 3000
+  # Measured 2026-09-06 on Aspose.Slides for .NET (2,589 public symbols, 25 verified links, 9
+  # examples): 3000 tokens truncated the plan mid-reply once BC-02's admitted-source-build path
+  # let the candidate reach this stage at all. Doubled, matching source_reconciliation's own
+  # budget correction for the same reason - a larger ecosystem's surface needs more room to
+  # justify more capabilities and hub facts, not a different shape of reply.
+  max_output_tokens: 6000
   seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"

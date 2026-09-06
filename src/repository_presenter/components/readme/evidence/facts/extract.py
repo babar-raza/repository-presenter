@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import replace
 from pathlib import Path
 
 from repository_presenter.components.readme.evidence.facts.assets import asset_facts
@@ -13,6 +14,7 @@ from repository_presenter.components.readme.evidence.facts.links import link_fac
 from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
+from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import (
     RECEIPTS_FILENAME,
     ExampleCandidate,
@@ -43,6 +45,44 @@ def identity_facts(entry: RegistryEntry, snapshot: RepositorySnapshot) -> list[F
         Fact(fact_id("identity", "platform"), "identity", entry.platform, (registry,)),
         Fact(fact_id("identity", "ecosystem"), "identity", entry.ecosystem, (registry,)),
     ]
+
+
+def _source_build_fact(
+    fact: Fact, entry: RegistryEntry, receipts: Sequence[ExampleReceipt]
+) -> Fact:
+    """Admit a verified source build as an alternate SUPPORTED path for an unpublished package.
+
+    `RESEARCH_AND_GUIDELINES.md` section 28.12, G4-W17 arrival item 0. A registry's CONTRADICTED
+    reading means the package is not there; it does not mean the repository cannot be used. An
+    EXECUTED example already proves the source compiles against this revision, using the exact
+    command the ecosystem's own spec names - the admitted fact is a source install kind, never a
+    registry command, so the renderer never tells a reader to `pip install <name>` or
+    `cargo add <name>` for a package no registry lists. An ecosystem with no `source_install`
+    template (a registry-less spec has nothing to admit either way) leaves the fact untouched.
+    """
+    if fact.kind != "install_command" or fact.polarity != "CONTRADICTED":
+        return fact
+    if not any(receipt.outcome == "EXECUTED" for receipt in receipts):
+        return fact
+    spec = spec_for(entry.ecosystem)
+    command = spec.clone_and_build(entry.repository, entry.repository.split("/")[-1])
+    if not command:
+        return fact
+    return replace(
+        fact,
+        value=command,
+        polarity="SUPPORTED",
+        confidence=1.0,
+        attributes={**(fact.attributes or {}), "install_kind": "source"},
+        evidence=(
+            *fact.evidence,
+            Evidence(
+                RECEIPTS_FILENAME,
+                "verified source build: an example executed against this revision, proving "
+                "the source compiles even though the registry does not yet list the package",
+            ),
+        ),
+    )
 
 
 def extract_facts(
@@ -78,7 +118,8 @@ def extract_facts(
         manifest_facts = plugin.manifest_facts(clone_path, manifest, tree_paths)
         registry_facts, registry_probes = plugin.registry_facts(manifest_facts)
         observed = {fact.id: fact for fact in registry_facts}
-        facts.extend(observed.get(fact.id, fact) for fact in manifest_facts)
+        resolved = (observed.get(fact.id, fact) for fact in manifest_facts)
+        facts.extend(_source_build_fact(fact, entry, receipts) for fact in resolved)
         probes.extend(registry_probes)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
     facts.extend(license_facts(clone_path, snapshot.license_path, snapshot.notices_path))

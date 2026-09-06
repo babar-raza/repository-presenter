@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import httpx
@@ -10,9 +11,14 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.evidence.facts import links
-from repository_presenter.components.readme.evidence.facts.extract import extract_facts
+from repository_presenter.components.readme.evidence.facts.extract import (
+    _source_build_fact,
+    extract_facts,
+)
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
+from repository_presenter.core.examples import ExampleReceipt
+from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.snapshot.capture import capture_snapshot, list_tree_paths
@@ -145,3 +151,60 @@ def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Pa
     }
     assert [f.value for f in document.by_kind("inherited_unit")] == ["# Example"]
     assert [f.value for f in document.by_kind("public_symbol")] == ["pkg"]
+
+
+def _install(polarity: str = "CONTRADICTED") -> Fact:
+    return Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Aspose.Widget",
+        (Evidence("Widget.csproj", "install command for the package id declared by the manifest"),),
+        polarity=polarity,  # type: ignore[arg-type]
+    )
+
+
+def _receipt(outcome: str) -> ExampleReceipt:
+    return ExampleReceipt(1, outcome, 0, "", "", "d")  # type: ignore[arg-type]
+
+
+NET_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-.NET",
+        "family": "widget",
+        "platform": "net",
+        "ecosystem": "net",
+    }
+)
+
+
+def test_a_verified_source_build_is_admitted_when_the_registry_says_not_yet_published() -> None:
+    """G4-W17 arrival item 0. A registry's CONTRADICTED reading means the package is not there,
+    not that the repository cannot be used - an EXECUTED example already proves the source
+    compiles at this revision, using the exact command the ecosystem's own spec names."""
+    admitted = _source_build_fact(_install(), NET_ENTRY, [_receipt("FAILED"), _receipt("EXECUTED")])
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-.NET.git\n"
+        "cd Aspose.Widget-FOSS-for-.NET\ndotnet build"
+    )
+    assert admitted.attributes == {"install_kind": "source"}
+    assert "verified source build" in admitted.evidence[-1].detail
+    # The manifest's own evidence is kept, not replaced - both facts justify the value now.
+    assert (
+        admitted.evidence[0].detail == "install command for the package id declared by the manifest"
+    )
+
+
+def test_a_verified_source_build_is_not_admitted_without_reason() -> None:
+    # No executed example: nothing proves the source compiles.
+    assert (
+        _source_build_fact(_install(), NET_ENTRY, [_receipt("FAILED")]).polarity == "CONTRADICTED"
+    )
+    # Already SUPPORTED: nothing to admit.
+    assert _source_build_fact(
+        _install("SUPPORTED"), NET_ENTRY, [_receipt("EXECUTED")]
+    ).polarity == ("SUPPORTED")
+    # Not an install_command fact at all: nothing to admit.
+    not_install = replace(_install(), kind="package", id="package:name")
+    assert _source_build_fact(not_install, NET_ENTRY, [_receipt("EXECUTED")]) is not_install

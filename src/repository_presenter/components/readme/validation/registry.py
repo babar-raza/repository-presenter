@@ -408,11 +408,17 @@ def _check_install(candidate: Candidate) -> list[Failure]:
         if fact.polarity != "SUPPORTED":
             last = fact.evidence[-1].detail or "" if fact.evidence else ""
             failures.append(Failure("EXTRACTING", f"{fact.id} is {fact.polarity}: {last}"))
-        elif "manifest" not in details or "package registry" not in details:
+        elif "manifest" not in details or (
+            "package registry" not in details and "verified source build" not in details
+        ):
+            # G4-W17 arrival item 0: a verified source build is the alternate SUPPORTED path
+            # for a package no registry lists yet - the fact still needs the manifest's own
+            # identity evidence, just not a registry reading that was never conclusive positive.
             failures.append(
                 Failure(
                     "EXTRACTING",
-                    f"{fact.id} lacks manifest or package-registry evidence: {details}",
+                    f"{fact.id} lacks manifest, package-registry, or source-build evidence: "
+                    f"{details}",
                 )
             )
         elif f"```bash\n{fact.value}\n```" not in candidate.readme:
