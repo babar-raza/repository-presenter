@@ -3866,3 +3866,20 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   three hours after its prerequisite landed, because the reviewer's hourly wake did not fire from
   22:56 to 07:36 (the owner's session was in plan mode); recorded, not excused. Reverse by restoring
   the three loop-prompt sentences and removing G3-W04 from §27.9.
+
+- **2026-09-06 20:20 · loop (PROVISIONAL) · the round's three remaining classes, fixed together
+  under the revised rule 4.** Item G4-W11. Aspose.3D reached `independent_review` — past
+  investigation, reconciliation, planning, authoring, rendering and every blocking check — and
+  died there because finding F05 quoted *"PLY import and export both work through the standard
+  `Scene."*, a paraphrase that appears nowhere in the candidate (the sentence it means is "…
+  supporting import and export of formats such as PLY through the `Scene.Open` and `Scene.Save`
+  methods"). `quote_located` was right to reject it. With the prompt freeze reversed the fix is
+  where it belongs: `independent_review` v10 now says the quote is checked mechanically like
+  `absent`, character for character, with an ellipsis between exact fragments, and that one
+  paraphrase rejects the whole review. Two more from the same round: `source_reconciliation`
+  truncated at 16000 output tokens on Aspose.PDF, whose 231 inherited units need one disposition
+  record each at about 69 tokens — the budget could not fit a perfect answer, so v5 carries 32000;
+  and a placement into a section whose condition is false is now deferred rather than failed
+  closed, symmetric with the supersession branch beside it, because no re-ask can honour a
+  placement no plan may include (Cells and Words each routed build snippets into
+  `development_testing` in repositories that record no `build_test_asset`).

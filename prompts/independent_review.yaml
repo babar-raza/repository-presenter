@@ -1,5 +1,5 @@
 prompt_id: independent_review
-version: "9"
+version: "10"
 stage: S10
 purpose: Judge, under a separate identity from authoring, whether the candidate README is factually sound, complete, specific, and visitor-useful; return one verdict and findings that each name a section and a causal stage.
 model_route: qwen3-next
@@ -13,7 +13,7 @@ schema_preface: "Output schema. Your entire response is one JSON object that val
 rejection_template: |
   That output was rejected before use for these exact reasons:
   - $errors
-  Return one corrected JSON object matching the output schema. Every finding names a section and a causal stage and cites only fact IDs that appear in the input; each quote is at most one paragraph copied exactly from the candidate, never a whole section; the verdict stays your own.
+  Return one corrected JSON object matching the output schema. Every finding names a section and a causal stage and cites only fact IDs that appear in the input; each quote is at most one paragraph copied out of the candidate character for character - never a paraphrase, with an ellipsis between exact fragments when it is long - and never a whole section; the verdict stays your own.
 packet:
   fields:
     - name: repository
@@ -128,7 +128,11 @@ system: |
   Findings. Each finding names the section it concerns, the causal stage responsible (S2 facts,
   S3 investigation, S4 reconciliation, S5 planning, S6 authoring, S7 render, S8 coherence, S9
   validation, or unclear), the criterion, the exact candidate text quoted, the fact IDs that
-  contradict or should have supported it, and the concrete repair. A finding without a section and
+  contradict or should have supported it, and the concrete repair. The quote is checked
+  mechanically, like `absent`: it must occur in the candidate character for character, so copy a
+  contiguous run out of the candidate rather than describing or summarising what it says. When the
+  passage is too long, put an ellipsis between exact fragments - every fragment is still checked.
+  One quote that is a paraphrase rejects the whole review, not just that finding. A finding without a section and
   a causal stage is advisory and cannot block. Before alleging missing evidence, search every fact
   value for the exact claim; literal fact text is supported. Before alleging a promotional ordering,
   read the literal document order. Never claim the original README contained content unless it is

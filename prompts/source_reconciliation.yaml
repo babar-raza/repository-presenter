@@ -1,12 +1,16 @@
 prompt_id: source_reconciliation
-version: "4"
+version: "5"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
 route_rationale: Of the two general-purpose chat models the recorded catalog lists (qwen3-next, gpt-oss), qwen3-next is the one the legacy gateway characterization found reliable for strict structured JSON output; this job returns one JSON record per unit with exact IDs, so it routes to qwen3-next. Revisited whenever preflight records a changed catalog.
 sampling:
   temperature: 0.0
-  max_output_tokens: 16000
+  # One disposition record per inherited unit, and the contract requires every unit exactly
+  # once, so the budget follows the largest inventory rather than the average: Aspose.PDF for
+  # .NET carries 231 units and truncated at 16000 with the records alone unfinished
+  # (measured 2026-09-06, about 69 tokens per record).
+  max_output_tokens: 32000
   seed: 1
   response_format: json_schema
 schema_preface: "Output schema. Your entire response is one JSON object that validates against this JSON Schema; every key and nesting is literal:"

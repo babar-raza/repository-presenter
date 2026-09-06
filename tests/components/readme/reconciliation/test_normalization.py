@@ -145,20 +145,29 @@ def test_a_placement_into_at_a_glance_is_covered_by_the_diagram_or_deferred() ->
     assert heading["disposition"] == "VERIFIED_PRESERVE"
 
 
-def test_a_verbatim_placement_into_an_absent_section_is_sent_back_for_re_routing() -> None:
-    # No third-party notices are verified, so that section cannot appear at this revision: a
-    # paragraph placed there is re-routed by the reconciler (README_CONTRACT.md section 3).
+def test_a_verbatim_placement_into_an_absent_section_is_deferred_not_dropped() -> None:
+    """No third-party notices are verified, so that section cannot appear at this revision.
+
+    README_CONTRACT.md section 3 lets an excluded destination re-route or fail closed, and no
+    re-ask can honour a placement no plan may include. Measured 2026-09-06: Aspose.Cells and
+    Aspose.Words for .NET each routed build and test snippets into development_testing, whose
+    condition is false because neither records a build_test_asset, and both candidates died on
+    it. The unit is deferred for the owner, exactly as a supersession by an absent section is.
+    """
     output = {
         "dispositions": [
             _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "third_party_notices"),
         ]
     }
-    assert normalize(output, FACTS) == [
-        "inherited_unit:002.paragraph: section third_party_notices does not appear in this "
-        "candidate (its condition does not hold at this revision); place the unit in another "
-        "section or choose DEFER_UNRESOLVED"
-    ]
-    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+    assert normalize(output, FACTS) == []
+    deferred = output["dispositions"][0]
+    assert deferred["disposition"] == "DEFER_UNRESOLVED"
+    assert deferred["destination_section"] is None
+    # Mutation control: a destination that does appear is left exactly as the reconciler chose.
+    present = _entry("inherited_unit:002.paragraph", "VERIFIED_PRESERVE", "opening")
+    kept = {"dispositions": [present]}
+    assert normalize(kept, FACTS) == []
+    assert kept["dispositions"][0]["destination_section"] == "opening"
 
 
 def test_a_unit_may_be_superseded_by_a_planned_sections_own_content() -> None:

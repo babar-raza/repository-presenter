@@ -286,12 +286,14 @@ def normalize(
         ):
             # README_CONTRACT.md section 3: an excluded destination re-routes or fails closed
             # naming the unit. The section's condition does not hold at this revision, so no
-            # plan can include it; the reconciler chooses another section or defers the unit.
-            errors.append(
-                f"{unit}: section {destination} does not appear in this candidate (its "
-                "condition does not hold at this revision); place the unit in another section "
-                "or choose DEFER_UNRESOLVED"
-            )
+            # plan can include it and no re-ask can place it there; the unit is deferred for the
+            # owner rather than dropped, exactly as a supersession by an absent section is one
+            # branch above. Measured 2026-09-06: Aspose.Cells and Aspose.Words for .NET each
+            # routed build and test snippets into development_testing, whose condition is false
+            # because neither repository records a build_test_asset - the re-ask failed on the
+            # same units and the whole candidate died on a placement no plan could honour.
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
             continue
         if destination not in deterministic:
             continue
