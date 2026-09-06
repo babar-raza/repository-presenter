@@ -50,6 +50,24 @@ class RegistryObservation:
         """Whether a fact may take a polarity from this reading at all."""
         return self.published is not None and not self.ambiguous
 
+    @property
+    def summary(self) -> str:
+        """What an install fact's evidence records about this reading.
+
+        The wording is shared because BC-02 asks an install command to show a manifest reading
+        and a package-registry reading, and no plugin should have to remember the phrase.
+        Measured 2026-09-06: the .NET install fact said "published on nuget" and BC-02 failed
+        Aspose.3D for .NET outright at EXTRACTING. The registry's current version never appears
+        here - that is the registry's state, not the repository's (§27.2 RC7), and it belongs in
+        the probe record.
+        """
+        if self.published is None:
+            return f"package registry: {self.registry or 'none'} could not be read"
+        if self.ambiguous:
+            return f"package registry: {self.registry} answered ambiguously"
+        found = "found" if self.published else "distribution not found"
+        return f"package registry: {found} on {self.registry}"
+
 
 def registry_type(ecosystem: str) -> str:
     """The probe's name for an ecosystem's registry, or an empty string when it has none."""

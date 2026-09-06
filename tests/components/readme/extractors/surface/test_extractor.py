@@ -189,3 +189,39 @@ def test_two_members_differing_only_in_case_both_survive(tmp_path: Path) -> None
     # The name a reader sees is untouched; only the identifier moves.
     numbered = [s for s in symbols if s.fact_slug != s.value]
     assert numbered and all(s.fact_slug == f"{s.value}-2" for s in numbered)
+
+
+NESTED = """
+namespace Aspose.Widget.Shapes
+{
+    public class Outline
+    {
+        public class Segment { }
+        public void Draw() { }
+    }
+}
+"""
+
+
+def test_a_namespace_is_a_symbol_the_way_a_python_module_is(tmp_path: Path) -> None:
+    """Measured 2026-09-06 on Aspose.PDF for .NET: `repository_investigation` was rejected twice
+    for citing `public_symbol:aspose.pdf.comparison` - a namespace that really does hold public
+    types - and the repository produced nothing. The Python extractor emits 52 module symbols
+    for the canary, so the gap was this surface's, not the job's."""
+    package = tmp_path / "src" / "Aspose.Widget"
+    package.mkdir(parents=True)
+    (package / "Outline.cs").write_text(NESTED, encoding="utf-8")
+    symbols = surface_symbols(get_parser("csharp"), "csharp", package, tmp_path, "widget")
+    modules = {s.value: s for s in symbols if s.symbol_kind == "module"}
+
+    assert set(modules) == {"Aspose", "Aspose.Widget", "Aspose.Widget.Shapes"}
+    # A namespace spans files, so it is evidenced where the first symbol inside it is declared.
+    shapes = modules["Aspose.Widget.Shapes"]
+    assert shapes.source_path.endswith("Outline.cs") and shapes.line == 4
+    # A type keeps the kind it was read with, and its members are not namespaces.
+    kinds = {s.value: s.symbol_kind for s in symbols}
+    assert kinds["Aspose.Widget.Shapes.Outline"] == "class"
+    assert kinds["Aspose.Widget.Shapes.Outline.Draw"] == "method"
+    # Namespaces come first and in sorted order, so the grammar's traversal cannot move them.
+    leading = [s.value for s in symbols[:3]]
+    assert leading == ["Aspose", "Aspose.Widget", "Aspose.Widget.Shapes"]

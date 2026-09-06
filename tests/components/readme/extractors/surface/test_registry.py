@@ -9,6 +9,7 @@ import pytest
 
 from repository_presenter.components.readme.extractors.surface.registry import (
     REGISTRY_TYPES,
+    RegistryObservation,
     observe,
     registry_type,
 )
@@ -87,3 +88,23 @@ def test_a_registry_that_answers_nothing_useful_stays_inconclusive_or_unpublishe
     assert reading.published is not True
     if status == 500:
         assert not reading.conclusive
+
+
+def test_the_reading_summarises_itself_in_the_vocabulary_a_check_expects() -> None:
+    """BC-02 asks an install command to show a manifest reading and a package-registry reading.
+
+    Measured 2026-09-06: the .NET install fact said "published on nuget" and BC-02 failed
+    Aspose.3D for .NET outright at EXTRACTING. The phrase belongs to the shared reading, so no
+    plugin has to remember it.
+    """
+    found = RegistryObservation("nuget", "Aspose.3D.FOSS", True, False, "https://x", "api", "s")
+    missing = RegistryObservation("nuget", "Aspose.Slides.FOSS", False, False, None, "api", "s")
+    unread = RegistryObservation("nuget", "x", None, False, None, None, "s")
+    ambiguous = RegistryObservation("nuget", "x", True, True, None, "api", "s")
+
+    assert found.summary == "package registry: found on nuget"
+    assert missing.summary == "package registry: distribution not found on nuget"
+    assert unread.summary == "package registry: nuget could not be read"
+    assert ambiguous.summary == "package registry: nuget answered ambiguously"
+    # The registry's current version is never in the evidence: it is the registry's state.
+    assert all("version" not in o.summary for o in (found, missing, unread, ambiguous))

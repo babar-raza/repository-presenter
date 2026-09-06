@@ -243,7 +243,11 @@ class NetPlugin:
                     fact_id("install_command", "dotnet"),
                     "install_command",
                     f"dotnet add package {identity.name}",
-                    (Evidence(where, "install command for the declared package id"),),
+                    (
+                        Evidence(
+                            where, "install command for the package id declared by the manifest"
+                        ),
+                    ),
                     polarity="UNRESOLVED",
                     confidence=0.5,
                 )
@@ -313,13 +317,11 @@ class NetPlugin:
         polarity: Polarity
         if not reading.conclusive:
             polarity, confidence = "UNRESOLVED", 0.5
-            detail = f"{reading.registry or 'no registry'} could not be read conclusively"
         elif reading.published:
             polarity, confidence = "SUPPORTED", 1.0
-            detail = f"published on {reading.registry}"
         else:
             polarity, confidence = "CONTRADICTED", 1.0
-            detail = f"not found on {reading.registry}"
+        detail = reading.summary
         resolved = Fact(
             install.id,
             install.kind,

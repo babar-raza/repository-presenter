@@ -190,7 +190,40 @@ def surface_symbols(
             continue
         seen.add(symbol.value)
         unique.append(symbol)
-    return _disambiguate(unique)
+    return _disambiguate(_namespaces(unique) + unique)
+
+
+def _namespaces(symbols: list[SurfaceSymbol]) -> list[SurfaceSymbol]:
+    """One symbol per namespace a public type is declared in, as Python emits one per module.
+
+    A job reads the source and names `Aspose.Pdf.Comparison` - a namespace that really does hold
+    public types - and the facts carried no such ID, so `repository_investigation` was rejected
+    twice and the repository produced nothing at all (measured 2026-09-06 on Aspose.PDF for .NET:
+    `public_symbol:aspose.pdf.comparison`, `...structuredcontent`, `...devices`,
+    `...structuredocument`). The Python extractor emits 52 module symbols for the canary, so the
+    gap was this surface's, not the job's: a namespace is part of the public surface a reader
+    navigates, and naming one was never a hallucination.
+
+    A prefix that is itself a type is a nested type's container rather than a namespace, so it is
+    skipped. Sorted, so the order does not depend on the grammar's traversal. A namespace spans
+    files, so it is evidenced where the first symbol inside it is declared - that declaration is
+    inside the namespace's own body, which is what proves the namespace exists.
+    """
+    types = {symbol.value for symbol in symbols}
+    found: dict[str, SurfaceSymbol] = {}
+    for symbol in symbols:
+        parts = symbol.value.split(".")
+        for depth in range(1, len(parts)):
+            name = ".".join(parts[:depth])
+            if name in types or name in found:
+                continue
+            found[name] = SurfaceSymbol(
+                value=name,
+                symbol_kind="module",
+                source_path=symbol.source_path,
+                line=symbol.line,
+            )
+    return [found[name] for name in sorted(found)]
 
 
 def _disambiguate(symbols: list[SurfaceSymbol]) -> list[SurfaceSymbol]:

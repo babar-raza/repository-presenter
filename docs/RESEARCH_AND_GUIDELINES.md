@@ -3761,3 +3761,22 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   example 2 failed CS5001 — a fenced block of `using` directives and comments with no statement
   is not a program, and calling it a CONTRADICTED example may be the selection's defect, not the
   README's.
+
+- **2026-09-06 17:40 · loop (PROVISIONAL) · the first full .NET composition: six failures, six
+  different classes, all past the facts stage.** Item G4-W11. 3D — BC-02 at EXTRACTING:
+  `install_command:dotnet lacks manifest or package-registry evidence`. The check reads the
+  evidence details for the words *manifest* and *package registry*, and .NET wrote "published on
+  nuget". The phrase now belongs to `RegistryObservation.summary`, shared by every ecosystem, so
+  no plugin has to remember it. PDF — `repository_investigation` rejected twice for
+  `public_symbol:aspose.pdf.devices` and `...structuredocument`. Measured against the source:
+  `Aspose.Pdf.Devices` and `Aspose.Pdf.Comparison` are real namespaces holding public types, and
+  the .NET surface emitted no namespace symbols at all while Python emits 52 for the canary — so
+  two of the four citations were the surface's gap, and `...structuredocument` and
+  `...structuredcontent` were fabrications the guard was right to reject (the real names are
+  `Aspose.Pdf.Structure`, `Aspose.Pdf.LogicalStructure`, `Aspose.Pdf.Tagged`). The façade now
+  emits one `module` symbol per namespace, evidenced where the first symbol inside it is
+  declared. Also measured and not yet acted on: the vendored engine emits no nested public type
+  at all (`Outer.Inner` is absent), Slides is genuinely **not published on NuGet** so its install
+  command is honestly CONTRADICTED, and Cells, Email, Slides and Words fail on planning and
+  reconciliation shape — units placed in excluded sections, `shared_fact_ids` unstated, `api_hubs`
+  not distinct symbols.
