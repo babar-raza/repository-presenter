@@ -3699,3 +3699,16 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `cli.present` already resolves `plugin_for` one stage earlier, so the guess was unreachable in
   production and only ever weakened a test. Reversal: restore the `SPECS.get` fallback in
   `select_examples`.
+
+- **2026-09-06 14:20 · loop (PROVISIONAL) · one wrong project file explained three .NET
+  symptoms.** Item G4-W11. `detect_manifest` ranked on depth and directory names, and the
+  measured cohort broke it three ways: Aspose.3D picked `src/converter/Converter.csproj`, one
+  level above the library, whose only source declares no public type — **zero** public symbols and
+  no API Reference evidence; Email, Slides and Words picked the root `Directory.Build.props`, so
+  the surface came from the whole tree *and* the verifier's `ProjectReference` pointed at a
+  property file, which is why all 4 Email and all 9 Slides examples failed with `type or namespace
+  'Aspose' could not be found`; Words then picked `Aspose.JavaMs.Tests`, which declares no
+  `IsTestProject`, `IsPackable` or `OutputType`. Ranking now reads what the file declares —
+  project before property file, `OutputType` for an application, and a test-runner
+  `PackageReference` where the project says nothing. All six now resolve to the product library.
+  Alternative rejected: a name list per repository, which is fitting to a sample (§27.10).

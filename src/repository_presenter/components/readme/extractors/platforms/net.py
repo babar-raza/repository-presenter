@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 from repository_presenter.components.readme.extractors.platforms.net_examples import (
     verify_net_examples,
@@ -38,6 +39,43 @@ _IGNORED_DIRECTORIES = frozenset({"bin", "obj", ".git", "packages", "node_module
 _NOT_THE_PRODUCT = frozenset(
     {"samples", "sample", "examples", "example", "demo", "demos", "tests", "test", "benchmarks"}
 )
+# A project builds something; `Directory.Build.props` only lends properties to the projects
+# beside it, and it sits at the repository root, where depth alone would always prefer it.
+_PROJECT_SUFFIXES = frozenset({".csproj", ".fsproj"})
+_EXECUTABLE_OUTPUTS = frozenset({"exe", "winexe"})
+# A project that references a test runner is a test project even when it never says so: measured
+# 2026-09-06 on Aspose.Words for .NET, whose `Aspose.JavaMs.Tests` declares no `IsTestProject`,
+# no `IsPackable` and no `OutputType`, and sorted ahead of `Aspose.Words` at the same depth.
+_TEST_PACKAGES = ("microsoft.net.test.sdk", "xunit", "nunit", "mstest")
+
+
+def _declares(project: Path) -> tuple[bool, bool]:
+    """Whether the project file says it is a test project, and whether it builds an executable.
+
+    Both are declarations, not inferences from a name: `IsTestProject`, `IsPackable` and a
+    reference to a test runner say a project ships nothing, and `OutputType` says a project is an
+    application rather than the library a package publishes. A file that will not parse claims
+    neither, which leaves the remaining keys to rank it.
+    """
+    try:
+        root = ElementTree.parse(project).getroot()
+    except (OSError, ElementTree.ParseError):
+        return (False, False)
+    properties: dict[str, str] = {}
+    packages: list[str] = []
+    for element in root.iter():
+        # Old-style projects carry the MSBuild namespace on every tag; SDK-style carry none.
+        tag = element.tag.rsplit("}", 1)[-1].lower()
+        if tag == "packagereference":
+            packages.append(str(element.get("Include", "")).strip().lower())
+        elif element.text is not None:
+            properties[tag] = element.text.strip().lower()
+    is_test = (
+        properties.get("istestproject") == "true"
+        or properties.get("ispackable") == "false"
+        or any(package.startswith(_TEST_PACKAGES) for package in packages)
+    )
+    return (is_test, properties.get("outputtype", "") in _EXECUTABLE_OUTPUTS)
 
 
 class NetPlugin:
@@ -53,8 +91,16 @@ class NetPlugin:
         Depth alone is not enough: a repository that ships `samples/Demo/Demo.csproj` beside
         `src/Aspose.Widget/Aspose.Widget.csproj` has two project files at the same depth, and
         sorting by path lets the sample win. Ranked instead by what a product project looks like -
-        not under a directory whose name says it is not the product, and with C# sources beside
-        it - then by depth, then by path so the choice is deterministic.
+        a project rather than a shared property file, not a test project, not an application, not
+        under a directory whose name says it is not the product, and with C# sources beside it -
+        then by depth, then by path so the choice is deterministic.
+
+        Measured 2026-09-06 on the .NET cohort. Aspose.3D ships `src/converter/Converter.csproj`
+        one directory above the library it references, so depth chose the console tool, whose
+        only source declares no public type: the repository produced zero public symbols and the
+        API Reference row had no evidence at all. Email, Slides and Words each carry a
+        `Directory.Build.props` at the root, which depth preferred over every project, so the
+        surface was read from the whole tree - tests and samples included.
         """
         candidates = [
             path
@@ -65,11 +111,21 @@ class NetPlugin:
         if not candidates:
             return None
 
-        def rank(path: Path) -> tuple[int, int, int, str]:
+        def rank(path: Path) -> tuple[int, int, int, int, int, int, str]:
             parts = path.relative_to(root).parts
+            is_project = path.suffix.lower() in _PROJECT_SUFFIXES
+            is_test, is_executable = _declares(path) if is_project else (False, False)
             aside = any(part.lower() in _NOT_THE_PRODUCT for part in parts)
             sources = any(path.parent.rglob("*.cs"))
-            return (int(aside), 0 if sources else 1, len(parts), str(path))
+            return (
+                0 if is_project else 1,
+                int(is_test),
+                int(is_executable),
+                int(aside),
+                0 if sources else 1,
+                len(parts),
+                str(path),
+            )
 
         return min(candidates, key=rank)
 

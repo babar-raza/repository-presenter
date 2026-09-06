@@ -59,6 +59,99 @@ def test_the_governing_manifest_is_the_product_project_not_a_sample(tmp_path: Pa
     assert manifest.relative_to(tmp_path).as_posix() == "src/Aspose.Widget/Aspose.Widget.csproj"
 
 
+CONSOLE = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackageId>Aspose.Widget.Converter</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\\main\\Aspose.Widget\\Aspose.Widget.csproj" />
+  </ItemGroup>
+</Project>
+"""
+UNDECLARED_TESTS = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" version="4.2.2" />
+  </ItemGroup>
+</Project>
+"""
+BUILD_PROPS = """<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
+"""
+
+
+def test_a_console_tool_one_level_up_does_not_outrank_the_library(tmp_path: Path) -> None:
+    """Measured 2026-09-06 on Aspose.3D for .NET: depth chose the converter, not the product.
+
+    `src/converter/Converter.csproj` is one directory above `src/main/Aspose.ThreeD/`, and its
+    only source declares no public type, so the repository produced zero public symbols and the
+    API Reference row had no evidence at all. `OutputType` says which one is an application.
+    """
+    library = tmp_path / "src" / "main" / "Aspose.Widget"
+    library.mkdir(parents=True)
+    (library / "Aspose.Widget.csproj").write_text(CSPROJ, encoding="utf-8")
+    (library / "Widget.cs").write_text(WIDGET, encoding="utf-8")
+    console = tmp_path / "src" / "converter"
+    console.mkdir(parents=True)
+    (console / "Converter.csproj").write_text(CONSOLE, encoding="utf-8")
+    (console / "Program.cs").write_text("internal class Program { }\n", encoding="utf-8")
+
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    where = manifest.relative_to(tmp_path).as_posix()
+    assert where == "src/main/Aspose.Widget/Aspose.Widget.csproj"
+
+
+def test_a_shared_property_file_at_the_root_never_governs(tmp_path: Path) -> None:
+    """Measured 2026-09-06 on Email, Slides and Words for .NET.
+
+    `Directory.Build.props` only lends properties to the projects beside it, and sits where depth
+    always prefers it - so the surface was read from the whole tree, tests and samples included.
+    """
+    library = tmp_path / "src" / "Aspose.Widget"
+    library.mkdir(parents=True)
+    (library / "Aspose.Widget.csproj").write_text(CSPROJ, encoding="utf-8")
+    (library / "Widget.cs").write_text(WIDGET, encoding="utf-8")
+    (tmp_path / "Directory.Build.props").write_text(BUILD_PROPS, encoding="utf-8")
+
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    assert manifest.relative_to(tmp_path).as_posix() == "src/Aspose.Widget/Aspose.Widget.csproj"
+
+
+def test_a_test_project_that_declares_nothing_is_still_a_test_project(tmp_path: Path) -> None:
+    """Measured 2026-09-06 on Aspose.Words for .NET: `Aspose.JavaMs.Tests` declares no
+    `IsTestProject`, no `IsPackable` and no `OutputType`, sits at the same depth as
+    `Aspose.Words`, and sorts before it. A reference to a test runner is the declaration."""
+    library = tmp_path / "Aspose.Widget"
+    library.mkdir(parents=True)
+    (library / "Aspose.Widget.csproj").write_text(CSPROJ, encoding="utf-8")
+    (library / "Widget.cs").write_text(WIDGET, encoding="utf-8")
+    suite = tmp_path / "Aspose.JavaMs.Tests"
+    suite.mkdir(parents=True)
+    (suite / "Aspose.JavaMs.Tests.csproj").write_text(UNDECLARED_TESTS, encoding="utf-8")
+    (suite / "WidgetTests.cs").write_text(WIDGET, encoding="utf-8")
+
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    assert manifest.relative_to(tmp_path).as_posix() == "Aspose.Widget/Aspose.Widget.csproj"
+
+
+def test_a_project_file_that_will_not_parse_still_ranks(tmp_path: Path) -> None:
+    """A malformed project claims nothing rather than raising: the remaining keys rank it."""
+    broken = tmp_path / "Aspose.Broken"
+    broken.mkdir(parents=True)
+    (broken / "Aspose.Broken.csproj").write_text("<Project", encoding="utf-8")
+    assert net._declares(broken / "Aspose.Broken.csproj") == (False, False)
+    assert net.PLUGIN.detect_manifest(tmp_path) == broken / "Aspose.Broken.csproj"
+
+
 def test_manifest_facts_carry_identity_version_framework_and_the_install_command(
     tmp_path: Path,
 ) -> None:
@@ -146,6 +239,9 @@ def test_the_plugin_imports_no_sibling_ecosystem() -> None:
                 "typing",
                 "__future__",
                 "tree_sitter_language_pack",
+                # A project file is XML, and reading what it declares about itself is .NET's
+                # own knowledge; the standard library parser keeps it out of shared code.
+                "xml.etree",
                 "repository_presenter.components.readme.extractors.platforms.net",
             )
         )
