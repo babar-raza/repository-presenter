@@ -9,6 +9,7 @@ from repository_presenter.components.readme.evidence.facts.links import (
     check_external,
     check_relative,
     extract_links,
+    fetch_status,
     heading_slug,
     heading_slugs,
     link_facts,
@@ -120,3 +121,36 @@ def test_link_facts_carry_both_the_readme_location_and_the_resolution() -> None:
     assert (
         link_facts("README.md", README.encode(), tree, fetch=lambda u: (statuses[u], u))[0] == facts
     )
+
+
+def test_a_head_that_condemns_a_link_is_confirmed_with_a_get() -> None:
+    """HEAD is an optimisation; a negative verdict comes from the method a reader would use.
+
+    Measured 2026-09-06: `https://www.nuget.org/packages/Aspose.3D.FOSS/` answers HEAD with 404
+    and GET with 200, so BC-06 called the NuGet badge's own target missing and failed the whole
+    Aspose.3D for .NET candidate at EXTRACTING.
+    """
+    calls: list[tuple[str, str]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append((request.method, str(request.url)))
+        if str(request.url).endswith("/hostile/"):
+            return httpx.Response(200 if request.method == "GET" else 404)
+        return httpx.Response(200 if request.method == "HEAD" else 500)
+
+    transport = httpx.MockTransport(handler)
+    original = httpx.Client
+
+    def client(**kwargs: object) -> httpx.Client:
+        kwargs["transport"] = transport
+        return original(**kwargs)  # type: ignore[arg-type]
+
+    httpx.Client = client  # type: ignore[misc]
+    try:
+        assert fetch_status("https://h/hostile/") == (200, "https://h/hostile/")
+        assert fetch_status("https://h/plain/") == (200, "https://h/plain/")
+    finally:
+        httpx.Client = original  # type: ignore[misc]
+    # The hostile host was asked twice; the well-behaved one only once.
+    assert [method for method, url in calls if "hostile" in url] == ["HEAD", "GET"]
+    assert [method for method, url in calls if "plain" in url] == ["HEAD"]

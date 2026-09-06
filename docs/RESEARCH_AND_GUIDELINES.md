@@ -3780,3 +3780,14 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   command is honestly CONTRADICTED, and Cells, Email, Slides and Words fail on planning and
   reconciliation shape — units placed in excluded sections, `shared_fact_ids` unstated, `api_hubs`
   not distinct symbols.
+
+- **2026-09-06 18:20 · loop (PROVISIONAL) · nuget.org answers HEAD 404 and GET 200, and BC-06
+  believed the HEAD.** Item G4-W11. With the install evidence fixed, Aspose.3D moved on to
+  BC-06: `https://www.nuget.org/packages/Aspose.3D.FOSS/ is CONTRADICTED: MISSING: HTTP 404` —
+  the NuGet badge's own target, which a browser and a plain GET both serve with 200. Reproduced
+  exactly: `client.head` returns 404, `client.stream("GET")` returns 200, and the probe fell back
+  to GET only on 403, 405 and 501. HEAD is an optimisation; a verdict that condemns a link now
+  has to come from the method a reader would use, so 404 joins the statuses a GET confirms. This
+  cannot turn a resolved link into a missing one, only the reverse, and it costs one extra
+  request only where the first answer was already a failure. Alternative rejected: special-casing
+  nuget.org, which would leave the next HEAD-hostile host to be found by a failed candidate.

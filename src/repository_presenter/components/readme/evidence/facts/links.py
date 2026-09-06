@@ -28,7 +28,9 @@ LinkOutcome = Literal["RESOLVED", "MISSING", "UNCHECKED"]
 REQUEST_TIMEOUT_SECONDS = 15.0
 USER_AGENT = "repository-presenter (+https://github.com/babar-raza/repository-presenter)"
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
-_HEAD_REFUSED_STATUSES = frozenset({403, 405, 501})
+# A status HEAD alone may not be believed on: the host may refuse the method (403, 405, 501) or
+# answer it with 404 while serving the page perfectly well, which nuget.org does.
+_HEAD_UNCONFIRMED_STATUSES = frozenset({403, 404, 405, 501})
 _ACCESS_GATED_STATUSES = frozenset({401, 403})
 _SLUG_STRIP = re.compile(r"[^\w\- ]")
 _POLARITY: dict[LinkOutcome, Polarity] = {
@@ -134,14 +136,21 @@ def heading_slugs(readme_text: str) -> set[str]:
 
 
 def fetch_status(url: str) -> tuple[int, str]:
-    """HEAD then GET if refused; the final status and URL after redirects."""
+    """HEAD, then GET whenever HEAD's answer would condemn the link.
+
+    HEAD is an optimisation, and a negative verdict has to come from the method a reader would
+    actually use. Measured 2026-09-06: `https://www.nuget.org/packages/Aspose.3D.FOSS/` answers
+    HEAD with 404 and GET with 200, so BC-06 called the NuGet badge's own target missing and
+    failed the whole Aspose.3D candidate at EXTRACTING. Confirming costs one extra request only
+    where the first answer was already a failure.
+    """
     with httpx.Client(
         timeout=REQUEST_TIMEOUT_SECONDS,
         headers={"User-Agent": USER_AGENT},
         follow_redirects=True,
     ) as client:
         response = client.head(url)
-        if response.status_code in _HEAD_REFUSED_STATUSES:
+        if response.status_code in _HEAD_UNCONFIRMED_STATUSES:
             with client.stream("GET", url) as streamed:
                 return streamed.status_code, str(streamed.url)
         return response.status_code, str(response.url)
