@@ -25,9 +25,9 @@ toolchains:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 3
-  status_line_observed: '2026-09-06 23:07, from origin/main at 638a7ac: candidates 6/34 current
-    reviewable no-op-proven, unchanged by the third G4-W15 re-run and by the Cells Go re-run
-    (neither sealed). G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that number
+  status_line_observed: '2026-09-06 23:18, from origin/main at 32828cf: candidates 6/34 current
+    reviewable no-op-proven, unchanged by the third G4-W15 re-run, the Cells Go re-run or the second
+    G4-W16 re-run (none sealed). G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that number
     was written before the shared blockers were known and no lane can reach it while G4-W17''s
     arrival list is open. Recorded rather than met. Every one of lane D''s repositories again fails
     past the class its previous disposition named - each earlier class was closed, measured, by the
@@ -167,6 +167,32 @@ items:
       becomes BLOCKED_SHARED_CODE / BC07_PUBLIC_SYMBOL_READ_AS_NARRATION with
       BC08_REWRITE_DROPS_A_PROTECTED_COMMAND beside it; sealed_by_lane stays 0 and
       dispositions_by_lane stays 3. See docs/RESEARCH_LANE_D.md.'
+  rerun_2:
+    at: '2026-09-06T23:18:00+05:00'
+    from: origin/main at 638a7ac (G4-W17 arrival item 22 landed)
+    scope: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust only
+    receipt: evidence/build/lanes/lane-d/G4-W16.json (rerun_2_2026_09_06 block)
+    outcome: 'PROPOSAL P6''s resume predicate was met and its class is closed, measured: BC-07
+      PASSES on the same crate whose own public type WorkbookValidator made it fail before. Item
+      22''s word boundary plus symbol exemption is exactly what P6 asked for. The run reached S9 with
+      7 pass, 2 fail, 2 pending - BC-01, BC-03 to BC-07 and BC-09 green - over 2,224 facts, a
+      16-of-18-section plan, 140 units and README.md at 173 visible lines of 1,068. It did not seal,
+      and the two failures are both new. BC-02, which PASSED at 14:05, now fails: install_command
+      :cargo is UNRESOLVED because the crates.io read failed outright ("package registry: cargo could
+      not be read"), where at 14:05 the registry answered conclusively 404 and item (0)''s
+      source-build path carried it. Item (24)''s gate admits UNRESOLVED only for an ecosystem absent
+      from REGISTRY_TYPES, and rust is present, so it fails closed by design; probes.json shows
+      https://crates.io/ itself answering 404 after 17.5s while every other host answered 200 in
+      about a second, so the request looks refused rather than answered (PROPOSAL P17 - harden the
+      named User-Agent first, and only then distinguish "registry unreachable" from "registry
+      inconclusive"). BC-08 fails on the same two commands as before, `cargo bench` and `cargo doc
+      --no-deps --open`, again with section_id null and "no failing check names an LLM-owned
+      section" - the third occurrence across two ecosystems, and this time on a VERIFIED_PRESERVE
+      unit rather than a VERIFIED_REWRITE one, so item 23 is narrower than the defect (PROPOSAL P18).
+      No lane-owned code changed. The disposition becomes BLOCKED_SHARED_CODE /
+      BC02_REGISTRY_UNREADABLE_FAILS_CLOSED with BC08_REWRITE_DROPS_A_PROTECTED_COMMAND beside it;
+      sealed_by_lane stays 0 and dispositions_by_lane stays 3. BC-10 and BC-11 were never judged and
+      are not claimed. See docs/RESEARCH_LANE_D.md.'
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)
