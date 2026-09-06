@@ -1,0 +1,152 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "pip install ."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:dotnet"
+      ],
+      "id": "F01",
+      "quote": "To work from a source checkout instead, install the clone with pip:",
+      "repair": "Remove the pip-based installation instructions entirely, as the library is a .NET package and should only be installed via `dotnet add package Aspose.Cells.FOSS` or direct project reference.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'pip install .', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate introduces an incorrect pip-based installation method for a .NET library, which contradicts the standard .NET ecosystem and the supported facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:skiasharp"
+      ],
+      "id": "F02",
+      "quote": "### Required Package Dependencies",
+      "repair": "Remove the 'Required Package Dependencies' section and the explicit mention of SkiaSharp, as the facts do not confirm it as a required dependency for this checkout.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate lists 'SkiaSharp 2.88.8' as a required package dependency, but the original README and facts do not specify this as a required dependency; this appears to be an unsupported addition."
+    },
+    {
+      "absent": [
+        "Load a workbook with recovery diagnostics and save the updated file"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002"
+      ],
+      "id": "F03",
+      "quote": "Open an existing `report.xlsx` workbook, configure page layout, and export it to PDF.",
+      "repair": "Restore the second Quick Start example demonstrating workbook recovery diagnostics, as it is supported by example:002 and present in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Load a workbook with recovery diagnostics and save the updated file', which the candidate contains",
+      "section_id": "quick_start",
+      "text": "The candidate omits the second Quick Start example (recovery diagnostics) that is explicitly supported by example:002 and the original README, reducing the utility of the quick start section."
+    },
+    {
+      "absent": [
+        "More runnable snippets adapted from the sample projects under [`samples/`](samples/README.md) are collected below."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "link_target:021"
+      ],
+      "id": "F04",
+      "quote": "Aspose.Cells FOSS for .NET supports workbook recovery diagnostics and export to PDF. Example 002 demonstrates loading a workbook with recovery options and saving the updated file.",
+      "repair": "Restore the full Additional Examples section structure from the original README, including the lead-in paragraph referencing the samples directory and all supported examples.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'More runnable snippets adapted from the sample projects under [`samples/`](samples/README.md) are collected below.', which the candidate contains",
+      "section_id": "additional_examples",
+      "text": "The candidate's Additional Examples section is incomplete and disorganized, omitting all supported examples beyond the Quick Start and failing to reference the samples directory properly."
+    },
+    {
+      "absent": [
+        "### Workbook",
+        "### Style",
+        "### Validation",
+        "### PdfSaveOptions",
+        "### ListObject"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.fontsetting",
+        "public_symbol:aspose.cells_foss.numberformat"
+      ],
+      "id": "F05",
+      "quote": "#### Detailed Member Reference",
+      "repair": "Remove the unsupported 'Detailed Member Reference' subsection and revert to the original API Reference structure, which only lists the public surface without detailed member breakdown.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### ListObject', '### PdfSaveOptions', '### Style', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The candidate's API Reference section includes a new 'Detailed Member Reference' subsection that is not present in the original README and adds unsupported details like 'FontSetting' and 'NumberFormat' without clear justification."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "id": "F06",
+      "quote": "Aspose.Cells FOSS for .NET version 26.9.0.0 targets netstandard2.0 and provides read and write capabilities for XLSX files and export to PDF, supporting structured tables and charts without formula calculation, image or HTML export, print execution, macros, or pivot tables.",
+      "repair": "Reorder and reword the Scope and Limitations section to match the original README's structure and phrasing, preserving the exact list items and their order.",
+      "section_id": "scope_limitations",
+      "single_reader_advisory": true,
+      "text": "The candidate's Scope and Limitations section is reordered and reworded in a way that obscures the direct mapping to the original README's limitations list, reducing clarity."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "quote": "## Enterprise Edition",
+      "repair": "Remove the separate 'Enterprise Edition' section and integrate the commercial product reference back into the Scope and Limitations section as in the original README.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate creates a new 'Enterprise Edition' section that is not present in the original README, where this content was part of the Scope and Limitations section."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "93f4b3812a4cfb82e9e5ded9bc2c8a010a990ec5d4d2a3cdd7bca570c583cfd3",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "26b9bd5d92e1edc2d1e162cb",
+      "3c3b7985b1f0977c7f120bba",
+      "5a7b3d4f0db5c30bca2069e8",
+      "a3b6ba4d451861363f1cdb3d"
+    ],
+    "read": true
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

@@ -1,0 +1,74 @@
+{
+  "composition": {
+    "advisories": 5,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 41662,
+      "sha256": "8c4da33cce2722c873fd8172ee10a5c17fc308832df17a12f22bf881440334f7"
+    },
+    "README.patch": {
+      "bytes": 73833,
+      "sha256": "e5810716d499e573db67327ddcc3b0b00e96640a9de5c75f3490cc8abae83fae"
+    },
+    "calls.jsonl": {
+      "bytes": 75436,
+      "sha256": "9369d3e341d24ee809e78bf9b0a5e0e763c8a0abb3ca8454f10e4238e2e3b795"
+    },
+    "content_units.json": {
+      "bytes": 37457,
+      "sha256": "0cd9b2560aa271fd33a80ad02ba02aa289f8ea0428227557780d9b679c5fe289"
+    },
+    "dependencies.json": {
+      "bytes": 522530,
+      "sha256": "a5ac1edc14cf5ce2d56885833245f88f5d8cd25da0a40300527ce2e49ec0f71b"
+    },
+    "dispositions.json": {
+      "bytes": 26054,
+      "sha256": "d4dbba105c55cbb232eee775cee27f4b31163448de81e96b0b189951ba4db2bb"
+    },
+    "examples.json": {
+      "bytes": 39192,
+      "sha256": "9c1c9c0b6ed84548243fd537c702e577249a9f9e6bb5c62c8a367526bd4eedd2"
+    },
+    "facts.json": {
+      "bytes": 2309559,
+      "sha256": "898290a45a992f1e699d81bb83da3dcebd7d3a293367493a208c724e533037da"
+    },
+    "investigation.json": {
+      "bytes": 6380,
+      "sha256": "9f5f9d4fa3783c17782d72f98cbca9fe3433fab93668a857274dd685adb78600"
+    },
+    "plan.json": {
+      "bytes": 8395,
+      "sha256": "201f1f7d1ed44d32095316b996221afae732cc6ab445d6b70cd30bdd7ba60215"
+    },
+    "probes.json": {
+      "bytes": 2468,
+      "sha256": "612b078563d6153475d8375bf3dafa9718b5023908a04859d5f583b561716c9c"
+    },
+    "repairs.json": {
+      "bytes": 655,
+      "sha256": "3bcf71958d1db570026da9934dc0638c416e99dedcf3a8963e1376c985de1c6a"
+    },
+    "review.json": {
+      "bytes": 5674,
+      "sha256": "42fc14e8081dd64d8180b392fdccaef91870628b23b1b090be8076af2fb237eb"
+    },
+    "validation.json": {
+      "bytes": 11420,
+      "sha256": "a1bf957fb38ea557945690ed5054182abeccee2cef5de469133633d0511da196"
+    }
+  },
+  "no_op_proof": null,
+  "provider_calls": 0,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+  "schema_version": 1,
+  "sealed_at": "2026-09-06T04:18:09Z",
+  "state": "ACCEPTED"
+}

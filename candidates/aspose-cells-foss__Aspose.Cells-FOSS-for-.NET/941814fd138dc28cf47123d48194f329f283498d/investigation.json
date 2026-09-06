@@ -1,0 +1,178 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:target_framework",
+      "example:001",
+      "example:002",
+      "example:003"
+    ],
+    "text": "Developers building .NET applications on Windows, Linux, or macOS who need to generate or manipulate Excel-compatible workbooks and PDF reports without requiring Microsoft Excel."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "text": "Create new workbooks or load existing .xlsx files via Workbook constructors, navigate worksheets through Worksheets collection, and write values, formulas, and styles to cells.",
+      "title": "Create and edit workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.borders"
+      ],
+      "text": "Set fonts, fills, borders, alignment, and number formats using Style, Font, Borders, and FillPattern types, with StyleFlag controlling which properties are applied.",
+      "title": "Apply cell formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection"
+      ],
+      "text": "Define validation rules with ValidationCollection and Validation types, and apply conditional formatting via ConditionalFormattingCollection and FormatCondition.",
+      "title": "Add data validation and conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "text": "Export worksheets to PDF using PdfSaveOptions, with page geometry controlled by PageSetup including paper size and orientation.",
+      "title": "Export to PDF"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.chartcollection",
+        "public_symbol:aspose.cells_foss.chart"
+      ],
+      "text": "Build structured Excel tables using ListObject and configure totals aggregation, and create charts using ChartCollection and Chart types.",
+      "title": "Support structured tables and charts"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.pageorientationtype",
+        "public_symbol:aspose.cells_foss.papersizetype"
+      ],
+      "text": "Set worksheet-level display and print options including zoom, gridlines, right-to-left layout, visibility, and page setup via PageSetup.",
+      "title": "Configure page layout and print settings"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "Load support is limited to XLSX files; legacy formats like XLS, ODS, and CSV are not loaded."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "Save support covers only XLSX and PDF; image and HTML export are not supported."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "The library does not parse, evaluate, or recalculate formulas; Cell.Formula stores the formula as a string only."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "No VBA or macro support; macro-enabled workbooks round-trip only non-macro content."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "Pivot tables are not part of the public API surface."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "text": "No print execution; PageSetup configures print settings for spreadsheet applications but does not send workbooks to a printer."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "package:target_framework",
+        "example:001"
+      ],
+      "text": "Enables programmatic creation and modification of Excel workbooks in server-side or containerized .NET environments without installing Microsoft Excel."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics"
+      ],
+      "text": "Supports robust loading of malformed XLSX files with repair diagnostics and optional recovery, preventing outright failures."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions"
+      ],
+      "text": "Provides worksheet-level formatting, styling, and layout control for consistent report generation and export to PDF."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "package:name",
+      "identity:ecosystem",
+      "identity:platform",
+      "license:spdx"
+    ],
+    "text": "Aspose.Cells.FOSS is a free, open-source .NET library for creating, loading, editing, and saving Excel .xlsx workbooks and exporting to PDF, with no dependency on Microsoft Excel."
+  },
+  "uncertainties": [
+    "The exact set of supported public symbols beyond those listed in public_symbol facts is not fully enumerated.",
+    "Whether the library supports loading or saving CSV, ODS, or other formats beyond XLSX and PDF is not confirmed by public_symbol or example facts.",
+    "The behavior of formula evaluation or recalculation when saving a workbook with formulas is not explicitly stated in example or public_symbol facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.style"
+      ],
+      "name": "Create and format a workbook",
+      "text": "Instantiate a new Workbook, add data to Cells, apply Style with Font, Borders, and FillPattern, and save to .xlsx."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics"
+      ],
+      "name": "Load and repair a workbook",
+      "text": "Load a workbook using LoadOptions with TryRepairPackage and TryRepairXml enabled, inspect LoadDiagnostics for repairs or data loss risk, then save the repaired file."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions"
+      ],
+      "name": "Export to PDF",
+      "text": "Configure PageSetup for paper size and orientation, then save the workbook to PDF using PdfSaveOptions with OnePagePerSheet."
+    }
+  ]
+}

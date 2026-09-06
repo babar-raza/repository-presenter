@@ -1,0 +1,338 @@
+{
+  "additional_example_ids": [
+    "example:004",
+    "example:005",
+    "example:007"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.scene"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.shading"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.shading"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.deformers"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.profiles"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.profiles"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.render"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.render"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.fileformattype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformattype"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.a3dobject"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.a3dobject"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Construct 3D scene graphs",
+      "Create primitive and CAD-style geometry",
+      "Assign shading materials",
+      "Convert between interchange formats",
+      "Animate scenes with keyframes",
+      "Define NURBS curves and surfaces",
+      "Access per-vertex mesh data"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node"
+      ],
+      "shared_fact_ids": [],
+      "title": "Construct 3D scene graphs"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities",
+        "example:006"
+      ],
+      "shared_fact_ids": [
+        "example:006",
+        "public_symbol:aspose.threed.entities"
+      ],
+      "title": "Create primitive and CAD-style geometry"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "shared_fact_ids": [],
+      "title": "Assign shading materials"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:005",
+        "example:006"
+      ],
+      "shared_fact_ids": [
+        "example:006"
+      ],
+      "title": "Convert between interchange formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers"
+      ],
+      "shared_fact_ids": [],
+      "title": "Animate scenes with keyframes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "title": "Define NURBS curves and surfaces"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "title": "Access per-vertex mesh data"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:014.paragraph"
+      ],
+      "section_id": "installation",
+      "text": "The paragraph about target frameworks and the converter tool is omitted because no fact supports it."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:021.list"
+      ],
+      "section_id": "dependencies",
+      "text": "The development dependencies list is omitted because no fact supports it."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:023.paragraph",
+        "inherited_unit:024.code_block"
+      ],
+      "section_id": "quick_start",
+      "text": "The Quick Start paragraph and code block are rewritten because the original example is contradicted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:030.heading",
+        "inherited_unit:031.paragraph",
+        "inherited_unit:032.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The enumeration heading, paragraph, and code block are omitted because example:003 is contradicted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.paragraph",
+        "inherited_unit:067.code_block"
+      ],
+      "section_id": "development_testing",
+      "text": "The converter tool paragraph and build command are omitted because no fact supports them."
+    }
+  ],
+  "flagship_example_id": "example:005",
+  "links": [
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:061.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:006",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

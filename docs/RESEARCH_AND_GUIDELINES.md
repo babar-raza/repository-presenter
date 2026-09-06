@@ -4023,3 +4023,34 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   for the compiler-target property, unresolved snippet imports) were fixed in lane C's own paths with
   a test each. `tests/test_queue_agreement.py` green before this commit. Reverse by restoring the
   previous G4-W17 arrival-list text.
+
+- **2026-09-06 23:05 · loop (PROVISIONAL, proposal not landed - scope is not mine to grow) ·
+  Quick Start has no floor for a repository whose examples all fail.** Item G4-W11. Aspose.Words'
+  `BLOCKED_TOOLCHAIN` cleared (a leftover `VBCSCompiler.exe` build server from today's heavy
+  concurrent .NET usage, stopped and its five locked workspace directories removed by hand - not
+  a code defect, `_fresh_workspace` did exactly what it is for), and the repository genuinely
+  builds now, compiling all 5 examples and finding every one CONTRADICTED: real compile errors
+  against this revision, not a toolchain gap. `presentation_planning` then cited a CONTRADICTED
+  example as `quick_start_example_id`, rejected twice for `fact example:NNN is CONTRADICTED, not
+  SUPPORTED`. Root cause: `planning_schema()` restricts `quick_start_example_id`'s enum to
+  verified examples only when at least one exists (`if not verified: return schema`) - with zero
+  verified examples the field stays an unconstrained string, and the model must still supply
+  *something* non-empty, since `quick_start` is `required=True` unconditionally in
+  `SEMANTIC_SHELL` and the field's schema type is `string, minLength: 1`, never nullable. No
+  deterministic check can compose a value here; the gap is in the contract's own requirement, not
+  in a decision code can already make. Not landed - a `README_CONTRACT.md` revision needs its own
+  defect record and lands with code and tests (loop-prompt §0), which is more than this box can
+  absorb alongside the cohort. Proposal for §27.9: Quick Start's condition becomes
+  `bool(verified_examples)`, `required` false, and the renderer treats its absence like any other
+  conditional row (parallel to `additional_examples`'s own `len(verified) >= 2` condition beside
+  it); resume predicate for Words is this landing, or a fresh clone of the repository at a later
+  revision fixing the compile errors independently of this loop.
+
+- **2026-09-06 23:15 · loop (PROVISIONAL) · the fix holds: two runs of Aspose.Cells for .NET,
+  both after the Time Elapsed scrub, are byte-identical.** Item G4-W11. `check 11 judged; no-op
+  proven: a fresh process reproduced every artifact byte for byte with zero provider calls` -
+  state `READY_FOR_PROPOSAL`. **Aspose.Cells is the first no-op-proven .NET candidate**;
+  `current_candidates` moves from 2 to 3. Aspose.3D for .NET is also sealed (`ACCEPTED`, review
+  ACCEPT, zero findings) but has not yet run its own confirming rerun, so it is committed as
+  sealed evidence without being counted in `current_candidates` until that proof completes -
+  measured evidence over anticipation (loop-prompt §5).
