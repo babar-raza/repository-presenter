@@ -25,13 +25,14 @@ toolchains:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 3
-  status_line_observed: '2026-09-06 19:46, from origin/main at 2b88ea4: candidates 4/34 current
-    reviewable no-op-proven, unchanged by the G4-W15 Go re-run (it did not seal; the count rose to
-    4 from the primary''s own work, not this lane''s). G4-W16''s acceptance line asked for 31
-    sealed and 34 dispositions; that number was written before the shared blockers were known and
-    no lane can reach it while G4-W17''s arrival list is open. Recorded rather than met. All three
-    of lane D''s repositories now compose or fail past the class their first disposition named:
-    every remaining blocker is shared code, none of it in a lane path.'
+  status_line_observed: '2026-09-06 22:05, from origin/main at ffdf4c7: candidates 6/34 current
+    reviewable no-op-proven, unchanged by the second G4-W15 re-run (Aspose.PDF for Go did not seal;
+    the count rose from 4 to 6 through the primary''s own work, not this lane''s). G4-W16''s
+    acceptance line asked for 31 sealed and 34 dispositions; that number was written before the
+    shared blockers were known and no lane can reach it while G4-W17''s arrival list is open.
+    Recorded rather than met. All three of lane D''s repositories now fail past the class their
+    previous disposition named - each earlier class was closed by the arrival item that answered its
+    proposal - and every remaining blocker is shared code, none of it in a lane path.'
 items:
 - id: G4-W15
   status: ACCEPTED
@@ -66,6 +67,33 @@ items:
       never shown (PROPOSAL P10; Cells Go, at 109 symbols, is the controlled comparison). Both
       dispositions become BLOCKED_SHARED_CODE on the new classes; sealed_by_lane stays 0 and
       dispositions_by_lane stays 3. See docs/RESEARCH_LANE_D.md.'
+  rerun_2:
+    at: '2026-09-06T22:05:00+05:00'
+    from: origin/main at ffdf4c7 (G4-W17 arrival item 27 landed at 21:27, commit 0d8767f)
+    scope: aspose-pdf-foss/Aspose-PDF-FOSS-for-Go only
+    receipt: evidence/build/lanes/lane-d/G4-W15.json (rerun_2_2026_09_06 block)
+    outcome: 'PROPOSAL P10''s resume predicate was met and its class is closed. Item 27 raised
+      core/facts.py SYMBOL_CAP from 150 to 6000 and did exactly what P10 said it would: S3
+      repository_investigation SUCCEEDED for the first time in this repository''s history - 8
+      capabilities, 6 workflows, 4 problems solved, 6 limitations - where every earlier attempt was
+      rejected twice for citing IDs the truncated packet never showed. Its one rejected attempt cited
+      public_symbol:document.validate, so the job was reading Document rather than blind to it. S4
+      source_reconciliation then passed on the first attempt, S5 presentation_planning on the second
+      with an 18-section plan, and S6 section_authoring authored seven of its eight sections clean on
+      the first attempt - three stages this repository had never reached. It did not seal: S6 failed
+      on the eighth section, rejected twice for one token in one unit - `unit limitation:3:
+      identifiers that are not accepted fact values: ZapfDingbats`. The unit is a faithful
+      restatement of the repository''s own Scope-and-Limitations bullet and cites exactly the fact
+      that carries it; ZapfDingbats is a PDF Standard-14 font name that no public symbol spells (0 of
+      1,467) and whose only source spellings sit inside code spans, which composition/authoring.py
+      ::prose_nouns strips before admitting nouns. In the same repository TrueType, OpenType,
+      DeviceCMYK and PostScript were admitted purely because that README spells them outside
+      backticks (PROPOSAL P12; PROPOSAL P13 for the wholesale rejection of a section over one unit).
+      No lane-owned code changed - the blocker was and remains shared. The disposition becomes
+      BLOCKED_SHARED_CODE / SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE; sealed_by_lane stays 0 and
+      dispositions_by_lane stays 3. The lane''s other two repositories were not run: their resume
+      predicates (G4-W17 items 28-30 for Cells Go, item 22 for Cells Rust) are still open. See
+      docs/RESEARCH_LANE_D.md.'
 - id: G4-W16
   status: ACCEPTED
   accepted_at: '2026-09-06T11:05:00+05:00'
