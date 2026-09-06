@@ -1,0 +1,159 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W14",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-06T08:20:00+05:00",
+ "control_revision": "7ea433eb470eb4be5ca96474e53e8f73b9bf1ed3",
+ "control_revision_note": "The single-use branch lane-b/G4-W14 is cut from origin/main at the revision below; the acceptance commit carrying this receipt, the lane cursor and the RESEARCH_LANE_B.md entries is its child, landed through one squashed pull request after the hosted three-version run. Prerequisites verified on origin/main before the branch was cut: G4-W10 accepted at bb9553d, G4-W09 accepted at 95a6a05, LANE-B-00 ACCEPTED in project/lanes/lane-b.yaml.",
+ "time_box": {
+  "declared": "2 hours from promotion (RESEARCH 28.12)",
+  "started": "2026-09-06T07:40 PST",
+  "note": "At the box: what passed was sealed as facts and receipts, every repository that did not seal has an evidence-bound disposition naming its failure class and resume predicate, and the item is accepted."
+ },
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+  "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+  "path_policy": "Nothing is on the user or system PATH. `tsc` is resolved by shutil.which('tsc'), then shutil.which('tsc.cmd'), then the absolute path the registry records; the verifier runs it in a disposable profile whose HOME, APPDATA, NPM_CONFIG_CACHE and the rest point inside the run directory (core.execution.profile_environment)."
+ },
+ "toolchain_used": {
+  "name": "tsc",
+  "path": "C:\\tools\\rp-toolchains\\npm\\prefix\\tsc.cmd",
+  "version": "Version 5.9.3",
+  "resolved_by": "the machine-local registry; shutil.which('tsc') and shutil.which('tsc.cmd') both return None here, which is the no-PATH proof",
+  "provisioned_by": "LANE-B-00, ahead of this item's box (RESEARCH 28.12 point 6): nothing was downloaded inside the box"
+ },
+ "what_landed": {
+  "spec": "core.ecosystems.EcosystemSpec TYPESCRIPT, built and registered by platforms/typescript.py itself with SPECS.setdefault - the lane never edits core/. Fence typescript (aliases ts, tsx), registry npm, install fact install_command:npm, npm version badge, floor package:node_engine / Node.js / engines.node, manifest glob package.json, source suffixes .ts and .tsx, example clock 180s inside core.execution's 300s ceiling.",
+  "modules": [
+   "src/repository_presenter/components/readme/extractors/platforms/typescript.py",
+   "src/repository_presenter/components/readme/extractors/platforms/typescript_barrel.py",
+   "src/repository_presenter/components/readme/extractors/platforms/typescript_examples.py"
+  ],
+  "tests": [
+   "tests/components/readme/extractors/platforms/test_typescript.py (14)",
+   "tests/components/readme/extractors/platforms/test_typescript_examples.py (8)"
+  ],
+  "facades_used": {
+   "ManifestReader": "surface.manifest.read_identity for name, version and engines_node; dependency versions are read from package.json by the plugin because the vendored JS reader returns names only and no development section",
+   "SurfaceExtractor": "surface.extractor.surface_symbols with the typescript grammar, scanned from the entry point's own directory",
+   "RegistryProbe": "surface.registry.observe -> npm; an inconclusive reading leaves the install claim UNRESOLVED, never CONTRADICTED"
+  },
+  "outside_owned_paths": "tests/components/readme/extractors/platforms/test_registry.py, two literal assertions about known_ecosystems() plus one added negative assertion. RESEARCH_LANE_B.md records why this is unavoidable for any item that registers an ecosystem and what the owner may decide instead."
+ },
+ "predicates": [
+  {
+   "predicate": "Identity, floor and the dependency snapshot come from the vendored ManifestReader.",
+   "verdict": "PASS",
+   "evidence": "read_identity gives @aspose/3d 24.12.0 and excel-cells 1.0.0 from each package.json, and engines_node for the floor (neither repository declares one, so neither claims a runtime requirement). The snapshot separates dependencies and peerDependencies (required) from optionalDependencies and devDependencies: 3D renders xmldom ^0.6.0 required and 10 development, Cells 3 required and 4 development, and a manifest with no runtime dependency emits the dependency:none verified-zero marker citing the clause."
+  },
+  {
+   "predicate": "The surface comes through the shared extractor's barrel-resolving TypeScript adapter.",
+   "verdict": "PASS",
+   "evidence": "typescript_barrel resolves the declared entry point, mapping build output back through tsconfig's outDir and rootDir (3D declares dist/index.js and ships no dist/, so the barrel is src/aspose/threed/index.ts) and refusing an entry point that re-exports nothing (Cells declares main: index.ts, a demo script; its barrel is aspose_cells/index.ts). reexported_names walks the barrel graph: 81 names on 3D, 43 on Cells. surface_facts keeps only symbols in that closure and renames them to the name a consumer writes: 1034 public_symbol facts on 3D, 353 on Cells, none of them naming an internal."
+  },
+  {
+   "predicate": "A fresh verifier runs tsc --noEmit through the disposable npm profile.",
+   "verdict": "PASS",
+   "evidence": "verify_typescript_examples stages the repository's sources beside the example, adds the declared build output from the sources tsconfig says produce it, writes the Node host declarations, and runs tsc --noEmit with the package's own target and moduleResolution, an ES module and DOM appended to lib. Measured on the cohort: 3D 8 of 9 EXECUTED, Cells 3 of 3 EXECUTED. The one failure is real - example 2 is `scene.save('model.stl', 'stl')` with no `scene` in scope."
+  },
+  {
+   "predicate": "Registry facts come through the vendored RegistryProbe.",
+   "verdict": "PASS",
+   "evidence": "registry_facts re-issues install_command:npm with the reading's evidence and a ProbeRecord; npm has neither @aspose/3d nor excel-cells, so both are CONTRADICTED with 1.0 confidence, which matches the census's `npm not found` for both. The unit test drives an inconclusive reading and asserts UNRESOLVED rather than CONTRADICTED (section 29.6 E5)."
+  },
+  {
+   "predicate": "A negative control proves the check can say no.",
+   "verdict": "PASS",
+   "evidence": "Three of them. test_the_surface_is_what_the_entry_point_re_exports asserts InternalBuffer - exported, never re-exported - produces no fact. test_an_example_calling_a_member_that_does_not_exist_fails runs tsc for real and asserts FAILED naming `explode`. test_a_missing_compiler_reports_not_verified_rather_than_failure asserts NOT_VERIFIED, never CONTRADICTED, when the toolchain is absent."
+  },
+  {
+   "predicate": "Cohort report for the two active TypeScript repositories; zero-call proofs.",
+   "verdict": "PASS",
+   "evidence": "Both ran --facts-only, which makes no provider call at all: 3D 1178 facts / 1175 supported / 0 unresolved / 3 contradicted, Cells 451 facts / 450 supported / 0 unresolved / 1 contradicted and no required contract row without evidence. Both then ran the full transaction and neither sealed; each has a disposition below."
+  },
+  {
+   "predicate": "Sealed candidates.",
+   "verdict": "FAIL (disposed, not sealed)",
+   "evidence": "Zero of the three TypeScript repositories sealed inside the box. Neither failure is in the ecosystem module: 3D dies in the S4 source_reconciliation job, Cells in a Windows path-length limit inside core/llm/jobs.py, and PDF is disabled upstream. All three are recorded below and in RESEARCH_LANE_B.md with a resume predicate."
+  }
+ ],
+ "cohort": [
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+   "revision": "7b959706f2ad976db929f26ec079f43a07d578e1",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_RECONCILIATION",
+   "facts": 1178,
+   "public_symbols": 1034,
+   "examples": "9 candidates; 8 EXECUTED, 1 FAILED",
+   "detail": "S4 source_reconciliation rejected its own output twice: five inherited units placed into `installation` and `license`, and rendering_fact_ids finds nothing for either - install_command:npm is CONTRADICTED (npm has no @aspose/3d) and the repository ships no licence file. Both are true of the repository; the job has to answer OMIT_UNSUPPORTED or DEFER_UNRESOLVED and answered with a placement.",
+   "resume_predicate": "the source_reconciliation prompt makes the empty-section rule answerable in one attempt (a prompts/ change the lane must never make), or the package is published to npm and a licence file is added; then re-run present."
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+   "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_ENVIRONMENT (Windows MAX_PATH)",
+   "facts": 451,
+   "public_symbols": 353,
+   "examples": "3 candidates; 3 EXECUTED",
+   "detail": "core/llm/jobs.py:113 writes .../calls/<sha24>.rejected-1.json, 261 characters from this lane's worktree against Windows' 260-character limit: mkdir succeeds, write_bytes raises FileNotFoundError. The census's `invalid index-pack output` clone failure did not reproduce - the repository cloned cleanly at fc18650 twice.",
+   "resume_predicate": "run the transaction from a checkout short enough for that name (the primary checkout's root is 58 characters shorter than this worktree's), or enable Windows long paths, or CallStore.reject writes a shorter name."
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+   "revision": null,
+   "outcome": "DISPOSITION",
+   "failure_class": "DISABLED_UPSTREAM",
+   "detail": "data/registry.json records mode: disabled and the census records status: NOT CLONED; the lane file says disposition only. No clone was attempted.",
+   "resume_predicate": "the registry entry's mode becomes dry_run and the repository clones; the plugin and verifier need no change to take it."
+  }
+ ],
+ "proposals": [
+  "core/ecosystems.py: let spec_for discover a SPEC attribute on platforms/<ecosystem>.py the way registry.py discovers PLUGIN, so a spec's registration does not depend on import order.",
+  "extractors/surface/extractor.py: _KINDS has no entry for abstract_class_declaration, so an abstract class is `unknown` and the renderer's public-type count understates 3D's reference by 2.",
+  "composition/renderer.py: _IMPORT is Python-shaped, so no TypeScript example matches an import_path fact and no `Verify the install` block ever renders.",
+  "prompts/source_reconciliation.yaml: give the job the set of sections that render nothing before it answers; the rejection text already names the only two admissible dispositions.",
+  "core/llm/jobs.py: CallStore.reject's `.rejected-<n>` suffix is the longest name any transaction writes; a shorter one removes a class of Windows-only transaction deaths."
+ ],
+ "local_ci_equivalent": {
+  "note": "loop-prompt section 3: one full suite immediately before the commit.",
+  "steps": [
+   {
+    "command": "ruff check .",
+    "exit_code": 0
+   },
+   {
+    "command": "ruff format --check .",
+    "exit_code": 0
+   },
+   {
+    "command": "mypy src",
+    "exit_code": 0,
+    "files": 117
+   },
+   {
+    "command": "python -m pytest -n auto",
+    "exit_code": 0
+   }
+  ]
+ },
+ "hosted_ci": {
+  "note": "The authoritative 3.11/3.12/3.13 proof (loop-prompt section 3).",
+  "runs": []
+ },
+ "next_work_item": "G4-W15 (Go spec and cohort); its prerequisites - G4-W10 and G4-W09 accepted on main, LANE-B-00 accepted - already hold, so the reviewer can spawn it immediately.",
+ "measurement": {
+  "repositories_in_scope": 3,
+  "sealed": 0,
+  "dispositions": 3,
+  "facts_extracted": 1629,
+  "public_symbols": 1387,
+  "examples_verified": 12,
+  "examples_type_checked": 11,
+  "provider_calls_in_the_facts_only_passes": 0
+ }
+}
