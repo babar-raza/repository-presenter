@@ -30,6 +30,7 @@ from repository_presenter.components.readme.composition.policy import (
     PlanningPolicy,
     policy_packet,
 )
+from repository_presenter.components.readme.evidence.facts.links import extract_links
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     BANNER_FACT_ID,
     ENTERPRISE_FACT_ID,
@@ -253,6 +254,13 @@ def plan_checks(
     output["sections"] = [_decision(section, conditions[section.id]) for section in SEMANTIC_SHELL]
     decisions = {entry["section_id"]: entry for entry in output["sections"]}
     included = {section for section, entry in decisions.items() if entry["include"]}
+    # G4-W17 arrival item 32. A VERIFIED_MOVE/VERIFIED_PRESERVE unit renders its own Aspose
+    # links verbatim - reconciliation's decision, not this plan's - so BC-06's ceiling on the
+    # whole rendered document can be exceeded with nothing left in the plan's own links list to
+    # trim; a repair re-ask of planning alone then returns a byte-identical list (measured
+    # 2026-09-06, Aspose.3D for Java, only blocker). Counting them here lets the trim below
+    # reserve headroom for what is already committed to render, the only lever planning has.
+    preserved_aspose = 0
     if dispositions is not None:
         for placement in placements(output, dispositions, facts, ecosystem):
             if placement.outcome == "excluded":
@@ -260,6 +268,13 @@ def plan_checks(
                     f"section {placement.destination} is excluded at this revision but the "
                     f"reconciliation placed {placement.unit_id} there; place the unit in an "
                     "included section or defer it, or the transaction fails closed naming it"
+                )
+            elif placement.outcome == "placed":
+                preserved_aspose += sum(
+                    1
+                    for target in extract_links(placement.text)
+                    if target.kind == "external"
+                    and any(domain in target.href for domain in _ASPOSE_DOMAINS)
                 )
     capabilities = output.get("core_capabilities", [])
     if not policy.capabilities_min <= len(capabilities) <= policy.capabilities_max:
@@ -397,6 +412,9 @@ def plan_checks(
     raw_links = output.get("links", [])
     kept_links: list[dict[str, Any]] = []
     aspose_kept = 0
+    # G4-W17 arrival item 32: a preserved unit's own Aspose links already count against BC-06's
+    # ceiling on the whole document, so the plan's own share is trimmed to what is left over.
+    trim_ceiling = max(policy.aspose_links_max - preserved_aspose, 0)
     for link in raw_links:
         target = link.get("link_fact_id")
         value = link_facts.get(target)
@@ -406,7 +424,7 @@ def plan_checks(
             and any(domain in value for domain in _ASPOSE_DOMAINS)
         )
         if is_aspose:
-            if aspose_kept >= policy.aspose_links_max:
+            if aspose_kept >= trim_ceiling:
                 continue
             aspose_kept += 1
         kept_links.append(link)

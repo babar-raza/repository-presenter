@@ -264,6 +264,52 @@ def test_a_repeated_hub_and_an_over_ceiling_aspose_link_are_trimmed_not_rejected
     ]
 
 
+def test_a_preserved_units_own_aspose_link_reserves_headroom_in_the_plans_trim() -> None:
+    """G4-W17 arrival item 32. Measured 2026-09-06 on aspose-3d-foss/Aspose.3D-FOSS-for-Java: a
+    VERIFIED_MOVE unit renders its own Aspose link verbatim - reconciliation's decision, not the
+    plan's - so BC-06's ceiling on the whole rendered document could be exceeded with nothing
+    left in the plan's own links list to trim, and a repair re-ask of planning alone returned a
+    byte-identical list every time, since planning genuinely had nothing left to change. Counting
+    a placed unit's own Aspose links here reserves headroom so the plan's own trim closes the gap
+    instead of leaving it for a stage with no lever to pull."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:002.paragraph",
+                "inherited_unit",
+                "See the [full guide](https://docs.aspose.org/widget/full).",
+            ),
+        ),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:002.paragraph",
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "documentation_resources",
+                "fact_ids": [],
+                "rationale": "kept verbatim",
+            }
+        ]
+    }
+    plan = _plan()  # carries one Aspose link of its own: link_target:002
+    ceiling = PlanningPolicy(aspose_links_max=1)
+    assert plan_checks(plan, facts, ceiling, dispositions=dispositions, ecosystem="python") == []
+    # The preserved unit's own link already fills the ceiling of 1, so the plan's own link -
+    # which planning could still trim, unlike the preserved one - is dropped to leave it room.
+    assert plan["links"] == []
+
+    # Without a preserved Aspose link, the same ceiling leaves the plan's own link untouched.
+    bare_plan = _plan()
+    assert plan_checks(bare_plan, FACTS, ceiling) == []
+    assert bare_plan["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
+    ]
+
+
 def test_a_shell_rendered_link_is_never_a_plans_own_assignment() -> None:
     """README_CONTRACT.md rows 3 and 18: the banner and the closing Enterprise sentence render
     deterministically from these exact IDs, in their own fixed place.

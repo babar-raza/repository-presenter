@@ -5089,3 +5089,33 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` and
   `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Java` - this was each repository's only
   named blocker.
+
+- **2026-09-06 23:12 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 32 landed:
+  planning's own Aspose-link trim now reserves headroom for a preserved unit's own links.**
+  `composition/planning.py`'s `plan_checks` already trims `output["links"]` (item 16) to
+  `policy.aspose_links_max` in plan order, but a VERIFIED_MOVE/VERIFIED_PRESERVE unit renders its
+  own Aspose links verbatim - reconciliation's decision, not the plan's - so BC-06's ceiling on
+  the *whole rendered document* could still be exceeded with nothing left in the plan's own list
+  to trim; a repair re-ask of planning alone returned a byte-identical list every time, since
+  planning genuinely had nothing left to change [lane C, 3D Java, BC-06, only blocker]. Considered
+  and set aside: rerouting the BC-06 failure itself to RECONCILING - reconciliation could in
+  principle choose a different disposition for the offending unit (drop it, or hand it to
+  authoring as VERIFIED_REWRITE instead of preserving it verbatim), but that unpicks a placement
+  reconciliation already made for its own good reason, and burns a second repair budget where the
+  first stage in line already had every fact it needed. Chosen instead: `plan_checks` already
+  receives `dispositions` and `ecosystem` (used since item 16's own excluded-section check) and
+  already calls `composition.placement.placements()` - extended to also sum the Aspose links
+  found (via `evidence.facts.links.extract_links`) inside every unit whose placement outcome is
+  `"placed"`, the same set `placed_texts()` renders verbatim. The plan's own trim then bounds
+  itself to `max(aspose_links_max - preserved_aspose, 0)` instead of the raw ceiling, so a
+  same-fingerprint repair re-ask now genuinely closes the gap in one round instead of returning
+  the same list. The second, later hard-error check (`aspose > aspose_links_max` against the
+  plan's own post-trim list) is untouched - it still holds trivially, since the trimmed count can
+  only be at or under the reserved ceiling, which is at or under the full one. New test:
+  `test_a_preserved_units_own_aspose_link_reserves_headroom_in_the_plans_trim`
+  (`tests/.../test_planning.py`) - a VERIFIED_MOVE unit carrying one Aspose link against a ceiling
+  of 1 drops the plan's own Aspose link to zero; the same plan and ceiling with no preserved unit
+  keeps its own link, proving the reservation is genuinely conditional on what is actually placed.
+  All 17 pre-existing planning tests pass unchanged. Full suite green, ruff/mypy clean, before this
+  entry. Resume predicate: re-run `present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Java` - this
+  was its only named blocker.
