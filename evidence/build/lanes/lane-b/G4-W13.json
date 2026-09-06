@@ -10,7 +10,7 @@
   "time_box": {
     "declared": "3 hours from promotion (RESEARCH 28.12)",
     "started": "2026-09-06T07:55 +05:00",
-    "note": "At the box: nothing sealed, four evidence-bound dispositions, three PROPOSALs. Every repository reached S4 with a complete, clean fact set and real example verdicts; none reached rendering."
+    "note": "At the box: nothing sealed, four evidence-bound dispositions, five PROPOSALs. Every repository reached S4 with a complete, clean fact set and real example verdicts; two reached S6 section_authoring; none reached rendering."
   },
   "environment": {
     "os": "Windows 11 10.0.26200",
@@ -87,7 +87,7 @@
     {
       "predicate": "The four C++ repositories as a cohort, with parity per repository.",
       "verdict": "PARTIAL",
-      "evidence": "All four ran end to end through S4 with complete fact sets and no required contract row without evidence. None sealed: every one was refused by source_reconciliation for the same shared-code reason. Parity was not reached because no candidate was composed."
+      "evidence": "All four ran with complete fact sets and no required contract row without evidence. None sealed: Email and PDF were refused at S4 source_reconciliation, and Cells and Slides reached S6 section_authoring and were refused there. Every refusal is in shared code the lane must not edit. Parity was not reached because no candidate was composed."
     },
     {
       "predicate": "Zero-call proofs.",
@@ -122,8 +122,8 @@
       "public_symbols": 225,
       "examples": "4 candidates; 2 EXECUTED, 2 FAILED",
       "required_rows_without_evidence": [],
-      "detail": "S4 rejected twice on inherited_unit:012.paragraph and :013.code_block placed into `installation`. The library configures and builds cleanly in 15 seconds. Example 4 uses std::cerr while including only <fstream>.",
-      "resume_predicate": "as for Cells; then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
+      "detail": "S4 rejected twice on inherited_unit:012.paragraph and :013.code_block placed into `installation`, which renders nothing without a SUPPORTED install command. The library configures and builds cleanly in 15 seconds. Example 4 uses std::cerr while including only <fstream>.",
+      "resume_predicate": "the queued source_reconciliation fix (the primary's), then BC-02 admitting a verified source build; then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
     },
     {
       "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
@@ -141,20 +141,21 @@
       "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
       "revision": "733de4bf72fa33d16ee153779e8ee924ea1faebe",
       "outcome": "DISPOSITION",
-      "failure_class": "BLOCKED_RECONCILIATION",
+      "failure_class": "BLOCKED_AUTHORING",
       "facts": 2999,
       "public_symbols": 2845,
       "examples": "10 candidates; 9 EXECUTED, 1 FAILED",
       "required_rows_without_evidence": [],
-      "detail": "S4 source_reconciliation rejected inherited_unit:043.heading and :044.code_block placed into `installation`, the same class as Cells and Email. The conanfile under packaging/conan/ is not on the build path: the root CMakeLists.txt fetches pugixml and miniz with FetchContent when find_package finds none, so conan was never needed and nothing was installed. The three examples aspose.org lists as not compiling all compile at this revision.",
-      "resume_predicate": "as for Cells; then re-run present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+      "detail": "Reconciliation and planning both closed after one rejection each; section_authoring then rejected limitation:3 and :4 twice for naming get_inherited_xfrm and xml_node, which are declared under include/Aspose/Slides/Foss/_internal/ and are therefore not public facts - the investigation read them from the tree and no authoring attempt could cite them. The conanfile under packaging/conan/ is not on the build path: the root CMakeLists.txt fetches pugixml and miniz with FetchContent when find_package finds none, so conan was never needed and nothing was installed. The three examples aspose.org lists as not compiling all compile at this revision.",
+      "resume_predicate": "the investigation and plan are constrained to the public fact set, or an authoring rejection naming an unknown identifier reopens planning; then re-run present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
     }
   ],
   "proposals": [
     "extractors/surface/extractor.py: surface_symbols discards the `visibility` key api_surface.extract_api_surface returns, so every ecosystem publishes what the vendored engine already marked internal; carrying it on SurfaceSymbol would let each plugin decide once.",
     "validation/registry.py _check_install (BC-02) and docs/README_CONTRACT.md section 5: an install command is only ever SUPPORTED when a package registry says the package is published, so no unpublished repository in this portfolio can pass BC-02; admitting a verified source build as equal evidence unblocks the four C++ and two TypeScript repositories.",
     "composition/renderer.py _installation: the source-checkout block is hardcoded to `pip install .` for every ecosystem; EcosystemSpec's own docstring already names a `source_install` template the dataclass has no field for.",
-    "composition/authoring.py _FORBIDDEN: the Markdown-list entries match `- ` and `* ` anywhere in a unit, so a suspended hyphen in prose ('workbook- or sheet-scoped') is rejected as a list; a newline is already forbidden, so anchoring both to the start of the text loses nothing. Measured on Aspose.Cells for C++, which lost a whole transaction to two rejections of one sentence."
+    "composition/authoring.py _FORBIDDEN: the Markdown-list entries match `- ` and `* ` anywhere in a unit, so a suspended hyphen in prose ('workbook- or sheet-scoped') is rejected as a list; a newline is already forbidden, so anchoring both to the start of the text loses nothing. Measured on Aspose.Cells for C++, which lost a whole transaction to two rejections of one sentence.",
+    "prompts/repository_investigation.yaml and the planning stage: a planned limitation whose only vocabulary is non-public cannot be authored, and the rejection loop retries authoring rather than the stage that chose the vocabulary. Measured on Aspose.Slides for C++: limitation:3 and :4 name get_inherited_xfrm and xml_node, both declared under _internal/."
   ],
   "proposals_not_repeated": [
     "source_reconciliation placing units into sections that render nothing - already queued for the primary loop; the four dispositions name it as their resume predicate rather than re-proposing it.",

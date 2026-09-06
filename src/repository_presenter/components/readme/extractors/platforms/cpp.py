@@ -322,9 +322,11 @@ class CppPlugin:
         `CMakeLists.txt` at the root at all and four below it: the library's, its tests', a
         sibling `Aspose.Cells.Foss.Cpp.Tests` harness and a `samples` project - and the last two
         declare a `project()` at a *shallower* depth than the library. Ranked instead by what a
-        library's own manifest looks like: it declares a project, it declares a library, it is
-        not under a directory whose name says it is not the product, and it has an `include`
-        directory beside it - then by depth, then by path so the choice is deterministic.
+        library's own manifest looks like: it declares a project, it declares a library with
+        `add_library`, and it has an `include` directory beside it - then by depth, then by path
+        so the choice is deterministic. A name test would not do it: the harness that fools depth
+        is `Aspose.Cells.Foss.Cpp.Tests`, whose path segment is not the word "tests", while the
+        library itself sits under a directory whose name contains "Cpp".
         """
         candidates = [
             path

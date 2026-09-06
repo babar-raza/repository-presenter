@@ -326,8 +326,20 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `at_a_glance`, `key_capabilities`, `installation`, ... thirteen of them) in `fact_ids`, which is
   the reconciliation job's own confusion between a destination and a citation. Resume predicate:
   the queued `source_reconciliation` fix, then BC-02 above.
+- **2026-09-06 · G4-W13 · PROPOSAL (primary loop, `prompts/repository_investigation.yaml` and the
+  planning stage): a planned limitation whose only vocabulary is non-public is unauthorable, and
+  the rejection loop retries authoring rather than the stage that chose it.** Measured on
+  Aspose.Slides for C++, which reached S6 with everything green and then lost the transaction to
+  two rejections of `limitation:3` ("identifiers that are not accepted fact values:
+  get_inherited_xfrm, get_inherited_xfrm()") and `limitation:4` (`xml_node`). Both identifiers are
+  real, and both are declared under `include/Aspose/Slides/Foss/_internal/`, which this plugin
+  withholds from the public surface for the reason recorded above - so the investigation read them
+  from the tree, the plan asked for a limitation about them, and no authoring attempt could cite a
+  fact that does not exist. Resume predicate: the investigation and the plan are constrained to
+  the public fact set, or an authoring rejection naming an unknown identifier reopens planning
+  rather than authoring (`docs/STATE_MACHINE.md` §8's routing); then re-run the repository.
 - **2026-09-06 · G4-W13 · DISPOSITION · `aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` at
-  `733de4b` - `BLOCKED_RECONCILIATION`.** 518 tree entries, 2999 facts (2845 public symbols after
+  `733de4b` - `BLOCKED_AUTHORING`.** 518 tree entries, 2999 facts (2845 public symbols after
   401 from `_internal/` are dropped), 10 examples of which 9 compile and the tenth is a
   continuation fragment naming a `pres` from an earlier block. `pugixml` is the one required
   dependency, read from the library target's PUBLIC link interface; miniz, GTest and googletest
@@ -337,6 +349,8 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   three examples `aspose_org_upstream_issues` lists as not compiling (Notes, Table, Comments) all
   compile at this revision, and the Table example's own comment now documents that
   `Cell::text_frame()` returns a pointer. Preflight: required rows without evidence, none. S4
-  rejected on `inherited_unit:043.heading` and `:044.code_block` placed into `installation`, the
-  same class as Cells and Email. Resume predicate: the queued `source_reconciliation` fix, then
-  BC-02 above.
+  rejected once on `inherited_unit:043.heading` and `:044.code_block` placed into `installation`
+  and then passed; planning closed after one rejection of its own ("Aspose links exceed the
+  ceiling of 4: 5"); `section_authoring` then rejected `limitation:3` and `:4` twice for the
+  reason above. Resume predicate: the PROPOSAL above; behind it, the queued
+  `source_reconciliation` fix and BC-02.
