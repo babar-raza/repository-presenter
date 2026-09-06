@@ -139,7 +139,19 @@ class FactsDocument:
 
 
 SYMBOL_MAX_DEPTH = 3
-SYMBOL_CAP = 150
+# G4-W17 arrival item 27. `bounded_records` admits public_symbol facts in document order and
+# stops at this cap - a repository whose surface exceeds it never has its later symbols in any
+# job's packet at all, however alphabetically or structurally important they are. Measured
+# 2026-09-06 on Aspose.PDF for Go (1,467 symbols): truncation at 150 landed mid-alphabet and
+# `Document`, the product's own entry-point type, and its methods were never seen by any job.
+# The reviewer's own proposal named 2000 as "well above current portfolio surfaces", but this
+# session had already measured larger ones directly: Aspose.3D for Java carries 5,366
+# public_symbol facts (item 12's landing, this file), Aspose.Slides for C++ 2,845 (item 19's) -
+# both already over 2000. Set from the largest of at least three measured compositions, with
+# headroom, per this project's own threshold rule (RESEARCH_AND_GUIDELINES.md section 27.10
+# follow-up 3): the observed maximum (5,366) rounded up with margin, not the smaller number first
+# proposed before this session's own larger readings were available.
+SYMBOL_CAP = 6000
 
 
 def bounded_records(

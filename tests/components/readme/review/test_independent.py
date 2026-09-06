@@ -156,7 +156,10 @@ def test_the_packet_is_bounded_and_carries_validation_as_context() -> None:
     assert packet["candidate_readme"] == CANDIDATE and packet["original_readme"] == "# Old\n"
     kinds = {record["kind"] for record in packet["facts"]}
     assert "inherited_unit" not in kinds and "format" in kinds
-    assert sum(1 for r in packet["facts"] if r["kind"] == "public_symbol") == 150
+    # G4-W17 arrival item 27: SYMBOL_CAP raised well above every measured portfolio surface, so
+    # this fixture's 160 symbols - deliberately more than the old 150 cap - now all pass through
+    # uncapped; the cap's own boundary behavior is `test_dossier.py`'s to prove.
+    assert sum(1 for r in packet["facts"] if r["kind"] == "public_symbol") == 160
     assert {r["id"]: r["polarity"] for r in packet["facts"]}["format:input.obj"] == "UNRESOLVED"
     assert packet["validation"] == {
         "checks": [

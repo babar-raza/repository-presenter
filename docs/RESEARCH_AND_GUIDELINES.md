@@ -4974,3 +4974,26 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   a bare traceback. Not landed here - this needs its own measurement, not a guess made at the tail
   of an already-long session. The registry flip itself stands regardless: this repository is
   correctly reachable now, whatever composition eventually does with it.
+
+- **2026-09-06 21:26 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 27 landed:
+  `SYMBOL_CAP` raised to a value this session's own measurements actually support.** Confirmed on
+  Aspose.PDF for Go (1,467 symbols): `bounded_records` (`core/facts.py`) admits `public_symbol`
+  facts in document order and stops at the cap, so `Document` and its methods - the product's own
+  entry point - never reached any job's packet at all. The reviewer's own proposal named 2000 as
+  "well above current portfolio surfaces"; this session had already measured larger ones directly
+  and on the record - Aspose.3D for Java carries 5,366 (item 12's landing, 20:01 entry family),
+  Aspose.Slides for C++ 2,845 (item 19's) - both already past 2000, so 2000 would have re-created
+  the identical defect for the two largest surfaces measured so far. Set to 6000 instead: the
+  observed maximum with headroom, from measured evidence rather than the smaller number first
+  proposed before this session's own readings were available (the threshold rule, section 27.10
+  follow-up 3, names exactly this). `tests/.../test_independent.py`'s
+  `test_the_packet_is_bounded_and_carries_validation_as_context` hard-coded the old cap's effect
+  (a 160-symbol fixture truncated to 150); updated to the now-uncapped 160, with a comment
+  pointing at `test_dossier.py` as the boundary behavior's own owner - `bounded_records`'s cap
+  mechanism itself is unit-tested there, symbolically against the constant, and needed no change.
+  Full suite green, ruff/mypy clean, before this entry. Noted for whichever ecosystem's next
+  composition reaches a repository this large: a bigger admitted symbol set means a bigger
+  packet for every job that reads `public_symbol` facts, which interacts with the same-shape
+  request-size concern the 21:11 entry above raised for PDF-TypeScript's `source_reconciliation` -
+  worth a quick per-repository symbol-count glance before composing, as the reviewer's own
+  directive already said.
