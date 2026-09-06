@@ -36,6 +36,35 @@ def test_an_ecosystem_with_no_registry_prints_no_badge() -> None:
     assert spec.badge("anything") == ""
 
 
+def test_a_two_segment_registry_coordinate_splits_for_its_own_badge_url() -> None:
+    """G4-W17 arrival item 13. shields.io's Maven Central endpoint takes two path segments,
+    img.shields.io/maven-central/v/{groupId}/{artifactId}, while Java's package:name fact is the
+    colon-joined coordinate a build file actually declares (org.aspose:aspose-3d-foss) - no
+    single {package} token fits it. {group} and {artifact} are offered beside {package} so a
+    two-segment template can use them without a fact of its own."""
+    maven = EcosystemSpec(
+        ecosystem="java",
+        language="Java",
+        fence="java",
+        registry="Maven Central",
+        install_fact_id="install_command:maven",
+        version_badge=(
+            "[![Maven Central](https://img.shields.io/maven-central/v/{group}/{artifact}.svg)]"
+            "(https://central.sonatype.com/artifact/{group}/{artifact})"
+        ),
+    )
+    assert maven.badge("org.aspose:aspose-3d-foss") == (
+        "[![Maven Central](https://img.shields.io/maven-central/v/org.aspose/aspose-3d-foss.svg)]"
+        "(https://central.sonatype.com/artifact/org.aspose/aspose-3d-foss)"
+    )
+    # A coordinate with no colon (every other ecosystem) leaves a one-segment template exactly as
+    # it read before this item: {package} alone, unaffected by the new placeholders' existence.
+    assert PYTHON.badge("aspose-3d-foss") == (
+        "[![PyPI](https://img.shields.io/pypi/v/aspose-3d-foss.svg)]"
+        "(https://pypi.org/project/aspose-3d-foss/)"
+    )
+
+
 def test_a_spec_names_every_fence_a_reader_may_write_its_examples_in() -> None:
     """A reader writes csharp, cs or c#; a table in shared code knew only python.
 

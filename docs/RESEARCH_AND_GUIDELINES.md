@@ -4583,3 +4583,30 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   class will hit `python-docx`, `go-*`, `git-*`, `cargo-*` package names. Slides C++'s remaining
   `BC-08` blocker. Reverse any of (24)-(26) by restoring extract.py, registry.py, planning.py, and
   validation/registry.py from the previous revision.
+
+- **2026-09-06 15:04 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival items 13 and 14 landed,
+  both live within `core/ecosystems.py`, both letting a lane state its own value in its own file.**
+  Lane C PROPOSAL B (item 13): `EcosystemSpec.badge()` formatted one `{package}` token, but
+  shields.io's Maven Central endpoint is two path segments,
+  `img.shields.io/maven-central/v/{groupId}/{artifactId}`, while Java's `package:name` fact is the
+  colon-joined coordinate a build file actually declares (`org.aspose:aspose-3d-foss`) - no single
+  token fits it, so a published Java package rendered no version badge at all. `badge()` now
+  splits the coordinate on its own colon and offers `{group}`/`{artifact}` beside the unchanged
+  `{package}`; a coordinate with no colon (every ecosystem before this item) leaves `{artifact}`
+  equal to `{package}`, so a one-segment template is unaffected - confirmed directly against
+  `PYTHON.badge(...)`, byte-identical. Lane C PROPOSAL C (item 14): a POM may declare the floor as
+  `maven.compiler.release`, `.target` or `.source`, and one Java cohort used all three across four
+  repositories - naming any single one in the ecosystem-wide `floor_declaration` field would cite
+  a property most of the cohort does not declare. Rather than repurpose the floor fact's existing
+  `evidence[0].detail` (Python's own reads "python_requires declared", a sentence fragment, not a
+  bare manifest key - reusing it would have printed that sentence into Python's own sealed
+  wording), the renderer now reads an optional `attributes["floor_declaration"]` off the floor
+  fact itself, falling back to the spec's generic field exactly as before when absent - the same
+  per-fact-attribute mechanism item 0 already established for `install_kind`, not a new one.
+  Neither item requires touching a lane-owned file: `core/ecosystems.py`'s two built-in specs are
+  unaffected, and each mechanism is only exercised once a lane sets its own `version_badge`
+  template or a fact's own `floor_declaration` attribute in its own already-owned plugin module.
+  New tests: `tests/core/test_ecosystems.py::test_a_two_segment_registry_coordinate_splits_
+  for_its_own_badge_url`; `tests/components/readme/composition/test_renderer.py::test_a_floor_
+  fact_names_its_own_declaration_when_the_ecosystems_is_too_generic`. Full suite green, ruff/mypy
+  clean, before this entry.

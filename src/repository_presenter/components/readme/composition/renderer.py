@@ -263,15 +263,18 @@ def _dependencies(context: RenderContext) -> list[str]:
         lines.extend(["", "### Native and System Requirements", ""])
         floor = _FLOOR.fullmatch(requires.value.strip())
         path = requires.evidence[0].path
+        # A repository whose manifest declares the floor under a more precise name than the
+        # ecosystem's generic one names it in the fact's own attributes; falling back to the
+        # spec's is what every ecosystem that never sets it already does, unchanged.
+        declaration = (requires.attributes or {}).get("floor_declaration") or spec.floor_declaration
         if floor:
             lines.append(
                 f"- Requires {spec.floor_label} {floor.group(1)} or later "
-                f'(`{spec.floor_declaration}="{requires.value}"` in `{path}`).'
+                f'(`{declaration}="{requires.value}"` in `{path}`).'
             )
         else:
             lines.append(
-                f"- Requires {spec.floor_label} `{requires.value}` "
-                f"(`{spec.floor_declaration}` in `{path}`)."
+                f"- Requires {spec.floor_label} `{requires.value}` (`{declaration}` in `{path}`)."
             )
     if development:
         lines.extend(["", "### Development Dependencies", ""])

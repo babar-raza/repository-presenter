@@ -63,6 +63,13 @@ class EcosystemSpec:
     # leaves these empty and the renderer prints no requirement, which is honest.
     floor_fact_id: str = ""
     floor_label: str = ""
+    # The manifest field the floor sentence names, ecosystem-wide - the fallback for a repository
+    # whose floor fact carries no more precise one of its own in its
+    # `attributes["floor_declaration"]` (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival
+    # item 14). A POM may declare
+    # `maven.compiler.release`, `.target` or `.source`; three of the four repositories in one
+    # cohort each used a different one, so naming any single property here would cite one three
+    # of four repositories do not declare - a fabricated citation, not a generic-but-honest one.
     floor_declaration: str = ""
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
@@ -73,8 +80,23 @@ class EcosystemSpec:
         return self.fence_aliases or frozenset({self.fence})
 
     def badge(self, package: str) -> str:
-        """The registry's version badge for this package, or an empty string when it has none."""
-        return self.version_badge.format(package=package) if self.version_badge else ""
+        """The registry's version badge for this package, or an empty string when it has none.
+
+        ``{package}`` is the coordinate exactly as ``package:name`` spells it. A registry whose
+        badge URL takes two path segments, not one, splits it on its own separator instead: a
+        Maven Central badge is one path segment per fact ID, and shields.io's endpoint is
+        ``img.shields.io/maven-central/v/{groupId}/{artifactId}`` - two segments - while Java's
+        `package:name` is the colon-joined coordinate a build file actually declares
+        (`org.aspose:aspose-3d-foss`), which no single `{package}` token fits (RESEARCH_AND_
+        GUIDELINES.md section 28.12 G4-W17 arrival item 13). `{group}` and `{artifact}` are
+        offered alongside `{package}` for a template that needs them; an ecosystem whose
+        coordinate carries no colon leaves `{artifact}` equal to `{package}`, so a one-segment
+        template naming only `{package}` is unaffected.
+        """
+        if not self.version_badge:
+            return ""
+        group, _, artifact = package.partition(":")
+        return self.version_badge.format(package=package, group=group, artifact=artifact or group)
 
     def clone_and_build(self, repository: str, name: str) -> str:
         """The shell commands that build this ecosystem's package from a source checkout, or an

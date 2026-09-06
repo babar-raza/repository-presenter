@@ -580,6 +580,47 @@ def test_the_runtime_floor_is_the_ecosystems_own_and_not_pythons() -> None:
     )
 
 
+def test_a_floor_fact_names_its_own_declaration_when_the_ecosystems_is_too_generic() -> None:
+    """G4-W17 arrival item 14. A POM may state the floor as maven.compiler.release, .target or
+    .source, and one Java cohort used all three - naming any single one in the spec would cite a
+    property most of the cohort's repositories do not declare. A floor fact whose own attributes
+    name its precise declaration overrides the spec's generic fallback; a fact that does not
+    (every ecosystem before this item, Python included) renders exactly as before."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith(("dependency:", "package:python"))),
+            Fact(
+                "package:target_framework",
+                "package",
+                "17",
+                (Evidence("pom.xml", "maven.compiler.release declared"),),
+                attributes={"floor_declaration": "maven.compiler.release"},
+            ),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**item, "include": True} if item["section_id"] == "dependencies" else item
+            for item in PLAN["sections"]
+        ],
+    }
+    readme = render_readme(entry, facts, plan, UNITS, DISPOSITIONS)
+    section = readme.split("## Dependencies\n\n", 1)[1].split("\n## ", 1)[0]
+    assert "(`maven.compiler.release` in `pom.xml`)" in section
+    assert "TargetFramework" not in section
+
+
 def test_the_source_checkout_command_is_the_ecosystems_own_not_a_hard_coded_pip_install() -> None:
     """Measured 2026-09-06: `_installation` hard-coded `git clone ...; pip install .` for every
     ecosystem with an executed example, so Aspose.Cells and Aspose.3D for .NET - both sealed -
