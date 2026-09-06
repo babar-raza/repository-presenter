@@ -82,7 +82,7 @@
         "repositories": [
           "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
         ],
-        "detail": "the README's first Go fence is a lone `import cells_foss \"…/aspose/cells_foss\"`. Wrapped in func main it is a syntax error, declared at file scope it is an unused import, and either way the example fact read CONTRADICTED about a true statement. Fixed: a fence that declares only imports is NOT_VERIFIED - there is nothing in it to compile.",
+        "detail": "the README's first Go fence is a lone `import cells_foss \"\u2026/aspose/cells_foss\"`. Wrapped in func main it is a syntax error, declared at file scope it is an unused import, and either way the example fact read CONTRADICTED about a true statement. Fixed: a fence that declares only imports is NOT_VERIFIED - there is nothing in it to compile.",
         "status": "FIXED"
       },
       {
@@ -90,7 +90,7 @@
         "repositories": [
           "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
         ],
-        "detail": "Go rejects `require …/Aspose.Cells-FOSS-for-Go/v26 v0.0.0` outright (\"version v0.0.0 invalid: should be v26, not v0\"), so the verifier's wrapper module would not parse at all. Fixed: require_version derives the requirement's major version from the module path's own suffix. The same suffix is carried into `go get` on the install line.",
+        "detail": "Go rejects `require \u2026/Aspose.Cells-FOSS-for-Go/v26 v0.0.0` outright (\"version v0.0.0 invalid: should be v26, not v0\"), so the verifier's wrapper module would not parse at all. Fixed: require_version derives the requirement's major version from the module path's own suffix. The same suffix is carried into `go get` on the install line.",
         "status": "FIXED"
       },
       {
@@ -99,7 +99,7 @@
           "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
           "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
         ],
-        "detail": "the shared façade's _KINDS table has no entry for the vendored engine's Go kinds (`type_spec`, and the literal `function`), so every Go type is `unknown` and the renderer's Core API table, which lists `class` and `enum` only, would render empty. Cause is in extractors/surface/extractor.py, outside lane D's paths: PROPOSAL P1 in docs/RESEARCH_LANE_D.md.",
+        "detail": "the shared fa\u00e7ade's _KINDS table has no entry for the vendored engine's Go kinds (`type_spec`, and the literal `function`), so every Go type is `unknown` and the renderer's Core API table, which lists `class` and `enum` only, would render empty. Cause is in extractors/surface/extractor.py, outside lane D's paths: PROPOSAL P1 in docs/RESEARCH_LANE_D.md.",
         "status": "PROPOSED"
       },
       {
@@ -108,7 +108,7 @@
           "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
           "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"
         ],
-        "detail": "the shared registry façade maps ecosystem `go` to registry type `goproxy` while the vendored probe's adapter table is keyed `go_modules`, so the Go proxy is never asked and `install_command:go` stays UNRESOLVED with \"package registry: goproxy could not be read\"; correcting the key alone raises KeyError because the Go adapter reads candidate[\"module_path\"] and the façade passes only \"name\". BC-02 fails every install fact that is not SUPPORTED, so no Go candidate can pass validation. Cause is in extractors/surface/registry.py, outside lane D's paths: PROPOSAL P2.",
+        "detail": "the shared registry fa\u00e7ade maps ecosystem `go` to registry type `goproxy` while the vendored probe's adapter table is keyed `go_modules`, so the Go proxy is never asked and `install_command:go` stays UNRESOLVED with \"package registry: goproxy could not be read\"; correcting the key alone raises KeyError because the Go adapter reads candidate[\"module_path\"] and the fa\u00e7ade passes only \"name\". BC-02 fails every install fact that is not SUPPORTED, so no Go candidate can pass validation. Cause is in extractors/surface/registry.py, outside lane D's paths: PROPOSAL P2.",
         "status": "PROPOSED"
       }
     ]
@@ -119,7 +119,7 @@
       "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
       "reason_code": "BLOCKED_SHARED_CODE",
       "failure_class": "GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS",
-      "detail": "Facts are complete: 231 records, 227 supported, no required contract row without evidence, 8 of 10 README examples compiled and vetted against the module at this revision. The candidate cannot be composed because BC-02 fails closed on an install command the shared registry façade never resolved, and its API Reference would be empty because the shared kind table does not know Go's node types.",
+      "detail": "Facts are complete: 231 records, 227 supported, no required contract row without evidence, 8 of 10 README examples compiled and vetted against the module at this revision. The candidate cannot be composed because BC-02 fails closed on an install command the shared registry fa\u00e7ade never resolved, and its API Reference would be empty because the shared kind table does not know Go's node types.",
       "resume_predicate": "PROPOSAL P1 and PROPOSAL P2 in docs/RESEARCH_LANE_D.md are landed on main (G4-W17); then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch."
     },
     {
@@ -141,7 +141,7 @@
     {
       "predicate": "Go spec: identity, floor and the dependency snapshot from the vendored ManifestReader, major-version suffix carried into the install line",
       "met": true,
-      "evidence": "platforms/go.py declares GO and registers it by setdefault; manifest_facts emit package:name (module path), install_command:go (`go get …/v26`), import_path (module path plus the package subdirectory the reader reports), package:go_version and the dependency snapshot or its verified-zero marker; tests/.../test_go.py covers each."
+      "evidence": "platforms/go.py declares GO and registers it by setdefault; manifest_facts emit package:name (module path), install_command:go (`go get \u2026/v26`), import_path (module path plus the package subdirectory the reader reports), package:go_version and the dependency snapshot or its verified-zero marker; tests/.../test_go.py covers each."
     },
     {
       "predicate": "Exported surface through the shared extractor with interface and struct-embedding handling",
@@ -156,7 +156,7 @@
     {
       "predicate": "Registry facts through the vendored RegistryProbe (Go proxy; module-path escaping)",
       "met": false,
-      "evidence": "registry_facts calls the shared observe() façade and records the reading and its probe record faithfully, but the façade never reaches the Go adapter: PROPOSAL P2. The adapter's own module-path escaping is intact and untouched."
+      "evidence": "registry_facts calls the shared observe() fa\u00e7ade and records the reading and its probe record faithfully, but the fa\u00e7ade never reaches the Go adapter: PROPOSAL P2. The adapter's own module-path escaping is intact and untouched."
     },
     {
       "predicate": "A negative control",
@@ -402,5 +402,262 @@
       "runs_note": "Three full suite runs, all green on the same tree: the first two inherited pyproject's own -q and added another, and -qq suppresses the count line, so a third was run only to record the number."
     },
     "status_line_observed": "candidates: 6/34 current reviewable no-op-proven (from origin/main at ffdf4c7; unchanged by this re-run, which did not seal)"
+  },
+  "rerun_3_2026_09_06": {
+    "why": "PROPOSAL P12's resume predicate for aspose-pdf-foss/Aspose-PDF-FOSS-for-Go was met: G4-W17 arrival item 36 landed on main at 3e6c6b2 (2026-09-06 22:31), so composition/authoring.py::prose_nouns now admits a code-span noun that no public_symbol fact spells. Only that repository was re-run under this block; Cells Go was re-run separately in the same session (see rerun_cells_2026_09_06) after item 28 landed. aspose-cells-foss/Aspose.Cells-FOSS-for-Rust's predicate (item 22) is still open and it was deliberately not touched.",
+    "control_revision": "3e6c6b2",
+    "worktree": "C:\\w\\d15r3 (fresh, branch lane-d/G4-W15-r3 off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+    "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+    "toolchain": {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64"
+    },
+    "lane_owned_changes": [],
+    "lane_owned_changes_note": "No code changed this run. The lane's platforms/go.py needed nothing; the blockers were and remain shared code.",
+    "resume_predicate_met": true,
+    "class_cleared": {
+      "class": "SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE",
+      "verdict": "CLOSED for aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "evidence": {
+        "direct_measurement": "prose_nouns called on this run's own facts.json (1,620 facts) at control revision 3e6c6b2 admits ZapfDingbats: True. Admitted-noun set 53, up from 36 before item 36.",
+        "before": "Both previous runs: section_authoring rejected twice on unit limitation:3, 'identifiers that are not accepted fact values: ZapfDingbats'; the run ended at S6 with no candidate.",
+        "after": "section_authoring made 9 calls and every one succeeded on attempt 1, the scope_limitations section included. The run rendered a candidate and reached S9 judgement for the first time in this repository's history."
+      }
+    },
+    "stage_outcomes": [
+      {
+        "stage": "S3",
+        "job": "repository_investigation",
+        "calls": 2,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": [
+          "unknown fact ID public_symbol:page.adddrawing",
+          "fact example:004 is UNRESOLVED, not SUPPORTED"
+        ]
+      },
+      {
+        "stage": "S4",
+        "job": "source_reconciliation",
+        "calls": 1,
+        "result": "success on attempt 1"
+      },
+      {
+        "stage": "S5",
+        "job": "presentation_planning",
+        "calls": 2,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": "unknown fact IDs format:pdf, format:png, format:jpeg, format:tiff, format:html (the plan named format facts this repository has none of)"
+      },
+      {
+        "stage": "S6",
+        "job": "section_authoring",
+        "calls": 9,
+        "result": "success - 9 of 9 sections clean on attempt 1"
+      },
+      {
+        "stage": "S8",
+        "job": "render",
+        "calls": 0,
+        "result": "README.md 209 visible lines of 760; README.patch written"
+      },
+      {
+        "stage": "S9",
+        "job": "validation",
+        "calls": 0,
+        "result": "FAIL - pass 7, fail 2, pending 2"
+      },
+      {
+        "stage": "S7",
+        "job": "targeted_repair",
+        "calls": 2,
+        "result": "1 repaired (BC-07 api_reference), 1 unrepairable advisory (BC-08), 1 re-raised after repair; rounds 2; the equivalent failure stands"
+      }
+    ],
+    "provider_calls": 16,
+    "candidate": {
+      "plan": "sections 17/18, capabilities 8, hubs 4, examples 1+3, links 4, limitations 1",
+      "units": "32 units across 9 sections: opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing, enterprise_relationship",
+      "coherence": "0 of 32 units revised",
+      "readme_digest": "2f4f40483b10b4d881e3527456e17388df0a2138c7712c7dbb23050e8662713e",
+      "validation_digest": "76fe0e2104de0556da0d91bd5936c3d6fe60424c5ed4ca3dc2bf102d413ec70f",
+      "dispositions": "90 units: VERIFIED_PRESERVE 45, SUPERSEDE_REDUNDANT 30, VERIFIED_REWRITE 5, NON_CONTENT 4, DEFER_UNRESOLVED 3, VERIFIED_MOVE 2, OMIT_UNSUPPORTED 1"
+    },
+    "checks_passed": [
+      "BC-01",
+      "BC-02",
+      "BC-03",
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-09"
+    ],
+    "checks_pending": {
+      "BC-10": "PENDING, judged at S10 - never reached, the independent review is unmeasured for this repository",
+      "BC-11": "PENDING, judged at S12 - the byte-identical zero-call rerun is unmeasured for this repository"
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "check": "BC-07",
+        "causal_stage": "COMPOSING",
+        "section_id": "api_reference",
+        "detail": "internal narration 'validator'; after one repair attempt the equivalent failure stands",
+        "class": "BC07_INHERITED_VOCABULARY_READ_AS_NARRATION",
+        "proposal": "P14",
+        "shared_code": "validation/registry.py _NARRATION line 249 (bare entry 'validator'), used at line 850",
+        "measured": {
+          "not_a_public_symbol": "0 of 1,467 public_symbol values contain 'validator', so G4-W17 item 22's public_symbol exemption never fires.",
+          "not_a_substring": "The candidate's prose reads 'confirm full conformance with a dedicated validator such as veraPDF' - already a standalone word, so item 22's word-boundary change alone changes nothing.",
+          "it_is_the_source_s_own_word": "'validator' appears verbatim in two SUPPORTED inherited_unit facts, 066.list and 081.list, in the identical phrase 'conformance with a dedicated validator such as veraPDF'.",
+          "repair_was_routed_but_no_op": "S7 located the section (api_reference) and recorded 1 repaired, but every change is byte-identical - before equals after for R01, R02 and R03 - and the failure re-raised. Corroborates lane C's item (34) second half in a second lane and ecosystem."
+        }
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "check": "BC-08",
+        "causal_stage": "COMPOSING",
+        "section_id": null,
+        "detail": "inherited_unit:025.paragraph: VERIFIED_REWRITE keeps the command 'go run ./_examples/feature_showcase' but the candidate does not render it; inherited_unit:085.paragraph: the same for 'go run ./_examples/<name>'",
+        "class": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "proposal": "P15 (P7 / G4-W17 item 23, unchanged, now confirmed in a second ecosystem)",
+        "shared_code": "validation/registry.py BC-08 and repair/targeted.py::validation_defects",
+        "measured": {
+          "both_failures_carry_no_section": "section_id is null on both, so S7 recorded outcome 'unrepairable', reason 'no failing check names an LLM-owned section'.",
+          "advisory_shows_the_same_shape_twice_more": "inherited_unit:022.paragraph and 042.paragraph - four of this repository's five VERIFIED_REWRITE units dropped protected content."
+        }
+      }
+    ],
+    "proposals": [
+      "P14 validation/registry.py's _NARRATION rejects the repository's own inherited vocabulary: the bare entry 'validator' fires on a faithful restatement of the upstream README's own PDF/A caveat. G4-W17 item 22's three remedies (word boundary, public_symbol exemption, code-span exemption) are each measured insufficient here. Add a fourth exemption - a guarded phrase occurring in a SUPPORTED inherited_unit fact is not narration - or narrow the entry to 'validator version'.",
+      "P15 P7 / G4-W17 item 23 confirmed unchanged in a second ecosystem: BC-08's Failure carries section_id null, so the repair loop records 'unrepairable' for a defect whose destination_section the disposition already names."
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "BC07_INHERITED_VOCABULARY_READ_AS_NARRATION",
+        "beside_it": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "supersedes": "SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE - cleared by G4-W17 item 36, measured: ZapfDingbats admitted and 9 of 9 authoring calls clean",
+        "resume_predicate": "G4-W17 item 22 plus PROPOSAL P14's fourth exemption (word boundaries and the public-symbol exemption alone are proven insufficient here), and item 23 / PROPOSAL P15, landed on main; then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch"
+      }
+    ],
+    "not_claimed": "The run ends at S9 with two failing checks. BC-10 (the independent review) and BC-11 (the byte-identical zero-call rerun) are PENDING and were never judged; nothing here says they would pass."
+  },
+  "rerun_cells_2026_09_06": {
+    "why": "PROPOSAL P11's and PROPOSAL P8's resume predicates for aspose-cells-foss/Aspose.Cells-FOSS-for-Go were met: G4-W17 arrival item 28 landed at 8d23190 (the whole-review rejection) and item 29 at c9951b1 (the quick-start lead-in bound to the sibling slot's example). Run twice in worktree C:\\w\\d15c on branch lane-d/G4-W15-cells: first at 8d23190, then again after rebasing to 638a7ac so items 29 and 22 were present too.",
+    "control_revision": "8d23190, then 638a7ac",
+    "worktree": "C:\\w\\d15c (fresh, branch lane-d/G4-W15-cells off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+    "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+    "toolchain": {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64"
+    },
+    "lane_owned_changes": [],
+    "lane_owned_changes_note": "No code changed in either run; the blockers were and remain shared code.",
+    "resume_predicate_met": true,
+    "classes_cleared": [
+      {
+        "class": "BC10_WHOLE_REVIEW_REJECTED_ON_ONE_UNLOCATABLE_QUOTE",
+        "proposal": "P11 / G4-W17 item 28",
+        "verdict": "CLOSED for aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "evidence": {
+          "before": "Both previous runs: the independent review's output was rejected twice because one of its eight findings quoted the inherited README rather than the candidate; the seven usable findings and the run went with it.",
+          "after": "At 8d23190 the review returned a verdict - REJECT_PRESENTATION, findings 3, advisory 5 - and the five folded out are exactly the unlocatable ones: '## Dependencies', '### Required Package Dependencies', '### Native and System Requirements', '#### Detailed Member Reference', '  PRODUCT['."
+        }
+      },
+      {
+        "class": "QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE",
+        "proposal": "P8 / G4-W17 item 29",
+        "verdict": "CLOSED for aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "evidence": {
+          "before": "At 8d23190 the blocking set held F04, 'Reorder the Quick Start examples to match the original README' - the sibling-slot lead-in, raised in both earlier runs.",
+          "after": "After the rebase to 638a7ac that finding is no longer blocking; the equivalent observation survives only as advisory F03. Blocking findings fell 3 to 2, advisory rose 5 to 6, on the same source revision."
+        }
+      }
+    ],
+    "provider_calls": {
+      "run_at_8d23190": 17,
+      "rerun_at_638a7ac": 11
+    },
+    "candidate": {
+      "facts": "231 records: public_symbol 109, inherited_unit 66, link_target 31, example 10, identity 5, build_test_asset 3, license 2, package 2, dependency 1, import_path 1, install_command 1",
+      "examples": "10 candidates; executed 8, failed 1, not_verified 1",
+      "plan": "sections 16/18, capabilities 8, hubs 10, examples 1+6, links 4, limitations 4",
+      "units": "39 units across 8 sections",
+      "coherence": "0 of 39 units revised",
+      "readme": "224 visible lines of 495",
+      "readme_digest": "9f434c5d64cc38063d7bfa7cdbd01890c67bded9fceec1077dddf0b6765b9055",
+      "validation_digest": "b76fe0c2047dcea48c96093416d2395982f270b45c32e5a18e12ca192bf2edd2",
+      "review_digest": "5d94fd982d7230f76fa21e070893af7c6963a613b398d123424df2a68455df06"
+    },
+    "checks_passed": [
+      "BC-01",
+      "BC-02",
+      "BC-03",
+      "BC-04",
+      "BC-05",
+      "BC-06",
+      "BC-07",
+      "BC-08",
+      "BC-09"
+    ],
+    "checks_pending": {
+      "BC-11": "PENDING, judged at S12 - never reached"
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "check": "BC-10",
+        "verdict": "REJECT_PRESENTATION",
+        "causal_stage": "COMPOSING",
+        "section_id": null,
+        "class": "BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE",
+        "proposal": "P16",
+        "shared_code": "prompts/ for the independent review's presentation criterion; review/independent/review.py where findings become BC-10 failures",
+        "findings": [
+          {
+            "id": "F06",
+            "section": "api_reference",
+            "quote": "- `ExportToCSV`: ExportToCSV writes the worksheet at sheetIndex to a CSV file using the given delimiter",
+            "repair_asked": "Remove the unsupported member details that are not in the original README and stick to the verified public symbols."
+          },
+          {
+            "id": "F07",
+            "section": "development_testing",
+            "repair_asked": "Remove the unsupported specific commands and guidance, and stick to the verified test commands from the original README."
+          }
+        ],
+        "measured": {
+          "the_content_is_verified": "ExportToCSV is a public_symbol fact of this repository's 109-symbol surface, and BC-04 PASSED on this candidate - every identifier in prose is a fact value in a code span. The reviewer calls 'unsupported' what the check that owns support verified.",
+          "deleting_it_would_breach_the_contract": "loop-prompt.md rule 8 and README_CONTRACT.md require the complete public API surface inside the collapsed reference. Obeying F06 breaches the contract; ignoring it fails BC-10.",
+          "no_repair_can_satisfy_both": "Repair ran 2 rounds: 4 repaired (F01 opening, F03 quick_start, F06 api_reference, F07 development_testing), 3 re-raised; the equivalent failure stands.",
+          "same_class_as_lane_c_item_33": "Item (33) records BC-10 rejecting the renderer's own mandated structure; this is the same criterion rejecting contract-mandated content. Both judge against the inherited README as the standard of support rather than against the facts.",
+          "routing_corroborates_P15": "Both BC-10 failures carry section_id null even though each failure's detail names its section (F06 api_reference, F07 development_testing); the finding objects carry section_id, the Failure does not."
+        }
+      }
+    ],
+    "proposals": [
+      "P16 the independent review's presentation criterion treats 'not in the original README' as unsupported, so it demands deletion of verified public-symbol detail that README_CONTRACT requires in the collapsed reference and BC-04 has already verified. State in the review packet that the candidate's fact set, not the upstream README, is the standard of support, and that the collapsed API reference is contract-required and complete by design. Land with lane C's item (33), which needs the same sentence."
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+        "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE",
+        "supersedes": "BC10_WHOLE_REVIEW_REJECTED_ON_ONE_UNLOCATABLE_QUOTE (item 28, closed and measured) and the quick-start lead-in class (item 29, closed and measured)",
+        "resume_predicate": "PROPOSAL P16 landed on main, with or beside lane C's G4-W17 item (33); then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch"
+      }
+    ],
+    "not_claimed": "BC-11, the byte-identical zero-call rerun, is PENDING and was never judged. This candidate is one check from sealing, not sealed."
   }
 }

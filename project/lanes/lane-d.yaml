@@ -25,14 +25,15 @@ toolchains:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 3
-  status_line_observed: '2026-09-06 22:05, from origin/main at ffdf4c7: candidates 6/34 current
-    reviewable no-op-proven, unchanged by the second G4-W15 re-run (Aspose.PDF for Go did not seal;
-    the count rose from 4 to 6 through the primary''s own work, not this lane''s). G4-W16''s
-    acceptance line asked for 31 sealed and 34 dispositions; that number was written before the
-    shared blockers were known and no lane can reach it while G4-W17''s arrival list is open.
-    Recorded rather than met. All three of lane D''s repositories now fail past the class their
-    previous disposition named - each earlier class was closed by the arrival item that answered its
-    proposal - and every remaining blocker is shared code, none of it in a lane path.'
+  status_line_observed: '2026-09-06 23:07, from origin/main at 638a7ac: candidates 6/34 current
+    reviewable no-op-proven, unchanged by the third G4-W15 re-run and by the Cells Go re-run
+    (neither sealed). G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that number
+    was written before the shared blockers were known and no lane can reach it while G4-W17''s
+    arrival list is open. Recorded rather than met. Every one of lane D''s repositories again fails
+    past the class its previous disposition named - each earlier class was closed, measured, by the
+    arrival item that answered its proposal - and every remaining blocker is shared code, none of it
+    in a lane path. Aspose.Cells for Go is now one check from sealing: BC-01 to BC-09 all pass and
+    only BC-10 rejects it.'
 items:
 - id: G4-W15
   status: ACCEPTED
@@ -94,6 +95,55 @@ items:
       dispositions_by_lane stays 3. The lane''s other two repositories were not run: their resume
       predicates (G4-W17 items 28-30 for Cells Go, item 22 for Cells Rust) are still open. See
       docs/RESEARCH_LANE_D.md.'
+  rerun_3:
+    at: '2026-09-06T23:06:00+05:00'
+    from: origin/main at 3e6c6b2 (G4-W17 arrival item 36 landed at 22:31)
+    scope: aspose-pdf-foss/Aspose-PDF-FOSS-for-Go only
+    receipt: evidence/build/lanes/lane-d/G4-W15.json (rerun_3_2026_09_06 block)
+    outcome: 'PROPOSAL P12''s resume predicate was met and its class is closed, measured directly:
+      calling the landed prose_nouns on this run''s own 1,620 facts admits ZapfDingbats, and the
+      admitted-noun set grew from 36 to 53. section_authoring then made nine calls and every one
+      succeeded on the first attempt, the scope_limitations section included, where both previous
+      runs were rejected twice on that single token. The repository rendered a candidate and was
+      judged for the first time in its history: a 17-of-18-section plan, 32 units across 9 sections,
+      README.md at 209 visible lines of 760, validation 7 pass / 2 fail / 2 pending. BC-01 to BC-06
+      and BC-09 all pass. It did not seal. BC-07 fails on internal narration ''validator'' - and
+      G4-W17 item 22 as written does not cover it: the word is already standalone so a word boundary
+      changes nothing, 0 of 1,467 public symbols contain it so the symbol exemption never fires, and
+      it is not in a code span. It is the repository''s own English, appearing verbatim in two
+      SUPPORTED inherited_unit facts (066.list, 081.list) in the phrase "conformance with a dedicated
+      validator such as veraPDF" (PROPOSAL P14, asking for a fourth exemption: inherited vocabulary).
+      BC-08 fails on two VERIFIED_REWRITE units dropping ''go run ./_examples/...'', both with
+      section_id null, so repair records unrepairable - PROPOSAL P7 / item 23 reproducing unchanged
+      in a second ecosystem (PROPOSAL P15). The BC-07 repair was routed correctly but wrote back
+      byte-identical prose and was still recorded as a repair, corroborating lane C''s item 34. No
+      lane-owned code changed. The disposition becomes BLOCKED_SHARED_CODE /
+      BC07_INHERITED_VOCABULARY_READ_AS_NARRATION with BC08_REWRITE_DROPS_A_PROTECTED_COMMAND beside
+      it; sealed_by_lane stays 0 and dispositions_by_lane stays 3. BC-10 and BC-11 were never judged
+      and are not claimed. See docs/RESEARCH_LANE_D.md.'
+  rerun_cells:
+    at: '2026-09-06T23:07:00+05:00'
+    from: origin/main at 8d23190 (item 28), then rebased to 638a7ac (items 29 and 22)
+    scope: aspose-cells-foss/Aspose.Cells-FOSS-for-Go only
+    receipt: evidence/build/lanes/lane-d/G4-W15.json (rerun_cells_2026_09_06 block)
+    outcome: 'PROPOSAL P11''s and PROPOSAL P8''s resume predicates were met and both classes are
+      closed. Item 28: where both previous runs had the review''s output rejected twice over one
+      finding that quoted the inherited README, the review now returns a verdict - REJECT_PRESENTATION,
+      3 findings and 5 advisory at 8d23190 - and the five folded out are exactly the unlocatable
+      ones. Item 29: the sibling-slot quick-start finding F04 was blocking at 8d23190 and is no
+      longer blocking after the rebase to 638a7ac; blocking findings fell from 3 to 2 and advisory
+      rose from 5 to 6 on the same source revision. The candidate reached S9 clean - BC-01 through
+      BC-09 all PASS, BC-07 among them - with 231 facts, a 16-of-18-section plan, 39 units across 8
+      sections and README.md at 224 visible lines of 495. It did not seal: BC-10 alone fails, and
+      BC-11 was never reached. The two remaining findings both demand deletion of verified content
+      because the upstream README lacks it - F06 asks to remove member detail for ExportToCSV, a
+      public_symbol fact on a candidate whose BC-04 passed, and README_CONTRACT requires the complete
+      public API surface in the collapsed reference, so obeying the finding breaches the contract and
+      ignoring it fails BC-10. Four repairs, three re-raises, no repair can satisfy both. PROPOSAL
+      P16, the same class as lane C''s item 33. Both BC-10 failures carry section_id null though
+      their details name the sections, corroborating P15. No lane-owned code changed. The disposition
+      becomes BLOCKED_SHARED_CODE / BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE; sealed_by_lane
+      stays 0 and dispositions_by_lane stays 3. See docs/RESEARCH_LANE_D.md.'
 - id: G4-W16
   status: ACCEPTED
   accepted_at: '2026-09-06T11:05:00+05:00'
