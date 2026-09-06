@@ -129,6 +129,16 @@ NET: Final = EcosystemSpec(
     source_suffixes=frozenset({".cs"}),
 )
 
+# Deliberately a plain, mutable dict and not Final, unlike PYTHON and NET beside it: this file
+# owns only the two built-in specs above; an ecosystem outside it (a platform lane owns) registers
+# its own by calling ``SPECS.setdefault(ecosystem, spec)`` from its own ``platforms/<ecosystem>.py``
+# module at import time, never by adding a line here - core/ may not import an extractor (this
+# file's own docstring, docs/REPOSITORY_LAYOUT.md section 2.1), so the mirror of registry.py's
+# PLUGIN discovery a lane would otherwise expect is not implementable from this side of that
+# boundary. `plugin_for(ecosystem)` (extractors/platforms/registry.py) already imports that module
+# before any stage asks `spec_for` for the same ecosystem in every path that exists today
+# (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival item 3), so registration is in place by
+# the time it is needed without this file ever crossing the boundary to guarantee it itself.
 SPECS: dict[str, EcosystemSpec] = {PYTHON.ecosystem: PYTHON, NET.ecosystem: NET}
 
 

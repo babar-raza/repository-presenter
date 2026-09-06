@@ -4308,3 +4308,31 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   (`test_a_rejected_reply_is_kept_beside_the_store`) is updated to 12, not left as parallel
   coverage - it pins the same fact the new test now pins more precisely. Full suite green,
   ruff/mypy clean, before this entry. Proceeding to item 3.
+
+- **2026-09-06 13:10 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 3: the literal ask
+  is not implementable from `core/`; landed the part that is, declined the rest with a reason.**
+  Lane B's own proposal (RESEARCH_LANE_B.md, G4-W14) asks `spec_for` to discover a `SPEC`
+  attribute on `platforms/<ecosystem>.py` the way `registry.py` discovers `PLUGIN` - but
+  `registry.py` lives in `extractors/platforms/`, and `core/ecosystems.py`'s own docstring states
+  the boundary this file already respects: "an extractor imports only core/ and its own module,
+  and no stage after facts imports an extractor at all" (docs/REPOSITORY_LAYOUT.md section 2.1).
+  `spec_for` doing the mirror image - `core/` importing an extractor module to read `SPEC` off it -
+  crosses that boundary from the other side, and `EcosystemSpec` has to live in `core/` precisely
+  because both extractor-stage code (`extract.py`, `select_examples`) and post-facts composition
+  code (`renderer.py`, `placement.py`) need it, which the boundary itself forbids for anything in
+  `extractors/`. Centralising the registration `registry.py` already performs (it already imports
+  every platform module for `PLUGIN`) would additionally require renaming the `SPECS.setdefault`
+  idiom in five lane-owned files (`typescript.py`, `java.py`, `go.py`, `rust.py`, `cpp.py`) in the
+  same change, which is a lane path this item may not edit. Landed what is both correct and
+  entirely within `core/`: a comment on `SPECS` naming the sanctioned mechanism explicitly (a
+  lane's own module calls `SPECS.setdefault(ecosystem, spec)` at import; this file registers only
+  its own two built-ins and never reaches into an extractor to guarantee more) and
+  `tests/core/test_ecosystems.py::test_a_lane_registers_its_own_spec_without_editing_the_shared_dict`,
+  pinning that `SPECS` stays a plain mutable `dict` (not `Final`, unlike `PYTHON` and `NET` beside
+  it) and that `setdefault` never lets a second registration overwrite the first - the exact
+  contract every lane's self-registration idiom already depends on, now guarded against a future
+  edit here breaking it silently. Declining the discovery-mechanism change itself: lane B's own
+  evidence already confirms `plugin_for(ecosystem)` runs before any real call to `spec_for` for the
+  same ecosystem in every path that exists today, so nothing is currently blocked by the order
+  dependency the proposal was written to remove. Full suite green, ruff/mypy clean, before this
+  entry. Proceeding to item 4.

@@ -77,6 +77,40 @@ def test_a_spec_is_registered_by_name_and_nothing_else_is_needed(
     assert spec_for("net") is added
 
 
+def test_a_lane_registers_its_own_spec_without_editing_the_shared_dict() -> None:
+    """G4-W17 arrival item 3. Every lane platform module (typescript.py, java.py, go.py, rust.py,
+    cpp.py) registers its own EcosystemSpec by calling ``SPECS.setdefault(ecosystem, spec)`` at
+    import time, never by adding a line to this file's SPECS literal - core/ecosystems.py's own
+    docstring says adding an ecosystem is a spec, a verifier and a negative-control test, never an
+    edit to a shared file, which a literal dict assignment cannot honour for a path core/ does not
+    own. SPECS is annotated dict[str, EcosystemSpec] and deliberately not Final so setdefault
+    works; this pins that it does, and that a second registration for the same key - a duplicate
+    import, or two lanes racing - never overwrites the first, exactly setdefault's own contract
+    and the one every lane already depends on."""
+    first = EcosystemSpec(
+        ecosystem="cobol",
+        language="COBOL",
+        fence="cobol",
+        registry="none",
+        install_fact_id="install_command:cobol",
+    )
+    second = EcosystemSpec(
+        ecosystem="cobol",
+        language="COBOL",
+        fence="cobol",
+        registry="none",
+        install_fact_id="install_command:cobol",
+        source_install="true",
+    )
+    assert "cobol" not in SPECS
+    try:
+        SPECS.setdefault("cobol", first)
+        SPECS.setdefault("cobol", second)
+        assert spec_for("cobol") is first
+    finally:
+        del SPECS["cobol"]
+
+
 def test_the_source_checkout_command_is_the_ecosystems_own() -> None:
     """Measured 2026-09-06: `_installation` hard-coded `pip install .` for every ecosystem with
     an executed example, so Aspose.Cells and Aspose.3D for .NET - both sealed - told a reader to
