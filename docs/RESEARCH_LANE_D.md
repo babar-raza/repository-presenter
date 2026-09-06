@@ -178,3 +178,191 @@ knowledge belongs (§29.6 E4).
 
 **Repositories and finding.** Both Go repositories: `import_path` is SUPPORTED and cited by
 executed examples, and the Verify-the-install block is still absent.
+
+## 2026-09-06 — G4-W16, Rust spec and cohort
+
+### D6 The Rust floor the renderer reads is the edition, because that is what the manifest declares
+
+**Decision.** `platforms/rust.py` emits `package:rust_edition` from `Cargo.toml`'s `edition`
+always, and `package:rust_version` from the optional `rust-version` when a crate declares one;
+`RUST.floor_fact_id` points at the edition. The Dependencies section renders "Requires Rust
+edition `2021` (`edition` in `Cargo.toml`)".
+
+**Alternative rejected.** Pointing the spec at `package:rust_version`, the way the .NET spec
+points at `package:target_framework`. Aspose.Cells for Rust declares no `rust-version` at all
+(measured 2026-09-06: `[package]` carries name, version, edition, license, description, keywords
+and categories only), so the Native and System Requirements subsection would have told a reader
+nothing about which compiler the crate needs. Rejected too: reporting the edition under the label
+"Rust", which renders "Requires Rust `2021`" - true of nothing, since 2021 is an edition and not
+a compiler version. §29.12 keeps the platform's own vocabulary rather than flattening it.
+
+**Evidence.** `test_rust.py::test_the_declared_floor_is_the_edition_when_no_compiler_version_is_declared`,
+which asserts both facts once `rust-version` is added and only the edition before.
+
+**Reversal path.** Move `floor_fact_id` to `package:rust_version`; both facts are already emitted.
+
+### D7 The surface is read from the crate's source root, never from the manifest's directory
+
+**Decision.** `surface_facts` passes `root / identity.package_root` - the `src/` the vendored
+reader resolves (§29.12) - to the shared extractor, not `manifest.parent`.
+
+**Alternative rejected.** The manifest's own directory, which is what the Go plugin passes because
+a Go module's package root *is* the module directory. The vendored engine derives a Rust symbol's
+module path from its file's location relative to the root it is given, so the manifest directory
+made every symbol `src::widget::Widget` - `src` is not a Rust module and no consumer can write
+that path. Measured on a two-module fixture 2026-09-06; the defect is invisible on Cells for Rust
+itself, whose sources sit under `src/Aspose.Cells_FOSS/`, a segment that is not a valid Rust
+identifier, so the engine already falls back to the bare crate-root name for every type.
+
+**Evidence.** `test_rust.py::test_surface_facts_come_from_the_shared_extractor_and_skip_separate_targets`
+asserts `widget.Widget` and that no value begins with `src`.
+
+**Reversal path.** Pass `manifest.parent`; nothing else reads the package root.
+
+### D8 A fence that opens on a binding it never declares is an excerpt, not a falsehood
+
+**Decision.** `rust_examples.py` wraps a fence that declares no `fn main` in one
+`fn main() -> Result<(), Box<dyn Error>>` with `#![allow(unused)]` and a glob `use <crate>::*`,
+checks it as a Cargo example target, and reports `NOT_VERIFIED` when *every* error the compiler
+raised is `E0425: cannot find value`. Any other error - a type the crate does not export, a method
+that does not exist - is `FAILED`.
+
+**Alternative rejected.** Reporting those fences `FAILED`, which is what the first cohort run did:
+six of Aspose.Cells for Rust's seven Rust fences came back CONTRADICTED on `sheet`, `workbook`,
+`valid_path` and `links_sheet` - bindings the README's own prose establishes in the section above
+each fence, under a heading that says the complete programs are in `samples/`. "We checked and the
+example is false" about an excerpt would be the worst kind of wrong. Also rejected: synthesizing
+the missing bindings, which would be writing the example rather than checking it.
+
+**Evidence.** Measured 2026-09-06 across the seven fences: 1 EXECUTED (the Quick Start, a whole
+`fn main` program, compiled against the crate at `1a6004af`), 6 NOT_VERIFIED, 0 FAILED. The glob
+import is what makes the distinction meaningful - it resolves `LoadOptions`, `ChartType`,
+`CellArea`, `FormatConditionType`, `ValidationType`, `TableStyleType` and `TotalsCalculation`
+from the crate root, leaving the unbound values as the only diagnostic.
+
+**Reversal path.** `completed_source` and `unbound_values` are pure functions with their own
+tests; deleting the `unbound_values` branch restores FAILED.
+
+### D9 Cargo's closing summary is not a diagnostic
+
+**Decision.** `unbound_values` drops `error: could not compile … due to N previous errors` and
+`error: aborting due to …` before deciding whether every error was `E0425`.
+
+**Alternative rejected.** Counting every line that starts with `error`. Cargo restates the failure
+after the diagnostics with no error code, so a pure excerpt read as "one E0425 and one uncoded
+error" and every excerpt in the cohort would have been reported FAILED - the exact defect D8
+exists to prevent, reintroduced by the parser. Caught against the first run's captured output
+before the second run.
+
+**Evidence.** `test_rust_examples.py::test_cargos_closing_summary_is_not_counted_as_a_second_error`,
+built from the literal output of `cargo check --example rp_example_006` on this crate.
+
+### D10 The crate is checked once, in a copy, and every fence after it is checked `--locked`
+
+**Decision.** The verifier copies the crate into one run workspace (without `.git` or `target`),
+runs `cargo check` there once, then writes each fence into that copy's `examples/` directory and
+runs `cargo check --locked --example <name>`. `--locked` is used on the crate's own check only
+when the repository ships a `Cargo.lock`.
+
+**Alternative rejected.** The legacy `example_verifiers/rust.py`'s shape, which writes examples
+into the checkout itself and passes `--locked` only when a lock file is already there. Aspose.Cells
+for Rust ships no `Cargo.lock`, so `--locked` on the first check fails outright ("the lock file
+needs to be updated but --locked was passed"); and writing into the pinned clone would put build
+output inside the snapshot the transaction verifies. The copy costs 259 files and buys both.
+The cost that mattered is the toolchain's: a cold `cargo check` with a disposable `CARGO_HOME`
+resolves seven requirements and compiles two native build scripts in 253 seconds, four seconds
+under `core.execution`'s 300-second ceiling, while each fence after it returns in about half a
+second against the shared target directory. One check per composition is the only affordable
+shape.
+
+**Evidence.** `test_rust_examples.py::test_every_example_is_checked_against_the_lock_the_crate_check_resolved`
+and `::test_a_crate_that_does_not_check_condemns_no_example`; the timings in
+`evidence/build/lanes/lane-d/G4-W16.json`.
+
+**Reversal path.** Drop the copy and run in the clone; `--locked` is one flag.
+
+### D11 `RUSTUP_HOME` is named explicitly, because the disposable profile moves the real one
+
+**Decision.** The verifier resolves `cargo` by `which`, then by the `cargo` key of the
+machine-local toolchain registry, and sets `RUSTUP_HOME` in the subprocess environment from the
+ambient value, then the registry's `rustup_home`, then the home beside the proxy's own
+`cargo-home`. Nothing is added to the user's `PATH`.
+
+**Alternative rejected.** Letting the proxy find its own home. `core.execution.profile_environment`
+redirects `USERPROFILE` and `HOME` into the run directory, which is exactly where `.rustup` is
+*not*, so every check would have failed with "no default toolchain configured" - a toolchain
+failure reported as an example that does not compile.
+
+**Evidence.** `test_rust_examples.py::test_the_rustup_home_is_named_explicitly_because_the_profile_moves_the_real_one`
+and `::test_the_toolchain_registry_resolves_a_tool_that_is_not_on_path`; the resolved paths and
+versions in the receipt (rustup 1.29.1, cargo 1.98.1, rustc 1.98.1, stable-x86_64-pc-windows-msvc).
+
+### PROPOSAL P5 — G4-W17 item (0) corroborated by Rust, with one refinement its fix needs
+
+**File.** `src/repository_presenter/components/readme/validation/registry.py`, `_check_install`,
+and `composition/renderer.py::_installation` alongside it.
+
+**Not a new arrival.** The reviewer recorded this class as G4-W17 item (0) at 10:07 on 2026-09-06
+("BC-02's publication-only SUPPORTED path is the portfolio's highest-leverage blocker"), from lane
+B's four C++ repositories and the unpublished Python and TypeScript ones. Rust is the fifth
+ecosystem to hit it, on the only Rust repository in the portfolio, and this entry exists to give
+item (0) that repository's exact reading and one thing its fix has to decide.
+
+**Defect, as Rust meets it.** `_check_install` fails every install fact whose polarity is not
+`SUPPORTED`, at `EXTRACTING`. There is no honest way out from inside a plugin: emitting no install
+fact fails the same check's first clause ("no install command fact"), and an install fact the
+registry conclusively contradicts fails its second. Meanwhile `README_CONTRACT.md` §2 row 8 says in
+as many words: "State plainly when the package-registry observation shows the package is not yet
+published, rather than presenting an unqualified install command the registry itself contradicts",
+and `renderer.py::_installation` already implements exactly that - its second branch renders "The
+package `X` is not yet published on crates.io (…)" and no `bash` fence. That branch is unreachable
+today, because no candidate carrying a non-SUPPORTED install fact ever gets composed.
+
+**The refinement item (0) needs.** Item (0) admits "a verified source build (clone, configure,
+build or compile succeeding)" as an alternate SUPPORTED path. Rust has one - `cargo check` on the
+crate at this revision, which the example verifier already runs and records. But making
+`install_command:cargo` SUPPORTED on that evidence would render `_installation`'s *first* branch:
+"Install the published package from crates.io (`aspose-cells-foss-rust`, version 26.7.0)" followed
+by `cargo add aspose-cells-foss-rust` - a command that fails for the reader, on a registry that
+does not carry the crate. So the source-build path must support a *source* install fact (the git
+or clone-and-build form), not the registry command, and the renderer must choose its branch from
+which path supported the fact rather than from polarity alone. Otherwise item (0) converts a
+disposition into a sealed README that tells a Rust reader to install a crate that is not there.
+
+**Repositories and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at
+`1a6004af47b1ef15385f9d36d381a8172428cc7e`. `install_command:cargo` = `cargo add
+aspose-cells-foss-rust`, polarity `CONTRADICTED`, evidence
+`https://crates.io/api/v1/crates/aspose-cells-foss-rust` → "package registry: distribution not
+found on cargo" (HTTP 404, conclusive, method `crates-io-api`). The census records the same
+reading ("crates.io not found"), and the repository's own upstream-issues digest names "Crate is
+not yet published to crates.io" as a known, deliberate state. Everything else about the candidate
+is complete: 2,224 facts, no required contract row without evidence, 2,084 public symbols of which
+178 are types and 35 enums, 7 requirements with versions, and the Quick Start example compiled
+against the crate at this revision.
+
+### Observations that are not proposals
+
+- **The shared kind table already knows Rust.** `_KINDS` carries `struct_item`, `enum_item`,
+  `trait_item`, `impl_item` and `function_item`, so 2,078 of the crate's 2,084 public symbols
+  carry a real kind and the Core API table would render. The 6 that come back `unknown` are
+  top-level free functions the vendored engine labels with the literal string `function`
+  (`parse_a1_range`, `parse_cell_ref_a1`, `default`, `fmt`, `eq`, `hash`) - the same missing key
+  G4-W17 item (9) already carries for Go. Rust corroborates half of that item and needs nothing
+  added to it.
+- **The registry façade already reaches crates.io.** `REGISTRY_TYPES["rust"]` is `"cargo"`, the
+  vendored adapter table is keyed `"cargo"`, and `cargo.check_published` reads
+  `candidate["name"]` - exactly what `observe` passes. Rust has none of the Go mismatch that
+  G4-W17 item (8) fixes; the probe returned a conclusive reading on the first attempt.
+- **G4-W17 items (10) and (11) bite Rust exactly as they bite Go.** The Installation section
+  would append `git clone … && cd … && pip install .` to a Rust README (the crate has an executed
+  example), and `_IMPORT` never matches `use aspose_cells_foss_rust::…`, so the Verify-the-install
+  block is absent. One thing to add when (11) lands: the block must be skipped when a spec
+  declares no `verify_command`, or an ecosystem without an idiomatic verify line renders an empty
+  `bash` fence. Rust's own `verify_command` is `cargo check`, a template with no `{module}`
+  placeholder, so it is safe either way.
+- **`https://crates.io/` is reported MISSING and the reading is literally right.** The link prober
+  gets HTTP 404 from crates.io's root by HEAD *and* by GET, with the project's User-Agent and with
+  a browser's (measured 2026-09-06): the site is client-routed and its server does not render `/`.
+  The fact is CONTRADICTED, no composed README would render the link, and no check fails on a link
+  the document does not carry. Recorded rather than proposed: distinguishing this from a genuinely
+  dead URL needs a rendering client, which is a larger decision than a lane should take.
