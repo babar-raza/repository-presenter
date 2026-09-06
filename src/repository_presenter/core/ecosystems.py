@@ -42,6 +42,12 @@ class EcosystemSpec:
     # The fence languages a README may write an example in. Empty means the fence itself,
     # which is right for python and wrong for C#, where readers write csharp, cs and c#.
     fence_aliases: frozenset[str] = field(default_factory=frozenset)
+    # The runtime floor the Dependencies row reports: which fact carries it, what to call the
+    # runtime, and what the manifest calls the declaration. An ecosystem that declares no floor
+    # leaves these empty and the renderer prints no requirement, which is honest.
+    floor_fact_id: str = ""
+    floor_label: str = ""
+    floor_declaration: str = ""
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
 
@@ -67,6 +73,9 @@ PYTHON: Final = EcosystemSpec(
     ),
     verify_command='python -c "import {module}"',
     fence_aliases=frozenset({"python", "py", "python3"}),
+    floor_fact_id="package:python_requires",
+    floor_label="Python",
+    floor_declaration="python_requires",
     manifest_globs=("pyproject.toml", "setup.cfg", "setup.py"),
     source_suffixes=frozenset({".py"}),
 )
@@ -89,6 +98,9 @@ NET: Final = EcosystemSpec(
     example_timeout_seconds=300.0,
     install_timeout_seconds=300.0,
     fence_aliases=frozenset({"csharp", "cs", "c#"}),
+    floor_fact_id="package:target_framework",
+    floor_label=".NET",
+    floor_declaration="TargetFramework",
     manifest_globs=("*.csproj", "*.fsproj", "Directory.Build.props"),
     source_suffixes=frozenset({".cs"}),
 )

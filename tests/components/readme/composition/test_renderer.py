@@ -532,6 +532,54 @@ def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> 
     assert "- [Dependencies](#dependencies)" in readme.splitlines()
 
 
+def test_the_runtime_floor_is_the_ecosystems_own_and_not_pythons() -> None:
+    """Section 29.6 E4. Measured 2026-09-06: the row read `package:python_requires` by name, so
+    a .NET candidate never told a reader which framework it needs - the fact is
+    `package:target_framework` and no branch in shared code could see it."""
+    entry = RegistryEntry.model_validate(
+        {
+            **ENTRY.model_dump(mode="json"),
+            "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+            "platform": "net",
+            "ecosystem": "net",
+        }
+    )
+    facts = FactsDocument(
+        entry.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith(("dependency:", "package:python"))),
+            Fact(
+                "package:target_framework",
+                "package",
+                "netstandard2.0",
+                (Evidence("src/Aspose.Widget/Aspose.Widget.csproj", "lowest target framework"),),
+            ),
+            Fact(
+                "dependency:skiasharp",
+                "dependency",
+                "SkiaSharp 2.88.8",
+                (Evidence("src/Aspose.Widget/Aspose.Widget.csproj", "package reference"),),
+            ),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "sections": [
+            {**item, "include": True} if item["section_id"] == "dependencies" else item
+            for item in PLAN["sections"]
+        ],
+    }
+    readme = render_readme(entry, facts, plan, UNITS, DISPOSITIONS)
+    section = readme.split("## Dependencies\n\n", 1)[1].split("\n## ", 1)[0]
+    assert section == (
+        "### Required Package Dependencies\n\n- `SkiaSharp 2.88.8`\n\n"
+        "### Native and System Requirements\n\n"
+        "- Requires .NET `netstandard2.0` (`TargetFramework` in "
+        "`src/Aspose.Widget/Aspose.Widget.csproj`).\n"
+    )
+
+
 def test_a_package_registry_name_stays_plain_in_prose() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."

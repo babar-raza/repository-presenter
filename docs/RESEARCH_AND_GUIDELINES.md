@@ -3731,3 +3731,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   dependency snapshot. Remaining: `quick_start` has no evidence on Cells (9 of 9 examples fail)
   and Words (5 of 5), and the renderer's Native and System Requirements line still reads
   `package:python_requires` by name.
+
+- **2026-09-06 16:05 · loop (PROVISIONAL) · the wrapper's framework is the verifier's, and the
+  floor is the spec's.** Item G4-W11. Passing the declared floor into the verification project
+  was wrong twice, and the previous commit's truthful floor exposed it: Aspose.3D declares its
+  multi-target list only under Release, so a Debug build of the library produces `net10.0` alone
+  and a `netcoreapp3.1` wrapper failed all 7 examples with NU1201; Cells and Words declare
+  `netstandard2.0`, which no executable may target at all. The wrapper now targets what the SDK
+  it found builds — a current framework consumes a library built for any lower one — and 3D is
+  back to 5 of 7 with every required row evidenced. Separately, the Dependencies row read
+  `package:python_requires` by name, so a .NET candidate never told a reader which framework it
+  needs; `floor_fact_id`, `floor_label` and `floor_declaration` moved to `EcosystemSpec` and the
+  sealed Python bytes are unchanged. Two sites still name Python facts in shared code — the
+  version badge and Installation's "supports Python X" sentence — both inert for .NET because
+  the fact is absent, recorded here rather than fixed, so the change stays one mechanism.

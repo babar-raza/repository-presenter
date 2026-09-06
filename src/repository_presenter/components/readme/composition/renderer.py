@@ -246,18 +246,25 @@ def _dependencies(context: RenderContext) -> list[str]:
     if optional:
         lines.extend(["", "### Optional Dependencies", ""])
         lines.extend(_extra_bullet(fact) for fact in optional)
-    requires = context.fact("package:python_requires")
+    # The floor is the ecosystem's to name (section 29.6 E4). Reading `package:python_requires`
+    # here meant a .NET candidate never told a reader which framework it needs at all: the fact
+    # is `package:target_framework` and no branch could see it (measured 2026-09-06).
+    spec = context.spec
+    requires = context.fact(spec.floor_fact_id) if spec.floor_fact_id else None
     if requires is not None and requires.polarity == "SUPPORTED" and requires.evidence:
         lines.extend(["", "### Native and System Requirements", ""])
         floor = _FLOOR.fullmatch(requires.value.strip())
         path = requires.evidence[0].path
         if floor:
             lines.append(
-                f"- Requires Python {floor.group(1)} or later "
-                f'(`python_requires="{requires.value}"` in `{path}`).'
+                f"- Requires {spec.floor_label} {floor.group(1)} or later "
+                f'(`{spec.floor_declaration}="{requires.value}"` in `{path}`).'
             )
         else:
-            lines.append(f"- Requires Python `{requires.value}` (`python_requires` in `{path}`).")
+            lines.append(
+                f"- Requires {spec.floor_label} `{requires.value}` "
+                f"(`{spec.floor_declaration}` in `{path}`)."
+            )
     if development:
         lines.extend(["", "### Development Dependencies", ""])
         lines.extend(_extra_bullet(fact) for fact in development)
