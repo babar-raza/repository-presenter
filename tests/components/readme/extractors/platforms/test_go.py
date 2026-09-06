@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -10,8 +12,14 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     known_ecosystems,
     plugin_for,
 )
-from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.facts import Fact, slug
+
+
+def _names_module(pattern: str, text: str, *, module: str) -> bool:
+    """Exactly what `composition/renderer.py::_installation` asks of an example's own source."""
+    return re.search(pattern.format(module=re.escape(module)), text) is not None
+
 
 GO_MOD = """module github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Go/v26
 
@@ -59,6 +67,51 @@ def test_the_plugin_is_discovered_by_module_name_and_registers_its_spec() -> Non
     assert spec_for("go") is go.GO
     assert spec_for("go").registry == "pkg.go.dev"
     assert spec_for("go").floor_fact_id == "package:go_version"
+
+
+def test_the_import_pattern_is_gos_quoted_path_and_not_pythons_import() -> None:
+    """§28.12 G4-W17 item 11: the Verify-the-install match is the spec's own.
+
+    The renderer asks whether an executed example names the import path, with
+    `spec.import_pattern.format(module=re.escape(value))`. Go writes the path *quoted*, usually
+    inside an `import ( … )` block whose keyword is on an earlier line, which the inherited
+    Python-shaped default never matches - the reason no Go candidate has rendered the block.
+    Both fences below are the opening import of a cohort repository's own executed example.
+    """
+    module = "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+    matches = partial(_names_module, module=module)
+    aliased = f'package main\n\nimport cells_foss "{module}"\n\nfunc main() {{}}\n'
+    assert matches(go.GO.import_pattern, aliased)
+    # The bug this replaces, reproduced directly: Python's shape sees nothing here.
+    assert not matches(EcosystemSpec("x", "X", "x", "x", "x").import_pattern, aliased)
+    # Aspose.PDF's own executed example writes it inside a block, keyword on an earlier line.
+    assert matches(go.GO.import_pattern, f'import (\n\t"fmt"\n\tpdf "{module}"\n)\n')
+    # The plain and blank-identifier spellings are the same claim.
+    assert matches(go.GO.import_pattern, f'import "{module}"\n')
+    assert matches(go.GO.import_pattern, f'import _ "{module}"\n')
+    # A longer path that merely starts with this one is a different package.
+    assert not matches(go.GO.import_pattern, f'import "{module}/extra"\n')
+    # The path named in prose, or a call on the package, is not an import.
+    assert not matches(go.GO.import_pattern, f"The module lives at {module} today.\n")
+    assert not matches(go.GO.import_pattern, "wb := cells_foss.NewWorkbook()\n")
+
+
+def test_the_verify_command_takes_the_import_path_so_it_is_go_list_not_go_list_m() -> None:
+    """The renderer fills `{module}` with an `import_path` fact, not the module path.
+
+    Measured 2026-09-06 in a disposable consumer module after `go get`:
+    `go list -m …/v26/aspose/cells_foss` exits 1 ("not a known dependency") because the package
+    below the module root is not a module, while `go list …/v26/aspose/cells_foss` exits 0. The
+    `-m` form would have rendered a command that fails for every Go repository whose package is
+    not at the module root - never an unverified command (README_CONTRACT.md §2 row 8).
+    """
+    rendered = go.GO.verify_command.format(
+        module="github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+    )
+    assert rendered == (
+        "go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+    )
+    assert " -m " not in f" {rendered} "
 
 
 def test_the_governing_manifest_is_the_outermost_module_file(tmp_path: Path) -> None:

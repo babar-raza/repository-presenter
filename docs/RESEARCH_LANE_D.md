@@ -529,3 +529,252 @@ does not render it`, and the same for `'cargo doc --no-deps --open'`.
 `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` from a fresh
 lane-d branch. Everything upstream of validation is now proven for this repository, so the next
 run is a composition and a seal, not an investigation.
+
+## 2026-09-06 — G4-W15 re-run, after G4-W17 items (8) and (9)
+
+G4-W15 was accepted at its box with two dispositions — `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`
+and `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`, both `BLOCKED_SHARED_CODE`, class
+`GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS` — whose resume predicate was "PROPOSAL P1 and PROPOSAL P2
+are landed on main (G4-W17); then rerun `present`". Both landed together at 14:46 as arrival items
+(8) and (9) (`RESEARCH_AND_GUIDELINES.md` §31; commit `08137a0`, present in this worktree's log).
+This is the re-run. Worktree `C:\w\d15b`, detached off `origin/main` at `2b88ea4`, fresh `.venv`
+from `C:\Python313`; `go` resolved with `shutil.which("go")` to `C:\Program Files\Go\bin\go.EXE`,
+`go1.26.4 windows/amd64`, with `GOPATH`, `GOMODCACHE` and `GOCACHE` under `runs/` only.
+
+### The resume predicate is met and the class is closed, for both repositories
+
+**Measured at the facts stage, no provider call** (`present --facts-only`). Items (8) and (9) each
+did exactly what the dispositions said they would:
+
+| | Cells Go | Aspose.PDF Go |
+| --- | --- | --- |
+| `install_command:go` | `SUPPORTED` | `SUPPORTED` |
+| registry evidence | `package registry: found on go_modules`, live probe of `proxy.golang.org/github.com/aspose-cells-foss/!aspose.!cells-!f!o!s!s-for-!go/v26/@v/list` | same, `proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list` |
+| symbol kinds (was: every Go type `unknown`) | `class` 14, `method` 79, `function` 16 — zero unknown | `class` 213, `method` 1,114, `function` 139, `module` 1 — zero unknown |
+| supported facts | 228 of 231 (was 227) | 1,619 of 1,620 |
+
+`BC-02` then **PASSED** for Cells Go in both composition rounds below, alongside `BC-01`, `BC-03`
+to `BC-09`. `GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS` is closed and must not be reported as still
+blocking either repository. Neither sealed; each is blocked further down the pipeline on a class
+that had never been reachable before, because no Go candidate had ever been composed at all.
+
+### D14 Go's Verify-the-install match is the quoted import path, and it is the spec's own field
+
+**Decision.** `GO.import_pattern` is `(?m)^\s*(?:import\s+)?(?:[\w.]+\s+)?"{module}"`.
+
+G4-W17 items (5) and (11) made the renderer's match `EcosystemSpec.import_pattern`, mechanism only,
+each ecosystem's pattern its own spec's to set — lane D proposed item (11) from Go (PROPOSAL P4) and
+then set the field for Rust first (D13) without ever setting Go's. This sets it.
+
+**Alternative rejected.** The inherited Python-shaped default, kept on the ground that Go's
+Verify-the-install block is optional. It is not honest: `README_CONTRACT.md` §2 row 8 asks for the
+verify line "when the ecosystem has an idiomatic one", and Go has one. Also rejected: matching the
+module path anywhere in the fence, which counts a prose mention or a `go.mod` `require` line as an
+import; and `^\s*import\s+"{module}"` alone, which misses both spellings the cohort actually uses.
+
+**Evidence.** Measured against the executed example facts of both repositories at this revision:
+the default matches **0 of 8** Cells fences and **0 of 5** Aspose.PDF fences; the pattern above
+matches exactly the one fence in each that imports the module — Cells writes the aliased single-line
+form `import cells_foss "github.com/…/v26/aspose/cells_foss"` (README line 104), Aspose.PDF the
+block form with `pdf "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"` indented inside
+`import ( … )`, the keyword an earlier line entirely.
+`test_go.py::test_the_import_pattern_is_gos_quoted_path_and_not_pythons_import` pins both
+spellings, reproduces the default's blindness directly, and rejects a prose mention, a bare call,
+and a longer path that merely starts with this one. The Installation section of the Cells candidate
+now renders the first Verify-the-install block any Go candidate has produced.
+
+**Reversal path.** Delete the field from `GO`; the spec falls back to the shared default, the block
+disappears again, and nothing else changes.
+
+### D15 Go's verify command is `go list`, not `go list -m`, because the renderer feeds it a package
+
+**Decision.** `GO.verify_command` becomes `go list {module}` (it was `go list -m {module}`).
+
+**Evidence.** `renderer.py::_installation` fills `{module}` from an `import_path` fact — the module
+path *plus the subdirectory the package is declared in* — not from `package:name`. Measured
+2026-09-06 in a disposable consumer module (`go mod init`, then `go get`, with `GOPATH`,
+`GOMODCACHE` and `GOCACHE` under `runs/`): `go list -m …/v26/aspose/cells_foss` exits **1**,
+`module …: not a known dependency`, while `go list …/v26/aspose/cells_foss` exits **0** and prints
+the import path back. Aspose.PDF declares its package at the module root, so both forms happen to
+work there — `go list` is the one form correct for both. The `-m` spelling had never been rendered
+(D14 is why), so this was a latent defect that D14 would have published: a command the README
+asserts is verified against this revision, and which fails on the first repository that runs it.
+`test_go.py::test_the_verify_command_takes_the_import_path_so_it_is_go_list_not_go_list_m` pins it.
+
+**Alternative rejected.** `go doc {module}`, measured exit 0 and arguably friendlier — it prints the
+package synopsis. Rejected because it prints a screen of output for a yes/no question, and because
+`go list` echoing the import path back is the narrower claim: this package resolves in this module.
+Also rejected: keeping `-m` and feeding the renderer `package:name` instead, which is a renderer
+change in a path this lane does not own, for no gain.
+
+**Reversal path.** Restore `go list -m {module}`; with D14 in place the block then renders a command
+that fails for Cells, which is why the two decisions land together.
+
+### Outcome — Cells Go: nine of eleven checks pass; blocked at the review, not at BC-02
+
+Two full compositions, `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go`, the second after
+D14 and D15:
+
+- **Run 1, 18:54–19:11** (before D14/D15). 231 facts; 8 of 10 fences executed; 66 units
+  dispositioned; plan 16 of 18 sections; 42 content units across 8 sections; README 218 visible
+  lines of 497. Validation **pass 9, fail 1, pending 1**: `BC-01`–`BC-09` all PASS, `BC-10`
+  `REJECT_PRESENTATION`, `BC-11` never reached. Repair: 0 repaired, 1 unrepairable, 1 re-raised.
+- **Run 2, 19:35–19:44** (after D14/D15). The same nine PASS; the Installation section now carries
+  `Verify the install:` and `go list …/aspose/cells_foss`. The review's round 1 again returned
+  `REJECT_PRESENTATION`; the repair loop **closed both findings** in round 2; and the round-2 review
+  was then rejected at the binder — `independent_review: output rejected twice; finding F07: quote
+  is not the candidate's text: 'Run `go run main.go` to produce `hello.xlsx`'` — so `BC-10` could
+  not be judged at all and the run ended with `BC-10` PENDING. Not sealed.
+
+Both runs' blocking finding was the same one, PROPOSAL P8. The run-2 abort is PROPOSAL P11.
+
+### Outcome — Aspose.PDF Go: blocked at S3, the first stage that reads the surface
+
+`present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` never reached composition:
+
+> `repository_investigation: output rejected twice; last rejection: unknown fact ID
+> public_symbol:savemarkdown; unknown fact ID public_symbol:savehtml; … public_symbol:fontrepository`
+> (24 IDs)
+
+Twenty-one of the twenty-four exist — as `public_symbol:document.savehtml`,
+`public_symbol:document.split`, `public_symbol:page.drawline` and so on. The model cited them
+unqualified because it was never shown the qualified ones. PROPOSAL P10.
+
+### PROPOSAL P8 — a Quick Start lead-in is written about the sibling slot's example
+
+**File.** `src/repository_presenter/components/readme/composition/authoring.py`, `_SECTIONS`
+`"quick_start"` (line 131).
+
+**Defect.** The authoring instruction reads "One lead-in sentence per minimal example the renderer
+shows next: **the first opens an existing input when the product reads files**, a second builds from
+scratch when the plan selected one." That is `README_CONTRACT.md` §2 row 10's *ordering* rule, and it
+is handed to the wrong stage: by the time authoring runs, the slots are already bound to specific
+examples — `_bound` (line 309) binds `lead_in` to `plan["quick_start_example_id"]` and `lead_in:2`
+to `plan["second_quick_start_example_id"]`. Here the plan chose `example:002`, the from-scratch
+fence, as the first. The author obeyed the instruction rather than the binding and wrote, above a
+fence that calls `NewWorkbook()` and saves `hello.xlsx`:
+
+> To read an existing Excel file and inspect or modify its contents, load the workbook with
+> `LoadWorkbook`, access the first worksheet, read a cell value, update it, and save the changes to
+> a new file.
+
+and the create-from-scratch sentence above the `LoadWorkbook("input.xlsx")` fence. Each unit cites
+its own slot's fact ID, so `BC-04` — which compares fact IDs, not whether the prose is about the
+example beside it — passes a document that tells the reader the opposite of what the code does. Only
+the independent review caught it, as `F03`, in both runs.
+
+**Fix, as this lane reads it.** Two halves, either of which alone leaves the two stages disagreeing.
+(1) The `quick_start` instruction says to describe *this slot's own example*, and stops restating an
+ordering rule the author cannot act on. (2) The ordering rule stays with the stage that can honour
+it — `presentation_planning`, which chooses `quick_start_example_id` — so a product that reads files
+gets the read example bound to the first slot rather than a sentence pretending it is there.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at
+`9f0a4033b59e9127afec7662ec9079b500af8032`; review `F03`, `section_id: quick_start`,
+`causal_stage: S7`, raised in two consecutive runs.
+
+**Not one of G4-W17's items (0)–(26).** The nearest is (21), which is also "a stage re-asks
+authoring for something planning chose", but it is about an unauthorable limitation in
+`scope_limitations`; nothing in the list touches the quick-start slot binding, and no existing item
+would fix this.
+
+### PROPOSAL P9 — the repair loop must be told the citations are fixed and only the prose may move
+
+**Files.** `src/repository_presenter/components/readme/repair/` (the `targeted_repair` packet) and
+its revised-output check.
+
+**Defect.** Repairing P8 means swapping two sentences while each keeps its slot's fact ID. Round 1's
+repair swapped the citations too and was rejected twice —
+`revised_output: unit lead_in:2: cites facts outside its slot's planned set (example:002)` — so the
+finding was recorded `unrepairable` and re-raised. Round 2 got it right and both findings were
+`repaired`. So this is a cost, not a wall: one wasted round and one false `unrepairable` record per
+occurrence. The packet never states that a slot's fact set is fixed by the plan and that only the
+prose may move between slots.
+
+**Fix, as this lane reads it.** One sentence in the repair packet saying so. Small; recorded because
+the false `unrepairable` is what a reader of `repairs.json` would otherwise take for a hard blocker,
+exactly as this lane nearly did.
+
+**Repository and finding.** As P8; `repairs.json` attempt `47a1574d268114e2990f8b5b`.
+
+### PROPOSAL P10 — the investigation packet truncates a large public surface alphabetically
+
+**File.** `src/repository_presenter/core/facts.py::bounded_records` (line 145), `SYMBOL_CAP = 150`
+(line 142), reached from `investigation/dossier.py` line 38.
+
+**Defect.** `bounded_records` admits public symbols "in document order" until `symbol_cap`. Document
+order is the fact ID, which is alphabetical. Aspose.PDF for Go has **1,467** public symbols, so the
+packet's 150 are exhausted **inside the letter b** — the last symbol the investigation ever sees is
+`public_symbol:bmpdevice.process`. `Document`, the type the entire library is about, and every one
+of its methods (`SaveHTML`, `Split`, `Append`, `Optimize`, `Rotate`, `Sign`, `ValidatePDFA`, …) are
+invisible to the job. The model reads the inherited README, which describes exactly those
+operations, and cites the only IDs it can form — `public_symbol:savehtml` — which do not exist. The
+binding check rejects the output, twice, and the candidate dies at S3 with no investigation at all.
+The bound is right; the *selection* is what is wrong.
+
+**Fix, as this lane reads it.** Choose the bounded sample by relevance rather than by ID order:
+admit every top-level type first (213 here — the `class` and `enum` kinds, which are what a
+capability statement names), then members of the types the inherited units and the executed examples
+actually mention, until the cap. Alternatively raise the cap for this one job; that is weaker,
+because at 1,467 symbols any fixed cap taken alphabetically still ends in the b's or the c's.
+
+**Corroborated inside this one cohort, with the surface size as the only variable.** Cells Go has
+109 public symbols — under the cap — so every symbol entered its packet and its investigation
+succeeded on the first attempt. Same ecosystem, same plugin, same shared code, same prompt. Every
+large-surface repository in the portfolio is exposed to this, not Go alone.
+
+**Repository and finding.** `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at
+`2306eeb06216be4d9cb663adcb85155594572c11`; `repository_investigation: output rejected twice`, 24
+unknown fact IDs, 21 of which exist qualified.
+
+**Not one of G4-W17's items (0)–(26).** Item (19) also concerns which symbols are published — it
+drops symbols the vendored engine already tagged internal — but it is a `surface_symbols` change
+that would not move `Document` into the first 150 alphabetically, and nothing in the list mentions
+the packet cap.
+
+### PROPOSAL P11 — one unlocatable quote rejects the whole review, and the run with it
+
+**File.** `src/repository_presenter/components/readme/review/independent/review.py::review_checks`
+(line 356; the quote test at line 376).
+
+**Defect.** `review_checks` appends an error for any finding whose `quote` is not located in the
+candidate, and a non-empty error list rejects the entire review output. The reviewer's job is to
+compare the candidate against the inherited README, so quoting the *inherited* text when reporting
+something the candidate dropped is its most natural mistake. Run 2's reviewer produced eight
+findings; seven were usable and one quoted the upstream README's own line
+``Run `go run main.go` to produce `hello.xlsx` ``. Two samples, both with one such quote, and the
+stage failed: no `review.json` for that round, `BC-10` left `PENDING`, the run over. The review
+already has the right machinery for a reviewer that misreads the candidate — six findings in the
+same output were demoted to advisory with `reviewer_scope_defect: "the finding claims the candidate
+does not contain X, which the candidate contains"` — but the binder's rejection runs first and
+pre-empts it.
+
+**Fix, as this lane reads it.** Drop the individual finding, or demote it to advisory with a
+`reviewer_scope_defect` naming the unlocatable quote, and keep the rest of the review. This is the
+shape G4-W17 has already fixed twice elsewhere — item (16) (`planning.py` rejected a whole candidate
+for a trimmable ceiling breach; landed as `d707693`, "folded, not rejected") and item (17) — applied
+to the one stage that still rejects wholesale. Neither of those items covers this file.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at
+`9f0a4033b59e9127afec7662ec9079b500af8032`; `independent_review: output rejected twice; last
+rejection: finding F07: quote is not the candidate's text`.
+
+### The dispositions this re-run leaves
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at `9f0a4033b59e9127afec7662ec9079b500af8032`,
+`BLOCKED_SHARED_CODE`, failure class `BC10_REVIEW_REJECTED_WHOLE_FOR_ONE_UNLOCATABLE_QUOTE` with
+`QUICKSTART_LEADIN_BOUND_TO_THE_SIBLING_EXAMPLE` beside it. Supersedes
+`GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS`, which items (8) and (9) cleared — `BC-02` PASS, measured
+against a live Go proxy probe, not assumed. Resume predicate: PROPOSAL P11 landed on `main` (P8 with
+it, or the repair loop will keep paying a round per run to undo what authoring wrote), then rerun
+`present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch. Everything
+upstream of the review is proven for this repository: nine of eleven checks pass and the two content
+findings the reviewer raised were both repaired.
+
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at `2306eeb06216be4d9cb663adcb85155594572c11`,
+`BLOCKED_SHARED_CODE`, failure class `INVESTIGATION_PACKET_TRUNCATES_A_LARGE_SURFACE`. Supersedes
+`GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS`, cleared the same way — its `install_command:go` is
+`SUPPORTED` from a live probe and all 1,467 of its symbols now carry a kind. Resume predicate:
+PROPOSAL P10 landed on `main`, then rerun `present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`
+from a fresh lane-d branch. This repository has never been composed past S3, so its next run is an
+investigation, not a seal.
