@@ -3745,3 +3745,19 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   sealed Python bytes are unchanged. Two sites still name Python facts in shared code — the
   version badge and Installation's "supports Python X" sentence — both inert for .NET because
   the fact is absent, recorded here rather than fixed, so the change stays one mechanism.
+
+- **2026-09-06 16:50 · loop (PROVISIONAL) · the verifier put this machine's paths into published
+  evidence, and a locked scratch directory killed a repository.** Item G4-W11. Five of six .NET
+  repositories now reach every required row with evidence (3D 5 of 7 examples, Cells 3 of 9,
+  Email 4 of 4, PDF 11 of 12, Slides 1 of 9). Words did not: `rmtree` raised WinError 145 on a
+  NuGet cache file inside the previous run's disposable profile — this checkout is on OneDrive,
+  which holds handles — and the exception ended the facts stage. Scratch space that will not
+  clean is now the next directory along, and five refusals are BLOCKED_TOOLCHAIN, never a crash.
+  Reading Slides' facts to check that, the evidence itself carried
+  `D:\Users\...\runs\verify\a50008248340\example_003\Program.cs(1,30): error CS0246` — the
+  developer's home directory in a fact that would be published, and a string that differs per
+  machine in bytes that must be reproducible. The verifier now scrubs its own workspace out of
+  every diagnostic and drops MSBuild's trailing project bracket. Next class to judge: Slides
+  example 2 failed CS5001 — a fenced block of `using` directives and comments with no statement
+  is not a program, and calling it a CONTRADICTED example may be the selection's defect, not the
+  README's.

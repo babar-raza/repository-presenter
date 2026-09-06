@@ -135,3 +135,73 @@ def test_the_wrapper_targets_the_sdk_rather_than_the_packages_floor() -> None:
     assert net_examples._sdk_framework("8.0.404") == "net8.0"
     assert net_examples._sdk_framework("9.0.100-preview.3") == "net9.0"
     assert net_examples._sdk_framework("") == net_examples._FALLBACK_FRAMEWORK
+
+
+def test_a_diagnostic_carries_no_path_from_this_machine(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A receipt becomes a fact's evidence and a fact is published.
+
+    Measured 2026-09-06 on Aspose.Slides for .NET, whose facts carried the developer's home
+    directory: a path that differs per machine would also move a sealed candidate's bytes for a
+    reason that is not the repository.
+    """
+    run = tmp_path / "run"
+    noisy = (
+        f"{run / 'example_001' / 'Program.cs'}(1,30): error CS0246: "
+        f"'Presentation' not found [{run / 'example_001' / 'Example.csproj'}]"
+    )
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(1, stdout=noisy + "\n")
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, [_candidate(1, "var p = new Presentation();")], run
+    )
+    detail = receipts[0].detail or ""
+    assert detail == "Program.cs(1,30): error CS0246: 'Presentation' not found"
+    assert str(tmp_path) not in detail
+    assert str(tmp_path) not in receipts[0].stdout and str(tmp_path) not in receipts[0].stderr
+
+
+def test_a_workspace_windows_will_not_release_does_not_end_the_stage(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measured 2026-09-06 on Aspose.Words for .NET: `rmtree` raised WinError 145 on a NuGet
+    cache file inside the previous run's profile and took the whole facts stage down."""
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "stuck.txt").write_text("held open", encoding="utf-8")
+    monkeypatch.setattr(net_examples.shutil, "rmtree", lambda *a, **k: None)
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        return _result(0)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, [_candidate(1, "var w = 1;")], run
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED"]
+    # The undeletable directory is untouched and the build ran beside it.
+    assert (run / "stuck.txt").exists()
+    assert (tmp_path / "run-1" / "example_001" / "Program.cs").exists()
+
+
+def test_a_workspace_that_can_never_be_cleaned_is_blocked_not_crashed(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Section 29.6 E5: what we could not check is UNRESOLVED, never CONTRADICTED."""
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "_fresh_workspace", lambda workspace: None)
+    receipts = net_examples.verify_net_examples(
+        tmp_path, project, [_candidate(1, "var w = 1;")], tmp_path / "run"
+    )
+    assert [r.outcome for r in receipts] == ["NOT_VERIFIED"]
+    assert "BLOCKED_TOOLCHAIN" in (receipts[0].detail or "")

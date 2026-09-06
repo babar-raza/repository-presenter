@@ -43,6 +43,10 @@ _PROJECT = """<Project Sdk="Microsoft.NET.Sdk">
 """
 _FALLBACK_FRAMEWORK = "net8.0"
 _SDK_VERSION = re.compile(r"^(\d+)\.(\d+)\.")
+# MSBuild appends the project that raised a diagnostic in brackets; the diagnostic is the part
+# a disposition acts on.
+_TRAILING_PROJECT = re.compile(r"\s*\[[^\]]*\]\s*$")
+_WORKSPACE_ATTEMPTS = 5
 
 
 def dotnet_executable() -> str | None:
@@ -87,6 +91,42 @@ def _sdk_framework(version: str) -> str:
     return f"net{match.group(1)}.{match.group(2)}" if match else _FALLBACK_FRAMEWORK
 
 
+def _fresh_workspace(workspace: Path) -> Path | None:
+    """An empty run directory, even when Windows will not let the last one go.
+
+    Measured 2026-09-06 on Aspose.Words for .NET: `rmtree` raised WinError 145 on a NuGet cache
+    file inside the previous run's disposable profile - this checkout is on OneDrive, which holds
+    handles - and the exception took the whole facts stage down. A run that cannot have the
+    directory back can always have the next one; failing to clean scratch space must never cost
+    a repository its candidate. None means every attempt was refused, which is BLOCKED_TOOLCHAIN.
+    """
+    for suffix in range(_WORKSPACE_ATTEMPTS):
+        candidate = workspace if suffix == 0 else workspace.with_name(f"{workspace.name}-{suffix}")
+        shutil.rmtree(candidate, ignore_errors=True)
+        if candidate.exists():
+            continue
+        candidate.mkdir(parents=True)
+        return candidate
+    return None
+
+
+def _scrub(text: str, run_dir: Path) -> str:
+    """This machine's paths out of a compiler's output.
+
+    MSBuild prints absolute paths and appends the project in brackets. A receipt becomes a fact's
+    evidence and a fact is published, so the developer's home directory must not appear in it -
+    and a path that differs per machine would move a sealed candidate's bytes for a reason that
+    is not the repository. Measured 2026-09-06 on Aspose.Slides for .NET, whose facts carried
+    `D:\\Users\\...\\runs\\verify\\a50008248340\\example_003\\Program.cs(1,30): error CS0246`.
+    """
+    cleaned = text
+    for base in {run_dir, run_dir.resolve()}:
+        for rendered in (str(base), base.as_posix()):
+            cleaned = cleaned.replace(rendered + "\\", "").replace(rendered + "/", "")
+            cleaned = cleaned.replace(rendered, "")
+    return cleaned
+
+
 def _sdk_version(dotnet: str, workspace: Path) -> str:
     result = execute(
         [dotnet, "--version"],
@@ -111,9 +151,10 @@ def verify_net_examples(
     dotnet = dotnet_executable()
     if dotnet is None:
         return _blocked(candidates, "BLOCKED_TOOLCHAIN: no dotnet SDK on this machine")
-    if workspace.exists():
-        shutil.rmtree(workspace)
-    workspace.mkdir(parents=True)
+    fresh = _fresh_workspace(workspace)
+    if fresh is None:
+        return _blocked(candidates, "BLOCKED_TOOLCHAIN: no clean workspace to build in")
+    workspace = fresh
     version = _sdk_version(dotnet, workspace)
     if not version:
         return _blocked(candidates, "BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version")
@@ -142,14 +183,14 @@ def verify_net_examples(
         elif result.return_code == 0:
             outcome, detail = "EXECUTED", f"compiled against {project.name}; SDK {version}"
         else:
-            outcome, detail = "FAILED", _first_error(result.stdout, result.stderr)
+            outcome, detail = "FAILED", _first_error(result.stdout, result.stderr, run_dir)
         receipts.append(
             ExampleReceipt(
                 ordinal=candidate.ordinal,
                 outcome=outcome,  # type: ignore[arg-type]
                 return_code=result.return_code,
-                stdout=_clip(result.stdout),
-                stderr=_clip(result.stderr),
+                stdout=_clip(_scrub(result.stdout, run_dir)),
+                stderr=_clip(_scrub(result.stderr, run_dir)),
                 detail=detail,
                 fixtures=(),
             )
@@ -157,9 +198,13 @@ def verify_net_examples(
     return receipts
 
 
-def _first_error(stdout: str, stderr: str) -> str:
-    """The compiler's own first diagnostic, which names the type or member that is missing."""
-    for line in (stdout + "\n" + stderr).splitlines():
+def _first_error(stdout: str, stderr: str, run_dir: Path) -> str:
+    """The compiler's own first diagnostic, which names the type or member that is missing.
+
+    Reported without this machine's paths and without MSBuild's trailing project bracket, so the
+    diagnostic a reader and a disposition see is the diagnostic and nothing else.
+    """
+    for line in _scrub(stdout + "\n" + stderr, run_dir).splitlines():
         if ": error " in line:
-            return line.strip()[:400]
+            return _TRAILING_PROJECT.sub("", line.strip())[:400]
     return "the build failed without naming a diagnostic"
