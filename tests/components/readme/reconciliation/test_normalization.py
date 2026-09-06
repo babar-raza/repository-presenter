@@ -219,6 +219,37 @@ def test_a_command_block_is_never_omitted_while_build_facts_exist() -> None:
     assert placement_errors(omitted, without) == []
 
 
+def test_a_non_install_command_defers_when_development_and_testing_has_nothing() -> None:
+    """An install fact alone does not mean Development and Testing renders.
+
+    Measured 2026-09-06: Aspose.Words and Aspose.Cells for .NET both have `install_command:dotnet`
+    SUPPORTED and zero `build_test_asset` facts, so a maintainer's `dotnet test` block was routed
+    to `development_testing` by `install_ids` alone - a section whose own condition
+    (`bool(facts.by_kind("build_test_asset"))`) is false - and the candidate died on the same
+    placement `plan_checks` already knows to defer.
+    """
+    tests_block = Fact(
+        "inherited_unit:071.code_block",
+        "inherited_unit",
+        "```bash" + chr(10) + "dotnet test" + chr(10) + "```",
+        (Evidence("README.md", "lines 80-82; code_block; under X > Development and Testing"),),
+    )
+    dotnet = Fact(
+        "install_command:dotnet",
+        "install_command",
+        "dotnet add package Aspose.Widget",
+        (Evidence("Widget.csproj", "manifest"), Evidence("nuget", "package registry: found")),
+    )
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, tests_block, dotnet)
+    )
+    output = {"dispositions": [_entry("inherited_unit:071.code_block", "OMIT_UNSUPPORTED", None)]}
+    assert normalize(output, facts) == []
+    entry = output["dispositions"][0]
+    assert entry["disposition"] == "DEFER_UNRESOLVED"
+    assert entry["destination_section"] is None
+
+
 def test_a_placed_code_block_whose_example_is_contradicted_folds_into_an_omission() -> None:
     failed = Fact(
         "example:002",

@@ -221,6 +221,44 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS, ceiling) == ["Aspose links exceed the ceiling of 0: 1"]
 
 
+def test_a_shell_rendered_link_is_never_a_plans_own_assignment() -> None:
+    """README_CONTRACT.md rows 3 and 18: the banner and the closing Enterprise sentence render
+    deterministically from these exact IDs, in their own fixed place.
+
+    Measured 2026-09-06 on Aspose.Cells for .NET: the plan assigned `product.homepage` to
+    `identity` - a section links are never assigned to at all - and reached five Aspose links
+    against a ceiling of four with only four genuinely link-worthy targets, because the shell's
+    own homepage link was double-counted as if it were a fifth.
+    """
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("link_target:product.homepage", "link_target", "https://products.aspose.com/w"),
+            _fact("link_target:product.enterprise", "link_target", "https://products.aspose.com/w"),
+        ),
+    )
+    plan = _plan(
+        links=[
+            {"link_fact_id": "link_target:product.homepage", "section_id": "identity"},
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+        ]
+    )
+    assert plan_checks(plan, facts) == [
+        "link 'link_target:product.homepage' renders on its own (the banner or the closing "
+        "Enterprise sentence); the same URL has its own numbered link_target fact if a section "
+        "needs to reference it directly"
+    ]
+    # It never reaches the Aspose count either - not one more genuine link, uncounted.
+    ceiling = PlanningPolicy(aspose_links_max=1)
+    assert plan_checks(plan, facts, ceiling) == [
+        "link 'link_target:product.homepage' renders on its own (the banner or the closing "
+        "Enterprise sentence); the same URL has its own numbered link_target fact if a section "
+        "needs to reference it directly"
+    ]
+
+
 def test_which_capability_facts_are_shared_is_composed_from_the_citations() -> None:
     """Section 27.2 RC2 asks that the rest of each set discriminate, and RC1 says a decision the
     citations already carry is composed, never restated and then rejected for being restated

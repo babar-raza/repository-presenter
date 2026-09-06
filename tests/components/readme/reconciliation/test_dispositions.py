@@ -117,24 +117,21 @@ def test_placements_into_deterministic_sections_fold_into_supersessions() -> Non
         ]
     }
     errors = normalize(output, FACTS)
-    assert errors == [
-        "inherited_unit:003.code_block: section installation renders nothing for this "
-        "repository; choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED"
-    ]
+    # A required section (owner "D") is never excluded, but "required" means it always appears,
+    # not that it always has content: FACTS carries no SUPPORTED install fact, so installation
+    # renders nothing here. Measured 2026-09-06 on Aspose.Slides for .NET, genuinely unpublished:
+    # the same placement survived one re-ask unchanged, so it is deferred rather than re-asked
+    # again - the model cannot invent evidence a section lacks.
+    assert errors == []
     folded = output["dispositions"]
     assert folded[0]["disposition"] == "SUPERSEDE_REDUNDANT"
     assert folded[0]["fact_ids"] == ["identity:repository"]
     assert folded[0]["destination_section"] == "identity"
     assert folded[1]["fact_ids"] == ["identity:repository"]
-    assert folded[2]["disposition"] == "CORRECT_WITH_EVIDENCE"
+    assert folded[2]["disposition"] == "DEFER_UNRESOLVED"
+    assert folded[2]["destination_section"] is None
     remaining = placement_errors(output, FACTS)
     assert remaining == [
-        "inherited_unit:003.code_block: CORRECT_WITH_EVIDENCE needs a destination the shell can "
-        "hold (additional_examples, api_reference, at_a_glance, development_testing, "
-        "documentation_resources, enterprise_relationship, key_capabilities, opening, "
-        "quick_start, scope_limitations); got 'installation'",
-        "inherited_unit:003.code_block: CORRECT_WITH_EVIDENCE needs at least one fact ID as "
-        "evidence",
         "inherited_unit:004.code_block: SUPERSEDE_REDUNDANT names the section whose content "
         "renders or covers the unit in destination_section, or cites at least one fact ID",
     ]

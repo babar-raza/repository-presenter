@@ -191,7 +191,12 @@ def normalize(
             continue
         if disposition == "OMIT_UNSUPPORTED" and unit in commands and (install_ids or build_ids):
             # A command block is the maintainers' own command, not a claim: an install command
-            # is rendered by the Installation row, any other block is kept where it was.
+            # is rendered by the Installation row, any other block is kept where it was - but
+            # only where Development and Testing actually renders. Measured 2026-09-06: Words
+            # and Cells for .NET each have install_command:dotnet SUPPORTED and zero
+            # build_test_asset facts, so a non-install command (`dotnet test`) routed here by
+            # install_ids alone claimed a section whose own condition is false, and the
+            # candidate died on the same placement the branch below already knows to defer.
             block = units_by_id[unit]
             heading = " ".join(e.detail or "" for e in block.evidence)
             installing = "> Installation" in heading or bool(_INSTALL_COMMAND.search(block.value))
@@ -199,6 +204,9 @@ def normalize(
                 entry["disposition"] = "SUPERSEDE_REDUNDANT"
                 entry["destination_section"] = "installation"
                 entry["fact_ids"] = sorted(cited | set(install_ids))
+            elif "development_testing" in absent:
+                entry["disposition"] = "DEFER_UNRESOLVED"
+                entry["destination_section"] = None
             else:
                 entry["disposition"] = "VERIFIED_PRESERVE"
                 entry["destination_section"] = "development_testing"
@@ -299,10 +307,14 @@ def normalize(
             continue
         ids = rendering_fact_ids(destination, facts)
         if not ids:
-            errors.append(
-                f"{unit}: section {destination} renders nothing for this "
-                "repository; choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED"
-            )
+            # A required deterministic section (owner "D") is never excluded, so it is never in
+            # `absent` - but "required" only means the section always appears, not that it
+            # always has content. Measured 2026-09-06 on Aspose.Slides for .NET: `installation`
+            # renders nothing because the package is genuinely unpublished (§31), and the same
+            # placement survived one re-ask unchanged - the model cannot invent evidence a
+            # section lacks any more than it can invent a section a plan excludes.
+            entry["disposition"] = "DEFER_UNRESOLVED"
+            entry["destination_section"] = None
             continue
         entry["disposition"] = "SUPERSEDE_REDUNDANT"
         entry["fact_ids"] = sorted(cited | set(ids))

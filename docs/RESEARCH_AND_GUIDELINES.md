@@ -3919,3 +3919,33 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   lane had to edit `tests/.../test_registry.py` (a literal `known_ecosystems()` assertion) — proposal
   (6) makes that test discovery-based so no lane edits a shared test again. Reverse by restoring the
   §27.9 order and the lane prompt's §1.
+
+- **2026-09-06 21:10 · loop (PROVISIONAL) · the ecosystem-example check compared a fence word to
+  the ecosystem's own name, true only for Python.** Item G4-W11. `independent_review` v10's
+  character-for-character quote check let Aspose.3D for .NET reach BC-10 for the first time, where
+  it failed `REJECT_PRESENTATION` after one repair, corroborated by both reviewer reads: Additional
+  Examples printed every code block twice, once headed and once bare. `placement.py`'s
+  `renders_verbatim` decided whether a preserved example duplicates the plan's own rendering by
+  `language not in {ecosystem, "mermaid"}` — for Python, fence and ecosystem are both the string
+  "python", so it worked by coincidence; for .NET, the fence is `csharp` and the ecosystem is
+  `"net"`, so no VERIFIED_PRESERVE example was ever recognised as this ecosystem's own, and every
+  one rendered as ordinary content beside the plan's structured copy. Fixed by reading
+  `spec_for(ecosystem).example_fences` (§29.2 F6, the same property `select_examples` already
+  uses) instead of the literal name; Python's sealed bytes are unchanged. Three more classes from
+  the same composition round, unrelated to each other: (1) `normalize`'s `OMIT_UNSUPPORTED` →
+  `development_testing` fold routed on `install_ids or build_ids` without checking the section's
+  own condition, so Words and Cells (install_command SUPPORTED, zero build_test_asset) claimed a
+  section that renders nothing; now deferred when the section is absent. (2) the same fold's
+  catch-all for a deterministic section with no evidence surfaced an error for the model to fix
+  by name (`renders nothing... choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED`) rather than fixing it,
+  and Slides re-asked twice into `installation` unchanged (genuinely unpublished on NuGet, §31
+  above) — now deferred like every other unrenderable-destination case this session. (3) a plan
+  may not assign `product.banner`/`product.homepage`/`product.enterprise` as a `links` entry: these
+  render at their own fixed place (README_CONTRACT.md rows 3, 18), and Cells's plan assigning
+  `product.homepage` to `identity` — a section links are never assigned to — inflated the Aspose
+  count to five against a ceiling of four with only four genuinely link-worthy targets. Also:
+  `presentation_planning` v10 tells the model a `symbol_fact_id` is copied from the facts list,
+  never reconstructed from memory of the product elsewhere, after Aspose.PDF's planner cited
+  `public_symbol:aspose.pdf.devices.svgsdevice` (real: `svgdevice`) identically on both attempts -
+  a single hallucination among 12,241 symbols, diagnosed and prompted against rather than chased
+  further per §5's two-equivalent-attempts rule.

@@ -18,6 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import FactsDocument
 
 PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
@@ -45,13 +46,20 @@ def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
     the diagram, so a preserved heading, badge row, HTML block, ecosystem code block, or
     Mermaid block would only duplicate what those already render; any other code block (a
     command sequence, say) carries content nothing else renders and appears as written.
+
+    An ecosystem's own example is judged by its fence vocabulary (section 29.2 F6), not by
+    comparing the fence word to the ecosystem's name - true only for Python, where both happen
+    to spell "python". Measured 2026-09-06 on Aspose.3D for .NET: a ```csharp block never equals
+    the literal string "net", so every VERIFIED_PRESERVE example was placed as ordinary content
+    beside the plan's own rendering of the same example, and Additional Examples printed every
+    code block twice - the defect two independent reviewer reads agreed on (BC-10).
     """
     unit_type = unit_id.rsplit(".", 1)[-1]
     if unit_type != "code_block":
         return unit_type not in _RENDERED_ELSEWHERE
     first = value.splitlines()[0].strip() if value.strip() else ""
     language = first[3:].strip().lower() if first.startswith("```") else ""
-    return language not in {ecosystem, "mermaid"}
+    return language not in ({"mermaid"} | spec_for(ecosystem).example_fences)
 
 
 def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:

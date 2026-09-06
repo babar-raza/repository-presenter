@@ -31,6 +31,9 @@ from repository_presenter.components.readme.composition.policy import (
     policy_packet,
 )
 from repository_presenter.components.readme.evidence.facts.product_pages import (
+    BANNER_FACT_ID,
+    ENTERPRISE_FACT_ID,
+    HOMEPAGE_FACT_ID,
     banner_target,
     enterprise_target,
 )
@@ -40,6 +43,9 @@ from repository_presenter.core.registry.models import RegistryEntry
 
 PLAN_FILENAME = "plan.json"
 _ASPOSE_DOMAINS = ("aspose.com", "aspose.org")
+# Rendered deterministically at their own fixed place (README_CONTRACT.md rows 3 and 18); never
+# a plan's own link assignment.
+_SHELL_OWNED_LINKS = frozenset({BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FACT_ID})
 
 
 def _supported(facts: FactsDocument, kind: str) -> list[str]:
@@ -356,6 +362,21 @@ def plan_checks(
     for link in output.get("links", []):
         target = link.get("link_fact_id")
         section = link.get("section_id")
+        if target in _SHELL_OWNED_LINKS:
+            # README_CONTRACT.md rows 3 and 18: the banner and the closing Enterprise sentence
+            # render deterministically from these exact IDs, in their own fixed place. Placing
+            # one as a link duplicates what the shell already renders and, uncounted against
+            # nothing, only inflates the Aspose count: measured 2026-09-06 on Aspose.Cells for
+            # .NET, whose plan assigned product.homepage to identity - a section links are never
+            # assigned to at all - and reached five Aspose links against a ceiling of four with
+            # only four genuinely link-worthy targets. The same URL is available under its own
+            # numbered link_target fact for a section that wants to reference it directly.
+            errors.append(
+                f"link {target!r} renders on its own (the banner or the closing Enterprise "
+                "sentence); the same URL has its own numbered link_target fact if a section "
+                "needs to reference it directly"
+            )
+            continue
         if target not in link_facts:
             errors.append(f"link {target!r} is not a verified link target")
         elif any(domain in link_facts[target] for domain in _ASPOSE_DOMAINS):
