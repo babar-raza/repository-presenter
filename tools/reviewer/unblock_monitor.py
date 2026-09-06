@@ -96,18 +96,36 @@ LANDED_CLAUSE_RE = re.compile(
 NUMBER_RE = re.compile(r"\d+")
 
 
+def _committed_research_text() -> str | None:
+    """The last COMMITTED content of RESEARCH_AND_GUIDELINES.md (`git show HEAD:...`), not whatever
+    is currently on disk. Added 2026-09-06 22:50 after this monitor read a draft, uncommitted §31
+    entry straight off the shared working tree and reported item 22 "landed" while the primary was
+    still mid-writing that entry and validation/registry.py was still dirty - a real false positive,
+    caught only because a second, commit-only signal (the mechanical shared-code file-diff monitor)
+    correctly stayed silent. Reading the working tree directly is exactly the same class of mistake
+    as trusting a claim before its evidence lands: the prose exists, but nothing is true yet."""
+    try:
+        result = subprocess.run(
+            ["git", "show", "HEAD:docs/RESEARCH_AND_GUIDELINES.md"],
+            cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
+        )
+    except Exception:
+        return None
+    return result.stdout if result.returncode == 0 else None
+
+
 def landed_items() -> set[int]:
     """Union of two independent signals, neither trusted alone (2026-09-06 21:50, after this
     regex-only version went blind on items 21-31 the same evening): the regex over section 31's
-    prose (fragile against phrasing drift, kept as a cross-check, never removed), and the
+    prose AS LAST COMMITTED (never the live working tree - see `_committed_research_text`), and the
     structured ledger at LEDGER - one JSON object per line, `{"item": int, ...}` - that the primary
     is asked (Reviewer message, same day) to append to the moment it lands a G4-W17 arrival item.
     The ledger is the durable signal this module's own original docstring called for and never had;
     until the primary actually writes it, this function silently falls back to regex-only, exactly
     as before."""
     found: set[int] = set()
-    if RESEARCH.exists():
-        text = RESEARCH.read_text(encoding="utf-8", errors="replace")
+    text = _committed_research_text()
+    if text is not None:
         body = text[text.find("## 31"):]
         for m in LANDED_CLAUSE_RE.finditer(body):
             for num in NUMBER_RE.findall(m.group(1)):
