@@ -78,6 +78,11 @@ def main() -> None:
                     snippet = re.sub(r"\s+", " ", s["last_text"])[:160]
                     events.append(f"LOOP_CAPPED {s['last_ts']}: {snippet}")
                     reported.add(key)
+            # Tracks only genuine alert conditions (stop/cap/silent); LOOP_RESUMED must never set this
+            # itself, or firing it re-arms the very flag it just cleared — a bug found 2026-09-06 that
+            # printed the same stale "RESUMED activity at <ts>" every 60s indefinitely, because the
+            # blanket "if events: alerted = True" below counted the RESUMED event as its own trigger.
+            raised_alert = bool(events)  # stop/cap events appended above, before this block
             if s["last_ts"]:
                 last = dt.datetime.strptime(s["last_ts"][:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc)
                 idle = (now - last).total_seconds()
@@ -90,13 +95,14 @@ def main() -> None:
                     if key not in reported:
                         events.append(f"LOOP_SILENT {idle / 60:.0f} min since {s['last_ts']} (allowance {allowance / 60:.0f} min)")
                         reported.add(key)
+                        raised_alert = True
                 elif alerted and idle < 300:
                     events.append(f"LOOP_RESUMED activity at {s['last_ts']}")
                     alerted = False
-            if events:
+            if raised_alert:
                 alerted = True
-                for e in events:
-                    print(e, flush=True)
+            for e in events:
+                print(e, flush=True)
         except Exception as exc:  # keep watching through transient errors
             print(f"MONITOR_ERROR {exc.__class__.__name__}: {exc}", file=sys.stderr, flush=True)
         time.sleep(60)
