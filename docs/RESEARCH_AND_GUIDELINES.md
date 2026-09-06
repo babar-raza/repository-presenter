@@ -4439,3 +4439,33 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   perform itself; a checkpoint where an item lands and `tools/reviewer/unblock_monitor.py` fires a
   notification is progress, not stagnation. Corrected the rule's delta signal in G4-W17's own text.
   Reverse by dropping items 22-23 and restoring the sealed-count-only delta definition.
+
+- **2026-09-06 14:20 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 7 landed and
+  live-verified against both named repositories; Email sealed as a direct result.**
+  `prompts/section_authoring.yaml`'s `rejection_template` (version 12 to 13) gains one sentence:
+  a stray identifier no accepted fact licenses at all is never fixable by respelling it, so drop
+  it and describe the behavior in general terms, exactly as the system prompt's existing rule for
+  an unlicensed outside-the-product name already reads. Verified against the exact two
+  repositories the G3-W01 cohort report names: **BarCode**
+  (`PROSE_NAMES_A_PRIVATE_PARAMETER`, naming `eci_assignment_number` and `gs1_enabled`) re-run at
+  its recorded revision now produces a `content_units.json` with zero occurrences of either name -
+  the ECI and GS1 limitations state "an ECI-related field" and "a GS1-related field" on
+  `EncodeOptions` instead - confirming the fix; BarCode then advances to `independent_review`,
+  which fails closed on finding F06 quoting `'### Development Dependencies'`, a heading the
+  candidate does not render anywhere - the same reviewer-fabrication defect class already on
+  record for Aspose.3D and Aspose.Slides, not this item's to fix, and not re-attempted a third
+  time for the same reason as both those entries. **Email** (`PROSE_NAMES_A_FOREIGN_MODULE_PATH`,
+  naming `email.message`) cleared every stage on the first re-run: `validation.json` 10 pass, 0
+  fail; `review.json` verdict ACCEPT, 0 findings. Confirmed no-op proven over three total runs, not
+  the usual two: the second run cost one fresh provider call and changed `review.json`'s digest
+  even though every upstream stage read "stored output reused" - the two-reader corroboration
+  path (`second_reader.corroborated`, BC-10) records its own call once before it becomes a stable
+  cache hit, so a bundle exercising it needs one extra confirming run the first time it seals;
+  the third run reproduced the second byte for byte with zero calls. `candidates/aspose-email-
+  foss__Aspose.Email-FOSS-for-Python/10a906b48c0c11005c4d93b524e4431901c9717c/` added,
+  `project/state.yaml`'s `current_candidates` 3 to 4, `repository-presenter status` confirms 4/34
+  with no cursor-mismatch warning. Full suite green (`test_sealed_bytes.py` now covers the new
+  bundle), ruff/mypy clean, before this entry. BarCode and Note (the third G3-W01 name, whose own
+  resume predicate the 13:46 entry above found already satisfied by the earlier
+  `presentation_planning` token-budget fix) remain candidates for the reviewer to re-spawn G3-W04's
+  second pass on, per this item's own acceptance language.

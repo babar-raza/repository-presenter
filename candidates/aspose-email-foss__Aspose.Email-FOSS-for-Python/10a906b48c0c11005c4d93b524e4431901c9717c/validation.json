@@ -1,0 +1,481 @@
+{
+  "advisory": [
+    "inherited_unit:011.list: the rewrite no longer names CFBReader(data), CFBReader.from_file(), CFBWriter.to_bytes(), EmailMessage, EmailMessage.as_bytes(), MapiAttachment.is_embedded_message, MapiMessage.add_attachment(), SMTP, add_embedded_message_attachment(), from_email_message(), iter_storages(), iter_streams(), iter_tree(), parse_subobject_property_stream(), parse_top_level_property_stream(), resolve_path(), write_file()",
+    "inherited_unit:041.paragraph: the rewrite no longer names aspose.email_foss"
+  ],
+  "checks": [
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-01",
+      "judged_at": "S9",
+      "name": "Source revision pinned; original README bytes exact; every fact carries evidence",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-02",
+      "judged_at": "S9",
+      "name": "Install command verified against the manifest and the package-registry observation",
+      "sections": [
+        "installation"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-03",
+      "judged_at": "S9",
+      "name": "Every rendered example was executed or compiled in isolation at this revision",
+      "sections": [
+        "quick_start",
+        "additional_examples"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-04",
+      "judged_at": "S9",
+      "name": "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact value in a code span",
+      "sections": [
+        "opening",
+        "key_capabilities",
+        "scope_limitations",
+        "api_reference",
+        "documentation_resources",
+        "enterprise_relationship"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-05",
+      "judged_at": "S9",
+      "name": "Every material inherited unit has exactly one disposition; placed units appear in their destination",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-06",
+      "judged_at": "S9",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "sections": [
+        "documentation_resources",
+        "enterprise_relationship",
+        "badges"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-07",
+      "judged_at": "S9",
+      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "sections": [
+        "structure"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-08",
+      "judged_at": "S9",
+      "name": "Protected content preserved",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-09",
+      "judged_at": "S9",
+      "name": "No configured secret in the bundle",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-10",
+      "judged_at": "S10",
+      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "review_verdict": "ACCEPT",
+      "sections": [
+        "review"
+      ],
+      "verdict": "PASS",
+      "version": "3"
+    },
+    {
+      "causal_stage": null,
+      "details": [
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+      ],
+      "id": "BC-11",
+      "judged_at": "S12",
+      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    }
+  ],
+  "coverage": [
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "identity"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        },
+        {
+          "extracted": 39,
+          "kind": "link_target",
+          "supported": 39
+        }
+      ],
+      "required": true,
+      "section_id": "badges"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 39,
+          "kind": "link_target",
+          "supported": 39
+        }
+      ],
+      "required": false,
+      "section_id": "banner"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        },
+        {
+          "extracted": 4,
+          "kind": "format",
+          "supported": 4
+        },
+        {
+          "extracted": 185,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.BYTE_ORDER_LITTLE_ENDIAN",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.FileTime",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.MAXREGSECT"
+          ],
+          "supported": 147
+        }
+      ],
+      "required": true,
+      "section_id": "opening"
+    },
+    {
+      "included": true,
+      "kinds": [],
+      "required": true,
+      "section_id": "navigation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 4,
+          "kind": "format",
+          "supported": 4
+        },
+        {
+          "extracted": 185,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.BYTE_ORDER_LITTLE_ENDIAN",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.FileTime",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.MAXREGSECT"
+          ],
+          "supported": 147
+        }
+      ],
+      "required": false,
+      "section_id": "at_a_glance"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 185,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.BYTE_ORDER_LITTLE_ENDIAN",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.FileTime",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.MAXREGSECT"
+          ],
+          "supported": 147
+        },
+        {
+          "extracted": 6,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 5: FAILED; NameError"
+          ],
+          "supported": 5
+        },
+        {
+          "extracted": 4,
+          "kind": "format",
+          "supported": 4
+        },
+        {
+          "extracted": 1,
+          "kind": "import_path",
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "key_capabilities"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "install_command",
+          "supported": 1
+        },
+        {
+          "extracted": 4,
+          "kind": "package",
+          "supported": 4
+        }
+      ],
+      "required": true,
+      "section_id": "installation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "dependency",
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "dependencies"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 6,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 5: FAILED; NameError"
+          ],
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "quick_start"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 6,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 5: FAILED; NameError"
+          ],
+          "supported": 5
+        }
+      ],
+      "required": false,
+      "section_id": "additional_examples"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 185,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.BYTE_ORDER_LITTLE_ENDIAN",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.FileTime",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.MAXREGSECT"
+          ],
+          "supported": 147
+        }
+      ],
+      "required": true,
+      "section_id": "api_reference"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 39,
+          "kind": "link_target",
+          "supported": 39
+        }
+      ],
+      "required": false,
+      "section_id": "documentation_resources"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 75,
+          "kind": "inherited_unit",
+          "supported": 75
+        },
+        {
+          "extracted": 6,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 5: FAILED; NameError"
+          ],
+          "supported": 5
+        },
+        {
+          "extracted": 185,
+          "kind": "public_symbol",
+          "reasons": [
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.BYTE_ORDER_LITTLE_ENDIAN",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.FileTime",
+            "UNRESOLVED: line 20; unknown; public by reexport; re-export of email_foss.cfb.types.MAXREGSECT"
+          ],
+          "supported": 147
+        }
+      ],
+      "required": true,
+      "section_id": "scope_limitations"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 3,
+          "kind": "build_test_asset",
+          "supported": 3
+        }
+      ],
+      "required": false,
+      "section_id": "development_testing"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 39,
+          "kind": "link_target",
+          "supported": 39
+        }
+      ],
+      "required": false,
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "third_party_notices",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "third_party_notices"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "license"
+    }
+  ],
+  "protected_content_fingerprint": "e7e423563b90aadf0aa66d159925ac2c5985b15d03cbcdda9d8b7b803d79b7ad",
+  "readme_sha256": "c884185eb05bbfb9bd3e71791f1f3197512bdea9d144c215351ce15b727a755f",
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+  "schema_version": 1,
+  "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+  "summary": {
+    "fail": 0,
+    "pass": 11,
+    "pending": 0
+  },
+  "validator_version": "3"
+}

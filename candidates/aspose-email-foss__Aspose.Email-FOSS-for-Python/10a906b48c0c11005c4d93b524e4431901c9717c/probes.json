@@ -1,0 +1,138 @@
+[
+  {
+    "elapsed_ms": 1664,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/email/python/"
+  },
+  {
+    "elapsed_ms": 1257,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.python.org/3/library/email.message.html#email.message.EmailMessage"
+  },
+  {
+    "elapsed_ms": 1439,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 1050,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1128,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1540,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 510,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 955,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-Python.svg"
+  },
+  {
+    "elapsed_ms": 426,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/pyversions/aspose-email-foss.svg"
+  },
+  {
+    "elapsed_ms": 584,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/v/aspose-email-foss.svg"
+  },
+  {
+    "elapsed_ms": 1216,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/email/python/"
+  },
+  {
+    "elapsed_ms": 616,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/email/python-net/"
+  },
+  {
+    "elapsed_ms": 566,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/email/python/"
+  },
+  {
+    "elapsed_ms": 538,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/email/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1136,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pypi.org/project/aspose-email-foss/"
+  },
+  {
+    "elapsed_ms": 1088,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/email/python/"
+  },
+  {
+    "elapsed_ms": 937,
+    "kind": "package_registry",
+    "observation": "latest 26.3",
+    "outcome": "FOUND",
+    "status": 200,
+    "target": "https://pypi.org/pypi/aspose-email-foss/json"
+  }
+]

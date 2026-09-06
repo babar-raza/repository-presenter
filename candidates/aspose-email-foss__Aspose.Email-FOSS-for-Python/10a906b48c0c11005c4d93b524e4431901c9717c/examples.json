@@ -1,0 +1,90 @@
+[
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "sample.msg",
+        "produced_by": 2,
+        "source_path": "hello.msg"
+      }
+    ],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "Hello\r\n"
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "note.txt",
+        "produced_by": null,
+        "source_path": "llms.txt"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "message.msg",
+        "produced_by": 2,
+        "source_path": "hello.msg"
+      },
+      {
+        "literal": "message.eml",
+        "produced_by": 2,
+        "source_path": "hello.eml"
+      }
+    ],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "message.msg",
+        "produced_by": 2,
+        "source_path": "hello.msg"
+      },
+      {
+        "literal": "message.eml",
+        "produced_by": 2,
+        "source_path": "hello.eml"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "NameError",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_005\\example.py\", line 3, in <module>\r\n    with msg.MsgReader.from_file(msg_path) as reader:\r\n                                 ^^^^^^^^\r\nNameError: name 'msg_path' is not defined\r\n",
+    "stdout": ""
+  },
+  {
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "b'hello'\r\n"
+  }
+]

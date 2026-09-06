@@ -1,0 +1,75 @@
+{
+  "composition": {
+    "advisories": 7,
+    "blocking_failures": [],
+    "coverage_advisories": 2,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 21278,
+      "sha256": "c884185eb05bbfb9bd3e71791f1f3197512bdea9d144c215351ce15b727a755f"
+    },
+    "README.patch": {
+      "bytes": 33417,
+      "sha256": "788e6748eba96f37186f0be4a5a3e29ed787ba2aa375c3a6cc149f0137710c1b"
+    },
+    "calls.jsonl": {
+      "bytes": 60496,
+      "sha256": "ff0ca9328b87d626f2cd301e5b916d9ee09d11f6369f490ce6513eb499f7dd27"
+    },
+    "content_units.json": {
+      "bytes": 20633,
+      "sha256": "42fe88ee9d63f7814f718aae8cb4ad4ed6a3f6401a1dc0d1a326fcd1cb990f1c"
+    },
+    "dependencies.json": {
+      "bytes": 39059,
+      "sha256": "68b061a5ad58ba79b469acbcf116c7d1913178129d0aede053209d18123bd995"
+    },
+    "dispositions.json": {
+      "bytes": 28648,
+      "sha256": "c7503ef858d856c3f058ff4c98116627471d443fcec653530e76320906091bbe"
+    },
+    "examples.json": {
+      "bytes": 1898,
+      "sha256": "5a8d6c939b62f8912d0d668de7b09cba4c91295fbb272aeb4c3d9baa9cfdfced"
+    },
+    "facts.json": {
+      "bytes": 196469,
+      "sha256": "a1536db683f5bce98018b21829d76742e6c1cbb8e00c24e3a3f2af20f1ace8d9"
+    },
+    "investigation.json": {
+      "bytes": 5581,
+      "sha256": "54efa54c64bb504062fbdabee18e79db485095bbc97bdf40ea9972dc3fcf2e5c"
+    },
+    "plan.json": {
+      "bytes": 7063,
+      "sha256": "07fb677a5b597ecddf61b2145323f28457ea8dc49c865e28499bf06d43d87df7"
+    },
+    "probes.json": {
+      "bytes": 3440,
+      "sha256": "1e6117bccdd62b7da38c6525d466897f3840449a11b23165c37d6b8a1d14533f"
+    },
+    "review.json": {
+      "bytes": 7500,
+      "sha256": "fed69685a8e1b019b123b6d925032ad554b6f0ff01fb5b9f74c900fd16d86e04"
+    },
+    "validation.json": {
+      "bytes": 12517,
+      "sha256": "f13e44b1cd10322422ae1d79287bf004be5e788740d94afc395c49d918ca163e"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-06T09:14:35Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+  "revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+  "schema_version": 1,
+  "sealed_at": "2026-09-06T09:14:35Z",
+  "state": "READY_FOR_PROPOSAL"
+}

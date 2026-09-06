@@ -1,0 +1,542 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "enterprise_relationship/context"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "example:005",
+      "reason": "example:005 is contradicted and excluded from use per do_not_claim",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:027.paragraph",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:028.heading",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:029.code_block",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:031.heading",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:032.code_block",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:038.code_block",
+      "reason": "already rendered in another section",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:064.list",
+      "reason": "contains additional links not required for the three specified slots",
+      "section": "documentation_resources"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license",
+        "license:spdx",
+        "dependency:none",
+        "format:input.msg",
+        "format:output.msg",
+        "format:input.eml",
+        "format:input.txt"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Email FOSS for Python provides native support for reading, writing, and converting Microsoft Outlook MSG files and EML files, enabling developers to process email data without external dependencies. It solves the problem of handling structured email formats like MSG and EML by offering a pure Python API that works with the CFB and MSG file formats directly. Users in enterprise environments, data migration workflows, and email archiving systems rely on this library to inspect, transform, and store email content programmatically. The library supports Python 3.10 and later under the MIT license, with version 26.3 as the current release."
+    },
+    {
+      "fact_ids": [
+        "format:input.msg",
+        "format:output.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Read and write Outlook .msg files using the email_foss.msg.mapi_message class for high-level message handling, and email_foss.msg.MsgReader and email_foss.msg.MsgWriter for low-level parsing and serialization."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "format:input.eml"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Convert between .msg and .eml by transforming email_foss.msg.mapi_message instances to and from Python's standard EmailMessage objects using to_email_message and from_email_message methods."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:email_foss.cfb"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Inspect and build CFB containers using email_foss.cfb classes such as CFBReader, CFBWriter, CFBStorage, and CFBStream to read, traverse, and serialize Compound File Binary structures."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.mapiattachment",
+        "public_symbol:email_foss.msg.mapirecipient"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Manage message properties and attachments through MapiMessage, MapiAttachment, and MapiRecipient, supporting property setting, recipient addition, attachment creation, and embedded-message handling."
+    },
+    {
+      "fact_ids": [
+        "dependency:none",
+        "package:python_requires"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "No external dependencies are required beyond Python 3.10 or later, as the package depends on no external runtime libraries."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Open an existing MSG file and read its subject using the from_file method on MapiMessage."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Create a new message from scratch, set sender properties, add a recipient and attachment, save it, then load and convert it to an email message for export."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create, read, and convert email messages and structured storage with Aspose.Email FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Convert MSG to EML using member from_file, to_email_message, and as_bytes."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Convert EML to MSG using member from_email_message and save."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Create and read CFB structured storage using member add_stream, resolve_path, and get_stream_data."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:041.paragraph",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Email FOSS for Python provides high-level and low-level APIs for working with MSG and CFB formats. The high-level MSG API centers on email_foss.msg.mapi_message for creating, editing, and converting messages, while the low-level MSG API uses email_foss.msg.MsgReader and email_foss.msg.MsgWriter for direct property-stream access, and the low-level CFB API uses email_foss.cfb.CFBReader and email_foss.cfb.CFBWriter for raw Compound File Binary container access."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.mapi_message",
+      "text": "The email_foss.msg.mapi_message class provides methods to create, load, and convert email messages, including from_file, to_bytes, set_property, add_recipient, and add_attachment, and exposes properties such as subject, body, recipients, and attachments."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.msgreader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgreader",
+      "text": "The email_foss.msg.MsgReader class enables low-level reading of MSG files by parsing property streams and iterating over storages, with methods including from_file, iter_top_level_fixed_length_properties, iter_recipient_storages, iter_attachment_storages, parse_message_property_stream, and properties such as cfb_reader, storage_layout, strict, and validation_issues."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgwriter",
+      "text": "The email_foss.msg.MsgWriter class provides class methods to serialize a MsgDocument into bytes or a file, using to_bytes and write_file."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.cfb.cfbreader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfbreader",
+      "text": "The email_foss.cfb.CFBReader class provides low-level reading of Compound File Binary containers, with methods including from_file, get_entry, get_stream_data, iter_storages, iter_streams, iter_children, find_child_by_name, resolve_path, and properties such as data_size, directory_entry_count, fat_sector_count, file_size, major_version, mini_sector_size, and sector_size."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfbwriter",
+      "text": "The email_foss.cfb.CFBWriter class provides class methods to serialize a CFBDocument into bytes or a file, using to_bytes and write_file."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.mapiattachment"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.mapiattachment",
+      "text": "The email_foss.msg.MapiAttachment class supports creating and inspecting attachments, with methods including from_bytes, from_embedded_message, and set_property, and properties such as embedded_storage_name, storage_name, is_embedded_message, and is_storage_attachment."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.mapirecipient"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.mapirecipient",
+      "text": "The email_foss.msg.MapiRecipient class supports inspecting and setting recipient properties, with methods including set_property and properties such as display_name and properties."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.msgdocument"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.msgdocument",
+      "text": "The email_foss.msg.MsgDocument class represents a parsed MSG structure, with methods including from_reader, from_file, and to_cfb_document, and properties such as root and major_version."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.cfb.cfbdocument"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb.cfbdocument",
+      "text": "The email_foss.cfb.CFBDocument class represents a parsed Compound File Binary structure, with methods including from_file and from_reader, and properties such as root and major_version."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg.property_id"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg.property_id",
+      "text": "The email_foss.msg.property_id enumeration provides common MAPI property identifiers such as SENDER_EMAIL_ADDRESS and SENDER_NAME."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.cfb"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.cfb",
+      "text": "The email_foss.cfb module provides low-level APIs for reading and writing Compound File Binary containers, including CFBReader, CFBWriter, and CFBDocument."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version",
+        "public_symbol:email_foss.msg"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:email_foss.msg",
+      "text": "The email_foss.msg module provides high-level and low-level APIs for reading and writing MSG files, including MapiMessage, MsgReader, MsgWriter, MsgDocument, MapiAttachment, MapiRecipient, and property_id."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapi_message.mapipropertycollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:email_foss.msg.mapi_message.mapipropertycollection",
+      "text": "The MapiPropertyCollection class represents a collection of MAPI properties associated with a MapiMessage object, providing methods to add, get, set, remove, and iterate over its properties."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for using Aspose.Email FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "The how-to guides and FAQ provide task-focused answers for common CFB, MSG, and EML processing questions."
+    },
+    {
+      "fact_ids": [
+        "link_target:028"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:028",
+      "text": "The full API reference offers a complete, browsable reference for all 30 public types in Aspose.Email FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:066.list",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Email FOSS for Python provides programmatic access to local Microsoft Outlook MSG and CFB files, supports conversion to and from EML via Python's built-in email package, and exposes MAPI message properties and attachments through the MapiMessage class."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The library does not support connecting to mail servers and lacks IMAP, SMTP, or POP3 functionality."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Transport Neutral Encapsulation Format files are not parsed or generated."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "There is no dedicated calendar or appointment API, although calendar-specific MAPI properties can still be accessed generically through set_property() and get_property_value()."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Direct .eml file parsing is not implemented; EML support relies on MapiMessage.from_email_message() and to_email_message() combined with Python's email.parser."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:069.paragraph",
+        "inherited_unit:070.code_block",
+        "inherited_unit:071.paragraph",
+        "inherited_unit:072.code_block",
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "build_test_asset:examples"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Install the package in editable mode and run the test suite using the provided test assets, then build and validate distributable packages with the standard Python packaging tools."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "The commercial Aspose.Email for Python — commercial edition extends this open-source offering with additional capabilities for handling complex email formats and enterprise-scale processing, though the specific enhancements are not detailed in the accepted facts."
+    }
+  ]
+}

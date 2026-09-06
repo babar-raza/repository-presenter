@@ -1,0 +1,165 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:python_requires",
+      "dependency:none",
+      "example:001",
+      "example:002"
+    ],
+    "text": "Python developers building desktop or server applications that require deterministic reading, writing, and conversion of Outlook .msg files and CFB containers without external dependencies or Microsoft Outlook."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "format:input.msg",
+        "format:output.msg",
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "text": "Read and write Outlook .msg files using MapiMessage, MsgReader, MsgWriter, and MsgDocument APIs.",
+      "title": "Read and write Outlook .msg files"
+    },
+    {
+      "fact_ids": [
+        "format:input.eml",
+        "format:input.eml",
+        "example:003",
+        "example:004"
+      ],
+      "text": "Convert between Outlook .msg and standard .eml formats using MapiMessage.to_email_message() and from_email_message() with Python's email.message.EmailMessage.",
+      "title": "Convert between .msg and .eml"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.cfb",
+        "example:006"
+      ],
+      "text": "Inspect and construct Compound File Binary (CFB) containers using CFBReader, CFBWriter, CFBStorage, and CFBStream APIs.",
+      "title": "Inspect and build CFB containers"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapi_message",
+        "public_symbol:email_foss.msg.mapiattachment",
+        "public_symbol:email_foss.msg.mapirecipient",
+        "example:002"
+      ],
+      "text": "Set and retrieve MAPI properties, recipients, and attachments (including embedded messages) on MapiMessage objects.",
+      "title": "Manage message properties and attachments"
+    },
+    {
+      "fact_ids": [
+        "dependency:none",
+        "package:python_requires"
+      ],
+      "text": "The library requires no third-party packages, compiled extensions, or native libraries beyond Python 3.10+.",
+      "title": "No external dependencies"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "text": "The library does not connect to mail servers and lacks IMAP, SMTP, or POP3 support."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "text": "TNEF (Transport Neutral Encapsulation Format, winmail.dat) is not parsed or generated."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "text": "There is no dedicated calendar or appointment API; calendar-specific MAPI properties must be accessed generically."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:066.list"
+      ],
+      "text": "Direct .eml file parsing is not implemented; EML support requires Python's email.parser and EmailMessage."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "dependency:none",
+        "package:python_requires"
+      ],
+      "text": "Enables deterministic parsing and generation of Outlook .msg files and CFB containers using pure Python, eliminating reliance on COM interop, compiled extensions, or Microsoft Outlook."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "example:004"
+      ],
+      "text": "Provides two-way conversion between Outlook .msg and standard .eml formats via Python's email.message.EmailMessage, supporting interoperability with other email tools."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:email_foss.cfb",
+        "public_symbol:email_foss.msg"
+      ],
+      "text": "Supports low-level CFB and MSG structure inspection and construction through dedicated readers, writers, and document models."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:license",
+      "license:spdx"
+    ],
+    "text": "Aspose.Email FOSS for Python is a pure-Python, MIT-licensed library for processing Outlook .msg and Compound File Binary (CFB) files, with two-way conversion to/from Python's standard EmailMessage for .eml interoperability."
+  },
+  "uncertainties": [],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "name": "Read MSG subject",
+      "text": "Load an .msg file using MapiMessage.from_file() and access its subject property."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "name": "Create and save MSG",
+      "text": "Create a new MapiMessage, set sender, recipients, attachments, and properties, then save it as .msg or convert to .eml."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Convert MSG to EML",
+      "text": "Load an .msg file, convert it to EmailMessage via to_email_message(), and write to .eml using as_bytes()."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "name": "Convert EML to MSG",
+      "text": "Parse an .eml file using Python's BytesParser, then construct a MapiMessage from the EmailMessage and save as .msg."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:email_foss.cfb"
+      ],
+      "name": "Inspect CFB structure",
+      "text": "Build or read a CFB container using CFBReader/CFBWriter and traverse storages and streams."
+    }
+  ]
+}

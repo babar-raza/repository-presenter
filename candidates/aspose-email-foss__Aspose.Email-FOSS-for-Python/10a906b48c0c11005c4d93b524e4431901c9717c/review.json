@@ -1,0 +1,157 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "i1[...]",
+        "i2[...]",
+        "i3[...]",
+        "o3[...]"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "  subgraph StartingPoints[...]",
+      "repair": "Restore the original At a Glance diagram structure with three starting points (CFB, MSG, EML) and three outputs (CFB, MSG, EML) to accurately reflect the library's capabilities.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'i1[...]', which the candidate contains",
+      "section_id": "at_a_glance",
+      "text": "The At a Glance diagram incorrectly omits EML and TXT as starting points and MSG as the only output, contradicting the original diagram and the library's EML conversion support."
+    },
+    {
+      "absent": [
+        "to_email_message",
+        "from_email_message",
+        "EmailMessage"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "format:input.eml",
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "id": "F02",
+      "quote": "- **No external dependencies.** No external dependencies are required beyond Python 3.10 or later, as the package depends on no external runtime libraries.",
+      "repair": "Add a bullet point explicitly describing the two-way conversion with Python's EmailMessage, including the methods `to_email_message()` and `from_email_message()`.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'EmailMessage', 'from_email_message', 'to_email_message', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section omits the explicit mention of two-way conversion with Python's EmailMessage, a core capability described in the original README."
+    },
+    {
+      "absent": [
+        "git clone",
+        "pip install .",
+        "python -c"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F03",
+      "quote": "To work from a source checkout instead, install the clone with pip:",
+      "repair": "Remove the source checkout and verification steps to match the original README's installation instructions.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'git clone', 'pip install .', 'python -c', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section adds an unverified source checkout example and verification command not present in the original README, introducing unsupported procedural steps."
+    },
+    {
+      "absent": [
+        "MapiMessage"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.mapi_message"
+      ],
+      "id": "F04",
+      "quote": "The high-level MSG API centers on `email_foss.msg.mapi_message` for creating, editing, and converting messages",
+      "repair": "Replace `email_foss.msg.mapi_message` with `MapiMessage` to match the verified public symbol and original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MapiMessage', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section incorrectly lists `email_foss.msg.mapi_message` as the class name instead of `MapiMessage`, contradicting the verified public symbol and original README."
+    },
+    {
+      "absent": [
+        "MsgReader",
+        "MsgWriter"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:email_foss.msg.msgreader",
+        "public_symbol:email_foss.msg.msgwriter"
+      ],
+      "id": "F05",
+      "quote": "while the low-level MSG API uses `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` for direct property-stream access",
+      "repair": "Replace `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` with `MsgReader` and `MsgWriter` to match the verified public symbols and original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MsgReader', 'MsgWriter', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section incorrectly lists `email_foss.msg.MsgReader` and `email_foss.msg.MsgWriter` as class names instead of `MsgReader` and `MsgWriter`, contradicting the verified public symbols and original README."
+    },
+    {
+      "absent": [
+        "CFBReader",
+        "CFBWriter"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:email_foss.cfb.cfbreader",
+        "public_symbol:email_foss.cfb.cfbwriter"
+      ],
+      "id": "F06",
+      "quote": "and the low-level CFB API uses `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` for raw Compound File Binary container access.",
+      "repair": "Replace `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` with `CFBReader` and `CFBWriter` to match the verified public symbols and original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'CFBReader', 'CFBWriter', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section incorrectly lists `email_foss.cfb.CFBReader` and `email_foss.cfb.CFBWriter` as class names instead of `CFBReader` and `CFBWriter`, contradicting the verified public symbols and original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "quote": "The commercial Aspose.Email for Python — commercial edition extends this open-source offering with additional capabilities for handling complex email formats and enterprise-scale processing, though the specific enhancements are not detailed in the accepted facts.",
+      "repair": "Remove the unsupported promotional text about the Enterprise Edition's unspecified enhancements to match the original README's factual description.",
+      "section_id": "scope_limitations",
+      "single_reader_advisory": true,
+      "text": "The Scope and Limitations section adds unsupported promotional text about the Enterprise Edition's unspecified enhancements, which is not supported by the facts."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "71879bc1aeea2edb8b269d9497fb109c770530e74510f3ebf547d0b29be2b6f5",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "c884185eb05bbfb9bd3e71791f1f3197512bdea9d144c215351ce15b727a755f",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "2d3ea3878413689aba562346",
+      "3c3b7985b1f0977c7f120bba",
+      "ae6948684db4e2c953bd56e9"
+    ],
+    "read": true
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
