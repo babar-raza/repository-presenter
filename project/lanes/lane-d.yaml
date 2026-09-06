@@ -25,10 +25,11 @@ toolchains:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 3
-  status_line_observed: '2026-09-06 11:05, from origin/main at 961eef5: candidates 3/34 current
-    reviewable no-op-proven. G4-W16''s own acceptance line asked for 31 sealed and 34 dispositions;
-    that number was written before the shared blockers were known and no lane can reach it while
-    G4-W17''s arrival list is open. Recorded rather than met.'
+  status_line_observed: '2026-09-06 14:05, from origin/main at 4e1157f: candidates 3/34 current
+    reviewable no-op-proven, unchanged by the G4-W16 re-run (it did not seal). G4-W16''s own
+    acceptance line asked for 31 sealed and 34 dispositions; that number was written before the
+    shared blockers were known and no lane can reach it while G4-W17''s arrival list is open.
+    Recorded rather than met.'
 items:
 - id: G4-W15
   status: ACCEPTED
@@ -44,6 +45,24 @@ items:
   accepted_at: '2026-09-06T11:05:00+05:00'
   receipt: evidence/build/lanes/lane-d/G4-W16.json
   outcome: 'Accepted at the box with the spec, the plugin, a fresh cargo verifier and the cohort report; zero seals and one disposition. The repository reaches EXTRACTING complete - 2,224 facts, 2,216 supported, no required contract row without evidence, 2,084 public symbols (178 types, 35 enums) through the shared extractor, 7 versioned requirements, and the README Quick Start type-checked against the crate by cargo 1.98.1 - and cannot be composed at all: the crate is not on crates.io, the reading is conclusive, and BC-02 (validation/registry.py::_check_install) fails every install fact whose polarity is not SUPPORTED, while README_CONTRACT §2 row 8 and the renderer both require the unpublished state to be stated plainly instead. That class is already G4-W17 item (0), first in the arrival list from lane B''s C++ cohort; PROPOSAL P5 corroborates it with Rust''s reading and names the refinement item (0)''s fix needs. Items (10) and (11) also bite Rust. Four failure classes fixed in the lane''s own paths in the same iteration. Rust needs neither of the Go blockers: the kind table already knows its node types and the registry façade already reaches crates.io. No provider call was made. See docs/RESEARCH_LANE_D.md.'
+  rerun:
+    at: '2026-09-06T14:05:00+05:00'
+    from: origin/main at 4e1157f (G4-W17 arrival items 0, 5, 6, 11 landed)
+    receipt: evidence/build/lanes/lane-d/G4-W16.json (rerun_2026_09_06 block)
+    outcome: 'The disposition''s resume predicate was met and its class is closed. Item (0) landed
+      the source-build SUPPORTED path and items (5)+(11) landed the spec-owned import pattern, both
+      as mechanism only, so the re-run first set RUST.source_install, RUST.source_install_lead and
+      RUST.import_pattern in the lane''s own platforms/rust.py (decisions D12 and D13, cargo build
+      measured exit 0 at this revision). The candidate then composed end to end for the first time -
+      18 provider calls, 134 units, 167 visible lines - and BC-02 PASSED along with BC-01, BC-03 to
+      BC-06 and BC-09. It did not seal: BC-07 fails on internal narration ''validator'', which is
+      the crate''s own public type WorkbookValidator read as machinery narration by a substring
+      match (PROPOSAL P6), and BC-08 fails because a VERIFIED_REWRITE of the upstream CI paragraph
+      dropped `cargo bench` and `cargo doc --no-deps --open` and the finding carries no section_id
+      so no repair was attempted (PROPOSAL P7). Both are shared code. The repository''s disposition
+      becomes BLOCKED_SHARED_CODE / BC07_PUBLIC_SYMBOL_READ_AS_NARRATION with
+      BC08_REWRITE_DROPS_A_PROTECTED_COMMAND beside it; sealed_by_lane stays 0 and
+      dispositions_by_lane stays 3. See docs/RESEARCH_LANE_D.md.'
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)

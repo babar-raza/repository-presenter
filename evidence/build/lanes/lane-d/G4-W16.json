@@ -152,5 +152,59 @@
   "hosted_ci": "green on the pull request before the squash merge",
   "next_work_item": null,
   "next_work_item_blocked_on": "lane-d has no further PENDING item; G4-W15's two Go dispositions and G4-W16's Rust disposition all resume on G4-W17 landings.",
-  "measurement": "7 Rust fences in one repository: 1 compiled and type-checked against the crate at this revision, 6 excerpts the compiler named by their unbound values, 0 false. 2,084 public symbols read through the shared extractor, 2,078 of them with a real kind. One conclusive crates.io reading, one blocking shared-code proposal, zero seals, one disposition."
+  "measurement": "7 Rust fences in one repository: 1 compiled and type-checked against the crate at this revision, 6 excerpts the compiler named by their unbound values, 0 false. 2,084 public symbols read through the shared extractor, 2,078 of them with a real kind. One conclusive crates.io reading, one blocking shared-code proposal, zero seals, one disposition.",
+  "rerun_2026_09_06": {
+    "why": "The item's one disposition named its own resume predicate: G4-W17 item (0) landed on main with PROPOSAL P5's refinement, preferably with items (10) and (11), then rerun present. Item (0) landed 12:30, items (5)+(11) 13:29, item (6) 13:41. This is a re-run of an ACCEPTED item's disposition, not a new item.",
+    "control_revision": "4e1157f",
+    "worktree": "C:\\w\\d16b (fresh, detached off origin/main; .venv from C:\\Python313)",
+    "lane_owned_changes": [
+      "platforms/rust.py: RUST.source_install and RUST.source_install_lead (decision D12)",
+      "platforms/rust.py: RUST.import_pattern (decision D13)",
+      "test_rust.py: two tests, one per decision"
+    ],
+    "why_code_changed_on_a_rerun": "G4-W17 items (0) and (5)/(11) landed the mechanism only and left one spec field each to the ecosystem; an ecosystem's spec lives in a lane-owned platforms/<ecosystem>.py, so without these two fields the shared fixes cannot reach Rust at all. No shared file was touched.",
+    "measurement": {
+      "cargo_build_at_this_revision": "cargo build on a clone of 1a6004af with cargo 1.98.1, RUSTUP_HOME and CARGO_HOME under C:\\tools\\rp-toolchains\\rustup, nothing on PATH: exit 0, 'Finished `dev` profile [unoptimized + debuginfo] target(s) in 38.93s'. This is why the rendered source-install fence names cargo build rather than cargo check.",
+      "present": "13:50:55-14:03:09. 2224 facts; 7 example candidates (1 EXECUTED, 6 NOT_VERIFIED, 0 FAILED); 81 units dispositioned; plan 16/18 sections; 134 content units across 8 sections; 18 provider calls, model qwen3-next; README 167 visible lines of 549; validation pass 7, fail 2, pending 2; repair 0 repaired, 2 unrepairable."
+    },
+    "resume_predicate_met": true,
+    "bc02_verdict": "PASS",
+    "sealed": false,
+    "checks_failed": [
+      {
+        "id": "BC-07",
+        "causal_stage": "COMPOSING",
+        "detail": "internal narration 'validator'",
+        "class": "BC07_PUBLIC_SYMBOL_READ_AS_NARRATION",
+        "proposal": "P6",
+        "shared_code": "validation/registry.py::_NARRATION and _check_structure: substring match with no word boundary; the crate's public type WorkbookValidator renders one API Reference row containing it, and no composition can pass"
+      },
+      {
+        "id": "BC-08",
+        "causal_stage": "COMPOSING",
+        "detail": "inherited_unit:079.paragraph: VERIFIED_REWRITE keeps the commands 'cargo bench' and 'cargo doc --no-deps --open' but the candidate does not render them",
+        "class": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "proposal": "P7",
+        "shared_code": "prompts/section_authoring.yaml for the drop; repair routing for the finding, which carries section_id None so targeted_repair reports 'no failing check names an LLM-owned section' and never attempts development_testing (contract row 17, owner M)"
+      }
+    ],
+    "rendered_evidence": [
+      "Installation renders the unpublished state plainly plus the source build (README_CONTRACT section 2 row 8), and the badge row carries no crates.io version badge",
+      "Verify the install renders `cargo check` - the first Verify-the-install block any Rust candidate has produced"
+    ],
+    "disposition_now": {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+      "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+      "reason_code": "BLOCKED_SHARED_CODE",
+      "failure_class": "BC07_PUBLIC_SYMBOL_READ_AS_NARRATION (+ BC08_REWRITE_DROPS_A_PROTECTED_COMMAND)",
+      "supersedes": "BC02_PUBLICATION_ONLY_SUPPORTED_PATH (G4-W17 item (0)) - cleared, BC-02 PASS",
+      "resume_predicate": "PROPOSAL P6 landed on main (P7 with it, or the candidate will seal on the next check instead), then rerun `repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` from a fresh lane-d branch"
+    },
+    "local_ci_equivalent": {
+      "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+      "result": "pass",
+      "runs_this_rerun": 1
+    },
+    "status_line_observed": "candidates: 3/34 current reviewable no-op-proven (unchanged; no seal)"
+  }
 }

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -10,8 +12,14 @@ from repository_presenter.components.readme.extractors.platforms.registry import
     known_ecosystems,
     plugin_for,
 )
-from repository_presenter.core.ecosystems import spec_for
+from repository_presenter.core.ecosystems import EcosystemSpec, spec_for
 from repository_presenter.core.facts import Fact, slug
+
+
+def _names_module(pattern: str, text: str, *, module: str) -> bool:
+    """Exactly what `composition/renderer.py::_installation` asks of an example's own source."""
+    return re.search(pattern.format(module=re.escape(module)), text) is not None
+
 
 CARGO_TOML = """[package]
 name = "aspose-widget-foss-rust"
@@ -80,6 +88,49 @@ def test_the_plugin_is_discovered_by_module_name_and_registers_its_spec() -> Non
 def test_the_verify_command_needs_no_module_and_survives_formatting() -> None:
     """README_CONTRACT §2 row 8: Rust's idiomatic verify line takes no import path."""
     assert rust.RUST.verify_command.format(module="aspose_widget_foss_rust") == "cargo check"
+
+
+def test_the_source_checkout_commands_are_cargos_own_and_never_pips() -> None:
+    """§28.12 G4-W17 item 0: the source-build path renders the ecosystem's own commands.
+
+    Shared code fills in the repository and its checkout directory and nothing else, so a Rust
+    reader is never told to run `pip install .` and never told to `cargo add` a crate crates.io
+    does not carry. Measured against the real crate at `1a6004af`: `cargo build` exits 0.
+    """
+    command = rust.RUST.clone_and_build(
+        "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust", "Aspose.Cells-FOSS-for-Rust"
+    )
+    assert command == (
+        "git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git\n"
+        "cd Aspose.Cells-FOSS-for-Rust\n"
+        "cargo build"
+    )
+    assert "pip install" not in command
+    assert "cargo add" not in command
+    assert rust.RUST.source_install_lead
+
+
+def test_the_import_pattern_is_rusts_use_and_not_pythons_import() -> None:
+    """§28.12 G4-W17 items 5 and 11: the Verify-the-install match is the spec's own.
+
+    The renderer asks whether an executed example names the import path, with
+    `spec.import_pattern.format(module=re.escape(value))`. Rust writes `use crate::…`, which the
+    inherited Python-shaped default never matches - the reason no Rust candidate has rendered the
+    block. The fence below is the opening line of this crate's own Quick Start.
+    """
+    module = "aspose_cells_foss_rust"
+    fence = "use aspose_cells_foss_rust::{CellValue, Workbook};\nuse std::error::Error;\n"
+    matches = partial(_names_module, module=module)
+    assert matches(rust.RUST.import_pattern, fence)
+    # The bug this replaces, reproduced directly: Python's shape sees nothing here.
+    assert not matches(EcosystemSpec("x", "X", "x", "x", "x").import_pattern, fence)
+    # A re-export at the top of a fence reads the same way; so does the 2015-edition spelling.
+    assert matches(rust.RUST.import_pattern, "pub use aspose_cells_foss_rust::Workbook;\n")
+    assert matches(rust.RUST.import_pattern, "extern crate aspose_cells_foss_rust;\n")
+    # A different crate with the same prefix is not this module.
+    assert not matches(rust.RUST.import_pattern, "use aspose_cells_foss_rust_extra::Workbook;\n")
+    # The name mentioned in prose, or in a `[dependencies]` entry, is not an import either.
+    assert not matches(rust.RUST.import_pattern, "let x = aspose_cells_foss_rust::Workbook::new();")
 
 
 def test_the_governing_manifest_is_the_outermost_cargo_file(tmp_path: Path) -> None:

@@ -64,6 +64,25 @@ RUST = EcosystemSpec(
     # dependency resolves and type-checks is `cargo check`, and `str.format` leaves a template
     # with no placeholder exactly as written.
     verify_command="cargo check",
+    # The source-checkout path (§28.12 G4-W17 arrival item 0, PROPOSAL P5 in RESEARCH_LANE_D.md).
+    # A crate no registry lists is still usable from a clone, and these are the three commands the
+    # repository's own README names for it. Cargo cannot install a library into a consumer's
+    # project from the command line without knowing that project - the dependency is a `git` or
+    # `path` entry in the consumer's own `Cargo.toml` - so a build is the honest claim here, the
+    # same cut the .NET spec makes. Measured 2026-09-06 against
+    # `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at `1a6004af`: `cargo build` exits 0 in 39
+    # seconds with cargo 1.98.1.
+    source_install="git clone https://github.com/{repository}.git\ncd {name}\ncargo build",
+    source_install_lead="build the clone with cargo build",
+    # Rust names an import `use <crate>::…`, never `import` or `from`, so the renderer's default
+    # (Python's own shape) matched no Rust fence and no Rust candidate ever rendered a
+    # Verify-the-install block. G4-W17 arrival items 5 and 11 landed the mechanism - the pattern
+    # is the spec's - and this is Rust's. `pub use` is a re-export and reads the same way at the
+    # top of a fence; `extern crate` is the 2015-edition spelling a README may still carry. The
+    # crate is imported under its library name, which is not its published name, so the module
+    # the renderer substitutes is `import_path`'s value (`aspose_cells_foss_rust`), and `\b`
+    # stops before the `::` that follows it.
+    import_pattern=r"(?m)^\s*(?:pub\s+)?(?:use|extern\s+crate)\s+{module}\b",
     # A cold `cargo check` of this crate resolves seven requirements and compiles two native
     # build scripts: 253 seconds measured 2026-09-06. The ceiling in core.execution is 300.
     example_timeout_seconds=300.0,
