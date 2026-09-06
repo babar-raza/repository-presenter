@@ -366,3 +366,166 @@ against the crate at this revision.
   The fact is CONTRADICTED, no composed README would render the link, and no check fails on a link
   the document does not carry. Recorded rather than proposed: distinguishing this from a genuinely
   dead URL needs a rendering client, which is a larger decision than a lane should take.
+
+## 2026-09-06 — G4-W16 re-run, after G4-W17 items (0), (5) and (11)
+
+G4-W16 was accepted at its box with one disposition: `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust`,
+`BLOCKED_SHARED_CODE`, class `BC02_PUBLICATION_ONLY_SUPPORTED_PATH`, whose resume predicate was
+"G4-W17 item (0) is landed on main with PROPOSAL P5's refinement … then rerun `present`". Item (0)
+landed at 12:30 and items (5) and (11) together at 13:29 (`RESEARCH_AND_GUIDELINES.md` §31). Both
+landed the *mechanism* only and left one spec field each to the ecosystem — and an ecosystem's spec
+lives in a lane-owned `platforms/<ecosystem>.py`. So the re-run is these two decisions in lane D's
+own paths, then the composition; no shared file is touched.
+
+### D12 Rust's source-checkout install is the repository's own three commands, measured
+
+**Decision.** `RUST.source_install` is
+`git clone https://github.com/{repository}.git` / `cd {name}` / `cargo build`, with
+`source_install_lead` "build the clone with cargo build". `evidence/facts/extract.py::_source_build_fact`
+(G4-W17 item 0) promotes `install_command:cargo` from `CONTRADICTED` to `SUPPORTED` with
+`install_kind: source` only for an ecosystem whose spec names such a command, and rewrites the
+fact's value to it — so the promotion is exactly what PROPOSAL P5 asked for: a *source* install
+fact, never `cargo add aspose-cells-foss-rust` against a registry that answers 404.
+
+**Alternative rejected.** `cargo add --git https://github.com/{repository}.git`, the idiomatic way
+to consume an unpublished crate. It is one line and it is what a reader wants, but it is not a
+command this lane has run against this revision, and the renderer's own sentence asserts "verified
+against this revision"; a guessed syntax is worse than an honest absence (loop-prompt's standard,
+and G4-W17 item 5's own reasoning). Also rejected: `cargo check`, literally what the example
+verifier runs — exactly measured, but not an install: it produces no artifact and no reader would
+call it one. Rather than choose between "measured" and "idiomatic", `cargo build` was *made*
+measured (below). Also rejected: leaving `source_install` empty, which is what `main` inherited —
+honest, but it leaves `_check_install` failing this candidate closed forever, which is the
+disposition this re-run exists to clear.
+
+**Evidence.** The upstream README names these three commands itself ("To build the library directly
+from a clone", `README.md` lines 127–131 at `1a6004af`), so the rendered block is the repository's
+own instruction rather than one invented for it. Run against a clone of that revision with the
+lane's toolchain (`cargo 1.98.1`, `RUSTUP_HOME` and `CARGO_HOME` under
+`C:/tools/rp-toolchains/rustup`, nothing on `PATH`): `cargo build` exits 0,
+`Finished dev profile [unoptimized + debuginfo] target(s) in 38.93s`.
+`test_rust.py::test_the_source_checkout_commands_are_cargos_own_and_never_pips` pins the rendering,
+and pins that it is neither `pip install .` (G4-W17 item 10's defect) nor `cargo add`.
+
+**Reversal path.** Clear `source_install` and `source_install_lead` on `RUST`; `_source_build_fact`
+returns the fact untouched and the candidate returns to its
+`BC02_PUBLICATION_ONLY_SUPPORTED_PATH` disposition with nothing else changed.
+
+### D13 Rust's Verify-the-install match is `use`, and it is the spec's own field
+
+**Decision.** `RUST.import_pattern` is `(?m)^\s*(?:pub\s+)?(?:use|extern\s+crate)\s+{module}\b`.
+G4-W17 items (5) and (11) removed the renderer's module-level `_IMPORT` constant and made the
+pattern `EcosystemSpec.import_pattern`, defaulting to Python's own shape so no sealed byte moved;
+that item's entry says each ecosystem's pattern "is each lane's own field to set in its own
+`platforms/<ecosystem>.py` spec construction". This is Rust's, and Rust is the first ecosystem to
+set one.
+
+**Alternative rejected.** The bare `(?m)^\s*use\s+{module}\b`. A fence may open on a re-export
+(`pub use …`) or on the 2015-edition `extern crate …`, and both are the same claim: the example
+names this crate. Rejected too: matching `{module}` anywhere in the fence, which would count
+`aspose_cells_foss_rust::Workbook::new()` in the body of a snippet that never imports the crate,
+and a `[dependencies]` entry in a `toml` fence.
+
+**Evidence.** `test_rust.py::test_the_import_pattern_is_rusts_use_and_not_pythons_import`, built on
+this crate's own Quick Start opening line (`use aspose_cells_foss_rust::{CellValue, Workbook};`,
+`README.md` line 155 at `1a6004af`): the pattern matches it, the inherited Python-shaped default
+does not — the bug reproduced directly — `pub use` and `extern crate` match, and
+`aspose_cells_foss_rust_extra` and a bare call expression do not.
+
+**Reversal path.** Delete the field from `RUST`; the spec falls back to the shared default and the
+Verify-the-install block disappears again, changing nothing else.
+
+### Outcome of the re-run — `BC02_PUBLICATION_ONLY_SUPPORTED_PATH` is cleared; not sealed
+
+**Measured 2026-09-06 13:50–14:03** (`repository-presenter present --repo
+aspose-cells-foss/Aspose.Cells-FOSS-for-Rust`, worktree `C:\w\d16b` off `origin/main` at `4e1157f`,
+cargo 1.98.1 resolved by absolute path with `RUSTUP_HOME` in the subprocess environment only).
+The candidate composed end to end for the first time: 2,224 facts, 7 example candidates (1
+EXECUTED, 6 NOT_VERIFIED, 0 FAILED), 81 units dispositioned, a 16-of-18 section plan, 134 content
+units across 8 sections, 18 provider calls, a 167-visible-line README. **`BC-02` PASS** —
+"Install command verified against the manifest and the package-registry observation" — together
+with `BC-01`, `BC-03`, `BC-04`, `BC-05`, `BC-06` and `BC-09`. The disposition's resume predicate is
+therefore met and its failure class is closed: the Installation section renders
+
+> `aspose-cells-foss-rust` is not yet published on crates.io; build it from a source checkout
+> instead, verified against this revision:
+
+followed by the D12 fence, then "Verify the install:" and `cargo check` (D13 — the first
+Verify-the-install block any Rust candidate has rendered), and the badge row carries only License
+and Contributors, no crates.io version badge.
+
+**Not sealed.** Two blocking checks failed, both `COMPOSING`, both recorded `unrepairable`
+("no failing check names an LLM-owned section"), neither in a path lane D owns. They are
+PROPOSAL P6 and PROPOSAL P7 below and they become the repository's new disposition; the
+`BC02_PUBLICATION_ONLY_SUPPORTED_PATH` class is not re-raised and should not be reported as
+still blocking.
+
+### PROPOSAL P6 — the narration guard reads a public symbol's own name as internal narration
+
+**File.** `src/repository_presenter/components/readme/validation/registry.py`, the module constant
+`_NARRATION` (line 249) and `_check_structure`'s loop over it (line 849).
+
+**Defect.** `_check_structure` lowercases the README's prose outside fences and fails `BC-07` when
+any `_NARRATION` phrase appears as a *substring* anywhere in it. One of the nine phrases is the
+bare word `"validator"`. Aspose.Cells for Rust exports a public type named `WorkbookValidator`
+(and `WorkbookValidator.validate_for_save`), so `README_CONTRACT.md` §2 row 14's API Reference
+table renders exactly one line containing it —
+`| `WorkbookValidator` | WorkbookValidator performs validation checks on a workbook and collects
+any issues found. |` — and the check reads the repository's own API as machinery narration. There
+is no composition that can pass: the only way to remove the string is to drop a `pub` type from a
+required contract row, which is a lie about the surface, and the repair loop declined the finding
+anyway. The guard's intent (a sentence about *our* validator leaking into a reader-facing
+document) is right; matching a substring with no word boundary and no exemption for a value that
+is itself a `public_symbol` fact is what is wrong.
+
+**Fix, as this lane reads it.** Match `_NARRATION` on word boundaries, and exempt an occurrence
+that is part of a `SUPPORTED` `public_symbol` fact value (the candidate already carries them all)
+or that sits inside a code span. `"validator"` and `"fact id"` are the two phrases short enough to
+collide with real API vocabulary; the other seven are multi-word and unlikely to.
+
+**Corroborates.** Lane C's PROPOSAL G (2026-09-06, `RESEARCH_LANE_C.md`) reports the *other* cause
+of the same check firing — the authoring job writing `fact id` into prose — and reports the same
+`targeted_repair` behaviour. P6 is not that: nothing the model wrote is at fault here, so P6's fix
+is needed even after G's prompt change lands.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at
+`1a6004af47b1ef15385f9d36d381a8172428cc7e`;
+`validation: BC-07 failed at COMPOSING: internal narration 'validator'; no repair could act on it`.
+
+### PROPOSAL P7 — a VERIFIED_REWRITE that drops a command fails a check no repair is offered
+
+**Files.** `prompts/section_authoring.yaml` (the authoring job for an owner-`M` section) and
+`src/repository_presenter/components/readme/repair/` — the routing that turned both findings into
+`unrepairable`.
+
+**Defect.** `_check_protected` (BC-08) protects every backticked span of an inherited unit that
+matches `_COMMAND` once that unit's disposition places it. `inherited_unit:079.paragraph`, the
+upstream CI paragraph, names `cargo bench` and `cargo doc --no-deps --open`; reconciliation
+dispositioned it `VERIFIED_REWRITE` into `development_testing` (contract row 17, owner `M`), and
+the authored section kept eight cargo commands but not those two. The check is right — the
+rewrite lost content the reader had — but nothing acts on it: `repairs.json` records both
+findings as `outcome: unrepairable`, `reason: "no failing check names an LLM-owned section"`,
+because `_check_protected`'s `Failure` carries `section_id: None` even though the disposition it
+reads names `destination_section: development_testing`, an owner-`M` row the repair loop is
+allowed to re-author.
+
+**Fix, as this lane reads it.** Two independent halves. (1) A protected-content failure carries
+the `destination_section` of the disposition that placed the unit, so the repair loop can target
+the section that dropped the command. (2) The authoring prompt states that when a unit is placed
+by `VERIFIED_REWRITE`, every command the unit names is carried into the authored text — the same
+class of instruction the section already gets for identifiers.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at
+`1a6004af47b1ef15385f9d36d381a8172428cc7e`; `BC-08` twice —
+`inherited_unit:079.paragraph: VERIFIED_REWRITE keeps the command 'cargo bench' but the candidate
+does not render it`, and the same for `'cargo doc --no-deps --open'`.
+
+### The disposition this re-run leaves
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at `1a6004af47b1ef15385f9d36d381a8172428cc7e`,
+`BLOCKED_SHARED_CODE`, failure class `BC07_PUBLIC_SYMBOL_READ_AS_NARRATION` with
+`BC08_REWRITE_DROPS_A_PROTECTED_COMMAND` beside it. Resume predicate: PROPOSAL P6 landed on `main`
+(P7 with it, or the candidate will seal on the next check instead), then rerun
+`repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` from a fresh
+lane-d branch. Everything upstream of validation is now proven for this repository, so the next
+run is a composition and a seal, not an investigation.
