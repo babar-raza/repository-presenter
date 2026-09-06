@@ -159,7 +159,7 @@ def test_a_rejected_reply_is_kept_beside_the_store(tmp_path: Path) -> None:
 
     store = CallStore(tmp_path / "calls")
     path = store.reject("a" * 64, 2, "independent_review", "{bad json", ["quote is not the text"])
-    assert path == tmp_path / "calls" / ("a" * 24 + ".rejected-2.json")
+    assert path == tmp_path / "calls" / ("a" * 12 + ".rejected-2.json")
     record = json.loads(path.read_text("utf-8"))
     assert record == {
         "attempt": 2,
@@ -167,4 +167,21 @@ def test_a_rejected_reply_is_kept_beside_the_store(tmp_path: Path) -> None:
         "job": "independent_review",
         "rejection": ["quote is not the text"],
     }
+
+
+def test_the_rejected_filename_fits_where_the_old_one_crossed_max_path(tmp_path: Path) -> None:
+    """G4-W17 arrival item 2. Measured 2026-09-06 on Aspose.Cells for TypeScript: a
+    `<24-char-hash>.rejected-1.json` name, the longest path any transaction writes, crossed
+    Windows' 260-character limit by one character from that lane's checkout root. `path` and
+    `reject` share the same 12-character prefix - accepted and rejected records are the same
+    kind of thing, just one further stage - so a lookup never has to guess which length a given
+    record was written with."""
+    store = CallStore(tmp_path / "calls")
+    accepted = store.path("b" * 64)
+    rejected = store.reject("b" * 64, 1, "independent_review", "{}", [])
+    assert accepted.name == "b" * 12 + ".json"
+    assert rejected.name == "b" * 12 + ".rejected-1.json"
+    # Twelve characters shorter than the previous 24-character prefix on the one name that used
+    # to cross the limit: 261 measured then becomes 249, twelve characters of headroom restored.
+    assert len(rejected.name) == 12 + len(".rejected-1.json")
     assert store.get("a" * 64) is None  # a rejection is never an accepted output

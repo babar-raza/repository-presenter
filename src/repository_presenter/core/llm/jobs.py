@@ -80,7 +80,12 @@ class CallStore:
 
     def path(self, request_sha256: str) -> Path:
         # A short name: the full hash under a transaction directory overruns Windows' path limit.
-        return self.directory / f"{request_sha256[:24]}.json"
+        # 12 hex characters (48 bits), matching cli.py's own short workspace key for the same
+        # reason - measured 2026-09-06 on Aspose.Cells for TypeScript: even the 24-character form
+        # this used before crossed MAX_PATH by one character from a long checkout root once
+        # `.rejected-N.json` was appended (`reject` below), and a transaction's own call count
+        # never approaches a 12-character prefix's collision odds.
+        return self.directory / f"{request_sha256[:12]}.json"
 
     def get(self, request_sha256: str) -> dict[str, Any] | None:
         output = self.record(request_sha256).get("output")
@@ -107,7 +112,7 @@ class CallStore:
     ) -> Path:
         """Keep a rejected reply beside the store, so a rejection can be read, never guessed."""
         self.directory.mkdir(parents=True, exist_ok=True)
-        path = self.directory / f"{request_sha256[:24]}.rejected-{attempt}.json"
+        path = self.directory / f"{request_sha256[:12]}.rejected-{attempt}.json"
         payload = {"job": job, "attempt": attempt, "rejection": errors, "content": content}
         text = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         path.write_bytes(text.encode("utf-8"))

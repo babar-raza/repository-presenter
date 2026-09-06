@@ -4288,3 +4288,23 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   zero-delta box by the rule's own test (two items landed, one lane's TypeScript path newly
   unblocked in principle - the reviewer's re-spawn is what would confirm it), so no
   freeze-and-escalate condition applies. A new box opens now; continuing to item 2.
+
+- **2026-09-06 12:52 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 2 landed:
+  `CallStore`'s hash prefix shortened 24 to 12 characters.** Lane B's evidence: a
+  `<24-char-hash>.rejected-1.json` name, the longest path any transaction writes, measured at
+  261 characters from that lane's checkout root - one over Windows' MAX_PATH. `CallStore.path`
+  already truncated the full 64-character hash to 24 for exactly this class of problem (its own
+  comment says so); `reject` used the same 24, and its `.rejected-N` suffix is what tipped an
+  already-tight name over. `cli.py`'s `workspace_key` fix for the identical concern (a virtual
+  environment nested under the transaction directory) already set the precedent: 12 hex
+  characters, 48 bits, far more collision resistance than one transaction's call count needs.
+  Applied the same 12 to both `path` and `reject` - kept identical between them on purpose, since
+  an accepted and a rejected record are the same kind of thing at different stages, and a reader
+  should never have to guess which length a given name was written with. `tests/core/llm/
+  test_reuse.py` gains `test_the_rejected_filename_fits_where_the_old_one_crossed_max_path`,
+  asserting both methods produce the shared 12-character prefix and that the rejected name's
+  length is exactly `12 + len(".rejected-1.json")` - twelve characters of headroom restored on
+  the name that measured 261. The one pre-existing test asserting the old 24-character form
+  (`test_a_rejected_reply_is_kept_beside_the_store`) is updated to 12, not left as parallel
+  coverage - it pins the same fact the new test now pins more precisely. Full suite green,
+  ruff/mypy clean, before this entry. Proceeding to item 3.
