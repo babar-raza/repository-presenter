@@ -2121,8 +2121,10 @@ referential links and commands; G2-W23 folded into G3-W01 on 2026-09-05 (30.9); 
 cohort first (its preflight measures; census §28.10), G3-W03 facts cache only if that measurement
 admits it (30.9 decision 7); G4 — G4-W10 layered plugins and generic shared code, G4-W09 shared
 surface extractor carrying the second reuse source's schema and records (G4-W08 folded in,
-2026-09-05 23:30, §28.12), then the cohorts in deadline order G4-W11 .NET, G4-W12 Java, G4-W14
-TypeScript, G4-W15 Go, G4-W13 C++ (consumes OWNER-06), G4-W16 Rust; then G3-W02 freeze v1 after
+2026-09-05 23:30, §28.12), then the cohorts in deadline order G4-W11 .NET, **G3-W04 Python second
+pass** (inserted 2026-09-06 07:45 — the first pass sealed one of eleven; its blockers are removed),
+G4-W12 Java, G4-W14 TypeScript, G4-W15 Go, G4-W13 C++ (consumes OWNER-06), G4-W16 Rust (the last
+four in lane B); then G3-W02 freeze v1 after
 every cohort (moved 2026-09-05 23:30, §28.12); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. Each
 cohort item carries a time box (§28.12). The entries below are the exact
 `next_ready_items` text; whichever session finds an entry absent from `state.yaml` on a clean tree
@@ -2186,6 +2188,9 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G4-W11
   status: PENDING
   purpose: ".NET spec and cohort (section 29.6 E3-E6): identity, floor and the dependency snapshot from the vendored ManifestReader (aspose.org package_manifest and dependency_extract, section 29.12; the legacy ecosystems/dotnet.py only for a field they lack), surface through the shared extractor with the C# preprocessor rules, a fresh verifier on the base (dotnet build in the isolated workspace, restore disabled where a lock exists, NuGet config redirected; tools resolved with shutil.which including .cmd shims), registry facts through the vendored RegistryProbe, a negative control that rejects one realistic invalid example; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions (the Email .NET CS1929 build failure; PSD-.NET NON_PROCESSABLE). Parity per repository; a reflection-stub corroboration (E6) only if parity fails. Time box 5 hours from promotion (section 28.12): yield order from the section 28.11 census; at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; hosted CI green."
+- id: G3-W04
+  status: PENDING
+  purpose: "Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02's; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green."
 - id: G4-W12
   status: PENDING
   purpose: "Java spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/java.py only for a field it lacks), surface through the shared extractor with the internal and impl package exclusion as a spec parameter checked by parity, a fresh verifier (javac or mvn -q compile through the resolved mvn.cmd, offline flags where the repository provides a lock), registry facts through the vendored RegistryProbe (repo1.maven.org, never search.maven.org), a negative control; then the four Java repositories as a cohort (two are registry mode full and form G6's first publication cohort). Parity per repository; javap -public corroboration (E6) only if parity fails. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green."
@@ -2718,6 +2723,32 @@ ends early. Gain: TypeScript, Go, Rust and C++ inside the deadline instead of th
 track (Python, .NET, Java) is unchanged. Risks: the account's usage cap arrives sooner with two Opus
 loops (lane B pauses first); a shared-file need in a lane cohort becomes a `PROPOSAL` plus a
 disposition, never a patch outside the lane's paths.
+
+**Revision at 07:45 Sunday (owner) — what the first seven hours showed and what changes.** Measured
+00:50–07:36 from the transcript: 37 iterations averaging 11 minutes, 41 commits, tool wall-clock only
+23% (the suite 61 min of it, still 2.4 full runs per commit) — the loop is no longer tool-bound; it
+is bound by *iterations per sealed candidate*. G3-W01 accepted at 03:05 at its box with **one seal
+(Slides) and ten dispositions**; G4-W10 and G4-W09 accepted by 04:33; the .NET cohort has fixed
+eight failure classes since 04:40 without a seal yet. Three causes, in order of weight: (1) **the
+loop froze every prompt edit** after reasoning that a prompt change "costs a sealed candidate that
+cannot be re-earned" (§31 09:40) — that reading is wrong under the ESM: G2 work item 2 routes a
+prompt, template or model-route change to `VALID_UPDATE_AVAILABLE`, the sealed bundle stays current
+and counted, and the re-seal is G5-W02's; three Python dispositions (BarCode, Email, Note) name a
+prompt change as their resume predicate and were parked behind G5 for nothing; (2) **fact coverage**
+— the .NET surface emitted no namespace symbols, Python's native reader misses identifiers the
+authored prose legitimately needs, and every such gap becomes a deterministic rejection, two repairs,
+and a disposition; the vendored reader is in and unmeasured for Python; (3) **one or two fixes per
+iteration** — the loop reads §6 rule 4 as "stop after two changes to the review this iteration",
+so a composition round that exposes six classes costs four iterations. Decisions: prompts are edited
+freely for the cohorts (re-seal is G5's); **G3-W04**, a three-hour Python second pass, runs after the
+.NET box and before Java, re-running the ten dispositioned repositories with the prompt fixes and the
+façade-vs-native surface measurement; every class a composition round exposes is fixed in that
+iteration (rule 4 limits mechanism churn, not fix count); the full suite runs once per commit
+(third reading). **Forecast, honest:** with lane B on TypeScript from 07:40 and these changes, the
+achievable range by 00:00 Monday is roughly 8–15 sealed candidates, not 31; the portfolio completes
+on Monday. What would have made Sunday different: the prompt freeze and the coverage gap should have
+been caught by the reviewer at 04:00 — its hourly wake did not fire between 22:56 and 07:36 (the
+owner's session sat in plan mode), and lane B waited three hours for the spawn it was owed at 04:33.
 
 **How the loop uses the census (§28.10, §28.11).** (1) Inside a cohort, run repositories in yield
 order — published package, no native dependency, fixture files present, tests present — so the first
@@ -3817,3 +3848,21 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   preserved one, and it is removed. Recorded rather than quietly dropped because it cost a
   composition to learn: a check I invent an hour before it blocks a candidate deserves the same
   suspicion as a check that has never fired.
+
+- **2026-09-06 07:45 · owner (REVIEWED) · seven hours, one seal: the prompt freeze is reversed, the fix
+  cadence is unthrottled, a Python second pass is queued, and the reviewer's outage is on record.**
+  Evidence: §28.12 revision (37 iterations at 11 min, tool time 23%, suite 2.4 runs per commit;
+  G3-W01 accepted at its box with one seal and ten dispositions; .NET eight classes fixed, no seal).
+  Reversed: §31 09:40's "a prompt change costs a sealed candidate that cannot be re-earned" — under ESM
+  G2 work item 2 a prompt, template or model-route change routes to `VALID_UPDATE_AVAILABLE`; the
+  bundle stays current and counted; the re-seal is G5-W02's. Prompts are edited whenever a cohort's
+  failure class needs it. Clarified: §6 rule 4 governs checks exposing check defects, not the number of
+  deterministic fixes per iteration — every class a composition round exposes is fixed in that
+  iteration with a mutation test each. Third reading of "full suite once per commit" → loop-prompt §3
+  and the §8 metric line now count runs. Queued **G3-W04** (Python second pass, 3-hour box) after
+  G4-W11 and before G4-W12: the ten dispositioned repositories against the prompt fixes and a
+  façade-versus-native surface measurement on BarCode, Cells and PDF (where the vendored reader finds
+  what the native one missed, Python reads through the façade). Lane B spawned for G4-W14 at 07:40 —
+  three hours after its prerequisite landed, because the reviewer's hourly wake did not fire from
+  22:56 to 07:36 (the owner's session was in plan mode); recorded, not excused. Reverse by restoring
+  the three loop-prompt sentences and removing G3-W04 from §27.9.

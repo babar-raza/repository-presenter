@@ -148,7 +148,12 @@ files, never from memory of a previous iteration.
 - While changing, run only the focused tests for the files you touched. Once, immediately before
   the commit, the full local CI-equivalent: `ruff check .`, `ruff format --check .`, `mypy src`,
   `pytest -n auto` (`pytest-xdist` is a dev dependency, added by the first item to run the suite; a
-  test that cannot run in parallel is fixed, not exempted — §30.9). The hosted three-version matrix
+  test that cannot run in parallel is fixed, not exempted — §30.9). **One full run per commit**: a
+  red full run is followed by the focused test for that failure and one more full run, nothing else;
+  the §8 metric line counts the runs (measured 2.4 per commit three times, 2026-09-05/06). A prompt,
+  template or model-route change routes a sealed bundle to `VALID_UPDATE_AVAILABLE` (ESM G2 work
+  item 2): the bundle stays current and counted, its re-seal is G5-W02's — so edit prompts whenever a
+  cohort's failure class needs it, never freeze them (§31 2026-09-06 07:45). The hosted three-version matrix
   is the authoritative 3.11/3.12/3.13 proof; a predicate naming all three is met by a green hosted
   run (§27.5 D7). Disposable clones and run output go under `runs/` (gitignored); `candidates/` and
   `evidence/` are committed.
@@ -232,7 +237,10 @@ files, never from memory of a previous iteration.
    protected-content failure invalidates an accepted candidate.
 4. No validator whack-a-mole. If fixing a check exposes a second check defect in the same
    iteration, stop: keep it blocking only if it is one of the gate's essential checks, else make
-   it advisory.
+   it advisory. This governs *checks exposing check defects*, nothing else: when a composition
+   round exposes several distinct deterministic defects in extraction, composition or the
+   renderer, fix every one of them in that iteration, each with its mutation test (owner,
+   2026-09-06 07:45, §28.12) — spreading them over iterations is what cost the cohorts.
 5. A reviewer finding names a section and a causal stage or it is advisory. Never leave a
    permanent unrepairable finding blocking a candidate — and never leave one silently unresolved
    forever either: advisory is deferred repair work, not accepted work.
@@ -287,7 +295,7 @@ Gate and work item with status. Files changed. Checks run with results. Progress
 and whether it was pushed, with the hosted CI state. Owner items still `OPEN` with the exact action.
 Next action. One metric line, always: items accepted since the candidate count last rose · blocking
 checks · §31 entries today · first-attempt acceptance on the last sealed composition · iterations
-on the active item · full-suite seconds this iteration (ceiling 120) · canary runs this iteration
+on the active item · full-suite runs and seconds this iteration (ceiling one run per commit, 120 s) · canary runs this iteration
 (ceiling: one per predicate closed). From G3 on, when the first number reaches 3 the next item must raise the count
 or a §31 entry says why not, and no new check is admitted until it does (§30.8 C2). No wave
 numbers, requirement IDs, or evidence inventories.
