@@ -133,9 +133,9 @@ _OBJECTIVES: dict[str, tuple[str, str]] = {
         "one unit per capability, one sentence each",
     ),
     "quick_start": (
-        "One lead-in sentence per minimal example the renderer shows next: the first opens an "
-        "existing input when the product reads files, a second builds from scratch when the "
-        "plan selected one.",
+        "One lead-in sentence per minimal example the renderer shows next, each about the "
+        "example its own slot's `renders` prints directly beneath it - what that code does and "
+        "why a visitor runs it first - and never about the other slot's example.",
         "one unit of one sentence per example",
     ),
     "additional_examples": (
@@ -257,6 +257,7 @@ def slot_rendering(
     slots: Sequence[str],
     facts: FactsDocument,
     dispositions: dict[str, Any],
+    slot_facts: Mapping[str, frozenset[str]] = MappingProxyType({}),
 ) -> dict[str, str]:
     """What the renderer prints around a slot's unit, verbatim, for the slots that have such a
     neighbour.
@@ -278,6 +279,21 @@ def slot_rendering(
                 rendered[slot] = (
                     f"- **[{link_text(target)}]({target.value})** - before your sentence"
                 )
+    elif section == "quick_start":
+        # README_CONTRACT.md row 10 names two example kinds - opening an existing input, and
+        # building from scratch - but which one fills which lead-in slot is the plan's choice,
+        # not a fixed order. Each lead-in is shown the example ``slot_fact_sets`` bound to that
+        # slot, which is the one the renderer prints directly beneath it, so the prose is about
+        # that example and never its sibling (RESEARCH_AND_GUIDELINES.md section 27.9 G4-W17
+        # item 29). Measured on Aspose.PDF for Go, where the packet's declared order put a
+        # LoadWorkbook lead-in directly above a NewWorkbook() fence and BC-04, which checks only
+        # fact-ID membership, passed it silently.
+        for slot in slots:
+            bound = sorted(slot_facts.get(slot, frozenset()))
+            example = by_id.get(bound[0]) if bound else None
+            if example is not None:
+                code = " ".join(example.value.split())
+                rendered[slot] = f"as a fenced code block after your sentence: {code}"
     elif section == "development_testing":
         blocks = [
             by_id[unit_id].value
@@ -559,7 +575,7 @@ def authoring_tasks(
         spellings = section_spellings(ids, facts)
         slot_facts = slot_fact_sets(section, plan)
         titles = capability_titles(plan) if section == "key_capabilities" else {}
-        renders = slot_rendering(section, slots, facts, dispositions)
+        renders = slot_rendering(section, slots, facts, dispositions, slot_facts)
         records = slot_records(slots, slot_facts, titles, renders)
         # The renderer prints links, commands, and code blocks itself. A unit that repeats one
         # of them is rejected for writing a URL or a command, which is how the canary lost two
