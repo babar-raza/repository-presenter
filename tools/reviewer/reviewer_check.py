@@ -736,6 +736,45 @@ def main() -> int:
     lines: list[str] = []
     lines.append(f"# Reviewer check {now.strftime('%Y-%m-%d %H:%M')} — window since {since.strftime('%H:%M')} ({window_min:.0f} min)")
 
+    # 0 self-liveness: verify the reviewer's OWN mechanisms are actually running, not just built.
+    # Added 2026-09-06 after three incidents in one day, all the same shape (a safeguard built,
+    # never re-checked): a scheduled cron silent for ~6 hours unnoticed; unblock_monitor.py's own
+    # ITEM_UNLOCKS table missing entries for instructions already written in RESEARCH's own arrival
+    # list. This section is deliberately first — "did my own tools actually fire" is checked before
+    # anything they were supposed to catch.
+    lines.append("## 0 Self-liveness (reviewer's own mechanisms, not the loop's)")
+    prior_wake = state.get("last_wake")
+    if prior_wake:
+        gap_min = (now - dt.datetime.fromisoformat(prior_wake)).total_seconds() / 60
+        # This script is invoked every 20 min by cron; a gap over ~35 min means a scheduled fire
+        # was missed (own history, not the loop's — this is exactly the check that would have
+        # caught the ~6-hour 2026-09-06 gap on its own next run, instead of by accident).
+        if gap_min > 35:
+            lines.append(flag(f"reviewer's own last wake was {gap_min:.0f} min ago (cron expects ~20) — a scheduled fire was missed; do not trust cron alone, cross-check active Monitor tasks"))
+        else:
+            lines.append(ok(f"reviewer cadence: last wake {gap_min:.0f} min ago"))
+    else:
+        lines.append(info("no prior wake recorded (first run, or state file reset)"))
+    try:
+        um_path = Path(__file__).with_name("unblock_monitor.py")
+        um_src = um_path.read_text(encoding="utf-8")
+        table_m = re.search(r"ITEM_UNLOCKS[^=]*=\s*\{(.*?)\n\}", um_src, re.S)
+        table_keys = {int(k) for k in re.findall(r"^\s*(\d+):", table_m.group(1), re.M)} if table_m else set()
+        research_txt = (REPO / "docs/RESEARCH_AND_GUIDELINES.md").read_text(encoding="utf-8")
+        w17_i = research_txt.find("- id: G4-W17")
+        w17_j = research_txt.find("\n- id:", w17_i + 10)
+        w17_text = research_txt[w17_i:w17_j] if w17_i >= 0 else ""
+        # Every item number RESEARCH's own text says a re-run depends on ("after (N)... re-spawn/
+        # re-run") should have a table entry; a gap here is exactly the item-1/2/12 shape.
+        trigger_items = {int(n) for n in re.findall(r"after \(?(\d+)\)?[^.]{0,60}(?:re-spawn|re-run)", w17_text, re.I)}
+        missing = sorted(trigger_items - table_keys)
+        if missing:
+            lines.append(flag(f"unblock_monitor.py's ITEM_UNLOCKS is missing item(s) {missing} that RESEARCH's own G4-W17 text names as a re-spawn trigger — add them now"))
+        else:
+            lines.append(ok(f"unblock_monitor.py's table covers every re-spawn trigger RESEARCH names ({len(table_keys)} entries)"))
+    except Exception as exc:
+        lines.append(info(f"self-check of unblock_monitor's table skipped: {exc.__class__.__name__}"))
+
     # 1 liveness
     lines.append("## 1 Liveness")
     last_ts = t["last_ts"]

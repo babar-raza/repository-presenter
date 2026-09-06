@@ -46,8 +46,11 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
     ],
     2: [("lane-b", "Aspose.Cells-FOSS-for-TypeScript")],  # the MAX_PATH fix item 1's own text names
     5: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],  # Verify-the-install, Rust's `use` syntax
+    8: [("lane-d", "Aspose.Cells-FOSS-for-Go"), ("lane-d", "Aspose-PDF-FOSS-for-Go")],  # missed ~4h
+    9: [("lane-d", "Aspose.Cells-FOSS-for-Go"), ("lane-d", "Aspose-PDF-FOSS-for-Go")],
     11: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],
     12: [("lane-c", "Java")],  # all four Java repositories
+    22: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],  # narration guard, not yet landed
     20: [("lane-b", "Aspose.Cells-FOSS-for-Cpp")],
     21: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
     24: [
