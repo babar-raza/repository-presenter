@@ -4924,3 +4924,9 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
      this same standard (no manifest, one file, a two-line upstream README, and no aspose.org
      regen-full output either) - the correction is narrower than "nothing is really blocked," it is
      "a block must be earned, not defaulted to."
+
+  Promoted the same day (owner, 2026-09-06 20:14) from a one-off directive to a standing governing
+  rule: `project/loop-prompt.md` §6 rule 16 states this obligation for the primary loop and, through
+  §0 of `project/loop-prompt-lane.md` (which already directs every lane to read and follow §6 in
+  full), for lanes B, C and D without a second edit. Applies from the next spawn or wakeup of each;
+  it does not retroactively reopen a disposition already recorded before this entry.

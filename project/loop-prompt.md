@@ -279,6 +279,20 @@ files, never from memory of a previous iteration.
     check already covers it. Blocking checks stay at most fifteen without an owner decision in §27.9.
 15. You write measurements and §31 entries (six lines at most), never a new section, rule, or
     document. Governance growth is the owner's and is budgeted; yours is the report.
+16. An upstream defect — an unpublished package, a missing licence file, a non-compiling or
+    unverifiable example, any fact about the *target repository* rather than this codebase — is
+    never an automatic task-wide blocker. Investigate its root cause first. A proven fallback
+    already exists for most classes: the source-install path when a registry has nothing to
+    confirm (§27.9 G4-W17 item (0)/(24)), the fold-not-reject pattern for one bad unit among many
+    (items (16)/(17), `d707693`) — reuse the nearest one before inventing a new mechanism. Isolate
+    the defect's impact to the exact claim, example, or operation it touches: omit or replace only
+    that content, keep composing everything the remaining evidence supports, and record the defect
+    on its own in the repository's upstream-issues log for the issues module — never inside the
+    public candidate. Declare `BLOCKED_*`/`NON_PROCESSABLE` only after exhausting every reasonable
+    alternative, with the concrete evidence recorded for why none could satisfy the task; continue
+    every unaffected work item and repository meanwhile. None of this loosens rule 12: every
+    rendered claim stays true and evidence-backed, and a working alternative is documented only
+    once it is actually verified, never assumed (owner, 2026-09-06 20:05, §31).
 
 ## 7. Continue or stop the loop
 
