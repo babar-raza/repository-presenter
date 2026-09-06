@@ -4753,3 +4753,25 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   landed and three declined with evidence since promotion at 10:50, one new sealed candidate, and
   every fix live-verified against the real repository its evidence named where a live check was
   possible. A new box opens now, at a longer interval.
+
+- **2026-09-06 17:12 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 16 landed - a
+  trimmable plan defect is folded, not rejected.** Re-reading lane C PROPOSAL E after the box's
+  own rest: both breaches it names are deterministic and lossless to fix in place, the same shape
+  `dispositions.normalize` already folds for reconciliation - not the "targeted re-ask" capability
+  items 17 and (partly) 21 still need, which is why this was mis-scoped alongside them at first
+  read. `plan_checks` (`composition/planning.py`) now de-duplicates `api_hubs` keeping the first
+  occurrence before judging distinctness - the hard error is renamed "api_hubs must each be a
+  supported public_symbol fact" since distinctness is no longer a failure mode a duplicate can
+  trigger - and truncates Aspose links to `policy.aspose_links_max` in the plan's own order before
+  counting them, leaving a shell-owned target (which is invalid for an unrelated reason - it
+  renders on its own) untouched by the trim either way. Measured on
+  `aspose-3d-foss/Aspose.3D-FOSS-for-Java` (5,366 `public_symbol` facts, 39 `link_target` facts):
+  the job died on the link ceiling in one attempt and on hub distinctness in the next, from the
+  same underlying facts - a numeric-ceiling compliance problem more prompt text was not fixing,
+  per lane C's own reading. New test:
+  `tests/.../test_planning.py::test_a_repeated_hub_and_an_over_ceiling_aspose_link_are_trimmed_
+  not_rejected`, reproducing both trims from one plan in one call with zero errors; two existing
+  assertions updated for the renamed message and the now-passing ceiling case. Full suite green,
+  ruff/mypy clean, before this entry. Not attempted here: item 17's own "re-ask only the units
+  with no disposition" half, and item 21's second half - both need a genuinely new partial-re-ask
+  capability, unlike this item's pure post-processing fold.

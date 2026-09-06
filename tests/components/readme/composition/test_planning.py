@@ -209,7 +209,7 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "['Build scenes', 'Export STL', 'Run examples']",
         "quick_start_example_id must be a SUPPORTED example; got 'example:003'",
         "additional_example_ids must be distinct and exclude the quick start",
-        "api_hubs must be distinct public_symbol facts",
+        "api_hubs must each be a supported public_symbol fact",
         "a material limitation cites at least one fact or inherited unit",
         "link 'link_target:003' is not a verified link target",
         "link 'link_target:002' is assigned to a section that is not included: "
@@ -217,8 +217,51 @@ def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
         "deviation names an unknown section 'changelog'",
     ]
 
+    # G4-W17 arrival item 16: an Aspose link beyond the ceiling is trimmed, in plan order, rather
+    # than failing the whole plan - with the ceiling at 0 the plan's own single Aspose link is
+    # dropped and nothing is left to complain about.
     ceiling = PlanningPolicy(aspose_links_max=0)
-    assert plan_checks(_plan(), FACTS, ceiling) == ["Aspose links exceed the ceiling of 0: 1"]
+    trimmed = _plan()
+    assert plan_checks(trimmed, FACTS, ceiling) == []
+    assert trimmed["links"] == []
+
+
+def test_a_repeated_hub_and_an_over_ceiling_aspose_link_are_trimmed_not_rejected() -> None:
+    """G4-W17 arrival item 16 (lane C PROPOSAL E). Measured 2026-09-06 on aspose-3d-foss/
+    Aspose.3D-FOSS-for-Java: a duplicate hub and an Aspose link ceiling breach both come from the
+    same plan, on two separate attempts, and both are trimmable - the first occurrence of a
+    repeated hub already says everything a duplicate would, and the links beyond the ceiling can
+    be dropped in the plan's own order. Neither should cost the whole plan a rejection and a
+    second call for what a fixed rule already knows how to fix."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("link_target:004", "link_target", "https://products.aspose.org/widget/2"),
+            _fact("link_target:005", "link_target", "https://products.aspose.org/widget/3"),
+        ),
+    )
+    plan = _plan(
+        api_hubs=[
+            {"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]},
+            {"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:002"]},
+        ],
+        links=[
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:004", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:005", "section_id": "documentation_resources"},
+        ],
+    )
+    ceiling = PlanningPolicy(aspose_links_max=2)
+    assert plan_checks(plan, facts, ceiling) == []
+    assert plan["api_hubs"] == [
+        {"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["example:001"]}
+    ]
+    assert [link["link_fact_id"] for link in plan["links"]] == [
+        "link_target:002",
+        "link_target:004",
+    ]
 
 
 def test_a_shell_rendered_link_is_never_a_plans_own_assignment() -> None:

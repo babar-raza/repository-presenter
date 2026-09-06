@@ -355,13 +355,30 @@ def plan_checks(
             f"flagship_example_id must be one of additional_example_ids; got {flagship!r}"
         )
 
-    hubs = output.get("api_hubs", [])
+    # G4-W17 arrival item 16 (lane C PROPOSAL E). A repeated hub is trimmable - the first
+    # occurrence already says everything a duplicate would - so it is folded here, the same way
+    # dispositions.normalize folds an impossible placement, rather than failing the whole plan
+    # and costing a second call for a single dropped repeat. Measured 2026-09-06 on
+    # aspose-3d-foss/Aspose.3D-FOSS-for-Java (5,366 public_symbol facts): the job's own compliance
+    # with a numeric ceiling was not reliable across two consecutive attempts, dying once on this
+    # and once on the Aspose link ceiling below, from the same input.
+    raw_hubs = output.get("api_hubs", [])
+    seen_hub_ids: set[Any] = set()
+    hubs = []
+    for hub in raw_hubs:
+        hub_id = hub.get("symbol_fact_id")
+        if hub_id in seen_hub_ids:
+            continue
+        seen_hub_ids.add(hub_id)
+        hubs.append(hub)
+    if len(hubs) != len(raw_hubs):
+        output["api_hubs"] = hubs
     symbols = {i for i in supported if i.startswith("public_symbol:")}
     hub_ids = [hub.get("symbol_fact_id") for hub in hubs]
     if len(hubs) > policy.api_hubs_max:
         errors.append(f"api_hubs exceed the ceiling of {policy.api_hubs_max}")
-    if len(set(hub_ids)) != len(hub_ids) or any(hub not in symbols for hub in hub_ids):
-        errors.append("api_hubs must be distinct public_symbol facts")
+    if any(hub not in symbols for hub in hub_ids):
+        errors.append("api_hubs must each be a supported public_symbol fact")
     if ("api_reference" in included) != bool(hubs):
         errors.append("api_hubs are given exactly when api_reference is included")
 
@@ -372,6 +389,29 @@ def plan_checks(
     link_facts = {
         fact.id: fact.value for fact in facts.by_kind("link_target") if fact.polarity == "SUPPORTED"
     }
+    # An Aspose link beyond the ceiling is trimmable in the plan's own order - a plan that placed
+    # five ahead of a ceiling of four still named the right four first - so it is dropped here
+    # rather than failing the whole plan for a count a fixed rule already knows how to enforce.
+    # A shell-owned target is never touched here: it is invalid for a different reason (it
+    # renders on its own) and stays a hard error below regardless of the count.
+    raw_links = output.get("links", [])
+    kept_links: list[dict[str, Any]] = []
+    aspose_kept = 0
+    for link in raw_links:
+        target = link.get("link_fact_id")
+        value = link_facts.get(target)
+        is_aspose = (
+            target not in _SHELL_OWNED_LINKS
+            and value is not None
+            and any(domain in value for domain in _ASPOSE_DOMAINS)
+        )
+        if is_aspose:
+            if aspose_kept >= policy.aspose_links_max:
+                continue
+            aspose_kept += 1
+        kept_links.append(link)
+    if len(kept_links) != len(raw_links):
+        output["links"] = kept_links
     aspose = 0
     targets = [link.get("link_fact_id") for link in output.get("links", [])]
     for target in sorted({t for t in targets if targets.count(t) > 1}):
