@@ -95,8 +95,8 @@ def test_the_spec_registers_itself_when_the_plugin_module_is_imported() -> None:
     spec = spec_for("cpp")
     assert spec is cpp.CPP
     assert spec.fence == "cpp" and spec.language == "C++"
-    # No registry, so no version badge and no registry install line can ever render.
-    assert spec.registry == "" and spec.badge("Widget") == ""
+    # No registry, so no version badge can ever render and the install claim never resolves.
+    assert spec.registry == "any package registry" and spec.badge("Widget") == ""
     assert {"c++", "cxx"} <= spec.example_fences
 
 
@@ -136,10 +136,28 @@ def test_the_manifest_facts_are_cmake_declarations_and_never_an_install_command(
     assert facts["package:cxx_standard"].value == "17"
     assert facts["package:cmake_minimum"].value == "3.20"
     assert facts["import_path:widget"].value == "widget"
-    # C++ has no registry; a command naming one would be a claim no reader could act on.
-    assert not [fact for fact in facts.values() if fact.kind == "install_command"]
-    assert cpp.PLUGIN.registry_facts(list(facts.values())) == ([], [])
+    # The install is the source build the verifier itself drives, and it never resolves: there is
+    # no registry to confirm a published package against.
+    install = facts["install_command:cmake"]
+    assert install.value == "cmake -S Widget -B build\ncmake --build build"
+    assert install.polarity == "UNRESOLVED"
     assert facts["package:cxx_standard"].evidence[0].path == "Widget/CMakeLists.txt"
+
+
+def test_the_registry_reading_is_observed_and_never_makes_the_install_supported(
+    tmp_path: Path,
+) -> None:
+    """A registry that does not exist is read as inconclusive, not as a negative (section 29.6
+    E5), and the reading becomes evidence so the absence is observed rather than assumed."""
+    manifest = _repository(tmp_path)
+    resolved, probes = cpp.PLUGIN.registry_facts(cpp.PLUGIN.manifest_facts(tmp_path, manifest, []))
+    assert [fact.id for fact in resolved] == ["install_command:cmake"]
+    assert resolved[0].polarity == "UNRESOLVED"
+    # Both words BC-02 reads an install fact's evidence for, and neither is invented.
+    details = " ".join(evidence.detail or "" for evidence in resolved[0].evidence)
+    assert "manifest" in details and "package registry" in details
+    assert [probe.outcome for probe in probes] == ["UNRESOLVED"]
+    assert probes[0].target == "none:Widget"
 
 
 def test_the_standard_is_read_from_target_compile_features_too(tmp_path: Path) -> None:

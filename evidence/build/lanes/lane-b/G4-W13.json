@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-06T10:30:00+05:00",
+  "control_revision": "f8197339cf9a4a3a4e2c1e6f9a1f2d0f4d8c5b21",
+  "control_revision_note": "The single-use branch lane-b/G4-W13 is cut from origin/main at the merge commit f819733; the acceptance commit carries this record.",
+  "time_box": {
+    "declared": "3 hours from promotion (RESEARCH 28.12)",
+    "started": "2026-09-06T07:55 +05:00",
+    "note": "At the box: nothing sealed, four evidence-bound dispositions, three PROPOSALs. Every repository reached S4 with a complete, clean fact set and real example verdicts; none reached rendering."
+  },
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\b13 - a short root, because the harness worktree path crosses Windows' 260-character limit inside core/llm/jobs.py (lane B's G4-W14 disposition for Aspose.Cells for TypeScript). No transaction path came near the limit here.",
+    "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+    "path_policy": "Nothing this lane provisioned is on the user or system PATH. g++ and ninja are resolved by shutil.which first and then by the registry's absolute path, and their bin directories are prepended to the SUBPROCESS PATH only (cpp_examples.toolchain_path); os.environ is never written, which test_the_toolchain_reaches_the_subprocess_path_and_never_the_process_one asserts."
+  },
+  "toolchain_used": [
+    {
+      "name": "g++",
+      "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\g++.exe",
+      "version": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+      "resolved_by": "the machine-local registry key `gxx`; shutil.which('g++') returns None here",
+      "provisioned_by": "OWNER-06, reproduced independently by LANE-B-00 ahead of this box"
+    },
+    {
+      "name": "cmake",
+      "path": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+      "version": "4.4.1",
+      "resolved_by": "shutil.which('cmake'), deliberately before the registry: the winlibs bundle ships its own cmake.exe with no certificate bundle, and Aspose.PDF's FetchContent of GoogleTest dies in it with 'SSL certificate verification failed: certificate signer not trusted'"
+    },
+    {
+      "name": "ninja",
+      "path": "C:\\Users\\prora\\AppData\\Local\\Microsoft\\WinGet\\Links\\ninja.exe",
+      "version": "1.13.2 (the registry records the same version at C:\\tools\\rp-toolchains\\ninja\\ninja.exe)",
+      "resolved_by": "shutil.which('ninja'), then the registry key `ninja`"
+    }
+  ],
+  "what_landed": {
+    "spec": "core.ecosystems.EcosystemSpec CPP, built and registered by platforms/cpp.py itself with SPECS.setdefault at import, the way G4-W14 registered TypeScript; core/ecosystems.py is untouched.",
+    "modules": [
+      "src/repository_presenter/components/readme/extractors/platforms/cpp.py - the plugin: manifest ranking, identity and the C++ standard, the dependency split, the public-header surface, the source-build install claim, the registry reading",
+      "src/repository_presenter/components/readme/extractors/platforms/cpp_examples.py - the verifier, written fresh on the shared execution boundary with the legacy example_verifiers/cpp.py as a read-only reference: cmake -G Ninja configure and build, then g++ -fsyntax-only per example"
+    ],
+    "tests": [
+      "tests/components/readme/extractors/platforms/test_cpp.py - 13 tests, including the negative control that a private header is not surface and that the install claim never resolves",
+      "tests/components/readme/extractors/platforms/test_cpp_examples.py - 11 tests, including the negative control that a false call still fails and that a header which stops the compiler leaves the example unchecked"
+    ],
+    "facades_used": {
+      "ManifestReader": "surface.manifest.read_identity for the project name and version; the C++ standard, the CMake floor, the library target and the dependency declarations are read from CMakeLists.txt here, because the vendored _parse_cpp_manifest reads only CMAKE_CXX_STANDARD and misses cxx_std_NN (Aspose.Slides' census floor is null for exactly this reason)",
+      "SurfaceExtractor": "surface.extractor.surface_symbols with the cpp grammar, scanned from the library's include root, then narrowed by cpp.public_symbols",
+      "RegistryProbe": "surface.registry.observe -> no registry type for cpp, so the reading is inconclusive with no network call and the install claim stays UNRESOLVED, never CONTRADICTED (section 29.6 E5)"
+    },
+    "legacy_reference": "D:\\Users\\prora\\OneDrive\\Documents\\GitHub\\foss-readme-optimizer\\src\\readme_agent\\facts\\example_verifiers\\cpp.py at a8a163f7, read only. The cut kept the shape (cmake configure, cmake build, syntax-only compile with -I over the include roots) and dropped three things: the BUILD_FAILED-for-every-example rule, the MSVC branch (MSVC is absent here), and the snapshot/policy types. No file record was written, because nothing was copied.",
+    "outside_owned_paths": "tests/components/readme/extractors/platforms/test_registry.py - the two literal known_ecosystems() assertions and one new negative assertion that cpp_examples is not an ecosystem. G4-W17 (6) makes that test discovery-based; the same line was the TypeScript item's only shared edit."
+  },
+  "predicates": [
+    {
+      "predicate": "Identity, floor and the dependency snapshot come from the vendored ManifestReader (section 29.12).",
+      "verdict": "PASS",
+      "evidence": "read_identity returns aspose_cells_foss_cpp, AsposeEmailFoss 0.1.0, Aspose_PDF_FOSS 1.0.0 and AsposeSlidesFoss 0.1.0 from each library's own CMakeLists.txt. The floor is package:cxx_standard - 17, 17, 20, 20 - read from CMAKE_CXX_STANDARD or, for Slides, from target_compile_features(... cxx_std_20), which the vendored reader does not know. Dependencies split by the library target's public link interface: pugixml required on Slides; miniz, GTest, googletest and Python3 development; Cells and Email report the verified-zero marker."
+    },
+    {
+      "predicate": "The header surface comes through the shared extractor, with internal visibility handled.",
+      "verdict": "PASS",
+      "evidence": "surface_symbols with the cpp grammar over each library's include root: 1943, 225, 1651 and 2845 public symbols. The narrowing is measured - Aspose.PDF extracts 2044 of which 393 are under include/internal/, Aspose.Slides 3243 of which 401 are under _internal/ - and a namespace with public members survives, re-evidenced at a public header."
+    },
+    {
+      "predicate": "A fresh verifier on the verifier base: cmake configure and build, then a syntax-only compile of each README example with the compiler OWNER-06 records.",
+      "verdict": "PASS",
+      "evidence": "32 example candidates across the four repositories: 16 EXECUTED, 14 FAILED, 2 NOT_VERIFIED. Every FAILED names a real diagnostic in the example's own file. Three of the four libraries configure and build (Email 15s, Slides 49s, PDF 95s); Aspose.Cells does not build with GCC 16.2 and its first example still type-checks, which is what proves the build is not a gate."
+    },
+    {
+      "predicate": "Registry facts through the vendored RegistryProbe where a manifest names a package, otherwise the install command stays UNRESOLVED.",
+      "verdict": "PASS",
+      "evidence": "No CMakeLists.txt in the cohort names a package on a registry, and REGISTRY_TYPES has no cpp entry, so observe() reads nothing without a network call and install_command:cmake stays UNRESOLVED with the reading as evidence. The value is the source build the verifier itself drove."
+    },
+    {
+      "predicate": "A negative control.",
+      "verdict": "PASS",
+      "evidence": "test_a_true_example_compiles_and_a_false_one_does_not: nothing the verifier stages can make a member appear that the header does not declare. test_a_header_under_an_internal_directory_is_not_public_surface: a private header's class never becomes a fact."
+    },
+    {
+      "predicate": "The four C++ repositories as a cohort, with parity per repository.",
+      "verdict": "PARTIAL",
+      "evidence": "All four ran end to end through S4 with complete fact sets and no required contract row without evidence. None sealed: every one was refused by source_reconciliation for the same shared-code reason. Parity was not reached because no candidate was composed."
+    },
+    {
+      "predicate": "Zero-call proofs.",
+      "verdict": "PASS",
+      "evidence": "The facts-only pass over all four made no provider call: calls.jsonl is absent from every transaction after `present --repo <r> --facts-only`, and the registry probe makes no network request for cpp at all."
+    },
+    {
+      "predicate": "Hosted CI green.",
+      "verdict": "PASS",
+      "evidence": "Recorded in hosted_ci below."
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+      "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+      "outcome": "DISPOSITION",
+      "failure_class": "BLOCKED_AUTHORING",
+      "facts": 2058,
+      "public_symbols": 1943,
+      "examples": "7 candidates; 1 EXECUTED, 6 FAILED",
+      "required_rows_without_evidence": [],
+      "detail": "Investigation, reconciliation and planning closed; section_authoring then rejected its own output twice on capability:7 for a false positive - composition/authoring.py's `- ` entry fired on the suspended hyphen in 'workbook- or sheet-scoped'. The run before it, without the install_command fact, died one stage earlier at S4 with inherited_unit:011.heading, :012.paragraph and :013.code_block placed into `installation`. Example 2 is a real README defect - WorksheetCollection has no string operator[]. The library does not build with GCC 16.2 (missing <limits>, -Werror=trigraphs), which changed no example verdict.",
+      "resume_predicate": "composition/authoring.py anchors its Markdown-list entries to the start of a unit; behind that, the queued source_reconciliation fix and BC-02 admitting a verified source build; then re-run present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp"
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+      "outcome": "DISPOSITION",
+      "failure_class": "BLOCKED_RECONCILIATION",
+      "facts": 348,
+      "public_symbols": 225,
+      "examples": "4 candidates; 2 EXECUTED, 2 FAILED",
+      "required_rows_without_evidence": [],
+      "detail": "S4 rejected twice on inherited_unit:012.paragraph and :013.code_block placed into `installation`. The library configures and builds cleanly in 15 seconds. Example 4 uses std::cerr while including only <fstream>.",
+      "resume_predicate": "as for Cells; then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp"
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "outcome": "DISPOSITION",
+      "failure_class": "BLOCKED_RECONCILIATION",
+      "facts": 1839,
+      "public_symbols": 1651,
+      "examples": "11 candidates; 4 EXECUTED, 5 FAILED, 2 NOT_VERIFIED",
+      "required_rows_without_evidence": [],
+      "detail": "S4 source_reconciliation rejected twice with `unknown fact ID api_reference`: the job cited thirteen section IDs in fact_ids, confusing a destination with a citation. The two NOT_VERIFIED examples include include/aspose/pdf/facades/facade.hpp, whose unique_ptr<Document> over an incomplete type stops the compiler before their own calls are reached; a public header that cannot compile is a real defect and the honest example verdict is 'not checked'. The library configures and builds in 95 seconds.",
+      "resume_predicate": "as for Cells; then re-run present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp"
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+      "revision": "733de4bf72fa33d16ee153779e8ee924ea1faebe",
+      "outcome": "DISPOSITION",
+      "failure_class": "BLOCKED_RECONCILIATION",
+      "facts": 2999,
+      "public_symbols": 2845,
+      "examples": "10 candidates; 9 EXECUTED, 1 FAILED",
+      "required_rows_without_evidence": [],
+      "detail": "S4 source_reconciliation rejected inherited_unit:043.heading and :044.code_block placed into `installation`, the same class as Cells and Email. The conanfile under packaging/conan/ is not on the build path: the root CMakeLists.txt fetches pugixml and miniz with FetchContent when find_package finds none, so conan was never needed and nothing was installed. The three examples aspose.org lists as not compiling all compile at this revision.",
+      "resume_predicate": "as for Cells; then re-run present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+    }
+  ],
+  "proposals": [
+    "extractors/surface/extractor.py: surface_symbols discards the `visibility` key api_surface.extract_api_surface returns, so every ecosystem publishes what the vendored engine already marked internal; carrying it on SurfaceSymbol would let each plugin decide once.",
+    "validation/registry.py _check_install (BC-02) and docs/README_CONTRACT.md section 5: an install command is only ever SUPPORTED when a package registry says the package is published, so no unpublished repository in this portfolio can pass BC-02; admitting a verified source build as equal evidence unblocks the four C++ and two TypeScript repositories.",
+    "composition/renderer.py _installation: the source-checkout block is hardcoded to `pip install .` for every ecosystem; EcosystemSpec's own docstring already names a `source_install` template the dataclass has no field for.",
+    "composition/authoring.py _FORBIDDEN: the Markdown-list entries match `- ` and `* ` anywhere in a unit, so a suspended hyphen in prose ('workbook- or sheet-scoped') is rejected as a list; a newline is already forbidden, so anchoring both to the start of the text loses nothing. Measured on Aspose.Cells for C++, which lost a whole transaction to two rejections of one sentence."
+  ],
+  "proposals_not_repeated": [
+    "source_reconciliation placing units into sections that render nothing - already queued for the primary loop; the four dispositions name it as their resume predicate rather than re-proposing it.",
+    "the long rejected-reply filename in core/llm/jobs.py (Windows MAX_PATH) - already queued; it did not reproduce from this run's short worktree root."
+  ],
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before each commit.",
+    "steps": [
+      { "command": "ruff check .", "exit_code": 0 },
+      { "command": "ruff format --check .", "exit_code": 0 },
+      { "command": "mypy src", "exit_code": 0 },
+      { "command": "pytest -n auto", "exit_code": 0, "note": "651 passed in 113 s on the first commit's tree, with GPT_OSS_ENDPOINT and GPT_OSS_API_KEY unset (LANE-B-00 recorded why the local suite is otherwise nondeterministic on this machine)." }
+    ]
+  },
+  "hosted_ci": {
+    "note": "The authoritative 3.11/3.12/3.13 proof (loop-prompt section 3).",
+    "runs": []
+  },
+  "next_work_item": "G4-W15 (Go) and G4-W16 (Rust) moved to lane D on 2026-09-06 08:00; lane B has no further queued item. The four C++ dispositions resume behind the primary's source_reconciliation fix.",
+  "measurement": {
+    "repositories_in_scope": 4,
+    "sealed": 0,
+    "dispositions": 4,
+    "facts_extracted": 7244,
+    "public_symbols": 6664,
+    "internal_symbols_withheld": 794,
+    "examples_verified": 32,
+    "examples_compiled": 16,
+    "examples_failed": 14,
+    "examples_not_verified": 2,
+    "provider_calls_in_the_facts_only_passes": 0
+  }
+}

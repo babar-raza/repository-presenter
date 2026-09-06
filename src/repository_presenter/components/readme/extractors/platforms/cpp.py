@@ -6,12 +6,12 @@ this module supplies only what is C++'s own — which `CMakeLists.txt` governs t
 consumer links, and which headers are public.
 
 Two things separate C++ from every ecosystem before it. It has no registry: `surface/registry.py`
-says so outright, and no `CMakeLists.txt` names a package on one, so this plugin writes no
-`install_command` fact at all rather than a command no reader could run. And its public surface is
-a directory rather than a declaration — `include/` is what a consumer may include and `src/` is
-not, which is why the surface is read from the include root alone, with the vendored extractor's
-C++-only rule that an `internal/` segment under it is private (Aspose.PDF ships exactly such a
-tree).
+says so outright and no `CMakeLists.txt` names a package on one, so the install command is the
+source build the verifier itself drives and its claim stays UNRESOLVED — a package registry that
+does not exist was read, not assumed away. And its public surface is a directory rather than a
+declaration — `include/` is what a consumer may include and `src/` is not, which is why the
+surface is read from the include root alone and narrowed to the headers a consumer may reach
+(Aspose.PDF ships `include/internal/`, Aspose.Slides `include/.../_internal/`).
 
 Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared façades under
 `extractors/`, and its own helper module.
@@ -33,6 +33,7 @@ from repository_presenter.components.readme.extractors.surface.extractor import 
     surface_symbols,
 )
 from repository_presenter.components.readme.extractors.surface.manifest import read_identity
+from repository_presenter.components.readme.extractors.surface.registry import observe
 from repository_presenter.core.ecosystems import SPECS, EcosystemSpec
 from repository_presenter.core.examples import (
     ExampleCandidate,
@@ -48,10 +49,11 @@ CPP = EcosystemSpec(
     language="C++",
     fence="cpp",
     # C++ has no portfolio-wide package registry, which `surface/registry.py` states and
-    # `REGISTRY_TYPES` encodes by having no `cpp` entry. The renderer prints a version badge and
-    # a registry install line only when an install fact is SUPPORTED, and this plugin writes
-    # none, so the empty registry name never reaches a rendered document.
-    registry="",
+    # `REGISTRY_TYPES` encodes by having no `cpp` entry. The name is a phrase rather than a
+    # registry because the only sentence the renderer builds from it is the unresolved one -
+    # "could not be confirmed on any package registry at this revision" - and the install fact
+    # is never SUPPORTED here, so the published-package sentence is unreachable.
+    registry="any package registry",
     install_fact_id="install_command:cmake",
     version_badge="",
     # Nothing a consumer can run to verify an install: there is no install. The renderer only
@@ -166,6 +168,12 @@ def public_symbols(symbols: Sequence[SurfaceSymbol]) -> list[SurfaceSymbol]:
         if symbol.symbol_kind == "module" and symbol.value in anchor
     ]
     return namespaces + reachable
+
+
+def source_build_command(directory: str) -> str:
+    """The two commands that build the library from a checkout, as the verifier drives them."""
+    source = directory or "."
+    return f"cmake -S {source} -B build\ncmake --build build"
 
 
 def read_cmake(manifest: Path) -> str:
@@ -355,10 +363,12 @@ class CppPlugin:
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         """Identity, version, the C++ standard, the CMake floor, and the target a consumer links.
 
-        No install command. `CMakeLists.txt` names a CMake project and a link target, neither of
-        which is a package on a registry, and the `RegistryProbe` has no registry for C++ to ask.
-        Writing an `install_command` fact anyway would put a command in the Installation section
-        that no reader could run; the section renders what the repository does support instead.
+        The install command is the source build, and it stays UNRESOLVED: `CMakeLists.txt` names a
+        CMake project and a link target, neither of which is a package on a registry, and the
+        `RegistryProbe` has no registry for C++ to ask. The command itself is the one the verifier
+        drives - `cmake -S <the manifest's directory> -B build` then `cmake --build build` - so
+        the Installation section carries what a reader of these repositories actually does
+        (`project/portfolio-census.json` records "no registry (source build)" for all four).
         """
         identity = read_identity(root, self.ecosystem, manifest)
         text = read_cmake(manifest)
@@ -371,6 +381,22 @@ class CppPlugin:
                     "package",
                     identity.name,
                     (Evidence(where, "project name declared by `project()`"),),
+                )
+            )
+            facts.append(
+                Fact(
+                    fact_id("install_command", "cmake"),
+                    "install_command",
+                    source_build_command(manifest.parent.relative_to(root).as_posix()),
+                    (
+                        Evidence(
+                            where,
+                            "source build for the CMake project the manifest declares; C++ has "
+                            "no package registry to install from",
+                        ),
+                    ),
+                    polarity="UNRESOLVED",
+                    confidence=0.5,
                 )
             )
         if identity.version:
@@ -462,15 +488,43 @@ class CppPlugin:
         return facts
 
     def registry_facts(self, facts: Sequence[Fact]) -> tuple[list[Fact], list[ProbeRecord]]:
-        """Nothing to resolve: C++ has no registry and no manifest here names a package on one.
+        """Record that there is no registry to ask, and leave the install claim UNRESOLVED.
 
-        `surface/registry.py`'s `REGISTRY_TYPES` has no `cpp` entry, so a probe would return an
-        inconclusive reading from an empty registry name and a probe record naming nothing. The
-        install claim stays unwritten and Installation renders the source build instead, which is
-        what these repositories actually offer (`project/portfolio-census.json`: "no registry
-        (source build)" for all four).
+        `surface/registry.py`'s `REGISTRY_TYPES` has no `cpp` entry, so `observe` reads nothing
+        and returns an inconclusive observation without a network call - which is the honest
+        answer and not a negative one (§29.6 E5). The reading still becomes evidence, because a
+        reader of the install fact should see that the absence of a published package was
+        observed rather than assumed.
         """
-        return [], []
+        by_id = {fact.id: fact for fact in facts}
+        install = by_id.get(CPP.install_fact_id)
+        name = by_id.get("package:name")
+        if install is None or name is None:
+            return [], []
+        reading = observe(self.ecosystem, name.value)
+        resolved = Fact(
+            install.id,
+            install.kind,
+            install.value,
+            (
+                *install.evidence,
+                Evidence(
+                    reading.evidence_url or reading.registry or "no package registry",
+                    reading.summary,
+                ),
+            ),
+            polarity="UNRESOLVED",
+            confidence=0.5,
+        )
+        probe = ProbeRecord(
+            kind="registry",
+            target=f"{reading.registry or 'none'}:{name.value}",
+            outcome="UNRESOLVED",
+            status=None,
+            elapsed_ms=0,
+            observation=reading.method or reading.source,
+        )
+        return [resolved], [probe]
 
     def verify_examples(
         self,
