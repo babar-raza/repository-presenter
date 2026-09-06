@@ -4684,3 +4684,19 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   that_wrote_it`, inserting the phrase into a real rendered Scope and Limitations section and
   asserting the failure's `section_id` is `scope_limitations`. Full suite green, ruff/mypy clean,
   before this entry.
+
+- **2026-09-06 15:57 (`date` checked) · loop (PROVISIONAL) · G4-W17 90-minute box checkpoint.** Box
+  opened 14:50. `repository-presenter status`: `gate: G3_PYTHON_COHORT (READY)`, `work item:
+  G4-W17 (IN_PROGRESS)`, `candidates: 4/34`. Delta since the box opened: nine more items landed
+  (13, 14, 18, 19, 20, plus 15 declined-with-evidence in the same commit as 20), each with hosted
+  CI green - bringing this work item's running total to items 0, 2, 4, 5 (closing 11), 6, 7, 8, 9,
+  12, 13, 14, 18, 19, 20 landed, and 1, 3, 15 declined with a recorded reason, since promotion at
+  10:50. Sealed-candidate count unchanged at 4/34 this box (the movement happened in the prior
+  box, via item 7); not a zero-delta box by the rule's own test regardless, since landed-item
+  count is the signal a corrected reading of the rule uses (8728985 entry above). Remaining
+  unevaluated: items 16 and 17 (both ask for a genuinely new repair capability - a targeted
+  re-ask for a trimmable ceiling breach or a coverage-count error, rather than rejecting a whole
+  candidate - a larger design than this box's remaining items, not attempted at the edge of one
+  on the same reasoning as every other item deferred this session) and item 21 (a planning-stage
+  defect the current retry misroutes to authoring, per lane B's own Slides C++ finding). A new
+  box opens now.
