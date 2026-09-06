@@ -145,7 +145,7 @@
     {
       "causal_stage": null,
       "details": [
-        "judged at S12"
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
       ],
       "id": "BC-11",
       "judged_at": "S12",
@@ -153,7 +153,7 @@
       "sections": [
         "bundle"
       ],
-      "verdict": "PENDING",
+      "verdict": "PASS",
       "version": "1"
     }
   ],
@@ -446,14 +446,14 @@
     }
   ],
   "protected_content_fingerprint": "eb8291bc11cd9a16cc95553edc7d61bde013a495e2c9c6f5d90bd0b96007c861",
-  "readme_sha256": "8c4da33cce2722c873fd8172ee10a5c17fc308832df17a12f22bf881440334f7",
+  "readme_sha256": "fca70aeef83fad50d89c18b250e814632b3460e3820012fec83367adfd61cf11",
   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
   "schema_version": 1,
   "source_revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
   "summary": {
     "fail": 0,
-    "pass": 10,
-    "pending": 1
+    "pass": 11,
+    "pending": 0
   },
   "validator_version": "3"
 }

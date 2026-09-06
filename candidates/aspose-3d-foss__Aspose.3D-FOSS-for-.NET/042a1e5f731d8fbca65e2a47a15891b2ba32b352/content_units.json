@@ -3,7 +3,10 @@
     "applied": true,
     "revised": [
       "key_capabilities/capability:1",
+      "key_capabilities/capability:2",
       "key_capabilities/capability:3",
+      "key_capabilities/capability:4",
+      "key_capabilities/capability:5",
       "quick_start/lead_in",
       "quick_start/lead_in:2",
       "additional_examples/preview"
@@ -203,7 +206,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Construct and manipulate hierarchical 3D scene graphs using the Scene and Node classes, where Scene provides root access and node management while Node supports child relationships, transforms, and entity containment."
+      "text": "Construct 3D scene graphs using the Scene and Node classes, where Scene provides root access and node management while Node supports child relationships, transforms, and entity containment."
     },
     {
       "fact_ids": [
@@ -212,7 +215,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Generate primitive shapes like Box and CAD-style geometry through the Entities namespace, then attach them as child nodes to build structured scene hierarchies."
+      "text": "Create primitive and CAD-style geometry by generating shapes like Box through the Entities namespace and attaching them as child nodes to build structured scene hierarchies."
     },
     {
       "fact_ids": [
@@ -231,7 +234,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Convert scenes between interchange formats including COLLADA, OBJ, STL, and FBX by loading from files or streams and saving with format-specific options."
+      "text": "Convert between interchange formats including COLLADA, OBJ, STL, and FBX by loading from files or streams and saving with format-specific options."
     },
     {
       "fact_ids": [
@@ -240,7 +243,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Animate scenes using keyframe-based animation clips from the Animation namespace and deformation support from the Deformers namespace to drive dynamic behavior."
+      "text": "Animate scenes with keyframes using animation clips from the Animation namespace and deformation support from the Deformers namespace to drive dynamic behavior."
     },
     {
       "fact_ids": [
@@ -350,13 +353,21 @@
         "package:name",
         "package:target_framework",
         "package:version",
+        "public_symbol:aspose",
+        "public_symbol:aspose.threed",
+        "public_symbol:aspose.threed.animation",
+        "public_symbol:aspose.threed.deformers",
+        "public_symbol:aspose.threed.entities",
         "public_symbol:aspose.threed.fileformat",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.scene"
+        "public_symbol:aspose.threed.formats",
+        "public_symbol:aspose.threed.profiles",
+        "public_symbol:aspose.threed.render",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.utilities"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "Aspose.3D.FOSS for .NET provides core 3D scene management through the Scene class, which hosts a hierarchy of Node objects and supports loading and saving via FileFormat. The library organizes functionality into dedicated namespaces including Entities, Shading, Animation, Deformers, Formats, Profiles, Render, and Utilities."
+      "text": "Aspose.3D.FOSS for .NET provides 3D scene manipulation through the Scene class, which hosts a hierarchy of Node objects and uses FileFormat for loading and saving. The library organizes functionality into dedicated namespaces including Entities, Shading, Animation, Deformers, Formats, Profiles, Render, and Utilities."
     },
     {
       "fact_ids": [
@@ -374,7 +385,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.scene",
-      "text": "The Scene class serves as the primary entry point, owning a RootNode hierarchy and providing static FromFile and FromStream methods as well as instance Save methods for format-aware loading and saving through the FileFormat registry."
+      "text": "The Scene class serves as the primary entry point, owning a RootNode hierarchy and providing static FromFile and FromStream methods along with instance Save methods for format-aware loading and saving through the FileFormat registry."
     },
     {
       "fact_ids": [
@@ -390,10 +401,11 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.entities",
-      "text": "The Aspose.ThreeD.Entities namespace contains classes for constructing geometric primitives, meshes, and other scene objects that populate the node hierarchy."
+      "text": "The Aspose.ThreeD.Entities namespace contains classes for creating and managing geometric primitives, meshes, and other scene objects that populate the node hierarchy."
     },
     {
       "fact_ids": [
+        "example:004",
         "identity:ecosystem",
         "identity:family",
         "identity:platform",
@@ -406,7 +418,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.shading",
-      "text": "The Aspose.ThreeD.Shading namespace provides material and texture classes for defining surface appearance of 3D objects in a scene."
+      "text": "The Aspose.ThreeD.Shading namespace provides material classes such as LambertMaterial and PbrMaterial for defining surface appearance, with support for converting legacy materials to physically based rendering equivalents."
     },
     {
       "fact_ids": [
@@ -422,7 +434,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.animation",
-      "text": "The Aspose.ThreeD.Animation namespace supports animation clips and pose management for dynamic 3D content."
+      "text": "The Aspose.ThreeD.Animation namespace supports animation clips and pose management within a scene, enabling time-based transformations of scene objects."
     },
     {
       "fact_ids": [
@@ -438,7 +450,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.deformers",
-      "text": "The Aspose.ThreeD.Deformers namespace includes classes for mesh deformation operations such as morphing and skinning."
+      "text": "The Aspose.ThreeD.Deformers namespace contains classes for applying mesh deformation operations such as morph targets and skinning to 3D geometry."
     },
     {
       "fact_ids": [
@@ -454,55 +466,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.formats",
-      "text": "The Aspose.ThreeD.Formats namespace contains format-specific classes for handling import and export operations across supported 3D file formats."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.threed.profiles"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.profiles",
-      "text": "The Aspose.ThreeD.Profiles namespace provides support for industry-standard profiles such as COLLADA and glTF."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.threed.render"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.render",
-      "text": "The Aspose.ThreeD.Render namespace includes classes for rendering 3D scenes to images or video."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.threed.utilities"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.utilities",
-      "text": "The Aspose.ThreeD.Utilities namespace offers helper classes for common operations such as coordinate system conversion and bounding box calculations."
+      "text": "The Aspose.ThreeD.Formats namespace includes format-specific options and settings for importing and exporting 3D files in various supported formats."
     },
     {
       "fact_ids": [
@@ -518,7 +482,7 @@
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.threed.fileformat",
-      "text": "The FileFormat class acts as a registry for supported 3D file formats and enables format-aware loading and saving operations through its static methods."
+      "text": "The Aspose.ThreeD.FileFormat class provides a registry of supported 3D file formats and their identifiers, enabling format-aware loading and saving operations."
     },
     {
       "fact_ids": [
@@ -530,11 +494,11 @@
         "package:name",
         "package:target_framework",
         "package:version",
-        "public_symbol:aspose.threed.fileformattype"
+        "public_symbol:aspose.threed.profiles"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.fileformattype",
-      "text": "The FileFormatType enumeration identifies specific file formats and versions supported by Aspose.3D.FOSS for .NET."
+      "slot": "hub:public_symbol:aspose.threed.profiles",
+      "text": "The Aspose.ThreeD.Profiles namespace contains classes for managing 3D printing profiles and related settings."
     },
     {
       "fact_ids": [
@@ -546,11 +510,59 @@
         "package:name",
         "package:target_framework",
         "package:version",
-        "public_symbol:aspose.threed.a3dobject"
+        "public_symbol:aspose.threed.render"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.threed.a3dobject",
-      "text": "The A3DObject class serves as the base class for all 3D objects in the scene hierarchy, providing common properties and methods."
+      "slot": "hub:public_symbol:aspose.threed.render",
+      "text": "The Aspose.ThreeD.Render namespace provides rendering capabilities for generating images and visualizations from 3D scenes."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.utilities"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.utilities",
+      "text": "The Aspose.ThreeD.Utilities namespace contains helper classes and extension methods that support common 3D operations and scene manipulation tasks."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed",
+      "text": "The Aspose.ThreeD namespace serves as the root namespace for the library, containing core types and serving as the primary import target for 3D scene manipulation."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose",
+      "text": "The Aspose namespace provides the top-level container for all Aspose product families, including Aspose.3D.FOSS for .NET."
     },
     {
       "fact_ids": [

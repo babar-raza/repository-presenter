@@ -96,11 +96,11 @@
 -  `StlLoadOptions`/`StlSaveOptions`, and their COLLADA/3MF/RVM/U3D counterparts).
 -- Read and write per-vertex mesh data through a custom `VertexDeclaration` and `VertexElement`
 -  subclasses — normals, UVs, vertex color, tangent/binormal, smoothing groups, and user data.
-+- **Construct 3D scene graphs.** Construct and manipulate hierarchical 3D scene graphs using the `Scene` and `Node` classes, where `Scene` provides root access and node management while `Node` supports child relationships, transforms, and entity containment.
-+- **Create primitive and CAD-style geometry.** Generate primitive shapes like `Box` and CAD-style geometry through the Entities namespace, then attach them as child nodes to build structured scene hierarchies.
++- **Construct 3D scene graphs.** Construct 3D scene graphs using the `Scene` and `Node` classes, where `Scene` provides root access and node management while `Node` supports child relationships, transforms, and entity containment.
++- **Create primitive and CAD-style geometry.** Create primitive and CAD-style geometry by generating shapes like `Box` through the Entities namespace and attaching them as child nodes to build structured scene hierarchies.
 +- **Assign shading materials.** Assign shading materials such as Lambert and physically based rendering materials using the Shading namespace to define surface appearance for geometry.
-+- **Convert between interchange formats.** Convert scenes between interchange formats including COLLADA, OBJ, STL, and FBX by loading from files or streams and saving with format-specific options.
-+- **Animate scenes with keyframes.** Animate scenes using keyframe-based animation clips from the Animation namespace and deformation support from the Deformers namespace to drive dynamic behavior.
++- **Convert between interchange formats.** Convert between interchange formats including COLLADA, OBJ, STL, and FBX by loading from files or streams and saving with format-specific options.
++- **Animate scenes with keyframes.** Animate scenes with keyframes using animation clips from the Animation namespace and deformation support from the Deformers namespace to drive dynamic behavior.
 +- **Define NURBS curves and surfaces.** Define NURBS curves and surfaces through the Entities namespace to support precise parametric modeling in 3D scenes.
 +- **Access per-vertex mesh data.** Access per-vertex mesh data including positions, normals, and texture coordinates through the Entities namespace to inspect or modify geometry at the vertex level.
  
@@ -272,7 +272,7 @@
  
  ```csharp
  using Aspose.ThreeD;
-@@ -235,379 +154,529 @@
+@@ -235,379 +154,491 @@
  }
  ```
  
@@ -286,7 +286,7 @@
 -`Scene` is the primary entry point: it owns a `RootNode` (`Node`) hierarchy, and its static
 -`FromFile()`/`FromStream()` and instance `Save()` methods perform format-aware loading and
 -saving via the `FileFormat` registry.
-+Aspose.3D.FOSS for .NET provides core 3D scene management through the `Scene` class, which hosts a hierarchy of `Node` objects and supports loading and saving via `FileFormat`. The library organizes functionality into dedicated namespaces including Entities, Shading, Animation, Deformers, Formats, Profiles, Render, and Utilities.
++Aspose.3D.FOSS for .NET provides 3D scene manipulation through the `Scene` class, which hosts a hierarchy of `Node` objects and uses `FileFormat` for loading and saving. The library organizes functionality into dedicated namespaces including Entities, Shading, Animation, Deformers, Formats, Profiles, Render, and Utilities.
 +
 +The verified public surface has 293 types.
  
@@ -902,7 +902,7 @@
 +
 +### Scene
 +
-+The `Scene` class serves as the primary entry point, owning a `RootNode` hierarchy and providing static `FromFile` and `FromStream` methods as well as instance Save methods for format-aware loading and saving through the `FileFormat` registry.
++The `Scene` class serves as the primary entry point, owning a `RootNode` hierarchy and providing static `FromFile` and `FromStream` methods along with instance Save methods for format-aware loading and saving through the `FileFormat` registry.
 +
 +- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
 +- `AnimationClips`: Gets all AnimationClip defined in the scene.
@@ -932,39 +932,27 @@
 +
 +### Entities
 +
-+The `Aspose.ThreeD.Entities` namespace contains classes for constructing geometric primitives, meshes, and other scene objects that populate the node hierarchy.
++The `Aspose.ThreeD.Entities` namespace contains classes for creating and managing geometric primitives, meshes, and other scene objects that populate the node hierarchy.
 +
 +### Shading
 +
-+The `Aspose.ThreeD.Shading` namespace provides material and texture classes for defining surface appearance of 3D objects in a scene.
++The `Aspose.ThreeD.Shading` namespace provides material classes such as `LambertMaterial` and `PbrMaterial` for defining surface appearance, with support for converting legacy materials to physically based rendering equivalents.
 +
 +### Animation
 +
-+The `Aspose.ThreeD.Animation` namespace supports animation clips and pose management for dynamic 3D content.
++The `Aspose.ThreeD.Animation` namespace supports animation clips and pose management within a scene, enabling time-based transformations of scene objects.
 +
 +### Deformers
 +
-+The `Aspose.ThreeD.Deformers` namespace includes classes for mesh deformation operations such as morphing and skinning.
++The `Aspose.ThreeD.Deformers` namespace contains classes for applying mesh deformation operations such as morph targets and skinning to 3D geometry.
 +
 +### Formats
 +
-+The `Aspose.ThreeD.Formats` namespace contains format-specific classes for handling import and export operations across supported 3D file formats.
-+
-+### Profiles
-+
-+The `Aspose.ThreeD.Profiles` namespace provides support for industry-standard profiles such as COLLADA and glTF.
-+
-+### Render
-+
-+The `Aspose.ThreeD.Render` namespace includes classes for rendering 3D scenes to images or video.
-+
-+### Utilities
-+
-+The `Aspose.ThreeD.Utilities` namespace offers helper classes for common operations such as coordinate system conversion and bounding box calculations.
++The `Aspose.ThreeD.Formats` namespace includes format-specific options and settings for importing and exporting 3D files in various supported formats.
 +
 +### FileFormat
 +
-+The `FileFormat` class acts as a registry for supported 3D file formats and enables format-aware loading and saving operations through its static methods.
++The `Aspose.ThreeD.FileFormat` class provides a registry of supported 3D file formats and their identifiers, enabling format-aware loading and saving operations.
 +
 +- `AMF`: Defined as `FileFormat`.
 +- `ASE`: Defined as `FileFormat`.
@@ -1030,51 +1018,25 @@
 +- `Xyz`: Defined as `FileFormat`.
 +- `Zip`: Defined as `FileFormat`.
 +
-+### FileFormatType
++### Profiles
 +
-+The `FileFormatType` enumeration identifies specific file formats and versions supported by Aspose.3D.FOSS for .NET.
++The `Aspose.ThreeD.Profiles` namespace contains classes for managing 3D printing profiles and related settings.
 +
-+- `AMF`: Additive manufacturing file format
-+- `ASE`: 3D Studio Max's ASCII Scene Exporter format.
-+- `Aspose3DWeb`: Aspose.3D Web format.
-+- `Blender`: Blender format type
-+- `COLLADA`: Khronos Group's Collada file format.
-+- `DXF`: AutoCAD DXF
-+- `Discreet3DS`: Discreet 3D Studio's file format
-+- `Draco`: Google Draco Mesh
-+- `Extension`: The extension name of this file format, started with .
-+- `FBX`: FBX file format type
-+- `GLTF`: Khronos Group's glTF
-+- `HTML5`: HTML5 File
-+- `IFC`: ISO 16739-1 Industry Foundation Classes data model.
-+- `Maya`: Autodesk Maya format type
-+- `Microsoft3MF`: 3D Manufacturing Format
-+- `PDF`: Portable Document Format
-+- `PLY`: Polygon File Format or Stanford Triangle Format
-+- `Pcd`: Point Cloud Data used by Point Cloud Library
-+- `Rvm`: AVEVA Plant Design Management System Model.
-+- `STL`: STL file format type
-+- `SiemensJT`: Siemens PLM Software NX's JT File
-+- `ToString`: Get the name of this file format type
-+- `USD`: Universal Scene Description
-+- `Universal3D`: Universal 3D file format type
-+- `VRML`: The Virtual Reality Modeling Language
-+- `WavefrontOBJ`: Wavefront OBJ format type
-+- `X`: DirectX's X File
-+- `Xyz`: Xyz point cloud file
-+- `Zip`: Zip archive that contains other 3d file format.
++### Render
 +
-+### A3DObject
++The `Aspose.ThreeD.Render` namespace provides rendering capabilities for generating images and visualizations from 3D scenes.
 +
-+The `A3DObject` class serves as the base class for all 3D objects in the scene hierarchy, providing common properties and methods.
++### Utilities
 +
-+- `A3DObject`: Initializes a new instance of the A3DObject class with no name.
-+- `FindProperty`: Finds the property.
-+- `GetProperty`: Get the value of specified property
-+- `Name`: Gets or sets the name.
-+- `Properties`: Gets the collection of all properties.
-+- `RemoveProperty`: Removes a dynamic property.
-+- `SetProperty`: Sets the value of specified property
++The `Aspose.ThreeD.Utilities` namespace contains helper classes and extension methods that support common 3D operations and scene manipulation tasks.
++
++### ThreeD
++
++The `Aspose.ThreeD` namespace serves as the root namespace for the library, containing core types and serving as the primary import target for 3D scene manipulation.
++
++### Aspose
++
++The Aspose namespace provides the top-level container for all Aspose product families, including Aspose.3D.FOSS for .NET.
  
  </details>
  
@@ -1147,7 +1109,7 @@
  
  ```bash
  git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET.git
-@@ -615,8 +684,6 @@
+@@ -615,8 +646,6 @@
  dotnet test src/test/Aspose.ThreeD.Tests/Aspose.ThreeD.Tests.csproj
  ```
  

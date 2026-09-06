@@ -4125,3 +4125,12 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   verified zero with no heading). A genuine reviewer hallucination, correctly rejected by
   `quote_located`; not chased further as a code question today (§5's two-equivalent-attempts
   rule) - the schema and clip fixes above are the changes this iteration is answering for.
+
+- **2026-09-06 10:40 (`date` checked) · loop (PROVISIONAL) · Aspose.3D for .NET is no-op
+  proven.** Item G4-W11. Two runs of the identical revision, both after `-p:WarningLevel=0`,
+  produced byte-identical `examples.json`: `bundle: ... (state READY_FOR_PROPOSAL, ... no-op
+  proven: a fresh process reproduced every artifact byte for byte with zero provider calls;
+  check 11 judged)`. `repository-presenter status` confirms: `candidates: 4/34 current reviewable
+  no-op-proven`. `current_candidates` moves from 3 to 4 in `project/state.yaml`. This closes the
+  measurement opened in the 10:35 entry above - the wall-clock fix and the warning-level fix
+  were both needed; neither alone reproduced.

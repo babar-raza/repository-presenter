@@ -21,7 +21,8 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading"
+        "public_symbol:aspose.threed.shading",
+        "example:004"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
     },
@@ -45,6 +46,12 @@
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.threed.fileformat"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.threed.profiles"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.profiles"
@@ -63,21 +70,15 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
+      "symbol_fact_id": "public_symbol:aspose.threed"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformattype"
+        "public_symbol:aspose"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.fileformattype"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.a3dobject"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.a3dobject"
+      "symbol_fact_id": "public_symbol:aspose"
     }
   ],
   "at_a_glance": {
@@ -165,14 +166,14 @@
         "inherited_unit:014.paragraph"
       ],
       "section_id": "installation",
-      "text": "The paragraph about target frameworks and the converter tool is omitted because no fact supports it."
+      "text": "The paragraph about target frameworks and the converter tool is omitted as no fact supports it."
     },
     {
       "fact_ids": [
         "inherited_unit:021.list"
       ],
       "section_id": "dependencies",
-      "text": "The development dependencies list is omitted because no fact supports it."
+      "text": "The development dependencies list is omitted as no fact supports it."
     },
     {
       "fact_ids": [
@@ -180,7 +181,7 @@
         "inherited_unit:024.code_block"
       ],
       "section_id": "quick_start",
-      "text": "The Quick Start paragraph and code block are rewritten because the original example is contradicted."
+      "text": "The Quick Start paragraph and code block are rewritten based on example:006 as the original example is contradicted."
     },
     {
       "fact_ids": [
@@ -189,15 +190,14 @@
         "inherited_unit:032.code_block"
       ],
       "section_id": "additional_examples",
-      "text": "The enumeration heading, paragraph, and code block are omitted because example:003 is contradicted."
+      "text": "The enumeration example is omitted as example:003 is contradicted."
     },
     {
       "fact_ids": [
-        "inherited_unit:066.paragraph",
-        "inherited_unit:067.code_block"
+        "inherited_unit:066.paragraph"
       ],
       "section_id": "development_testing",
-      "text": "The converter tool paragraph and build command are omitted because no fact supports them."
+      "text": "The converter tool paragraph is omitted as no fact supports it."
     }
   ],
   "flagship_example_id": "example:005",
@@ -229,6 +229,10 @@
     {
       "link_fact_id": "link_target:025",
       "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "scope_limitations"
     }
   ],
   "material_limitations": [
@@ -236,9 +240,7 @@
       "fact_ids": [
         "inherited_unit:061.list"
       ],
-      "unit_ids": [
-        "inherited_unit:061.list"
-      ]
+      "unit_ids": []
     }
   ],
   "quick_start_example_id": "example:006",

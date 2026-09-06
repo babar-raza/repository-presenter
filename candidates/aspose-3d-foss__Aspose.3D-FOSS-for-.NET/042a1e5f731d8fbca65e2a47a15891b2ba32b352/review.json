@@ -4,93 +4,82 @@
       "absent": [
         "pip install ."
       ],
-      "causal_stage": "S7",
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:dotnet",
-        "package:name",
-        "package:version"
-      ],
+      "fact_ids": [],
       "id": "F01",
-      "quote": "To work from a source checkout instead, install the clone with pip: ... pip install .",
-      "repair": "Remove the pip-based installation instructions entirely, as this is a .NET project and should only use dotnet CLI commands.",
+      "quote": "To work from a source checkout instead, install the clone with pip:",
+      "repair": "Remove the pip-based installation instruction entirely, as the project is a .NET library and should only be installed via `dotnet add package` or by building the project with the .NET SDK.",
       "reviewer_scope_defect": "the finding claims the candidate does not contain 'pip install .', which the candidate contains",
       "section_id": "installation",
-      "text": "The candidate incorrectly suggests using 'pip install .' for a .NET project, which is not applicable."
+      "text": "The candidate incorrectly suggests using `pip install .` for a .NET project, which is not applicable."
     },
     {
       "absent": [
-        "using Aspose.ThreeD.FOSS 26.1.0 for netcoreapp3.1."
+        "using Aspose.3D.FOSS 26.1.0 for netcoreapp3.1."
       ],
-      "causal_stage": "S7",
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "example:006"
-      ],
+      "fact_ids": [],
       "id": "F02",
       "quote": "Build a scene from a primitive, assign a material, and save it to COLLADA through a stream using Aspose.3D.FOSS 26.1.0 for netcoreapp3.1.",
-      "repair": "Remove the redundant version and target framework mentions from the Quick Start example descriptions to match the original's concise style.",
-      "reviewer_scope_defect": "the finding asks for 'using Aspose.ThreeD.FOSS 26.1.0 for netcoreapp3.1.', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "repair": "Remove the redundant version and target framework mentions from the Quick Start example descriptions; the code itself is sufficient and the original README did not include such annotations.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'using Aspose.3D.FOSS 26.1.0 for netcoreapp3.1.', which the candidate contains",
       "section_id": "quick_start",
-      "text": "The candidate's Quick Start examples redundantly specify version and target framework in prose, which is not present in the original and clutters the examples."
+      "text": "The candidate's Quick Start examples redundantly repeat version and target framework information in code comments, which is unnecessary and not present in the original."
     },
     {
       "absent": [
-        "Enumerate a Scene's Node Hierarchy"
+        "### Enumerate a Scene's Node Hierarchy",
+        "using Aspose.ThreeD;",
+        "var scene = Scene.FromFile(“input.fbx”, FileFormat.FBX7400Binary);",
+        "foreach (var node in scene.RootNode.ChildNodes)",
+        "{",
+        "    System.Console.WriteLine(node.Name);",
+        "}"
       ],
-      "causal_stage": "S7",
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "example:003"
-      ],
+      "fact_ids": [],
       "id": "F03",
-      "quote": "Additional worked examples cover loading an existing scene and converting between formats.",
-      "repair": "Restore the 'Enumerate a Scene's Node Hierarchy' example section with its heading, paragraph, and code block as they are supported by example:003 and present in the original.",
-      "reviewer_scope_defect": "the omission it names is backed by example:003, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "quote": "### Load OBJ with custom options and export to STL using Aspose.3D.FOSS 26.1.0 for netcoreapp3.1",
+      "repair": "Restore the 'Enumerate a Scene's Node Hierarchy' example with the correct code block from the original README, ensuring it matches the supported example:003.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'using Aspose.ThreeD;', '{', '}', which the candidate contains",
       "section_id": "additional_examples",
-      "text": "The candidate omits the 'Enumerate a Scene's Node Hierarchy' example entirely, which is supported by example:003 and present in the original README."
+      "text": "The candidate omits the 'Enumerate a Scene's Node Hierarchy' example, which is supported by the original README and should be preserved."
     },
     {
-      "absent": [],
-      "causal_stage": "S7",
+      "absent": [
+        "### Detailed Member Reference"
+      ],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "public_symbol:aspose",
-        "public_symbol:aspose.threed",
-        "public_symbol:aspose.threed.animation",
-        "public_symbol:aspose.threed.deformers",
-        "public_symbol:aspose.threed.entities",
-        "public_symbol:aspose.threed.formats",
-        "public_symbol:aspose.threed.profiles",
-        "public_symbol:aspose.threed.render",
-        "public_symbol:aspose.threed.shading",
-        "public_symbol:aspose.threed.utilities"
-      ],
+      "fact_ids": [],
       "id": "F04",
-      "quote": "The verified public surface has 293 types.",
-      "repair": "Replace the exhaustive type list with a concise summary of the main namespaces and key classes, matching the original's approach of highlighting core types without overwhelming detail.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "quote": "### Detailed Member Reference",
+      "repair": "Remove the 'Detailed Member Reference' subsection and trim the API Reference section to match the original's concise, high-level structure, focusing on namespaces and key classes without excessive detail.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Detailed Member Reference', which the candidate contains",
       "section_id": "api_reference",
-      "text": "The candidate's API Reference section is overly verbose and duplicates content that should be in a concise summary, making it less useful for developers."
+      "text": "The candidate's API Reference section is overly verbose and includes a 'Detailed Member Reference' subsection that duplicates the main table and is not present in the original README."
     },
     {
-      "absent": [],
-      "causal_stage": "S7",
+      "absent": [
+        "version 26.1.0 targets netcoreapp3.1"
+      ],
+      "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "inherited_unit:061.list"
-      ],
+      "fact_ids": [],
       "id": "F05",
-      "quote": "NURBS evaluation and conversion to mesh are not functional — NurbsCurve.Evaluate/EvaluateAt and NurbsSurface.ToMesh throw NotImplementedException.",
-      "repair": "Restore the specific method names and exception details from the original Scope and Limitations section to maintain technical accuracy and clarity.",
+      "quote": "Aspose.3D FOSS for .NET version 26.1.0 targets netcoreapp3.1 and provides a subset of the Aspose.3D API surface for 3D scene manipulation...",
+      "repair": "Rewrite the first sentence to remove the redundant version and target framework mention, aligning with the original's phrasing that focuses on capabilities and omissions without specifying version numbers in the description.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'version 26.1.0 targets netcoreapp3.1', which the candidate contains",
       "section_id": "scope_limitations",
-      "single_reader_advisory": true,
-      "text": "The candidate's Scope and Limitations section is less specific than the original, omitting key technical details about which exact methods throw exceptions."
+      "text": "The candidate's Scope and Limitations section repeats the version and target framework in the first sentence, which is redundant and not in the original."
     }
   ],
   "authoring": {
@@ -101,7 +90,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "8c4da33cce2722c873fd8172ee10a5c17fc308832df17a12f22bf881440334f7",
+  "readme_sha256": "fca70aeef83fad50d89c18b250e814632b3460e3820012fec83367adfd61cf11",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -110,13 +99,8 @@
   },
   "schema_version": 1,
   "second_reader": {
-    "corroborated": [
-      "1314fc4e818458fa4c23cb8d",
-      "26b9bd5d92e1edc2d1e162cb",
-      "3c3b7985b1f0977c7f120bba",
-      "a3b6ba4d451861363f1cdb3d"
-    ],
-    "read": true
+    "corroborated": [],
+    "read": false
   },
   "verdict": "ACCEPT",
   "verdict_as_returned": "REJECT_PRESENTATION"
