@@ -158,6 +158,15 @@ def surface_symbols(
     )
     symbols: list[SurfaceSymbol] = []
     for entry in types:
+        # The vendored engine already knows a class from a vendor or private directory is not
+        # public (H-04d, `_vendor_files`) and keeps it in its own output only for diagnostics,
+        # tagged `visibility: "internal"`. Discarding that tag published it anyway: measured
+        # 2026-09-06 on Aspose.PDF for C++ (393 of 2,044 symbols from `include/internal/`) and
+        # Aspose.Slides for C++ (401 of 3,243 from `include/Aspose/Slides/Foss/_internal/`), the
+        # same repositories a lane's own directory-name heuristic patched around in its own
+        # plugin - a workaround this makes redundant rather than a second, parallel filter.
+        if str(entry.get("visibility", "")) == "internal":
+            continue
         qualified = slug_safe(str(entry.get("class_import") or entry.get("name", "")))
         if not qualified:
             continue

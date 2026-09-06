@@ -7,6 +7,9 @@ from pathlib import Path
 import pytest
 from tree_sitter_language_pack import get_parser
 
+from repository_presenter.components.readme.extractors.surface._vendor.aspose_extraction import (
+    api_surface,
+)
 from repository_presenter.components.readme.extractors.surface.extractor import (
     SurfaceSymbol,
     slug_safe,
@@ -104,6 +107,43 @@ def test_gos_type_declaration_and_every_languages_literal_function_are_known() -
     assert symbol_kind("type_spec") == "class"
     assert symbol_kind("type_declaration") == "class"
     assert symbol_kind("function") == "function"
+
+
+def test_an_internal_directory_symbol_the_engine_already_tagged_is_never_published(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """G4-W17 arrival item 19. The vendored engine already knows a vendor/private-directory
+    class is not public (H-04d, `_vendor_files`) and tags it `visibility: "internal"` rather than
+    dropping it, kept in its own output only for diagnostics - the façade discarded the tag
+    entirely, so every ecosystem published what the engine already marked internal. Measured
+    2026-09-06: Aspose.PDF for C++ published 393 of 2,044 symbols this way (`include/internal/`),
+    Aspose.Slides 401 of 3,243 (`include/Aspose/Slides/Foss/_internal/`) - the same repositories
+    a lane's own directory-name heuristic worked around in its own plugin, now redundant rather
+    than a second, parallel filter."""
+    from repository_presenter.components.readme.extractors.surface import extractor
+
+    def fake_extract(*args: object, **kwargs: object) -> tuple[list[dict[str, object]]]:
+        return (
+            [
+                {
+                    "name": "Widget",
+                    "kind": "class_specifier",
+                    "file": "include/widget.h",
+                    "visibility": "public",
+                },
+                {
+                    "name": "Hidden",
+                    "kind": "class_specifier",
+                    "file": "include/internal/hidden.h",
+                    "visibility": "internal",
+                },
+            ],
+        )
+
+    monkeypatch.setattr(api_surface, "extract_api_surface", fake_extract)
+    symbols = extractor.surface_symbols(get_parser("cpp"), "cpp", tmp_path, tmp_path, "widget")
+    values = {symbol.value for symbol in symbols}
+    assert values == {"Widget"}
 
 
 def test_an_abstract_class_is_a_class_not_unknown() -> None:

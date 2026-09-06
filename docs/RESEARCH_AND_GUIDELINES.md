@@ -4642,3 +4642,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `tests/.../test_authoring.py::test_a_hyphen_or_asterisk_mid_sentence_is_prose_not_a_markdown_
   list`, reproducing the exact phrase alongside a genuine list-opening unit that must still
   reject. Full suite green, ruff/mypy clean, before this entry.
+
+- **2026-09-06 15:37 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 19 landed: a
+  symbol the vendored engine already marked internal is never published.** Lane B's evidence:
+  the engine's H-04d rule tags a class from a vendor or private directory `visibility:
+  "internal"` rather than dropping it outright, kept in its own output for diagnostics
+  (`api_surface.py` docstring, line 111) - `surface_symbols` discarded the tag entirely, so every
+  ecosystem published what the engine already knew was not public, and the lane's C++ plugin
+  worked around it with its own directory-name heuristic (`internal`, `_internal`, `detail`,
+  `details`, `impl` in the evidence path) rather than reading the field the engine already
+  computed. `surface_symbols` now skips an entry whose `visibility` is exactly `"internal"`
+  before it becomes a `SurfaceSymbol` at all - one check, ahead of the existing `qualified`
+  guard, unconditional on ecosystem or the entry's other fields. New test:
+  `tests/.../surface/test_extractor.py::test_an_internal_directory_symbol_the_engine_already_
+  tagged_is_never_published`, monkeypatching `api_surface.extract_api_surface` directly (the
+  façade's own contract is the entry dict in, `SurfaceSymbol`s out - no real parse needed to
+  prove the filter) with one public and one `visibility: "internal"` entry, asserting only the
+  public one survives. Full suite green (Python's real-parse C# tests unaffected - the engine's
+  own `is_public()` gate already excluded `NotPublic`/`Hidden` there by a different path, access
+  modifiers rather than a directory tag), ruff/mypy clean, before this entry. Lane B's own
+  directory-name filter in its C++ plugin becomes redundant once it reads this field instead,
+  which is theirs to simplify in their own file.
