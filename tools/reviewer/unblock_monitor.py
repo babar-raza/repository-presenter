@@ -46,6 +46,12 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
     12: [("lane-c", "Java")],  # all four Java repositories
     20: [("lane-b", "Aspose.Cells-FOSS-for-Cpp")],
     21: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
+    24: [
+        ("lane-b", "Aspose.PDF-FOSS-for-Cpp"), ("lane-b", "Aspose.Cells-FOSS-for-Cpp"),
+        ("lane-b", "Aspose.Email-FOSS-for-Cpp"), ("lane-b", "Aspose.Slides-FOSS-for-Cpp"),
+    ],
+    25: [("lane-b", "Aspose.Email-FOSS-for-Cpp")],
+    26: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
 }
 
 # Matches both "item N landed" and "item N declined ...; closed with a mutation test" (item 1's
