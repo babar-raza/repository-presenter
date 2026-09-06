@@ -310,6 +310,15 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   this one had sealed a candidate, so the collision had not been met. Fix: either name
   `progress.current_candidates` as the one `state.yaml` field a lane maintains, or derive it from
   disk rather than storing it. Resume predicate: owner ruling; the count is correct either way.
+
+  **Demonstrated within the hour, on `main`.** PR #12 (`cd0bdfb`) and the primary's own
+  `0089b6e` (Aspose.Cells for C++, item 24's second candidate) were both cut from a tree where
+  `progress.current_candidates` was 4, and both set it to 5. Squash-merging them one after the
+  other left one `5` and six bundles on disk, and `main` went red on
+  `tests/test_cli.py::test_status_reports_this_repository_cursor` - a lost update on a
+  hand-maintained counter, not a merge conflict, so nothing warned either author. Set to 6 here.
+  This is the argument for deriving the count from disk rather than storing it: two producers
+  incrementing the same integer will keep doing this every time two candidates land in one box.
 - **2026-09-06 19:59 (`date` checked) · G4-W12 re-run · which G4-W17 items cleared which
   repository, measured.** Cleared: **item 12** (the Maven coordinate) for all four — the reading
   is live and positive everywhere; **item 15's fold** (declined as redundant at 15:20, and the
