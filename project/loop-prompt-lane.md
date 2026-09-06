@@ -77,12 +77,24 @@ After `ruff check .`, `ruff format --check .`, `mypy src`, `pytest -n auto` pass
 commit; a red run → the focused test → one more full run): commit on `<lane>/<ITEM>` with subject
 `<type>(<scope>): <what> (G4_MULTI_LANGUAGE_COHORTS/<ITEM>)`, the trailer for your model, body ≤120
 words. `git push -u origin <lane>/<ITEM>`; `gh pr create --base main --label <lane> --fill`; wait with
-`gh pr checks <n> --watch`; when green, `gh pr merge <n> --squash --delete-branch` (main is
-unprotected; merging your own PR is allowed; never `--admin`, never force; a red run is yours to fix on
-the same branch first). After the merge, `git fetch origin`; the next item starts from a fresh
-`<lane>/<NEXT-ITEM>` off `origin/main`. One PR per predicate closed or per accepted item; a PR never
-touches a path you do not own. After a merge, run `repository-presenter status` from `origin/main`'s
-tree and record the sealed count in the lane file's `progress` in your next commit.
+`gh pr checks <n> --watch`. **If `gh pr checks` reports no checks at all** (not pending, literally
+none, for several minutes), the PR is `mergeable: CONFLICTING` against a moved `main` — GitHub never
+dispatches the workflow for an unmergeable merge ref, and this reads exactly like a slow queue.
+`gh pr view <n> --json mergeable,mergeStateStatus` to confirm; if conflicting, `git fetch origin && git
+rebase origin/main` (own-path conflicts resolved as in §1; shared-file conflicts, e.g.
+`test_registry.py`'s ecosystem tuple, keep both sides), force-push, and CI appears. When checks are
+green, `gh pr merge <n> --squash --delete-branch` (main is unprotected; merging your own PR is allowed;
+never `--admin`, never force; a red run is yours to fix on the same branch first). **The branch-delete
+step can fail** (`fatal: 'main' is already used by worktree at <primary checkout>` — a git worktree
+quirk, not a merge failure): the squash-merge itself still succeeded; confirm with `gh pr view <n>
+--json state` (`MERGED`) and, if the branch survived, delete it by hand
+(`git push origin --delete <lane>/<ITEM>`); do not treat this as a landing failure or retry the merge.
+After the merge, `git fetch origin`; the next item starts from a fresh `<lane>/<NEXT-ITEM>` off
+`origin/main`. One PR per predicate closed or per accepted item; a PR never touches a path you do not
+own. After a merge, run `repository-presenter status` from `origin/main`'s tree and record the sealed
+count in the lane file's `progress` in your next commit — if it names a number the item's own
+acceptance line assumed (e.g. "31 sealed and 34 dispositions") that the observed count does not
+support, record the observed number rather than treating the assumption as met.
 
 ## 5. Report and continue
 
