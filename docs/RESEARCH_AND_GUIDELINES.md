@@ -2123,8 +2123,9 @@ admits it (30.9 decision 7); G4 — G4-W10 layered plugins and generic shared co
 surface extractor carrying the second reuse source's schema and records (G4-W08 folded in,
 2026-09-05 23:30, §28.12), then the cohorts in deadline order G4-W11 .NET, **G3-W04 Python second
 pass** (inserted 2026-09-06 07:45 — the first pass sealed one of eleven; its blockers are removed),
-G4-W12 Java, G4-W14 TypeScript, G4-W15 Go, G4-W13 C++ (consumes OWNER-06), G4-W16 Rust (the last
-four in lane B); then G3-W02 freeze v1 after
+G4-W17 shared-code fixes the lanes propose (stays active while any lane is open); in lanes — G4-W12
+Java (lane C), G4-W14 TypeScript then G4-W13 C++ (lane B), G4-W15 Go then G4-W16 Rust (lane D); then
+G3-W02 freeze v1 after
 every cohort (moved 2026-09-05 23:30, §28.12); G5 — G5-W01 D3, G5-W02 D4, G5-W03 fan-out. Each
 cohort item carries a time box (§28.12). The entries below are the exact
 `next_ready_items` text; whichever session finds an entry absent from `state.yaml` on a clean tree
@@ -2138,7 +2139,9 @@ G4-W11, G4-W03 → G4-W12, G4-W04 → G4-W13, G4-W05 → G4-W14, G4-W06 → G4-W
 entries below stand at their new positions); **G4-W14, G4-W15, G4-W16, G4-W13 → lane B**
 (2026-09-06 01:20, §28.12 "Lane B": their text lives verbatim in `project/lanes/lane-b.yaml`, worked
 by the lane-B agent on branch `lane-b`; the primary removes them from `next_ready_items` and never
-re-inserts them).
+re-inserts them). **G4-W12 → lane C** (`project/lanes/lane-c.yaml`, 2026-09-06 08:00) and **G4-W15, G4-W16 → lane D**
+(`project/lanes/lane-d.yaml`; lane B keeps G4-W14 and G4-W13 — its file drops W15/W16 at its next
+between-run edit).
 **Pending state edits, applied in the same commit:** `owner_items` `consumed_by` gate IDs
 `G4_HOSTED_PORTFOLIO` → `G5_RERUN_DURABILITY_AND_HOSTED_OPERATION` and `G5_PROPOSAL_EFFECT_PROOF`
 → `G6_PROPOSAL_EFFECT_PROOF`; `current_gate.purpose` restated from the ESM G2 goal and exit
@@ -2191,9 +2194,9 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
 - id: G3-W04
   status: PENDING
   purpose: "Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02's; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green."
-- id: G4-W12
+- id: G4-W17
   status: PENDING
-  purpose: "Java spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/java.py only for a field it lacks), surface through the shared extractor with the internal and impl package exclusion as a spec parameter checked by parity, a fresh verifier (javac or mvn -q compile through the resolved mvn.cmd, offline flags where the repository provides a lock), registry facts through the vendored RegistryProbe (repo1.maven.org, never search.maven.org), a negative control; then the four Java repositories as a cohort (two are registry mode full and form G6's first publication cohort). Parity per repository; javap -public corroboration (E6) only if parity fails. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green."
+  purpose: "Shared-code fixes the lanes propose (owner, 2026-09-06 08:00; section 28.12 Lanes). While lanes B, C and D compose their cohorts they may not edit composition/, review/, repair/, the renderer, prompts/, core/ or the facades; each shared-code defect they meet is a PROPOSAL entry in their lane log (docs/RESEARCH_LANE_B.md, _C, _D) with the exact file, defect, repository and finding, and the repository gets a disposition naming that proposal. This item lands those fixes in arrival order, each with a mutation test, every class a round exposes in the same iteration, and after each landing notifies nothing - the reviewer re-spawns the lane, whose re-run converts the dispositions. Runs after G3-W04 and stays active while any lane has an open item; it never composes a lane repository itself and never edits a lane path. Acceptance: every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31; hosted CI green."
 - id: G3-W02
   status: PENDING
   purpose: "Freeze acceptance contract v1 after every cohort has sealed against it (moved behind the cohorts 2026-09-05, section 28.12): the 30-point criterion-specific profile with hard disqualifiers, the blocking checks, and the advisory set, each with a version identifier recorded in every bundle's dependencies.json; a candidate built against another version reopens VALIDATING (section 28.5)."
@@ -2749,6 +2752,22 @@ achievable range by 00:00 Monday is roughly 8–15 sealed candidates, not 31; th
 on Monday. What would have made Sunday different: the prompt freeze and the coverage gap should have
 been caught by the reviewer at 04:00 — its hourly wake did not fire between 22:56 and 07:36 (the
 owner's session sat in plan mode), and lane B waited three hours for the spawn it was owed at 04:33.
+
+**Lanes C and D (owner, 2026-09-06 08:00).** The shared layer is in, so the remaining ecosystem work
+splits by disjoint platform modules: **lane C** takes G4-W12 Java (`project/lanes/lane-c.yaml`),
+**lane D** takes G4-W15 Go then G4-W16 Rust (`lane-d.yaml`), lane B keeps G4-W14 TypeScript then
+G4-W13 C++. One generic prompt, `project/loop-prompt-lane.md`, parameterised by lane name; branches
+`<lane>/<ITEM>`, PR labels `lane-b/c/d`. What a lane may not touch is exactly what every cohort will
+need touched sooner or later — `composition/`, `review/`, `repair/`, the renderer, `prompts/`,
+`core/`, the façades — so each such defect is a **`PROPOSAL`** in the lane's log plus a disposition,
+and the primary carries **G4-W17**, a standing shared-code fix service after G3-W04 that lands the
+proposals in arrival order (every class in the same iteration, a test each); the reviewer re-spawns
+the lane whose dispositions the landing unblocks. Lanes write fresh verifiers on the base with the
+legacy as a read-only reference and never write the reuse manifest, `pyproject.toml` or the lock.
+Cost and limit: four Opus workers reach the account's usage cap sooner; if it trips, every worker
+stops until the reset — lanes stop first, the primary last. Machine: four concurrent `pytest -n auto`
+runs share 32 cores and slow each other; the gateway's rate limit under four composers is unmeasured
+(429s are recorded; a lane that meets them scales to one composition at a time).
 
 **How the loop uses the census (§28.10, §28.11).** (1) Inside a cohort, run repositories in yield
 order — published package, no native dependency, fixture files present, tests present — so the first

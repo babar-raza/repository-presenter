@@ -1,0 +1,32 @@
+schema_version: 1
+lane: lane-c
+branch_pattern: lane-c/<ITEM>
+pr_label: lane-c
+purpose: 'Parallel lane lane-c (owner decision 2026-09-06 08:00, RESEARCH 28.12 Lanes). Items moved here verbatim; this file is their single source; the primary never runs these IDs. Prompt: project/loop-prompt-lane.md with lane=lane-c.'
+prerequisites_on_main:
+- G4-W10
+- G4-W09
+owned_paths:
+- src/repository_presenter/components/readme/extractors/platforms/java*.py
+- tests/components/readme/extractors/platforms/test_java*.py
+- candidates/<lane repositories only>/
+- evidence/build/lanes/lane-c/
+- project/lanes/lane-c.yaml
+- docs/RESEARCH_LANE_C.md
+repositories:
+- aspose-3d-foss/Aspose.3D-FOSS-for-Java
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Java
+- aspose-pdf-foss/Aspose.PDF-FOSS-for-Java
+- aspose-slides-foss/Aspose.Slides-FOSS-for-Java
+toolchains:
+  registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
+  note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
+progress:
+  sealed_by_lane: 0
+  dispositions_by_lane: 0
+items:
+- id: G4-W12
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  purpose: 'Java spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/java.py only for a field it lacks), surface through the shared extractor with the internal and impl package exclusion as a spec parameter checked by parity, a fresh verifier (javac or mvn -q compile through the resolved mvn.cmd, offline flags where the repository provides a lock), registry facts through the vendored RegistryProbe (repo1.maven.org, never search.maven.org), a negative control; then the four Java repositories as a cohort (two are registry mode full and form G6''s first publication cohort). Parity per repository; javap -public corroboration (E6) only if parity fails. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'

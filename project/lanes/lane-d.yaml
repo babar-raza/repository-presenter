@@ -1,0 +1,40 @@
+schema_version: 1
+lane: lane-d
+branch_pattern: lane-d/<ITEM>
+pr_label: lane-d
+purpose: 'Parallel lane lane-d (owner decision 2026-09-06 08:00, RESEARCH 28.12 Lanes). Items moved here verbatim; this file is their single source; the primary never runs these IDs. Prompt: project/loop-prompt-lane.md with lane=lane-d.'
+prerequisites_on_main:
+- G4-W10
+- G4-W09
+owned_paths:
+- src/repository_presenter/components/readme/extractors/platforms/go*.py
+- src/repository_presenter/components/readme/extractors/platforms/rust*.py
+- tests/components/readme/extractors/platforms/test_go*.py
+- tests/components/readme/extractors/platforms/test_rust*.py
+- candidates/<lane repositories only>/
+- evidence/build/lanes/lane-d/
+- project/lanes/lane-d.yaml
+- docs/RESEARCH_LANE_D.md
+repositories:
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Go
+- aspose-pdf-foss/Aspose-PDF-FOSS-for-Go
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Rust
+toolchains:
+  registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
+  note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
+progress:
+  sealed_by_lane: 0
+  dispositions_by_lane: 0
+items:
+- id: G4-W15
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)
+  purpose: 'Go spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; module paths with a major-version suffix such as Cells Go''s /v26 carried into the install line), exported surface through the shared extractor with interface and struct-embedding handling, a fresh verifier (go build and go vet with a disposable GOPATH and module cache), registry facts through the vendored RegistryProbe (Go proxy; module-path escaping per the legacy registry_request.py), a negative control; then the two Go repositories as a cohort. Parity per repository; go doc -all corroboration (E6) only if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+- id: G4-W16
+  status: PENDING
+  prerequisites:
+  - G4-W10 and G4-W09 accepted on main
+  - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)
+  purpose: 'Rust spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/rust.py only for a field it lacks), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), registry facts through the vendored RegistryProbe (crates.io with the mandatory named User-Agent), a negative control; then the one Rust repository. If rustup is absent the verifier base provisions it workspace-locally with a pinned toolchain (rustup-init -y --profile minimal --no-modify-path, RUSTUP_HOME and CARGO_HOME under runs/toolchains/, cargo called by absolute path, the version recorded in the receipt), never system-wide; BLOCKED_EXTERNAL only if provisioning itself fails. Time box 2 hours from promotion (section 28.12). Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green.'
