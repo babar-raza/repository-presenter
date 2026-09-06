@@ -40,7 +40,11 @@ ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
         ("lane-b", "Aspose.PDF-FOSS-for-Cpp"), ("lane-b", "Aspose.Slides-FOSS-for-Cpp"),
         ("lane-d", "Aspose.Cells-FOSS-for-Rust"),
     ],
-    1: [("lane-b", "Aspose.Email-FOSS-for-Cpp")],  # subsumes item 15's ask
+    1: [
+        ("lane-b", "Aspose.Email-FOSS-for-Cpp"),
+        ("lane-b", "Aspose.3D-FOSS-for-TypeScript"),  # item 1's ORIGINAL subject, missed here for 6h
+    ],
+    2: [("lane-b", "Aspose.Cells-FOSS-for-TypeScript")],  # the MAX_PATH fix item 1's own text names
     5: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],  # Verify-the-install, Rust's `use` syntax
     11: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],
     12: [("lane-c", "Java")],  # all four Java repositories
