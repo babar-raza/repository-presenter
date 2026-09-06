@@ -97,14 +97,31 @@ NUMBER_RE = re.compile(r"\d+")
 
 
 def landed_items() -> set[int]:
-    if not RESEARCH.exists():
-        return set()
-    text = RESEARCH.read_text(encoding="utf-8", errors="replace")
-    body = text[text.find("## 31"):]
+    """Union of two independent signals, neither trusted alone (2026-09-06 21:50, after this
+    regex-only version went blind on items 21-31 the same evening): the regex over section 31's
+    prose (fragile against phrasing drift, kept as a cross-check, never removed), and the
+    structured ledger at LEDGER - one JSON object per line, `{"item": int, ...}` - that the primary
+    is asked (Reviewer message, same day) to append to the moment it lands a G4-W17 arrival item.
+    The ledger is the durable signal this module's own original docstring called for and never had;
+    until the primary actually writes it, this function silently falls back to regex-only, exactly
+    as before."""
     found: set[int] = set()
-    for m in LANDED_CLAUSE_RE.finditer(body):
-        for num in NUMBER_RE.findall(m.group(1)):
-            found.add(int(num))
+    if RESEARCH.exists():
+        text = RESEARCH.read_text(encoding="utf-8", errors="replace")
+        body = text[text.find("## 31"):]
+        for m in LANDED_CLAUSE_RE.finditer(body):
+            for num in NUMBER_RE.findall(m.group(1)):
+                found.add(int(num))
+    if LEDGER.exists():
+        for line in LEDGER.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                found.add(int(record["item"]))
+            except Exception:
+                continue  # one malformed line never blocks every other line's signal
     return found
 
 
