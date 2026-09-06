@@ -44,13 +44,25 @@ def _first(record: dict[str, Any], *keys: str) -> str:
     return ""
 
 
-def read_identity(repository_root: Path, platform: str) -> PackageIdentity:
+def read_identity(
+    repository_root: Path, platform: str, manifest: Path | None = None
+) -> PackageIdentity:
     """The package's identity for ``platform``, or empty strings where the manifest is silent.
 
     An absent field is empty rather than guessed: the extractor's job is to report what the
     manifest carries, and a fact with no evidence is not written at all.
+
+    ``manifest`` is the file the plugin decided governs the package, and reading is confined to
+    its directory. Without it the vendored reader chooses for itself, and its choice is the
+    shallowest manifest it can find - a known upstream defect (§29.6 E2, quarantined here rather
+    than edited). Measured 2026-09-06 on the .NET cohort: that rule read Aspose.3D's identity
+    from the converter tool beside the library, so the Installation section would have told a
+    reader to install `Aspose.3D.Converter`; it read Aspose.Words' floor from a test project as
+    the literal `$(TestsFramework)`; and it found no name at all for Email, Slides or Words.
     """
-    record = package_manifest.parse_manifest(repository_root, platform)
+    record = package_manifest.parse_manifest(
+        manifest.parent if manifest is not None else repository_root, platform
+    )
     root = package_root.detect_package_root(repository_root, platform)
     try:
         relative = root.relative_to(repository_root).as_posix()

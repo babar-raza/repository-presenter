@@ -3712,3 +3712,22 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   project before property file, `OutputType` for an application, and a test-runner
   `PackageReference` where the project says nothing. All six now resolve to the product library.
   Alternative rejected: a name list per repository, which is fitting to a sample (§27.10).
+
+- **2026-09-06 15:10 · loop (PROVISIONAL) · the .NET facts now come from the project the plugin
+  detected, and the Dependencies row has evidence for all six.** Item G4-W11. With the ranking
+  fixed, three gaps were left. (1) `read_identity` asked the vendored reader, whose own rule is
+  the shallowest `*.csproj`: it read Aspose.3D's identity from the converter, so Installation
+  would have said `dotnet add package Aspose.3D.Converter`; it read Words' floor from a test
+  project as the literal `$(TestsFramework)`; and it found no name at all for Email, Slides or
+  Words. The façade now takes the manifest the caller names — the upstream rule quarantined, not
+  edited (§29.6 E2). (2) No .NET dependency extractor existed, so `dependencies` was a required
+  row without evidence on every repository. `PackageReference` now becomes a dependency fact, one
+  marked `PrivateAssets`/`ExcludeAssets` `all` goes to the development bucket the renderer
+  already has, and a project declaring none proves a verified zero. Measured: Cells SkiaSharp,
+  PDF System.Drawing.Common required; PDF SonarAnalyzer and Words ILRepack private; 3D, Email,
+  Slides zero. (3) The vendored framework table scores anything it does not name last, so 3D's
+  floor read `net6.0` while the project also targets `netcoreapp3.1`; ordering by lineage and
+  version puts the true floor back. All six now carry name, install command, floor and a
+  dependency snapshot. Remaining: `quick_start` has no evidence on Cells (9 of 9 examples fail)
+  and Words (5 of 5), and the renderer's Native and System Requirements line still reads
+  `package:python_requires` by name.

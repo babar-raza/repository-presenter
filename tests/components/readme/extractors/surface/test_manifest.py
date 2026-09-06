@@ -42,6 +42,36 @@ def test_a_dotnet_project_reports_its_package_id_version_and_lowest_framework(
     assert identity.raw["target_frameworks"] == ["net8.0", "net6.0"]
 
 
+CONVERTER = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackageId>Aspose.Widget.Converter</PackageId>
+    <Version>1.0.0</Version>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+"""
+
+
+def test_identity_comes_from_the_manifest_the_caller_names(tmp_path: Path) -> None:
+    """The vendored reader picks the shallowest manifest; the plugin knows which one governs.
+
+    Measured 2026-09-06 on Aspose.3D for .NET: `src/converter/Converter.csproj` sits one level
+    above the library, so the shallowest rule read the identity of a console tool and the
+    Installation section would have told a reader to install `Aspose.3D.Converter`.
+    """
+    library = tmp_path / "src" / "main" / "Aspose.Widget"
+    library.mkdir(parents=True)
+    (library / "Aspose.Widget.csproj").write_text(CSPROJ, encoding="utf-8")
+    console = tmp_path / "src" / "converter"
+    console.mkdir(parents=True)
+    (console / "Converter.csproj").write_text(CONVERTER, encoding="utf-8")
+
+    assert read_identity(tmp_path, "net").name == "Aspose.Widget.Converter"
+    named = read_identity(tmp_path, "net", library / "Aspose.Widget.csproj")
+    assert named.name == "Aspose.Widget" and named.version == "1.2.3"
+
+
 def test_a_python_project_reports_its_requires_python_as_the_floor(tmp_path: Path) -> None:
     (tmp_path / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
     package = tmp_path / "aspose_widget"

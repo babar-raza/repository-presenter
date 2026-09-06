@@ -143,6 +143,76 @@ def test_a_test_project_that_declares_nothing_is_still_a_test_project(tmp_path: 
     assert manifest.relative_to(tmp_path).as_posix() == "Aspose.Widget/Aspose.Widget.csproj"
 
 
+DEPENDENT = """<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Aspose.Widget</PackageId>
+    <TargetFrameworks>net10.0;net6.0;netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.33.0" PrivateAssets="all" />
+    <PackageReference Include="ILRepack" Version="2.0.46" ExcludeAssets="all" />
+    <ProjectReference Include="..\\Other\\Other.csproj" />
+  </ItemGroup>
+</Project>
+"""
+
+
+def test_a_package_reference_becomes_a_dependency_and_a_private_one_is_development(
+    tmp_path: Path,
+) -> None:
+    """Contract §2 row 9. A reference a consumer never installs is a development dependency.
+
+    Measured 2026-09-06: SkiaSharp on Cells and System.Drawing.Common on PDF are required;
+    SonarAnalyzer.CSharp on PDF and ILRepack on Words are private. A `ProjectReference` is not a
+    package a reader installs at all.
+    """
+    source = tmp_path / "src" / "Aspose.Widget"
+    source.mkdir(parents=True)
+    (source / "Aspose.Widget.csproj").write_text(DEPENDENT, encoding="utf-8")
+    (source / "Widget.cs").write_text(WIDGET, encoding="utf-8")
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = {fact.id: fact for fact in net.PLUGIN.manifest_facts(tmp_path, manifest, [])}
+
+    assert facts["dependency:skiasharp"].value == "SkiaSharp 2.88.8"
+    assert (
+        facts["dependency:development.sonaranalyzer.csharp"].value == "SonarAnalyzer.CSharp 10.33.0"
+    )
+    assert facts["dependency:development.ilrepack"].value == "ILRepack 2.0.46"
+    assert "dependency:none" not in facts
+    assert not any("other" in fact_id for fact_id in facts)
+    # The floor is the lowest target across every lineage, not the lowest the vendored table
+    # happens to name: netcoreapp3.1 is older than net6.0 and both are older than net10.0.
+    assert facts["package:target_framework"].value == "netcoreapp3.1"
+
+
+def test_a_project_with_no_package_reference_proves_a_verified_zero(tmp_path: Path) -> None:
+    """3D, Email and Slides for .NET declare none, which the contract renders as a sentence."""
+    _repository(tmp_path)
+    manifest = net.PLUGIN.detect_manifest(tmp_path)
+    assert manifest is not None
+    facts = {fact.id: fact for fact in net.PLUGIN.manifest_facts(tmp_path, manifest, [])}
+    marker = facts["dependency:none"]
+    assert marker.value == "none" and marker.polarity == "SUPPORTED"
+    assert marker.evidence[0].path == "src/Aspose.Widget/Aspose.Widget.csproj"
+    assert "PackageReference" in (marker.evidence[0].detail or "")
+
+
+def test_the_broadest_target_framework_orders_first() -> None:
+    """netstandard runs everywhere; netcoreapp and net5+ are one lineage; net48 is another."""
+    targets = ["net48", "net10.0", "netcoreapp3.1", "netstandard2.0", "net6.0"]
+    assert sorted(targets, key=net._framework_order) == [
+        "netstandard2.0",
+        "netcoreapp3.1",
+        "net6.0",
+        "net10.0",
+        "net48",
+    ]
+    # A target the pattern does not know sorts last rather than raising.
+    assert net._framework_order("uap10.0")[0] == 3
+
+
 def test_a_project_file_that_will_not_parse_still_ranks(tmp_path: Path) -> None:
     """A malformed project claims nothing rather than raising: the remaining keys rank it."""
     broken = tmp_path / "Aspose.Broken"

@@ -11,6 +11,7 @@ Per `docs/REPOSITORY_LAYOUT.md` §2.1 this module imports `core/`, the shared fa
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -20,7 +21,10 @@ from repository_presenter.components.readme.extractors.platforms.net_examples im
     verify_net_examples,
 )
 from repository_presenter.components.readme.extractors.surface.extractor import surface_symbols
-from repository_presenter.components.readme.extractors.surface.manifest import read_identity
+from repository_presenter.components.readme.extractors.surface.manifest import (
+    PackageIdentity,
+    read_identity,
+)
 from repository_presenter.components.readme.extractors.surface.registry import observe
 from repository_presenter.core.ecosystems import NET
 from repository_presenter.core.examples import (
@@ -47,6 +51,29 @@ _EXECUTABLE_OUTPUTS = frozenset({"exe", "winexe"})
 # 2026-09-06 on Aspose.Words for .NET, whose `Aspose.JavaMs.Tests` declares no `IsTestProject`,
 # no `IsPackable` and no `OutputType`, and sorted ahead of `Aspose.Words` at the same depth.
 _TEST_PACKAGES = ("microsoft.net.test.sdk", "xunit", "nunit", "mstest")
+_FRAMEWORK = re.compile(r"^(netstandard|netcoreapp|net)(\d+)(?:\.(\d+))?$")
+
+
+def _read_project(project: Path) -> tuple[dict[str, str], list[dict[str, str]]]:
+    """The project's properties, lowercased, and its package references, as declared.
+
+    A file that will not parse declares nothing, which leaves the remaining ranking keys to
+    order it and the dependency snapshot with no requirement to report.
+    """
+    try:
+        root = ElementTree.parse(project).getroot()
+    except (OSError, ElementTree.ParseError):
+        return ({}, [])
+    properties: dict[str, str] = {}
+    references: list[dict[str, str]] = []
+    for element in root.iter():
+        # Old-style projects carry the MSBuild namespace on every tag; SDK-style carry none.
+        tag = element.tag.rsplit("}", 1)[-1].lower()
+        if tag == "packagereference":
+            references.append({key.lower(): str(value).strip() for key, value in element.items()})
+        elif element.text is not None:
+            properties[tag] = element.text.strip().lower()
+    return (properties, references)
 
 
 def _declares(project: Path) -> tuple[bool, bool]:
@@ -54,28 +81,96 @@ def _declares(project: Path) -> tuple[bool, bool]:
 
     Both are declarations, not inferences from a name: `IsTestProject`, `IsPackable` and a
     reference to a test runner say a project ships nothing, and `OutputType` says a project is an
-    application rather than the library a package publishes. A file that will not parse claims
-    neither, which leaves the remaining keys to rank it.
+    application rather than the library a package publishes.
     """
-    try:
-        root = ElementTree.parse(project).getroot()
-    except (OSError, ElementTree.ParseError):
-        return (False, False)
-    properties: dict[str, str] = {}
-    packages: list[str] = []
-    for element in root.iter():
-        # Old-style projects carry the MSBuild namespace on every tag; SDK-style carry none.
-        tag = element.tag.rsplit("}", 1)[-1].lower()
-        if tag == "packagereference":
-            packages.append(str(element.get("Include", "")).strip().lower())
-        elif element.text is not None:
-            properties[tag] = element.text.strip().lower()
+    properties, references = _read_project(project)
     is_test = (
         properties.get("istestproject") == "true"
         or properties.get("ispackable") == "false"
-        or any(package.startswith(_TEST_PACKAGES) for package in packages)
+        or any(
+            reference.get("include", "").lower().startswith(_TEST_PACKAGES)
+            for reference in references
+        )
     )
     return (is_test, properties.get("outputtype", "") in _EXECUTABLE_OUTPUTS)
+
+
+def _framework_order(target: str) -> tuple[int, int, int, str]:
+    """Sort key for a target framework, broadest compatibility first.
+
+    `netstandard` runs on every runtime that implements it, so it comes first; `netcoreapp3.1`
+    and `net6.0` are one lineage and order by version; `net48` and `net472` are .NET Framework,
+    a separate lineage no .NET 5+ runtime loads. Measured 2026-09-06 on Aspose.3D for .NET,
+    which targets `net10.0;net8.0;net6.0;netcoreapp3.1`: the vendored reader ranks by a fixed
+    table and scores anything absent from it last, so it called `net6.0` the lowest and the
+    Dependencies row would have understated what the package supports (§29.6 E2 - the upstream
+    rule is quarantined here, not edited).
+    """
+    match = _FRAMEWORK.fullmatch(target.strip().lower())
+    if match is None:
+        return (3, 0, 0, target)
+    family, major, minor = match.group(1), int(match.group(2)), int(match.group(3) or 0)
+    if family == "netstandard":
+        return (0, major, minor, target)
+    if family == "net" and match.group(3) is None:
+        return (2, major, minor, target)
+    return (1, major, minor, target)
+
+
+def _floor(identity: PackageIdentity) -> str:
+    """The lowest framework the project targets, or what the reader gave when it lists none."""
+    targets = identity.raw.get("target_frameworks")
+    if not isinstance(targets, list) or not targets:
+        return identity.floor
+    return min((str(target) for target in targets), key=_framework_order)
+
+
+def _dependency_facts(project: Path, where: str) -> list[Fact]:
+    """The dependency snapshot from the product project's package references.
+
+    `docs/README_CONTRACT.md` §2 row 9 wants every required requirement, or the verified-zero
+    marker citing the clause that proves it. A reference marked `PrivateAssets="all"` or
+    `ExcludeAssets="all"` is not passed on to a consumer of the package - it is an analyser or a
+    build tool - so it is a development dependency, which is the bucket Python's extras already
+    render. Measured 2026-09-06: SkiaSharp on Cells and System.Drawing.Common on PDF are
+    required; SonarAnalyzer.CSharp on PDF and ILRepack on Words are private; 3D, Email and
+    Slides declare no package reference at all, which is a verified zero, not a gap.
+    """
+    _, references = _read_project(project)
+    facts: list[Fact] = []
+    for reference in references:
+        name = reference.get("include", "")
+        if not name:
+            continue
+        private = "all" in {reference.get("privateassets", ""), reference.get("excludeassets", "")}
+        version = reference.get("version", "")
+        value = f"{name} {version}".strip()
+        detail = "package reference declared by the project file"
+        facts.append(
+            Fact(
+                fact_id("dependency", "development", name)
+                if private
+                else fact_id("dependency", name),
+                "dependency",
+                value,
+                (
+                    Evidence(
+                        where,
+                        f"{detail}, not passed on to consumers" if private else detail,
+                    ),
+                ),
+            )
+        )
+    if not any(not fact.id.startswith("dependency:development.") for fact in facts):
+        facts.append(
+            Fact(
+                fact_id("dependency", "none"),
+                "dependency",
+                "none",
+                (Evidence(where, "no `PackageReference` a consumer would install is declared"),),
+            )
+        )
+    return facts
 
 
 class NetPlugin:
@@ -131,7 +226,7 @@ class NetPlugin:
 
     def manifest_facts(self, root: Path, manifest: Path, tree_paths: list[str]) -> list[Fact]:
         """Identity, version, the lowest target framework, and the install command it implies."""
-        identity = read_identity(root, self.ecosystem)
+        identity = read_identity(root, self.ecosystem, manifest)
         where = manifest.relative_to(root).as_posix()
         facts: list[Fact] = []
         if identity.name:
@@ -162,15 +257,17 @@ class NetPlugin:
                     (Evidence(where, "version declared by the project file"),),
                 )
             )
-        if identity.floor:
+        floor = _floor(identity)
+        if floor:
             facts.append(
                 Fact(
                     fact_id("package", "target_framework"),
                     "package",
-                    identity.floor,
+                    floor,
                     (Evidence(where, "lowest target framework the project declares"),),
                 )
             )
+        facts.extend(_dependency_facts(manifest, where))
         return facts
 
     def surface_facts(self, root: Path, tree_paths: list[str]) -> list[Fact]:
@@ -256,7 +353,7 @@ class NetPlugin:
         project = self.detect_manifest(root)
         framework = ""
         if project is not None:
-            framework = read_identity(root, self.ecosystem).floor
+            framework = _floor(read_identity(root, self.ecosystem, project))
         return verify_net_examples(root, project, framework, candidates, workspace)
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:
