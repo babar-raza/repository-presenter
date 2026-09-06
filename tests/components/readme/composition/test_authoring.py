@@ -656,6 +656,53 @@ def test_quick_start_gets_a_second_lead_in_slot_only_when_the_plan_selected_one(
     assert single == ("lead_in",)
 
 
+def test_a_quick_start_lead_in_is_bound_to_its_own_slots_example_not_the_rows_order() -> None:
+    """README_CONTRACT.md row 10 names two example kinds, but the plan chooses which fills which
+    lead-in slot. Measured 2026-09-06 on Aspose.PDF for Go: the packet described the row's
+    declared order, so a LoadWorkbook lead-in was authored directly above a NewWorkbook() fence
+    and BC-04, which checks only fact-ID membership, passed it (RESEARCH section 27.9 G4-W17
+    item 29). Here the plan reverses that order: the from-scratch example fills `lead_in`."""
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact("example:new", "example", "wb := cells.NewWorkbook()\ndefer wb.Close()"),
+            _fact("example:load", "example", 'wb, err := cells.LoadWorkbook("book.xlsx")'),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "quick_start_example_id": "example:new",
+        "second_quick_start_example_id": "example:load",
+    }
+    slot_facts = slot_fact_sets("quick_start", plan)
+    assert slot_facts == {
+        "lead_in": frozenset({"example:new"}),
+        "lead_in:2": frozenset({"example:load"}),
+    }
+    rendered = slot_rendering("quick_start", ("lead_in", "lead_in:2"), facts, {}, slot_facts)
+    # Whitespace is normalized, so the whole fence reads as one line beside the slot.
+    assert rendered["lead_in"] == (
+        "as a fenced code block after your sentence: wb := cells.NewWorkbook() defer wb.Close()"
+    )
+    assert "LoadWorkbook" not in rendered["lead_in"]
+    assert "LoadWorkbook" in rendered["lead_in:2"] and "NewWorkbook" not in rendered["lead_in:2"]
+
+    task = next(
+        task
+        for task in authoring_tasks(ENTRY, facts, INVESTIGATION, DISPOSITIONS, plan)
+        if task.section_id == "quick_start"
+    )
+    records = {record["slot"]: record for record in task.packet["slots"]}
+    assert "NewWorkbook" in records["lead_in"]["renders"]
+    assert "LoadWorkbook" not in records["lead_in"]["renders"]
+    assert "NewWorkbook" not in records["lead_in:2"]["renders"]
+    # The objective points each lead-in at its own slot's rendering, never at a fixed order.
+    assert "`renders` prints directly beneath it" in task.packet["objective"]
+    assert "the first opens an" not in task.packet["objective"]
+
+
 def test_every_public_path_of_a_collapsed_symbol_may_be_spelled() -> None:
     facts = FactsDocument(
         FACTS.repository,
