@@ -5040,3 +5040,25 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   constant audit the reviewer opened after this session's own `SYMBOL_CAP` and timeout findings),
   items 25-26, and the `source_reconciliation` timeout fix itself - each needs its own measurement
   or careful prompt iteration, the same discipline every deferred item this session has used.
+
+- **2026-09-06 22:29 (`date` checked) · loop (PROVISIONAL) · item 36 landed: a code-span noun no
+  symbol spells is admitted, the same way a running-prose one already is.** Lane D's own reading
+  (`fadd25f` admitted the item; `docs/RESEARCH_LANE_D.md` PROPOSAL P12 has the full comparison):
+  `prose_nouns` (`composition/authoring.py`) drew its admission line at "spelled in running
+  prose," which is right for an identifier but wrong for a standard's name the upstream author
+  happened to backtick - `ZapfDingbats`, a PDF Standard-14 font name in Aspose.PDF for Go's own
+  README, appears only inside code spans, so `source_prose` stripped both spellings and
+  `section_authoring` failed twice writing the true limitation that names it. Fix: `prose_nouns`
+  now also harvests identifier-shaped tokens from inline code spans of a `SUPPORTED`
+  `inherited_unit` (fenced code blocks stripped first, so genuine code is never read as a
+  candidate), and the function's own existing exclusion - `identifier_allowed` against
+  `allowed_identifiers`, which already checks a bare value and every dotted suffix - discriminates
+  a real symbol (which keeps its code span) from a name no `public_symbol` fact has ever heard of,
+  with no new admission rule to write. New test:
+  `tests/.../test_authoring.py::test_a_standards_name_spelled_only_inside_a_code_span_is_still_a_
+  proper_noun`, reproducing the exact repository's sentence end to end through `unit_checks`, and
+  confirming a real symbol (`ConvertToPDFA`) and a fenced-block token (`ZapfDingbatsHelper`) both
+  stay excluded. Full suite green, ruff/mypy clean, before this entry. The subordinate item the
+  same finding named - `unit_checks` rejecting a whole section for one stray token rather than
+  folding it out, the same `d707693` shape as items 16 and 17 - is not landed here; a fresh pick
+  once this lands, per the reviewer's own item-by-item sequencing tonight.

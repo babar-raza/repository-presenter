@@ -56,6 +56,10 @@ _NOT_PROSE = (
     re.compile(r"<?https?://\S+"),
     re.compile(r"<[^>]+>"),
 )
+# The inverse of _NOT_PROSE's own single-backtick entry: what it strips, this captures. Applied
+# only after _NOT_PROSE's fence pattern has already removed ```...``` blocks, so a triple-fenced
+# example's own code is never read as a code-span noun candidate.
+_CODE_SPAN = re.compile(r"`([^`\n]*)`")
 _MEMBER_CAP = 60
 _TYPE_BATCH = 40  # types described per authoring call: within the manifest's output budget
 _TYPE_OBJECTIVE = (
@@ -720,16 +724,26 @@ def prose_nouns(facts: FactsDocument, name: str) -> frozenset[str]:
     The all-capital carve-out in ``identifier_tokens`` already draws this line for acronyms
     (U3D, 3MF); this draws it for the capitalised names the source itself uses.
 
-    A noun is admitted only when the source README spells it in running prose - outside every
-    fenced block, code span, link destination, URL and tag, where code lives - or when it is a
-    segment of the product's own name. Anything the facts already license as an identifier is
-    excluded, so a real symbol keeps its code span and its verification; a noun is never wrapped
-    and never carries a claim, exactly as a registry or hosting name does not.
+    A noun is admitted when the source README spells it in running prose - outside every fenced
+    block, code span, link destination, URL and tag, where code lives - when it is a segment of
+    the product's own name, or when it appears only inside a code span and no `public_symbol`
+    fact spells it at all, bare or as any dotted suffix (RESEARCH_AND_GUIDELINES.md section 28.12
+    G4-W17 arrival item 36). That last case is a standard, format or font name the upstream author
+    happened to backtick rather than a rule about typography: `ZapfDingbats`, a PDF Standard-14
+    font name, appears only inside code spans in Aspose.PDF for Go's own README and no public
+    symbol spells it, so `source_prose` alone stripped it and the limitation naming it could not
+    be written at all. Anything the facts already license as an identifier is still excluded here
+    exactly as for a running-prose noun, so a real symbol - `Document`, backticked deliberately -
+    keeps its code span and its verification; a noun is never wrapped and never carries a claim,
+    exactly as a registry or hosting name does not.
     """
     candidates = {part for token in name.split(" ") for part in token.split(".") if part}
     for fact in facts.by_kind("inherited_unit"):
         if fact.polarity == "SUPPORTED":
             candidates.update(identifier_tokens(source_prose(fact.value)))
+            without_fences = _NOT_PROSE[0].sub(" ", fact.value)
+            for span in _CODE_SPAN.finditer(without_fences):
+                candidates.update(identifier_tokens(span.group(1)))
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
     methods = surface_members(facts)

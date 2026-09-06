@@ -401,6 +401,57 @@ def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifi
     assert unit_checks(capability, titled, facts, "Aspose.Note FOSS for Python") == []
 
 
+def test_a_standards_name_spelled_only_inside_a_code_span_is_still_a_proper_noun() -> None:
+    """G4-W17 arrival item 36. Aspose.PDF for Go's own README states its PDF/A limitation as
+    "`ConvertToPDFA` auto-embeds ... Standard-14 fonts but does not auto-fix `Symbol`/
+    `ZapfDingbats`, composite ... fonts" - `ZapfDingbats`, a PDF Standard-14 font name, is spelled
+    only inside code spans, and no `public_symbol` fact spells it at all, so `source_prose` alone
+    stripped it and `section_authoring` failed twice writing the true limitation. A token inside a
+    fenced code block is not this case - that is still genuine code, never a noun candidate."""
+    facts = FactsDocument(
+        "aspose-pdf-foss/Aspose.PDF-FOSS-for-Go",
+        "r",
+        (
+            _fact("identity:repository", "identity", "aspose-pdf-foss/Aspose.PDF-FOSS-for-Go"),
+            _fact("public_symbol:convert_to_pdfa", "public_symbol", "pdf.ConvertToPDFA"),
+            _fact(
+                "inherited_unit:081.list",
+                "inherited_unit",
+                "`ConvertToPDFA` auto-embeds non-embedded Standard-14 fonts but does not "
+                "auto-fix `ZapfDingbats` or composite (Type0/CJK) fonts.\n"
+                "```go\nfunc ZapfDingbatsHelper() {}\n```",
+            ),
+        ),
+    )
+    nouns = prose_nouns(facts, "Aspose.PDF FOSS for Go")
+    assert "ZapfDingbats" in nouns
+    # A real symbol keeps its code span even though it is now also harvested as a candidate.
+    assert "ConvertToPDFA" not in nouns
+    # A fenced code block is still genuine code, never a noun candidate from this path.
+    assert "ZapfDingbatsHelper" not in nouns
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"public_symbol:convert_to_pdfa"}),
+        ("limitation:1",),
+        slot_facts={"limitation:1": frozenset({"public_symbol:convert_to_pdfa"})},
+        slot_titles={},
+    )
+    output = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "ConvertToPDFA auto-embeds Standard-14 fonts but does not auto-fix "
+                "ZapfDingbats.",
+                "fact_ids": ["public_symbol:convert_to_pdfa"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(output, task, facts, "Aspose.PDF FOSS for Go") == []
+
+
 def test_a_dotted_or_underscored_token_is_a_path_not_a_proper_noun() -> None:
     """The rule admits names, never code the source wrote without a span (ws.tables, class_list)."""
     assert proper_noun("OneNote") and proper_noun("Aspose.PDF") and proper_noun("BytesIO")
