@@ -1,0 +1,140 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "nuget install Aspose.Cells.Cpp.FOSS",
+        "PackageReference Include",
+        "v14x",
+        "lib/win_x86",
+        "lib/win_x86_64"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:012.paragraph",
+        "inherited_unit:013.code_block",
+        "inherited_unit:014.paragraph",
+        "inherited_unit:015.code_block",
+        "inherited_unit:016.paragraph",
+        "inherited_unit:017.code_block",
+        "inherited_unit:018.paragraph",
+        "inherited_unit:019.code_block"
+      ],
+      "id": "F01",
+      "quote": "`aspose_cells_foss_cpp` is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "repair": "Restore the NuGet installation instructions and Windows prebuilt binaries information from the original README, including the nuget install command, MSBuild PackageReference example, CMake find_package example for Windows, and the note about Linux/macOS source builds.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'v14x', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section omits NuGet-based installation instructions and Windows prebuilt binaries, which are supported by the facts and present in the original README."
+    },
+    {
+      "absent": [
+        "prebuilt static libraries for Windows only",
+        "v14x toolset",
+        "aspose.cells.cpp.foss.targets"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:012.paragraph",
+        "inherited_unit:018.paragraph"
+      ],
+      "id": "F02",
+      "quote": "No required third-party package dependencies; in `Aspose.Cells.Foss.Cpp/CMakeLists.txt`, no dependency is on the library target's public link interface, so a consumer links nothing beyond the library itself.",
+      "repair": "Clarify that while the source build has no external dependencies, the NuGet package ships prebuilt Windows binaries and the build system errors for other toolsets or platforms.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'prebuilt static libraries for Windows only', 'v14x toolset', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The Dependencies section incorrectly states 'No required third-party package dependencies' and omits the fact that the NuGet package ships prebuilt Windows binaries, which contradicts the 'dependency:none' fact only in context of source builds."
+    },
+    {
+      "absent": [
+        "AlignmentValue",
+        "AutoFilter",
+        "AutoFilterColorFilter",
+        "AutoFilterCustomFilter",
+        "AutoFilterCustomFilterCollection",
+        "AutoFilterCustomFilterCollection_Iterator",
+        "AutoFilterCustomFilterModel",
+        "AutoFilterDynamicFilter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:044.table",
+        "inherited_unit:046.table",
+        "inherited_unit:048.table",
+        "inherited_unit:050.list"
+      ],
+      "id": "F03",
+      "quote": "The verified public surface has 195 types.",
+      "repair": "Restore the full public API surface tables (Core API, Structs, Enumerations) and the detailed member reference section from the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'AlignmentValue', 'AutoFilter', 'AutoFilterColorFilter', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section omits the full public API surface table and detailed member reference from the original README, reducing completeness."
+    },
+    {
+      "absent": [
+        ".xls",
+        ".xlsb",
+        ".ods",
+        ".csv",
+        "Legacy SpreadsheetML",
+        "pre-OOXML Excel 2003 XML dialect",
+        "UnsupportedFeatureException",
+        "Xlsx"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "id": "F04",
+      "quote": "Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17 and CMake 3.16 or later.",
+      "repair": "Restore the explicit list of unsupported formats and legacy SpreadsheetML limitations from the original README, including the UnsupportedFeatureException detail.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '.xls', 'Legacy SpreadsheetML', 'UnsupportedFeatureException', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section omits the explicit mention of unsupported formats (.xls, .xlsb, .ods, .csv) and the fact that legacy SpreadsheetML is not implemented, which are present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F05",
+      "quote": "These limitations don't apply to [Aspose.Cells for Cpp — Enterprise Edition](https://products.aspose.com/cells/cpp/).",
+      "repair": "Correct the commercial product name to 'Aspose.Cells for C++ — Enterprise Edition' to match the verified product name.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition relationship section incorrectly describes the commercial product as 'Aspose.Cells for Cpp — Enterprise Edition' instead of the correct 'Aspose.Cells for C++ — Enterprise Edition'."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "d95b3a3e2e2ecb36f0661e89df794bd66c6a89d76a76cd7c1275d2eeb027919a",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": false
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

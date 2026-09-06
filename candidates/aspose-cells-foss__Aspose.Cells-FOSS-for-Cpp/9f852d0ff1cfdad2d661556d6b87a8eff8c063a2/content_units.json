@@ -1,0 +1,2159 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "opening/opening"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "install_command:cmake",
+      "reason": "reserved for install section",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:018.paragraph",
+      "reason": "reserved for build section",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "package:cxx_standard",
+      "reason": "identity fact used only for disambiguation, not prose content",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "inherited_unit:040.heading",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:041.paragraph",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:043.heading",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:045.heading",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:047.heading",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:049.heading",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:050.list",
+      "reason": "inherited unit rendered by the deterministic renderer",
+      "section": "api_reference"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:cxx_standard",
+        "package:cmake_minimum",
+        "license:spdx",
+        "dependency:none",
+        "inherited_unit:004.paragraph",
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.cellvalue",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.worksheetprotection",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.documentproperties",
+        "example:001"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Cells FOSS for Cpp is a free, open-source, MIT-licensed C++ library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel. It solves the problem of programmatic spreadsheet manipulation in C++ applications by exposing a familiar API surface built around Workbook, Worksheet, and Cell objects, matching the structure of Aspose's commercial spreadsheet products. Developers use it to generate reports, process templates, and automate Excel workflows in cross-platform C++17 projects with no external runtime dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.workbook"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create a blank workbook with the default worksheet or load an existing file from a path or in-memory stream, then save it as an .xlsx file using the SaveFormat enumeration."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellvalue"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Insert values of multiple types into cells using PutValue and retrieve them as a variant-typed CellValue, while setting and reading formulas with SetFormula and GetFormula."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.style"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Apply formatting to cells by retrieving and setting a Style that bundles Font properties, fill patterns, foreground and background colors, borders, and alignment options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetprotection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Configure worksheet visibility, zoom, gridlines, headers, right-to-left layout, and protection using the AutoFilter, PageSetup, and WorksheetProtection interfaces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Apply rule-driven formatting to cell ranges with ConditionalFormattingCollection and enforce input constraints using ValidationCollection scoped to specific CellArea ranges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Attach hyperlinks to cells with HyperlinkCollection and manage workbook- or sheet-scoped named ranges through DefinedNameCollection with optional comment strings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.documentproperties",
+        "public_symbol:aspose.cells_foss.workbookproperties"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Access core and extended metadata of a workbook through WorkbookProperties and DocumentProperties exposed by the Workbook class."
+    },
+    {
+      "fact_ids": [
+        "dependency:none",
+        "install_command:cmake",
+        "package:cmake_minimum"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Integrate the library into a CMake project using version 3.16 or later with no external runtime dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "The example creates a new workbook, populates the first worksheet with product names, prices, and a SUM formula, applies header styling, and saves the file as products.xlsx."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.workbook"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Cells FOSS for Cpp provides the Aspose.Cells_FOSS.Workbook class as the primary entry point for creating and manipulating spreadsheet files, with Aspose.Cells_FOSS.Worksheet, Aspose.Cells_FOSS.Cells, and Aspose.Cells_FOSS.Cell forming the core object graph for working with individual sheets and cells. The library supports C++17 and requires CMake 3.16 or later."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.workbook"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.workbook",
+      "text": "The Aspose.Cells_FOSS.Workbook class enables creating new workbooks, loading existing files, and saving results in various formats including XLSX via the Aspose.Cells_FOSS.SaveFormat enumeration, while providing access to worksheets, properties, and defined names through its member methods."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellvalue"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.cell",
+      "text": "The Aspose.Cells_FOSS.Cell class represents a single cell in a worksheet and provides methods to set and retrieve values, formulas, and styles, with Aspose.Cells_FOSS.CellValue exposing typed access to the underlying data."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.style"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.style",
+      "text": "The Aspose.Cells_FOSS.Style class allows configuring cell appearance through font settings via Aspose.Cells_FOSS.Font, background and foreground colors via Aspose.Cells_FOSS.Color, and fill patterns via Aspose.Cells_FOSS.FillPattern."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetprotection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.worksheet",
+      "text": "The Aspose.Cells_FOSS.Worksheet class provides access to cell data through Aspose.Cells_FOSS.Cells, supports data filtering via Aspose.Cells_FOSS.AutoFilter, and offers protection and page setup capabilities via Aspose.Cells_FOSS.WorksheetProtection and Aspose.Cells_FOSS.PageSetup."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.conditionalformattingcollection",
+      "text": "The Aspose.Cells_FOSS.ConditionalFormattingCollection class manages conditional formatting rules applied to cell ranges, while Aspose.Cells_FOSS.ValidationCollection handles data validation rules for input control."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.hyperlinkcollection",
+      "text": "The Aspose.Cells_FOSS.HyperlinkCollection class provides methods to add and manage hyperlinks within a worksheet, with Aspose.Cells_FOSS.DefinedNameCollection supporting named ranges for formula references."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.documentproperties",
+        "public_symbol:aspose.cells_foss.workbookproperties"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.workbookproperties",
+      "text": "The Aspose.Cells_FOSS.WorkbookProperties class exposes workbook-level metadata, while Aspose.Cells_FOSS.DocumentProperties provides access to standard document properties such as author and title."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.worksheetcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.worksheetcollection",
+      "text": "The Aspose.Cells_FOSS.WorksheetCollection class manages the collection of worksheets within a workbook, with Aspose.Cells_FOSS.Cells providing direct access to individual cells by row and column indices."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.validationalerttype",
+        "public_symbol:aspose.cells_foss.validationtype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.validation",
+      "text": "The Aspose.Cells_FOSS.Validation class defines data validation rules with types from Aspose.Cells_FOSS.ValidationType and operators from Aspose.Cells_FOSS.ValidationAlertType for error messaging."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.autofiltercolorfilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.autofilter",
+      "text": "The Aspose.Cells_FOSS.AutoFilter class enables filtering of worksheet data using color-based filters via Aspose.Cells_FOSS.AutoFilterColorFilter and custom filter expressions via Aspose.Cells_FOSS.AutoFilterCustomFilter."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.pageorientationtype",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.papersizetype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.pagesetup",
+      "text": "The Aspose.Cells_FOSS.PageSetup class controls print layout options including orientation from Aspose.Cells_FOSS.PageOrientationType, paper size from Aspose.Cells_FOSS.PaperSizeType, and print area definitions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "public_symbol:aspose.cells_foss.border",
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.fillpattern"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.color",
+      "text": "The Aspose.Cells_FOSS.Color class supports color definitions using ARGB values and integrates with Aspose.Cells_FOSS.FillPattern and Aspose.Cells_FOSS.Border to style cell backgrounds and borders."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofilter",
+      "text": "Aspose.Cells_FOSS.AutoFilter represents an auto-filter applied to a range of cells in a worksheet, enabling filtering and sorting operations on tabular data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltercolorfilter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltercolorfilter",
+      "text": "Aspose.Cells_FOSS.AutoFilterColorFilter represents a color-based filter condition used in an auto-filter to include or exclude cells by their background or font color."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltercustomfilter",
+      "text": "Aspose.Cells_FOSS.AutoFilterCustomFilter represents a custom filter condition defined by an operator and a value for filtering cell contents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltercustomfiltercollection",
+      "text": "Aspose.Cells_FOSS.AutoFilterCustomFilterCollection is a collection of custom filter conditions that can be applied together using logical AND or OR logic."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection.iterator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltercustomfiltercollection.iterator",
+      "text": "Aspose.Cells_FOSS.AutoFilterCustomFilterCollection.Iterator provides sequential access to each custom filter condition stored in the collection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilterdynamicfilter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofilterdynamicfilter",
+      "text": "Aspose.Cells_FOSS.AutoFilterDynamicFilter represents a dynamic filter condition such as above average or today, used to filter data based on computed criteria."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltersortcondition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltersortcondition",
+      "text": "Aspose.Cells_FOSS.AutoFilterSortCondition defines a sorting rule for an auto-filtered range, including sort direction, sort by type, and optional custom lists or icon sets."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltersortconditioncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltersortconditioncollection",
+      "text": "Aspose.Cells_FOSS.AutoFilterSortConditionCollection holds a sequence of sort conditions applied to an auto-filtered range in order of priority."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltersortconditioncollection.iterator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltersortconditioncollection.iterator",
+      "text": "Aspose.Cells_FOSS.AutoFilterSortConditionCollection.Iterator enables iteration over the sort conditions contained in the collection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltersortstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltersortstate",
+      "text": "Aspose.Cells_FOSS.AutoFilterSortState stores the overall sorting configuration for an auto-filtered range, including the reference area and applied sort conditions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltersupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltersupport",
+      "text": "Aspose.Cells_FOSS.AutoFilterSupport provides utility methods to manage auto-filter settings on a worksheet, such as setting the filtered range and retrieving sort state."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofiltertop10"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.autofiltertop10",
+      "text": "Aspose.Cells_FOSS.AutoFilterTop10 represents a top or bottom N items filter condition used to include only the largest or smallest values in an auto-filtered column."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.border"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.border",
+      "text": "Aspose.Cells_FOSS.Border represents the border formatting of a cell or range, including style, color, and line weight."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.borderstyletype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.borderstyletype",
+      "text": "Aspose.Cells_FOSS.BorderStyleType enumerates the available line styles for cell borders, such as thin, thick, or dashed."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.borders"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.borders",
+      "text": "Aspose.Cells_FOSS.Borders provides access to the individual border sides of a cell or range for setting their formatting properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.calculationproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.calculationproperties",
+      "text": "Aspose.Cells_FOSS.CalculationProperties holds settings that control how formulas are calculated in a workbook, such as iteration options and precision mode."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cell",
+      "text": "Aspose.Cells_FOSS.Cell represents a single cell in a worksheet and provides methods to read or write its value, format, and style."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cellarea"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cellarea",
+      "text": "Aspose.Cells_FOSS.CellArea defines a rectangular range of cells using start and end row and column indices."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cellformatvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cellformatvalue",
+      "text": "Aspose.Cells_FOSS.CellFormatValue represents the formatted display string of a cell after applying number formatting rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cellvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cellvalue",
+      "text": "Aspose.Cells_FOSS.CellValue encapsulates the raw data stored in a cell, supporting multiple underlying types such as string, double, or boolean."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cellvaluetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cellvaluetype",
+      "text": "Aspose.Cells_FOSS.CellValueType enumerates the possible data types that a cell value can hold, such as string, numeric, or boolean."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cells"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cells",
+      "text": "Aspose.Cells_FOSS.Cells represents the collection of all cells in a worksheet and provides indexed access to individual cells by address or index."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cellsexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.cellsexception",
+      "text": "Aspose.Cells_FOSS.CellsException is raised when an error occurs during cell-related operations within the library."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.color"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.color",
+      "text": "Aspose.Cells_FOSS.Color represents a color value used for cell or font formatting, supporting ARGB components and predefined color names."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.column"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.column",
+      "text": "Aspose.Cells_FOSS.Column represents a single column in a worksheet and provides methods to adjust its width, style, and visibility."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.columncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.columncollection",
+      "text": "Aspose.Cells_FOSS.ColumnCollection is a container for all column objects in a worksheet, allowing indexed access and enumeration."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.conditionalformattingcollection",
+      "text": "Aspose.Cells_FOSS.ConditionalFormattingCollection holds all conditional formatting rules applied to a worksheet and supports adding or removing rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.alignmentvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.alignmentvalue",
+      "text": "Aspose.Cells_FOSS.Core.AlignmentValue specifies the horizontal and vertical alignment of text within a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltercolorfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltercolorfiltermodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterColorFilterModel provides a model for configuring color-based auto-filter conditions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltercustomfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltercustomfiltermodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterCustomFilterModel provides a model for configuring custom auto-filter conditions using operators and values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofilterdynamicfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofilterdynamicfiltermodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterDynamicFilterModel provides a model for configuring dynamic auto-filter conditions such as above average or today."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltermodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterModel provides a unified interface for creating and managing auto-filter configurations on a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltersortconditionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltersortconditionmodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterSortConditionModel provides a model for defining sort conditions used in auto-filtered ranges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltersortstatemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltersortstatemodel",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterSortStateModel provides a model for storing and applying the overall sort state of an auto-filtered range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.autofiltertop10model"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.autofiltertop10model",
+      "text": "Aspose.Cells_FOSS.Core.AutoFilterTop10Model provides a model for configuring top or bottom N items auto-filter conditions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.bordersidevalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.bordersidevalue",
+      "text": "Aspose.Cells_FOSS.Core.BorderSideValue specifies which side of a cell (top, bottom, left, right) a border applies to."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.borderstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.borderstyle",
+      "text": "Aspose.Cells_FOSS.Core.BorderStyle defines the line style and color of a cell border."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.bordersvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.bordersvalue",
+      "text": "Aspose.Cells_FOSS.Core.BordersValue holds the combined border settings for all sides of a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.calculationpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.calculationpropertiesmodel",
+      "text": "Aspose.Cells_FOSS.Core.CalculationPropertiesModel provides a model for configuring workbook-level calculation options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.celladdress"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.celladdress",
+      "text": "Aspose.Cells_FOSS.Core.CellAddress represents the row and column indices of a cell within a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.cellrecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.cellrecord",
+      "text": "Represents a cell record in a spreadsheet, storing its value, formula, style, and metadata such as kind and explicit storage flag."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.cellvaluekind"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.cellvaluekind",
+      "text": "Indicates the data type of a cell value, such as boolean, numeric, string, or error."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.colorvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.colorvalue",
+      "text": "Encapsulates a color using its red, green, blue, and alpha components."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.columnrangemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.columnrangemodel",
+      "text": "Represents a range of columns in a worksheet, including their visibility, width, and style index."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.conditionalformattingmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.conditionalformattingmodel",
+      "text": "Holds a collection of conditional formatting areas and their associated conditions for a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.coredocumentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.coredocumentpropertiesmodel",
+      "text": "Provides access to core document properties such as title, author, creation date, and description."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.dateserialconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.dateserialconverter",
+      "text": "Converts between serial date numbers and date-time values using a specified date system."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.datesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.datesystem",
+      "text": "Defines the date system used for serial date calculations, such as 1900 or 1904."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.definednamemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.definednamemodel",
+      "text": "Represents a defined name in a workbook, associating a name with a cell reference or formula."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.diagnosticbag"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.diagnosticbag",
+      "text": "Collects diagnostic entries generated during workbook processing for review and troubleshooting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.diagnosticentry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.diagnosticentry",
+      "text": "Represents a single diagnostic message with a severity level and descriptive text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.diagnosticseverity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.diagnosticseverity",
+      "text": "Indicates the severity level of a diagnostic entry, such as info, warning, or error."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.documentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.documentpropertiesmodel",
+      "text": "Extends core document properties with additional built-in properties like category and keywords."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.extendeddocumentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.extendeddocumentpropertiesmodel",
+      "text": "Provides access to extended document properties such as company name and manager."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.fillpatternkind"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.fillpatternkind",
+      "text": "Specifies the fill pattern used in a cell style, such as solid, gray75, or light horizontal."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.filtercolumnmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.filtercolumnmodel",
+      "text": "Represents a filtered column in a worksheet, including its index and filter criteria."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.fontvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.fontvalue",
+      "text": "Describes font attributes such as name, size, bold, italic, and color for text formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.formatconditionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.formatconditionmodel",
+      "text": "Represents a single format condition within a conditional formatting rule, defining its type and criteria."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.headerfootermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.headerfootermodel",
+      "text": "Manages header and footer content for a worksheet, including left, center, and right sections."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.horizontalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.horizontalalignment",
+      "text": "Specifies the horizontal alignment of text within a cell, such as left, center, or right."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.hyperlinkmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.hyperlinkmodel",
+      "text": "Represents a hyperlink attached to a cell, including its address, text display, and screen tip."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.mergeregion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.mergeregion",
+      "text": "Represents a merged cell region in a worksheet, defined by its top-left and bottom-right coordinates."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.numberformatvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.numberformatvalue",
+      "text": "Encapsulates a custom or built-in number format string applied to a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.pagemarginsmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.pagemarginsmodel",
+      "text": "Stores page margin settings for a worksheet, including top, bottom, left, and right margins."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.pageorientation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.pageorientation",
+      "text": "Specifies the page orientation for printing, such as portrait or landscape."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.pagesetupmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.pagesetupmodel",
+      "text": "Provides page setup options for a worksheet, including orientation, paper size, and print area."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.printoptionsmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.printoptionsmodel",
+      "text": "Controls print options for a worksheet, such as gridlines, headings, and draft quality."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.protectionvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.protectionvalue",
+      "text": "Represents protection settings for a worksheet or workbook, such as password and allowed operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.rowmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.rowmodel",
+      "text": "Represents a row in a worksheet, including its height, visibility, and style index."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.sharedstringrepository"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.sharedstringrepository",
+      "text": "Manages a shared string table used to optimize storage of repeated string values in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.sheetvisibility"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.sheetvisibility",
+      "text": "Specifies the visibility state of a worksheet, such as visible, hidden, or very hidden."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.stylerepository"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.stylerepository",
+      "text": "Stores and manages styles available for use in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.stylevalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.stylevalue",
+      "text": "Encapsulates all formatting attributes for a cell, including font, alignment, border, and fill."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.validationmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.validationmodel",
+      "text": "Represents a data validation rule applied to a range of cells, including type, operator, and formulas."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.verticalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.verticalalignment",
+      "text": "Specifies the vertical alignment of text within a cell, such as top, center, or bottom."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.workbookmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.workbookmodel",
+      "text": "Represents a workbook, providing access to worksheets, styles, defined names, and document properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.workbookpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.workbookpropertiesmodel",
+      "text": "Stores workbook-level properties such as default sheet count and calculation settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.workbookprotectionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.workbookprotectionmodel",
+      "text": "Manages workbook-level protection settings, including structure and window protection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.workbooksettingsmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.workbooksettingsmodel",
+      "text": "Holds workbook-wide settings such as calculation mode, precision, and iteration options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.workbookviewmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.workbookviewmodel",
+      "text": "Represents the view settings for a workbook, such as window state, zoom level, and active sheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.worksheetmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.worksheetmodel",
+      "text": "Represents a worksheet in a spreadsheet document and provides access to its cells, columns, rows, protection, view, and formatting settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.worksheetprotectionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.worksheetprotectionmodel",
+      "text": "Encapsulates the protection settings for a worksheet, including password hashing, algorithm configuration, and permissions for operations like formatting cells and inserting rows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.core.worksheetviewmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.core.worksheetviewmodel",
+      "text": "Stores the view settings for a worksheet, such as visibility state and tab color."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.coredocumentproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.coredocumentproperties",
+      "text": "Provides access to the core document properties of a spreadsheet file, such as title, author, and keywords."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.datetime"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.datetime",
+      "text": "Represents a date and time value used within spreadsheet calculations and formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.definedname"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.definedname",
+      "text": "Represents a defined name in a workbook, which can refer to a cell range, formula, or constant value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.definednamecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.definednamecollection",
+      "text": "Contains a collection of defined names in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.definednameutility"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.definednameutility",
+      "text": "Provides utility methods for working with defined names, such as parsing and validating name references."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.diagnosticseverity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.diagnosticseverity",
+      "text": "Indicates the severity level of a diagnostic issue encountered during file loading or processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.displayformatsectioninfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.displayformatsectioninfo",
+      "text": "Describes a section of formatted display text, including its style and content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.displaytextdateformatsupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.displaytextdateformatsupport",
+      "text": "Supports date formatting when converting cell values to their display strings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.displaytextformatter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.displaytextformatter",
+      "text": "Formats cell values into their display strings according to cell formatting rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.displaytextformattersupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.displaytextformattersupport",
+      "text": "Provides support for formatting cell values into display strings, including locale and date handling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.displaytextlocalesupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.displaytextlocalesupport",
+      "text": "Provides locale-specific support for formatting cell values into display strings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.documentproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.documentproperties",
+      "text": "Encapsulates both core and extended document properties of a spreadsheet file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.extendeddocumentproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.extendeddocumentproperties",
+      "text": "Provides access to extended document properties of a spreadsheet file, such as company name and manager."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.fillpattern"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.fillpattern",
+      "text": "Specifies the fill pattern used in cell styling, such as solid, gray75, or light horizontal."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.fillvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.fillvalue",
+      "text": "Represents the value used to fill a pattern in cell styling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.filtercolumn"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.filtercolumn",
+      "text": "Represents a filtered column in a worksheet's auto filter, including its filter criteria."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.filtercolumncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.filtercolumncollection",
+      "text": "Contains a collection of filter columns used in a worksheet's auto filter."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.filtercolumncollection.iterator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.filtercolumncollection.iterator",
+      "text": "Provides an iterator to traverse the collection of filter columns in a worksheet's auto filter."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.filteroperatortype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.filteroperatortype",
+      "text": "Specifies the operator used in filter criteria, such as equal, greater than, or between."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.filtervaluecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.filtervaluecollection",
+      "text": "Contains a collection of filter values used to filter data in a column."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.font"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.font",
+      "text": "Represents the font settings used in cell styling, including name, size, color, and style attributes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formatcondition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.formatcondition",
+      "text": "Represents a conditional formatting rule applied to a cell range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formatconditioncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.formatconditioncollection",
+      "text": "Contains a collection of conditional formatting rules for a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formatconditiontype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.formatconditiontype",
+      "text": "Specifies the type of conditional formatting rule, such as cell value, formula, or time period."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formulaexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.formulaexception",
+      "text": "Represents an exception thrown when a formula parsing or evaluation error occurs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.horizontalalignmenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.horizontalalignmenttype",
+      "text": "Specifies the horizontal alignment of text in a cell, such as left, center, or right."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlink"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.hyperlink",
+      "text": "Represents a hyperlink attached to a cell, including its address, display text, and screen tip."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlinkcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.hyperlinkcollection",
+      "text": "Contains a collection of hyperlinks in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.iwarningcallback"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.iwarningcallback",
+      "text": "Defines a callback interface for receiving warnings during file loading or processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.internalvalidation.validationmessage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.internalvalidation.validationmessage",
+      "text": "Represents a validation message shown to the user when input does not meet validation rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.internalvalidation.validationmessageseverity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.internalvalidation.validationmessageseverity",
+      "text": "Indicates the severity level of a validation message, such as warning or stop."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.internalvalidation.workbookvalidator",
+      "text": "Validates the data in a workbook against defined validation rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.invalidfileformatexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.invalidfileformatexception",
+      "text": "Represents an exception thrown when a file is not in a supported or valid format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loaddiagnostics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.loaddiagnostics",
+      "text": "Contains diagnostic information about issues encountered while loading a spreadsheet file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.loadformat",
+      "text": "Specifies the format of a file being loaded, such as Excel 97-2003 or Excel 2007+."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadissue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.loadissue",
+      "text": "Represents a single issue encountered during file loading, including its description and severity."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.loadoptions",
+      "text": "Provides options for customizing how a spreadsheet file is loaded."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.numberformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.numberformat",
+      "text": "NumberFormat represents a number format used to display cell values in Aspose.Cells FOSS for Cpp."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.operatortype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.operatortype",
+      "text": "OperatorType specifies the comparison operator used in conditional formatting and validation rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.caseinsensitiveequal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.caseinsensitiveequal",
+      "text": "CaseInsensitiveEqual provides a case-insensitive equality comparison for string keys in packaging operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.caseinsensitivehash"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.caseinsensitivehash",
+      "text": "CaseInsensitiveHash computes a hash code for string keys in a case-insensitive manner for packaging operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.ipackagereader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.ipackagereader",
+      "text": "IPackageReader defines the interface for reading parts and relationships from a package in Aspose.Cells FOSS for Cpp."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.ipackagewriter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.ipackagewriter",
+      "text": "IPackageWriter defines the interface for writing parts and relationships to a package in Aspose.Cells FOSS for Cpp."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.missingpartexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.missingpartexception",
+      "text": "MissingPartException is raised when a required part is missing from a package during loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.packageloadcontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.packageloadcontext",
+      "text": "PackageLoadContext provides access to the package and workbook being loaded during package loading operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.packagemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.packagemodel",
+      "text": "PackageModel represents the in-memory structure of a package, including its parts and relationships."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.packagepartdescriptor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.packagepartdescriptor",
+      "text": "PackagePartDescriptor describes a part in a package, including its URI, content type, and category."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.packagestructureexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.packagestructureexception",
+      "text": "PackageStructureException is raised when the package structure is invalid or corrupted."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.packagingconventions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.packagingconventions",
+      "text": "PackagingConventions defines the conventions and rules for organizing parts and relationships in a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.relationshipdescriptor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.relationshipdescriptor",
+      "text": "RelationshipDescriptor describes a relationship between parts in a package, including its type, target, and identifier."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.packaging.relationshipresolutionexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.packaging.relationshipresolutionexception",
+      "text": "RelationshipResolutionException is raised when a relationship target cannot be resolved during package loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pageorientationtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.pageorientationtype",
+      "text": "PageOrientationType specifies the orientation of a page when printing or exporting a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.pagesetup",
+      "text": "PageSetup controls page layout settings such as orientation, paper size, margins, headers, footers, and print area for a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.papersizetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.papersizetype",
+      "text": "PaperSizeType specifies the paper size used when printing or exporting a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.row"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.row",
+      "text": "Row represents a single row in a worksheet and provides access to its cells and formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.rowcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.rowcollection",
+      "text": "RowCollection contains all rows in a worksheet and provides indexed access to individual rows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.saveformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.saveformat",
+      "text": "SaveFormat specifies the file format used when saving a workbook to disk."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.saveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.saveoptions",
+      "text": "SaveOptions provides configuration settings for customizing how a workbook is saved."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.style",
+      "text": "Style defines the formatting attributes such as font, fill, border, and alignment applied to cells."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.styleexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.styleexception",
+      "text": "StyleException is raised when an invalid style operation is attempted."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.stylevaluesanitizer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.stylevaluesanitizer",
+      "text": "StyleValueSanitizer ensures that style values conform to supported formats and constraints."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.stylesheetloadcontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.stylesheetloadcontext",
+      "text": "StylesheetLoadContext provides access to the workbook and stylesheet being loaded during stylesheet loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.stylesheetsavecontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.stylesheetsavecontext",
+      "text": "StylesheetSaveContext provides access to the workbook and stylesheet being saved during stylesheet saving."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.targetmodetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.targetmodetype",
+      "text": "TargetModeType specifies whether a relationship target is internal to the package or external."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.unsupportedfeatureexception",
+      "text": "UnsupportedFeatureException is raised when an unsupported feature is encountered during processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.validation",
+      "text": "Validation defines data validation rules applied to cells to restrict the values that can be entered."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validationalerttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.validationalerttype",
+      "text": "ValidationAlertType specifies the type of alert displayed when a user enters invalid data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.validationcollection",
+      "text": "ValidationCollection contains all validation rules defined for a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validationtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.validationtype",
+      "text": "ValidationType specifies the type of data validation applied to a cell or range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.verticalalignmenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.verticalalignmenttype",
+      "text": "VerticalAlignmentType specifies the vertical alignment of text within a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.visibilitytype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.visibilitytype",
+      "text": "VisibilityType specifies whether a worksheet or row/column is visible, hidden, or collapsed."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.warninginfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.warninginfo",
+      "text": "WarningInfo provides details about a warning encountered during workbook processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbook",
+      "text": "Workbook represents an entire Excel workbook and provides access to its worksheets, styles, and properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookloadexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbookloadexception",
+      "text": "WorkbookLoadException is raised when an error occurs while loading a workbook from a file or stream."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbookproperties",
+      "text": "WorkbookProperties stores global settings and metadata for a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookpropertysupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbookpropertysupport",
+      "text": "WorkbookPropertySupport provides methods to query and modify workbook property support capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookprotection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbookprotection",
+      "text": "WorkbookProtection controls password-based protection options for a workbook structure and windows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbooksaveexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbooksaveexception",
+      "text": "Represents an exception thrown when an error occurs while saving a workbook in Aspose.Cells FOSS for Cpp."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbooksettings"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbooksettings",
+      "text": "Provides settings that control workbook-level behavior such as culture and the 1904 date system."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookview"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.workbookview",
+      "text": "Represents the view settings for a workbook, including window position, size, and visibility options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.worksheet",
+      "text": "Represents a worksheet within a workbook, providing access to cells, formatting, protection, and other sheet-level features."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheetcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.worksheetcollection",
+      "text": "Represents a collection of worksheets contained within a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheetdefinednamesstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.worksheetdefinednamesstate",
+      "text": "Encapsulates the state of defined names for a worksheet, including name-to-range mappings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheetprotection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.worksheetprotection",
+      "text": "Represents protection settings applied to a worksheet to restrict editing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xnamespace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xnamespace",
+      "text": "Represents an XML namespace used within workbook XML structures."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxdocumentproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxdocumentproperties",
+      "text": "Encapsulates document properties for an XLSX workbook, such as title, author, and keywords."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookarchivehelpers"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookarchivehelpers",
+      "text": "Provides helper methods for working with archived XLSX workbook content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookautofilter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookautofilter",
+      "text": "Represents the auto-filter settings applied to a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookconditionalformatting"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookconditionalformatting",
+      "text": "Represents conditional formatting rules applied to a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookdefinednames"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookdefinednames",
+      "text": "Represents defined names scoped to the entire workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookhyperlinks"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookhyperlinks",
+      "text": "Represents hyperlinks defined at the workbook level."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookpagesetup"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookpagesetup",
+      "text": "Represents page setup options for the entire workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookproperties",
+      "text": "Encapsulates core workbook properties such as calculation mode and default sheet name."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookserializer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookserializer",
+      "text": "Supports serialization of workbook data to XLSX format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookserializercommon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookserializercommon",
+      "text": "Provides common functionality shared by workbook serializers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookstyles"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookstyles",
+      "text": "Represents the styles collection for a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookstylesvaluehelpers"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookstylesvaluehelpers",
+      "text": "Provides helper methods for working with style values in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookstylesxml"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookstylesxml",
+      "text": "Handles XML serialization and deserialization of workbook styles."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookvalidations"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookvalidations",
+      "text": "Represents data validation rules applied at the workbook level."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookworksheetprotection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookworksheetprotection",
+      "text": "Encapsulates worksheet protection settings applied at the workbook level."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsxworkbookworksheetviews"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xlsxworkbookworksheetviews",
+      "text": "Represents view settings for individual worksheets within a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xml.sharedstringtablexmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xml.sharedstringtablexmlmapper",
+      "text": "Maps shared string table content in XML format for workbook processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xml.stylesheetxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xml.stylesheetxmlmapper",
+      "text": "Maps stylesheet content in XML format for workbook styling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xml.workbookxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xml.workbookxmlmapper",
+      "text": "Maps workbook-level XML content during serialization or deserialization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xml.worksheetxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xml.worksheetxmlmapper",
+      "text": "Maps worksheet-level XML content during serialization or deserialization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xml.xmlparsingexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xml.xmlparsingexception",
+      "text": "Represents an exception thrown when an error occurs while parsing XML content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xmlattribute"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xmlattribute",
+      "text": "Represents an XML attribute within a workbook's XML structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xmldocument"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xmldocument",
+      "text": "Represents an XML document used in workbook processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xmlelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xmlelement",
+      "text": "Represents an XML element within a workbook's XML structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xmlnodedata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.xmlnodedata",
+      "text": "Encapsulates data associated with an XML node in workbook processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.ziparchive"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.ziparchive",
+      "text": "Represents a ZIP archive used to store or retrieve XLSX workbook content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.ziparchiveentry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.cells_foss.ziparchiveentry",
+      "text": "Represents a single entry within a ZIP archive used for XLSX workbook storage."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The getting started guide covers installation, basic walkthroughs, and feature introductions for aspose_cells_foss_cpp."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet operations using aspose_cells_foss_cpp."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The full API reference offers a complete, browsable reference for all public types in aspose_cells_foss_cpp."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:054.heading",
+        "inherited_unit:055.paragraph",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17 and CMake 3.16 or later."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:056.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Only .xlsx (OOXML) is supported for load and save, with LoadFormat and SaveFormat each declaring a single Xlsx member, and saving to any other format throws UnsupportedFeatureException."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:056.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented, as the mapper classes for it exist in source but their read/write methods unconditionally throw UnsupportedFeatureException."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:056.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Cell-level comments or notes are not modeled as a distinct object, since the only Comment field in the public API belongs to DefinedName and represents a description string on a named range rather than an Excel cell note or threaded comment."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:056.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Some advanced conditional-formatting rule types are recognized on load but not preserved, as an unsupported rule type is dropped with a WarningInfo diagnostic rather than failing the load outright."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:056.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "AutoFilter date-group filters using certain patterns are rejected as unsupported during load rather than approximated."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:012.paragraph",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Aspose.Cells FOSS for Cpp ships prebuilt static libraries for Windows only built with the MSVC v14x toolset, and its build system errors the build for any other toolset or platform."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:cxx_standard",
+        "package:cmake_minimum"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "The commercial edition of Aspose.Cells FOSS for Cpp extends this package with additional file format support, advanced rendering capabilities, and enterprise-grade features."
+    }
+  ]
+}

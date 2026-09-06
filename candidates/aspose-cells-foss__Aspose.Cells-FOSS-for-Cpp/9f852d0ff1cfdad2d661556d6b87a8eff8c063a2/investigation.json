@@ -1,0 +1,201 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:cxx_standard",
+      "dependency:none"
+    ],
+    "text": "C++ developers building desktop or server applications that need to generate, read, or modify Excel .xlsx files without external runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "example:001"
+      ],
+      "text": "Construct blank workbooks or load existing ones from file paths or in-memory streams, then save back to .xlsx format.",
+      "title": "Create and save .xlsx workbooks"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellvalue",
+        "example:001"
+      ],
+      "text": "Store strings, numbers, booleans, and dates via Cell.PutValue(), retrieve values as CellValue, and set/get Excel formulas.",
+      "title": "Read and write cell values and formulas"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.color",
+        "example:001"
+      ],
+      "text": "Modify fonts, colors, fills, borders, alignment, and number formats using Style and Font objects.",
+      "title": "Apply cell and range formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.worksheetprotection",
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "text": "Control visibility, zoom, gridlines, headers, right-to-left layout, protection, auto-filtering, and page setup.",
+      "title": "Manage worksheet features"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "text": "Define rule-based formatting and input constraints on cell ranges using FormatCondition and Validation objects.",
+      "title": "Apply conditional formatting and validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.definednamecollection"
+      ],
+      "text": "Attach hyperlinks to cells and define workbook- or worksheet-scoped named ranges with optional comments.",
+      "title": "Manage hyperlinks and defined names"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.documentproperties"
+      ],
+      "text": "Read and write core and extended metadata through WorkbookProperties and DocumentProperties interfaces.",
+      "title": "Access document properties"
+    },
+    {
+      "fact_ids": [
+        "package:cmake_minimum",
+        "install_command:cmake",
+        "dependency:none"
+      ],
+      "text": "Build and link the library using CMake 3.16+ with no external dependencies.",
+      "title": "Integrate via CMake"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "text": "Only .xlsx (OOXML) format is supported for loading and saving; other formats like .xls, .xlsb, .ods, or .csv are not supported."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "text": "Cell-level comments/notes are not modeled as a distinct object; only DefinedName includes a comment field."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "text": "Some advanced conditional-formatting rule types are dropped with a warning during load rather than preserved."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "text": "AutoFilter date-group filters using certain patterns are rejected as unsupported during load."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "text": "Legacy SpreadsheetML (Excel 2003 XML) is not implemented; mapper classes exist but unconditionally throw UnsupportedFeatureException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:012.paragraph"
+      ],
+      "text": "Prebuilt binaries are only provided for Windows via NuGet; Linux and macOS require building from source."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "license:spdx",
+        "inherited_unit:004.paragraph"
+      ],
+      "text": "Enables programmatic Excel workbook manipulation in C++ without requiring Microsoft Excel or commercial licensing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cell"
+      ],
+      "text": "Provides a consistent API surface compatible with Aspose.Cells commercial products for common spreadsheet tasks."
+    },
+    {
+      "fact_ids": [
+        "package:cmake_minimum",
+        "install_command:cmake",
+        "inherited_unit:018.paragraph"
+      ],
+      "text": "Supports cross-platform development on Windows, Linux, and macOS through a pure C++17 implementation with CMake integration."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:cxx_standard",
+      "license:spdx"
+    ],
+    "text": "Aspose.Cells FOSS for C++ is a dependency-free, open-source C++17 library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel."
+  },
+  "uncertainties": [
+    "The exact set of supported conditional formatting rule types that are preserved versus dropped is not fully enumerated in the facts.",
+    "The behavior of Workbook constructors when loading corrupted or partially valid .xlsx streams is not specified beyond InvalidFileFormatException.",
+    "Whether the library supports saving to streams other than file paths or std::vector<uint8_t> is not confirmed by the facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "name": "Create and save workbooks",
+      "text": "Instantiate a Workbook, add data to cells, apply styles, and save to an .xlsx file using Workbook.Save()."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.cell",
+        "inherited_unit:027.paragraph"
+      ],
+      "name": "Load and read existing workbooks",
+      "text": "Load an existing .xlsx file or in-memory stream into a Workbook and access cells, formulas, and styles."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "name": "Apply formatting and conditional rules",
+      "text": "Set cell styles, apply conditional formatting rules, and configure data validation constraints on cell ranges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetprotection"
+      ],
+      "name": "Configure print and view settings",
+      "text": "Set page setup properties, visibility, zoom, gridlines, and worksheet protection directly on Worksheet objects."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "composition": {
+    "advisories": 5,
+    "blocking_failures": [],
+    "coverage_advisories": 3,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 57507,
+      "sha256": "d95b3a3e2e2ecb36f0661e89df794bd66c6a89d76a76cd7c1275d2eeb027919a"
+    },
+    "README.patch": {
+      "bytes": 79809,
+      "sha256": "0f991fca41947a129d55ce1660138ac3ac20e64f90b73d164b43cef9b67f2311"
+    },
+    "calls.jsonl": {
+      "bytes": 37750,
+      "sha256": "4d3eea292dbf85737338ddfab6b38f5c6eaa5d65226569aa34bd287a501e6b82"
+    },
+    "content_units.json": {
+      "bytes": 87924,
+      "sha256": "19b312d6107f5b6ac418414414b9bebc4f1dc4b9aaa60847bf654714da547127"
+    },
+    "dependencies.json": {
+      "bytes": 285410,
+      "sha256": "084c7cb6ed909595fa7515d84020c64d3f48cb6db27f99d60845f6b7efcf8baf"
+    },
+    "dispositions.json": {
+      "bytes": 23920,
+      "sha256": "c72b45999dc3029cb69c66d795cea56becc20c32525d76f669a752bd1fdc1669"
+    },
+    "examples.json": {
+      "bytes": 5910,
+      "sha256": "2ab45f226b97204cf9168ef6be77bf900fcfeb3aae1cc3e2135ad68710753e1d"
+    },
+    "facts.json": {
+      "bytes": 1197843,
+      "sha256": "a25591aa2e080fb018188f7fe44b154bba3f7bcbcd25559885801bbdd9437f10"
+    },
+    "investigation.json": {
+      "bytes": 7633,
+      "sha256": "96353c5e979662b14cf8f35b0875d564b922f15d14f9fcc083147446bd6372b7"
+    },
+    "plan.json": {
+      "bytes": 9851,
+      "sha256": "c7cb3207f8a6c83de77751452895cc44feaa11410799166852956b44be9a98c3"
+    },
+    "probes.json": {
+      "bytes": 2992,
+      "sha256": "8cc018fd6ed4b6d8307596afe934749f6b16d4c74461f70373ad34fcef7b0d0e"
+    },
+    "review.json": {
+      "bytes": 6724,
+      "sha256": "13849441514b21d08068336bfd21211ed85d66bf61b5ceb3fcc4c4db30d96c1f"
+    },
+    "validation.json": {
+      "bytes": 12318,
+      "sha256": "9773f138bb97389aba89aeda4c3ddae390fcbe7de300677e4f9b41ca604393ab"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-06T14:53:49Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "schema_version": 1,
+  "sealed_at": "2026-09-06T14:53:49Z",
+  "state": "READY_FOR_PROPOSAL"
+}

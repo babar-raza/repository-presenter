@@ -14,7 +14,7 @@ authority:
 
 progress:
   unit: current reviewable no-op-proven README candidates
-  current_candidates: 4
+  current_candidates: 5
   denominator: 34
   denominator_status: observed at the legacy freeze; frozen as a registry revision at G4
   canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python

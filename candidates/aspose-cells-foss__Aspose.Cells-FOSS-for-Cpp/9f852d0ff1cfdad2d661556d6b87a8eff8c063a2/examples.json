@@ -1,0 +1,65 @@
+[
+  {
+    "detail": "syntax-checked against Aspose.Cells.Foss.Cpp with g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++17 -fsyntax-only; the library's own CMake build failed",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "detail": "example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_002.cpp: In function 'int main()':\nexample_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')\n   10 |     Worksheet& sheet = workbook.GetWorksheets()[\"Products\"];\n      |                                                ^\n",
+    "stdout": ""
+  },
+  {
+    "detail": "example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_003.cpp: In function 'int main()':\nexample_003.cpp:3:25: error: 'sheet' was not declared in this scope\n    3 |     auto& formattings = sheet.GetConditionalFormattings();\n      |                         ^~~~~\nexample_003.cpp:5:24: error: 'CellArea' has not been declared\n    5 |     collection.AddArea(CellArea::CreateCellArea(\"A1\", \"A3\"));\n      |                        ^~~~~~~~\nexample_003.cpp:8:9: error: 'FormatConditionType' has not been declared\n    8 |         FormatConditionType::CellValue, OperatorType::Between, \"=1\", \"=9\")];\n      |         ^~~~~~~~~~~~~~~~~~~\nexample_003.cpp:8:41: error: 'OperatorType' has not been declared\n    8 |         FormatConditionType::CellValue, OperatorType::Between, \"=1\", \"=9\")];\n      |                                         ^~~~~~~~~~~~\nexample_003.cpp:11:5: error: 'Style' was not declared in this scope\n   11 |     Style style = condition.GetStyle();\n      |     ^~~~~\nexample_003.cpp:12:5: error: 'style' was not declared in this scope\n   12 |     style.SetPattern(FillPattern::Solid);\n      |     ^~~~~\nexample_003.cpp:12:22: error: 'FillPattern' has not been declared\n   12 |     style.SetPattern(FillPattern::Solid);\n      |                      ^~~~~~~~~~~\nexample_003.cpp:13:30: error: 'Color' has not been declared\n   13 |     style.SetForegroundColor(Color::FromArgb(255, 255, 0, 0));\n      |                              ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "detail": "example_004.cpp:3:25: error: 'sheet' was not declared in this scope",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_004.cpp: In function 'int main()':\nexample_004.cpp:3:25: error: 'sheet' was not declared in this scope\n    3 |     auto& validations = sheet.GetValidations();\n      |                         ^~~~~\nexample_004.cpp:4:45: error: 'CellArea' has not been declared\n    4 |     auto rule = validations[validations.Add(CellArea::CreateCellArea(\"A1\", \"B2\"))];\n      |                                             ^~~~~~~~\nexample_004.cpp:6:18: error: 'ValidationType' has not been declared\n    6 |     rule.SetType(ValidationType::WholeNumber);\n      |                  ^~~~~~~~~~~~~~\nexample_004.cpp:7:22: error: 'OperatorType' has not been declared\n    7 |     rule.SetOperator(OperatorType::Between);\n      |                      ^~~~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "detail": "example_005.cpp:3:5: error: 'sheet' was not declared in this scope",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_005.cpp: In function 'int main()':\nexample_005.cpp:3:5: error: 'sheet' was not declared in this scope\n    3 |     sheet.GetCells()[\"A1\"].PutValue(\"Docs\");\n      |     ^~~~~\n",
+    "stdout": ""
+  },
+  {
+    "detail": "example_006.cpp:3:5: error: 'PageSetup' was not declared in this scope",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_006.cpp: In function 'int main()':\nexample_006.cpp:3:5: error: 'PageSetup' was not declared in this scope\n    3 |     PageSetup& pageSetup = sheet.GetPageSetup();\n      |     ^~~~~~~~~\nexample_006.cpp:3:16: error: 'pageSetup' was not declared in this scope\n    3 |     PageSetup& pageSetup = sheet.GetPageSetup();\n      |                ^~~~~~~~~\nexample_006.cpp:3:28: error: 'sheet' was not declared in this scope\n    3 |     PageSetup& pageSetup = sheet.GetPageSetup();\n      |                            ^~~~~\nexample_006.cpp:4:30: error: 'PageOrientationType' has not been declared\n    4 |     pageSetup.SetOrientation(PageOrientationType::Landscape);\n      |                              ^~~~~~~~~~~~~~~~~~~\nexample_006.cpp:5:28: error: 'PaperSizeType' has not been declared\n    5 |     pageSetup.SetPaperSize(PaperSizeType::PaperA4);\n      |                            ^~~~~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "detail": "example_007.cpp:3:17: error: 'workbook' was not declared in this scope",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_007.cpp: In function 'int main()':\nexample_007.cpp:3:17: error: 'workbook' was not declared in this scope\n    3 |     int index = workbook.GetDefinedNames().Add(\"PriceRange\", \"=Products!$B$2:$B$3\");\n      |                 ^~~~~~~~\nexample_007.cpp:4:5: error: 'DefinedName' was not declared in this scope\n    4 |     DefinedName priceRange = workbook.GetDefinedNames()[index];\n      |     ^~~~~~~~~~~\nexample_007.cpp:5:5: error: 'priceRange' was not declared in this scope\n    5 |     priceRange.SetComment(\"Cell range used by the SUM formula in B4.\");\n      |     ^~~~~~~~~~\n",
+    "stdout": ""
+  }
+]

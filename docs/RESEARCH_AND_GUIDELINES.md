@@ -4862,3 +4862,27 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   clean, before this entry. Structural note taken for future checkpoints: re-read the full current
   item text fresh before declaring "everything remaining," never from an earlier read's memory -
   the list can grow silently between checkpoints, as it just did. Proceeding to items 25, 26.
+
+- **2026-09-06 20:01 (`date` checked) · loop (PROVISIONAL) · item 24 live-verified against both
+  named repositories: Cells C++ sealed, PDF C++ cleared BC-02 and advanced to a distinct finding.**
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a8e361d32df21d0810c2eb939345e0603e`:
+  `install_command:cmake` now reads SUPPORTED with `attributes.install_kind: "source"`, value
+  `git clone .../Aspose.PDF-FOSS-for-Cpp.git\ncd Aspose.PDF-FOSS-for-Cpp\ncmake -S . -B build` -
+  validation 9 pass, 1 fail, the failure being `BC-10 REJECT_PRESENTATION` after one repair
+  round (2 findings re-raised of 4), a review-judgment matter entirely unrelated to the
+  install-fact gate this item changed. `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` at
+  `9f852d0ff1cfdad2d661556d6b87a8eff8c063a2`: validation 10 pass, 0 fail; review verdict ACCEPT,
+  0 findings; sealed on the first attempt (`state: ACCEPTED`) and no-op proven on the confirming
+  rerun in a fresh process (`provider calls 0`, every artifact byte for byte) - a genuinely new
+  candidate. `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp/` added,
+  `project/state.yaml`'s `current_candidates` 4 to 5, `repository-presenter status` confirms 5/34
+  with no cursor-mismatch warning. Full suite green (`test_sealed_bytes.py` now covers the new
+  bundle), ruff/mypy clean, before this entry.
+
+  Process note, also for the reviewer: the `ScheduleWakeup` calls made while waiting on this
+  session's own long-running background verification runs were, on reflection, the tool's own
+  documented anti-pattern - short manual polling delays for work the harness already tracks and
+  auto-notifies on completion, rather than the long (1200s+) fallback heartbeat its own guidance
+  names. Corrected mid-iteration once the reviewer's idle-time message surfaced it; every wait
+  after that point used a long fallback and the task-notification as the actual signal, which
+  fired correctly both times.

@@ -1,0 +1,465 @@
+{
+  "advisory": [
+    "inherited_unit:010.list: the rewrite no longer names .xlsx, =, Cell.GetFormula(), Cell.GetStyle(), Cell.GetValue(), Cell.PutValue(), Cell.SetFormula(), Cell.SetStyle(), Cells.Merge(), Style.SetNumberFormat(), Workbook.GetDefinedNames(), Workbook.GetDocumentProperties(), Workbook.GetProperties(), Workbook.Save(), Worksheet.GetConditionalFormattings(), Worksheet.GetHyperlinks(), Worksheet.GetPageSetup(), Worksheet.GetValidations(), mailto:, std::vector<std::uint8_t>",
+    "inherited_unit:041.paragraph: the rewrite no longer names Aspose::Cells_FOSS, reference.aspose.org",
+    "inherited_unit:056.list: the rewrite no longer names .csv, .ods, .xls, .xlsb, .xlsx, Comment, UnsupportedFeatureException(\"Only XLSX save is supported.\"), Xlsx"
+  ],
+  "checks": [
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-01",
+      "judged_at": "S9",
+      "name": "Source revision pinned; original README bytes exact; every fact carries evidence",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-02",
+      "judged_at": "S9",
+      "name": "Install command verified against the manifest and the package-registry observation",
+      "sections": [
+        "installation"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-03",
+      "judged_at": "S9",
+      "name": "Every rendered example was executed or compiled in isolation at this revision",
+      "sections": [
+        "quick_start",
+        "additional_examples"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-04",
+      "judged_at": "S9",
+      "name": "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact value in a code span",
+      "sections": [
+        "opening",
+        "key_capabilities",
+        "scope_limitations",
+        "api_reference",
+        "documentation_resources",
+        "enterprise_relationship"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-05",
+      "judged_at": "S9",
+      "name": "Every material inherited unit has exactly one disposition; placed units appear in their destination",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-06",
+      "judged_at": "S9",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "sections": [
+        "documentation_resources",
+        "enterprise_relationship",
+        "badges"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-07",
+      "judged_at": "S9",
+      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "sections": [
+        "structure"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-08",
+      "judged_at": "S9",
+      "name": "Protected content preserved",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-09",
+      "judged_at": "S9",
+      "name": "No configured secret in the bundle",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-10",
+      "judged_at": "S10",
+      "name": "Independent review returns ACCEPT under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "review_verdict": "ACCEPT",
+      "sections": [
+        "review"
+      ],
+      "verdict": "PASS",
+      "version": "3"
+    },
+    {
+      "causal_stage": null,
+      "details": [
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+      ],
+      "id": "BC-11",
+      "judged_at": "S12",
+      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    }
+  ],
+  "coverage": [
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "identity"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        },
+        {
+          "extracted": 30,
+          "kind": "link_target",
+          "supported": 30
+        }
+      ],
+      "required": true,
+      "section_id": "badges"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 30,
+          "kind": "link_target",
+          "supported": 30
+        }
+      ],
+      "required": false,
+      "section_id": "banner"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        },
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 1943,
+          "kind": "public_symbol",
+          "supported": 1943
+        }
+      ],
+      "required": true,
+      "section_id": "opening"
+    },
+    {
+      "included": true,
+      "kinds": [],
+      "required": true,
+      "section_id": "navigation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 1943,
+          "kind": "public_symbol",
+          "supported": 1943
+        }
+      ],
+      "required": false,
+      "section_id": "at_a_glance"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1943,
+          "kind": "public_symbol",
+          "supported": 1943
+        },
+        {
+          "extracted": 7,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+          ],
+          "supported": 1
+        },
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 1,
+          "kind": "import_path",
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "key_capabilities"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "install_command",
+          "supported": 1
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        }
+      ],
+      "required": true,
+      "section_id": "installation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "dependency",
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "dependencies"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 7,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+          ],
+          "supported": 1
+        }
+      ],
+      "required": true,
+      "section_id": "quick_start"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 7,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+          ],
+          "supported": 1
+        }
+      ],
+      "required": false,
+      "section_id": "additional_examples"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1943,
+          "kind": "public_symbol",
+          "supported": 1943
+        }
+      ],
+      "required": true,
+      "section_id": "api_reference"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 30,
+          "kind": "link_target",
+          "supported": 30
+        }
+      ],
+      "required": false,
+      "section_id": "documentation_resources"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 65,
+          "kind": "inherited_unit",
+          "supported": 65
+        },
+        {
+          "extracted": 7,
+          "kind": "example",
+          "reasons": [
+            "CONTRADICTED: example 2: FAILED; example_002.cpp:10:48: error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')",
+            "CONTRADICTED: example 3: FAILED; example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+            "CONTRADICTED: example 4: FAILED; example_004.cpp:3:25: error: 'sheet' was not declared in this scope"
+          ],
+          "supported": 1
+        },
+        {
+          "extracted": 1943,
+          "kind": "public_symbol",
+          "supported": 1943
+        }
+      ],
+      "required": true,
+      "section_id": "scope_limitations"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "build_test_asset",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "development_testing"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 30,
+          "kind": "link_target",
+          "supported": 30
+        }
+      ],
+      "required": false,
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "third_party_notices",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "third_party_notices"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "license"
+    }
+  ],
+  "protected_content_fingerprint": "a107d58b83c327d7054ba4dcebb208bc6f455a48f12ff9f5bc165db441bcc68c",
+  "readme_sha256": "d95b3a3e2e2ecb36f0661e89df794bd66c6a89d76a76cd7c1275d2eeb027919a",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
+  "schema_version": 1,
+  "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
+  "summary": {
+    "fail": 0,
+    "pass": 11,
+    "pending": 0
+  },
+  "validator_version": "3"
+}

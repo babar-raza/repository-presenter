@@ -1,0 +1,371 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.workbook"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellvalue",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.cell"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.color",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.style"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.worksheetprotection",
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.worksheet"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.conditionalformattingcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.definednamecollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.hyperlinkcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.documentproperties"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.workbookproperties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheetcollection",
+        "public_symbol:aspose.cells_foss.cells"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.worksheetcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.validationalerttype",
+        "public_symbol:aspose.cells_foss.validationtype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.autofiltercolorfilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.autofilter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.pageorientationtype",
+        "public_symbol:aspose.cells_foss.papersizetype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.pagesetup"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.fillpattern",
+        "public_symbol:aspose.cells_foss.border"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.color"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and save .xlsx workbooks",
+      "Read and write cell values and formulas",
+      "Apply cell and range formatting",
+      "Manage worksheet features",
+      "Apply conditional formatting and validation",
+      "Manage hyperlinks and defined names",
+      "Access document properties",
+      "Integrate via CMake"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "example:001"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Create and save .xlsx workbooks"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellvalue",
+        "example:001"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Read and write cell values and formulas"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.color",
+        "example:001"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Apply cell and range formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.worksheetprotection",
+        "public_symbol:aspose.cells_foss.pagesetup"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage worksheet features"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Apply conditional formatting and validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.definednamecollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage hyperlinks and defined names"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.documentproperties"
+      ],
+      "shared_fact_ids": [],
+      "title": "Access document properties"
+    },
+    {
+      "fact_ids": [
+        "package:cmake_minimum",
+        "install_command:cmake",
+        "dependency:none"
+      ],
+      "shared_fact_ids": [],
+      "title": "Integrate via CMake"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section_id": "additional_examples",
+      "text": "No additional examples are provided because no further SUPPORTED examples exist in the facts."
+    },
+    {
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "section_id": "development_testing",
+      "text": "Build and test instructions are omitted because the shell condition (build or test assets exist) is not satisfied by the facts."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:012.paragraph"
+      ],
+      "unit_ids": [
+        "inherited_unit:012.paragraph"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

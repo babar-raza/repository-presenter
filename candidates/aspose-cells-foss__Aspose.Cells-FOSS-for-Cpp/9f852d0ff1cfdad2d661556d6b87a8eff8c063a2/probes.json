@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 1408,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/cpp/"
+  },
+  {
+    "elapsed_ms": 1291,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/blob/main/License/LICENSE.txt"
+  },
+  {
+    "elapsed_ms": 2052,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1702,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues"
+  },
+  {
+    "elapsed_ms": 883,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1690,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.svg"
+  },
+  {
+    "elapsed_ms": 2018,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/issues/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.svg"
+  },
+  {
+    "elapsed_ms": 962,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Cells.Cpp.FOSS.svg"
+  },
+  {
+    "elapsed_ms": 1028,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/cpp/"
+  },
+  {
+    "elapsed_ms": 1182,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/cpp/"
+  },
+  {
+    "elapsed_ms": 2408,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/cpp/"
+  },
+  {
+    "elapsed_ms": 2506,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/cpp/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1451,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/cpp/"
+  },
+  {
+    "elapsed_ms": 1949,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "package_registry.json (offline)",
+    "outcome": "UNRESOLVED",
+    "status": null,
+    "target": "none:aspose_cells_foss_cpp"
+  }
+]
