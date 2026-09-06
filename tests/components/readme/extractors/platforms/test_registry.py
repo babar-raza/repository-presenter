@@ -13,9 +13,10 @@ from repository_presenter.core.errors import ConfigError
 
 
 def test_python_is_the_first_registered_plugin() -> None:
-    # .NET joined at G4-W11, TypeScript at G4-W14 and Go at G4-W15; discovery finds each
-    # without this module listing it, and this assertion is the only line any had to change.
-    assert known_ecosystems() == ("go", "net", "python", "typescript")
+    # .NET joined at G4-W11, TypeScript at G4-W14, Go at G4-W15 and Java at G4-W12; discovery
+    # finds each without this module listing it, and this assertion is the only line any had
+    # to change.
+    assert known_ecosystems() == ("go", "java", "net", "python", "typescript")
     plugin = plugin_for("python")
     assert isinstance(plugin, PythonPlugin)
     assert plugin.manifest_globs == ("pyproject.toml", "setup.cfg", "setup.py")
@@ -42,7 +43,7 @@ def test_a_plugin_is_discovered_by_module_name_and_its_plugin_attribute() -> Non
 
     assert python.PLUGIN is plugin_for("python")
     assert plugin_for("python") is plugin_for("python")  # resolved once, then cached
-    assert known_ecosystems() == ("go", "net", "python", "typescript")
+    assert known_ecosystems() == ("go", "java", "net", "python", "typescript")
     # A module that exists in the package but exposes no PLUGIN is not an ecosystem.
     with pytest.raises(ConfigError, match="'python_surface'"):
         plugin_for("python_surface")
@@ -52,3 +53,6 @@ def test_a_plugin_is_discovered_by_module_name_and_its_plugin_attribute() -> Non
     # And for Go's verifier module, added at G4-W15.
     with pytest.raises(ConfigError, match="'go_examples'"):
         plugin_for("go_examples")
+    # And for Java's, added at G4-W12.
+    with pytest.raises(ConfigError, match="'java_examples'"):
+        plugin_for("java_examples")
