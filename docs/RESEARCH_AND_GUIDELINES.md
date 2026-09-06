@@ -3969,3 +3969,25 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   purely as unrelated schema-shape boilerplate, unrelated to what each test was actually
   measuring (`absence_defect` alone); corrected to `fact_ids: []`, which the schema allows and
   neither test's assertions depend on.
+
+- **2026-09-06 22:30 · loop (PROVISIONAL) · the .NET verifier's own clock was inside the sealed
+  bytes.** Item G4-W11. Aspose.Cells for .NET sealed - the first .NET candidate accepted, review
+  ACCEPT, zero findings - but a same-process rerun to prove the zero-call no-op bar came back
+  `re-sealed: examples.json changed since the last seal; proof withdrawn` even though nothing
+  about the repository, the facts, or the LLM calls (0 provider calls, every stage reused) had
+  changed. Preserved a before-copy and diffed the two runs byte for byte: every receipt's raw
+  `stdout` differed on exactly one line, MSBuild's own `Time Elapsed 00:00:26.84` /
+  `Time Elapsed 00:01:02.44` - present on every build, succeeded or failed, and by its nature
+  never the same twice. `_scrub` already stripped this machine's paths from a receipt for the
+  same reason (measured on Slides, above); the wall-clock cost of the build was never scrubbed
+  because nothing had yet needed a rerun to notice it moves the bytes. Fixed by dropping the
+  `Time Elapsed` line in `_scrub` itself, so both the stored `stdout`/`stderr` and `_first_error`
+  see it gone; the SDK version stays, since that is a fact about the toolchain, not a clock
+  reading. This affects every .NET candidate with an executed example, not only Cells - Aspose.3D
+  sealed in the same iteration and needs the identical rerun to confirm. Separately: Aspose.Words
+  hit `BLOCKED_TOOLCHAIN: no clean workspace to build in` - all five of `_fresh_workspace`'s
+  attempts were locked, traced to a leftover `VBCSCompiler.exe` build-server process holding
+  handles from an earlier run in today's heavy concurrent .NET usage; stopping it and clearing
+  the five directories by hand let a retry proceed. Not a code defect - `_fresh_workspace` did
+  exactly what it is for, reporting `BLOCKED_TOOLCHAIN` rather than crashing - but a reminder that
+  five attempts can still exhaust under enough concurrent build-server contention on one machine.

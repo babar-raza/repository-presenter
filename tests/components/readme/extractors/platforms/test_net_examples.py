@@ -168,6 +168,50 @@ def test_a_diagnostic_carries_no_path_from_this_machine(
     assert str(tmp_path) not in receipts[0].stdout and str(tmp_path) not in receipts[0].stderr
 
 
+def test_two_runs_of_the_same_build_carry_no_clock_of_their_own(
+    tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """MSBuild prints its own wall-clock cost on the last line of every build, succeeded or
+    failed, which cannot repeat between two runs of the same example by its very nature.
+
+    Measured 2026-09-06 on Aspose.Cells for .NET: two runs of an otherwise byte-identical,
+    zero-provider-call composition produced two different `examples.json` files and withdrew
+    the seal's no-op proof, because `Time Elapsed 00:00:26.84` was stored verbatim in the
+    receipt and differed the second time.
+    """
+    success = "\r\nBuild succeeded.\r\n    0 Warning(s)\r\n    0 Error(s)\r\n\r\n"
+    failure = (
+        "Program.cs(1,20): error CS0246: 'Workbook' not found [Example.csproj]\r\n\r\n"
+        "Build FAILED.\r\n\r\n"
+        "Program.cs(1,20): error CS0246: 'Workbook' not found [Example.csproj]\r\n"
+        "    0 Warning(s)\r\n    1 Error(s)\r\n\r\n"
+    )
+
+    def run_once(elapsed_seconds: str) -> list[net_examples.ExampleReceipt]:
+        def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+            if argv[1] == "--version":
+                return _result(0, stdout="10.0.204\n")
+            # Candidate 2's workspace is example_002; candidate 1's is example_001.
+            if str(kwargs.get("workspace", "")).endswith("example_002"):
+                return _result(1, stdout=failure + f"Time Elapsed {elapsed_seconds}\r\n")
+            return _result(0, stdout=success + f"Time Elapsed {elapsed_seconds}\r\n")
+
+        monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+        monkeypatch.setattr(net_examples, "execute", fake)
+        return net_examples.verify_net_examples(
+            tmp_path,
+            project,
+            [_candidate(1, "var w = new Workbook();"), _candidate(2, "boom")],
+            tmp_path / "run",
+        )
+
+    first = run_once("00:00:25.71")
+    second = run_once("00:01:02.44")
+    assert [r.outcome for r in first] == [r.outcome for r in second] == ["EXECUTED", "FAILED"]
+    assert [r.stdout for r in first] == [r.stdout for r in second]
+    assert "Time Elapsed" not in first[0].stdout and "Time Elapsed" not in first[1].stdout
+
+
 def test_a_workspace_windows_will_not_release_does_not_end_the_stage(
     tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

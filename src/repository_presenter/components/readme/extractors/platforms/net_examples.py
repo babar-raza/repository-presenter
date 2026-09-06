@@ -46,6 +46,9 @@ _SDK_VERSION = re.compile(r"^(\d+)\.(\d+)\.")
 # MSBuild appends the project that raised a diagnostic in brackets; the diagnostic is the part
 # a disposition acts on.
 _TRAILING_PROJECT = re.compile(r"\s*\[[^\]]*\]\s*$")
+# The wall-clock cost of this build, on this machine, right now - never reproducible and never
+# evidence about the repository.
+_TIME_ELAPSED = re.compile(r"(?m)^Time Elapsed .*\r?\n?")
 _WORKSPACE_ATTEMPTS = 5
 
 
@@ -111,20 +114,30 @@ def _fresh_workspace(workspace: Path) -> Path | None:
 
 
 def _scrub(text: str, run_dir: Path) -> str:
-    """This machine's paths out of a compiler's output.
+    """This machine's paths, and this run's own clock, out of a compiler's output.
 
-    MSBuild prints absolute paths and appends the project in brackets. A receipt becomes a fact's
-    evidence and a fact is published, so the developer's home directory must not appear in it -
-    and a path that differs per machine would move a sealed candidate's bytes for a reason that
-    is not the repository. Measured 2026-09-06 on Aspose.Slides for .NET, whose facts carried
-    `D:\\Users\\...\\runs\\verify\\a50008248340\\example_003\\Program.cs(1,30): error CS0246`.
+    MSBuild prints absolute paths and appends the project in brackets. A receipt becomes a
+    fact's evidence and a fact is published, so the developer's home directory must not appear
+    in it - and a path that differs per machine would move a sealed candidate's bytes for a
+    reason that is not the repository. Measured 2026-09-06 on Aspose.Slides for .NET, whose
+    facts carried `D:\\Users\\...\\runs\\verify\\a50008248340\\example_003\\Program.cs(1,30):
+    error CS0246`.
+
+    MSBuild also prints its own wall-clock cost on the last line of every build, succeeded or
+    failed - `Time Elapsed 00:00:26.84` - which cannot repeat between two runs of the same
+    example by its very nature. Measured 2026-09-06 on Aspose.Cells for .NET: two runs of an
+    otherwise byte-identical, zero-provider-call composition produced two different
+    `examples.json` files and withdrew the seal's no-op proof, because that timing line is
+    stored verbatim in the receipt. The SDK version stays - a build is only as reproducible as
+    the toolchain that ran it - but how long this machine took to run it is not evidence of
+    anything the repository did.
     """
     cleaned = text
     for base in {run_dir, run_dir.resolve()}:
         for rendered in (str(base), base.as_posix()):
             cleaned = cleaned.replace(rendered + "\\", "").replace(rendered + "/", "")
             cleaned = cleaned.replace(rendered, "")
-    return cleaned
+    return _TIME_ELAPSED.sub("", cleaned)
 
 
 def _sdk_version(dotnet: str, workspace: Path) -> str:
