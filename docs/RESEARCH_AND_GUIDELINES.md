@@ -4814,3 +4814,27 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   either a new repair capability or a live-verified prompt iteration with room to get it right,
   not a re-read with fresh eyes the way 16 and 17's first half turned out to need. A new box opens
   now.
+
+- **2026-09-06 18:14 (`date` checked) · loop (PROVISIONAL) · the third narration shape (16:21
+  entry above) is fixed and live-verified against the exact repository that exposed it.**
+  `prompts/section_authoring.yaml` (version 13 to 14) gains one more `rejection_template`
+  sentence, the same lever item 7 used: a rejected identifier that IS one of the unit's own cited
+  `fact_ids` is not a spelling problem - the citation belongs only in `fact_ids`, and `text` never
+  lists or names which facts support it ("citing X, Y, and Z" and similar are never written) -
+  state the fact's content in prose instead. Re-ran `present` against `aspose-slides-foss/
+  Aspose.Slides-FOSS-for-Cpp` at the exact revision the 16:21 entry measured
+  (`733de4bf72fa33d16ee153779e8ee924ea1faebe`): `section_authoring` no longer rejects at all - 267
+  units across 9 sections, 16 provider calls, no `JobError` - where it previously failed closed
+  twice, identically, on the `development_testing` summary. `content_units.json` has zero
+  occurrences of "citing " anywhere, and the same summary unit now ends "...run tests with `ctest
+  --test-dir build --output-on-failure` after building." with no trailing citation clause; the
+  fact IDs it needs are exactly where they belong, in the unit's own `fact_ids` array. The
+  transaction then advances three full stages further than before (S6 through S9) and stops on
+  `BC-02 failed at EXTRACTING: install_command:cmake is UNRESOLVED: package registry: none could
+  not be read` - C++ has no package registry (`CPP.registry` is the phrase "any package
+  registry"), a distinct, already-understood characteristic the reviewer's own item 24 already
+  names and is actively working (`fd51bb7` above: "item 0's polarity gate cannot open for a
+  registry-less ecosystem"), not this fix's concern. Full local test suite green, ruff/mypy clean
+  before the change (the prompt file carries no code); this landing is the prompt file alone,
+  verified by the live run above rather than a unit test, matching how prompt-wording fixes are
+  verified throughout this session.
