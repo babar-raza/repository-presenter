@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -41,7 +42,28 @@ HOSTED = (
 )
 
 compiler = typescript_examples.typescript_compiler()
-needs_tsc = pytest.mark.skipif(compiler is None, reason="no tsc on this machine")
+
+
+def _refusal() -> str:
+    """What this machine's tsc says about the verifier's own flags, or empty when it accepts them.
+
+    The lane qualified tsc 5.9.3 (`evidence/build/lanes/lane-b/LANE-B-00.json`); the hosted runner
+    carries 7.0.2, a different compiler this lane has not qualified, and it refuses these options.
+    The verifier's answer there is `NOT_VERIFIED` for every candidate, which is what
+    `test_a_compiler_this_lane_has_not_qualified_verifies_nothing` asserts - so the tests that need
+    a compiler that *works* skip rather than pretend, and the honest behaviour is still asserted.
+    """
+    if compiler is None:
+        return "no tsc on this machine"
+    with tempfile.TemporaryDirectory() as directory:
+        workspace = Path(directory)
+        return typescript_examples.probe_compiler(
+            compiler, workspace, typescript_examples._flags(workspace)
+        )
+
+
+REFUSAL = _refusal()
+needs_tsc = pytest.mark.skipif(bool(REFUSAL), reason=f"no usable tsc here: {REFUSAL}")
 
 
 def _repository(root: Path) -> Path:
@@ -93,6 +115,30 @@ def test_the_build_output_the_manifest_declares_is_staged_from_the_sources_it_ma
 
 def test_no_candidate_needs_no_workspace(tmp_path: Path) -> None:
     assert typescript_examples.verify_typescript_examples(tmp_path, None, [], tmp_path, 60.0) == []
+
+
+@pytest.mark.skipif(compiler is None, reason="no tsc at all on this machine")
+def test_a_compiler_this_lane_has_not_qualified_verifies_nothing(tmp_path: Path) -> None:
+    """Section 29.6 E5, proven on whichever tsc this machine has.
+
+    The lane qualified 5.9.3; the hosted runner carries 7.0.2, which refuses these options and
+    exits non-zero with no diagnostic naming a file - the shape that would read as a clean run to
+    anything that only counts diagnostics. Whichever compiler is present, the outcome here is
+    honest: `EXECUTED` when it checked and found nothing wrong, `NOT_VERIFIED` naming the refusal
+    when it could not check at all. Never `EXECUTED` because a refusal was silent.
+    """
+    root = tmp_path / "repository"
+    root.mkdir()
+    barrel = _repository(root)
+    candidate = ExampleCandidate(1, "typescript", GOOD, "README.md", 1, 4, "unit:001")
+    receipts = typescript_examples.verify_typescript_examples(
+        root, barrel, [candidate], tmp_path / "run", 180.0
+    )
+    if REFUSAL:
+        assert receipts[0].outcome == "NOT_VERIFIED"
+        assert "BLOCKED_TOOLCHAIN" in receipts[0].detail
+    else:
+        assert receipts[0].outcome == "EXECUTED"
 
 
 @needs_tsc

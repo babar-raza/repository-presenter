@@ -138,6 +138,20 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   the rule's gap behind a version. Evidence: the failing hosted job, and the new test that stages a
   configuration file deliberately and asserts the outcome is never `EXECUTED`. Reversal: none
   wanted; the local run (5.9.3) and the hosted run (7.0.2) now agree.
+- **2026-09-06 · G4-W14 · a compiler is qualified by driving it, not by reading its version.**
+  Removing the staged `tsconfig.json` was not enough: tsc 7.0.2 still refused the verifier's
+  options and still exited non-zero with no filed diagnostic, so every example on the hosted runner
+  came back `NOT_VERIFIED` and the three tests that assert a real verdict failed. The verifier now
+  drives the compiler once per run on a file that cannot fail, with exactly the flags the examples
+  will use (`probe_compiler`): a refusal blocks every candidate with what the compiler said, which
+  is the honest answer for a compiler this lane has not qualified. The tests that need a *working*
+  compiler skip on a refusal, and one test that runs wherever any `tsc` exists asserts the
+  behaviour in both directions - `EXECUTED` when it checked, `NOT_VERIFIED` naming the refusal when
+  it could not, never `EXECUTED` because a refusal was silent. Alternative rejected: chase tsc 7's
+  option surface inside the box - the lane qualified 5.9.3 in LANE-B-00 and the receipt says so;
+  guessing at a compiler nothing has measured would put an unmeasured claim in a sealed candidate.
+  Resume predicate for TypeScript 7: run `probe_compiler` against it, read the refusal it prints,
+  and adjust `_flags`; the receipt will name the option.
 - **2026-09-06 · G4-W14 · DISPOSITION · `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at
   `7b95970` - `BLOCKED_RECONCILIATION`.** Everything up to S3 holds: 190 tree entries, 1178 facts
   (1034 public symbols, 11 dependencies), 9 examples of which 8 type-check and the ninth is a real

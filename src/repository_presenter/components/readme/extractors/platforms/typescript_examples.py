@@ -267,6 +267,33 @@ def split_diagnostics(output: str, example: str) -> tuple[list[str], list[str]]:
     return (mine, theirs)
 
 
+def probe_compiler(compiler: str, workspace: Path, flags: Sequence[str]) -> str:
+    """Empty when this compiler accepts these flags and checks a trivial file; else what it said.
+
+    A version string is not enough. The hosted runner's `tsc` is 7.0.2 and this machine's is
+    5.9.3, and a flag one accepts the other can refuse outright - a refusal that exits non-zero
+    with no filed diagnostic, which is indistinguishable from a clean run if only diagnostics are
+    read. So the compiler is driven once, on a file that cannot fail, with exactly the flags the
+    examples will use: a compiler that cannot check *this* verifies nothing, and every candidate
+    is `NOT_VERIFIED` with what it said, rather than silently passed or falsely failed.
+    """
+    directory = workspace / "rp_compiler_probe"
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "probe.ts").write_text(
+        "export const rp: number = 1;\n", encoding="utf-8", newline="\n"
+    )
+    result = execute(
+        [compiler, *flags, "probe.ts"],
+        workspace=directory,
+        timeout_seconds=120.0,
+        extra_environment=profile_environment(directory),
+    )
+    if result.return_code == 0:
+        return ""
+    said = (result.stdout + "\n" + result.stderr).strip().splitlines()
+    return said[0][:300] if said else f"exited {result.return_code} and said nothing"
+
+
 def _version(compiler: str, workspace: Path) -> str:
     result = execute(
         [compiler, "--version"],
@@ -305,6 +332,11 @@ def verify_typescript_examples(
         return _blocked(candidates, f"BLOCKED_TOOLCHAIN: the sources would not stage ({error})")
 
     flags = _flags(root)
+    refusal = probe_compiler(compiler, workspace, flags)
+    if refusal:
+        return _blocked(
+            candidates, f"BLOCKED_TOOLCHAIN: this tsc refuses these options - {refusal}"
+        )
     receipts: list[ExampleReceipt] = []
     for candidate in candidates:
         name = f"example_{candidate.ordinal:03d}.ts"
