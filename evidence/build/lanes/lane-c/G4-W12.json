@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "lane": "lane-c",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W12",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-06T09:20:00+05:00",
+ "control_revision": "b901a98",
+ "control_revision_note": "The single-use branch lane-c/G4-W12 is rebased onto this revision of origin/main (lane B's G4-W14 merge) and lands through one squashed pull request after the hosted three-version run. The one rebase during the item took origin's text everywhere it overlapped.",
+ "time_box": {
+  "declared": "3 hours from promotion (RESEARCH 28.12)",
+  "started": "2026-09-06T08:05 +05:00",
+  "note": "At the box: nothing sealed, every repository has an evidence-bound disposition naming its failure class and resume predicate, and the item is accepted. All four dispositions have the same resume predicate."
+ },
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+  "worktree": "C:\\w\\c12 - the harness worktree under .claude\\worktrees\\agent-<id>\\ overruns Windows' 260-character limit at runs/transactions/<owner>__<name>/<rev>/calls/<sha>.rejected-1.json, the defect lane B recorded for Cells TypeScript; the reviewer moved this lane to a short path before its first composition and it was never met here.",
+  "path_policy": "Every tool is resolved with shutil.which(name) or shutil.which(name + '.cmd') and called by the resolved absolute path; nothing was added to the user or system PATH. JAVA_HOME is not on core.execution's allow-list, so the verifier derives it from the resolved javac and passes it in the subprocess overlay only - this machine's own JAVA_HOME names JDK 17 while javac resolves to JDK 21 (section 28.11)."
+ },
+ "toolchain_used": {
+  "javac": {
+   "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.11.10-hotspot\\bin\\javac.EXE",
+   "version": "21.0.11",
+   "note": "Reported by the verifier itself through core.execution and recorded in every receipt."
+  },
+  "maven": {
+   "path": "C:\\tools\\apache-maven-3.9.16\\bin\\mvn.CMD",
+   "version": "3.9.16",
+   "used": false,
+   "note": "Resolved and available, and deliberately not used: every dependency all four POMs declare is `test` scope, so a consumer resolves nothing, there is nothing to download, and javac compiles the product tree directly. No local Maven repository was created, nothing was written to the user profile, and no example verification touched the network."
+  }
+ },
+ "what_landed": {
+  "spec": "core.ecosystems.EcosystemSpec JAVA, built and registered by platforms/java.py itself with SPECS.setdefault - the lane never edits core/. Fence java, registry Maven Central, install fact install_command:maven, no version badge (PROPOSAL B), floor package:java_release / Java / maven.compiler (PROPOSAL C), manifest glob pom.xml, source suffix .java, example clock 300s at core.execution's ceiling.",
+  "modules": [
+   "src/repository_presenter/components/readme/extractors/platforms/java.py",
+   "src/repository_presenter/components/readme/extractors/platforms/java_examples.py"
+  ],
+  "tests": [
+   "tests/components/readme/extractors/platforms/test_java.py (17)"
+  ],
+  "facades_used": {
+   "ManifestReader": "surface.manifest.read_identity for the group and artifact ids, the version, the Java floor and the package root (src/main/java on all four); the POM's dependency block is read by the plugin because the vendored reader returns identity only",
+   "SurfaceExtractor": "surface.extractor.surface_symbols with the java grammar, scanned from the package root the reader resolved, so src/test/java is never public API",
+   "RegistryProbe": "surface.registry.observe -> maven (repo1.maven.org's maven-metadata.xml, never search.maven.org); the reading is inconclusive for every Java package because observe carries only a name (PROPOSAL A), so the install claim stays UNRESOLVED and its evidence says exactly why rather than borrowing the facade's 'answered ambiguously'"
+  },
+  "outside_owned_paths": "tests/components/readme/extractors/platforms/test_registry.py, two literal assertions about known_ecosystems() and their comment. Unavoidable for any item that registers an ecosystem - lane B changed the same two lines for TypeScript at PR #3 - and recorded in docs/RESEARCH_LANE_C.md."
+ },
+ "predicates": [
+  {
+   "predicate": "Identity, floor and the dependency snapshot come from the vendored ManifestReader (section 29.12).",
+   "verdict": "PASS",
+   "evidence": "read_identity gives org.aspose:aspose-3d-foss 26.5.0, org.aspose:aspose-cells-foss 26.7.0, org.aspose:aspose-pdf-foss 26.8.0 and org.aspose:aspose-slides-foss 26.8.0 from each pom.xml, with the floors 21, 17, 11 and 21 and the package root src/main/java. The snapshot is read from the POM's own <dependencies> block with ${property} resolved from <properties>: Maven's scope decides the bucket, and every dependency all four declare is `test`, so all four emit the dependency:none verified-zero marker citing the clause that proves it (2, 3, 2 and 6 dependency facts). No legacy ecosystems/java.py was pulled: the vendored reader lacked no field the contract asks for."
+  },
+  {
+   "predicate": "The surface comes through the shared extractor, with the internal and impl package exclusion checked by parity.",
+   "verdict": "PASS",
+   "evidence": "surface_symbols with the java grammar over the resolved package root produced 5366, 2728, 24830 and 5097 public_symbol facts, every one carrying its declaring file and line. src/test/java is excluded by construction because the package root is src/main/java, not the POM's directory. Parity against the four live READMEs for the vendored internal/impl exclusion: `internal` appears 0 times in 3D's and Slides's README, once in Cells's and twice in PDF's, in none of those as a type or package a reader is told to use - and Slides is the only repository with such a package (org.aspose.slides.foss.internal.*). No README row loses evidence to the exclusion, so parity holds with the default on and E6 javap corroboration was not needed (section 29.6 E6 admits it only when parity fails)."
+  },
+  {
+   "predicate": "A fresh verifier compiles the examples through javac or mvn, with offline flags where the repository provides a lock.",
+   "verdict": "PASS",
+   "evidence": "verify_java_examples compiles the product tree once per repository with an argfile and then each example as a classpath compile, under the disposable profile with JAVA_HOME derived from the resolved javac. No repository provides a lock and none needs one: the required-dependency set is empty for all four, so the whole verification is offline by construction and mvn was never invoked. 30 candidates, 25 compiled (3D 8/10, Cells 3/3, PDF 9/9, Slides 5/8); the five failures name a missing symbol in the example itself and match the aspose_org_upstream_issues digest for those products (3D's glTF/FBX/OBJ stubs)."
+  },
+  {
+   "predicate": "Registry facts go through the vendored RegistryProbe (repo1.maven.org, never search.maven.org).",
+   "verdict": "PASS with a defect recorded",
+   "evidence": "registry_facts calls surface.registry.observe, which reaches publication_probe's _maven_check and its https://repo1.maven.org/maven2/{group_path}/{artifact_id}/maven-metadata.xml template; search.maven.org is never touched. The reading is inconclusive for every Java package because observe's candidate carries only a name and _maven_check returns before it fetches when group_id or artifact_id is missing - PROPOSAL A, with the three-line fix. The plugin writes its own evidence sentence rather than the facade's 'answered ambiguously', so no candidate claims a read that did not happen."
+  },
+  {
+   "predicate": "A negative control.",
+   "verdict": "PASS",
+   "evidence": "test_java.py carries four: a repository with no Java source tree returns NOT_VERIFIED rather than a compile failure; a POM declaring a required dependency returns NOT_VERIFIED: BLOCKED_TOOLCHAIN naming it; an unreadable registry leaves the install claim UNRESOLVED and never CONTRADICTED; and a simple name two packages declare is dropped from the import index rather than guessed. test_registry.py's unknown-ecosystem test still fails closed."
+  },
+  {
+   "predicate": "Cohort report; zero-call proofs; hosted CI green.",
+   "verdict": "PASS for the report and the zero-call proofs; nothing sealed, so there is no no-op rerun to prove",
+   "evidence": "The cohort block below is the report. The facts-only pass over all four repositories made zero provider calls by construction (cli.run_present stops after S2 with facts_only) and produced 38,604 facts and 38,021 public symbols. No bundle sealed, so no byte-identical zero-call rerun exists to record; the four dispositions say why and name one resume predicate."
+  }
+ ],
+ "cohort": [
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Java",
+   "revision": "e308de58888635956cd66e5b0e2994dd42cd4356",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_RECONCILIATION",
+   "facts": 5508,
+   "public_symbols": 5366,
+   "examples": "10 candidates; 8 EXECUTED, 2 FAILED",
+   "detail": "S4 source_reconciliation rejected its own output twice: four inherited units (012-015) placed into `installation`, where rendering_fact_ids finds nothing because install_command:maven is UNRESOLVED and that is the section's only rendering fact kind. The job is asked to answer OMIT_UNSUPPORTED or DEFER_UNRESOLVED and answered with a placement, twice. The two failing examples name symbols the library does not declare, which matches the product's own upstream-issues digest (glTF and FBX import/export are silent no-op stubs; OBJ export is unimplemented).",
+   "resume_predicate": "PROPOSAL A merged on `main` (observe carries the Maven coordinate, so the install fact resolves against Maven Central where 3D is published), or PROPOSAL D merged (normalize folds a placement into a section that renders nothing, as it already folds four other impossible placements); then re-run present."
+  },
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+   "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_RECONCILIATION",
+   "facts": 2829,
+   "public_symbols": 2728,
+   "examples": "3 candidates; 3 EXECUTED",
+   "detail": "The same class as 3D, and reproduced across two independent runs: five inherited units (011-015) placed into `installation`, which renders nothing while install_command:maven is UNRESOLVED; rejected twice both times. Everything before S4 is clean - identity, floor 17, the verified-zero dependency marker, 2728 public symbols and every README example compiled.",
+   "resume_predicate": "PROPOSAL A merged on `main` (Cells is published on Maven Central), or PROPOSAL D merged; then re-run present."
+  },
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+   "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_VALIDATION (BC-02)",
+   "facts": 5235,
+   "public_symbols": 5097,
+   "examples": "8 candidates; 5 EXECUTED, 3 FAILED",
+   "detail": "Reached a complete rendered candidate - 85 units dispositioned, 17 of 18 sections planned, 29 content units authored, README.md at 221 visible lines of 536 - and failed at S9: `BC-02 failed at EXTRACTING: install_command:maven is UNRESOLVED`, with no repair able to act on it. Validation was pass 7, fail 2, pending 2; the second failure is BC-07 at COMPOSING, internal narration 'fact id' (PROPOSAL G), which is not what stopped the transaction. An earlier run of the same revision died at S4 on a reconciliation coverage error over its 85 units (PROPOSAL F), so that stage is not reliable at this unit count either.",
+   "resume_predicate": "PROPOSAL A merged on `main`, then re-run present; Slides is `mode: dry_run`, so the reading may be negative and the candidate must then render the not-yet-published sentence honestly rather than the install block."
+  },
+  {
+   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+   "revision": "099e70a8b309fdd6ce349607dd589dfde96f2989",
+   "outcome": "DISPOSITION",
+   "failure_class": "BLOCKED_VALIDATION (BC-02)",
+   "facts": 25032,
+   "public_symbols": 24830,
+   "examples": "9 candidates; 9 EXECUTED",
+   "detail": "The portfolio's largest surface - 1,106 source files, 24,830 public symbols, a 1,507-line README with 136 inherited units - went through every stage and failed at S9 on the same BC-02 as Slides. Validation was pass 6, fail 3, pending 2: BC-02 at EXTRACTING, BC-07 at COMPOSING (internal narration 'fact id', PROPOSAL G) and BC-06 at EXTRACTING (`xfa:datasets: tree does not contain datasets` - a link_target the shared link extraction admitted for a relative path the tree does not carry; not the Java plugin, which emits no link facts). All nine README examples compiled once the verifier compiled the product tree first: before that fix every one of them failed inside the product's own Interpreter.java.",
+   "resume_predicate": "PROPOSAL A merged on `main`, then re-run present; the BC-06 link finding is a second, independent defect and needs its own route (the lane records it, it is outside lane paths, and it did not block this run's first failure)."
+  }
+ ],
+ "proposals": [
+  "A - extractors/surface/registry.py observe() cannot carry a Maven coordinate, so every Java install fact is UNRESOLVED; three lines; blocks all four repositories in two shapes.",
+  "B - core/ecosystems.py EcosystemSpec.badge() formats one {package}, which no Maven Central badge URL can use; the Java spec carries no version badge.",
+  "C - EcosystemSpec.floor_declaration is per ecosystem, but a POM states the Java floor as maven.compiler.release, .target or .source and this cohort uses all three.",
+  "D - reconciliation/dispositions.py normalize() errors instead of folding a placement into a deterministic section that renders nothing; the one impossible placement it does not fold.",
+  "E - composition/planning.py rejects a whole candidate for two trimmable ceiling breaches (duplicate api_hubs, Aspose links over the ceiling).",
+  "F - source_reconciliation is rejected whole for a coverage error a targeted re-ask would close (85 units; two missing, two duplicated).",
+  "G - authored prose leaks the phrase 'fact id' and BC-07 catches it at S9 after twelve calls; the one repair attempt records it unrepairable."
+ ],
+ "local_ci_equivalent": {
+  "note": "loop-prompt section 3: one full suite immediately before the commit. Two full runs happened this item - one while the cohort composed, as an early warning, and one before the commit.",
+  "runs": [
+   {
+    "python": "3.13.2",
+    "steps": [
+     {"command": "ruff check .", "exit_code": 0},
+     {"command": "ruff format --check .", "exit_code": 0},
+     {"command": "mypy src", "exit_code": 0, "files": 119},
+     {"command": "python -m pytest -n auto", "exit_code": 0, "seconds": 154}
+    ]
+   }
+  ]
+ },
+ "hosted_ci": {},
+ "next_work_item": "none; G4-W12 is lane C's only item. The reviewer re-spawns the lane when PROPOSAL A lands through G4-W17.",
+ "measurement": {
+  "repositories_in_scope": 4,
+  "sealed": 0,
+  "dispositions": 4,
+  "facts_extracted": 38604,
+  "public_symbols": 38021,
+  "examples_verified": 30,
+  "examples_compiled": 25,
+  "provider_calls_in_the_facts_only_passes": 0,
+  "failure_classes_fixed_in_lane_paths": 3,
+  "proposals_raised": 7,
+  "note": "The three classes fixed inside lane paths were all example verification: -sourcepath cannot see a package-private class declared in a differently named file (PDF went 0/9 to 9/9); maven.compiler.target is -source/-target and not --release (the same PDF failure); and a README snippet's missing imports (3D 5/10 to 8/10, Slides 1/8 to 5/8, PDF 0/9 to 9/9). Every remaining blocker is one of the seven proposals, and PROPOSAL A alone accounts for all four dispositions."
+ }
+}

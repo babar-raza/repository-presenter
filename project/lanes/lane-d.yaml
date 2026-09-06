@@ -24,14 +24,17 @@ toolchains:
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
   sealed_by_lane: 0
-  dispositions_by_lane: 0
+  dispositions_by_lane: 2
 items:
 - id: G4-W15
-  status: PENDING
+  status: ACCEPTED
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)
   purpose: 'Go spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; module paths with a major-version suffix such as Cells Go''s /v26 carried into the install line), exported surface through the shared extractor with interface and struct-embedding handling, a fresh verifier (go build and go vet with a disposable GOPATH and module cache), registry facts through the vendored RegistryProbe (Go proxy; module-path escaping per the legacy registry_request.py), a negative control; then the two Go repositories as a cohort. Parity per repository; go doc -all corroboration (E6) only if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+  accepted_at: '2026-09-06T09:15:00+05:00'
+  receipt: evidence/build/lanes/lane-d/G4-W15.json
+  outcome: 'Accepted at the box with the spec, the module, the fresh verifier and the cohort report; zero seals and two dispositions. Both repositories reach EXTRACTING complete - 231 and 1,620 facts, no required contract row without evidence, 13 of 16 README fences compiled and vetted - and neither can be composed until PROPOSAL P1 (the shared kind table does not know Go''s node types, so the Core API table renders empty) and PROPOSAL P2 (the shared registry façade never probes the Go proxy, so BC-02 fails closed on the install command) land through G4-W17. P3 and P4 are recorded and do not block. See docs/RESEARCH_LANE_D.md.'
 - id: G4-W16
   status: PENDING
   prerequisites:

@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 633,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/net/"
+  },
+  {
+    "elapsed_ms": 1153,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/blob/master/License/LICENSE.txt"
+  },
+  {
+    "elapsed_ms": 1066,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1240,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues"
+  },
+  {
+    "elapsed_ms": 576,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 978,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg"
+  },
+  {
+    "elapsed_ms": 914,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/issues/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg"
+  },
+  {
+    "elapsed_ms": 1045,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Cells.FOSS.svg"
+  },
+  {
+    "elapsed_ms": 707,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/net/"
+  },
+  {
+    "elapsed_ms": 536,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/net/"
+  },
+  {
+    "elapsed_ms": 551,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/net/"
+  },
+  {
+    "elapsed_ms": 560,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/net/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 964,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/net/"
+  },
+  {
+    "elapsed_ms": 1992,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.Cells.FOSS/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "nuget-flatcontainer-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "nuget:Aspose.Cells.FOSS"
+  }
+]

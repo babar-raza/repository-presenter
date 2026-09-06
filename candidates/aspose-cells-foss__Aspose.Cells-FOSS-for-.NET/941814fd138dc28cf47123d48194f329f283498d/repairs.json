@@ -1,0 +1,42 @@
+{
+  "attempts": {
+    "1cd37d6e615e73fb096f059a": {
+      "changes": [
+        {
+          "after": "[\"identity:ecosystem\",\"identity:family\",\"identity:platform\",\"identity:repository\",\"identity:revision\",\"package:name\",\"package:target_framework\",\"package:version\",\"public_symbol:aspose.cells_foss.borders\",\"public_symbol:aspose.cells_foss.style\"]",
+          "before": "[\"identity:ecosystem\",\"identity:family\",\"identity:platform\",\"identity:repository\",\"identity:revision\",\"package:name\",\"package:target_framework\",\"package:version\",\"public_symbol:aspose.cells_foss.borders\",\"public_symbol:aspose.cells_foss.font\",\"public_symbol:aspose.cells_foss.style\"]",
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.style"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[2].fact_ids"
+        },
+        {
+          "after": "The Style class enables formatting control through properties such as Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, HorizontalAlignment, VerticalAlignment, WrapText, IsLocked, and IsHidden, and supports copying from a source style as well as equality and hash code operations.",
+          "before": "The Style class enables formatting control through properties such as Font, Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, HorizontalAlignment, VerticalAlignment, WrapText, IsLocked, and IsHidden, and supports copying from a source style as well as equality and hash code operations.",
+          "fact_ids": [
+            "public_symbol:aspose.cells_foss.style"
+          ],
+          "id": "R02",
+          "path": "revised_output.units[2].text"
+        },
+        {
+          "after": "[{\"fact_id\":\"public_symbol:aspose.cells_foss.font\",\"reason\":\"FontSetting type referenced in public API table and Style member details not supported by facts; FontSetting is not a public symbol in the supported list.\"}]",
+          "before": "[]",
+          "fact_ids": [],
+          "id": "R03",
+          "path": "revised_output.omitted"
+        }
+      ],
+      "label": "F05",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "b0da07f4795286df534e40b06374deaf1aacce153db206adaa1098a4c8773530",
+      "section_id": "api_reference",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "591e6467cb13fe02b6472d77428c1123176e2cff23784c0a8442cf81e0dc67b0",
+  "schema_version": 1
+}

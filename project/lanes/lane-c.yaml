@@ -23,10 +23,17 @@ toolchains:
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
   sealed_by_lane: 0
-  dispositions_by_lane: 0
+  dispositions_by_lane: 4
+  candidates_on_main_after_merge: 2
+  note: 'G4-W12 closed its box with the Java spec, plugin and javac verifier in and every predicate green: 38,604 facts and 38,021 public symbols read from the four repositories with no provider call, 25 of 30 README examples compiled against the products'' own classes. Nothing sealed, and no failure is the ecosystem module''s - one shared facade limitation blocks all four (extractors/surface/registry.py cannot carry a Maven coordinate, so no Java install fact can be SUPPORTED). 3D and Cells die at S4 because Installation then renders nothing; Slides and PDF reach a complete rendered README and die at S9 on BC-02. All four dispositions and seven PROPOSALs are in docs/RESEARCH_LANE_C.md and evidence/build/lanes/lane-c/G4-W12.json.'
+toolchains_used:
+  javac: C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11)
+  maven: C:/tools/apache-maven-3.9.16/bin/mvn.CMD (3.9.16) - resolved, and not needed - every declared dependency of all four POMs is test scope, so the verifier is offline by construction and no local repository was created
 items:
 - id: G4-W12
-  status: PENDING
+  status: ACCEPTED
+  accepted_at: '2026-09-06T09:20:00+05:00'
+  evidence: evidence/build/lanes/lane-c/G4-W12.json
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   purpose: 'Java spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/java.py only for a field it lacks), surface through the shared extractor with the internal and impl package exclusion as a spec parameter checked by parity, a fresh verifier (javac or mvn -q compile through the resolved mvn.cmd, offline flags where the repository provides a lock), registry facts through the vendored RegistryProbe (repo1.maven.org, never search.maven.org), a negative control; then the four Java repositories as a cohort (two are registry mode full and form G6''s first publication cohort). Parity per repository; javap -public corroboration (E6) only if parity fails. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'

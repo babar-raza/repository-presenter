@@ -407,7 +407,7 @@ _EXCLUDED_QUOTE_LENGTH = 40
 
 
 def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
-    """Why a finding quoting evidence the facts exclude is the reviewer's own defect, or None.
+    """Why a finding quoting or citing evidence the facts exclude is the reviewer's own defect.
 
     A finding may quote candidate text or text it says should be there. When the quote is the
     value of a fact that is not ``SUPPORTED``, the second reading is the only one left - and
@@ -418,16 +418,35 @@ def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fac
     export example entirely*, quoting `example:015` - `CONTRADICTED`, one of fifteen examples,
     the only one the plan could not carry. This is ``absence_defect``'s "nothing to restore"
     rule, read from the quote the reviewer did fill rather than the ``absent`` list it left empty.
+
+    An omission claim can name the same excluded evidence without quoting it at all: measured
+    2026-09-06 on Aspose.3D for .NET, whose finding quoted the section's ordinary lead-in and
+    named `example:003` (`CONTRADICTED`) in `fact_ids` as why the omitted example belongs -
+    `absence_defect` cannot see this because the omitted heading was genuinely written by the
+    maintainer, so it is not invented text, and `absence_defect` only asks whether a claim exists
+    somewhere in evidence, never whether the fact backing the *claim* is itself excluded. A
+    factuality finding citing a contradicted fact to disprove existing text is not this: it names
+    no `absent` strings, since that is the schema's own rule for a finding that alleges no
+    absence.
     """
     quote = _normalized(str(finding.get("quote", "")))
-    if len(quote) < _EXCLUDED_QUOTE_LENGTH:
-        return None
-    for fact in by_id.values():
-        if fact.polarity != "SUPPORTED" and quote in _normalized(fact.value):
-            return (
-                f"the quote is {fact.id}, which is {fact.polarity}: the contract admits it only "
-                "once the evidence supports it, so no stage the loop can reopen would write it"
-            )
+    if len(quote) >= _EXCLUDED_QUOTE_LENGTH:
+        for fact in by_id.values():
+            if fact.polarity != "SUPPORTED" and quote in _normalized(fact.value):
+                return (
+                    f"the quote is {fact.id}, which is {fact.polarity}: the contract admits it "
+                    "only once the evidence supports it, so no stage the loop can reopen would "
+                    "write it"
+                )
+    if _claimed_absent(finding):
+        for fact_id in finding.get("fact_ids", []):
+            cited = by_id.get(fact_id)
+            if cited is not None and cited.polarity != "SUPPORTED":
+                return (
+                    f"the omission it names is backed by {cited.id}, which is {cited.polarity}: "
+                    "the contract admits it only once the evidence supports it, so no stage the "
+                    "loop can reopen would write it"
+                )
     return None
 
 

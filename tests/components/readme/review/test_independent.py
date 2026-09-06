@@ -446,6 +446,7 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     omission = {
         **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
         "criterion": "presentation",
+        "fact_ids": [],  # this rule reads absent/candidate, never fact_ids
         "absent": ["ObjSaveOptions", "`.glb`"],
         "text": "The API reference omits ObjSaveOptions and the GLB output format.",
     }
@@ -495,6 +496,7 @@ def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_def
     invented = {
         **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
         "claim": "absence",
+        "fact_ids": [],  # this rule reads absent/evidence, never fact_ids
         "absent": ["pkg.Sym404(1, 2, 3)"],
     }
     by_id = {fact.id: fact for fact in FACTS.facts}
@@ -720,6 +722,53 @@ def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() 
     assert scope_defect(brief, CANDIDATE, by_id) is None
     own = {**asks_for_it, "quote": "It writes `.glb` files."}
     assert scope_defect(own, CANDIDATE, by_id) is None
+
+
+def test_an_omission_finding_naming_excluded_evidence_is_the_reviewers_defect_too() -> None:
+    """The same excluded-evidence rule, read from `fact_ids` rather than a matching quote.
+
+    Measured 2026-09-06 on Aspose.3D for .NET: the finding quoted the section's ordinary lead-in
+    - not `example:003`'s own value - and named the omission through `absent` and `fact_ids`
+    instead. `example:003` is CONTRADICTED (its heading was genuinely written by the maintainer,
+    so `absence_defect` finds it in evidence and lets the finding stand); the omission is
+    correct, and no stage would restore an example that did not execute.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("example:003", "example", "boom()", (Evidence("x"),), polarity="CONTRADICTED"),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    omission = {
+        **_finding("F03", "additional_examples", "S7", "Additional examples cover the basics."),
+        "criterion": "presentation",
+        "fact_ids": ["example:003"],
+        "absent": ["Enumerate a Scene's Node Hierarchy"],
+    }
+    assert scope_defect(omission, CANDIDATE, by_id) == (
+        "the omission it names is backed by example:003, which is CONTRADICTED: the contract "
+        "admits it only once the evidence supports it, so no stage the loop can reopen would "
+        "write it"
+    )
+    # Mutation: a SUPPORTED backing fact stands, and a factuality finding with no absence claim
+    # - the ordinary way a contradicted fact disproves existing text - is untouched.
+    supported = {
+        f.id: f
+        for f in FactsDocument(
+            ENTRY.repository,
+            "a" * 40,
+            (*FACTS.facts, Fact("example:003", "example", "boom()", (Evidence("x"),))),
+        ).facts
+    }
+    assert scope_defect(omission, CANDIDATE, supported) is None
+    factuality = {
+        **_finding("F10", "structure", "S6", "It writes `.glb` files."),
+        "fact_ids": ["example:003"],
+    }
+    assert scope_defect(factuality, CANDIDATE, by_id) is None
 
 
 def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:

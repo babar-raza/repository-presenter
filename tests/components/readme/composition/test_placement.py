@@ -163,7 +163,30 @@ def test_placement_is_exclusive_on_overlap_and_never_silent_when_excluded() -> N
     assert placed_texts(list(decisions.values())) == {
         "scope_limitations": ["A note nothing else covers."]
     }
-    assert renders_verbatim("inherited_unit:013.code_block", "```python\nprint(2)\n```", "go")
+    # A python fence is not this ecosystem's own example either, so it renders verbatim -
+    # renders_verbatim reads the spec's fence vocabulary (net's is csharp/cs/c#), never the
+    # literal ecosystem name, which only ever coincided for Python.
+    assert renders_verbatim("inherited_unit:013.code_block", "```python\nprint(2)\n```", "net")
+
+
+def test_a_csharp_example_is_owned_by_the_plan_not_placed_beside_it() -> None:
+    """Measured 2026-09-06 on Aspose.3D for .NET: a ```csharp block never equals the literal
+    string "net", so every VERIFIED_PRESERVE example rendered as ordinary content beside the
+    plan's own rendering of the same example, and Additional Examples printed every code block
+    twice - the defect two independent reviewer reads agreed on (BC-10)."""
+    example = _fact("example:009", "example", "using Widget;\nnew Widget().Save();")
+    block = _fact(
+        "inherited_unit:080.code_block",
+        "inherited_unit",
+        "```csharp\nusing Widget;\nnew Widget().Save();\n```",
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, example, block))
+    placed = _entry("inherited_unit:080.code_block", "additional_examples", "example:009")
+    dispositions = {"dispositions": [placed]}
+    plan = _plan(additional_example_ids=["example:002", "example:009"])
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "net")}
+    assert decisions["inherited_unit:080.code_block"].outcome == "owned_elsewhere"
+    assert placed_texts(list(decisions.values())) == {}
 
 
 def test_planning_includes_every_verified_example_and_refuses_an_excluded_destination() -> None:

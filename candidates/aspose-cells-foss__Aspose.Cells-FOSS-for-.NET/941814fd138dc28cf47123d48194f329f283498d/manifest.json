@@ -1,0 +1,79 @@
+{
+  "composition": {
+    "advisories": 7,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 23481,
+      "sha256": "93f4b3812a4cfb82e9e5ded9bc2c8a010a990ec5d4d2a3cdd7bca570c583cfd3"
+    },
+    "README.patch": {
+      "bytes": 36329,
+      "sha256": "3feb686a6688afe63f2d995792dcac1e4fded4d8bcf97b4415287898f685adf0"
+    },
+    "calls.jsonl": {
+      "bytes": 84313,
+      "sha256": "6902c5ca02a84888b1bf90c63e1947258c3cafad200a16ed500ef577ed3e4b20"
+    },
+    "content_units.json": {
+      "bytes": 19631,
+      "sha256": "24b31888dfee28b60aef50de0e888f732b77e9ac103b30913542ea1f9d09a49e"
+    },
+    "dependencies.json": {
+      "bytes": 99349,
+      "sha256": "242cd4025888dd3a909df816595a5320977809520a0d1815758a7c66b65f4655"
+    },
+    "dispositions.json": {
+      "bytes": 28150,
+      "sha256": "8c78e9318e3b2f10d3ddf232e2f628ccb6b61e7c697238f86f2c599360a9a93c"
+    },
+    "examples.json": {
+      "bytes": 17488,
+      "sha256": "42a8d47e9fc8dfa88f6cf9368d280a7875b6e699b20c0828d0f1451dfe22f290"
+    },
+    "facts.json": {
+      "bytes": 445182,
+      "sha256": "5338e47ca06959bb4a595d12a84e31d3ea2927e109cf34ca51c1640b15beda18"
+    },
+    "investigation.json": {
+      "bytes": 6976,
+      "sha256": "38dfd3e0415bb81f214d7fdb4a10abed000b0a11d30eb810bedb5cd8503ba87e"
+    },
+    "plan.json": {
+      "bytes": 7176,
+      "sha256": "f914ef327e43192335ab3fc2975f482a163456b779a4e3e9537a43b251a82157"
+    },
+    "probes.json": {
+      "bytes": 2972,
+      "sha256": "6783c227fc805f14f9305e60585853b2d75d2629e846f15f8be8ce821724f4ca"
+    },
+    "repairs.json": {
+      "bytes": 2464,
+      "sha256": "95693e769dbbd03285519bdfa053e7e95305c8638da52443b0813104c2157a38"
+    },
+    "review.json": {
+      "bytes": 7763,
+      "sha256": "c69dfd3678767728bc1f051059d5aabdb16eaf6554ceae914bc98dd8aca95490"
+    },
+    "validation.json": {
+      "bytes": 12841,
+      "sha256": "f64d03e26dcc23dbc02e06dfb4028fbe8ca20f8d6405488889b7799e94321510"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-06T04:45:16Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
+  "revision": "941814fd138dc28cf47123d48194f329f283498d",
+  "schema_version": 1,
+  "sealed_at": "2026-09-06T04:45:16Z",
+  "state": "READY_FOR_PROPOSAL"
+}

@@ -2193,7 +2193,7 @@ predicates; `migration/reuse-manifest.yaml` `census_gate` and `census_evidence` 
   purpose: ".NET spec and cohort (section 29.6 E3-E6): identity, floor and the dependency snapshot from the vendored ManifestReader (aspose.org package_manifest and dependency_extract, section 29.12; the legacy ecosystems/dotnet.py only for a field they lack), surface through the shared extractor with the C# preprocessor rules, a fresh verifier on the base (dotnet build in the isolated workspace, restore disabled where a lock exists, NuGet config redirected; tools resolved with shutil.which including .cmd shims), registry facts through the vendored RegistryProbe, a negative control that rejects one realistic invalid example; then the six active .NET repositories as a cohort with fixes by failure class and evidence-bound dispositions (the Email .NET CS1929 build failure; PSD-.NET NON_PROCESSABLE). Parity per repository; a reflection-stub corroboration (E6) only if parity fails. Time box 5 hours from promotion (section 28.12): yield order from the section 28.11 census; at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report in the gate manifest; every sealed bundle zero-call proven; hosted CI green."
 - id: G4-W17
   status: PENDING
-  purpose: "Shared-code fixes the lanes propose (owner, 2026-09-06 08:00; section 28.12 Lanes). While lanes B, C and D compose their cohorts they may not edit composition/, review/, repair/, the renderer, prompts/, core/ or the facades; each shared-code defect they meet is a PROPOSAL entry in their lane log (docs/RESEARCH_LANE_B.md, _C, _D) with the exact file, defect, repository and finding, and the repository gets a disposition naming that proposal. This item lands those fixes in arrival order, each with a mutation test, every class a round exposes in the same iteration, and after each landing notifies nothing - the reviewer re-spawns the lane, whose re-run converts the dispositions. Runs BEFORE G3-W04 (reordered 2026-09-06 09:00: lane B's first cohort sealed nothing for want of shared fixes, and the Python dispositions need the same prompts) and stays active while any lane has an open item; it never composes a lane repository itself and never edits a lane path. Acceptance: every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31; hosted CI green. Arrival list (reviewer-maintained; land in this order, each with a mutation test): (1) prompts/source_reconciliation - the packet names the sections that render nothing for this repository (no registry package, no licence file) so a unit is never placed into an empty section [lane B, 3D TypeScript, BLOCKED_RECONCILIATION at S4]; (2) core/llm CallStore.reject - the rejected-reply filename is the longest path any transaction writes; shorten it (hash prefix) so a 260-character Windows limit is not hit from a long checkout root [lane B, Cells TypeScript, BLOCKED_ENVIRONMENT]; (3) core/ecosystems.spec_for discovers SPEC by module name as registry.py discovers PLUGIN, so a lane never edits a shared table [lane B]; (4) the surface facade's _KINDS lacks abstract_class_declaration [lane B]; (5) the renderer's _IMPORT verify line is Python-shaped; read it from the spec [lane B]; (6) tests/.../test_registry.py asserts known_ecosystems() literally - make it discovery-based so registering an ecosystem needs no shared test edit [lane B]; (7) the prompt changes the Python dispositions name for BarCode, Email and Note (G3-W01 cohort report) - authoring and planning; (8) items the lanes C and D logs add. After (1)-(2) land, the reviewer re-spawns lane B on TypeScript."
+  purpose: "Shared-code fixes the lanes propose (owner, 2026-09-06 08:00; section 28.12 Lanes). While lanes B, C and D compose their cohorts they may not edit composition/, review/, repair/, the renderer, prompts/, core/ or the facades; each shared-code defect they meet is a PROPOSAL entry in their lane log (docs/RESEARCH_LANE_B.md, _C, _D) with the exact file, defect, repository and finding, and the repository gets a disposition naming that proposal. This item lands those fixes in arrival order, each with a mutation test, every class a round exposes in the same iteration, and after each landing notifies nothing - the reviewer re-spawns the lane, whose re-run converts the dispositions. Runs BEFORE G3-W04 (reordered 2026-09-06 09:00: lane B's first cohort sealed nothing for want of shared fixes, and the Python dispositions need the same prompts) and stays active while any lane has an open item; it never composes a lane repository itself and never edits a lane path. Acceptance: every PROPOSAL recorded before the item's last iteration is either landed with its test or declined with a reason in section 31; hosted CI green. Arrival list (reviewer-maintained; land in this order, each with a mutation test): (1) prompts/source_reconciliation - the packet names the sections that render nothing for this repository (no registry package, no licence file) so a unit is never placed into an empty section [lane B, 3D TypeScript, BLOCKED_RECONCILIATION at S4]; (2) core/llm CallStore.reject - the rejected-reply filename is the longest path any transaction writes; shorten it (hash prefix) so a 260-character Windows limit is not hit from a long checkout root [lane B, Cells TypeScript, BLOCKED_ENVIRONMENT]; (3) core/ecosystems.spec_for discovers SPEC by module name as registry.py discovers PLUGIN, so a lane never edits a shared table [lane B]; (4) the surface facade's _KINDS lacks abstract_class_declaration [lane B]; (5) the renderer's _IMPORT verify line is Python-shaped; read it from the spec [lane B]; (6) tests/.../test_registry.py asserts known_ecosystems() literally - make it discovery-based so registering an ecosystem needs no shared test edit [lane B]; (7) the prompt changes the Python dispositions name for BarCode, Email and Note (G3-W01 cohort report) - authoring and planning; (8) extractors/surface/registry.py maps go to \"goproxy\" while the vendored adapter table is keyed \"go_modules\", and observe() passes no module_path (the Go adapter reads candidate[\"module_path\"], so fixing only the key raises KeyError) - the proxy is never probed, install_command:go stays UNRESOLVED, and BC-02 fails closed on it [lane D, both Go repositories, BLOCKED_SHARED_CODE]; (9) extractors/surface/extractor.py _KINDS has no entry for the vendored engine's Go kinds (type_spec, the literal function), so every Go type renders unknown and the Core API table is empty [lane D]; items (8) and (9) land together - (9) alone leaves BC-02 failing, (8) alone leaves an empty API table - and unblock both Go dispositions on re-run; (10) renderer.py _installation appends a hard-coded pip install . block for any ecosystem with an executed example, and EcosystemSpec's docstring names a source_install field the dataclass lacks [lane D]; (11) renderer.py _IMPORT matches only Python-shaped imports, so a Go or C# import path never matches an executed example and spec.verify_command never renders [lane D]; (12) extractors/surface/registry.py::observe() passes candidate={\"name\": ...} with no group or artifact coordinate, so the vendored _maven_check's own group-and-artifact address to maven-metadata.xml can never be built and no Java install fact reaches SUPPORTED - blocks all four Java repositories at S4 (3D, Cells) or BC-02 (Slides, PDF); a three-line patch is in docs/RESEARCH_LANE_C.md [lane C, all four Java repositories, BLOCKED_RECONCILIATION or BLOCKED_VALIDATION]; item (12) lands with (8)-(9) as the next batch - all three are \"no install fact reaches SUPPORTED for an entire ecosystem\", the same shape once per registry; (13) EcosystemSpec.badge() formats one {package} token, so no Maven Central badge URL fits and Java renders no package badge [lane C]; (14) floor_declaration reads one manifest field per ecosystem, but a POM states the Java floor as maven.compiler.release, .target, or .source - all three appear across this cohort [lane C]; (15) reconciliation/dispositions.py::normalize raises instead of folding a placement into a section that renders nothing, the same shape as (1) but at the code layer - (1) stops the packet from choosing an impossible placement, (15) is the fallback so the same recurring defect (net.py, lane B's 3D TypeScript, all four Java repositories) does not crash a composition it could not have prevented [lane B, lane C]; (16) composition/planning.py rejects a whole candidate for a trimmable ceiling breach (duplicate api_hubs, Aspose links over the limit) that a targeted re-ask could close instead [lane C]; (17) source_reconciliation rejects a candidate whole for a coverage count error (missing or duplicated units) a targeted re-ask would close [lane C]; (18) authored prose leaking the literal phrase \"fact id\" is caught by BC-07 at S9 but recorded unrepairable rather than routed to a re-ask [lane C]. After (1)-(2) land, the reviewer re-spawns lane B on TypeScript; after (8)-(9) and (12) land, the reviewer re-spawns lane D on the two Go dispositions before G4-W16 and lane C on its four Java dispositions."
 - id: G3-W04
   status: PENDING
   purpose: "Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02's; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green."
@@ -3919,3 +3919,138 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   lane had to edit `tests/.../test_registry.py` (a literal `known_ecosystems()` assertion) — proposal
   (6) makes that test discovery-based so no lane edits a shared test again. Reverse by restoring the
   §27.9 order and the lane prompt's §1.
+
+- **2026-09-06 21:10 · loop (PROVISIONAL) · the ecosystem-example check compared a fence word to
+  the ecosystem's own name, true only for Python.** Item G4-W11. `independent_review` v10's
+  character-for-character quote check let Aspose.3D for .NET reach BC-10 for the first time, where
+  it failed `REJECT_PRESENTATION` after one repair, corroborated by both reviewer reads: Additional
+  Examples printed every code block twice, once headed and once bare. `placement.py`'s
+  `renders_verbatim` decided whether a preserved example duplicates the plan's own rendering by
+  `language not in {ecosystem, "mermaid"}` — for Python, fence and ecosystem are both the string
+  "python", so it worked by coincidence; for .NET, the fence is `csharp` and the ecosystem is
+  `"net"`, so no VERIFIED_PRESERVE example was ever recognised as this ecosystem's own, and every
+  one rendered as ordinary content beside the plan's structured copy. Fixed by reading
+  `spec_for(ecosystem).example_fences` (§29.2 F6, the same property `select_examples` already
+  uses) instead of the literal name; Python's sealed bytes are unchanged. Three more classes from
+  the same composition round, unrelated to each other: (1) `normalize`'s `OMIT_UNSUPPORTED` →
+  `development_testing` fold routed on `install_ids or build_ids` without checking the section's
+  own condition, so Words and Cells (install_command SUPPORTED, zero build_test_asset) claimed a
+  section that renders nothing; now deferred when the section is absent. (2) the same fold's
+  catch-all for a deterministic section with no evidence surfaced an error for the model to fix
+  by name (`renders nothing... choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED`) rather than fixing it,
+  and Slides re-asked twice into `installation` unchanged (genuinely unpublished on NuGet, §31
+  above) — now deferred like every other unrenderable-destination case this session. (3) a plan
+  may not assign `product.banner`/`product.homepage`/`product.enterprise` as a `links` entry: these
+  render at their own fixed place (README_CONTRACT.md rows 3, 18), and Cells's plan assigning
+  `product.homepage` to `identity` — a section links are never assigned to — inflated the Aspose
+  count to five against a ceiling of four with only four genuinely link-worthy targets. Also:
+  `presentation_planning` v10 tells the model a `symbol_fact_id` is copied from the facts list,
+  never reconstructed from memory of the product elsewhere, after Aspose.PDF's planner cited
+  `public_symbol:aspose.pdf.devices.svgsdevice` (real: `svgdevice`) identically on both attempts -
+  a single hallucination among 12,241 symbols, diagnosed and prompted against rather than chased
+  further per §5's two-equivalent-attempts rule.
+
+- **2026-09-06 21:55 · loop (PROVISIONAL) · an omission finding can name excluded evidence
+  without ever quoting it.** Item G4-W11. With the fence-vocabulary fix landed, Aspose.3D reached
+  BC-10 again with one finding left: *the candidate omits 'Enumerate a Scene's Node Hierarchy'*,
+  citing `example:003` - `CONTRADICTED` - in `fact_ids`, and naming the heading in `absent`.
+  `absence_defect` let it stand: the heading was genuinely written by the maintainer, so it is
+  not invented text, and `absence_defect` only asks whether a claim occurs somewhere in evidence,
+  never whether the fact backing the *claim itself* is excluded.
+  `excluded_evidence_defect` already existed for exactly this shape of defect - measured on
+  Aspose.Slides, section 31 above - but only by matching the finding's `quote` against a
+  non-SUPPORTED fact's value; Aspose.3D's finding quoted the section's ordinary lead-in instead
+  and made the same claim through `absent`/`fact_ids`. Extended to also check: when a finding
+  claims an absence, any fact_id it cites that is not SUPPORTED is the same excluded-evidence
+  defect, regardless of what the quote says. A factuality finding citing a CONTRADICTED fact to
+  disprove existing text is untouched - it names no `absent` strings, which is the schema's own
+  rule for a finding that alleges no absence. Two existing tests broke on the extension: both
+  built their finding from `_finding()`'s default `fact_ids: ["format:input.obj"]` (UNRESOLVED)
+  purely as unrelated schema-shape boilerplate, unrelated to what each test was actually
+  measuring (`absence_defect` alone); corrected to `fact_ids: []`, which the schema allows and
+  neither test's assertions depend on.
+
+- **2026-09-06 22:30 · loop (PROVISIONAL) · the .NET verifier's own clock was inside the sealed
+  bytes.** Item G4-W11. Aspose.Cells for .NET sealed - the first .NET candidate accepted, review
+  ACCEPT, zero findings - but a same-process rerun to prove the zero-call no-op bar came back
+  `re-sealed: examples.json changed since the last seal; proof withdrawn` even though nothing
+  about the repository, the facts, or the LLM calls (0 provider calls, every stage reused) had
+  changed. Preserved a before-copy and diffed the two runs byte for byte: every receipt's raw
+  `stdout` differed on exactly one line, MSBuild's own `Time Elapsed 00:00:26.84` /
+  `Time Elapsed 00:01:02.44` - present on every build, succeeded or failed, and by its nature
+  never the same twice. `_scrub` already stripped this machine's paths from a receipt for the
+  same reason (measured on Slides, above); the wall-clock cost of the build was never scrubbed
+  because nothing had yet needed a rerun to notice it moves the bytes. Fixed by dropping the
+  `Time Elapsed` line in `_scrub` itself, so both the stored `stdout`/`stderr` and `_first_error`
+  see it gone; the SDK version stays, since that is a fact about the toolchain, not a clock
+  reading. This affects every .NET candidate with an executed example, not only Cells - Aspose.3D
+  sealed in the same iteration and needs the identical rerun to confirm. Separately: Aspose.Words
+  hit `BLOCKED_TOOLCHAIN: no clean workspace to build in` - all five of `_fresh_workspace`'s
+  attempts were locked, traced to a leftover `VBCSCompiler.exe` build-server process holding
+  handles from an earlier run in today's heavy concurrent .NET usage; stopping it and clearing
+  the five directories by hand let a retry proceed. Not a code defect - `_fresh_workspace` did
+  exactly what it is for, reporting `BLOCKED_TOOLCHAIN` rather than crashing - but a reminder that
+  five attempts can still exhaust under enough concurrent build-server contention on one machine.
+
+- **2026-09-06 09:35 · owner (REVIEWED) · lane D's Go run: landed, sealed nothing, two proposals are
+  the whole cohort's hard blocker.** Evidence: PR #4 -> `ceb04f5`, green on the three versions; both
+  Go repositories facts-clean (231/227 and 1,620/1,618 facts supported, no starved required row) but
+  neither composed - BC-02 fails closed on `install_command:go` because the vendored surface adapter
+  is keyed `go_modules` while the registry facade probes `goproxy` and never passes `module_path`, so
+  the Go proxy is never reached. Decision: proposals (8) registry key/module_path and (9) `_KINDS`
+  missing Go's `type_spec` and `function` land together as G4-W17 items (8)-(9) - (9) alone still
+  leaves BC-02 failing, (8) alone leaves an empty API table; the reviewer re-spawns lane D on its two
+  dispositions once both land, before G4-W16 Rust. (10)-(11) queued as lower-priority renderer gaps
+  (hard-coded pip block, Python-only import matching) affecting every non-Python ecosystem eventually.
+  Five lane-local failure classes (test-file/internal symbols, a misread mid-snippet declaration, an
+  import-only fence false CONTRADICTED, a v0/v26 module refusal, a relative GOPATH refusal) were fixed
+  in lane D's own paths with a test each - not proposals, since nothing shared caused them.
+  `tests/test_queue_agreement.py` was run before this commit (green) after the previous incident where
+  a §27.9 edit outran state.yaml. Reverse by restoring the previous G4-W17 arrival-list text.
+
+- **2026-09-06 09:50 · owner (REVIEWED) · lane C's Java run: landed, sealed nothing, a third
+  registry-facade gap joins the hard blocker.** Evidence: PR #6 -> `a507acc`, green on the three
+  versions; all four Java repositories facts-clean (5,508 to 25,032 facts each) but none composed -
+  `observe()` passes no Maven coordinate, so the vendored `_maven_check`'s own group-and-artifact
+  address can never be built and no Java install fact reaches SUPPORTED; 3D and Cells block at S4
+  (Installation renders nothing), Slides and PDF at BC-02. This is the same shape as Go's blocker
+  (proposal 8) once per registry, not a coincidence - the facade was built against one ecosystem's
+  probe signature. Decision: item (12) (a three-line patch supplied) lands with (8)-(9); items
+  (13)-(14) (badge formatting, floor field) queue behind it; (15) generalises lane B's and lane C's
+  same crash (`normalize` raises on an impossible placement instead of folding it) as the code-layer
+  fallback to (1)'s prompt-layer prevention; (16)-(18) are three re-ask-instead-of-reject cases,
+  lowest priority. Three lane-local failure classes (a `-sourcepath` visibility gap, wrong javac flag
+  for the compiler-target property, unresolved snippet imports) were fixed in lane C's own paths with
+  a test each. `tests/test_queue_agreement.py` green before this commit. Reverse by restoring the
+  previous G4-W17 arrival-list text.
+
+- **2026-09-06 23:05 · loop (PROVISIONAL, proposal not landed - scope is not mine to grow) ·
+  Quick Start has no floor for a repository whose examples all fail.** Item G4-W11. Aspose.Words'
+  `BLOCKED_TOOLCHAIN` cleared (a leftover `VBCSCompiler.exe` build server from today's heavy
+  concurrent .NET usage, stopped and its five locked workspace directories removed by hand - not
+  a code defect, `_fresh_workspace` did exactly what it is for), and the repository genuinely
+  builds now, compiling all 5 examples and finding every one CONTRADICTED: real compile errors
+  against this revision, not a toolchain gap. `presentation_planning` then cited a CONTRADICTED
+  example as `quick_start_example_id`, rejected twice for `fact example:NNN is CONTRADICTED, not
+  SUPPORTED`. Root cause: `planning_schema()` restricts `quick_start_example_id`'s enum to
+  verified examples only when at least one exists (`if not verified: return schema`) - with zero
+  verified examples the field stays an unconstrained string, and the model must still supply
+  *something* non-empty, since `quick_start` is `required=True` unconditionally in
+  `SEMANTIC_SHELL` and the field's schema type is `string, minLength: 1`, never nullable. No
+  deterministic check can compose a value here; the gap is in the contract's own requirement, not
+  in a decision code can already make. Not landed - a `README_CONTRACT.md` revision needs its own
+  defect record and lands with code and tests (loop-prompt §0), which is more than this box can
+  absorb alongside the cohort. Proposal for §27.9: Quick Start's condition becomes
+  `bool(verified_examples)`, `required` false, and the renderer treats its absence like any other
+  conditional row (parallel to `additional_examples`'s own `len(verified) >= 2` condition beside
+  it); resume predicate for Words is this landing, or a fresh clone of the repository at a later
+  revision fixing the compile errors independently of this loop.
+
+- **2026-09-06 23:15 · loop (PROVISIONAL) · the fix holds: two runs of Aspose.Cells for .NET,
+  both after the Time Elapsed scrub, are byte-identical.** Item G4-W11. `check 11 judged; no-op
+  proven: a fresh process reproduced every artifact byte for byte with zero provider calls` -
+  state `READY_FOR_PROPOSAL`. **Aspose.Cells is the first no-op-proven .NET candidate**;
+  `current_candidates` moves from 2 to 3. Aspose.3D for .NET is also sealed (`ACCEPTED`, review
+  ACCEPT, zero findings) but has not yet run its own confirming rerun, so it is committed as
+  sealed evidence without being counted in `current_candidates` until that proof completes -
+  measured evidence over anticipation (loop-prompt §5).
