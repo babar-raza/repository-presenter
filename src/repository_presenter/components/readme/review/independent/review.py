@@ -356,11 +356,28 @@ _RENDERED_HEADINGS = frozenset(
 def review_checks(
     output: dict[str, Any], candidate_readme: str, facts: FactsDocument | None = None
 ) -> list[str]:
-    """Why the review may not be used, beyond schema and binding; empty when it holds."""
+    """Why the review may not be used, beyond schema and binding; empty when it holds.
+
+    A finding whose quote locates nothing is still unusable and is dropped - the check itself is
+    unchanged - but it is folded out of the reply rather than failing the whole review, the same
+    shape ``plan_checks`` folds a trimmable plan breach (``d707693``) and ``dispositions.normalize``
+    folds an impossible placement. The reviewer's job puts the *upstream* README beside the
+    candidate, so quoting the original where it meant the candidate is a natural slip, and it cost
+    every other finding in the same reply: measured 2026-09-06 on
+    ``aspose-pdf-foss/Aspose-PDF-FOSS-for-Go``, where one such quote discarded 7 usable findings of
+    8 and left BC-10 unjudged (G4-W17 arrival item 28).
+
+    Nothing is folded when no finding survives it: a reply whose every quote is invented points at
+    no candidate text at all, so there is no trustworthy remainder to keep and the review is
+    re-asked exactly as before. The folded finding still counts towards the repeated-ID rule, so
+    dropping it never lets a duplicate through.
+    """
     errors: list[str] = []
     known = set(section_ids()) | _STRUCTURAL_SECTIONS
     seen: set[str] = set()
     findings = output.get("findings", [])
+    kept: list[Any] = []
+    unlocated: list[str] = []
     for finding in findings:
         label = str(finding.get("id", "?"))
         if label in seen:
@@ -374,9 +391,15 @@ def review_checks(
             )
         quote = str(finding.get("quote", ""))
         if not quote_located(quote, candidate_readme):
-            errors.append(
+            unlocated.append(
                 f"finding {label}: quote is not the candidate's text: {quote.strip()[:60]!r}"
             )
+            continue
+        kept.append(finding)
+    if unlocated and not kept:
+        errors.extend(unlocated)
+    elif unlocated:
+        output["findings"] = kept
     return errors
 
 

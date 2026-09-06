@@ -229,7 +229,12 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
     }
     assert review_checks(respelled, CANDIDATE) == []
     assert review_checks(respelled, "Note — It writes `.glb`  files.") == []
-    assert review_checks(respelled, "It writes `.glb` files, always.") != []
+    # The quote check itself is unweakened: this reply's only finding locates nothing, so there is
+    # no trustworthy remainder to fold it out of and the whole review is still unusable.
+    assert review_checks(respelled, "It writes `.glb` files, always.") == [
+        "finding F01: quote is not the candidate's text: 'It writes  .glb\\nfiles.'"
+    ]
+    assert [f["id"] for f in respelled["findings"]] == ["F01"]
     # Factuality is checked against the cited facts once they are given.
     literal = {**_finding("F01", "opening", "S6", "It writes `.glb` files."), "fact_ids": []}
     literal["fact_ids"] = ["format:output.glb"]
@@ -278,11 +283,65 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
         ],
         "preserve": [],
     }
+    # The first finding's quote locates nothing, so it is folded out; the second survives the
+    # quote check and its own two defects are still named, and the folded finding's ID still
+    # counts, so the repeat it caused is reported exactly as before.
     assert review_checks(bad, CANDIDATE) == [
-        "finding F01: quote is not the candidate's text: 'It writes PDF files.'",
         "finding F01: its ID repeats an earlier finding",
         "finding F01: section_id must be a shell section or 'structure'; got 'nowhere'",
     ]
+    assert [f["section_id"] for f in bad["findings"]] == ["nowhere"]
+
+
+def test_one_unlocatable_quote_is_folded_out_and_the_other_findings_are_kept() -> None:
+    """G4-W17 arrival item 28 (lane D PROPOSAL). Same shape as items 16 and 17, ``d707693``.
+
+    The reviewer's own packet carries the *upstream* README beside the candidate and its job is to
+    compare them, so quoting the original where it meant the candidate is a natural slip - and it
+    used to cost every other finding in the same reply. Measured 2026-09-06 on
+    ``aspose-pdf-foss/Aspose-PDF-FOSS-for-Go``: one such quote among eight findings discarded 7
+    usable ones and left BC-10 unjudged. The unusable finding is dropped, never repaired into a
+    valid one, and the rest are used normally.
+    """
+    original_only = "This SDK also rasterises DWG drawings."
+    assert not quote_located(original_only, CANDIDATE)
+    output = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [
+            _finding("F01", "opening", "S6", "It writes `.glb` files."),
+            _finding("F02", "key_capabilities", "S5", original_only),
+            _finding("F03", "opening", "S6", "It writes  .glb\nfiles."),
+            _finding("F04", "key_capabilities", "S4", "Aspose.3D FOSS for Python"),
+        ],
+        "preserve": ["the H1"],
+    }
+    assert review_checks(output, CANDIDATE, FACTS) == []
+    assert [f["id"] for f in output["findings"]] == ["F01", "F03", "F04"]
+    # Folding drops, it never fabricates: each kept finding is the reviewer's own words, unchanged.
+    assert all(f["text"] == "A claim is unsupported." for f in output["findings"])
+    assert all(f["causal_stage"] in CAUSAL_STATES for f in output["findings"])
+    # The kept findings then block as they always did - this is the value the whole review lost.
+    document = review_document(
+        output, REVIEWER, AUTHORING, "d" * 64, candidate_readme=CANDIDATE, facts=FACTS
+    )
+    assert document["verdict"] == "REJECT_FACTUAL"
+    assert [f["id"] for f in document["findings"]] == ["F01", "F03", "F04"]
+
+    # A reply whose every quote is unlocatable keeps no trustworthy remainder, so it is still
+    # rejected whole and re-asked; nothing is folded and no verdict is invented from it.
+    invented = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [
+            _finding("F01", "opening", "S6", original_only),
+            _finding("F02", "key_capabilities", "S5", "It exports to USDZ."),
+        ],
+        "preserve": [],
+    }
+    assert review_checks(invented, CANDIDATE, FACTS) == [
+        "finding F01: quote is not the candidate's text: 'This SDK also rasterises DWG drawings.'",
+        "finding F02: quote is not the candidate's text: 'It exports to USDZ.'",
+    ]
+    assert [f["id"] for f in invented["findings"]] == ["F01", "F02"]
 
 
 def test_the_document_splits_advisory_findings_and_records_both_identities(
