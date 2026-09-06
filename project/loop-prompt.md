@@ -75,6 +75,11 @@ files, never from memory of a previous iteration.
   when a predicate turns out to belong to another item's cause, first edit the predicate in
   `project/state.yaml` to name the owning item and the transferred defect, in the same commit,
   then accept against the predicates as rewritten — the acceptance record must be literally true.
+  **Any acceptance (a work item or a gate) quotes each predicate's exact text next to the exact
+  evidence line, file, or command output that satisfies it — never "done", "holds", or "meets it" on
+  its own.** A predicate you cannot point at a concrete artifact for is not met (owner, 2026-09-06,
+  after moving the loop to a less capable model: this rule exists so an acceptance is checkable by
+  someone who was not in this iteration, not just asserted by it).
 - A work item is `BLOCKED_EXTERNAL` only if it itself consumes an `OPEN` owner item. Otherwise it
   proceeds. When the active item is blocked, take the next item of the current gate that is not,
   then the first non-blocked item of the next gate whose dependency gate is accepted.
@@ -199,7 +204,11 @@ files, never from memory of a previous iteration.
   moving; (6) reversibility; (7) minimal scope — split, never widen. Record each non-trivial
   decision as a `PROVISIONAL` §31 entry (date, item, decision, alternative rejected, evidence,
   reversal path) and continue in the same iteration; the owner reviews asynchronously and may
-  reverse through §27.9 or `state.yaml`. This covers thresholds from data, wording, order inside a
+  reverse through §27.9 or `state.yaml`. **Run `date` (or read the timestamp of the commit you are
+  about to make) immediately before writing any §31 entry's date and time — never estimate elapsed
+  time or continue an earlier sequence by guessing an offset**; a wrong timestamp is a fabricated
+  claim (rule 12) even when the rest of the entry is accurate, and no later reader can catch it by
+  re-deriving the content. This covers thresholds from data, wording, order inside a
   gate, measured fallbacks, restating a predicate to what was proven, a contract sentence a sealed
   defect or the live oracle demands (§31, §27.8, landed with code and tests), and interpreting
   `plans/idea.md` where it is silent (never edit it). Prohibitions are not questions: never write a
