@@ -900,3 +900,206 @@ aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch.
 **What is not claimed.** The run ends at S6, so S7 through S11 — repair, validation, the independent
 review, the seal — are still unmeasured for this repository. Three of the four stages it has now
 passed it had never reached before; nothing here says the remaining five will pass.
+
+## 2026-09-06 22:51 — G4-W15 third re-run, Aspose.PDF for Go, after G4-W17 item 36
+
+Item 36 landed on `main` at `3e6c6b2` (22:31): `composition/authoring.py::prose_nouns` now also
+harvests identifier-shaped tokens from inline code spans and admits one when no `public_symbol` fact
+spells it. That is the exact resume predicate PROPOSAL P12 named, so this run re-ran that repository
+from a fresh worktree `C:\w\d15r3` on branch `lane-d/G4-W15-r3` off `origin/main` at `3e6c6b2`. No
+lane-owned code changed; nothing in this run is a code change at all.
+
+### The resume predicate is met and `SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE` is closed
+
+Measured directly against this run's own `facts.json`, calling the landed `prose_nouns` on the 1,620
+extracted facts: `ZapfDingbats` **is now admitted**, and the admitted-noun set grew from 36 to 53.
+
+`section_authoring` then made **nine calls and every one succeeded on its first attempt**, including
+the `scope_limitations` section whose `limitation:3` unit was rejected twice in both previous runs
+for that single token. Stage tally for the whole run: `repository_investigation` success on attempt 2
+(one rejection, `public_symbol:page.adddrawing`), `source_reconciliation` success on attempt 1,
+`presentation_planning` success on attempt 2 (one rejection, `format:*` IDs this repository has none
+of), `section_authoring` 9 of 9 clean. 16 provider calls in total.
+
+For the first time this repository rendered a candidate and was judged: a 17-of-18-section plan, 32
+content units across 9 sections, `README.md` at **209 visible lines of 760**, and `README.patch`.
+Coherence revised 0 of 32 units. Dispositions over 90 inherited units: VERIFIED_PRESERVE 45,
+SUPERSEDE_REDUNDANT 30, VERIFIED_REWRITE 5, NON_CONTENT 4, DEFER_UNRESOLVED 3, VERIFIED_MOVE 2,
+OMIT_UNSUPPORTED 1.
+
+### It did not seal — validation is 7 pass, 2 fail, 2 pending
+
+**PASS: BC-01, BC-02, BC-03, BC-04, BC-05, BC-06, BC-09.** BC-04 in particular now passes over
+`opening, key_capabilities, scope_limitations, api_reference, documentation_resources,
+enterprise_relationship` — the stray-identifier family that item 36 addressed. BC-10 and BC-11 are
+`PENDING` (judged at S10/S12) and were never reached, so the independent review and the no-op proof
+remain unmeasured for this repository.
+
+**FAIL BC-07** — `internal narration 'validator'`, causal stage COMPOSING, section `api_reference`.
+**FAIL BC-08** — two `VERIFIED_REWRITE` units keep a command the candidate does not render.
+
+### PROPOSAL P14 — the narration guard rejects the repository's own inherited vocabulary
+
+**File.** `src/repository_presenter/components/readme/validation/registry.py`, `_NARRATION` (line
+249, the bare entry `"validator"`) and its use at line 850.
+
+**Defect, and why G4-W17 item 22 as written does not cover it.** Item 22 (lane D's own PROPOSAL P6,
+from Cells Rust) diagnosed `_NARRATION` matching its nine phrases as a bare substring with no word
+boundary, and proposed word-boundary matching plus an exemption for a value that is itself a
+`public_symbol` fact — right for `WorkbookValidator`, where the guarded word is a *substring of a
+public type*. Aspose.PDF for Go fails the same check for a different reason and **none of item 22's
+three remedies would clear it**:
+
+- it is not a substring — the candidate's prose reads "confirm full conformance with a dedicated
+  validator such as veraPDF", so `validator` is already a standalone word and a word boundary
+  changes nothing;
+- it is not a public symbol — **0 of 1,467** `public_symbol` values contain `validator`, so the
+  public-symbol exemption never fires;
+- it is not in a code span, so the code-span exemption never fires either.
+
+It is the **repository's own English**. `validator` appears verbatim in two SUPPORTED
+`inherited_unit` facts, `066.list` and `081.list`, in the identical phrase "conformance with a
+dedicated validator such as veraPDF". The candidate is faithfully restating the upstream README's own
+PDF/A caveat, and a check meant to catch this tool narrating about itself is firing on the subject
+matter of a PDF library, which legitimately talks about conformance validators.
+
+**Fix, as this lane reads it.** Land item 22's word-boundary change, and add a fourth exemption of
+the same kind as the others: a guarded phrase is not narration when the source README itself uses it,
+i.e. when the phrase occurs in a SUPPORTED `inherited_unit` fact's value. That is the principle
+`prose_nouns` already applies to nouns — inherited vocabulary is the repository's, not ours. The
+alternative and narrower fix: replace the bare `"validator"` entry with the narration it actually
+means to catch (`"validator version"`, the field this pipeline writes into `validation.json`), since
+no self-narrating sentence this guard exists to block says the bare word alone.
+
+**Rejected alternative.** Re-asking authoring to avoid the word: measured this run and it does not
+work — see below. Also rejected: dropping the entry, which would stop catching genuine narration.
+
+**Corroboration for item 34's repair finding.** The repair loop did route this failure (item 22's own
+section-location code at line 857 worked: the failure carried `section_id: api_reference`). S7 then
+recorded **1 repaired** — but every change it wrote back is byte-identical, `before` equal to `after`
+for `R01`, `R02` and `R03`; the model returned the same prose because the sentence is true and its
+own source says it. The round is nonetheless recorded as a repair, and the failure re-raised. That is
+exactly lane C's item (34) second half — "a repair that made no change is recorded repaired rather
+than unchanged" — now corroborated in a second lane and a second ecosystem.
+
+**Repository and finding.** `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at
+`2306eeb06216be4d9cb663adcb85155594572c11`; `BC-07 failed at COMPOSING: internal narration
+'validator'; after one repair attempt the equivalent failure stands`.
+
+### PROPOSAL P15 — P7/item 23 confirmed in a second ecosystem, unchanged and still unrepairable
+
+**File.** `validation/registry.py`'s BC-08, and `repair/targeted.py`'s `validation_defects`.
+
+BC-08 fails with two failures, both `section_id: null`:
+
+- `inherited_unit:025.paragraph: VERIFIED_REWRITE keeps the command 'go run ./_examples/feature_showcase' but the candidate does not render it`
+- `inherited_unit:085.paragraph: VERIFIED_REWRITE keeps the command 'go run ./_examples/<name>' but the candidate does not render it`
+
+S7's response is verbatim `"outcome": "unrepairable", "reason": "no failing check names an
+LLM-owned section"`. This is PROPOSAL P7 (G4-W17 item 23), recorded from Cells **Rust** on
+2026-09-06 14:05 and still open, reproducing without variation on Go — a second ecosystem, a second
+family, the same null `section_id` and the same wording. The disposition record already names a
+`destination_section` the repair loop may re-author; carrying that id into the `Failure` is the whole
+fix. The advisory list shows the same shape twice more (`022.paragraph`, `042.paragraph`), so four of
+this repository's five `VERIFIED_REWRITE` units dropped protected content.
+
+### The disposition this third re-run leaves
+
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at `2306eeb06216be4d9cb663adcb85155594572c11`,
+`BLOCKED_SHARED_CODE`, failure class `BC07_INHERITED_VOCABULARY_READ_AS_NARRATION` with
+`BC08_REWRITE_DROPS_A_PROTECTED_COMMAND` beside it. Supersedes
+`SOURCE_CODE_SPAN_NOUN_IS_UNWRITABLE`, which item 36 closed — measured, not assumed: `ZapfDingbats`
+admitted, and 9 of 9 authoring calls clean where the same section was rejected twice before. Resume
+predicate: G4-W17 item 22 **plus PROPOSAL P14's fourth exemption** (word boundaries and the
+public-symbol exemption alone are proven insufficient here) and item 23 / PROPOSAL P15 landed on
+`main`, then rerun `present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch.
+
+**What is not claimed.** The run ends at S9 with two failures. BC-10 (the independent review) and
+BC-11 (the byte-identical no-op rerun) are `PENDING`, never judged; nothing here says they would
+pass.
+
+## 2026-09-06 23:06 — G4-W15 re-run, Aspose.Cells for Go, after G4-W17 items 28 and 29
+
+Items 28 (`8d23190`) and 29 (`c9951b1`) landed on `main`, the two resume predicates PROPOSAL P11 and
+PROPOSAL P8 named for `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`. The repository was run twice, in
+worktree `C:\w\d15c` on branch `lane-d/G4-W15-cells`: first at `8d23190` (item 28 only), then again
+after rebasing to `638a7ac` (items 29 and 22 as well). No lane-owned code changed in either run.
+
+### P11's class is closed — the review returns a verdict instead of collapsing
+
+Both previous runs ended with the independent review's output **rejected twice** because one of its
+eight findings quoted the inherited README rather than the candidate, taking the seven usable
+findings and the whole run with it. At `8d23190` the review returned `REJECT_PRESENTATION` with **3
+findings and 5 advisory**, and the five it folded out are exactly the unlocatable ones — `##
+Dependencies`, `### Required Package Dependencies`, `### Native and System Requirements`, `####
+Detailed Member Reference`, `  PRODUCT[`. Fold-not-reject did precisely what the proposal said.
+
+### P8's class is closed too — the quick-start finding is gone from the blocking set
+
+At `8d23190` the blocking set still held `F04`, "Reorder the Quick Start examples to match the
+original README" — the sibling-slot lead-in. After the rebase to `638a7ac` that finding is no longer
+raised as blocking; the equivalent observation survives only as advisory `F03`. Blocking findings fell
+from 3 to 2 and advisory rose from 5 to 6 across the two runs of the same revision.
+
+### The run reached S9 clean and S10 rejected it — 9 pass, 1 fail, 1 pending
+
+`231` facts (109 public symbols, 66 inherited units), 10 example candidates with 8 executed, 1
+failed, 1 not verified; a 16-of-18-section plan, 39 units across 8 sections, `README.md` at **224
+visible lines of 495**. **BC-01 through BC-09 all PASS** — every deterministic check, BC-07 among
+them. Only BC-10 fails and BC-11 is `PENDING` (S12, never reached). Repair ran 2 rounds, 4 repaired,
+3 re-raised; the equivalent failure stands.
+
+### PROPOSAL P16 — the reviewer treats the contract's required API surface as unsupported detail
+
+**File.** `prompts/` for the independent review's `presentation` criterion, and
+`review/independent/review.py` where its findings become BC-10 failures.
+
+**Defect.** Both remaining blocking findings ask for verified content to be **deleted because the
+upstream README did not have it**:
+
+- `F06`, `api_reference`: quote "`- \`ExportToCSV\`: ExportToCSV writes the worksheet at sheetIndex
+  to a CSV file using the given delimiter…`", repair "Remove the unsupported member details that are
+  not in the original README and stick to the verified public symbols."
+- `F07`, `development_testing`: repair "Remove the unsupported specific commands and guidance, and
+  stick to the verified test commands from the original README."
+
+`ExportToCSV` is a verified `public_symbol` fact of this repository's 109-symbol surface, and
+**BC-04 passed on this very candidate** — every identifier in prose is a fact value in a code span.
+The reviewer's word for it is "unsupported"; the deterministic check that owns support says
+otherwise. Worse, the collapsed API reference is not optional decoration: `loop-prompt.md` §6 rule 8
+and `README_CONTRACT.md` require the complete public API surface inside the collapsed reference
+precisely because most FOSS repositories have no other reference. Obeying `F06` would breach the
+contract; ignoring it fails BC-10. No repair can satisfy both, which is why four repairs produced
+three re-raises.
+
+**This is lane C's item (33) generalised.** Item (33) records BC-10 rejecting the renderer's own
+mandated `ADDITIONAL_EXAMPLES_SUMMARY` structure and routing the repair to authoring, which cannot
+change renderer-owned structure. Here the same check rejects contract-mandated *content* and routes
+the repair to authoring, which cannot delete verified surface without breaching the contract. Both
+are the review criterion judging against the inherited README as the standard of support rather than
+against the facts.
+
+**Fix, as this lane reads it.** State in the review packet that the candidate's fact set, not the
+upstream README, is the standard of support, and that the collapsed API reference is contract-required
+and complete by design — so "not in the original README" is never on its own a defect for a claim
+BC-04 has already verified. Land it with item (33), which needs the same sentence.
+
+**Rejected alternative.** Making BC-10 advisory for `presentation` findings: that would hide genuine
+presentation defects, and rule 5 forbids leaving a finding permanently unresolved. Also rejected:
+trimming the API reference to the upstream README's members, which breaches rule 8 outright.
+
+**Routing note, corroborating P15.** Both BC-10 failures carry `section_id: null` even though each
+failure's own `detail` names its section (`F06 api_reference`, `F07 development_testing`). The
+finding objects do carry `section_id`; the `Failure` does not. Same shape as P15/item 23.
+
+### The disposition this re-run leaves
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at `9f0a4033b59e9127afec7662ec9079b500af8032`,
+`BLOCKED_SHARED_CODE`, failure class `BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE`. Supersedes
+`BC10_WHOLE_REVIEW_REJECTED_ON_ONE_UNLOCATABLE_QUOTE` (item 28, closed and measured) and the
+quick-start lead-in class (item 29, closed and measured). Resume predicate: PROPOSAL P16 landed on
+`main`, with or beside lane C's item (33), then rerun `present --repo
+aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch.
+
+**What is not claimed.** BC-11, the byte-identical zero-call rerun, is `PENDING` and was never
+judged. This candidate is one check from sealing, not sealed.
