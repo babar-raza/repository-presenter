@@ -39,8 +39,16 @@ class EcosystemSpec:
     example_timeout_seconds: float = 120.0
     install_timeout_seconds: float = 300.0
     symbol_separator: str = "."
+    # The fence languages a README may write an example in. Empty means the fence itself,
+    # which is right for python and wrong for C#, where readers write csharp, cs and c#.
+    fence_aliases: frozenset[str] = field(default_factory=frozenset)
     manifest_globs: tuple[str, ...] = ()
     source_suffixes: frozenset[str] = field(default_factory=frozenset)
+
+    @property
+    def example_fences(self) -> frozenset[str]:
+        """Every fence language that marks an example of this ecosystem."""
+        return self.fence_aliases or frozenset({self.fence})
 
     def badge(self, package: str) -> str:
         """The registry's version badge for this package, or an empty string when it has none."""
@@ -58,6 +66,7 @@ PYTHON: Final = EcosystemSpec(
         "(https://pypi.org/project/{package}/)"
     ),
     verify_command='python -c "import {module}"',
+    fence_aliases=frozenset({"python", "py", "python3"}),
     manifest_globs=("pyproject.toml", "setup.cfg", "setup.py"),
     source_suffixes=frozenset({".py"}),
 )
@@ -79,6 +88,7 @@ NET: Final = EcosystemSpec(
     # core.execution is 300 seconds and a cold restore has been seen to use most of it.
     example_timeout_seconds=300.0,
     install_timeout_seconds=300.0,
+    fence_aliases=frozenset({"csharp", "cs", "c#"}),
     manifest_globs=("*.csproj", "*.fsproj", "Directory.Build.props"),
     source_suffixes=frozenset({".cs"}),
 )

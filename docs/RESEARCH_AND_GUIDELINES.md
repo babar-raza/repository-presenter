@@ -3687,3 +3687,15 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   took the whole stage down. Both fixed at the façade with a test each: a name appears once,
   earliest declaration winning, and a null line reads as zero. This is what a preflight is for —
   five crashes at no cost, before a single provider call was spent.
+
+- **2026-09-06 13:30 · loop (PROVISIONAL) · shared code held the fence vocabulary, so no .NET
+  README had an example.** Item G4-W11, §29.2 F6. All six .NET repositories reached
+  `presentation_planning` and failed on `quick_start_example_id must be a SUPPORTED example`;
+  Aspose.3D for .NET measured `examples: 0 candidates`, meaning nothing was even *selected*. The
+  cause was an alias table inside the example extractor that mapped only `python`, so a ` ```csharp `
+  block was not an example. Moved to `EcosystemSpec.fence_aliases`/`example_fences`, where E3 says
+  vocabulary lives. Consequence decided: selection now fails closed on an unregistered ecosystem
+  rather than guessing `frozenset({ecosystem})`. Alternative rejected — keep the guess — because
+  `cli.present` already resolves `plugin_for` one stage earlier, so the guess was unreachable in
+  production and only ever weakened a test. Reversal: restore the `SPECS.get` fallback in
+  `select_examples`.

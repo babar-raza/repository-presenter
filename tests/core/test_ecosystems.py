@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from repository_presenter.core.ecosystems import PYTHON, SPECS, EcosystemSpec, spec_for
+from repository_presenter.core.ecosystems import NET, PYTHON, SPECS, EcosystemSpec, spec_for
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS
 
@@ -34,6 +34,26 @@ def test_an_ecosystem_with_no_registry_prints_no_badge() -> None:
         install_fact_id="install_command:cmake",
     )
     assert spec.badge("anything") == ""
+
+
+def test_a_spec_names_every_fence_a_reader_may_write_its_examples_in() -> None:
+    """A reader writes csharp, cs or c#; a table in shared code knew only python.
+
+    Measured 2026-09-06: because the example extractor held that table, every C# block in the
+    .NET cohort's six READMEs was invisible and each repository reached planning with zero
+    example candidates (section 29.2 F6).
+    """
+    assert NET.example_fences == frozenset({"csharp", "cs", "c#"})
+    assert PYTHON.example_fences == frozenset({"python", "py", "python3"})
+    # A spec that declares no aliases still marks its own fence, so C++ needs no entry.
+    minimal = EcosystemSpec(
+        ecosystem="cpp",
+        language="C++",
+        fence="cpp",
+        registry="no package registry",
+        install_fact_id="install_command:cmake",
+    )
+    assert minimal.example_fences == frozenset({"cpp"})
 
 
 def test_an_unregistered_ecosystem_fails_closed() -> None:

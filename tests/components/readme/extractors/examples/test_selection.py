@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
 from repository_presenter.components.readme.extractors.examples.selection import select_examples
+from repository_presenter.core.errors import ConfigError
 
 README = b"""# Title
 
@@ -32,8 +35,13 @@ no language
 
     indented block
 
-```javascript
-console.log(1)
+```csharp
+using Aspose.ThreeD;
+var scene = new Scene();
+```
+
+```cs
+scene.Save("out.obj");
 ```
 """
 
@@ -52,7 +60,30 @@ def test_python_fences_become_candidates_in_order() -> None:
     assert candidates[2].code == 'print("tilde fence")\n'
 
 
-def test_other_ecosystems_select_their_own_language() -> None:
-    assert select_examples("README.md", README, "javascript")[0].code == "console.log(1)\n"
-    assert select_examples("README.md", README, "go") == []
-    assert select_examples("README.md", b"", "python") == []
+def test_another_ecosystem_selects_its_own_fences_and_not_pythons() -> None:
+    """The spec owns the fence vocabulary, so a C# block is an example of the .NET ecosystem.
+
+    Measured 2026-09-06: an alias table here knew only Python, so every ```csharp block in the
+    .NET cohort's six READMEs was not an example at all and every repository reached planning
+    with zero candidates (section 29.2 F6).
+    """
+    candidates = select_examples("README.md", README, "net")
+    assert [(c.ordinal, c.language) for c in candidates] == [(1, "csharp"), (2, "cs")]
+    assert candidates[0].code == "using Aspose.ThreeD;\nvar scene = new Scene();\n"
+    # Neither ecosystem sees the other's blocks, and no ecosystem sees bash or an unfenced block.
+    assert [c.language for c in select_examples("README.md", README, "python")] == [
+        "python",
+        "py",
+        "python3",
+    ]
+    assert select_examples("README.md", b"", "net") == []
+
+
+def test_an_ecosystem_with_no_spec_fails_closed() -> None:
+    """Selection reads the spec, and a spec is registered or it is a configuration failure.
+
+    `cli.present` resolves `plugin_for` before it ever selects, so this is the same refusal one
+    stage earlier: guessing a fence vocabulary would silently produce a candidate-free document.
+    """
+    with pytest.raises(ConfigError, match="javascript"):
+        select_examples("README.md", README, "javascript")
