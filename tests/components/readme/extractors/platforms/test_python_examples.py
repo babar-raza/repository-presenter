@@ -185,3 +185,84 @@ def test_a_toolchain_that_cannot_be_provisioned_leaves_every_example_unresolved(
     facts = example_facts(candidates, receipts, "examples.json")
     assert {f.polarity for f in facts} == {"UNRESOLVED"}
     assert all(f.confidence == 0.5 for f in facts)
+
+
+def test_a_fuzzing_corpus_never_stands_in_as_an_examples_input(tmp_path: Path) -> None:
+    """Sample data's opposite is not sample data.
+
+    A fuzzing seed is malformed by design and is the smallest file of its type in the tree for
+    exactly that reason, so the smallest-same-suffix rule chose one every time. Measured
+    2026-09-07 on Aspose.PDF for Python: `fuzz/corpus/cos/truncated.pdf` (35 bytes) was staged
+    as `input.pdf` for eight of thirteen examples, every one of which then raised
+    `PdfParseException`, while `tests/fixtures_4pages.pdf` (707 bytes) sat unused.
+    """
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "fuzz" / "corpus" / "cos").mkdir(parents=True)
+    (root / "fuzz" / "corpus" / "cos" / "truncated.pdf").write_text("%PDF", encoding="utf-8")
+    (root / "tests").mkdir()
+    (root / "tests" / "fixtures_4pages.pdf").write_text("%PDF-1.7 whole\n", encoding="utf-8")
+    tree = ["fuzz/corpus/cos/truncated.pdf", "tests/fixtures_4pages.pdf"]
+    workspace = tmp_path / "run"
+    workspace.mkdir()
+    bindings = stage_fixtures('open("input.pdf")\n', root, tree, workspace)
+    assert [(b.literal, b.source_path) for b in bindings] == [
+        ("input.pdf", "tests/fixtures_4pages.pdf")
+    ]
+
+
+def test_a_corpus_file_is_not_taken_even_when_the_literal_names_it(tmp_path: Path) -> None:
+    """The by-name rule reaches the same pool as the by-extension one, or the fix is half done."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "corpus").mkdir()
+    (root / "corpus" / "input.pdf").write_text("%PDF", encoding="utf-8")
+    workspace = tmp_path / "run"
+    workspace.mkdir()
+    assert stage_fixtures('open("input.pdf")\n', root, ["corpus/input.pdf"], workspace) == []
+    assert not (workspace / "input.pdf").exists()
+
+
+def test_a_package_that_will_not_build_still_runs_its_examples_from_source(
+    tmp_path: Path,
+) -> None:
+    """A broken wheel build is not evidence that the repository's code is wrong.
+
+    Measured 2026-09-07 on Aspose.BarCode for Python, reproducibly on a clean tree: setuptools'
+    own `install_egg_info` step fails, so every example read NOT_VERIFIED and the Quick Start
+    row lost its evidence - for a pure-Python package that imports fine from `src/`.
+    """
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "src" / "widget").mkdir(parents=True)
+    (root / "src" / "widget" / "__init__.py").write_text(
+        "VALUE = 'from source'\n", encoding="utf-8"
+    )
+    (root / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["setuptools"]\nbuild-backend = "no.such.backend"\n',
+        encoding="utf-8",
+    )
+    tree = ["pyproject.toml", "src/widget/__init__.py"]
+    receipts = verify_python_examples(
+        root,
+        tree,
+        [_candidate(1, "import widget\nprint(widget.VALUE)\n")],
+        tmp_path / "run",
+    )
+    assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "EXECUTED")]
+    assert "from source" in receipts[0].stdout
+    assert "ran against the repository source tree" in (receipts[0].detail or "")
+
+
+def test_a_tree_with_no_importable_package_stays_unverified_when_the_build_fails(
+    tmp_path: Path,
+) -> None:
+    """The source fallback never invents a checkable repository out of one that has no code."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "setup.py").write_text("raise SystemExit('no build for you')\n", encoding="utf-8")
+    receipts = verify_python_examples(
+        root, ["setup.py"], [_candidate(1, "print(1)\n")], tmp_path / "verify"
+    )
+    assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "NOT_VERIFIED")]
+    assert (receipts[0].detail or "").startswith("package install failed")
