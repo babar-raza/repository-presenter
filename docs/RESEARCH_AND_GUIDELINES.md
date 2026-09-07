@@ -5441,3 +5441,24 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   is the real proof this revision describes. Two-file documentation change only, no source
   touched; not run against the full suite for that reason (a docs-only change, consistent with
   this session's own established practice for `docs(...)`-scoped commits).
+
+- **2026-09-07 12:36 (`date` checked) · loop (PROVISIONAL) · G5-W02 predicate (b) proven
+  end to end: a new revision with unchanged facts reuses the call, through the real gateway
+  client and a real packet builder, not just at the `bounded_records` unit level.** The unit test
+  landed with the exclusion itself proved the packet no longer *contains* `identity:revision`;
+  it did not prove a real `run_job` call at one revision is actually reused at another. New test
+  `test_a_new_revision_with_unchanged_facts_reuses_every_call`
+  (`tests/core/llm/test_reuse.py`) builds two `FactsDocument`s differing only in
+  `identity:revision`'s value (and `source_revision`), builds each one's packet through the real
+  `investigation_packet(entry, facts, manifest)` - not a hand-written packet, so the proof
+  exercises the actual exclusion rather than assuming it - and asserts the two packets are
+  byte-for-byte equal before ever calling `run_job`. It then runs both through `run_job` against
+  a mocked gateway (`support.mock_gateway`, the real OpenAI SDK client over an `httpx.MockTransport`,
+  never the network): the first makes one provider call and stores it; the second reuses it with
+  zero calls, the same `request_sha256`, and the mocked gateway's own request log confirms only
+  one HTTP request was ever made across both. This is the first genuinely end-to-end proof in
+  G5-W02 - through the real cache-key computation (`canonical_hash({"prompt_sha256":...,
+  "payload":...})` in `core/llm/jobs.py::run_job`), not a synthetic check. All 5 pre-existing
+  `test_reuse.py` tests pass unchanged. Full suite green, ruff/mypy clean, before this entry.
+  G5-W02 still open: `section_authoring`/`independent_review` seeding, and the committed-repo
+  growth number the reviewer asked to be reported when that lands.

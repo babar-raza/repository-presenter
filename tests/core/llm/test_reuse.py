@@ -9,11 +9,13 @@ from typing import Any
 import httpx
 import pytest
 
+from repository_presenter.components.readme.investigation.dossier import investigation_packet
 from repository_presenter.core.config import GatewayConfig
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument, fact_id
 from repository_presenter.core.llm.jobs import CallStore, JobContext, run_job
 from repository_presenter.core.llm.ledger import Ledger
 from repository_presenter.core.llm.prompts import load_manifests
+from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT, mock_gateway
 
 CONFIG = GatewayConfig("https://gw.example/v1", "sk-test-key-0123456789")
@@ -118,6 +120,75 @@ def test_a_normalising_check_reshapes_the_stored_output_on_reuse(
     assert store.record(first.request_sha256)["model_served"] == "qwen3-next"
     assert len(gateway.requests) == 1
     assert [r.disposition for r in ledger.records()] == ["provider_call", "cache_reuse"]
+
+
+ENTRY = RegistryEntry.model_validate(
+    {
+        "repository": "org-foss/Aspose.Widget-FOSS-for-Python",
+        "family": "widget",
+        "platform": "python",
+        "ecosystem": "python",
+        "mode": "dry_run",
+        "policy_profile": "p",
+        "active": True,
+        "provider_identity": {"provider": "github", "repository_id": 1, "node_id": "R_1"},
+    }
+)
+
+
+def _facts(revision: str) -> FactsDocument:
+    return FactsDocument(
+        "org/repo",
+        revision,
+        (
+            Fact(fact_id("identity", "repository"), "identity", "org/repo", (Evidence("x"),)),
+            Fact(fact_id("identity", "revision"), "identity", revision, (Evidence("x"),)),
+            Fact("package:name", "package", "widget", (Evidence("setup.py"),)),
+        ),
+    )
+
+
+def test_a_new_revision_with_unchanged_facts_reuses_every_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G5-W02 (27.2 RC4). `identity:revision` is excluded from every job packet
+    (`core/facts.py::bounded_records`), so a revision bump that changes no fact a job would
+    reason about must not cost a new call. Built through the real `investigation_packet`, not a
+    hand-written packet, so the proof exercises the actual exclusion rather than assuming it."""
+    gateway = _Gateway(monkeypatch, _completion(_investigation("do things")))
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    store = CallStore(tmp_path / "calls")
+    manifest = load_manifests(REPO_ROOT / "prompts")["repository_investigation"]
+    facts_v1 = _facts("a" * 40)
+    facts_v2 = _facts("b" * 40)
+    assert facts_v1 != facts_v2  # the two revisions really do differ
+
+    packet_v1 = investigation_packet(ENTRY, facts_v1, manifest.manifest)
+    packet_v2 = investigation_packet(ENTRY, facts_v2, manifest.manifest)
+    assert packet_v1 == packet_v2  # the packet itself is already revision-invariant
+
+    first = run_job(
+        manifest,
+        packet_v1,
+        config=CONFIG,
+        facts=facts_v1,
+        ledger=ledger,
+        store=store,
+        context=JobContext("org/repo", "a" * 40),
+    )
+    assert (first.provider_calls, first.cache_reused) == (1, False)
+    second = run_job(
+        manifest,
+        packet_v2,
+        config=CONFIG,
+        facts=facts_v2,
+        ledger=ledger,
+        store=store,
+        context=JobContext("org/repo", "b" * 40),
+    )
+    assert (second.provider_calls, second.cache_reused) == (0, True)
+    assert second.request_sha256 == first.request_sha256
+    assert len(gateway.requests) == 1
 
 
 def test_a_stored_output_the_rules_reject_is_replaced_by_a_new_call(
