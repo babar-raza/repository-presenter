@@ -46,7 +46,15 @@ files, never from memory of a previous iteration.
 ## 1. Orient (at most five minutes)
 
 1. `git status` must be clean. If not, inspect; commit or revert only leftovers you created; never
-   discard work you did not author. Then `gh run list --limit 3`: if the latest *completed* hosted
+   discard work you did not author. **A dirty tree whose leftover predates this session — a
+   process killed mid-iteration, not your own unfinished edit — is a recovery, not a quick
+   discard-or-keep guess** (2026-09-07, after a killed loop process left a complete, correct,
+   unstaged fix undiscovered for hours until a reviewer's `git status` caught it by chance): read
+   the full diff, run the focused tests plus one full local CI-equivalent against it in isolation,
+   and if a failure appears, reproduce it on a clean tree with the diff stashed out before blaming
+   it on the recovered work — only then land it (with a commit crediting the recovery) or discard
+   it with a one-line §31 note naming what was lost and why. Never silently absorb either outcome.
+   Then `gh run list --limit 3`: if the latest *completed* hosted
    CI run for `main` is red (conclusion `failure`), that is this iteration's work (§5). A run whose
    conclusion is `cancelled` was superseded by a later push on the same ref under the workflow's
    cancel-in-progress rule — the owner's governance pushes do this often — and is not red; the
