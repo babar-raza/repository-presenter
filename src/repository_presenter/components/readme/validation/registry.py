@@ -877,12 +877,25 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         for fact in candidate.facts.by_kind("inherited_unit")
         if fact.polarity == "SUPPORTED"
     )
+    # G4-W17 arrival item 22, lane C PROPOSAL N. A public_symbol's own docstring renders
+    # verbatim into the collapsed API Reference (renderer.py's _symbol_description) and is then
+    # scanned as if it were authored prose - measured 2026-09-06, Aspose.Cells for Java: BC-07
+    # failed on 'validator', which content_units.json holds no occurrence of at all, so
+    # targeted_repair had nothing to revise and re-raised byte-identically. Anchored to the fact,
+    # not the section, so narration invented anywhere - the API Reference table included - still
+    # blocks; only text a fact actually carries is exempt.
+    docstring_prose = " ".join(
+        str((fact.attributes or {}).get("docstring") or "").lower()
+        for fact in candidate.facts.by_kind("public_symbol")
+        if fact.polarity == "SUPPORTED"
+    )
     matched = [
         phrase
         for phrase, pattern in _NARRATION_PATTERNS
         if pattern.search(lowered)
         and phrase not in symbol_names
         and not pattern.search(inherited_prose)
+        and not pattern.search(docstring_prose)
     ]
     if matched:
         # A repair can only revise a specific LLM-owned section's units (repair/targeted.py's
