@@ -23,17 +23,18 @@ toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
-  sealed_by_lane: 0
-  dispositions_by_lane: 3
-  status_line_observed: '2026-09-06 23:18, from origin/main at 32828cf: candidates 6/34 current
-    reviewable no-op-proven, unchanged by the third G4-W15 re-run, the Cells Go re-run or the second
-    G4-W16 re-run (none sealed). G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that number
-    was written before the shared blockers were known and no lane can reach it while G4-W17''s
-    arrival list is open. Recorded rather than met. Every one of lane D''s repositories again fails
-    past the class its previous disposition named - each earlier class was closed, measured, by the
-    arrival item that answered its proposal - and every remaining blocker is shared code, none of it
-    in a lane path. Aspose.Cells for Go is now one check from sealing: BC-01 to BC-09 all pass and
-    only BC-10 rejects it.'
+  sealed_by_lane: 1
+  dispositions_by_lane: 2
+  status_line_observed: '2026-09-07 12:26, from this lane branch off origin/main at 869fcc7:
+    candidates 8/34 current reviewable no-op-proven, up from 7 - Aspose.Cells FOSS for Rust is lane
+    D''s first seal and the lane''s first candidate to be judged on all eleven checks (BC-01 to
+    BC-11 all PASS, no-op proven in a fresh process with zero provider calls). The cursor in
+    state.yaml read 7 against 8 sealed bundles on disk, so this commit recomputes that one field in
+    the rebased tree per loop-prompt-lane.md section 0. G4-W16''s acceptance line asked for 31
+    sealed and 34 dispositions; that number was written before the shared blockers were known and is
+    still recorded rather than met. Aspose.PDF for Go cleared the narration class its last
+    disposition named and now fails two new shared-code classes (P19, P20); Aspose.Cells for Go was
+    not run - P13 is carried over, not landed.'
 items:
 - id: G4-W15
   status: ACCEPTED
@@ -144,6 +145,33 @@ items:
       their details name the sections, corroborating P15. No lane-owned code changed. The disposition
       becomes BLOCKED_SHARED_CODE / BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE; sealed_by_lane
       stays 0 and dispositions_by_lane stays 3. See docs/RESEARCH_LANE_D.md.'
+  rerun_4:
+    at: '2026-09-07T12:26:00+05:00'
+    from: origin/main at 869fcc7 (P14 landed as b30bd80, item 23/P18 as cd6a705)
+    scope: aspose-pdf-foss/Aspose-PDF-FOSS-for-Go only
+    receipt: evidence/build/lanes/lane-d/G4-W15.json (rerun_4_2026_09_07 block)
+    outcome: 'Both blockers the last disposition named were landed and both did what their
+      proposals said. PROPOSAL P14 (b30bd80): BC-07 PASSES on the same repository whose own
+      sentence - "confirm full conformance with a dedicated validator such as veraPDF" - failed it
+      twice; that class is closed, measured. Item 23 / P18 (cd6a705): the BC-08 failure now carries
+      section_id development_testing where it carried null, and targeted_repair made two calls
+      where the previous run made none. It did not seal, and both remaining failures are new. BC-08
+      still fails because the repair cannot succeed: the protected command is `go run
+      ./_examples/<name>` and composition/authoring.py''s _FORBIDDEN entry ("<", "HTML") rejected
+      both attempts identically - "revised_output: unit summary: text contains HTML (''<'')" - so
+      the one text that would satisfy the check is unwritable (PROPOSAL P19). BC-06 fails for the
+      first time in this lane: a VERIFIED_PRESERVE inherited unit carries the upstream README''s own
+      link [Encryption and Signing](#encryption-and-signing) into a candidate whose 17-of-18-section
+      plan renders no such heading, and _check_links raises it with section_id null, so S7 recorded
+      "no failing check names an LLM-owned section" - item 23''s shape again, one check over
+      (PROPOSAL P20). BC-01 to BC-05, BC-07 and BC-09 pass; 1,620 facts, 35 units across 9 sections,
+      README.md 212 visible lines of 844; 10 of 10 authoring calls clean on attempt 1. The first
+      launch of the run died at S3 on sampling (the job cited inherited_unit:080.list and then
+      :080.paragraph for an index the facts hold as :080.heading); the relaunch passed S3 on attempt
+      2 and is what this block reports. No lane-owned code changed. The disposition becomes
+      BLOCKED_SHARED_CODE / BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE with
+      BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED beside it. BC-10 and BC-11 were never
+      judged and are not claimed. See docs/RESEARCH_LANE_D.md.'
 - id: G4-W16
   status: ACCEPTED
   accepted_at: '2026-09-06T11:05:00+05:00'
@@ -193,6 +221,37 @@ items:
       BC02_REGISTRY_UNREADABLE_FAILS_CLOSED with BC08_REWRITE_DROPS_A_PROTECTED_COMMAND beside it;
       sealed_by_lane stays 0 and dispositions_by_lane stays 3. BC-10 and BC-11 were never judged and
       are not claimed. See docs/RESEARCH_LANE_D.md.'
+  rerun_3:
+    at: '2026-09-07T12:26:00+05:00'
+    from: origin/main at 869fcc7 (P17 investigated and not landed, e09f31e; item 23/P18 landed as cd6a705)
+    scope: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust only
+    receipt: evidence/build/lanes/lane-d/G4-W16.json (rerun_3_2026_09_07 block)
+    outcome: 'SEALED - lane D''s first candidate, and the first anywhere in this lane judged on all
+      eleven checks: BC-01 to BC-11 all PASS, bundle state READY_FOR_PROPOSAL, no-op proven in a
+      fresh process with zero provider calls. Both blockers are answered. BC-02: the reviewer
+      declined P17''s fix because the probe already sends a named User-Agent, and asked for a live
+      re-run instead - an independent call to the crates.io endpoint returned a conclusive 404 in
+      780 ms (ambiguous=False), the run''s own probes.json records the registry read CONTRADICTED,
+      and BC-02 PASSES on item (0)''s verified source-build path. The 2026-09-06 failure was
+      transient, not a defect; the bare-root 404 P17 cited still appears while the API answers
+      normally, so it never was evidence of refusal. BC-08: item 23 as widened by P18 carried
+      destination_section into the Failure, the repair re-authored the development_testing unit to
+      restore `cargo bench` and `cargo doc --no-deps --open`, and BC-08 PASSES - one repair, one
+      round, no re-raise. The seal then needed two lane-owned fixes. Decision D16: cargo prints its
+      own wall-clock cost on the line that closes every check, and that duration is stored verbatim
+      in examples.json, so the first fresh-process rerun withdrew its own no-op proof; scrubbing it
+      - the same cut, for the same reason, as .NET''s `Time Elapsed` line - made the rerun
+      byte-identical. Decision D17: with the seal on disk the full suite went red on
+      tests/test_sealed_bytes.py, because _dependency_facts emitted requirements in Cargo.toml''s
+      table order while a bundle stores facts sorted by ID, so the sealed README could not be
+      rendered again from its own bundle; emitting them sorted fixed it, the bundle was discarded
+      and re-sealed, and the sealed bytes now re-render exactly (0 diff lines). 2,224 facts, 143
+      units across 8 sections, README.md 174 visible lines of 894;
+      the review returned REJECT_PRESENTATION with 7 findings and every one folded as a reviewer
+      scope defect. PROPOSAL P21 records, measured, that two of those seven folds rest on an
+      ordinary English word colliding with a public symbol''s bare name; PROPOSAL P22 asks for
+      D17''s invariant to be held once in shared code rather than by every plugin. sealed_by_lane
+      0 -> 1, dispositions_by_lane 3 -> 2. See docs/RESEARCH_LANE_D.md.'
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)

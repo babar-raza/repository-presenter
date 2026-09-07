@@ -1,0 +1,90 @@
+[
+  {
+    "elapsed_ms": 1701,
+    "kind": "link",
+    "observation": null,
+    "outcome": "MISSING",
+    "status": 404,
+    "target": "https://crates.io/"
+  },
+  {
+    "elapsed_ms": 1469,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/rust/"
+  },
+  {
+    "elapsed_ms": 1462,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust/issues"
+  },
+  {
+    "elapsed_ms": 702,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 698,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Rust-2021%20edition-orange.svg"
+  },
+  {
+    "elapsed_ms": 909,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/rust/"
+  },
+  {
+    "elapsed_ms": 927,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/"
+  },
+  {
+    "elapsed_ms": 823,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/rust/"
+  },
+  {
+    "elapsed_ms": 780,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/rust/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 904,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/rust/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "crates-io-api",
+    "outcome": "CONTRADICTED",
+    "status": null,
+    "target": "cargo:aspose-cells-foss-rust"
+  }
+]

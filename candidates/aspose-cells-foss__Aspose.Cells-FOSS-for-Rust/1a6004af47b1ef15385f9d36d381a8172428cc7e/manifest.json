@@ -1,0 +1,79 @@
+{
+  "composition": {
+    "advisories": 7,
+    "blocking_failures": [],
+    "coverage_advisories": 2,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 54951,
+      "sha256": "73fd62a4fd3a76c952e45803ecc87c7e640cb5e69e703dc082f3ee3284c4a1db"
+    },
+    "README.patch": {
+      "bytes": 83542,
+      "sha256": "e4241bc9348ab10f7564ea92fec9e465ad95562624344ad60476db0c7a929562"
+    },
+    "calls.jsonl": {
+      "bytes": 80577,
+      "sha256": "95073428f01109f9e5a41de3d8606baf7fcc02361d13548cd9824da60ab24e88"
+    },
+    "content_units.json": {
+      "bytes": 60955,
+      "sha256": "f228a4f0747adc1997d3cbb3fde7d0dbf423b96212e7b716d73fee679f2b3491"
+    },
+    "dependencies.json": {
+      "bytes": 259941,
+      "sha256": "562e2487d98d70db9ee28fce9a65de1ad8e0423c445e06cf968cf6b94ec78bd0"
+    },
+    "dispositions.json": {
+      "bytes": 42879,
+      "sha256": "cccf5c2826506b215dabd489c9d1fc176542f51e226349aeb525b4ab8d1d72b9"
+    },
+    "examples.json": {
+      "bytes": 4750,
+      "sha256": "e8cddb181a3918c2a3f8216f52bee415fe5cd8d82ec2961a714d014e54ea0dc5"
+    },
+    "facts.json": {
+      "bytes": 1252083,
+      "sha256": "f208451e0dd0a596d323a8fa9dd959d3ad9b2df0cd94f366a29915e0b552ce96"
+    },
+    "investigation.json": {
+      "bytes": 9195,
+      "sha256": "12cc81eb4beb4a431dd3b67bc45435e3c61f849c8bdea3a29028840cd1f8d459"
+    },
+    "plan.json": {
+      "bytes": 10680,
+      "sha256": "1b6480d9c063cc865f97ae6a4b3fd4eac7ad67749de4ae6815130347ad51f640"
+    },
+    "probes.json": {
+      "bytes": 2030,
+      "sha256": "5942f1875a8dfc74337f4e00d0a5a1482585c7201581eb5bcf2a530603efcfd6"
+    },
+    "repairs.json": {
+      "bytes": 1289,
+      "sha256": "13849760d912a499d54473d42ef9add5b9ef1291992171c7942de059c393f76b"
+    },
+    "review.json": {
+      "bytes": 7298,
+      "sha256": "7dd0344bcc4d516149284782ee834026a603631c2b6cf3f3050650e9a34752a8"
+    },
+    "validation.json": {
+      "bytes": 12213,
+      "sha256": "b3761b72b0d4ae219266382bb702b7cb7bb1005464a495498e0ecb300b2a979b"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-07T08:01:18Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+  "revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+  "schema_version": 1,
+  "sealed_at": "2026-09-07T08:01:18Z",
+  "state": "READY_FOR_PROPOSAL"
+}
