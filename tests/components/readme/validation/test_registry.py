@@ -374,6 +374,22 @@ def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: 
     assert located["section_id"] == "scope_limitations"
 
 
+def test_narration_catches_a_claim_about_the_documents_own_verification(tmp_path: Path) -> None:
+    """External review, 2026-09-07: measured twice, verbatim, in a sealed candidate's Additional
+    Examples lead-in - "More real, verified snippets are collected below" - a claim about the
+    document's own verification process that `_NARRATION`'s fixed phrase list did not cover,
+    the same category `provider call` and `source revision` already catch."""
+    readme = _candidate().readme
+    narrated = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nMore real, verified snippets follow.\n\n",
+    )
+    assert narrated != readme, "the fixture's Scope and Limitations heading was not found"
+    document = validate_candidate(_candidate(narrated), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    assert "internal narration 'real, verified'" in structure["details"]
+
+
 def test_a_dropped_protected_command_carries_its_destination_section_for_every_disposition_kind(
     tmp_path: Path,
 ) -> None:
