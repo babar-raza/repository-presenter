@@ -23,6 +23,12 @@ from repository_presenter.components.readme.extractors.surface._vendor.aspose_ex
 )
 from repository_presenter.core.facts import slug
 
+# G5-W02 (27.2 RC7). Bumped whenever this module's own mapping or extraction logic changes, the
+# same convention SHELL_VERSION/RENDERER_VERSION/NORMALISATION_VERSION already use for their own
+# domains; dependencies.json's environment class records it so a change here reopens EXTRACTING
+# for every sealed candidate, not only the ones a plugin file's own edit happens to touch.
+EXTRACTOR_VERSION = "1"
+
 SymbolKind = Literal["module", "class", "enum", "function", "method", "unknown"]
 
 # The vendored engine names a symbol by its tree-sitter node type; the contract names it by what

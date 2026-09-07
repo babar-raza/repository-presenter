@@ -5356,3 +5356,31 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   lanes, and me on G5-W02, all genuinely concurrent). Proceeding on the reviewer's direct,
   owner-authorized instruction without the formal promotion, rather than guessing at a G4-W17
   acceptance record I cannot verify; deferring that bookkeeping to whoever holds the full history.
+
+- **2026-09-07 12:06 (`date` checked) · loop (PROVISIONAL) · G5-W02 predicate (c) landed: an
+  `environment` dependency class reopens EXTRACTING on a changed Python version, OS, extractor
+  version, or resolved package set.** 27.2 RC7: `dependencies.json` recorded nothing about what
+  *answered* extraction, only what the repository claimed - a fact `SUPPORTED` under one Python
+  version or one resolved dependency set was trusted unchanged under a different one with nothing
+  to notice the difference. Fix, mirroring the existing `components` class (`SHELL_VERSION`/
+  `RENDERER_VERSION`/`NORMALISATION_VERSION`) exactly: a new `EXTRACTOR_VERSION = "1"` constant in
+  `extractors/surface/extractor.py` (the shared façade every non-Python ecosystem's surface
+  reading routes through), bumped whenever its own mapping or logic changes; `seal.py`'s new
+  `environment_dependencies()` returns `python_version` (`platform.python_version()`), `os`
+  (`platform.system()`), `extractor_version`, and `site_manifest` (a `canonical_hash` of every
+  resolved `name==version` pair from `importlib.metadata.distributions()` - what actually answered
+  an import, never what `pyproject.toml` merely asked for), added to `upstream_dependencies()`'s
+  returned document alongside `source`; `evaluation.py::evaluate` gains a per-sub-field loop
+  identical in shape to the `components` one, each differing sub-field its own `Change` reopening
+  EXTRACTING. New test cases in `test_each_dependency_class_names_the_state_it_reopens`
+  (`python_version` and `extractor_version`, the acceptance predicate's own "3.11 versus 3.13"
+  example among them) against a `SEALED` fixture now carrying a representative `environment`
+  block. The sealed canary's own on-disk `dependencies.json` (`65b1f577...`) predates this field
+  and stays untouched - comparing it against itself still reopens nothing (both sides equally
+  missing the key), and its own next real seal will gain the field and reopen EXTRACTING once,
+  the same one-time transition G2-W21's `normalisation` component caused when it landed. All
+  pre-existing seal/evaluation/CLI tests pass unchanged (test_cli.py run explicitly). Full suite
+  green, ruff/mypy clean, before this entry. G5-W02 predicates remaining: (a) fresh-state
+  zero-call replay (call-store seeding from a sealed bundle's own artifacts, check 11 extended)
+  and the end-to-end proof that (b) (landed above) actually reuses a call across two real
+  revisions - both still open, each its own commit.

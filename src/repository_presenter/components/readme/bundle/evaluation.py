@@ -3,7 +3,8 @@
 A sealed bundle's dependencies.json names exactly the inputs its candidate consumed. Before a run
 asks for anything, the inputs it would consume now are compared with that record, class by
 class, and each change names the state it reopens (docs/STATE_MACHINE.md section 9): the source
-revision or tree and the fact records reopen EXTRACTING; a prompt reopens its own stage; a
+revision or tree, the fact records, and the environment (Python version, OS, extractor version,
+resolved site manifest - 27.2 RC7) reopen EXTRACTING; a prompt reopens its own stage; a
 template component reopens COMPOSING; the contract version or a validator reopens VALIDATING;
 the acceptance profile reopens REVIEWING; the policy reopens PLANNING. The earliest affected
 state is the answer, or NONE when nothing changed. The protected-content fingerprint is derived
@@ -68,6 +69,22 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
     changes: list[Change] = []
     if _differs(sealed.get("source"), current.get("source")):
         changes.append(Change("source", "revision or tree fingerprint changed", "EXTRACTING"))
+    # G5-W02 (27.2 RC7): what answered extraction, not what the repository claims, so a fact
+    # already SUPPORTED under one Python version or extractor build is never trusted unchanged
+    # under a different one - each differing sub-field is its own change, reopening EXTRACTING
+    # like the source itself.
+    sealed_environment = dict(sealed.get("environment", {}))
+    current_environment = dict(current.get("environment", {}))
+    for name in sorted(set(sealed_environment) | set(current_environment)):
+        if sealed_environment.get(name) == current_environment.get(name):
+            continue
+        changes.append(
+            Change(
+                f"environment.{name}",
+                f"{sealed_environment.get(name)} -> {current_environment.get(name)}",
+                "EXTRACTING",
+            )
+        )
     sealed_facts = dict(sealed.get("facts", {}))
     current_facts = dict(current.get("facts", {}))
     if sealed_facts != current_facts:

@@ -22,9 +22,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import platform
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from importlib.metadata import distributions
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +39,7 @@ from repository_presenter.components.readme.composition.policy import (
     policy_packet,
 )
 from repository_presenter.components.readme.composition.renderer import RENDERER_VERSION
+from repository_presenter.components.readme.extractors.surface.extractor import EXTRACTOR_VERSION
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     VALIDATOR_VERSION,
@@ -126,6 +129,29 @@ def bundle_directory(candidates: Path, entry: RegistryEntry, revision: str) -> P
     return candidates / f"{entry.owner}__{entry.name}" / revision
 
 
+def _site_manifest_hash() -> str:
+    """A canonical hash of the resolved installed package set (27.2 RC7): what actually answered
+    an import at extraction time, never what pyproject.toml merely asked for - two environments
+    that resolved a dependency to different versions are not the same environment even when
+    every other input agrees."""
+    packages = sorted(f"{dist.name}=={dist.version}" for dist in distributions() if dist.name)
+    return canonical_hash(packages)
+
+
+def environment_dependencies() -> dict[str, Any]:
+    """What answered this run's extraction, never a claim the repository itself makes (27.2
+    RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor
+    version, and the resolved package set. A change in any reopens EXTRACTING, the same stage a
+    source or fact change would - a fact SUPPORTED under one environment is not trusted
+    unchanged under a different one."""
+    return {
+        "python_version": platform.python_version(),
+        "os": platform.system(),
+        "extractor_version": EXTRACTOR_VERSION,
+        "site_manifest": _site_manifest_hash(),
+    }
+
+
 def upstream_dependencies(
     source_revision: str, tree_sha256: str, facts: FactsDocument, prompts: PromptRegistry
 ) -> dict[str, Any]:
@@ -135,6 +161,7 @@ def upstream_dependencies(
     return {
         "schema_version": 1,
         "source": {"revision": source_revision, "tree_sha256": tree_sha256},
+        "environment": environment_dependencies(),
         "facts": {
             fact.id: canonical_hash(asdict(fact))
             for fact in sorted(facts.facts, key=lambda fact: fact.id)

@@ -20,6 +20,12 @@ from repository_presenter.components.readme.bundle.evaluation import (
 SEALED: dict[str, Any] = {
     "schema_version": 1,
     "source": {"revision": "a" * 40, "tree_sha256": "t" * 64},
+    "environment": {
+        "python_version": "3.13.2",
+        "os": "Windows",
+        "extractor_version": "1",
+        "site_manifest": "e" * 64,
+    },
     "facts": {"identity:repository": "1" * 64, "format:output.glb": "2" * 64},
     "prompts": {
         "repository_investigation": {
@@ -66,6 +72,12 @@ def test_an_unchanged_input_set_is_none() -> None:
 def test_each_dependency_class_names_the_state_it_reopens() -> None:
     cases = {
         "source__revision": ("source", "EXTRACTING"),
+        # G5-W02 (27.2 RC7): what answered extraction is as much a dependency as the source
+        # itself - running a repository's own facts.json under a different Python version (the
+        # acceptance predicate's own example, 3.11 versus 3.13) must reopen EXTRACTING exactly
+        # like a changed revision would, never silently trusted as still SUPPORTED.
+        "environment__python_version": ("environment.python_version", "EXTRACTING"),
+        "environment__extractor_version": ("environment.extractor_version", "EXTRACTING"),
         "facts__format:output.glb": ("facts", "EXTRACTING"),
         "prompts__repository_investigation__sha256": (
             "prompts.repository_investigation",
