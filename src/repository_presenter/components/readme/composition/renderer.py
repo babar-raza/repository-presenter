@@ -148,6 +148,13 @@ class RenderContext:
         abbreviation written in lower case is raised to its canonical form first: the code owns
         that spelling, so it normalises it rather than re-asking the model and rejecting the
         reply (docs/RESEARCH_AND_GUIDELINES.md section 27.10; BC-07 still judges the result).
+
+        A literal ``()`` immediately after the token (prose calling out a method by its call
+        syntax, e.g. "using ``Scene.open()``") is folded into the same code span rather than left
+        outside it — an external audit measured 2026-09-07 that the un-widened match produced
+        `` `Scene.open`() `` (a broken span with bare parens trailing it) 16+ times in one sealed
+        candidate alone, and the same shape in a second, unrelated one (PDF Java's very first
+        paragraph). The token alone, with no following ``()``, still renders exactly as before.
         """
         text = self.canonical(text)
         tokens = set(identifier_tokens(text))
@@ -162,7 +169,11 @@ class RenderContext:
                 token, self.allowed, self.members, self.methods
             ):
                 continue
-            rendered = re.sub(rf"(?<![`\w.]){re.escape(token)}(?![`\w])", f"`{token}`", rendered)
+            rendered = re.sub(
+                rf"(?<![`\w.]){re.escape(token)}(\(\))?(?![`\w])",
+                lambda m: f"`{m.group(0)}`",
+                rendered,
+            )
         return rendered
 
 

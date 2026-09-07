@@ -336,6 +336,19 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def test_prose_folds_a_trailing_call_parens_into_the_same_code_span() -> None:
+    # External audit, 2026-09-07: the un-widened match left a bare "()" outside the span -
+    # `Scene.save`() - measured 16+ times in one sealed candidate and once in an unrelated one.
+    context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("Load a file using Scene.save() with default options.") == (
+        "Load a file using `Scene.save()` with default options."
+    )
+    # The token alone, with nothing following it, is unaffected.
+    assert context.prose("Scene.save is the export entry point.") == (
+        "`Scene.save` is the export entry point."
+    )
+
+
 def test_the_hosting_site_a_verified_link_names_is_left_in_plain_text() -> None:
     # G2-W13: a code span around GitHub is a rendering defect; the site is a proper noun the
     # same way a package registry is, and it is spellable only because a fact links there.

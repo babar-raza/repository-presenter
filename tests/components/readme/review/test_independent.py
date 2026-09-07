@@ -549,6 +549,39 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     assert absence_defect({"absent": ["", "   "]}, CANDIDATE) is None
 
 
+def test_an_absence_check_is_scoped_to_the_findings_own_section() -> None:
+    """External audit, 2026-09-07, measured on a real sealed candidate: a finding about the
+    Installation section was wrongly refuted because the claimed-absent text existed 760 lines
+    later in Development and Testing - present somewhere is not present where the finding says
+    it is missing."""
+    two_sections = (
+        "# Product\n\n"
+        "## Installation\n\n"
+        "Install the published package:\n\n```bash\npip install product\n```\n\n"
+        "## Development and Testing\n\n"
+        "Install in editable mode:\n\n```bash\npython3 -m pip install -e .\n```\n"
+    )
+    finding = {
+        **_finding("F02", "installation", "S6"),
+        "absent": ["python3 -m pip install -e ."],
+    }
+    # The text is real, but it lives in a different section - it does not disprove a real gap in
+    # Installation, so the finding is not the reviewer's defect and survives to block.
+    assert absence_defect(finding, two_sections) is None
+    # The same claim, genuinely present within Installation itself, is correctly refuted.
+    within_section = {
+        **_finding("F02", "installation", "S6"),
+        "absent": ["pip install product"],
+    }
+    reason = absence_defect(within_section, two_sections)
+    assert reason is not None and "which the candidate contains" in reason
+    # A section_id with no matching heading in the document falls back to the whole document,
+    # never narrowing to nothing - the pre-existing, unscoped behavior, preserved as a fallback.
+    unscoped = {**finding, "section_id": "no-such-section"}
+    reason = absence_defect(unscoped, two_sections)
+    assert reason is not None and "which the candidate contains" in reason
+
+
 def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_defect() -> None:
     """Asking for text neither the original README nor any fact holds asks for what nobody wrote.
 

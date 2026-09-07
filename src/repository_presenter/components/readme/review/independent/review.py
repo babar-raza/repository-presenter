@@ -244,10 +244,37 @@ def factuality_defect(
 
 _ABSENCE_REPORTED = 3
 
+_SECTION_HEADINGS: dict[str, str] = {
+    section.id: section.heading for section in SEMANTIC_SHELL if section.heading
+}
+
 
 def _claimed_absent(finding: Mapping[str, Any]) -> list[str]:
     """The non-blank strings a finding says the candidate does not contain."""
     return [text for text in (str(entry).strip() for entry in finding.get("absent", [])) if text]
+
+
+def _section_slice(section_id: str, candidate_readme: str) -> str:
+    """The candidate's own text for one top-level section, from its heading to the next one.
+
+    External audit, 2026-09-07: `absence_defect` searched the whole document, so a finding about
+    the Installation section was wrongly refuted by a string that only existed 760 lines later in
+    Development and Testing - text present somewhere is not text present where the finding says
+    it is missing. Falls back to the whole document (never to nothing) when the section's heading
+    cannot be located - a missing boundary is a reason to search everywhere, not nowhere, so this
+    can only narrow a search, never cause one to miss real candidate text.
+    """
+    heading = _SECTION_HEADINGS.get(section_id)
+    if not heading:
+        return candidate_readme
+    marker = f"## {heading}"
+    start = candidate_readme.find(marker)
+    if start < 0:
+        return candidate_readme
+    body_start = start + len(marker)
+    next_heading = re.search(r"\n## ", candidate_readme[body_start:])
+    end = body_start + next_heading.start() if next_heading else len(candidate_readme)
+    return candidate_readme[start:end]
 
 
 def absence_defect(
@@ -257,15 +284,19 @@ def absence_defect(
 
     An omission claim is checkable, so the reviewer states what it claims is missing as strings
     in ``absent`` rather than asserting it in prose; the code looks each one up under the same
-    spelling rules that locate a quote. A string the candidate contains disproves the finding by
-    the candidate's own bytes. A string that occurs nowhere in the evidence the candidate draws
-    from - the original README and the fact values - is text nobody wrote, so there is nothing to
-    restore. Either way a deterministic check contradicts the finding
-    (docs/README_CONTRACT.md section 6), and nothing here reads the finding's prose
-    (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    spelling rules that locate a quote. A string the candidate's own named section contains
+    disproves the finding by the candidate's own bytes - scoped to that section, not the whole
+    document (see ``_section_slice``), because a finding names one section and a coincidental
+    match somewhere else in a large README does not disprove a real gap in that section. A string
+    that occurs nowhere in the evidence the candidate draws from - the original README and the
+    fact values - is text nobody wrote, so there is nothing to restore. Either way a deterministic
+    check contradicts the finding (docs/README_CONTRACT.md section 6), and nothing here reads the
+    finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
     """
     claims = _claimed_absent(finding)
-    present = sorted({claim for claim in claims if quote_located(claim, candidate_readme)})
+    section_id = str(finding.get("section_id") or "")
+    haystack = _section_slice(section_id, candidate_readme)
+    present = sorted({claim for claim in claims if quote_located(claim, haystack)})
     if present:
         return (
             f"the finding claims the candidate does not contain {_named(present)}, "
