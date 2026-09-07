@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (single repository)",
+  "recorded_at": "2026-09-07T12:54:50+05:00",
+  "control_revision": "e81ffce",
+  "control_revision_note": "origin/main at the start of this re-run; e81ffce is G4-W17 arrival item 37 itself (PR #25), the unlock under test. The previous measurement for this repository was taken at 869fcc7; the range 869fcc7..e81ffce carries eight commits, of which exactly one touches anything that shapes a job packet - 4cd1cff, 'exclude identity:revision from every job packet' (G5-W02).",
+  "trigger": "Coordinator message: item 37 landed - the reviewer's-own-defect exemption for deterministic, renderer-owned content now applies whatever criterion the finding claims, not only a presentation-labelled one. That is this lane's PROPOSAL O, raised as aspose-cells-foss/Aspose.Cells-FOSS-for-Java's blocker for F01 and F03. F07 needs item 39 (PROPOSAL Q), which has not landed. Re-run that repository alone.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\c12r5 - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "path_policy": "Every tool resolved by the pipeline's own resolver and called by absolute path; nothing added to the user or system PATH. TEMP and TMP were set for the subprocess only, at C:\\w\\tmp-c12r5, outside the worktree - the trap the fourth re-run recorded; pip cannot build under C:\\Windows\\Temp in this sandbox, and a TEMP inside the worktree breaks two CLI root-discovery tests.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11); mvn resolved and not needed - every declared dependency of the POM is test scope, so the verifier is offline by construction.",
+    "preflight": "runs/preflight/catalog.json, digest 2dc48f77356a70052b6b95f15b96ef0808744e9a2d3c3592d5a7de3e666655ae; 7 models, 6 prompt manifests routed to qwen3-next."
+  },
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION BLOCKED_AUTHORING",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION at S10 (BC-10 REJECT_FACTUAL, findings F01, F03, F07), resume predicate PROPOSALs O, P and Q together",
+      "stage_reached": "S6 - section authoring. The repository did NOT reach S9 or S10 this run, so BC-01 through BC-11 were not evaluated and the three findings of the fourth re-run were not re-measured by a live review.",
+      "facts": 2829,
+      "facts_digest": "e8a7c6dca1a4f66aaeb8bf6065b3edad4cc4cb95ae63f4c0babeb8184f26a447",
+      "public_symbols": 2728,
+      "stages_clean": "S1 snapshot (3 files, 364 tree entries), S2 examples (3 candidates, 3 executed), S3 investigation (1 call, first attempt), S4 source_reconciliation (2 attempts), S5 planning (2 attempts, 18 sections planned), S6 nine of ten section-authoring jobs accepted on their first attempt.",
+      "new_blocker": {
+        "stage": "S6",
+        "job": "section_authoring, section development_testing, slot summary",
+        "message": "repository-presenter: section_authoring: output rejected twice; last rejection: unit summary: identifiers that are not accepted fact values: index.html",
+        "reproduction": "Four fresh samples of that one job returned a sentence containing the same token and were rejected identically: two in the first invocation (12:45-12:48) and two in the second (12:50-12:53). Honest qualification: the second invocation reused the cached S3, S4, S5 and the nine accepted S6 replies (calls.jsonl records seven S6 cache_reuse rows and one each for S3, S4, S5), so the packet the four samples answered was identical by construction rather than independently re-derived. What is independent of sampling is the measurement below.",
+        "authored_sentence": "Build and test the project using Maven with JDK 17 or higher; run the test suite with mvn test, compile and package the project with mvn compile followed by mvn clean package, and generate API documentation with mvn javadoc:javadoc which outputs to docs/apidocs/index.html.",
+        "cited_fact_ids": [
+          "inherited_unit:044.paragraph",
+          "inherited_unit:045.code_block",
+          "inherited_unit:047.code_block"
+        ],
+        "measured_deterministically": {
+          "probe": "allowed_identifiers / identifier_allowed called directly against this transaction's own facts.json; no provider call.",
+          "carrier_fact": "inherited_unit:047.code_block, polarity SUPPORTED, value '```bash\\nmvn compile\\nmvn clean package\\nmvn javadoc:javadoc   # generates docs/apidocs/index.html\\n```'",
+          "carrier_spells_the_token_verbatim": true,
+          "carrier_is_in_the_section_accepted_set": "yes - the unit cites it and unit_checks raised no 'cites facts outside this section's set' error alongside the identifier error",
+          "index_html_in_allowed_set": false,
+          "identifier_allowed_index_html": false,
+          "identifier_tokens_matches_it_in_the_sentence": true,
+          "whole_carrier_value_is_in_allowed": true,
+          "tokens_of_the_carrier_value_allowed_identifiers_never_adds": ["index.html"],
+          "conclusion": "allowed_identifiers adds every SUPPORTED fact's whole value string, and adds identifier_tokens(value) for kind 'example' alone (authoring.py lines 817-820). For an inherited_unit the whole multi-line code block enters the allowed set - a string no prose can ever match - while the identifiers spelled inside it never do. So a unit that names a path its own cited evidence spells verbatim is rejected, and the re-ask cannot pass, because the packet's evidence keeps spelling it."
+        }
+      },
+      "item_37_replayed_against_the_findings_it_was_landed_for": {
+        "method": "The three blocking findings recorded verbatim in evidence/build/lanes/lane-c/G4-W12-RERUN4.json were replayed through e81ffce's own review.renderer_owned_defect and review.factuality_defect with this transaction's fact set (same repository, same revision 779c9640, facts extracted deterministically). No provider call. This measures item 37's reach exactly; it does not measure what a fresh reviewer read would raise, which only a run reaching S10 can.",
+        "F01": {
+          "section_id": "identity",
+          "criterion": "factuality",
+          "renderer_owned_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+          "blocks_after_item_37": false
+        },
+        "F03": {
+          "section_id": "dependencies",
+          "criterion": "factuality",
+          "renderer_owned_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+          "blocks_after_item_37": false
+        },
+        "F07": {
+          "section_id": "scope_limitations",
+          "criterion": "factuality",
+          "renderer_owned_defect": null,
+          "factuality_defect": null,
+          "blocks_after_item_37": true,
+          "why": "scope_limitations is not in _DETERMINISTIC_SECTIONS, the quote is neither a rendered heading nor collapsible chrome, and factuality_defect returns None for empty fact_ids. Exactly what PROPOSAL Q / item 39 describes, and exactly what the coordinator predicted."
+        },
+        "verdict": "Item 37 does what its commit message claims and closes PROPOSAL O. It clears two of the three findings that held BC-10, both by the same rule, and leaves the third untouched. It is necessary and not sufficient."
+      },
+      "no_op_proof": {
+        "attempted": false,
+        "reason": "No bundle was sealed - the pipeline stopped at S6, five stages before a bundle exists. candidates/ holds no aspose-cells-foss__Aspose.Cells-FOSS-for-Java directory."
+      },
+      "new_resume_predicate": "PROPOSAL R and item 39 / PROPOSAL Q both merged on main, then re-run present for Cells Java. R is needed to leave S6 at all; Q is needed for BC-10, and the replay above proves F07 still blocks without it. Naming only one of the two would be a resume predicate that cannot seal.",
+      "not_a_regression_claim": "The fourth re-run reached S10 on this same repository at 869fcc7, so the S6 rejection is new since that measurement. This record does NOT claim a cause. The one commit in 869fcc7..e81ffce that shapes a job packet is 4cd1cff (G5-W02, excluding identity:revision from every packet), which frees room in a bounded packet and could plausibly be what brought inherited_unit:047.code_block into this section's accepted set - but the fourth re-run's transaction artifacts were removed with its worktree (C:\\w\\c12r4 no longer exists), so the two packets cannot be compared and the suspicion is recorded as untested. The defect PROPOSAL R names is independent of that question: it is true of the code as written at e81ffce whatever put the fact in the set."
+    }
+  ],
+  "not_touched_this_run": [
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - SEALED at 099e70a8; its bundle was not read or rewritten.",
+    "aspose-3d-foss/Aspose.3D-FOSS-for-Java - SEALED at e308de58; its bundle was not read or rewritten.",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Java - still dispositioned on item 33 / PROPOSAL L; not run this iteration, so this record adds no measurement for it and its F07 half still has no grounded quote."
+  ],
+  "proposals": {
+    "closed_in_lane": [
+      "O (= commit e81ffce, G4-W17 arrival item 37) - closed. Raised by this lane at 2026-09-07 12:04, landed by the primary at e81ffce, and verified here by replaying the two findings it was landed for: both now return the deterministic-section reason and neither blocks."
+    ],
+    "raised": [
+      "R - an identifier spelled verbatim inside a SUPPORTED fact the unit cites is not admitted, because allowed_identifiers adds a fact's whole value string but adds its tokens only for kind 'example'. File: src/repository_presenter/components/readme/composition/authoring.py::allowed_identifiers (lines 814-820). The same function feeds composition/renderer.py line 110 and validation/registry.py line 514 (BC-04), so one fix reaches authoring, rendering and validation consistently - and a fix in authoring alone would only move the rejection to BC-04."
+    ],
+    "still_open_elsewhere": [
+      "Q / G4-W17 item 39 - a factuality finding with empty fact_ids and empty absent passes every deterministic refutation. Proved above to still block F07 at e81ffce. Cells Java's second blocker.",
+      "P / G4-W17 item 38 - repair routes a finding by the reviewer's section_id label rather than by where its quote is located. No longer on Cells Java's critical path: item 37 makes F01 advisory instead of repairable. Recorded as a quality note, not a blocker - see docs/RESEARCH_LANE_C.md.",
+      "L / G4-W17 item 33 - BC-10 rejects renderer-owned structure. Slides Java's blocker; unchanged, not re-run.",
+      "K - a repair attempt whose output is identical to its input is recorded 'repaired' and spends the round. Not re-observed this run, which never reached repair."
+    ]
+  },
+  "state_yaml_touched": {
+    "field": null,
+    "reason": "Nothing sealed this run, so progress.current_candidates did not move and project/state.yaml was not opened."
+  },
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 2,
+    "dispositions_by_lane": 2,
+    "candidates_on_disk": 7,
+    "java_cohort": "2 of 4 sealed (PDF 099e70a8, 3D e308de58); 2 dispositioned - Cells Java moves from BLOCKED_VALIDATION at S10 to BLOCKED_AUTHORING at S6 on PROPOSAL R plus item 39 / PROPOSAL Q; Slides Java unchanged on item 33 / PROPOSAL L."
+  }
+}

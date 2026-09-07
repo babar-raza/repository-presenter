@@ -514,3 +514,87 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   `^F[0-9]{2}$` and both repositories' `scope_limitations` finding came back as `F07`): Slides' is the
   Enterprise cross-reference sentence, Cells' is the XML-mapper skeleton-class limitation. They are
   not evidence for each other.
+
+## Fifth re-run, Cells Java alone (2026-09-07 12:54, after item 37 landed at `e81ffce`)
+
+- **2026-09-07 12:54 (`date` checked) · G4-W12 fifth re-run · PROPOSAL O is closed: item 37 clears
+  F01 and F03 exactly as written, and F07 still blocks — but the repository never reached the review
+  to be judged there, because a new deterministic blocker stands four stages earlier at S6.**
+  Measured on `origin/main` at `e81ffce`, which is item 37 itself (PR #25). Outcome:
+  `DISPOSITION BLOCKED_AUTHORING`, not the `BLOCKED_VALIDATION` the fourth re-run recorded. S1–S5
+  are clean (3 files, 3 of 3 examples executed, 2,829 facts, 18 sections planned) and **nine of ten
+  S6 section-authoring jobs are accepted on their first attempt**; the tenth,
+  `development_testing`/`summary`, is rejected twice and the run stops. Evidence:
+  `evidence/build/lanes/lane-c/G4-W12-RERUN5.json`.
+- **Item 37's reach, replayed against the three findings it was landed for.** The blocking findings
+  recorded verbatim in `G4-W12-RERUN4.json` were run back through `e81ffce`'s own
+  `renderer_owned_defect` and `factuality_defect` with this transaction's fact set — same repository,
+  same revision `779c9640`, no provider call. **F01** (`identity`/factuality) and **F03**
+  (`dependencies`/factuality) both now return *section … renders from facts under the contract's own
+  checks*, so both are recorded advisory and neither blocks. **F07**
+  (`scope_limitations`/factuality, `fact_ids []`, `absent []`) returns `None` from both: the section
+  is not in `_DETERMINISTIC_SECTIONS`, the quote is neither a rendered heading nor collapsible
+  chrome, and `factuality_defect` returns `None` for empty `fact_ids`. Item 37 is **necessary and not
+  sufficient**: it is two thirds of what BC-10 needed here, and item 39 / PROPOSAL Q is the rest.
+  This measures the rule's reach over the recorded findings; it is not a fresh reviewer read, which
+  only a run that reaches S10 can give.
+- **PROPOSAL P is off this repository's critical path, and that is worth recording rather than
+  celebrating.** Item 37 clears F01 by *exempting* it — `identity` is a deterministic section, so the
+  reviewer's own mislabel now buys the finding an advisory record — not by routing it to the unit
+  that actually holds the sentence. The substance stands: `prompts/independent_review.yaml` line 126
+  names *"dependency-free"* verbatim as a REJECT_FACTUAL trigger, the phrase is in content unit 0 of
+  the LLM-owned `opening` section, and after item 37 no repair round will ever be spent on it. That
+  is the right trade for a candidate that must not be blocked forever by a mislabel, and it is still
+  a sentence the reviewer objects to surviving into a sealed README. Item 38 remains worth landing on
+  its own merits; it is no longer a resume predicate for Cells Java.
+- **PROPOSAL 2026-09-07 R · an identifier spelled verbatim inside a SUPPORTED fact the unit cites is
+  not admitted, because `allowed_identifiers` adds a fact's whole value but its tokens only for kind
+  `example`.** File: `src/repository_presenter/components/readme/composition/authoring.py::allowed_identifiers`
+  (lines 814–820). Defect: the loop adds `fact.value` for every SUPPORTED fact and
+  `identifier_tokens(fact.value)` only when `fact.kind == "example"`. For an `inherited_unit` the
+  whole multi-line code block enters the allowed set — a string no prose can ever match — while the
+  identifiers spelled inside it never do. Repository and finding: Cells Java at `779c9640`, S6
+  `development_testing`/`summary`. The job wrote *…generate API documentation with mvn
+  javadoc:javadoc which outputs to docs/apidocs/index.html*, citing `inherited_unit:044.paragraph`,
+  `045.code_block` and `047.code_block`; `047`'s own SUPPORTED value is
+  ```` ```bash / mvn compile / mvn clean package / mvn javadoc:javadoc   # generates docs/apidocs/index.html / ``` ````.
+  Measured directly against this transaction's `facts.json`, no provider call: the carrier spells
+  `index.html` verbatim → `True`; `whole carrier value in allowed` → `True`; `'index.html' in allowed`
+  → `False`; `identifier_allowed('index.html', …)` → `False`; tokens of the carrier value
+  `allowed_identifiers` never adds → `['index.html']`. The re-ask cannot pass, because the packet's
+  evidence keeps spelling the token: four fresh samples of that one job across two invocations all
+  returned it and all were rejected identically. Fix: admit `identifier_tokens(fact.value)` for a
+  cited SUPPORTED fact whatever its kind, as `example` already gets — the same function feeds
+  `renderer.py` line 110 and `validation/registry.py` line 514 (BC-04), so one change keeps authoring,
+  rendering and BC-04 consistent and a fix in authoring alone would only move the rejection to BC-04.
+  Alternative rejected: adding `index.html` to the common-noun set — it fits one sample and the class
+  plainly continues (`docs/apidocs`, `target/classes`, every output path any upstream README's build
+  block names), the shape items (20)/(22)/(26)/(36) each already paid for once. Second alternative,
+  worth naming because it is the real risk: admitting *every* token of *every* SUPPORTED fact would
+  also admit a stale symbol an upstream README mentions but the surface no longer carries — so scope
+  the admission to the facts the unit actually **cites**, not the whole document's fact set. Mutation
+  test: a token spelled in no fact at all, and a token spelled only in a fact the unit did not cite,
+  must both still be rejected. Reversal: restore the `kind == "example"` guard.
+- **What this run does not claim.** The fourth re-run reached S10 on this same repository at
+  `869fcc7`, so the S6 rejection is new since that measurement, but no cause is claimed here. The one
+  commit in `869fcc7..e81ffce` that shapes a job packet is `4cd1cff` (G5-W02, excluding
+  `identity:revision` from every packet), which frees room in a bounded packet and could plausibly be
+  what brought `inherited_unit:047.code_block` into this section's accepted set — untested, because
+  the fourth re-run's transaction artifacts went with its worktree (`C:\w\c12r4` is gone) and the two
+  packets cannot be compared. PROPOSAL R does not rest on that question: it is true of the code as
+  written at `e81ffce` whatever put the fact in the set. Honest qualification on the reproduction
+  too: the second invocation reused the cached S3, S4, S5 and the nine accepted S6 replies, so the
+  packet the four samples answered was identical by construction rather than independently
+  re-derived.
+- **No third attempt.** Two invocations failed the same way for the same reason and the cause was
+  narrowed to one line of shared code, so loop-prompt §5's prohibition applies and a third equivalent
+  run was not made. Nor would a fresh full re-plan have paid: even past S6, F07 is proved above to
+  still block BC-10 at this revision, so no seal was reachable this run by any path. The two
+  measurements a run could still yield — PROPOSAL O closed, PROPOSAL R located — were both taken
+  deterministically instead.
+- **Java cohort, state after this run.** 2 of 4 sealed — PDF (`099e70a8`) and 3D (`e308de58`);
+  `repository-presenter status` reads **7/34**, unchanged, `candidates/` holds no
+  `aspose-cells-foss__Aspose.Cells-FOSS-for-Java` directory, and `project/state.yaml` was not opened.
+  Cells Java is dispositioned `BLOCKED_AUTHORING` with resume predicate **PROPOSAL R and item 39 /
+  PROPOSAL Q together** — R to leave S6 at all, Q for BC-10; naming either alone would be a resume
+  predicate that cannot seal. Slides Java was **not run** and is unchanged on item 33 / PROPOSAL L.
