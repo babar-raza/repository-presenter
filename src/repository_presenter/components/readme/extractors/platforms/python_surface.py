@@ -232,8 +232,18 @@ def _methods(
     return found
 
 
-def _origin_kind(origin: str, source_root: Path) -> SymbolKind | None:
-    """The kind of one re-exported definition, read from its own file; ``None`` if absent."""
+def _origin_kind(
+    origin: str, source_root: Path, seen: frozenset[str] = frozenset()
+) -> SymbolKind | None:
+    """The kind of one re-exported definition, read from its own file; ``None`` if absent.
+
+    A module that only forwards a name is followed to the module that defines it. The public
+    path is what a reader imports, and it stays public however many private modules stand
+    between it and the class body: ``aspose_html.dom`` exposes ``BarProp``, ``dom/_window.py``
+    forwards it, and reading only ``_window.py``'s own body found no definition and left the
+    exposed name uncitable (measured 2026-09-07 on Aspose.HTML for Python). ``seen`` stops a
+    cycle of modules that forward to each other.
+    """
     origin_path = source_root / Path(*origin.split("."))
     if origin_path.is_dir() or origin_path.with_suffix(".py").is_file():
         return "module"
@@ -246,13 +256,63 @@ def _origin_kind(origin: str, source_root: Path) -> SymbolKind | None:
             tree = ast.parse(candidate.read_text(encoding="utf-8-sig", errors="replace"))
         except SyntaxError:
             return None
+        forwarded: str | None = None
         for item in tree.body:
             if isinstance(item, ast.ClassDef) and item.name == name:
                 return _class_kind(item)
             if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef) and item.name == name:
                 return "function"
-        return None
+            if isinstance(item, ast.ImportFrom) and forwarded is None:
+                forwarded = _forwarded_origin(item, module, candidate.name == "__init__.py", name)
+        if forwarded is None or forwarded in seen or forwarded == origin:
+            return None
+        return _origin_kind(forwarded, source_root, seen | {origin})
     return None
+
+
+def _forwarded_origin(node: ast.ImportFrom, module: str, is_package: bool, name: str) -> str | None:
+    """Where an ``import from`` statement says ``name`` really comes from, if it names it."""
+    for alias in node.names:
+        if (alias.asname or alias.name) != name:
+            continue
+        origin = _resolved_relative(module, is_package, node)
+        return f"{origin}.{alias.name}" if origin else None
+    return None
+
+
+def _reexport_kind(
+    symbol: PublicSymbol, symbols: dict[str, PublicSymbol], source_root: Path
+) -> tuple[PublicSymbol | None, SymbolKind | None]:
+    """The definition a re-export ends at and its kind, following every hop of the chain.
+
+    One lookup is one hop too few whenever a package re-exports what another package already
+    re-exported: ``aspose_barcode_foss.BarcodeError`` forwards to
+    ``aspose_barcode_foss.exceptions.BarcodeError``, itself a re-export that this same pass
+    resolves later, so reading only the first hop left the *shortest* public import path - the
+    one a README names - ``UNRESOLVED`` while the longer one was ``SUPPORTED``. Measured
+    2026-09-07 over the Python cohort's clones: 25 such symbols on Aspose.BarCode and 85 on
+    Aspose.HTML, every one a real public class the prose could not cite.
+
+    Each hop is followed until one carries a kind; a hop whose module was never scanned - a
+    private module, or a plain module with no ``__all__`` - is read from its own file, and
+    ``seen`` makes a cycle terminate rather than recurse.
+    """
+    seen: set[str] = set()
+    current = symbol
+    while True:
+        target = current.reexported_from
+        if target is None or target in seen:
+            return None, None
+        seen.add(target)
+        origin = symbols.get(target)
+        # A package that re-exports a submodule of its own name forwards to itself; the file
+        # system answers what the symbol table cannot (``email_foss.cfb`` re-exporting from
+        # ``email_foss.cfb``), and reading the chain instead would end the walk at that symbol.
+        if origin is None or origin.qualified_name == current.qualified_name:
+            return None, _origin_kind(target, source_root, frozenset(seen))
+        if origin.kind != "unknown":
+            return origin, origin.kind
+        current = origin
 
 
 def _minimal_roots(package_dirs: Sequence[str]) -> list[str]:
@@ -291,12 +351,7 @@ def inspect_public_surface(repository_root: Path, package_dirs: Sequence[str]) -
         for name, symbol in list(symbols.items()):
             if symbol.reexported_from is None or symbol.kind != "unknown":
                 continue
-            origin = symbols.get(symbol.reexported_from)
-            kind = (
-                origin.kind
-                if origin is not None and origin.kind != "unknown"
-                else _origin_kind(symbol.reexported_from, source_root)
-            )
+            origin, kind = _reexport_kind(symbol, symbols, source_root)
             if kind is None:
                 unresolved.append(
                     f"{symbol.module}:{symbol.line}:unresolved-reexport:{symbol.reexported_from}"
