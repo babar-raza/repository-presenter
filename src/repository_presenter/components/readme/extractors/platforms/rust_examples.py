@@ -51,6 +51,15 @@ _REGISTRY_DEFAULT = Path("C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt")
 # disposable profile has already moved USERPROFILE away from the `.rustup` beside it.
 _RUSTUP_HOME = "RUSTUP_HOME"
 _CARGO_VERSION = re.compile(r"cargo\s+(\d+\.\d+\.\d+)")
+# Cargo closes every check with its own wall-clock cost - `Finished `dev` profile [unoptimized +
+# debuginfo] target(s) in 0.55s` - which cannot repeat between two runs of the same example by its
+# very nature. Measured 2026-09-07 on Aspose.Cells for Rust: the candidate sealed with BC-01 to
+# BC-10 green, and the fresh-process rerun withdrew its own no-op proof - "examples.json changed
+# since the last seal" - because that one duration is stored verbatim in the receipt. The toolchain
+# version stays (a check is only as reproducible as the toolchain that ran it); how long this
+# machine took is not evidence of anything the repository did. Same defect and same cut as .NET's
+# `Time Elapsed` line (net_examples.py, measured 2026-09-06 on Aspose.Cells for .NET).
+_FINISHED_IN = re.compile(r"(?m)^(?P<head>[ \t]*Finished\b.*?) in (?:\d+m )?\d+(?:\.\d+)?s[ \t]*$")
 # What the compiler prints for a name the snippet uses and never binds. It is the one diagnostic
 # that says "this fence is an excerpt" rather than "this fence is wrong".
 _UNBOUND_VALUE = re.compile(r"error\[E0425\]:\s*cannot find value `([^`]+)`")
@@ -142,18 +151,23 @@ def _fresh_workspace(workspace: Path) -> Path | None:
 
 
 def _scrub(text: str, *paths: Path) -> str:
-    """This machine's paths out of the toolchain's output.
+    """This machine's paths, and this run's own clock, out of the toolchain's output.
 
     A receipt becomes a fact's evidence and a fact is published, so the developer's home
     directory must not appear in it - and a path that differs per machine would move a sealed
     candidate's bytes for a reason that is not the repository.
+
+    Cargo's closing `Finished ... in 0.55s` moves those bytes for the same kind of reason and is
+    cut for the same kind of reason: it is this machine's clock, not the crate's behaviour, and
+    keeping it makes the fresh-process no-op proof (BC-11) impossible for any crate whose examples
+    compile at all.
     """
     cleaned = text
     for base in {path for source in paths for path in (source, source.resolve())}:
         for rendered in (str(base), base.as_posix()):
             cleaned = cleaned.replace(rendered + "\\", "").replace(rendered + "/", "")
             cleaned = cleaned.replace(rendered, "")
-    return cleaned
+    return _FINISHED_IN.sub(r"\g<head>", cleaned)
 
 
 def completed_source(code: str, lib_path: str) -> str:

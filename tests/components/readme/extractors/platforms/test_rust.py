@@ -208,6 +208,32 @@ def test_a_requirement_carries_its_version_in_either_spelling(tmp_path: Path) ->
     assert "dependency:none" not in facts
 
 
+def test_the_dependency_snapshot_is_emitted_in_the_order_a_bundle_stores_it(
+    tmp_path: Path,
+) -> None:
+    """A sealed README must render again from its own bundle (`tests/test_sealed_bytes.py`).
+
+    `FactsDocument.to_dict` writes facts sorted by ID and the renderer lists the dependency bucket
+    in the facts' own order, so emitting requirements in `Cargo.toml`'s table order sealed bytes
+    that could not be reproduced: measured 2026-09-07 on Aspose.Cells for Rust, the re-render put
+    the seven requirements in alphabetical order where the sealed README had the manifest's.
+    """
+    _repository(tmp_path)
+    manifest = tmp_path / "Cargo.toml"
+    manifest.write_text(
+        CARGO_TOML + '\nzip = "0.6"\nbase64 = "0.22"\nsha2 = "0.10"\n',
+        encoding="utf-8",
+        newline="\n",
+    )
+    emitted = [
+        fact.id
+        for fact in rust.PLUGIN.manifest_facts(tmp_path, manifest, [])
+        if fact.kind == "dependency"
+    ]
+    assert emitted == sorted(emitted)
+    assert emitted[:2] == ["dependency:base64", "dependency:chrono"]
+
+
 def test_a_crate_with_no_dependencies_proves_a_verified_zero(tmp_path: Path) -> None:
     """README_CONTRACT §2 row 9: the marker cites the clause, it is never an empty row."""
     _repository(tmp_path)

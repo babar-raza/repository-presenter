@@ -1,0 +1,1703 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:024.heading",
+      "reason": "heading is rendered by the deterministic renderer and must not be repeated in prose",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:025.paragraph",
+      "reason": "paragraph is rendered by the deterministic renderer and must not be repeated in prose",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:026.code_block",
+      "reason": "code block is rendered by the deterministic renderer and must not be repeated in prose",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example is unresolved and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "link_target:019",
+      "reason": "link target is contradicted and not cited by any slot",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:044.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:045.paragraph",
+      "reason": "inherited paragraph, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:046.code_block",
+      "reason": "inherited code block, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:047.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:048.paragraph",
+      "reason": "inherited paragraph, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:050.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:051.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:053.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:055.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:057.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:058.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:059.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:060.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:061.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:062.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:063.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:064.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:065.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:066.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:067.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:068.heading",
+      "reason": "inherited heading, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:069.list",
+      "reason": "inherited list, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "link_target:019",
+      "reason": "link target, not a fact about the product",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "unresolved example not used in any verified prose",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "link_target:019",
+      "reason": "contradicted link target not used in any verified prose",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:border",
+        "public_symbol:cell.get_bool_value",
+        "public_symbol:cell.get_display_string_value",
+        "public_symbol:cell.get_formatted_string_value",
+        "public_symbol:cell.get_int_value",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cellmut.put_formula_with_cached_value",
+        "public_symbol:cellmut.put_value_bool",
+        "public_symbol:cellmut.put_value_date_time",
+        "public_symbol:cellmut.put_value_decimal",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_value_string",
+        "public_symbol:cellstyle",
+        "public_symbol:chartcollection",
+        "public_symbol:charttype",
+        "public_symbol:column",
+        "public_symbol:comment",
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:definedname",
+        "public_symbol:documentproperties",
+        "public_symbol:extendeddocumentproperties",
+        "public_symbol:fill",
+        "public_symbol:font",
+        "public_symbol:formatcondition",
+        "public_symbol:hyperlink",
+        "public_symbol:loaddiagnostics",
+        "public_symbol:loadoptions.try_repair_package",
+        "public_symbol:loadoptions.try_repair_xml",
+        "public_symbol:numberformat",
+        "public_symbol:pagesetup",
+        "public_symbol:picturecollection",
+        "public_symbol:row",
+        "public_symbol:shape.auto_shape_type",
+        "public_symbol:shape.get_auto_shape_type",
+        "public_symbol:shape.set_auto_shape_type",
+        "public_symbol:shapecollection",
+        "public_symbol:sparklinegroup",
+        "public_symbol:styleflag",
+        "public_symbol:validation",
+        "public_symbol:validationcollection",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.load_xlsx_from_bytes",
+        "public_symbol:workbook.load_xlsx_from_stream",
+        "public_symbol:workbook.new",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.auto_filter",
+        "public_symbol:worksheet.freeze_pane",
+        "public_symbol:worksheets"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Cells FOSS for Rust provides a native Rust API for creating, reading, converting, and manipulating Excel workbooks and worksheets without requiring Microsoft Excel. It enables developers to programmatically write cell values such as strings, integers, booleans, decimals, and dates using methods like put_value_string and put_value_i32, and to compute formulas with cached results via put_formula_with_cached_value. Users can load existing Excel files in XLSX format from a file path, byte array, or stream using Workbook.new and load_xlsx, load_xlsx_from_bytes, or load_xlsx_from_stream, and inspect loaded content with methods like get_string_value, get_int_value, get_bool_value, get_display_string_value, and get_formatted_string_value. The library supports styling, formatting, filtering, freezing panes, and adding charts, shapes, comments, hyperlinks, and data validation rules, making it suitable for server-side spreadsheet processing in Rust applications."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:loadoptions.try_repair_package",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.load_xlsx_from_bytes",
+        "public_symbol:workbook.load_xlsx_from_stream",
+        "public_symbol:workbook.new"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create a new workbook with Workbook.new or load an existing .xlsx file from a path, a stream, or in-memory bytes, with optional package repair via LoadOptions.try_repair_package."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cell.get_bool_value",
+        "public_symbol:cell.get_int_value",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cellmut.put_value_bool",
+        "public_symbol:cellmut.put_value_date_time",
+        "public_symbol:cellmut.put_value_decimal",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_value_string"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Write typed cell values including strings, 32-bit integers, booleans, decimals, and date-time values using CellMut methods, and read them back with Cell methods that return the corresponding Rust types."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cell.get_display_string_value",
+        "public_symbol:cell.get_formatted_string_value",
+        "public_symbol:cellmut.put_formula_with_cached_value"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Enter formulas with precomputed cached values using CellMut.put_formula_with_cached_value and retrieve the displayed or formatted string representation of a cell with Cell.get_display_string_value or Cell.get_formatted_string_value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:border",
+        "public_symbol:cellstyle",
+        "public_symbol:fill",
+        "public_symbol:font",
+        "public_symbol:numberformat",
+        "public_symbol:styleflag"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Apply cell styling through CellStyle with Font, Fill, Border, and NumberFormat settings, and apply targeted updates using StyleFlag to modify only specific style attributes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:formatcondition",
+        "public_symbol:validation",
+        "public_symbol:validationcollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Enforce data validation rules and apply conditional formatting including cell-value conditions, expressions, color scales, data bars, and icon sets using Validation, ValidationCollection, FormatCondition, and ConditionalFormattingCollection."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:column",
+        "public_symbol:pagesetup",
+        "public_symbol:row",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.auto_filter",
+        "public_symbol:worksheet.freeze_pane",
+        "public_symbol:worksheets"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Manage worksheet structure through Worksheets for sheet enumeration and Worksheet for individual sheet properties, plus freeze panes, auto-filters, row and column sizing, and page setup via PageSetup."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcollection",
+        "public_symbol:charttype",
+        "public_symbol:picturecollection",
+        "public_symbol:shape.auto_shape_type",
+        "public_symbol:shape.get_auto_shape_type",
+        "public_symbol:shape.set_auto_shape_type",
+        "public_symbol:shapecollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Insert charts of multiple types including column, line, bar, pie, and scatter variants using ChartCollection and ChartType, embed pictures with PictureCollection, and add drawing shapes with Shape and preset AutoShapeType geometries."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:comment",
+        "public_symbol:definedname",
+        "public_symbol:documentproperties",
+        "public_symbol:extendeddocumentproperties",
+        "public_symbol:hyperlink",
+        "public_symbol:sparklinegroup"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Attach hyperlinks, workbook- and sheet-scoped defined names, and cell comments with author and visibility control, and read or write core and extended document properties as well as sparkline groups for in-cell trend visualization."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "This example creates a new workbook, writes several typed cell values and a formula with a cached result, saves the file as XLSX, and then loads it back to verify the content."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:workbook",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.save_xlsx",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.get_cells",
+        "public_symbol:worksheet.get_cells_mut"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "The Aspose.Cells FOSS for Rust library exposes the Workbook class as its primary entry point, which manages a collection of Worksheet objects and provides methods to load, create, and save Excel workbooks. Each Worksheet exposes its cells through get_cells and get_cells_mut, enabling read and write access to individual Cell and CellMut instances."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:workbook",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.save_xlsx"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:workbook",
+      "text": "The Workbook class provides new, load_xlsx, and save_xlsx methods to create, open, and persist Excel workbooks, serving as the central object for workbook-level operations."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.get_cells",
+        "public_symbol:worksheet.get_cells_mut",
+        "public_symbol:worksheet.set_name"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:worksheet",
+      "text": "The Worksheet class exposes get_cells and get_cells_mut to access cell collections and supports set_name to rename the worksheet within its parent workbook."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:cell",
+        "public_symbol:cell.get_display_string_value",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cell.get_value"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cell",
+      "text": "The Cell class provides get_value, get_string_value, and get_display_string_value to read cell contents in different formats."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:cellmut",
+        "public_symbol:cellmut.put_formula_with_cached_value",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_value_string"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cellmut",
+      "text": "The CellMut class supports put_value_string, put_value_i32, and put_formula_with_cached_value to write values and formulas to cells."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:cellstyle",
+        "public_symbol:cellstyle.get_borders",
+        "public_symbol:cellstyle.get_font",
+        "public_symbol:cellstyle.set_number_format"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cellstyle",
+      "text": "The CellStyle class offers get_font, set_number_format, and get_borders to inspect and modify cell appearance and formatting."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:conditionalformattingcollection.add",
+        "public_symbol:conditionalformattingcollection.get",
+        "public_symbol:formatconditioncollection.add_condition_with_details"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:conditionalformattingcollection",
+      "text": "The ConditionalFormattingCollection class provides add and get methods to manage conditional formatting rules, with FormatConditionCollection.add_condition_with_details enabling detailed rule creation."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:chartcollection",
+        "public_symbol:chartcollection.add",
+        "public_symbol:chartcollection.count",
+        "public_symbol:chartcollection.get"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:chartcollection",
+      "text": "The ChartCollection class supports add, get, and count operations to manage charts embedded in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:picturecollection",
+        "public_symbol:picturecollection.add",
+        "public_symbol:picturecollection.count",
+        "public_symbol:picturecollection.get"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:picturecollection",
+      "text": "The PictureCollection class provides add, get, and count methods to manage picture objects within a worksheet."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:shapecollection",
+        "public_symbol:shapecollection.add",
+        "public_symbol:shapecollection.count",
+        "public_symbol:shapecollection.get"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:shapecollection",
+      "text": "The ShapeCollection class offers add, get, and count operations to manage shapes embedded in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:documentproperties",
+        "public_symbol:documentproperties.get_author",
+        "public_symbol:documentproperties.get_keywords",
+        "public_symbol:documentproperties.get_title"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:documentproperties",
+      "text": "The DocumentProperties class exposes get_title, get_author, and get_keywords to inspect document metadata."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:definedname",
+        "public_symbol:definedname.get_name",
+        "public_symbol:definedname.is_hidden",
+        "public_symbol:definedname.set_formula"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:definedname",
+      "text": "The DefinedName class provides get_name, set_formula, and is_hidden to manage named ranges within a workbook."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version",
+        "public_symbol:validationcollection",
+        "public_symbol:validationcollection.add",
+        "public_symbol:validationcollection.count",
+        "public_symbol:validationcollection.get"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:validationcollection",
+      "text": "The ValidationCollection class supports add, get, and count operations to manage data validation rules applied to worksheet ranges."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:alignmentvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:alignmentvalue",
+      "text": "AlignmentValue represents the horizontal and vertical alignment settings for cell content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltercolorfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltercolorfiltermodel",
+      "text": "AutoFilterColorFilterModel specifies filtering criteria based on cell or font color."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltercustomfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltercustomfiltermodel",
+      "text": "AutoFilterCustomFilterModel defines custom filter conditions for column data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofilterdynamicfiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofilterdynamicfiltermodel",
+      "text": "AutoFilterDynamicFilterModel applies dynamic filtering based on calculated values such as above or below average."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltermodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltermodel",
+      "text": "AutoFilterModel encapsulates the complete auto-filter configuration for a worksheet range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltersortconditionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltersortconditionmodel",
+      "text": "AutoFilterSortConditionModel describes a single sort condition used in an auto-filter operation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltersortstatemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltersortstatemodel",
+      "text": "AutoFilterSortStateModel holds the current sort state applied to an auto-filtered range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofiltertop10model"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:autofiltertop10model",
+      "text": "AutoFilterTop10Model filters data to show only the top or bottom N items based on value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:bordersidevalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:bordersidevalue",
+      "text": "BorderSideValue indicates which side of a cell border is being configured."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:borderstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:borderstyle",
+      "text": "BorderStyle defines the visual style of a cell border such as thin, thick, or dashed."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:bordersvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:bordersvalue",
+      "text": "BordersValue represents the collection of border settings applied to a cell or range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:calculationpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:calculationpropertiesmodel",
+      "text": "CalculationPropertiesModel controls workbook calculation behavior including iteration and precision settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellformatvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellformatvalue",
+      "text": "CellFormatValue holds formatting attributes such as font, fill, and number format for a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellobjectvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellobjectvalue",
+      "text": "CellObjectValue represents the complete content and metadata of a cell including its value and format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellrange"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellrange",
+      "text": "CellRange identifies a rectangular block of cells using start and end coordinates."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellrecord"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellrecord",
+      "text": "CellRecord stores the value, type, and formatting of a single cell for programmatic access."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellref"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellref",
+      "text": "CellRef provides a reference to a specific cell using row and column indices."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellvalue",
+      "text": "CellValue encapsulates the data stored in a cell along with its type information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellvaluekind"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellvaluekind",
+      "text": "CellValueKind categorizes the type of data contained in a cell such as number, string, or boolean."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellserror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:cellserror",
+      "text": "CellsError represents an error condition encountered during cell processing or data access."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcompanionfile"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:chartcompanionfile",
+      "text": "ChartCompanionFile contains additional data or metadata associated with a chart object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:chartmodel",
+      "text": "ChartModel provides programmatic access to chart properties and data series."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartxmltemplates"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:chartxmltemplates",
+      "text": "ChartXmlTemplates defines reusable XML structures for chart rendering and export."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:colorvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:colorvalue",
+      "text": "ColorValue specifies a color using RGB or predefined palette values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:columnrangemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:columnrangemodel",
+      "text": "ColumnRangeModel describes a contiguous set of columns within a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:commentmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:commentmodel",
+      "text": "CommentModel represents a cell comment including its text, author, and visibility settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformattingmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:conditionalformattingmodel",
+      "text": "ConditionalFormattingModel defines rules that apply formatting based on cell value conditions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:coredocumentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:coredocumentpropertiesmodel",
+      "text": "CoreDocumentPropertiesModel exposes standard document metadata such as title, author, and keywords."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:datesystem"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:datesystem",
+      "text": "DateSystem determines whether dates are calculated using the 1900 or 1904 epoch."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:definednamemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:definednamemodel",
+      "text": "DefinedNameModel represents a named range or formula used within the workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:definednameutility"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:definednameutility",
+      "text": "DefinedNameUtility provides helper methods for working with defined names in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:diagnosticbag"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:diagnosticbag",
+      "text": "DiagnosticBag aggregates issues and warnings encountered during workbook loading or processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:diagnosticentry"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:diagnosticentry",
+      "text": "DiagnosticEntry records a single diagnostic issue including its severity and description."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:diagnosticseverity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:diagnosticseverity",
+      "text": "DiagnosticSeverity indicates the importance level of a diagnostic issue such as warning or error."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:displayformatsectioninfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:displayformatsectioninfo",
+      "text": "DisplayFormatSectionInfo provides formatting details for specific sections of a report or table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:displaytextdateformatsupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:displaytextdateformatsupport",
+      "text": "DisplayTextDateFormatSupport enables locale-aware formatting of date values for display."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:displaytextformatter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:displaytextformatter",
+      "text": "DisplayTextFormatter converts cell values into their formatted string representation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:displaytextformattersupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:displaytextformattersupport",
+      "text": "DisplayTextFormatterSupport provides utilities for customizing how cell values are formatted as text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:displaytextlocalesupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:displaytextlocalesupport",
+      "text": "DisplayTextLocaleSupport ensures text formatting respects regional locale settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:documentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:documentpropertiesmodel",
+      "text": "DocumentPropertiesModel exposes extended document properties beyond the core metadata set."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:extendeddocumentpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:extendeddocumentpropertiesmodel",
+      "text": "ExtendedDocumentPropertiesModel represents custom document properties for a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:externallinkmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:externallinkmodel",
+      "text": "ExternalLinkModel represents a link to an external workbook or data source."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:fillpatternkind"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:fillpatternkind",
+      "text": "FillPatternKind specifies the pattern used to fill a cell background."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:fillvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:fillvalue",
+      "text": "FillValue describes the fill formatting applied to a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:filtercolumnmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:filtercolumnmodel",
+      "text": "FilterColumnModel defines filtering criteria for a single column in a filtered range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:fontvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:fontvalue",
+      "text": "FontValue specifies the font formatting attributes for text in a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:formatconditionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:formatconditionmodel",
+      "text": "FormatConditionModel represents a conditional formatting rule applied to a cell range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:horizontalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:horizontalalignment",
+      "text": "HorizontalAlignment indicates how content is aligned horizontally within a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:hyperlinkmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:hyperlinkmodel",
+      "text": "HyperlinkModel represents a hyperlink attached to a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ilistobjectowner"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:ilistobjectowner",
+      "text": "IListObjectOwner is an interface implemented by objects that can contain list objects."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ipackagereader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:ipackagereader",
+      "text": "IPackageReader provides methods to read parts and relationships from a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ipackagewriter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:ipackagewriter",
+      "text": "IPackageWriter provides methods to write parts and relationships to a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:listcolumnmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:listcolumnmodel",
+      "text": "ListColumnModel represents a column within a list object (table)."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:listobjectmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:listobjectmodel",
+      "text": "ListObjectModel represents a table object in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:listobjectsupport"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:listobjectsupport",
+      "text": "ListObjectSupport provides functionality to manage list objects in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:mergeregion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:mergeregion",
+      "text": "MergeRegion defines the area of merged cells in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:missingpartexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:missingpartexception",
+      "text": "MissingPartException is raised when a required part is missing from a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:numberformatvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:numberformatvalue",
+      "text": "NumberFormatValue specifies the format used to display numeric values in a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:packageloadcontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:packageloadcontext",
+      "text": "PackageLoadContext provides context information during package loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:packagemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:packagemodel",
+      "text": "PackageModel represents the structure and content of a package file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:packagepartdescriptor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:packagepartdescriptor",
+      "text": "PackagePartDescriptor describes a single part within a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:packagestructureexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:packagestructureexception",
+      "text": "PackageStructureException is raised when the package structure is invalid."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:packagingconventions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:packagingconventions",
+      "text": "PackagingConventions defines standard conventions for package organization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:pageorientation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:pageorientation",
+      "text": "PageOrientation specifies whether a page is printed in portrait or landscape mode."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:picturemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:picturemodel",
+      "text": "PictureModel represents a picture object inserted into a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:protectionvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:protectionvalue",
+      "text": "ProtectionValue specifies the protection settings applied to a cell or range."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:relationshipdescriptor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:relationshipdescriptor",
+      "text": "RelationshipDescriptor describes a relationship between two parts in a package."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:relationshipresolutionexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:relationshipresolutionexception",
+      "text": "RelationshipResolutionException is raised when a relationship cannot be resolved."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:rowmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:rowmodel",
+      "text": "RowModel represents a row in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:shapeimagemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:shapeimagemodel",
+      "text": "ShapeImageModel represents the image content of a shape object."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:shapemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:shapemodel",
+      "text": "ShapeModel represents a shape object such as a rectangle or arrow in a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:sharedstringrepository"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:sharedstringrepository",
+      "text": "SharedStringRepository manages the shared string table used in the workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:sharedstringtablexmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:sharedstringtablexmlmapper",
+      "text": "SharedStringTableXmlMapper handles reading and writing the shared string table XML."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:sheetvisibility"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:sheetvisibility",
+      "text": "SheetVisibility indicates whether a worksheet is visible, hidden, or very hidden."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylerepository"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylerepository",
+      "text": "StyleRepository stores and manages cell styles used in the workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylevalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylevalue",
+      "text": "StyleValue defines the complete styling attributes for a cell."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylevaluesanitizer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylevaluesanitizer",
+      "text": "StyleValueSanitizer ensures style values conform to valid formatting rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylesheetloadcontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylesheetloadcontext",
+      "text": "StylesheetLoadContext provides context information during stylesheet loading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylesheetsavecontext"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylesheetsavecontext",
+      "text": "StylesheetSaveContext provides context information during stylesheet saving."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:stylesheetxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:stylesheetxmlmapper",
+      "text": "StylesheetXmlMapper handles reading and writing the stylesheet XML."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:validationmessage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:validationmessage",
+      "text": "ValidationMessage represents a single validation issue found during workbook validation, including its severity and descriptive text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:validationmessageseverity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:validationmessageseverity",
+      "text": "ValidationMessageSeverity indicates the seriousness level of a validation issue, such as error, warning, or info."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:validationmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:validationmodel",
+      "text": "ValidationModel holds the complete set of validation issues discovered when validating a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:verticalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:verticalalignment",
+      "text": "VerticalAlignment specifies how content is aligned vertically within a cell, such as top, center, or bottom."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookmodel",
+      "text": "WorkbookModel provides a read-only representation of a workbook's structure and content for inspection purposes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookpropertiesmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookpropertiesmodel",
+      "text": "WorkbookPropertiesModel exposes workbook-level properties such as date compatibility and calculation settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookprotectionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookprotectionmodel",
+      "text": "WorkbookProtectionModel describes the protection settings applied to the workbook structure and windows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbooksettingsmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbooksettingsmodel",
+      "text": "WorkbookSettingsModel encapsulates workbook-wide configuration options including calculation mode and precision."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookvalidator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookvalidator",
+      "text": "WorkbookValidator performs validation checks on a workbook and collects any issues found."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookviewmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookviewmodel",
+      "text": "WorkbookViewModel represents the view settings of a workbook, such as window state and zoom level."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbookxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:workbookxmlmapper",
+      "text": "WorkbookXmlMapper provides functionality to map XML data to and from structured elements in a workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetdefinednamesstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:worksheetdefinednamesstate",
+      "text": "WorksheetDefinedNamesState tracks the defined names scoped to a specific worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:worksheetmodel",
+      "text": "WorksheetModel offers a read-only view of a worksheet's cells, rows, columns, and other structural elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetprotectionmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:worksheetprotectionmodel",
+      "text": "WorksheetProtectionModel defines the protection settings applied to a worksheet, such as cell editing restrictions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetviewmodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:worksheetviewmodel",
+      "text": "WorksheetViewModel holds view-specific settings for a worksheet, including gridlines and page break display."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetxmlmapper"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:worksheetxmlmapper",
+      "text": "WorksheetXmlMapper enables mapping XML data to specific ranges or elements within a worksheet."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookcommentsloader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookcommentsloader",
+      "text": "XlsxWorkbookCommentsLoader handles loading comments embedded in an XLSX workbook file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookdefinednames"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookdefinednames",
+      "text": "XlsxWorkbookDefinedNames manages the collection of defined names scoped to the entire workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookpicturesloader"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookpicturesloader",
+      "text": "XlsxWorkbookPicturesLoader is responsible for loading pictures stored within an XLSX workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookproperties",
+      "text": "XlsxWorkbookProperties reads and exposes core properties of an XLSX workbook, such as author and creation date."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookstylesvaluehelpers"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookstylesvaluehelpers",
+      "text": "XlsxWorkbookStylesValueHelpers provides utility methods for interpreting style-related values in an XLSX workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookstylesxml"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookstylesxml",
+      "text": "XlsxWorkbookStylesXml encapsulates the raw XML structure of styles defined in an XLSX workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookworksheetprotection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookworksheetprotection",
+      "text": "XlsxWorkbookWorksheetProtection reads protection settings applied to individual worksheets in an XLSX file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xlsxworkbookworksheetviews"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xlsxworkbookworksheetviews",
+      "text": "XlsxWorkbookWorksheetViews manages the view configuration for each worksheet in an XLSX workbook."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:xmlparsingexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:xmlparsingexception",
+      "text": "XmlParsingException is raised when an error occurs while parsing XML content during workbook operations."
+    },
+    {
+      "fact_ids": [
+        "link_target:022",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:023",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet-processing questions with aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:024",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "The full API reference offers a complete, browsable reference for the public API surface of aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:020",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "The samples directory contains runnable examples demonstrating each feature area of aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:021",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The samples README provides an overview of every runnable example included in the repository for aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:025",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "The contributor guide documents architecture notes, module wiring, and conventions for developers contributing to aspose-cells-foss-rust."
+    },
+    {
+      "fact_ids": [
+        "link_target:026",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The issue tracker allows users to report bugs or submit feature requests for aspose-cells-foss-rust on GitHub."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:012.paragraph",
+        "inherited_unit:073.heading",
+        "inherited_unit:074.list",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Cells FOSS for Rust version 26.7.0 provides a Rust API to create, read, and write Excel workbooks in the .xlsx format, targeting the Rust 2021 edition and built for the rust ecosystem."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The library supports only the .xlsx format and does not handle legacy .xls, ODS, or CSV files."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Removing the last worksheet from a workbook is not allowed and returns a CellsError::Unsupported error."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "The public API surface is broad but incomplete compared to Aspose.Cells, with some features still partial as the crate is early-stage and evolving."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "No automated test suite is included, so cargo test --all-targets reports zero tests."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "The crate is not yet published to crates.io and must be added as a Git dependency."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "inherited_unit:077.paragraph",
+        "inherited_unit:078.code_block",
+        "inherited_unit:079.paragraph"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and verify the library with standard Cargo commands, then run the included samples to confirm read/write round-trips: cargo build, cargo check --all-targets, cargo fmt --all --check, cargo clippy --all-targets, cargo bench, and cargo doc --no-deps --open; cargo test --all-targets reports 0 tests, so verify behavior with cargo run on the sample binaries."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:rust_edition",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "The commercial Aspose.Cells for Rust product extends this package by adding support for additional file formats, advanced rendering capabilities, and enterprise-grade features such as document protection and batch processing."
+    }
+  ]
+}

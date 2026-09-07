@@ -1,0 +1,24 @@
+{
+  "attempts": {
+    "1c50ad9934884512ae25c61b": {
+      "changes": [
+        {
+          "after": "Build and verify the library with standard Cargo commands, then run the included samples to confirm read/write round-trips: cargo build, cargo check --all-targets, cargo fmt --all --check, cargo clippy --all-targets, cargo bench, and cargo doc --no-deps --open; cargo test --all-targets reports 0 tests, so verify behavior with cargo run on the sample binaries.",
+          "before": "Build and verify the library with standard Cargo commands, then run the included samples to confirm read/write round-trips: cargo build, cargo check --all-targets, cargo fmt --all --check, cargo clippy --all-targets, and cargo test --all-targets report 0 tests, so verify behavior with cargo run on the sample binaries.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units.0.text"
+        }
+      ],
+      "label": "BC-08",
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "66d5a04f103602a66795f10a5ad2a83ef658bc8ca0213152dc48e91713f2e356",
+      "section_id": "development_testing",
+      "source": "validation",
+      "stage": "S6"
+    }
+  },
+  "composition": "e79afe9dc30ae7b80fef7ebbcfb978ab85a54ca44e4e603e6ead57b9b02ad61b",
+  "schema_version": 1
+}
