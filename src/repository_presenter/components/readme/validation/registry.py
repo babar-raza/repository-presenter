@@ -947,11 +947,20 @@ def _check_protected(candidate: Candidate) -> list[Failure]:
     }
     normalized_readme = _normalized(candidate.readme)
     for category, text, unit_id in protected_fragments(candidate):
-        disposition = by_unit.get(unit_id, {}).get("disposition")
+        entry = by_unit.get(unit_id, {})
+        disposition = entry.get("disposition")
         if disposition not in _PLACING or category == "unit":
             continue
         if _normalized(text) in normalized_readme:
             continue
+        # G4-W17 arrival items 23/P18. The disposition already names the destination section a
+        # dropped command or example belongs to - every kind in _PLACING, not VERIFIED_REWRITE
+        # alone, since this branch never discriminates by disposition kind (measured 2026-09-06:
+        # both VERIFIED_REWRITE and VERIFIED_PRESERVE units hit it identically, three repositories
+        # across two ecosystems). Carrying it into the Failure is what lets repair/targeted.py
+        # route a COMPOSING failure to the LLM-owned section that may re-author it, instead of
+        # recording it unrepairable for want of a section_id no code ever set.
+        destination = entry.get("destination_section")
         if category == "example":
             example = _example_for_unit(candidate.facts, unit_id)
             if example is None or example.polarity != "SUPPORTED":
@@ -969,6 +978,7 @@ def _check_protected(candidate: Candidate) -> list[Failure]:
                         "COMPOSING",
                         f"{unit_id}: {disposition} keeps {example.id} but the candidate does "
                         "not render it",
+                        destination,
                     )
                 )
         else:
@@ -977,6 +987,7 @@ def _check_protected(candidate: Candidate) -> list[Failure]:
                     "COMPOSING",
                     f"{unit_id}: {disposition} keeps the command {text!r} but the candidate "
                     "does not render it",
+                    destination,
                 )
             )
     return failures

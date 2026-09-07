@@ -374,6 +374,44 @@ def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: 
     assert located["section_id"] == "scope_limitations"
 
 
+def test_a_dropped_protected_command_carries_its_destination_section_for_every_disposition_kind(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival items 23 and P18. `_check_protected`'s COMPOSING failures never carried a
+    `section_id`, so `repair/targeted.py::validation_defects` recorded every one unrepairable
+    ("no failing check names an LLM-owned section") even though the disposition that placed the
+    unit already names a `destination_section` the repair loop may re-author. Measured 2026-09-06
+    on three repositories across two ecosystems (Cells Rust, PDF Go, Cells Rust again) - and on
+    both `VERIFIED_REWRITE` and `VERIFIED_PRESERVE` units, not rewrites alone, since the check
+    never discriminated by disposition kind to begin with."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *BASE_FACTS,
+            _fact("inherited_unit:006.code_block", "inherited_unit", "```\npip freeze\n```"),
+        ),
+    )
+    for kind in ("VERIFIED_REWRITE", "VERIFIED_PRESERVE"):
+        dispositions = {
+            "dispositions": DISPOSITIONS["dispositions"]
+            + [
+                {
+                    "unit_id": "inherited_unit:006.code_block",
+                    "disposition": kind,
+                    "destination_section": "development_testing",
+                    "fact_ids": [],
+                    "rationale": "r",
+                }
+            ]
+        }
+        document = validate_candidate(
+            _candidate(facts=facts, dispositions=dispositions), tmp_path, ()
+        )
+        protected = _failed(document, "BC-08")
+        assert protected["failures"][0]["section_id"] == "development_testing", kind
+
+
 def test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring(
     tmp_path: Path,
 ) -> None:
@@ -528,6 +566,9 @@ def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
         "inherited_unit:005.code_block: VERIFIED_PRESERVE keeps the command 'git clone x' but "
         "the candidate does not render it"
     ]
+    # G4-W17 arrival items 23/P18: the disposition's own destination_section reaches the
+    # Failure, so repair can route to the LLM-owned section that may re-author it.
+    assert protected["failures"][0]["section_id"] == "development_testing"
 
     (tmp_path / "calls.jsonl").write_text('{"key": "sk-live-secret-value"}\n', encoding="utf-8")
     secret = ConfiguredSecret("GPT_OSS_API_KEY", b"sk-live-secret-value")

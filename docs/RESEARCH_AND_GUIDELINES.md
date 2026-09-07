@@ -5156,3 +5156,28 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   repository by itself. Resume predicate: F07 needs a fresh Slides Java run with `review.json`
   preserved (not cleaned up) so its real `quote`/`section_id` fields can ground a fix; F05 alone
   will not seal this repository.
+
+- **2026-09-07 10:59 (`date` checked) · loop (PROVISIONAL) · G4-W17 arrival item 23 landed, widened
+  by lane D PROPOSAL P18: a dropped protected command or example now carries its destination
+  section, for every disposition kind, not `VERIFIED_REWRITE` alone.** `validation/registry.py`'s
+  `_check_protected` (BC-08) never set `Failure.section` on its COMPOSING failures, so
+  `repair/targeted.py::validation_defects` recorded every one unrepairable ("no failing check
+  names an LLM-owned section") even though the disposition that placed the unit already names a
+  `destination_section` the repair loop may re-author - item 23's own diagnosis (2026-09-06 14:05,
+  Cells Rust). The item was never landed before P18 corroborated it a third time (PDF Go,
+  22:51; Cells Rust again, 23:17) and found it wider than its own wording: the check never
+  discriminated by disposition kind to begin with, so `VERIFIED_PRESERVE` hit it identically to
+  `VERIFIED_REWRITE` on the second Cells-Rust run. Fix: both COMPOSING branches of
+  `_check_protected` (the dropped-command and dropped-verified-example cases) now pass
+  `entry.get("destination_section")` as the `Failure`'s `section`; the RECONCILING branch (an
+  example that was never verified) is untouched - a different causal story P18 does not name, and
+  S4's own repair routing does not consult a section anyway. New test:
+  `test_a_dropped_protected_command_carries_its_destination_section_for_every_disposition_kind`
+  constructs the identical dropped-command shape under both `VERIFIED_REWRITE` and
+  `VERIFIED_PRESERVE` and confirms `failures[0]["section_id"]` is set for each; the pre-existing
+  `VERIFIED_PRESERVE` case in `test_every_failure_names_its_causal_stage` gained the same
+  assertion. All 13 pre-existing registry tests pass unchanged. Full suite green, ruff/mypy clean,
+  before this entry. Resume predicate: re-run `present --repo
+  aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` and `present --repo
+  aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` - each still carries at least one other named
+  blocker (P14 for PDF Go; P17 for Cells Rust), so neither is claimed to seal from this alone.
