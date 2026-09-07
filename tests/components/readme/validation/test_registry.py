@@ -459,6 +459,41 @@ def test_narration_exempts_a_phrase_that_is_the_repositorys_own_public_symbol(
     assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
 
 
+def test_narration_exempts_a_phrase_the_upstream_readme_itself_already_used(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 22, lane D PROPOSAL P14. Aspose.PDF for Go's own README says "confirm
+    full conformance with a dedicated validator such as veraPDF" - "validator" is a standalone
+    word (a word boundary changes nothing), not a public_symbol (0 of 1,467 contain it), and not
+    in a code span, so none of item 22's three remedies cleared it. A candidate faithfully
+    restating the upstream README's own words is not this tool narrating about itself; a genuine
+    mention with no such inherited backing must still be caught."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *BASE_FACTS,
+            _fact(
+                "inherited_unit:005.list",
+                "inherited_unit",
+                "Confirm full conformance with a dedicated validator such as veraPDF.",
+            ),
+        ),
+    )
+    readme = _candidate(facts=facts).readme
+    restated = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nUse a dedicated validator to confirm conformance.\n\n",
+    )
+    assert restated != readme
+    document = validate_candidate(_candidate(restated, facts=facts), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+
+    # Mutation: without the matching inherited_unit fact, the identical prose still fails.
+    document = validate_candidate(_candidate(restated), tmp_path, ())
+    assert "internal narration 'validator'" in _failed(document, "BC-07")["details"]
+
+
 def test_every_failure_names_its_causal_stage(tmp_path: Path) -> None:
     readme = _candidate().readme
 

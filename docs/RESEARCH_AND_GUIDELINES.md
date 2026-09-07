@@ -5181,3 +5181,29 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` and `present --repo
   aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` - each still carries at least one other named
   blocker (P14 for PDF Go; P17 for Cells Rust), so neither is claimed to seal from this alone.
+
+- **2026-09-07 11:06 (`date` checked) · loop (PROVISIONAL) · lane D PROPOSAL P14 landed: the
+  narration guard exempts a phrase the upstream README itself already used.** Item 22's word
+  boundary, public-symbol, and code-span exemptions all missed Aspose.PDF for Go's own sentence
+  - "confirm full conformance with a dedicated validator such as veraPDF" - because `validator`
+  there is a genuine standalone word (0 of 1,467 `public_symbol` values contain it, and it is not
+  in a code span): the candidate was faithfully restating the upstream README's own PDF/A caveat,
+  verbatim in two SUPPORTED `inherited_unit` facts (`066.list`, `081.list`), and the guard read
+  its own subject matter as self-narration. Fix, the wider of the two the lane offered (word-scope
+  exemption over a single-phrase rename, since it generalises to any guarded word a repository's
+  own inherited vocabulary happens to use, not `validator` alone): `_check_structure`'s narration
+  block gains a fourth exemption - a matched phrase is dropped when the same `\b`-anchored pattern
+  also matches the joined text of every SUPPORTED `inherited_unit` fact, the identical reasoning
+  already applied to a `public_symbol` fact, against prose instead of a qualified name. New test:
+  `test_narration_exempts_a_phrase_the_upstream_readme_itself_already_used` reproduces the exact
+  sentence, confirms BC-07 passes with the matching inherited_unit fact present, and confirms the
+  identical prose still fails without it (proving the exemption is genuinely conditional, not a
+  blanket demotion of the phrase). All 14 pre-existing registry tests pass unchanged. Full suite
+  green, ruff/mypy clean, before this entry. Rejected alternative (the lane's own, noted for the
+  record): replacing the bare `"validator"` entry with `"validator version"` (the literal phrase
+  this guard exists to block) - narrower and would miss any other guarded word a future repository
+  happens to share with its own upstream text; the inherited-vocabulary exemption covers the same
+  case and every future one like it. Resume predicate: re-run `present --repo
+  aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` - PDF Go's disposition also names PROPOSAL P15/item 23
+  (landed above) as a second blocker, so this alone is not claimed to seal it; the two together
+  are its full known resume predicate.

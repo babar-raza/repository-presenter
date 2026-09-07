@@ -865,10 +865,24 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
         for fact in candidate.facts.by_kind("public_symbol")
         if fact.polarity == "SUPPORTED"
     }
+    # G4-W17 arrival item 22, lane D PROPOSAL P14. A guarded phrase already spelled in the
+    # repository's own inherited vocabulary is not this tool narrating about itself either - a
+    # candidate faithfully restating the upstream README's own words (measured 2026-09-06,
+    # Aspose.PDF for Go: "confirm full conformance with a dedicated validator such as veraPDF",
+    # verbatim in two SUPPORTED inherited_unit facts) is not the pipeline leaking through, the
+    # same reasoning as the public_symbol exemption one line up, just against prose instead of a
+    # qualified name.
+    inherited_prose = " ".join(
+        fact.value.lower()
+        for fact in candidate.facts.by_kind("inherited_unit")
+        if fact.polarity == "SUPPORTED"
+    )
     matched = [
         phrase
         for phrase, pattern in _NARRATION_PATTERNS
-        if pattern.search(lowered) and phrase not in symbol_names
+        if pattern.search(lowered)
+        and phrase not in symbol_names
+        and not pattern.search(inherited_prose)
     ]
     if matched:
         # A repair can only revise a specific LLM-owned section's units (repair/targeted.py's
