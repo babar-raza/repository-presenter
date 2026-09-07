@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (single repository)",
+  "recorded_at": "2026-09-07T12:04:32+05:00",
+  "control_revision": "869fcc7",
+  "control_revision_note": "origin/main at the start of this re-run. The unlock under test is 94abe74, 'fix(validation): the narration guard exempts a phrase inside a public_symbol's own docstring', three commits back; 869fcc7 is its first tip that also carries 8a260cf and 70a1d8e. origin/main moved to 4cd1cff (G5-W02, a facts-packet change) while this run was in progress; the measurement below is 869fcc7's and is recorded as such.",
+  "trigger": "Coordinator message: PROPOSAL N landed at 94abe74 as a third exemption source - the joined docstring text of every SUPPORTED public_symbol fact. PROPOSAL N was aspose-cells-foss/Aspose.Cells-FOSS-for-Java's only named blocker and its single recorded resume predicate (docs/RESEARCH_LANE_C.md, second re-run entry). Re-run that repository alone.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\c12r4 - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "path_policy": "Every tool resolved by the pipeline's own resolver and called by absolute path; nothing added to the user or system PATH. TEMP and TMP were set for the subprocess only, because pip could not create a build environment under C:\\Windows\\Temp in this sandbox; no profile or system variable was changed.",
+    "windows_trap": "TEMP/TMP must point OUTSIDE the git worktree. Pointed at C:\\w\\c12r4\\.pytmp, the full suite failed tests/test_cli.py::test_status_without_cursor_is_a_usage_error and ::test_present_discovers_the_root_like_status: both monkeypatch.chdir into tmp_path and assert 'no project/state.yaml found at or above', but a tmp_path inside the worktree walks up and finds the real project/state.yaml, so root discovery succeeds and the CLI reports OWNER-02 instead. Not a product defect and not a parallel-execution flake - both tests pass in isolation either way. With TEMP at C:\\w\\tmp-c12r4 the suite is green.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11); mvn resolved and not needed - every declared dependency of the POM is test scope, so the verifier is offline by construction."
+  },
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION BLOCKED_VALIDATION",
+      "previous_outcome": "DISPOSITION BLOCKED_VALIDATION (BC-07 failed at COMPOSING: internal narration 'validator'), resume predicate PROPOSAL N",
+      "stage_reached": "S10 - independent review; the first time this repository has reached it",
+      "facts": 2829,
+      "public_symbols": 2728,
+      "content_units": "28 units across 9 sections",
+      "readme": "runs/transactions/aspose-cells-foss__Aspose.Cells-FOSS-for-Java/779c9640ee38ed9e80c53e8db1e850f6be24372f/README.md, 239 visible lines of 442, sha256 a80505fbdabc411052a6671919a5abd51191fc38ce70a281cc3f63ad2b31e550",
+      "validation_summary": "pass 9, fail 1, pending 1. BC-01 through BC-09 all PASS - BC-07 among them. BC-10 FAIL (REJECT_FACTUAL, causal stage COMPOSING). BC-11 PENDING (the no-op proof, judged at S12, never reached).",
+      "resume_predicate_status": "MET AND SUFFICIENT FOR WHAT IT NAMED, NOT SUFFICIENT TO SEAL. PROPOSAL N / commit 94abe74 does exactly what its commit message claims and closes the whole of the BC-07 class for this repository. A new and different blocker stands one stage later.",
+      "why_bc07_cleared": "The docstring exemption is live and exercised. 'validator' still occurs exactly once in the rendered document, at the collapsed API Reference row for org.aspose.cells_foss.validation.WorkbookValidator, whose description is the repository's own Javadoc carried as the fact's docstring attribute. That text is now part of the joined docstring_prose the guard exempts, so the phrase no longer matches as authored narration and BC-07 records PASS with zero repair rounds spent on it. Measured, not assumed: the transaction that previously ended 'BC-07 failed at COMPOSING' now ends at BC-10.",
+      "new_blocker": {
+        "check": "BC-10",
+        "verdict": "REJECT_FACTUAL",
+        "review": "verdict REJECT_FACTUAL, findings 3, advisory 5, preserve 0; second_reader read false (the two-reader rule covers prose judgments only, and all three blocking findings carry criterion factuality)",
+        "repair": "1 repaired (F07, S6 scope_limitations), 2 unrepairable recorded advisory (F01, F03), 1 re-raised after repair; the equivalent failure stands; rounds 2",
+        "blocking_findings": [
+          {
+            "id": "F01",
+            "section_id": "identity",
+            "criterion": "factuality",
+            "causal_stage": "S6",
+            "text": "The candidate claims the library is 'dependency-free' and 'has no required third-party package dependencies'.",
+            "quote": "The library is dependency-free and distributed under the MIT license.",
+            "fact_ids": ["dependency:none"],
+            "absent": [],
+            "measured": "The quoted sentence is the last sentence of content unit 0, section 'opening', slot 'opening' - an LLM-owned unit that cites dependency:none among its fact IDs. It is not in the identity section at all. The reviewer's section_id names 'identity', which is in _DETERMINISTIC_SECTIONS, so repair recorded unrepairable with the reason 'section identity is deterministic; its blocks change only when facts change' and never re-asked the unit that actually holds the sentence.",
+            "note": "prompts/independent_review.yaml line 126 names this exact phrase: 'an unscoped absolute dependency claim (\"no dependencies\", \"dependency-free\") that no dependency fact proves is REJECT_FACTUAL'. The authoring side wrote the phrase the review side is instructed to reject on sight; and the condition the rule attaches ('that no dependency fact proves') is not met here, because dependency:none is SUPPORTED with the evidence detail 'every `<dependency>` the POM declares is `test`, `provided` or optional'."
+          },
+          {
+            "id": "F03",
+            "section_id": "dependencies",
+            "criterion": "factuality",
+            "causal_stage": "S6",
+            "text": "The candidate states 'No required third-party package dependencies' but omits that Apache POI is used in test scope.",
+            "quote": "No required third-party package dependencies; in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional.",
+            "fact_ids": [
+              "dependency:development.org.apache.poi-poi-ooxml",
+              "dependency:development.org.junit.jupiter-junit-jupiter"
+            ],
+            "absent": [],
+            "measured": "The quote is README.md line 71, the deterministic renderer's rendering of the SUPPORTED fact dependency:none together with its own evidence detail. 'dependencies' is in _DETERMINISTIC_SECTIONS, so repair recorded unrepairable with the reason 'section dependencies is deterministic; its blocks change only when facts change'. The alleged omission is contradicted by the document nine lines below the quote: README.md lines 77-80 render '### Development Dependencies' followed by '- `org.junit.jupiter:junit-jupiter 5.10.2`' and '- `org.apache.poi:poi-ooxml 5.3.0`'. The candidate does not use the words 'test scope' in that block; the scope lives in each fact's evidence detail, 'declared with `<scope>test</scope>`, never resolved for a consumer'."
+          },
+          {
+            "id": "F07",
+            "section_id": "scope_limitations",
+            "criterion": "factuality",
+            "causal_stage": "S6",
+            "text": "The candidate omits the limitation that some public XML-mapper classes are unimplemented skeleton code.",
+            "quote": "A handful of public XML-mapper classes are unimplemented skeleton code carried over from an early scaffold \u2014 their own class-level Javadoc discloses this, and the library's real save/load path never calls them.",
+            "fact_ids": [],
+            "absent": [],
+            "measured": "The finding's own quote is the sentence it says is omitted. It is content unit 25, section 'scope_limitations', slot 'limitation:4', fact_ids ['inherited_unit:041.list'], and it renders at README.md line 420. The repair routed correctly to S6 scope_limitations and the re-ask returned byte-identical text (repairs.json attempt 293af9f6582ef4284d98e889 records change R01 on units.4.text whose 'before' and 'after' strings are equal), was recorded 'repaired', spent the round, and F07 re-raised."
+          }
+        ],
+        "why_none_was_refuted": "Re-ran origin/main's own scope_defect, absence_defect and factuality_defect against all three findings with this transaction's facts, README and original README: every one returns None. F01 and F03 escape because presentation_defect - the rule that a deterministic section's content is no stage's to revise - returns None immediately when criterion != 'presentation' (review.py line 333), and renderer_sentences is scoped to sentences the renderer writes inside sections an LLM otherwise owns, so rendered_defect does not see a fully deterministic section either. F07 escapes because factuality_defect returns None when fact_ids is empty ('no fact supports this claim' cites nothing, by definition) and absence_defect reads only the 'absent' array, which is empty.",
+        "the_machinery_did_work_on_the_rest": "5 of the reviewer's 8 findings were caught as the reviewer's own defect and recorded advisory: F02 (the quote contains the literal value of SUPPORTED fact package:version), F04 and F08 (rendered_defect - the quoted sentence is the renderer's own), F05 and F06 (absence_defect - the finding claims the candidate does not contain 'AlignmentValue' / 'DiagnosticSeverity', which the candidate contains). The same reviewer, in the same reply, filled 'absent' for F05 and F06 and left it empty for F03 and F07, which the candidate's bytes refute just as squarely. The check is exact when the reviewer fills the field the prompt requires and blind when it does not."
+      },
+      "no_op_proof": {
+        "attempted": false,
+        "reason": "No bundle was sealed, so there was nothing to prove a no-op against. BC-11 is PENDING, judged at S12, never reached. candidates/ holds no aspose-cells-foss__Aspose.Cells-FOSS-for-Java directory."
+      },
+      "new_resume_predicate": "PROPOSAL O, PROPOSAL P and PROPOSAL Q (docs/RESEARCH_LANE_C.md) merged on main, then re-run present for Cells Java. PROPOSAL O alone clears F03; PROPOSAL Q alone clears F07; PROPOSAL P makes F01 actionable by a repair round rather than clearing it outright. All three blocking findings must go for BC-10 to pass, so all three are named."
+    }
+  ],
+  "not_touched_this_run": [
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - SEALED at 099e70a8; its bundle was not read or rewritten.",
+    "aspose-3d-foss/Aspose.3D-FOSS-for-Java - SEALED at e308de58; its bundle was not read or rewritten.",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Java - still dispositioned on item 33 / PROPOSAL L; not run this iteration, so this record adds no measurement for it. Cells Java's F07 above is a different finding that happens to share the rubric row: prompts/independent_review.yaml constrains a finding id to ^F[0-9]{2}$ and both repositories' scope_limitations finding came back as F07, but Slides' F07 is the Enterprise cross-reference sentence and Cells' F07 is the XML-mapper skeleton-class limitation. They are not evidence for each other and no grounded quote or section datum for Slides' F07 half was surfaced by this run."
+  ],
+  "proposals": {
+    "closed_in_lane": [
+      "N (= commit 94abe74) - closed. Raised by this lane at 2026-09-06 23:06, landed by the primary at 94abe74, and verified live here: the docstring exemption is the whole of what BC-07 needed on this repository, and BC-07 records PASS."
+    ],
+    "raised": [
+      "O - a factuality finding against a deterministic section is unactionable and is not recorded as the reviewer's own defect, because presentation_defect's criterion guard returns before the deterministic-section rule is reached. File: src/repository_presenter/components/readme/review/independent/review.py.",
+      "P - a blocking finding whose section_id names a deterministic section while its quote is located in an LLM-owned content unit of another section is abandoned by repair on the reviewer's label rather than routed by its quote. Files: src/repository_presenter/components/readme/repair/targeted.py and repair/rounds.py.",
+      "Q - a factuality finding that cites no fact and names no absent string passes every deterministic refutation by construction and blocks on the reviewer's prose alone. File: src/repository_presenter/components/readme/review/independent/review.py (and the unenforced instruction at prompts/independent_review.yaml lines 149-157)."
+    ],
+    "still_open_elsewhere": [
+      "L / G4-W17 item 33 - BC-10 rejects renderer-owned structure. Slides Java's blocker; its F07 half still has no grounded quote and this run did not produce one.",
+      "K - a repair attempt whose output is identical to its input is recorded 'repaired' and spends the round. Re-observed here on F07, byte for byte, and it is why the F07 round was spent for nothing."
+    ]
+  },
+  "state_yaml_touched": {
+    "field": null,
+    "reason": "Nothing sealed this run, so progress.current_candidates did not move and project/state.yaml was not opened."
+  },
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 2,
+    "dispositions_by_lane": 2,
+    "candidates_on_disk": 7,
+    "java_cohort": "2 of 4 sealed (PDF 099e70a8, 3D e308de58); 2 dispositioned - Cells Java now on PROPOSALs O, P and Q at S10, advanced one stage from S9; Slides Java unchanged on PROPOSAL L / item 33."
+  }
+}

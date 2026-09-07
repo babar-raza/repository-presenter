@@ -415,3 +415,102 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   matching the repository's own Javadoc), Slides on item 33 / PROPOSAL L (BC-10 rejecting
   renderer-owned structure). Both are one landed shared-code change away, and both predicates are
   now precisely diagnosed rather than merely named.
+
+## Fourth re-run, Cells Java alone (2026-09-07 12:04, after PROPOSAL N landed at `94abe74`)
+
+- **2026-09-07 12:04 (`date` checked) · G4-W12 fourth re-run · PROPOSAL N is closed: the docstring
+  exemption is the whole of what BC-07 needed, and `aspose-cells-foss/Aspose.Cells-FOSS-for-Java`
+  clears it on the first pass.** Measured on `origin/main` at `869fcc7` (the unlock is `94abe74`,
+  three commits back). The transaction that has ended `BC-07 failed at COMPOSING: internal
+  narration 'validator'` in every earlier run now records **BC-01 through BC-09 all PASS** — pass 9,
+  fail 1, pending 1 — with zero repair rounds spent on BC-07. `validator` still occurs exactly once
+  in the 442-line document, in the collapsed API Reference row for
+  `org.aspose.cells_foss.validation.WorkbookValidator`, whose description is the repository's own
+  Javadoc carried as that fact's `docstring` attribute; it is now part of the joined
+  `docstring_prose` the guard exempts. Item 22's third exemption source works exactly as its commit
+  message claims. The repository reaches **S10, the independent review, for the first time**, and
+  stops there: `BC-10 REJECT_FACTUAL`, 3 blocking findings, 5 advisory, repair rounds 2, no bundle
+  sealed. Evidence: `evidence/build/lanes/lane-c/G4-W12-RERUN4.json`.
+- **The three findings that survived, and why none of them is refutable by the code as written.**
+  The reviewer raised 8; the reviewer-scope-defect machinery caught 5 of them — F02 (`the quote
+  contains the literal value of SUPPORTED fact package:version`), F04 and F08 (`rendered_defect`),
+  F05 and F06 (`absence_defect`, `which the candidate contains`). Re-running `origin/main`'s own
+  `scope_defect`, `absence_defect` and `factuality_defect` against the three that blocked returns
+  `None` for every one:
+  **F01** `identity`/factuality, quote `The library is dependency-free and distributed under the MIT
+  license.`, `fact_ids ['dependency:none']`, `absent []`. The sentence is the last of **content unit
+  0, section `opening`, slot `opening`** — LLM-owned — not the `identity` section at all; repair read
+  the reviewer's label, found `identity` in `_DETERMINISTIC_SECTIONS`, recorded *section identity is
+  deterministic; its blocks change only when facts change*, and never re-asked the unit that holds
+  the sentence.
+  **F03** `dependencies`/factuality, quote `No required third-party package dependencies; in
+  `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional.` — README line
+  71, the deterministic renderer's rendering of SUPPORTED fact `dependency:none` and its own
+  evidence detail. The alleged omission is contradicted nine lines below, at README lines 77–80:
+  `### Development Dependencies`, `- `org.junit.jupiter:junit-jupiter 5.10.2``,
+  `- `org.apache.poi:poi-ooxml 5.3.0``. Repair: *section dependencies is deterministic*.
+  **F07** `scope_limitations`/factuality, `fact_ids []`, `absent []`. Its own `quote` is the sentence
+  it says is omitted — content unit 25, slot `limitation:4`, `inherited_unit:041.list`, README line
+  420. The repair routed correctly to S6, and the re-ask returned **byte-identical** text
+  (`repairs.json` attempt `293af9f6…`, change `R01` on `units.4.text`, `before` == `after`), was
+  recorded `repaired`, spent the round, and F07 re-raised. That is PROPOSAL K's symptom again.
+- **PROPOSAL 2026-09-07 O · a *factuality* finding against a deterministic section is as
+  unactionable as a presentation one, and is not recorded as the reviewer's own defect.** File:
+  `src/repository_presenter/components/readme/review/independent/review.py`. Defect:
+  `presentation_defect` — the rule that a deterministic section renders from facts and that no stage
+  the loop can reopen would change it — returns `None` at its first line when
+  `criterion != "presentation"` (line 333), so `dependencies` and `identity` are only protected
+  against one of the nine criteria the schema allows. `rendered_defect` does not cover the gap
+  either: `renderer_sentences` is scoped by construction to sentences the renderer writes *inside a
+  section an LLM otherwise owns*. Repository and finding: Cells Java at `779c9640`, F03 above; the
+  repair loop's own answer for it is *section dependencies is deterministic; its blocks change only
+  when facts change*, which is the same sentence `presentation_defect` was written to encode. Fix:
+  apply the deterministic-section rule before the criterion switch, as `absence_defect` and
+  `excluded_evidence_defect` are already applied *whatever the criterion* (`scope_defect` lines
+  568–576). Alternative rejected: leaving factuality out because "a factual error there is a
+  factuality finding against the fact" (`presentation_defect`'s own docstring) — true, and F03 is not
+  that: it cites two SUPPORTED facts and contradicts neither, asking for extra qualification of a
+  fact's own rendering. Mutation test: a factuality finding against `dependencies` whose cited fact
+  is `CONTRADICTED` must still block. Reversal: restore the criterion guard.
+- **PROPOSAL 2026-09-07 P · a finding is routed to repair by the reviewer's `section_id` label, so a
+  mislabelled but genuinely repairable finding is abandoned.** Files:
+  `src/repository_presenter/components/readme/repair/targeted.py` and `repair/rounds.py`. Defect:
+  when `section_id` names a deterministic section the repair stops, without asking whether the
+  finding's `quote` — which `review_checks` has already located in the candidate character for
+  character — falls inside an LLM-owned content unit. Repository and finding: Cells Java at
+  `779c9640`, F01 above: labelled `identity`, quoted from unit 0 of `opening`. Fix: route by the
+  quote's own unit when the quote locates in one, and fall back to the label only when it does not;
+  the located quote is already a hard precondition of the reply being used at all. Alternative
+  rejected: treating a label/quote mismatch as a reviewer-scope defect so the finding is recorded
+  advisory — cheaper, but it discards a finding a repair could actually act on, and F01's substance
+  (an unscoped absolute `dependency-free` in LLM-owned prose, which
+  `prompts/independent_review.yaml` line 126 names verbatim as a REJECT_FACTUAL trigger) is worth
+  one repair round. Reversal: drop the quote lookup and the label decides again.
+- **PROPOSAL 2026-09-07 Q · a factuality finding that cites no fact and names no absent string
+  passes every deterministic refutation by construction and blocks on the reviewer's prose alone.**
+  File: `src/repository_presenter/components/readme/review/independent/review.py`; the unenforced
+  instruction is `prompts/independent_review.yaml` lines 149–157. Defect: `factuality_defect`
+  rejects a finding whose citations are all `inherited_unit` — *a factuality finding cites at least
+  one product fact that contradicts the quote or should have supported it* — but returns `None` for
+  a finding that cites **nothing at all** (line 224, `"no fact supports this claim" cites nothing,
+  by definition`), which is strictly weaker than the case it rejects; and `absence_defect` reads only
+  the `absent` array, so an omission asserted in `text`/`repair` prose with `absent []` is never
+  checked. Repository and finding: Cells Java at `779c9640`, F07 above, `fact_ids []` and
+  `absent []`, whose own quote is the sentence it calls missing. The same reviewer reply filled
+  `absent` for F05 and F06 and both were refuted at once; the field the prompt requires is the only
+  thing separating a caught defect from a permanent block. Fix: a factuality finding with empty
+  `fact_ids` and empty `absent` rests on nothing the code can check and is recorded as the
+  reviewer's own defect. Alternative rejected: detecting *lacks/omits/drops/replaces* in the
+  finding's `text` and requiring `absent` — it would catch F03 as well, but reading the finding's
+  prose to decide its scope is exactly what §27.2 RC8 forbids and what `absence_defect`'s docstring
+  says nothing here does. Mutation test: a factuality finding citing one `CONTRADICTED` product fact
+  must still block. Reversal: drop the empty-and-empty clause.
+- **Java cohort, state after this run.** 2 of 4 sealed — PDF (`099e70a8`) and 3D (`e308de58`);
+  `repository-presenter status` reads 7/34, unchanged, and `project/state.yaml` was not opened.
+  Cells Java advanced from S9 to S10 and is dispositioned `BLOCKED_VALIDATION` on PROPOSALs O, P and
+  Q together — all three findings must go for BC-10 to pass. Slides Java was **not run** and is
+  unchanged on item 33 / PROPOSAL L; its F07 half still has no grounded quote. Cells' F07 above is a
+  different finding that merely shares the rubric row (the schema constrains a finding id to
+  `^F[0-9]{2}$` and both repositories' `scope_limitations` finding came back as `F07`): Slides' is the
+  Enterprise cross-reference sentence, Cells' is the XML-mapper skeleton-class limitation. They are
+  not evidence for each other.
