@@ -336,6 +336,26 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def test_canonical_protects_a_path_and_a_command_hyphenated_with_an_abbreviation() -> None:
+    # Third external review, 2026-09-07: R3's acceptance criterion names commands, paths and API
+    # identifiers alongside package names, not package names alone - verified beyond the
+    # coordinate case this time.
+    context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+    # A path with a hyphenated abbreviation keeps its exact spelling.
+    assert context.canonical("See docs/pdf-reference.md for details.") == (
+        "See docs/pdf-reference.md for details."
+    )
+    # So does a command-shaped identifier.
+    assert context.canonical("Run the aspose-pdf-cli --export-html tool.") == (
+        "Run the aspose-pdf-cli --export-html tool."
+    )
+    # Ambient prose mentioning the same abbreviations, not adjacent to a hyphen or colon, still
+    # normalizes exactly as before - the protection is scoped to compound-identifier shapes only.
+    assert context.canonical("Convert your pdf file to html today.") == (
+        "Convert your PDF file to HTML today."
+    )
+
+
 def test_prose_wraps_a_package_coordinate_as_one_code_span_not_a_dotted_prefix() -> None:
     # External audit, 2026-09-07: measured on Aspose.PDF for Java's sealed README - the group and
     # artifact are one coordinate (`org.aspose:aspose-pdf-foss`), but only the dotted `org.aspose`
