@@ -39,7 +39,11 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
-from repository_presenter.core.facts import FactsDocument, bounded_records
+from repository_presenter.core.facts import (
+    DECLARED_SYMBOL_KINDS,
+    FactsDocument,
+    bounded_records,
+)
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -84,7 +88,7 @@ _UNIT_REFERENCE = re.compile(r"unit (inherited_unit:[0-9]+\.[a-z_]+)")
 
 
 def reconciliation_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
-    """The reconciliation schema specialised for this README: exactly its inherited units.
+    """The reconciliation schema specialised for this README: its units, and the shape of an ID.
 
     Every inherited unit needs one disposition and no other unit exists, which the code knows
     exactly, so the schema says so rather than letting the job invent a unit and be rejected for
@@ -92,12 +96,30 @@ def reconciliation_schema(manifest: LoadedManifest, facts: FactsDocument) -> dic
     the right ordinals with the wrong type suffixes - inherited_unit:037.paragraph where the unit
     is inherited_unit:037.code_block - and lost a whole transaction to it. The destination and
     the rationale stay the job's.
+
+    ``fact_ids`` gets the same treatment for the same reason. A fact ID is ``<kind>:<slug>`` and
+    the packet's kinds are known here exactly, so the schema says so; the array was typed as bare
+    strings, and a job with no fact at the granularity it needed filled the slot with the nearest
+    token in its context instead. Measured 2026-09-07 (G4-W17 arrival item 40): Aspose.PDF for
+    Python was rejected twice on "unknown fact ID product_summary:fact_ids; ... audience:fact_ids;
+    ... problems_solved:fact_ids; ... capabilities:fact_ids" - the packet's own investigation keys
+    paired with this schema's own field name - and the first pass's Aspose.Note wrote the
+    disposition value ``OMIT_UNSUPPORTED`` there. None of those begins with a packet fact kind, so
+    the pattern refuses them at decode time rather than after the whole transaction is spent. It
+    narrows nothing a real citation may say: every ID the packet carries matches it, and an ID
+    that matches the pattern but names no fact is rejected by the binding guard exactly as before.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
+    dispositions = schema["properties"]["dispositions"]
+    kinds = sorted(manifest.manifest.packet.fact_kinds)
+    if kinds:
+        dispositions["items"]["properties"]["fact_ids"]["items"] = {
+            "type": "string",
+            "pattern": "^(" + "|".join(kinds) + "):",
+        }
     units = [fact.id for fact in facts.by_kind("inherited_unit")]
     if not units:
         return schema
-    dispositions = schema["properties"]["dispositions"]
     dispositions["minItems"] = len(units)
     dispositions["maxItems"] = len(units)
     dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
@@ -118,7 +140,20 @@ def reconciliation_packet(
     return {
         "repository": entry.repository,
         "inherited_units": units,
-        "facts": bounded_records(facts, kinds, ("SUPPORTED", "CONTRADICTED")),
+        # Public symbols enter by the granularity the extractor recorded, not by dotted depth:
+        # the depth proxy is shaped by the package root, so a repository whose root is two or
+        # three segments has no citable type at all. Measured 2026-09-07 (G4-W17 arrival item
+        # 40) on Aspose.Page for Python, whose root is `aspose.page`: about seven namespace
+        # strings of its 570 public symbols reached this packet, and the job - rejected twice -
+        # cited `public_symbol:aspose.page.common`, a real directory of the repository
+        # (`src/aspose/page/common/`, confirmed at the pinned revision) of exactly the shape of
+        # the only symbols it had been shown, and the only kind of thing it could name.
+        "facts": bounded_records(
+            facts,
+            kinds,
+            ("SUPPORTED", "CONTRADICTED"),
+            symbol_kinds=DECLARED_SYMBOL_KINDS,
+        ),
         "investigation": investigation,
         "sections": shell_packet(),
     }

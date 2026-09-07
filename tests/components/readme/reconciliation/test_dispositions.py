@@ -41,6 +41,16 @@ def _fact(
     return Fact(fact_id, kind, value, (Evidence("README.md", detail or None),), polarity=polarity)  # type: ignore[arg-type]
 
 
+def _symbol(path: str, symbol_kind: str) -> Fact:
+    return Fact(
+        f"public_symbol:{path.lower()}",
+        "public_symbol",
+        path,
+        (Evidence("src/x.py", f"line 1; {symbol_kind}; public by name"),),
+        attributes={"symbol_kind": symbol_kind},
+    )
+
+
 FACTS = FactsDocument(
     ENTRY.repository,
     "a" * 40,
@@ -103,6 +113,39 @@ def test_the_packet_carries_every_unit_the_polar_facts_and_the_shell() -> None:
     assert packet["investigation"] == {"product_summary": {}}
     assert [section["id"] for section in packet["sections"]][:2] == ["identity", "badges"]
     assert reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST) == packet
+
+
+def test_the_packet_carries_a_deeply_rooted_repositorys_own_types() -> None:
+    """G4-W17 arrival item 40. The packet bounded public symbols by dotted depth, which is shaped
+    by the package root, so Aspose.Page for Python (root `aspose.page`) reached S4 with about
+    seven namespace strings of its 570 symbols and the job - twice - cited
+    `public_symbol:aspose.page.common`, a real directory of that repository
+    (`src/aspose/page/common/` at the pinned revision) of exactly the shape of the only symbols
+    it had been shown. Bounding by the kind the extractor records puts the types back."""
+    document = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _symbol("aspose.page.ps", "module"),
+            _symbol("aspose.page.ps.PsDocument", "class"),
+            _symbol("aspose.page.ps.PsDocument.save", "method"),
+            _symbol("aspose.page.common.RenderModel", "class"),
+        ),
+    )
+    values = {
+        record["value"]
+        for record in reconciliation_packet(ENTRY, document, {}, MANIFEST)["facts"]
+        if record["kind"] == "public_symbol"
+    }
+    assert values == {
+        "aspose.page.ps",
+        "aspose.page.ps.PsDocument",
+        "aspose.page.common.RenderModel",
+    }
+    # A member of a type is still out: the kind bound replaces the depth proxy, it does not lift
+    # it, so the packet stays bounded for a large surface exactly as before.
+    assert "aspose.page.ps.PsDocument.save" not in values
 
 
 def test_placements_into_deterministic_sections_fold_into_supersessions() -> None:

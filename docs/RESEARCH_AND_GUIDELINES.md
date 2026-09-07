@@ -5530,3 +5530,17 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   toolchains (§1 provisions 3.11 and 3.12), record which interpreter verified each example, and
   answer NOT_VERIFIED with the reason when none satisfies it. Not landed here: interpreter
   discovery is a new mechanism (§18) and this item's scope is the cohort, not the toolchain.
+
+- **2026-09-07 (`date` checked) · G4-W17 item 40 (PROVISIONAL) · `SYMBOL_MAX_DEPTH` is
+  `SYMBOL_CAP`'s unfixed sibling, and item 27 fixed only the cap.** `bounded_records` bounds
+  public symbols by dots in the whole path, so how much of a surface a job may cite depends on how
+  many segments the package root happens to have. Measured over the seven sealed bundles:
+  Aspose.PDF for Java admits 3 of 24,830 symbols (`org`, `org.aspose`, `org.aspose.pdf` - not one
+  class), Aspose.3D for Java 3 of 5,366, Cells C++ 122 of 1,943, while Slides Python (root
+  `slides_foss`) admits 1,702 of 3,180 including every method. Bounding by the `symbol_kind` the
+  extractor already records is root-shape independent and still bounded (1,240 / 269 / 201 / 535
+  respectively; Cells .NET unchanged at 100). Landed for S4 only, where item 40's two rejections
+  were measured; **PROPOSAL** for S3, S5, S6 and S10, whose packets carry the same three-symbol
+  view of a Java repository. Not landed portfolio-wide here: it re-keys every stage's call store
+  at once and grows the Java packets by ~50 KB, which needs a real run to bound, not a blind edit
+  while G5-W02 rebuilds call reuse.

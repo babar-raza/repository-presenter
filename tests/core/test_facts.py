@@ -9,6 +9,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.core.facts import (
+    DECLARED_SYMBOL_KINDS,
     Evidence,
     Fact,
     FactsDocument,
@@ -154,6 +155,72 @@ def test_bounded_records_never_admits_identity_revision() -> None:
     )
     records = bounded_records(with_repository, ["identity"])
     assert {record["id"] for record in records} == {"identity:repository"}
+
+
+def _symbol(path: str, symbol_kind: str) -> Fact:
+    return Fact(
+        f"public_symbol:{path.lower()}",
+        "public_symbol",
+        path,
+        (Evidence("src/x.py", f"line 1; {symbol_kind}; public by name"),),
+        attributes={"symbol_kind": symbol_kind},
+    )
+
+
+SURFACE = FactsDocument(
+    "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    REVISION,
+    (
+        _symbol("aspose.page", "module"),
+        _symbol("aspose.page.ps", "module"),
+        _symbol("aspose.page.ps.PsDocument", "class"),
+        _symbol("aspose.page.ps.PsDocument.save", "method"),
+        _symbol("aspose.page.common.RenderModel", "class"),
+        Fact(
+            "public_symbol:aspose.page.xps.xpsdocument",
+            "public_symbol",
+            "aspose.page.xps.XpsDocument",
+            (Evidence("src/x.py"),),
+            attributes={"symbol_kind": "unknown"},
+        ),
+    ),
+)
+
+
+def test_symbol_kinds_bound_a_packet_by_declaration_not_by_dotted_depth() -> None:
+    """G4-W17 arrival item 40. `symbol_max_depth` counts dots in the whole path, so how much of a
+    repository's surface a job may cite depends on how many segments its package root happens to
+    have. Measured 2026-09-07 over the sealed bundles: Aspose.PDF for Java admitted 3 of its
+    24,830 public symbols (`org`, `org.aspose`, `org.aspose.pdf` - not one class) and Aspose.3D
+    for Java 3 of 5,366, while Aspose.Slides for Python, root `slides_foss`, admitted 1,702 of
+    3,180 including every method. Aspose.Page for Python (root `aspose.page`) reached S4 with
+    about seven namespace strings of its 570 symbols, and its reconciliation was rejected twice
+    for citing `public_symbol:aspose.page.common` - the only shape of thing it had been shown.
+    Bounding by the kind the extractor already recorded is root-shape independent."""
+    depth_bound = {record["value"] for record in bounded_records(SURFACE, ["public_symbol"])}
+    # The defect, still reproducible through the default: not one class of this root survives.
+    assert depth_bound == {"aspose.page", "aspose.page.ps"}
+
+    declared = {
+        record["value"]
+        for record in bounded_records(
+            SURFACE, ["public_symbol"], symbol_kinds=DECLARED_SYMBOL_KINDS
+        )
+    }
+    assert "aspose.page.ps.PsDocument" in declared
+    assert "aspose.page.common.RenderModel" in declared
+    # A member is still out: the kind bound replaces the depth proxy, it does not lift it.
+    assert "aspose.page.ps.PsDocument.save" not in declared
+    # A symbol the surface facade's table does not map records "unknown" for a whole ecosystem
+    # (G4-W17 arrival item 9, Go and Rust); it keeps the depth bound rather than vanishing.
+    assert "aspose.page.xps.XpsDocument" not in declared
+    assert {"aspose.page", "aspose.page.ps"} <= declared
+
+    # The cap still bounds the count, whichever rule admitted the symbol.
+    capped = bounded_records(
+        SURFACE, ["public_symbol"], symbol_kinds=DECLARED_SYMBOL_KINDS, symbol_cap=2
+    )
+    assert len(capped) == 2
 
 
 def test_structured_attributes_round_trip_through_json_and_the_schema() -> None:

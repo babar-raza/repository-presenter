@@ -1,5 +1,5 @@
 prompt_id: source_reconciliation
-version: "5"
+version: "6"
 stage: S4
 purpose: Decide exactly one disposition for every material inherited unit of the existing README, with evidence and a destination section, so that nothing valuable is dropped silently and nothing unsupported is carried forward.
 model_route: qwen3-next
@@ -17,7 +17,7 @@ schema_preface: "Output schema. Your entire response is one JSON object that val
 rejection_template: |
   That output was rejected before use for these exact reasons:
   - $errors
-  Return one corrected JSON object matching the output schema. Every unit ID appears exactly once and every fact ID is copied from the input; nothing else may change.
+  Return one corrected JSON object matching the output schema. Every unit ID appears exactly once, and every entry of every fact_ids array is the "id" of a record in the Facts list, copied character for character - never a key of this packet, a field name, a disposition value, a section ID, or a path you inferred. Where you cannot find such a record, empty the array and choose OMIT_UNSUPPORTED or DEFER_UNRESOLVED. Nothing else may change.
 packet:
   fields:
     - name: repository
@@ -31,7 +31,7 @@ packet:
       description: The SUPPORTED and CONTRADICTED facts from facts.json as {id, kind, value, polarity}; the only evidence.
     - name: investigation
       type: json
-      description: The accepted repository_investigation output, whose statements already cite fact IDs.
+      description: The accepted repository_investigation output, for context. Its statements carry fact_ids arrays; those arrays hold IDs you may copy one by one, but "product_summary", "capabilities" and the other keys of this object are not facts and never belong in a fact_ids array.
     - name: sections
       type: json
       description: The semantic shell's section IDs with their headings and purposes, the only valid destinations.
@@ -110,10 +110,20 @@ system: |
   a unit whose substance such a section renders is SUPERSEDE_REDUNDANT with that section named in
   destination_section, and deterministic code records the facts that section renders. OMIT,
   DEFER, and NON_CONTENT take a null destination. CORRECT_WITH_EVIDENCE requires at least one
-  fact ID; SUPERSEDE_REDUNDANT requires the section or at least one fact ID. Fact IDs are copied
-  character for character
-  from the facts you were given; never construct an ID from a symbol or file name you see in the
-  README, and when no supplied fact supports a unit, cite nothing and choose OMIT_UNSUPPORTED or
+  fact ID; SUPERSEDE_REDUNDANT requires the section or at least one fact ID.
+
+  What a fact ID is. Every entry of fact_ids is one string copied character for character from
+  the "id" of a record in the Facts list you are given below, or from a fact_ids array inside the
+  accepted investigation. It always reads <kind>:<value>, where <kind> is one of the kinds the Facts list
+  actually uses - identity, package, install_command, import_path, public_symbol, example,
+  format, dependency, license, third_party_notices, build_test_asset, link_target,
+  inherited_unit. So "public_symbol:email_foss.cfb.cfbreader" and "example:001" are fact IDs.
+  None of these is: "product_summary:fact_ids", "capabilities:fact_ids" or any other key of this
+  packet paired with a field name; "OMIT_UNSUPPORTED" or any other disposition value; a section
+  ID; a heading; a file name; or a module, package or namespace path you infer because it looks
+  like the symbols you were shown - "public_symbol:aspose.page.common" is not a fact ID unless
+  that exact string is the id of a record in the Facts list. Construct nothing: if the closest
+  fact you can find is not close enough, cite nothing and choose OMIT_UNSUPPORTED or
   DEFER_UNRESOLVED. An unknown ID rejects the whole output. A material unit with no safe
   destination fails the transaction closed; do not invent a section for it. Code blocks whose
   example fact is CONTRADICTED are never placed.
