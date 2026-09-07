@@ -5462,3 +5462,71 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   `test_reuse.py` tests pass unchanged. Full suite green, ruff/mypy clean, before this entry.
   G5-W02 still open: `section_authoring`/`independent_review` seeding, and the committed-repo
   growth number the reviewer asked to be reported when that lands.
+
+- **2026-09-07 12:20 (`date` checked) · G3-W04 (PROVISIONAL) · the vendored surface facade is
+  measured and NOT adopted for Python; the comparison found a native defect instead.** The item
+  asked for facade versus native reader on BarCode, Cells and PDF. Measured against the pinned
+  clones: the facade finds far more symbols (BarCode 427 vs 80, Cells 2,605 vs 1,050, PDF 4,090
+  vs 1,482) and none of the excess is public - it surfaces
+  `aspose_barcode_foss._internal.models.options.Code128Options.eci_assignment_number` and
+  `...gs1_enabled`, the exact identifiers BarCode's own disposition was right to reject, because
+  `surface_symbols`'s `visibility: "internal"` filter is a tag the vendored engine sets for C++
+  and .NET vendor directories and never for a Python `_internal/` package - while it loses what
+  the native reader keeps (Email: 39 module-level constant leaves). Decision: Python stays on the
+  native reader; parity is this recorded measurement, not a switch. Alternative rejected: reading
+  Python surface through the facade, which would publish private parameters as citable facts.
+  Reversal: re-measure once the facade learns Python's private-package convention.
+
+- **2026-09-07 12:20 (`date` checked) · G3-W04 (PROVISIONAL) · a Python re-export is followed to
+  its definition, not one hop (e6aa326, PR #22).** The comparison above exposed the real defect: a
+  re-export was resolved by a single lookup, so a package re-exporting what another package
+  already re-exported stayed `unknown` - `UNRESOLVED` - uncitable, and the *shortest* public
+  import path, the one a README writes, was unusable while the long one was `SUPPORTED`. Each hop
+  is now followed until one carries a kind, cycle-safe, and a module that only forwards a name is
+  read through to the module that defines it. Measured over the ten cohort clones: BarCode 25 and
+  HTML 107 symbols promoted to SUPPORTED (`aspose_html.DOMParser`, `URL`, `URLSearchParams`,
+  `aspose_barcode_foss.Code128Options`, `BarcodeError`); every other repository's fact set is
+  unchanged, so no sealed bundle reopens (3D, Slides and Email for Python each measured 0 changed
+  facts). Four mutation tests. Reversal: revert the commit.
+
+- **2026-09-07 12:20 (`date` checked) · G3-W04 (PROVISIONAL) · a fuzzing corpus is not sample
+  data, and a package that will not build is not a repository whose code is wrong (a363c98, PR
+  #24).** Two example-stage defects, one iteration, a mutation test each. (a) `stage_fixtures`
+  took the smallest same-suffix file in the tree, and a fuzzing seed is the smallest file of its
+  type precisely because it is truncated: Aspose.PDF for Python staged
+  `fuzz/corpus/cos/truncated.pdf` (35 bytes) as `input.pdf` for eight of thirteen examples, each
+  then raising `PdfParseException`, while `tests/fixtures_4pages.pdf` (707 bytes) sat unused.
+  Files under fuzz/corpus/crashes/seeds are excluded from the pool by both the by-name and the
+  by-extension rule. Measured on the same revision: `failed 13` became `executed 8, failed 5`,
+  and `required rows without evidence` went from `quick_start` to `none` - the first pass's
+  QUICK_START_WITHOUT_EXECUTED_EXAMPLE class, closed by evidence. (b) when the wheel build fails,
+  examples run against the repository's own source tree with every receipt saying so, rather than
+  every candidate going NOT_VERIFIED; a tree with no importable package still yields nothing.
+  Alternative rejected for (a): trying each candidate fixture until one exits 0 - many more
+  example runs for a case a directory convention already answers.
+
+- **2026-09-07 12:20 (`date` checked) · G3-W04 (PROVISIONAL) · two upstream defects verified
+  against the live oracle, not the clone.** (a) `aspose-tex-foss/Aspose.TeX-FOSS-for-Python` ships
+  source whose indentation is collapsed to one space per level: 35 of its 45 Python files do not
+  parse, including `src/aspose_tex/presentation/__init__.py`, the module its own docstring calls
+  the user-facing entry point - confirmed by `gh api` on the pinned revision, where `ast.parse`
+  raises IndentationError at line 108. The library cannot be imported at all, which is why nine of
+  its ten examples were CONTRADICTED and why `TeXJob` never became a SUPPORTED fact; the first
+  pass recorded the symptom, not the cause. No other cohort repository has a single unparseable
+  file. (b) `aspose-html-foss/Aspose.HTML-FOSS-for-Python` declares
+  `build-backend = "setuptools.backends.legacy:build"`, a module in no setuptools release, so
+  `pip install .` raises `ModuleNotFoundError` for everyone. Both are facts about the target
+  repositories, recorded in their dispositions and never inside a candidate (rule 16).
+
+- **2026-09-07 12:20 (`date` checked) · G3-W04 (PROVISIONAL) · PROPOSAL, not landed: the example
+  runner must honour a repository's declared `requires-python`.** `verify_python_examples` always
+  builds its venv from `sys.executable`. `aspose-words-foss/Aspose.Words-FOSS-for-Python` declares
+  `requires-python = ">=3.10,<3.13"`, so pip refuses on the 3.13 runner ("Package
+  'aspose-words-foss' requires a different Python: 3.13.2 not in '<3.13,>=3.10'"), every example
+  reads NOT_VERIFIED, and the Quick Start row loses its evidence - a whole repository blocked by
+  an interpreter choice rather than by its code. Words is this cohort's only upper cap, so the
+  payoff is one candidate, but the class is portfolio-wide and silent. §27.9 shape: select the
+  example interpreter from the manifest's `requires-python` among the workspace-local pinned
+  toolchains (§1 provisions 3.11 and 3.12), record which interpreter verified each example, and
+  answer NOT_VERIFIED with the reason when none satisfies it. Not landed here: interpreter
+  discovery is a new mechanism (§18) and this item's scope is the cohort, not the toolchain.

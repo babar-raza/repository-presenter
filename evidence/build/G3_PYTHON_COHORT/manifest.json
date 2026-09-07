@@ -324,5 +324,220 @@
    "consequence": "G3-W03's own admission condition is a median above 90 seconds; at 60.5 it is deferred behind G3-W02 (section 31, 2026-09-06)"
   },
   "every_repository_accounted_for": true
+ },
+ "second_pass": {
+  "work_item": "G3-W04",
+  "work_item_status": "COMPLETE_AT_ITS_TIME_BOX",
+  "recorded_at": "2026-09-07T12:27:38+05:00",
+  "control_revision": "0e1d13f8ef4c2adfa9ecabfc55b95e0df917f6d0",
+  "time_box": {
+   "opened_at": "2026-09-07T11:49:20+05:00",
+   "hours": 3,
+   "closed_at": "2026-09-07T14:49:20+05:00"
+  },
+  "blockers_the_first_pass_recorded": {
+   "prompt_change_costs_a_seal": "Withdrawn as a blocker: a prompt, template or model-route change routes a sealed bundle to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so prompts are editable. Measured on the three prompt-named dispositions: presentation_planning's max_output_tokens was already raised from 3000 to 6000 (Note's blocker) and section_authoring already carries the drop-and-generalise instruction for a stray identifier no fact licenses (BarCode's and Email's blocker), both landed under G4-W17 before this pass opened. No further prompt edit was made: the re-run is the measurement, and no repository's second pass reproduced either class.",
+   "fact_coverage_facade_versus_native": {
+    "verdict": "Python stays on the native reader; the facade is not adopted.",
+    "method": "inspect_public_surface (native) versus surface_symbols (G4-W09 facade, tree-sitter) over the pinned clones, comparing symbol sets and the exact identifiers each rejected unit named.",
+    "readings": [
+     {
+      "repository": "BarCode",
+      "native_symbols": 80,
+      "facade_symbols": 427
+     },
+     {
+      "repository": "Cells",
+      "native_symbols": 1050,
+      "facade_symbols": 2605
+     },
+     {
+      "repository": "PDF",
+      "native_symbols": 1482,
+      "facade_symbols": 4090
+     }
+    ],
+    "finding": "None of the facade's excess is public surface. It emits aspose_barcode_foss._internal.models.options.Code128Options.eci_assignment_number and ...gs1_enabled - the exact identifiers BarCode's first-pass disposition was right to reject - because surface_symbols filters on the vendored engine's visibility tag, which that engine sets for C++ and .NET vendor directories and never for a Python _internal/ package. It also loses what the native reader keeps: 39 module-level constant leaves on Email. The facade found nothing genuinely public that the native reader missed.",
+    "defect_the_comparison_exposed": "A native re-export was resolved by a single lookup, so a package re-exporting what another package already re-exported stayed unknown and UNRESOLVED: the shortest public import path, the one a README writes, was uncitable while the long one was SUPPORTED. Fixed in e6aa326 (PR #22) with four mutation tests.",
+    "fix_effect": [
+     {
+      "repository": "BarCode",
+      "unresolved_before": 25,
+      "unresolved_after": 0
+     },
+     {
+      "repository": "HTML",
+      "unresolved_before": 108,
+      "unresolved_after": 1
+     }
+    ],
+    "sealed_bundles_unaffected": "3D, Slides and Email for Python each measured 0 changed public_symbol facts, so no sealed bundle reopens."
+   }
+  },
+  "classes_fixed_this_item": [
+   {
+    "class": "SHORTEST_PUBLIC_IMPORT_PATH_IS_UNRESOLVED",
+    "cause": "python_surface.py resolved a re-export by a single lookup of its origin, so a package re-exporting what another package already re-exported stayed kind=unknown and polarity UNRESOLVED.",
+    "fix": "e6aa326 (PR #22): every hop of the chain is followed until one carries a kind, cycle-safe, and a module that only forwards a name is read through to the module that defines it.",
+    "mutation_tests": [
+     "test_a_reexport_chain_resolves_at_every_hop_not_only_the_first",
+     "test_a_private_module_that_only_forwards_a_name_is_followed_to_the_definition",
+     "test_modules_that_forward_a_name_to_each_other_stay_unresolved",
+     "test_a_package_that_reexports_a_submodule_of_its_own_name_stays_a_module"
+    ],
+    "measured": "BarCode 25 and HTML 107 public_symbol facts promoted from UNRESOLVED to SUPPORTED; every other repository unchanged, so no sealed bundle reopens."
+   },
+   {
+    "class": "FIXTURE_POOL_STAGES_A_DELIBERATELY_INVALID_ASSET",
+    "cause": "stage_fixtures took the smallest same-suffix file in the tree, and a fuzzing seed is the smallest file of its type precisely because it is truncated.",
+    "fix": "a363c98 (PR #24): files under fuzz/fuzzing/corpus/corpora/crashes/seeds are excluded from the fixture pool by both the by-name and the by-extension rule.",
+    "mutation_tests": [
+     "test_a_fuzzing_corpus_never_stands_in_as_an_examples_input",
+     "test_a_corpus_file_is_not_taken_even_when_the_literal_names_it"
+    ],
+    "measured": "Aspose.PDF for Python, same revision: examples went from `failed 13` to `executed 8, failed 5`, and `required rows without evidence` from `quick_start` to `none`."
+   },
+   {
+    "class": "A_BROKEN_WHEEL_BUILD_COSTS_EVERY_EXAMPLE",
+    "cause": "One failed `pip install` sent every candidate to NOT_VERIFIED, conflating a package that will not build with a repository whose code is wrong.",
+    "fix": "a363c98 and 0e1d13f (PR #24): the examples run against the repository's own source tree with the manifest's declared dependencies installed alongside, every receipt saying so; a tree with no importable package still yields NOT_VERIFIED.",
+    "mutation_tests": [
+     "test_a_package_that_will_not_build_still_runs_its_examples_from_source",
+     "test_the_source_fallback_installs_the_dependencies_the_manifest_declares",
+     "test_a_tree_with_no_importable_package_stays_unverified_when_the_build_fails"
+    ],
+    "measured": "Aspose.BarCode for Python went from `not_verified 6` to examples that actually run."
+   }
+  ],
+  "report": [
+   {
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+    "source_revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+    "outcome": "NOT_SEALED",
+    "failure_class": "EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON",
+    "stage": "S2 facts, example verification",
+    "first_pass_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "detail": "The first pass recorded 'each opens an input file the repository does not ship'; the second pass measured the actual cause. verify_python_examples builds its venv from sys.executable (3.13.2) and this repository declares requires-python '>=3.10,<3.13', so pip refuses with \"Package 'aspose-words-foss' requires a different Python: 3.13.2 not in '<3.13,>=3.10'\" and all 12 candidates read NOT_VERIFIED - not one example was ever executed, so the earlier reading was an inference, not a measurement. 825 facts, 786 supported, 39 unresolved; required rows without evidence: quick_start. Confirmed against the live oracle: gh api on the pinned revision returns the same requires-python.",
+    "resume_predicate": "the example runner selects its interpreter from the manifest's requires-python among the workspace-local pinned toolchains, recording which interpreter verified each example (section 31 PROPOSAL, 2026-09-07 12:20; not landed here because interpreter discovery is a new mechanism, section 18)"
+   },
+   {
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+    "source_revision": "109e26a10e37541528afb5e3ae6b04516c1c0359",
+    "outcome": "NOT_SEALED",
+    "failure_class": "RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID",
+    "stage": "S4 source_reconciliation",
+    "first_pass_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE (closed this pass, proven)",
+    "detail": "The first-pass class is closed and the closure is measured: with the fuzzing corpus excluded from the fixture pool the examples went from 'failed 13' to 'executed 8, failed 5' and 'required rows without evidence' from 'quick_start' to 'none' on the same revision. The repository then advanced to S4 for the first time and was rejected twice there with 'unknown fact ID product_summary:fact_ids; unknown fact ID audience:fact_ids; unknown fact ID problems_solved:fact_ids; unknown fact ID capabilities:fact_ids' - the job wrote the output schema's own key names into the fact_ids array rather than fact IDs. Same family as the first pass's Note rejection ('unknown fact ID OMIT_UNSUPPORTED', a disposition value where a fact ID belongs): a schema field name leaking into a value slot. 1555 facts, 1494 supported.",
+    "resume_predicate": "prompts/source_reconciliation states that fact_ids holds fact IDs only and never a section or field name, and the packet shows the shape by example; re-run present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python. Not landed in this box: a prompt edit needs a full re-run to verify and the box had under 45 minutes left."
+   },
+   {
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+    "source_revision": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
+    "outcome": "NOT_RERUN_IN_THIS_BOX",
+    "failure_class": "CORROBORATED_PRESENTATION_JUDGMENT (first pass, unchanged)",
+    "stage": "S10 review, BC-10",
+    "detail": "Measured but not composed in this box: its public_symbol facts are unchanged by this item's extractor fix (987 facts, 0 UNRESOLVED before and after), so the re-export defect was never its cause and a re-run would have exercised only the review boundary its first-pass disposition already names. The three compositions the box could afford went to the repositories whose blockers this pass actually closed.",
+    "resume_predicate": "unchanged from the first pass: a deterministic check expresses 'the candidate drops detail the original carried', or the reviewer states the missing text in its absent list where absence_defect can look it up"
+   },
+   {
+    "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+    "source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+    "outcome": "NOT_SEALED",
+    "failure_class": "PLANNED_CAPABILITY_TITLE_NAMES_AN_UNVERIFIED_FORMAT",
+    "stage": "S5 presentation_planning",
+    "first_pass_class": "PLANNING_OUTPUT_INVALID_TWICE (closed)",
+    "detail": "The first-pass blocker is gone: presentation_planning's max_output_tokens was raised from 3000 to 6000 under G4-W17 before this box opened, the plan is now well formed and inside its budget, and the facts are complete (339 records, 166 public_symbol, 0 UNRESOLVED). Examples now run - 12 candidates, executed 9, failed 3. The rejection this pass is a genuine content judgment the checks made correctly: 'core_capabilities 4 is titled Export to PDF, which names .pdf; no fact verifies that format, so the title claims what the repository does not prove'. Two attempts, both titling a capability by an unverified output format.",
+    "resume_predicate": "prompts/presentation_planning states that a capability title may name only a format some fact verifies, and the packet lists the verified formats next to the capability slots; re-run present --repo aspose-note-foss/Aspose.Note-FOSS-for-Python"
+   },
+   {
+    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Python",
+    "source_revision": "10a906b48c0c11005c4d93b524e4431901c9717c",
+    "outcome": "ALREADY_SEALED",
+    "failure_class": null,
+    "stage": null,
+    "first_pass_class": "PROSE_NAMES_A_FOREIGN_MODULE_PATH",
+    "detail": "Sealed under G4-W17 between the two passes; the bundle is on disk at candidates/aspose-email-foss__Aspose.Email-FOSS-for-Python. This item measured that its fact set does not move under the extractor fix (185 public_symbol facts, 38 UNRESOLVED before and after, 0 changed), so the seal is not disturbed.",
+    "resume_predicate": null
+   },
+   {
+    "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+    "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+    "outcome": "NOT_SEALED",
+    "failure_class": "API_REFERENCE_HEADING_JUDGED_AS_PROSE (BC-07)",
+    "stage": "S9 validation, BC-07",
+    "first_pass_class": "PROSE_NAMES_A_PRIVATE_PARAMETER",
+    "detail": "Both first-pass blockers closed, and the repository ran its whole pipeline for the first time. Its 25 UNRESOLVED public_symbol facts became SUPPORTED under this item's extractor fix (0 UNRESOLVED after, including aspose_barcode_foss.Code128Options and BarcodeError, the shortest public import paths). Its wheel build fails reproducibly on a clean tree - setuptools' own install_egg_info step, not a path length and not our leftovers - and under the source fallback with the manifest's declared dependencies installed, its examples went not_verified 6, then failed 6 (ModuleNotFoundError: No module named 'PIL'), then executed 6. It then passed S3 to S8: investigation (5 capabilities, 5 workflows, 4 limitations), 59 dispositions, a plan filling 16 of 18 sections, 86 authored units across 8 sections, 0 of 86 revised at coherence, a rendered README of 146 visible lines of 310. The first-pass class PROSE_NAMES_A_PRIVATE_PARAMETER was not reproduced in any reading of this pass. It stopped at S9: BC-07 failed at COMPOSING with \"heading '### renderers.Renderer' is not a shell heading in title case; no repair could act on it\" - validation 8 pass, 1 fail, 2 pending; repair 0 repaired, 1 unrepairable recorded advisory, 1 round.",
+    "resume_predicate": "BC-07's shell-heading rule is deterministic and renderer-owned: an API Reference heading rendered from a public_symbol fact's own value is not authored prose and no content revision can change it, which is exactly why the repair loop recorded it unrepairable. Route it to the renderer boundary - exempt a heading the renderer generated from a SUPPORTED public_symbol value from the title-case rule, or have the renderer title-case it - then re-run present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python. Same shape as G4-W17 arrival item (33) for BC-10, a check rejecting a shape the renderer itself is the source of."
+   },
+   {
+    "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "source_revision": "c4c453b861596d20b3348dbc8d3b70c591e6fd70",
+    "outcome": "NOT_SEALED",
+    "failure_class": "EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME",
+    "stage": "S2 facts, example verification",
+    "first_pass_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE",
+    "detail": "Sharper than the first pass's reading, and not the same cause as PDF's. All 8 candidates end NEEDS_INPUT with FileNotFoundError. Three of the eight name no file literal at all in their source, so stage_fixtures has nothing to match: those examples build the path they open at run time (a variable or an f-string), and a static literal scan cannot see it. Of the five that do name one, the pool served three and the example still failed on a second input it never spelled. The tree is not short of assets - 107 .ttf, 46 .fntdata, 21 .cff, 20 .pfb, 13 .otf - so this is a matching problem, not a scarcity one. 766 facts, 749 supported; required rows without evidence: quick_start.",
+    "resume_predicate": "the fixture pool is served the paths an example actually opens rather than the literals it spells - the honest route is the example's own failure (the FileNotFoundError names the missing path) fed back as a second staging attempt, the same fold-not-reject shape as the NEEDS_INPUT retry already in verify_python_examples; re-run present --repo aspose-font-foss/Aspose.Font-FOSS-for-Python"
+   },
+   {
+    "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+    "source_revision": "912f0ae078b5418226a51de08539bc591547682e",
+    "outcome": "NOT_SEALED",
+    "failure_class": "PLAN_PICKS_A_CONTRADICTED_EXAMPLE_FOR_THE_QUICK_START",
+    "stage": "S5 presentation_planning",
+    "first_pass_class": "QUICK_START_WITHOUT_EXECUTED_EXAMPLE (closed this pass, proven)",
+    "detail": "The strongest movement in the cohort, and both halves are this item's. 107 of its 108 UNRESOLVED public_symbol facts became SUPPORTED under the extractor fix - aspose_html.DOMParser, URL, URLSearchParams, the library's headline API, none of it citable before. Its declared build backend setuptools.backends.legacy:build exists in no setuptools release (confirmed against the live oracle), so pip install . fails for everyone; under the source fallback its examples went from not_verified 7 to executed 6, failed 1, and the preflight went from '493 facts, 484 supported, 8 unresolved; required rows without evidence: quick_start' to '493 facts, 491 supported, 1 unresolved, 1 contradicted; required rows without evidence: none'. Rule 16 working as written: the upstream defect is isolated to the install claim and everything the remaining evidence supports is composed. The first-pass class QUICK_START_WITHOUT_EXECUTED_EXAMPLE is closed and the closure is measured. It stopped at S5, rejected twice with 'fact example:006 is CONTRADICTED, not SUPPORTED': with six executed examples to choose from, the plan twice chose the one that failed.",
+    "resume_predicate": "the presentation_planning packet marks each example fact's polarity beside its ID, or lists only the SUPPORTED examples as candidates for quick_start_example_id, so the job cannot pick a CONTRADICTED one; the guard that rejects it is right and stays. Re-run present --repo aspose-html-foss/Aspose.HTML-FOSS-for-Python. The upstream build-backend defect belongs in the repository's issues log, never in the candidate."
+   },
+   {
+    "repository": "aspose-tex-foss/Aspose.TeX-FOSS-for-Python",
+    "source_revision": "181015d2eee3e19f8af3d84e4a932ac84ad47c7c",
+    "outcome": "NOT_PROCESSABLE",
+    "failure_class": "UPSTREAM_SOURCE_DOES_NOT_PARSE",
+    "stage": "S2 facts",
+    "first_pass_class": "ENTRY_POINT_WITHOUT_EXECUTED_EVIDENCE",
+    "detail": "The first pass recorded the symptom; this pass found the cause and verified it against the live oracle rather than the clone. The repository ships Python source whose indentation is collapsed to one space per level: 35 of its 45 Python files raise SyntaxError under ast.parse, including src/aspose_tex/presentation/__init__.py - the module its own docstring calls the user-facing entry point, and the module that defines TeXJob, TeXOptions and the whole OutputDevice hierarchy. Confirmed by gh api repos/aspose-tex-foss/Aspose.TeX-FOSS-for-Python/contents/src/aspose_tex/presentation/__init__.py at the pinned revision: IndentationError at line 108, 'expected an indented block after function definition on line 107'. The library cannot be imported, which is why nine of ten examples were CONTRADICTED and why TeXJob never became a SUPPORTED fact. No other repository in this cohort has a single unparseable file (Words 218, PDF 133, Cells 109, HTML 104, BarCode 78, Font 72, Page 67, Note 14, Email 13 files, zero errors each). Per loop-prompt rule 16 the defect is recorded here and never inside a candidate; no fallback can compose a public API from source that does not parse.",
+    "resume_predicate": "a later default-branch revision restores the source indentation so ast.parse accepts src/aspose_tex/presentation/__init__.py; then re-run present --repo aspose-tex-foss/Aspose.TeX-FOSS-for-Python"
+   },
+   {
+    "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+    "source_revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+    "outcome": "NOT_SEALED",
+    "failure_class": "RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST",
+    "stage": "S4 source_reconciliation",
+    "first_pass_class": "RECONCILIATION_CANNOT_PLACE_AN_EXCLUDED_SECTIONS_UNIT (not reproduced)",
+    "detail": "The first-pass class did not recur: no placement was refused for naming a section that renders nothing, so G4-W17 items (1) and (15) closed that class for this repository. Its facts are complete and unaffected by this item's extractor fix (728 records, 570 public_symbol, 0 UNRESOLVED). It was rejected twice at S4 with 'unknown fact ID public_symbol:aspose.page.common' - a plausible namespace the job invented rather than a fact it was given. Third instance this pass of one family: a value written into the fact_ids slot that is not a fact ID (PDF wrote the schema's own key names; the first pass's Note wrote a disposition value). The check refusing them is right; the packet does not make the constraint hard enough to obey.",
+    "resume_predicate": "prompts/source_reconciliation states that fact_ids holds only IDs from the supplied packet - never a section name, a field name, or a namespace the job infers - and the packet shows the shape by example; re-run present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python. One prompt edit answers PDF, Page and the first pass's Note together, which is why it is the cohort's highest-leverage next move."
+   }
+  ],
+  "every_repository_accounted_for": true,
+  "sealed": 0,
+  "not_sealed": 7,
+  "not_processable": 1,
+  "state_yaml_note": "project/state.yaml is not edited by this item. schemas/state.schema.json allows only PENDING or BLOCKED_BY_GATE for a next_ready_items entry, so G3-W04 cannot be marked accepted without occupying the single active_work_item slot, which G4-W17 holds for a concurrent agent. Recording the acceptance here rather than taking that slot, and rather than writing a status the schema forbids (section 31, 2026-09-07 11:58, the same single-slot limitation).",
+  "acceptance": [
+   {
+    "predicate": "second-pass cohort report in the G3 gate manifest",
+    "evidence": "this second_pass block: ten repositories, one row each, every row naming its outcome, stage, failure class, first-pass class and resume predicate."
+   },
+   {
+    "predicate": "status prints the sealed count",
+    "evidence": "repository-presenter status prints 7/34 - unchanged by this item, and unchanged BY DESIGN: the extractor fix was measured to leave every sealed bundle byte-identical (3D, Slides and Email for Python, 0 changed facts each)."
+   },
+   {
+    "predicate": "every sealed bundle zero-call proven",
+    "evidence": "no bundle was sealed in this box, so no new no-op proof was owed; the seven existing bundles are untouched, proven by the 0-changed-facts measurement above."
+   },
+   {
+    "predicate": "no check weakened",
+    "evidence": "three code fixes, nine mutation tests, no check relaxed. Every rejection this pass came from a check doing its job (Note S5 refusing a capability titled by an unverified format; PDF S4 refusing a schema key as a fact ID) and is recorded as a failure class, not routed around."
+   },
+   {
+    "predicate": "hosted CI green",
+    "evidence": "runs 34093820580 (e6aa326) and 34095277265 (0e1d13f), Python 3.11/3.12/3.13 pass on each; PRs #22 and #24 merged to main."
+   }
+  ],
+  "in_flight_at_the_box": 0,
+  "highest_leverage_next_move": "One prompts/source_reconciliation edit: fact_ids holds only IDs from the supplied packet, never a section name, a field name, or an inferred namespace. It is the only blocker standing for Aspose.PDF and Aspose.Page for Python, and it is the class the first pass's Note rejection already showed. Second: the presentation_planning packet marks example polarity, which is the only blocker standing for Aspose.HTML."
  }
 }
