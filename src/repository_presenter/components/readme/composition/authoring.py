@@ -60,6 +60,13 @@ _NOT_PROSE = (
 # only after _NOT_PROSE's fence pattern has already removed ```...``` blocks, so a triple-fenced
 # example's own code is never read as a code-span noun candidate.
 _CODE_SPAN = re.compile(r"`([^`\n]*)`")
+# One fenced block of a Markdown value: its info string and its body.
+_FENCED_BLOCK = re.compile(r"^[ \t]*```([^\n`]*)\n(.*?)^[ \t]*```", re.DOTALL | re.MULTILINE)
+# Fence languages that mark a block of commands the maintainers run, never a product claim
+# (README_CONTRACT.md section 2 row 17). The same set reconciliation/dispositions.py judges a
+# command block by; it is spelled again here rather than imported because composition may not
+# import reconciliation - planning.py already imports this module, so that edge would be a cycle.
+_COMMAND_FENCES = frozenset({"bash", "sh", "shell", "console", "zsh", "powershell", "pwsh", "cmd"})
 _MEMBER_CAP = 60
 _TYPE_BATCH = 40  # types described per authoring call: within the manifest's output budget
 _TYPE_OBJECTIVE = (
@@ -714,6 +721,34 @@ def identifier_tokens(text: str) -> set[str]:
     return {token for token in found if not (token.isupper() and token.isalnum())}
 
 
+def command_block_tokens(text: str) -> set[str]:
+    """Identifiers spelled inside ``text``'s shell-command fences.
+
+    A fact's value is added to the allowed set whole, so an identifier a multi-line value spells
+    inside itself never matches on its own: ``identifier_tokens`` was extracted for kind
+    ``example`` alone, and every other kind entered as one opaque string. Measured on Aspose.Cells
+    for Java, 2026-09-07 (docs/RESEARCH_LANE_C.md, PROPOSAL R; RESEARCH_AND_GUIDELINES.md section
+    28.12 G4-W17 arrival item 44): the true sentence *...outputs to docs/apidocs/index.html* was
+    rejected twice, because ``index.html`` is spelled verbatim in the SUPPORTED
+    ``inherited_unit:047.code_block`` - a real Maven build block of the repository's own README -
+    yet only that whole block, never the token, was allowed.
+
+    The extraction is scoped to command fences rather than to every kind's whole value. A block of
+    commands states paths, tools, goals and output files the maintainers run and no product claim,
+    exactly as ``dispositions.command_block_units`` already reads one, so its identifiers are as
+    spellable as an executed example's. Tokens of a fact's running prose, of a code span, and of a
+    source-language fence stay out: an upstream README that merely mentions a symbol the surface no
+    longer carries must not thereby license prose to spell it in a code span, which is the one risk
+    admitting every token of every SUPPORTED fact would have taken (a code-span proper noun is
+    already reached, unwrapped and claiming nothing, by ``prose_nouns``).
+    """
+    found: set[str] = set()
+    for match in _FENCED_BLOCK.finditer(text):
+        if match.group(1).strip().lower() in _COMMAND_FENCES:
+            found.update(identifier_tokens(match.group(2)))
+    return found
+
+
 def source_prose(text: str) -> str:
     """The running prose of a source unit: no fenced block, code span, link target, URL, or tag."""
     for pattern in _NOT_PROSE:
@@ -802,9 +837,15 @@ def forbidden_text_pattern(extra: Sequence[str] = ()) -> str:
 
 def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
     """Identifiers the prose may spell: every SUPPORTED fact value, each dotted suffix of a
-    symbol or import path (``Scene.open`` for ``aspose.threed.Scene.open``), its call form, and
-    the product name's tokens. Citations stay restricted to the section's set; identifiers may
-    name any fact, as the contract requires, because the renderer wraps them in code spans.
+    symbol or import path (``Scene.open`` for ``aspose.threed.Scene.open``), its call form, the
+    identifiers an executed example or a shell-command fence spells inside itself, and the product
+    name's tokens. Citations stay restricted to the section's set; identifiers may name any fact,
+    as the contract requires, because the renderer wraps them in code spans.
+
+    One set feeds all three consumers - this module's ``unit_checks`` guard, ``renderer.prose``'s
+    code spans, and BC-04 in ``validation/registry.py`` - so a token admitted here is spellable,
+    wrapped and validated consistently; fixing the guard alone would only move a rejection to BC-04
+    (RESEARCH_AND_GUIDELINES.md section 28.12 G4-W17 arrival item 44).
     """
     allowed: set[str] = set(product_name_tokens(name))
     allowed.update(REGISTRY_NAMES.values())  # package registries are proper nouns, not APIs
@@ -818,6 +859,10 @@ def allowed_identifiers(facts: FactsDocument, name: str) -> frozenset[str]:
         if fact.kind == "example":
             # Executed code proves every name it uses, a standard-library stream type included.
             allowed.update(identifier_tokens(fact.value))
+        # Whatever the kind: a shell-command fence the value carries - an inherited README block
+        # of Maven, npm or cargo commands - spells paths, tools and output files, never a product
+        # claim, so its identifiers are spellable too (G4-W17 arrival item 44).
+        allowed.update(command_block_tokens(fact.value))
         if fact.kind in {"public_symbol", "import_path"}:
             spellings = [fact.value]
             attributes = fact.attributes or {}
