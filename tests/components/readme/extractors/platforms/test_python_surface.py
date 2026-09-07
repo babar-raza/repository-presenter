@@ -261,3 +261,71 @@ def test_a_later_import_of_the_same_name_wins_and_the_shadowed_class_stays_unres
         if f.polarity == "SUPPORTED" and (f.attributes or {}).get("symbol_kind") == "class"
     ]
     assert verified_classes == ["pkg.Thing"]
+
+
+def test_a_reexport_chain_resolves_at_every_hop_not_only_the_first(tmp_path: Path) -> None:
+    """The shortest public import path is a fact, not an UNRESOLVED one.
+
+    A package re-exporting what another package already re-exported is two hops, and reading
+    only the first left the name a README actually writes (``pkg.BarcodeError``) UNRESOLVED
+    while the long one was SUPPORTED. Measured 2026-09-07: 25 such symbols on Aspose.BarCode
+    for Python, 85 on Aspose.HTML for Python.
+    """
+    _write(tmp_path, "pkg/__init__.py", "from .errors import BarcodeError\n")
+    _write(tmp_path, "pkg/errors/__init__.py", "from .base import BarcodeError\n")
+    _write(tmp_path, "pkg/errors/base.py", "class BarcodeError(Exception):\n    '''Bad.'''\n")
+    surface = inspect_public_surface(tmp_path, ["pkg"])
+    by_name = {symbol.qualified_name: symbol for symbol in surface.symbols}
+    assert by_name["pkg.BarcodeError"].kind == "class"
+    assert by_name["pkg.errors.BarcodeError"].kind == "class"
+    assert not [note for note in surface.unresolved if "BarcodeError" in note]
+    facts = {fact.value: fact for fact in public_symbol_facts(surface)}
+    assert facts["pkg.BarcodeError"].polarity == "SUPPORTED"
+
+
+def test_a_private_module_that_only_forwards_a_name_is_followed_to_the_definition(
+    tmp_path: Path,
+) -> None:
+    """A public name stays public through however many private modules forward it.
+
+    ``aspose_html.dom`` exposes ``BarProp``; ``dom/_window.py`` only forwards it, and reading
+    that file's own body found no definition (measured 2026-09-07, Aspose.HTML for Python).
+    """
+    _write(tmp_path, "pkg/dom/__init__.py", "from ._window import BarProp\n")
+    _write(tmp_path, "pkg/dom/_window.py", "from ._impl import BarProp\n")
+    _write(tmp_path, "pkg/dom/_impl.py", "class BarProp:\n    pass\n")
+    _write(tmp_path, "pkg/__init__.py", "")
+    surface = inspect_public_surface(tmp_path, ["pkg"])
+    by_name = {symbol.qualified_name: symbol for symbol in surface.symbols}
+    assert by_name["pkg.dom.BarProp"].kind == "class"
+    assert not surface.unresolved
+
+
+def test_modules_that_forward_a_name_to_each_other_stay_unresolved(tmp_path: Path) -> None:
+    """A cycle is answered with UNRESOLVED, never a crash - nothing is guessed."""
+    _write(tmp_path, "pkg/__init__.py", "from ._left import Loop\n")
+    _write(tmp_path, "pkg/_left.py", "from ._right import Loop\n")
+    _write(tmp_path, "pkg/_right.py", "from ._left import Loop\n")
+    surface = inspect_public_surface(tmp_path, ["pkg"])
+    loop = next(symbol for symbol in surface.symbols if symbol.name == "Loop")
+    assert loop.kind == "unknown"
+    assert surface.unresolved == ("pkg:1:unresolved-reexport:pkg._left.Loop",)
+
+
+def test_a_package_that_reexports_a_submodule_of_its_own_name_stays_a_module(
+    tmp_path: Path,
+) -> None:
+    """``from . import cfb`` names ``pkg.cfb`` as its own origin; the file system answers it.
+
+    Following the chain alone ends the walk at the symbol it started from, so the exposed
+    submodule would read ``unknown`` (Aspose.Email and Aspose.Words for Python, 2026-09-07).
+    """
+    _write(tmp_path, "pkg/__init__.py", "from . import cfb\n")
+    _write(tmp_path, "pkg/cfb/__init__.py", "from .reader import Reader\n")
+    _write(tmp_path, "pkg/cfb/reader.py", "class Reader:\n    pass\n")
+    surface = inspect_public_surface(tmp_path, ["pkg"])
+    by_name = {symbol.qualified_name: symbol for symbol in surface.symbols}
+    assert by_name["pkg.cfb"].public_by == "reexport"
+    assert by_name["pkg.cfb"].reexported_from == "pkg.cfb"
+    assert by_name["pkg.cfb"].kind == "module"
+    assert not [note for note in surface.unresolved if "unresolved-reexport" in note]
