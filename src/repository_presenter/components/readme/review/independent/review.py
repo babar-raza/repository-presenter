@@ -285,32 +285,52 @@ def absence_defect(
     An omission claim is checkable, so the reviewer states what it claims is missing as strings
     in ``absent`` rather than asserting it in prose; the code looks each one up under the same
     spelling rules that locate a quote. A string the candidate's own named section contains
-    disproves the finding by the candidate's own bytes - scoped to that section, not the whole
+    disproves that one claim by the candidate's own bytes - scoped to that section, not the whole
     document (see ``_section_slice``), because a finding names one section and a coincidental
     match somewhere else in a large README does not disprove a real gap in that section. A string
     that occurs nowhere in the evidence the candidate draws from - the original README and the
-    fact values - is text nobody wrote, so there is nothing to restore. Either way a deterministic
-    check contradicts the finding (docs/README_CONTRACT.md section 6), and nothing here reads the
-    finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8).
+    fact values - is text nobody wrote, so there is nothing to restore.
+
+    A finding may bundle several claims. Every one must be accounted for - refuted by the
+    candidate's own bytes, or proven invented - before the whole finding dismisses; one true,
+    unrefuted, non-invented claim leaves a real remainder, and the finding stands (external
+    review, 2026-09-07: a three-claim finding was previously dismissed in full because two of its
+    three claims were refuted, silently discarding the one that was genuinely true - a candidate's
+    own gap survived only because it was bundled beside two false ones). Nothing here reads the
+    finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8; docs/README_CONTRACT.md
+    section 6).
     """
     claims = _claimed_absent(finding)
+    if not claims:
+        return None
     section_id = str(finding.get("section_id") or "")
     haystack = _section_slice(section_id, candidate_readme)
     present = sorted({claim for claim in claims if quote_located(claim, haystack)})
+    invented = (
+        sorted(
+            {
+                claim
+                for claim in claims
+                if claim not in present and not quote_located(claim, evidence)
+            }
+        )
+        if evidence
+        else []
+    )
+    if set(claims) - set(present) - set(invented):
+        return None  # at least one claim is neither refuted nor invented: a real remainder
+    parts = []
     if present:
-        return (
+        parts.append(
             f"the finding claims the candidate does not contain {_named(present)}, "
             "which the candidate contains"
         )
-    if not evidence:
-        return None
-    invented = sorted({claim for claim in claims if not quote_located(claim, evidence)})
     if invented:
-        return (
+        parts.append(
             f"the finding asks for {_named(invented)}, which occurs in no fact value and "
             "nowhere in the original README: there is nothing to restore"
         )
-    return None
+    return "; ".join(parts)
 
 
 def _named(claims: Sequence[str]) -> str:

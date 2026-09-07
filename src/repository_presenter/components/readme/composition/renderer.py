@@ -56,7 +56,12 @@ API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
 PATCH_FILENAME = "README.patch"
 __all__ = ["renders_verbatim"]  # re-exported for the validator and the tests
-_LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
+# Excludes a hyphen or colon neighbor too, not just a dot or word character: without it, "pdf"
+# inside the package coordinate "aspose-pdf-foss" canonicalized to "aspose-PDF-foss" - altering
+# an exact package name's source spelling, which README_CONTRACT.md section 2 requires verbatim
+# inside a code span, and item (44)/(40)'s new coordinate handling then had nothing but the
+# altered spelling to match against the fact's own (unaltered) value. External review, 2026-09-07.
+_LOWER_WORD = re.compile(r"(?<![.\w:-])[a-z]{3,}(?![\w:-])")
 _WORD = re.compile(r"\b[A-Z][A-Za-z0-9]*\b")
 _EXTENSION = re.compile(r"(?<![\w`.])\.[a-z0-9]{2,}\b")
 _SLUG_STRIP = re.compile(r"[^\w\- ]")

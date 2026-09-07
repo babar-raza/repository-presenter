@@ -508,20 +508,19 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     omission or a substitution the candidate's own bytes contradicted - the API-reference classes,
     the COLLADA export note, and the editable install command were all in the document.
     """
-    omission = {
+    fully_refuted = {
         **_finding("F01", "api_reference", "S6", "It writes `.glb` files."),
         "criterion": "presentation",
         "fact_ids": [],  # this rule reads absent/candidate, never fact_ids
-        "absent": ["ObjSaveOptions", "`.glb`"],
-        "text": "The API reference omits ObjSaveOptions and the GLB output format.",
+        "absent": ["`.glb`"],
+        "text": "The API reference omits the GLB output format.",
     }
-    reason = scope_defect(omission, CANDIDATE, {fact.id: fact for fact in FACTS.facts})
-    # Only the string the candidate actually contains is named, under the candidate's spelling.
+    reason = scope_defect(fully_refuted, CANDIDATE, {fact.id: fact for fact in FACTS.facts})
     assert reason == (
         "the finding claims the candidate does not contain '`.glb`', which the candidate contains"
     )
     document = review_document(
-        {"verdict": "REJECT_PRESENTATION", "findings": [omission], "preserve": []},
+        {"verdict": "REJECT_PRESENTATION", "findings": [fully_refuted], "preserve": []},
         REVIEWER,
         AUTHORING,
         "d" * 64,
@@ -532,8 +531,24 @@ def test_an_absence_the_candidate_disproves_is_the_reviewers_own_defect() -> Non
     assert document["advisory"][0]["reviewer_scope_defect"] == reason
     assert deferred_on_required_rows(document) == []
 
+    # External review, 2026-09-07: a finding bundling one refuted claim with one genuine one must
+    # not dismiss in full - the candidate's own gap must not survive only because a reviewer
+    # happened to bundle it beside a false claim. Every claim must be accounted for before
+    # dismissal; one true, unrefuted remainder leaves the finding standing, and blocking.
+    mixed = {**fully_refuted, "absent": ["ObjSaveOptions", "`.glb`"], "id": "F02"}
+    assert scope_defect(mixed, CANDIDATE, {fact.id: fact for fact in FACTS.facts}) is None
+    stands_mixed = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [mixed], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=FACTS,
+    )
+    assert [f["id"] for f in stands_mixed["findings"]] == ["F02"]
+
     # An absence the candidate really does lack stands, whatever the criterion, and blocks.
-    real = {**omission, "absent": ["ObjSaveOptions"]}
+    real = {**fully_refuted, "absent": ["ObjSaveOptions"]}
     stands = review_document(
         {"verdict": "REJECT_PRESENTATION", "findings": [real], "preserve": []},
         REVIEWER,
@@ -610,6 +625,11 @@ def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_def
     assert scope_defect(inherited, CANDIDATE, by_id, evidence) is None
     # Without the evidence the rule stays silent rather than guessing.
     assert scope_defect(invented, CANDIDATE, by_id) is None
+    # External review, 2026-09-07: a mix of one invented claim and one genuine claim (real text
+    # missing from the candidate) must not dismiss in full either - the same "every claim must be
+    # accounted for" rule as the present/missing mix, now for the invented/genuine mix.
+    mixed = {**invented, "absent": ["pkg.Sym404(1, 2, 3)", "pkg.Sym99"], "id": "F03"}
+    assert scope_defect(mixed, CANDIDATE, by_id, evidence) is None
     document = review_document(
         {"verdict": "REJECT_PRESENTATION", "findings": [invented], "preserve": []},
         REVIEWER,

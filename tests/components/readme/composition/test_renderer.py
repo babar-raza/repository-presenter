@@ -339,18 +339,27 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
 def test_prose_wraps_a_package_coordinate_as_one_code_span_not_a_dotted_prefix() -> None:
     # External audit, 2026-09-07: measured on Aspose.PDF for Java's sealed README - the group and
     # artifact are one coordinate (`org.aspose:aspose-pdf-foss`), but only the dotted `org.aspose`
-    # prefix was ever recognized as a token, so it rendered as `org.aspose`:aspose-PDF-foss - a
-    # broken span with the colon and artifact id sitting outside it. Case differs on purpose here
-    # (fact value lowercase "pdf", prose text uppercase "PDF") - the same mismatch canonical()'s
-    # abbreviation-raising produces for real, matched case-insensitively for coordinates only.
+    # prefix was ever recognized as a token, so it rendered as `org.aspose`:aspose-pdf-foss - a
+    # broken span with the colon and artifact id sitting outside it.
     maven = FactsDocument(
         ENTRY.repository,
         "a" * 40,
         (*FACTS.facts, _fact("package:maven_coordinate", "package", "org.aspose:aspose-pdf-foss")),
     )
     context = RenderContext(ENTRY, maven, PLAN, UNITS, DISPOSITIONS)
-    assert context.prose("The package org.aspose:aspose-PDF-foss provides APIs.") == (
-        "The package `org.aspose:aspose-PDF-foss` provides APIs."
+    # A second external review, the same day: an earlier version of this fix matched the
+    # coordinate case-insensitively, papering over canonical()'s "pdf" -> "PDF" abbreviation-
+    # raising corrupting the coordinate's exact spelling - a README_CONTRACT.md section 2
+    # violation (package names keep their source spelling verbatim). The real fix is at
+    # canonical()'s own source (_LOWER_WORD excludes a hyphen/colon neighbor); the coordinate now
+    # renders with the fact's exact lowercase spelling, unaltered, wrapped as one span.
+    assert context.prose("The package org.aspose:aspose-pdf-foss provides APIs.") == (
+        "The package `org.aspose:aspose-pdf-foss` provides APIs."
+    )
+    # Ordinary prose use of the same abbreviation, well outside any coordinate, still
+    # canonicalizes exactly as before - the fix is scoped to hyphen/colon-adjacent text only.
+    assert context.prose("Read the pdf format documentation.") == (
+        "Read the PDF format documentation."
     )
 
 
