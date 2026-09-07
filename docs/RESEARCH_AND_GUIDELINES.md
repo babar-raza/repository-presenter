@@ -5291,3 +5291,30 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   reduction on every future repair that swaps prose between slots, not a specific repository's
   blocker; no re-run is required to confirm it, though the next repair round of this shape is
   where its effect would show as one fewer wasted attempt.
+
+- **2026-09-07 11:37 (`date` checked) · loop (PROVISIONAL) · lane D PROPOSAL P13 investigated, not
+  landed: the fix as stated does not actually close the class, and a sound one is a bigger design
+  decision than a mechanical fold.** P13 (subordinate to P12/item 36, which already landed and
+  closed its own one concrete case) proposes `composition/authoring.py::unit_checks` "drop the
+  single offending unit and keep the section" the same way `merge_repeated_slots` already repairs
+  a malformed output in place, when the remaining units still satisfy the section's own contract.
+  Measured against the actual function (~line 862-978) before writing any patch: `unit_checks`'s
+  own slot-set check (`sorted(slots_seen) != sorted(expected)`) requires every planned slot filled
+  exactly once - `scope_limitations`'s four `limitation:N` slots are not a minimum-of-four, they
+  are a fixed set the plan itself chose, unlike item 16's repeated `api_hubs` or item 17's
+  over-ceiling links, which had no minimum and so were safe to drop. Dropping the one unit that
+  carries a stray token would trade one hard error (the stray token) for another (a missing slot)
+  - the section's own contract requirement the lane's own caveat names ("when the remaining units
+  still satisfy the section's own contract requirements") is not met for this section shape, so
+  the fix as literally stated would not close the class it targets. A sound fix needs a real
+  design choice this session should not guess at: strip just the offending token from the unit's
+  text in place (`_EDITION.sub(...)`'s own established pattern for the `enterprise_relationship`
+  section, but applied to prose whose author and meaning I cannot verify without a live case) or
+  route a single-unit stray-token defect to a narrower targeted repair rather than a whole-section
+  S6 re-ask - neither is landed here, since P12/item 36 already closed the one concrete case that
+  exposed this (PDF Go's `scope_limitations` section authored 9/9 clean on the next re-run, no
+  stray token left to test a fold against) and I have no other measured occurrence to validate a
+  design against. Not declined as wrong, carried over pending a fresh occurrence. Resume
+  predicate: a future repository that hits this exact shape (one stray token failing one unit
+  inside an otherwise-clean section with a fixed slot count) is the concrete case a real fix
+  should be built and tested against.
