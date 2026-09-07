@@ -779,6 +779,56 @@ def test_a_presentation_finding_against_a_collapsible_sections_chrome_is_the_rev
     assert scope_defect(prose, CANDIDATE, by_id) is None
 
 
+def test_a_presentation_finding_against_verified_surface_is_the_reviewers_defect() -> None:
+    """Lane D PROPOSAL P16. Measured 2026-09-06 on Aspose.Cells for Go: a finding quoted
+    `ExportToCSV`, a SUPPORTED `public_symbol` fact BC-04 had already passed, and asked for it to
+    be deleted as "unsupported" because the upstream README lacked it - judging the candidate
+    against the original README rather than its own fact set, the same shape as the heading and
+    chrome cases, one level lower still (the finding names real content, not renderer chrome)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "public_symbol:cells.exportocsv",
+                "public_symbol",
+                "cells.ExportToCSV",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    deletion_request = {
+        **_finding(
+            "F06",
+            "api_reference",
+            "S6",
+            "- `ExportToCSV`: ExportToCSV writes the worksheet at sheetIndex to a CSV file "
+            "using the given delimiter",
+        ),
+        "criterion": "presentation",
+    }
+    assert scope_defect(deletion_request, CANDIDATE, by_id) == (
+        "the quote names public_symbol:cells.exportocsv, a SUPPORTED fact BC-04 already "
+        "verifies; the candidate's own fact set is the standard of support, not the upstream "
+        "README, and loop-prompt.md rule 8 requires the complete verified surface - absence "
+        "from the original is never itself a presentation defect for content BC-04 already "
+        "verified"
+    )
+    # Mutation: an unverified symbol - not in the fact set at all - is untouched, and a factuality
+    # finding (not presentation) keeps its own route even when it names the same member.
+    unverified = {
+        **_finding("F08", "api_reference", "S6", "- `DeleteWorkbook`: removes the file."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(unverified, CANDIDATE, by_id) is None
+    factual = _finding(
+        "F09", "api_reference", "S6", "- `ExportToCSV`: ExportToCSV writes to JSON, not CSV."
+    )
+    assert scope_defect(factual, CANDIDATE, by_id) is None
+
+
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:
     """Asking for an example that did not execute asks the contract to break its own check 3.
 

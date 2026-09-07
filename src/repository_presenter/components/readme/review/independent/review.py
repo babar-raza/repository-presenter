@@ -297,7 +297,7 @@ def claim_evidence(original_readme: str, facts: FactsDocument | None) -> str:
     return "\n".join([original_readme, *values])
 
 
-def presentation_defect(finding: Mapping[str, Any]) -> str | None:
+def presentation_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
     """Why a presentation finding is the reviewer's own defect, or None when it may stand.
 
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
@@ -320,6 +320,15 @@ def presentation_defect(finding: Mapping[str, Any]) -> str | None:
     ``ADDITIONAL_EXAMPLES_SUMMARY`` exactly, calling the collapsible structure "unnecessary UI";
     routed to authoring's ``additional_examples`` unit, the re-ask rewrote the unit's own prose and
     left the renderer's wrapper - and the finding - unchanged.
+
+    A finding may also name real, verified content rather than renderer chrome and still be no
+    unit's to revise: BC-04 already verifies that every identifier a unit's prose names is a real
+    fact value, and loop-prompt.md rule 8 requires the complete verified surface inside the
+    collapsed API reference by design. Measured 2026-09-06 on Aspose.Cells for Go: a finding quoted
+    ``ExportToCSV``, a SUPPORTED ``public_symbol`` fact BC-04 had already passed, and asked for it
+    to be deleted as "unsupported" because the upstream README lacked it - the reviewer judging
+    against the original README as the standard of support rather than against the facts, the same
+    shape as the heading and chrome cases, one level lower still (lane D PROPOSAL P16).
     """
     if finding.get("criterion") != "presentation":
         return None
@@ -339,6 +348,14 @@ def presentation_defect(finding: Mapping[str, Any]) -> str | None:
         return (
             f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-summary "
             "text; no unit wrote it and none can change it"
+        )
+    verified = _quoted_verified_fact(finding, by_id)
+    if verified is not None:
+        return (
+            f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies; the "
+            "candidate's own fact set is the standard of support, not the upstream README, and "
+            "loop-prompt.md rule 8 requires the complete verified surface - absence from the "
+            "original is never itself a presentation defect for content BC-04 already verified"
         )
     if section not in _DETERMINISTIC_SECTIONS:
         return None
@@ -368,6 +385,32 @@ def _quoted_chrome(finding: Mapping[str, Any]) -> str | None:
     """The renderer's own collapsible-summary text a finding quotes and nothing else, or None."""
     quote = str(finding.get("quote", "")).strip()
     return quote if quote in _RENDERED_CHROME else None
+
+
+_VERIFIED_NAME_LENGTH = 3
+
+
+def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> Fact | None:
+    """A SUPPORTED public_symbol fact whose own bare name the quote contains as a whole word.
+
+    Scoped to ``public_symbol`` alone, never every fact kind: a dotted suffix is only meaningful
+    for a qualified identifier value (``package.Type.Method``) - the same rsplit an ``example``'s
+    multi-line code or a ``format``'s bare extension would match by coincidence, not by naming it
+    (measured while landing this: an unrestricted version matched ``format:output.glb`` against
+    unrelated prose that merely mentioned ``.glb`` files). A reviewer, like a unit's own prose,
+    names the member by its bare name (the convention item 22's ``symbol_names`` already
+    established), not the fully qualified value.
+    """
+    quoted = _normalized(str(finding.get("quote", "")))
+    if not quoted:
+        return None
+    for fact in by_id.values():
+        if fact.kind != "public_symbol" or fact.polarity != "SUPPORTED":
+            continue
+        suffix = fact.value.rsplit(".", 1)[-1].lower()
+        if len(suffix) >= _VERIFIED_NAME_LENGTH and re.search(rf"\b{re.escape(suffix)}\b", quoted):
+            return fact
+    return None
 
 
 # At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,
@@ -536,7 +579,7 @@ def scope_defect(
         quote = str(finding.get("quote", ""))
         return factuality_defect(finding, quote, by_id)
     if criterion == "presentation":
-        return presentation_defect(finding)
+        return presentation_defect(finding, by_id)
     return None
 
 
