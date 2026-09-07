@@ -47,6 +47,12 @@ _DOTTED = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+\b")
 _SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 _CAMEL = re.compile(r"\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b")
 _CALL = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\(\)")
+# A package coordinate ("org.aspose:aspose-pdf-foss") is one token, not a dotted prefix that
+# happens to sit next to a colon. External audit, 2026-09-07: without this, _DOTTED alone
+# matched "org.aspose" and the renderer wrapped only that, leaving ":aspose-PDF-foss" as bare
+# text right after the code span - measured in PDF Java's very first paragraph, the one sealed
+# candidate whose review never even reopened.
+_COORDINATE = re.compile(r"\b[A-Za-z_][A-Za-z0-9_.]*:[A-Za-z0-9_.-]+\b")
 # Where a Markdown source keeps code rather than prose: a word inside any of these is not a word
 # the source wrote, so it never licenses a spelling (prose_nouns).
 _NOT_PROSE = (
@@ -692,11 +698,21 @@ def identifier_allowed(
     methods: dict[str, frozenset[str]] | None = None,
 ) -> bool:
     """A token is allowed as a fact value, a call of one, a verified member, a public method
-    (bare, or as Class.method), or Class.member for a member a verified example uses."""
+    (bare, or as Class.method), or Class.member for a member a verified example uses.
+
+    A package coordinate (``group:artifact``) is matched case-insensitively: ``canonical()``
+    raises a known abbreviation in prose before this runs (``pdf`` to ``PDF``), so the rendered
+    text can carry different casing than the fact's own raw value even though it names the exact
+    same coordinate - a real gap measured 2026-09-07 on ``org.aspose:aspose-pdf-foss``, where the
+    prose form (``...aspose-PDF-foss``) never exact-matched the fact and the coordinate rendered
+    only partly wrapped.
+    """
     methods = methods or {}
     every_method = frozenset(name for found in methods.values() for name in found)
     bare = token[:-2] if token.endswith("()") else token
     if token in allowed or bare in allowed or bare in members or bare in every_method:
+        return True
+    if ":" in bare and bare.lower() in {value.lower() for value in allowed if ":" in value}:
         return True
     if "." in bare:
         head, tail = bare.rsplit(".", 1)
@@ -705,9 +721,10 @@ def identifier_allowed(
 
 
 def identifier_tokens(text: str) -> set[str]:
-    """Tokens the renderer would have to wrap in a code span: dotted, snake, CamelCase, calls."""
+    """Tokens the renderer would have to wrap in a code span: dotted, snake, CamelCase, calls,
+    package coordinates."""
     found: set[str] = set()
-    for pattern in (_DOTTED, _SNAKE, _CAMEL, _CALL):
+    for pattern in (_DOTTED, _SNAKE, _CAMEL, _CALL, _COORDINATE):
         found.update(match.group(0) for match in pattern.finditer(text))
     # An all-capital token with digits (U3D, A3DW, 3MF) is a format acronym, spelled in prose
     # as the contract's canonical abbreviations are, never an identifier.

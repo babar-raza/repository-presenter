@@ -336,6 +336,24 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def test_prose_wraps_a_package_coordinate_as_one_code_span_not_a_dotted_prefix() -> None:
+    # External audit, 2026-09-07: measured on Aspose.PDF for Java's sealed README - the group and
+    # artifact are one coordinate (`org.aspose:aspose-pdf-foss`), but only the dotted `org.aspose`
+    # prefix was ever recognized as a token, so it rendered as `org.aspose`:aspose-PDF-foss - a
+    # broken span with the colon and artifact id sitting outside it. Case differs on purpose here
+    # (fact value lowercase "pdf", prose text uppercase "PDF") - the same mismatch canonical()'s
+    # abbreviation-raising produces for real, matched case-insensitively for coordinates only.
+    maven = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("package:maven_coordinate", "package", "org.aspose:aspose-pdf-foss")),
+    )
+    context = RenderContext(ENTRY, maven, PLAN, UNITS, DISPOSITIONS)
+    assert context.prose("The package org.aspose:aspose-PDF-foss provides APIs.") == (
+        "The package `org.aspose:aspose-PDF-foss` provides APIs."
+    )
+
+
 def test_prose_folds_a_trailing_call_parens_into_the_same_code_span() -> None:
     # External audit, 2026-09-07: the un-widened match left a bare "()" outside the span -
     # `Scene.save`() - measured 16+ times in one sealed candidate and once in an unrelated one.
