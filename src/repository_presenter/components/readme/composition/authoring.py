@@ -700,19 +700,18 @@ def identifier_allowed(
     """A token is allowed as a fact value, a call of one, a verified member, a public method
     (bare, or as Class.method), or Class.member for a member a verified example uses.
 
-    A package coordinate (``group:artifact``) is matched case-insensitively: ``canonical()``
-    raises a known abbreviation in prose before this runs (``pdf`` to ``PDF``), so the rendered
-    text can carry different casing than the fact's own raw value even though it names the exact
-    same coordinate - a real gap measured 2026-09-07 on ``org.aspose:aspose-pdf-foss``, where the
-    prose form (``...aspose-PDF-foss``) never exact-matched the fact and the coordinate rendered
-    only partly wrapped.
+    Exact spelling only - a package coordinate is not matched case-insensitively. An earlier
+    version of this function did (2026-09-07), to work around ``canonical()`` altering a known
+    abbreviation's casing inside a coordinate before this ever ran; external review, the same
+    day, named that a contract violation in the making (README_CONTRACT.md section 2: exact
+    package names keep their source spelling verbatim). The casing corruption is fixed at its
+    own source instead (``_LOWER_WORD``'s hyphen/colon exclusion, renderer.py) - the token this
+    function sees now already carries the fact's own exact spelling, so it needs no laundering.
     """
     methods = methods or {}
     every_method = frozenset(name for found in methods.values() for name in found)
     bare = token[:-2] if token.endswith("()") else token
     if token in allowed or bare in allowed or bare in members or bare in every_method:
-        return True
-    if ":" in bare and bare.lower() in {value.lower() for value in allowed if ":" in value}:
         return True
     if "." in bare:
         head, tail = bare.rsplit(".", 1)
