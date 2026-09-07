@@ -215,7 +215,15 @@ def _dependency_facts(manifest: Path, where: str) -> list[Fact]:
                 ),
             )
         )
-    return facts
+    # By fact ID, which is what `FactsDocument.to_dict` writes them in and what the sealed
+    # `facts.json` therefore holds. The renderer lists this bucket in the facts' own order
+    # (`composition/renderer.py::_dependencies`), so emitting them in `Cargo.toml`'s table order
+    # sealed a README that could not be rendered again from its own bundle: measured 2026-09-07 on
+    # Aspose.Cells for Rust, `tests/test_sealed_bytes.py` re-rendered the seven requirements
+    # alphabetically where the sealed bytes had chrono, zip, sha2, base64, serde_json, roxmltree,
+    # getrandom. The manifest's order is not evidence of anything - Cargo does not rank
+    # requirements - so the deterministic order is the honest one.
+    return sorted(facts, key=lambda fact: fact.id)
 
 
 class RustPlugin:

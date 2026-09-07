@@ -1,0 +1,236 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name"
+    ],
+    "text": "Rust developers building applications that require reading, writing, and manipulating Excel .xlsx files without relying on Microsoft Office or Aspose.Cells Enterprise Edition."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.load_xlsx_from_bytes",
+        "public_symbol:workbook.load_xlsx_from_stream",
+        "public_symbol:loadoptions.try_repair_package"
+      ],
+      "text": "Create new workbooks or load existing .xlsx files from paths, byte arrays, or streams with optional repair and diagnostics.",
+      "title": "Create and load workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cellmut.put_value_string",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_value_bool",
+        "public_symbol:cellmut.put_value_decimal",
+        "public_symbol:cellmut.put_value_date_time",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cell.get_int_value",
+        "public_symbol:cell.get_bool_value"
+      ],
+      "text": "Write and read typed cell values including strings, integers, booleans, decimals, and dates using CellMut and Cell APIs.",
+      "title": "Typed cell value handling"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cellmut.put_formula_with_cached_value",
+        "public_symbol:cell.get_display_string_value",
+        "public_symbol:cell.get_formatted_string_value"
+      ],
+      "text": "Enter formulas with precomputed cached results using CellMut::put_formula_with_cached_value and retrieve formatted display values.",
+      "title": "Formula support with cached values"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellstyle",
+        "public_symbol:font",
+        "public_symbol:fill",
+        "public_symbol:border",
+        "public_symbol:styleflag",
+        "public_symbol:numberformat"
+      ],
+      "text": "Apply comprehensive cell styling including fonts, fills, borders, number formats, alignment, and text wrapping via CellStyle and StyleFlag.",
+      "title": "Styling and formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:formatcondition",
+        "public_symbol:validation",
+        "public_symbol:validationcollection"
+      ],
+      "text": "Apply conditional formatting rules (cell-value, expression, color-scale, data-bar, icon-set) and enforce data validation constraints.",
+      "title": "Conditional formatting and validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheets",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.freeze_pane",
+        "public_symbol:worksheet.auto_filter",
+        "public_symbol:pagesetup",
+        "public_symbol:row",
+        "public_symbol:column"
+      ],
+      "text": "Manage worksheets, rows, columns, merged areas, freeze panes, auto-filters, and page setup including margins, orientation, and page breaks.",
+      "title": "Worksheet structure management"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcollection",
+        "public_symbol:charttype",
+        "public_symbol:picturecollection",
+        "public_symbol:shapecollection",
+        "public_symbol:shape.auto_shape_type",
+        "public_symbol:shape.get_auto_shape_type",
+        "public_symbol:shape.set_auto_shape_type"
+      ],
+      "text": "Embed charts (column, line, bar, pie, scatter, radar, bubble, stock), pictures, and drawing shapes (rectangles, stars, arrows) on worksheets.",
+      "title": "Charts, pictures, and shapes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:documentproperties",
+        "public_symbol:extendeddocumentproperties",
+        "public_symbol:definedname",
+        "public_symbol:comment",
+        "public_symbol:hyperlink",
+        "public_symbol:sparklinegroup"
+      ],
+      "text": "Read and write core and extended document properties, defined names, comments, hyperlinks, and sparkline groups.",
+      "title": "Document properties and metadata"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "text": "Supports only .xlsx (OOXML/SpreadsheetML) format; does not handle legacy .xls (BIFF), ODS, or CSV formats."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "text": "No automated test suite is included; cargo test reports 0 tests."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list",
+        "inherited_unit:012.paragraph"
+      ],
+      "text": "Not yet published to crates.io; must be used as a Git or path dependency."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "text": "The public API surface is not a complete match for Aspose.Cells Enterprise Edition; some features are partial or evolving."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "text": "A workbook must retain at least one worksheet; removing the last worksheet returns CellsError::Unsupported."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name"
+      ],
+      "text": "Enables pure-Rust processing of Excel .xlsx files without requiring Microsoft Office installation or Aspose.Cells proprietary runtime."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cellmut.put_value_string",
+        "public_symbol:cellmut.put_formula_with_cached_value",
+        "public_symbol:cellstyle"
+      ],
+      "text": "Provides typed cell value handling, formula support with cached results, and comprehensive styling capabilities for programmatic spreadsheet generation and modification."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:loadoptions.try_repair_package",
+        "public_symbol:loadoptions.try_repair_xml",
+        "public_symbol:loaddiagnostics"
+      ],
+      "text": "Supports defensive loading of corrupted or malformed XLSX files via LoadOptions repair flags and structured diagnostics reporting."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version"
+    ],
+    "text": "Aspose.Cells FOSS for Rust is a pure-Rust library for creating, loading, editing, and saving Excel .xlsx workbooks without external dependencies or proprietary runtimes."
+  },
+  "uncertainties": [
+    "The exact set of supported chart types and their rendering fidelity is not fully specified beyond the listed families.",
+    "Whether all public symbols listed in the fact dossier are fully implemented and tested is unclear due to absence of automated tests.",
+    "The scope of formula calculation support beyond cached values is not detailed.",
+    "Whether external link resolution and calculation is supported is not evident from the available facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.save_xlsx"
+      ],
+      "name": "Create and save workbook",
+      "text": "Create a new workbook with Workbook::new(), write typed values and formulas to cells, and save to .xlsx using Workbook::save_xlsx()."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.load_xlsx_from_bytes",
+        "public_symbol:workbook.load_xlsx_from_stream",
+        "public_symbol:workbook.get_load_diagnostics"
+      ],
+      "name": "Load and inspect workbook",
+      "text": "Load an existing .xlsx file using Workbook::load_xlsx() or from bytes/stream variants, inspect load diagnostics for issues, and access worksheets and cells."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellstyle",
+        "public_symbol:font",
+        "public_symbol:fill",
+        "public_symbol:border",
+        "public_symbol:conditionalformattingcollection"
+      ],
+      "name": "Apply styling and formatting",
+      "text": "Modify cell styles using CellStyle with Font, Fill, and Borders; apply number formats, alignment, and conditional formatting rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetsmut.add",
+        "public_symbol:worksheet.set_name",
+        "public_symbol:worksheet.freeze_pane",
+        "public_symbol:worksheet.auto_filter",
+        "public_symbol:validation"
+      ],
+      "name": "Manage worksheet structure",
+      "text": "Add, rename, hide, or remove worksheets; configure page setup, freeze panes, auto-filters, and data validation rules."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcollection.add",
+        "public_symbol:picturecollection.add",
+        "public_symbol:shapecollection.add"
+      ],
+      "name": "Embed charts and shapes",
+      "text": "Add charts, pictures, and drawing shapes to worksheets using ChartCollection, PictureCollection, and ShapeCollection."
+    }
+  ]
+}

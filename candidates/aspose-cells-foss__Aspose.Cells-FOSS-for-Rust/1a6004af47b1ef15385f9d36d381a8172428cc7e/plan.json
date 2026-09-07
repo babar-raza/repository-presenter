@@ -1,0 +1,385 @@
+{
+  "additional_example_ids": [],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.save_xlsx"
+      ],
+      "symbol_fact_id": "public_symbol:workbook"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheet.get_cells",
+        "public_symbol:worksheet.get_cells_mut",
+        "public_symbol:worksheet.set_name"
+      ],
+      "symbol_fact_id": "public_symbol:worksheet"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cell.get_value",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cell.get_display_string_value"
+      ],
+      "symbol_fact_id": "public_symbol:cell"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellmut.put_value_string",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_formula_with_cached_value"
+      ],
+      "symbol_fact_id": "public_symbol:cellmut"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellstyle.get_font",
+        "public_symbol:cellstyle.set_number_format",
+        "public_symbol:cellstyle.get_borders"
+      ],
+      "symbol_fact_id": "public_symbol:cellstyle"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformattingcollection.add",
+        "public_symbol:conditionalformattingcollection.get",
+        "public_symbol:formatconditioncollection.add_condition_with_details"
+      ],
+      "symbol_fact_id": "public_symbol:conditionalformattingcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcollection.add",
+        "public_symbol:chartcollection.get",
+        "public_symbol:chartcollection.count"
+      ],
+      "symbol_fact_id": "public_symbol:chartcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:picturecollection.add",
+        "public_symbol:picturecollection.get",
+        "public_symbol:picturecollection.count"
+      ],
+      "symbol_fact_id": "public_symbol:picturecollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:shapecollection.add",
+        "public_symbol:shapecollection.get",
+        "public_symbol:shapecollection.count"
+      ],
+      "symbol_fact_id": "public_symbol:shapecollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:documentproperties.get_title",
+        "public_symbol:documentproperties.get_author",
+        "public_symbol:documentproperties.get_keywords"
+      ],
+      "symbol_fact_id": "public_symbol:documentproperties"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:definedname.get_name",
+        "public_symbol:definedname.set_formula",
+        "public_symbol:definedname.is_hidden"
+      ],
+      "symbol_fact_id": "public_symbol:definedname"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:validationcollection.add",
+        "public_symbol:validationcollection.get",
+        "public_symbol:validationcollection.count"
+      ],
+      "symbol_fact_id": "public_symbol:validationcollection"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and load workbooks",
+      "Typed cell value handling",
+      "Formula support with cached values",
+      "Styling and formatting",
+      "Conditional formatting and validation",
+      "Worksheet structure management",
+      "Charts, pictures, and shapes",
+      "Document properties and metadata"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:workbook.new",
+        "public_symbol:workbook.load_xlsx",
+        "public_symbol:workbook.load_xlsx_from_bytes",
+        "public_symbol:workbook.load_xlsx_from_stream",
+        "public_symbol:loadoptions.try_repair_package"
+      ],
+      "shared_fact_ids": [],
+      "title": "Create and load workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cellmut.put_value_string",
+        "public_symbol:cellmut.put_value_i32",
+        "public_symbol:cellmut.put_value_bool",
+        "public_symbol:cellmut.put_value_decimal",
+        "public_symbol:cellmut.put_value_date_time",
+        "public_symbol:cell.get_string_value",
+        "public_symbol:cell.get_int_value",
+        "public_symbol:cell.get_bool_value"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Typed cell value handling"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:cellmut.put_formula_with_cached_value",
+        "public_symbol:cell.get_display_string_value",
+        "public_symbol:cell.get_formatted_string_value"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Formula support with cached values"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cellstyle",
+        "public_symbol:font",
+        "public_symbol:fill",
+        "public_symbol:border",
+        "public_symbol:styleflag",
+        "public_symbol:numberformat"
+      ],
+      "shared_fact_ids": [],
+      "title": "Styling and formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:formatcondition",
+        "public_symbol:validation",
+        "public_symbol:validationcollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Conditional formatting and validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheets",
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.freeze_pane",
+        "public_symbol:worksheet.auto_filter",
+        "public_symbol:pagesetup",
+        "public_symbol:row",
+        "public_symbol:column"
+      ],
+      "shared_fact_ids": [],
+      "title": "Worksheet structure management"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:chartcollection",
+        "public_symbol:charttype",
+        "public_symbol:picturecollection",
+        "public_symbol:shapecollection",
+        "public_symbol:shape.auto_shape_type",
+        "public_symbol:shape.get_auto_shape_type",
+        "public_symbol:shape.set_auto_shape_type"
+      ],
+      "shared_fact_ids": [],
+      "title": "Charts, pictures, and shapes"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:documentproperties",
+        "public_symbol:extendeddocumentproperties",
+        "public_symbol:definedname",
+        "public_symbol:comment",
+        "public_symbol:hyperlink",
+        "public_symbol:sparklinegroup"
+      ],
+      "shared_fact_ids": [],
+      "title": "Document properties and metadata"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section_id": "additional_examples",
+      "text": "No additional examples are included because no further SUPPORTED examples were identified beyond the quick start example."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook",
+        "public_symbol:worksheet",
+        "public_symbol:cell",
+        "public_symbol:cellmut",
+        "public_symbol:cellstyle",
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:chartcollection",
+        "public_symbol:picturecollection",
+        "public_symbol:shapecollection",
+        "public_symbol:documentproperties",
+        "public_symbol:definedname",
+        "public_symbol:comment",
+        "public_symbol:hyperlink",
+        "public_symbol:sparklinegroup"
+      ],
+      "section_id": "api_reference",
+      "text": "The API reference section is included as a collapsible section per the shell policy for repositories with a large public surface."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:074.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

@@ -233,3 +233,40 @@ def test_the_machines_own_paths_never_reach_a_receipt(tmp_path: Path) -> None:
     noisy = f"error: could not read {tmp_path.as_posix()}/crate/src/lib.rs"
     assert str(tmp_path) not in rust_examples._scrub(noisy, tmp_path)
     assert tmp_path.as_posix() not in rust_examples._scrub(noisy, tmp_path)
+
+
+def test_two_runs_of_the_same_example_produce_the_same_receipt(
+    tmp_path: Path, crate: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Cargo prints its own wall-clock cost on the line that closes every check, which cannot
+    repeat between two runs of the same example by its very nature.
+
+    Measured 2026-09-07 on Aspose.Cells for Rust: the candidate sealed with BC-01 to BC-10 green
+    and the fresh-process rerun withdrew its own no-op proof - "examples.json changed since the
+    last seal" - because `Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s` was
+    stored verbatim in the receipt and read 0.61s the second time.
+    """
+    monkeypatch.setattr(rust_examples, "cargo_executable", lambda: "cargo")
+    monkeypatch.setattr(rust_examples, "rustup_home", lambda cargo: None)
+
+    def run_once(elapsed: str) -> list:
+        finished = f"    Finished `dev` profile [unoptimized + debuginfo] target(s) in {elapsed}\n"
+
+        def fake_execute(argv, *, workspace, timeout_seconds, extra_environment=None, **kwargs):
+            if argv[1] == "--version":
+                return _result(0, stdout="cargo 1.98.1 (797e8a9bc 2026-08-05)\n")
+            checking = f"    Checking {CRATE} v26.7.0 ({tmp_path.as_posix()}/run/crate)\n"
+            return _result(0, stderr=checking + finished)
+
+        monkeypatch.setattr(rust_examples, "execute", fake_execute)
+        return rust_examples.verify_rust_examples(
+            crate, CRATE, LIB, [_candidate(1, "let w = 1;")], tmp_path / "run", TIMEOUT
+        )
+
+    first = run_once("0.55s")
+    second = run_once("1m 04s")
+    assert [r.outcome for r in first] == [r.outcome for r in second] == ["EXECUTED"]
+    assert [r.stderr for r in first] == [r.stderr for r in second]
+    assert "0.55s" not in first[0].stderr and "target(s)" in first[0].stderr
+    # The toolchain version stays: a check is only as reproducible as the toolchain that ran it.
+    assert "cargo 1.98.1" in (first[0].detail or "")

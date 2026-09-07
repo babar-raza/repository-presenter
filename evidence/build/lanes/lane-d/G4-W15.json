@@ -659,5 +659,168 @@
       }
     ],
     "not_claimed": "BC-11, the byte-identical zero-call rerun, is PENDING and was never judged. This candidate is one check from sealing, not sealed."
+  },
+  "rerun_4_2026_09_07": {
+    "why": "Both blockers PROPOSAL P14's disposition named landed on main: b30bd80 gives the narration guard a fourth exemption for a phrase already spelled in a SUPPORTED inherited_unit fact (P14 itself), and cd6a705 widens G4-W17 item 23 so a dropped protected command carries its destination section into the Failure (P15/P18). Only aspose-pdf-foss/Aspose-PDF-FOSS-for-Go was re-run under this block; Cells Rust was re-run in the same session under G4-W16's rerun_3_2026_09_07, and Cells Go was not touched - PROPOSAL P13 is carried over, not landed (869fcc7 records the reviewer's finding that the fix as stated does not close its class).",
+    "control_revision": "869fcc7",
+    "worktree": "C:\\w\\d15r4 (fresh, branch lane-d/G4-W15-r4 off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+    "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+    "toolchain": {
+      "tool": "go",
+      "resolved_by": "shutil.which(\"go\")",
+      "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+      "version": "go1.26.4 windows/amd64"
+    },
+    "lane_owned_changes": [],
+    "lane_owned_changes_note": "No code changed for this repository this run. The lane's platforms/go.py and go_examples.py needed nothing - go's receipts carry no wall-clock token, unlike cargo's (see G4-W16's rerun_3_2026_09_07) - and both remaining blockers are shared code.",
+    "attempts": {
+      "first_launch_died_at_S3_on_sampling": "The first launch of `present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` ended at S3: repository_investigation was rejected twice for citing a fact ID that does not exist - attempt 1 'unknown fact ID inherited_unit:080.list', attempt 2 'unknown fact ID inherited_unit:080.paragraph'. The facts hold inherited_unit:080.heading; the job guessed the type suffix of a real index both times. Recorded as sampling variance, not a class: the same job succeeded on attempt 2 of the next launch with the same prompt digest (a72f8e20...) and the same 1,620 facts, exactly as it did on 2026-09-06.",
+      "second_launch": "reached S9 and is the run this block reports."
+    },
+    "resume_predicate_met": true,
+    "class_cleared": {
+      "class": "BC07_INHERITED_VOCABULARY_READ_AS_NARRATION",
+      "proposal": "P14 / G4-W17, landed as b30bd80",
+      "verdict": "CLOSED for aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+      "evidence": {
+        "before": "2026-09-06 23:06: BC-07 FAILED on internal narration 'validator', the word the candidate took from the repository's own sentence 'confirm full conformance with a dedicated validator such as veraPDF'; the routed repair wrote back byte-identical prose and the failure re-raised.",
+        "after": "BC-07 PASSES on the same repository at the same source revision with the same 1,620 facts. Nothing else about the guard changed."
+      }
+    },
+    "second_class_half_cleared": {
+      "class": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND (the routing half)",
+      "proposal": "P15 / P18 / G4-W17 item 23, landed as cd6a705",
+      "verdict": "ROUTING CLOSED, REPAIR STILL IMPOSSIBLE - see PROPOSAL P19",
+      "evidence": {
+        "before": "2026-09-06 23:06: both BC-08 failures carried section_id null and S7 recorded outcome 'unrepairable', reason 'no failing check names an LLM-owned section'. No repair was ever attempted.",
+        "after": "The single remaining BC-08 failure carries section_id 'development_testing' and S7 attempted the repair - two provider calls it never made before. Both attempts were rejected by the same guard: 'revised_output: unit summary: text contains HTML (\\'<\\')'. The protected command is `go run ./_examples/<name>`."
+      }
+    },
+    "stage_outcomes": [
+      {
+        "stage": "S3",
+        "job": "repository_investigation",
+        "calls": 2,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": "fact example:004 is UNRESOLVED, not SUPPORTED"
+      },
+      {
+        "stage": "S4",
+        "job": "source_reconciliation",
+        "calls": 1,
+        "result": "success on attempt 1"
+      },
+      {
+        "stage": "S5",
+        "job": "presentation_planning",
+        "calls": 2,
+        "result": "success on attempt 2",
+        "rejection_on_attempt_1": "twelve unknown format: fact IDs (format:pdf, format:png, format:jpeg, format:gif, format:bmp, format:tiff, format:html, format:svg, format:markdown, format:docx, format:xlsx, format:epub) - this repository has no format facts, the same shape as 2026-09-06"
+      },
+      {
+        "stage": "S6",
+        "job": "section_authoring",
+        "calls": 10,
+        "result": "success - 10 of 10 calls clean on attempt 1"
+      },
+      {
+        "stage": "S8",
+        "job": "render",
+        "calls": 0,
+        "result": "README.md 212 visible lines of 844; README.patch written"
+      },
+      {
+        "stage": "S9",
+        "job": "validation",
+        "calls": 0,
+        "result": "FAIL - pass 7, fail 2, pending 2"
+      },
+      {
+        "stage": "S7",
+        "job": "targeted_repair",
+        "calls": 2,
+        "result": "0 repaired, 2 unrepairable recorded advisory, 1 re-raised after repair; rounds 2. BC-08 was routed to development_testing and rejected twice on the HTML guard; BC-06 carried no section and was never attempted."
+      }
+    ],
+    "provider_calls": {
+      "this_run": 17,
+      "first_aborted_launch": 2,
+      "note": "19 calls in total for this repository this session; the aborted launch made 2."
+    },
+    "candidate": {
+      "facts": "1620 records: public_symbol 1467, inherited_unit 90, link_target 43, example 6, identity 5, build_test_asset 2, package 2, dependency 1, import_path 1, install_command 1, license 2",
+      "examples": "6 candidates; executed 5, not_verified 1",
+      "plan": "sections 17/18, capabilities 8, hubs 4, examples 1+3, links 6, limitations 1",
+      "units": "35 units across 9 sections",
+      "coherence": "0 of 35 units revised",
+      "dispositions": "90 units: VERIFIED_PRESERVE 57, SUPERSEDE_REDUNDANT 20, NON_CONTENT 4, DEFER_UNRESOLVED 3, OMIT_UNSUPPORTED 3, VERIFIED_MOVE 3",
+      "readme": "212 visible lines of 844",
+      "readme_digest": "41456389ccf0ee8307d2e0f8b25a5b2de818144be11f2e7894f6a15f7fe07fe5",
+      "validation_digest": "c6d48e3db9fd13b20140e1d460dc4b9af73f6aa03ffd56e08508b71ede8caef9"
+    },
+    "checks_passed": [
+      "BC-01",
+      "BC-02",
+      "BC-03",
+      "BC-04",
+      "BC-05",
+      "BC-07",
+      "BC-09"
+    ],
+    "checks_pending": {
+      "BC-10": "PENDING, judged at S10 - never reached; the independent review is still unmeasured for this repository",
+      "BC-11": "PENDING, judged at S12 - never reached"
+    },
+    "checks_failed": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "check": "BC-08",
+        "causal_stage": "COMPOSING",
+        "section_id": "development_testing",
+        "detail": "inherited_unit:085.paragraph: VERIFIED_PRESERVE keeps the command 'go run ./_examples/<name>' but the candidate does not render it",
+        "class": "BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE",
+        "proposal": "P19",
+        "shared_code": "composition/authoring.py _FORBIDDEN line 115 ('<', 'HTML'), enforced at line 958",
+        "measured": {
+          "the_repair_now_runs": "cd6a705 did what item 23 said: section_id is 'development_testing', not null, and targeted_repair made two calls where the last run made none.",
+          "and_cannot_succeed": "Both calls were rejected identically - 'revised_output: unit summary: text contains HTML (\\'<\\')'. The command BC-08 demands the unit render is `go run ./_examples/<name>`; every unit text containing '<' anywhere is rejected, so the one text that would satisfy the check is unwritable.",
+          "the_sibling_dropped_command_is_gone": "Last run's other BC-08 failure, inherited_unit:025.paragraph's 'go run ./_examples/feature_showcase', is rendered this run (README.md line 224) and no longer fails."
+        }
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "check": "BC-06",
+        "causal_stage": "COMPOSING",
+        "section_id": null,
+        "detail": "#encryption-and-signing: no heading #encryption-and-signing",
+        "class": "BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED",
+        "proposal": "P20",
+        "shared_code": "validation/registry.py::_check_links line 638; the placement that preserves the unit verbatim",
+        "measured": {
+          "where_it_is": "README.md lines 222-224, inside a VERIFIED_PRESERVE inherited unit copied verbatim from the upstream README: 'encryption (RC4 / AES-128 / AES-256) is covered in [Encryption and Signing](#encryption-and-signing) below'.",
+          "why_it_breaks": "The candidate's 17-of-18-section plan renders no 'Encryption and Signing' heading - its own heading list runs Navigation, At a Glance, Key Capabilities, Installation, Dependencies, Quick Start, Additional Examples, API Reference, Documentation & Resources, Scope and Limitations, Development and Testing, License - so the upstream anchor points at nothing.",
+          "no_repair_could_act": "_check_links builds Failure('COMPOSING', detail) with no section, so S7 recorded 'unrepairable', 'no failing check names an LLM-owned section' - the exact shape item 23 has just fixed for BC-08 and did not fix here.",
+          "first_occurrence": "BC-06 has never failed this way before in this lane: the previous run's BC-06 passed, and this unit reached the document because this run's dispositions preserved 57 units where the last run preserved 45."
+        }
+      }
+    ],
+    "proposals": [
+      "P19 composition/authoring.py's _FORBIDDEN entry ('<', 'HTML') makes a protected command containing an angle-bracket placeholder unwritable: BC-08 demands the unit render `go run ./_examples/<name>`, and both repair attempts were rejected for the '<'. Exempt angle brackets inside an inline code span (the same reasoning as item 36's code-span exemption for prose nouns), or at minimum exempt text a BC-08 failure itself demands.",
+      "P20 validation/registry.py::_check_links raises an anchor failure with no section_id, so an intra-document link inside a VERIFIED_PRESERVE unit is unrepairable by construction - the same routing defect item 23 has just fixed for BC-08. Locate the section whose rendered text carries the link (the narration guard already does exactly this) and pass it; and upstream of that, a preserved unit's anchor to a heading the plan does not render should be resolved or dropped when the unit is placed, not left to fail at S9."
+    ],
+    "sealed": false,
+    "dispositions_now": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+        "source_revision": "2306eeb06216be4d9cb663adcb85155594572c11",
+        "reason_code": "BLOCKED_SHARED_CODE",
+        "failure_class": "BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE",
+        "beside_it": "BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED",
+        "supersedes": "BC07_INHERITED_VOCABULARY_READ_AS_NARRATION - closed by b30bd80, measured: BC-07 green on the same sentence that failed it twice",
+        "resume_predicate": "PROPOSAL P19 and PROPOSAL P20 landed on main; then rerun `repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch"
+      }
+    ],
+    "not_claimed": "The run ends at S9 with two failing checks. BC-10 and BC-11 are PENDING and were never judged; nothing here says the independent review or the no-op proof would pass. The S3 sampling failure that ended the first launch is recorded as one observation, not a class: a single occurrence is not a rule."
   }
 }

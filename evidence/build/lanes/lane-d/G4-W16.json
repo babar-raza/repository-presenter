@@ -300,5 +300,110 @@
     ],
     "observation_not_a_proposal": "Example verification returned 1 executed of 7 candidates where the 14:05 run type-checked its Quick Start, and the plan carries 'examples 1+0'. Not investigated and not the blocker - BC-03 passed on what was rendered - but worth a look before the next attempt.",
     "not_claimed": "BC-10 and BC-11 are PENDING and were never judged."
+  },
+  "rerun_3_2026_09_07": {
+    "why": "PROPOSAL P17 was investigated by the reviewer and not landed (e09f31e: the crates.io probe already sends a named User-Agent, so the proposed fix would have been a no-op, and a live check answered normally). The reviewer's instruction was to re-run and measure. G4-W17 item 23 as widened by PROPOSAL P18 did land, at cd6a705.",
+    "control_revision": "869fcc7",
+    "worktree": "C:\\w\\d16r3 (fresh, branch lane-d/G4-W16-r3 off origin/main; .venv from C:\\Python313)",
+    "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+    "source_revision": "1a6004af47b1ef15385f9d36d381a8172428cc7e",
+    "toolchain": {
+      "tool": "cargo",
+      "resolved_by": "the `cargo` key of C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt; nothing on PATH",
+      "path": "C:\\tools\\rp-toolchains\\rustup\\cargo-home\\bin\\cargo.exe",
+      "version": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+    },
+    "sealed": true,
+    "seal": {
+      "bundle": "candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Rust/1a6004af47b1ef15385f9d36d381a8172428cc7e",
+      "state": "READY_FOR_PROPOSAL",
+      "files": 14,
+      "sealed_at": "2026-09-07T08:01:18Z",
+      "no_op_proof": {
+        "byte_identical": true,
+        "fresh_process": true,
+        "provider_calls": 0,
+        "proven_at": "2026-09-07T08:01:18Z"
+      },
+      "checks": "BC-01 to BC-11 all PASS; validation summary pass 11, fail 0, pending 0",
+      "readme": "174 visible lines of 894; digest 73fd62a4fd3a76c952e45803ecc87c7e640cb5e69e703dc082f3ee3284c4a1db",
+      "status_line": "`repository-presenter status` from this tree prints 'candidates: 8/34 current reviewable no-op-proven' and reports the cursor as stale at 7, which is why this commit sets project/state.yaml progress.current_candidates to a fresh count of sealed bundles on disk in the rebased tree (loop-prompt-lane.md section 0's named exception).",
+      "renders_its_own_bytes": "tests/test_sealed_bytes.py re-renders this bundle's README from its own facts.json, plan.json, content_units.json and dispositions.json and gets the sealed bytes exactly (measured directly: identical, 54,741 characters both sides, 0 diff lines)."
+    },
+    "classes_cleared": [
+      {
+        "class": "BC02_REGISTRY_UNREADABLE_FAILS_CLOSED",
+        "proposal": "P17 - closed by measurement, with no code change",
+        "verdict": "TRANSIENT, not a defect in the probe",
+        "evidence": {
+          "independent_live_check": "Before the run, default_fetch('https://crates.io/api/v1/crates/aspose-cells-foss-rust') returned HTTP 404 in 780 ms and cargo.check_published returned published=False, ambiguous=False in 561 ms - conclusive, not a connection failure.",
+          "the_run_itself": "probes.json records registry 'cargo:aspose-cells-foss-rust' outcome CONTRADICTED, and BC-02 PASSES on item (0)'s verified source-build path, exactly as at 14:05 on 2026-09-06.",
+          "what_P17_read_as_refusal_persists_and_is_harmless": "The link probe of the bare https://crates.io/ root still returns 404 (1,314 ms this run) while the API answers normally, so the root 404 P17 cited was never evidence that the request was refused. The reviewer's reading holds."
+        }
+      },
+      {
+        "class": "BC08_REWRITE_DROPS_A_PROTECTED_COMMAND",
+        "proposal": "P18 / G4-W17 item 23, landed as cd6a705",
+        "verdict": "CLOSED for aspose-cells-foss/Aspose.Cells-FOSS-for-Rust",
+        "evidence": {
+          "before": "2026-09-06 23:18: two BC-08 failures on a VERIFIED_PRESERVE unit, section_id null, repair 'unrepairable', 'no failing check names an LLM-owned section'.",
+          "after": "The failure carried section_id 'development_testing'; repair R01 re-authored that unit's own text to add `cargo bench` and `cargo doc --no-deps --open` (repairs.json records before and after), and BC-08 PASSES. One repair, one round, no re-raise."
+        }
+      }
+    ],
+    "lane_owned_changes": [
+      {
+        "file": "src/repository_presenter/components/readme/extractors/platforms/rust_examples.py",
+        "decision": "D16",
+        "change": "_scrub now removes cargo's closing wall-clock duration - the ` in 0.55s` of 'Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s' - keeping the line and the toolchain version. Same cut, and the same reason, as .NET's `Time Elapsed` line in net_examples.py.",
+        "why": "Measured this session: the candidate sealed with BC-01 to BC-10 green, and the fresh-process rerun withdrew its own proof - 'examples.json changed since the last seal' - because that one duration is stored verbatim in the receipt. Without the cut BC-11 is unprovable for any crate whose examples compile at all.",
+        "test": "tests/.../test_rust_examples.py::test_two_runs_of_the_same_example_produce_the_same_receipt - two runs whose only difference is 0.55s versus 1m 04s produce identical receipts."
+      },
+      {
+        "file": "src/repository_presenter/components/readme/extractors/platforms/rust.py",
+        "decision": "D17",
+        "change": "_dependency_facts returns its facts sorted by fact ID, the order FactsDocument.to_dict writes them in, instead of Cargo.toml's table order.",
+        "why": "tests/test_sealed_bytes.py went red on the first Rust bundle: the renderer lists the dependency bucket in the facts' own order, so the sealed README carried chrono, zip, sha2, base64, serde_json, roxmltree, getrandom while re-rendering the same bundle from its stored (sorted) facts.json produced them alphabetically - a candidate whose bytes are not a function of its own bundle. Cargo does not rank requirements, so the manifest's order is not evidence of anything and the deterministic order is honest.",
+        "test": "tests/.../test_rust.py::test_the_dependency_snapshot_is_emitted_in_the_order_a_bundle_stores_it",
+        "consequence": "The bundle sealed before this fix was discarded and re-sealed: the pipeline parks a changed composition as 'valid update available' rather than overwriting a proven seal, so the untracked bundle directory was removed and the run repeated. The committed bundle is the post-fix one."
+      }
+    ],
+    "run_sequence": [
+      "1. present -> 26 provider calls, BC-01 to BC-10 PASS, bundle sealed, BC-11 pending.",
+      "2. present (fresh process) -> 0 provider calls, but 're-sealed: examples.json changed since the last seal; proof withdrawn'. Cargo's timing line is the only difference.",
+      "3. Decision D16 in the lane's own rust_examples.py; focused tests green.",
+      "4. present, then present -> 'no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged'.",
+      "5. The full local CI-equivalent then went red on tests/test_sealed_bytes.py: the sealed README did not re-render from its own bundle - the dependency bucket's order. Decision D17 in the lane's own rust.py; focused tests green.",
+      "6. The bundle was removed and present run twice more: sealed at 2026-09-07T08:01:18Z and no-op proven in the same minute, 0 provider calls in both runs, and the sealed bytes now re-render exactly."
+    ],
+    "candidate": {
+      "facts": "2224 records: public_symbol 2084, inherited_unit 81, link_target 32, dependency 7, example 7, identity 5, package 3, license 2, build_test_asset 1, import_path 1, install_command 1",
+      "examples": "7 candidates; executed 1, not_verified 6 (six fences are excerpts opening on an unbound binding)",
+      "plan": "sections 16/18, capabilities 8, hubs 12, examples 1+0, links 8, limitations 1",
+      "units": "143 units across 8 sections",
+      "coherence": "0 of 143 units revised",
+      "dispositions": "81 units: VERIFIED_PRESERVE 40, SUPERSEDE_REDUNDANT 26, DEFER_UNRESOLVED 8, NON_CONTENT 4, VERIFIED_REWRITE 3",
+      "readme_digest": "73fd62a4fd3a76c952e45803ecc87c7e640cb5e69e703dc082f3ee3284c4a1db",
+      "validation_digest": "273815cdb214803733e1c7f3f488f98c7743c8acb9c04f49fb634c8b1ba97976"
+    },
+    "review": {
+      "verdict": "ACCEPT",
+      "verdict_as_returned": "REJECT_PRESENTATION",
+      "blocking_findings": 0,
+      "advisory": 7,
+      "second_reader": "read=false; no second read was taken, so the two-reader rule folded nothing",
+      "how_each_finding_folded": "F03 quotes a renderer-emitted heading; F04 claims an absence the candidate disproves ('cargo check' is present); F05 quotes the renderer's own sentence; F01 and F02 are against installation, a deterministic section. F06 (scope_limitations) and F07 (development_testing) folded on one rule only - see the observation below.",
+      "note_on_the_second_composition": "The composition that sealed is the one made after D17; its review record is the same reply (digest 7dd0344b...), reused from stored output, with 0 blocking findings and 7 advisory."
+    },
+    "observation_not_a_proposal_but_measured": {
+      "what": "review.py::_quoted_verified_fact folds a presentation finding whenever the quote contains, as a whole word, the bare name of any SUPPORTED public_symbol fact of three characters or more. On this crate's 2,084-symbol surface those bare names include Rust's trait methods `from`, `new` and `fmt`, and the product word `cells`.",
+      "measured": "Calling presentation_defect on this bundle's own review.json and facts.json: F01 and F02 matched public_symbol:borderlinestyle.from on the word 'from' in 'build it from a source checkout', F04 matched public_symbol:border.new, F06 matched public_symbol:cells on the product name, F07 matched public_symbol:cellarea.fmt on `cargo fmt`. With the rule disabled, F01 and F02 still fold (installation is deterministic) and F04 still folds earlier in the chain (absence_defect), but F06 and F07 - both on LLM-owned sections - would stand and block BC-10.",
+      "why_it_is_recorded_here": "The seal is honest against the code as landed and every check was judged as written, but two of the seven folds rest on an ordinary English word colliding with a symbol name rather than on a reviewer scope defect. Lane D does not own review/ and is not proposing a fix inside this item; it is recorded as PROPOSAL P21 so the owner can decide whether the rule needs a narrower test (a qualified name, a code span, or a casing rule) before more candidates seal through it."
+    },
+    "proposals": [
+      "P21 review/independent/review.py::_quoted_verified_fact matches any SUPPORTED public_symbol bare name of three characters or more as a whole word in a finding's quote. On a large Rust surface that includes `from`, `new`, `fmt` and `cells`, so ordinary English prose folds presentation findings that name nothing verified. Measured on Aspose.Cells for Rust: two of seven findings (F06, F07, both on LLM-owned sections) fold on this rule alone. Narrow it - require the qualified value, or a code span, or a name that is not an ordinary word - without losing item 33's ExportToCSV case.",
+      "P22 no rule says an extractor must emit facts in the order a bundle stores them, but the sealed-bytes control requires it: FactsDocument.to_dict writes facts sorted by ID while composition/renderer.py::_dependencies lists the bucket in the facts' own order, so any ecosystem whose extractor emits in manifest order seals a README it cannot re-render (lane D hit it on the first Rust bundle, D17). Fix it once in shared code - sort the bucket in the renderer, or keep FactsDocument's facts sorted at construction - so no future plugin can reintroduce it."
+    ],
+    "not_claimed": "Nothing here claims the other two lane D repositories moved. Aspose-PDF-FOSS-for-Go was re-run separately (G4-W15 rerun_4_2026_09_07) and did not seal; Aspose.Cells-FOSS-for-Go was not run at all this session - PROPOSAL P13 is carried over, not landed."
   }
 }

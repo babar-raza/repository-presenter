@@ -1,0 +1,165 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "crates.io"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:019"
+      ],
+      "id": "F01",
+      "quote": "aspose-cells-foss-rust is not yet published on crates.io; build it from a source checkout instead, verified against this revision:",
+      "repair": "Include the fact that the crate is not yet published to crates.io and explain the current workaround using git dependencies.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'crates.io', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate installation section omits the critical fact that the crate is not yet published to crates.io, which is a key constraint for users."
+    },
+    {
+      "absent": [
+        "Purpose of each dependency"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:base64",
+        "dependency:chrono",
+        "dependency:getrandom",
+        "dependency:roxmltree",
+        "dependency:serde_json",
+        "dependency:sha2",
+        "dependency:zip"
+      ],
+      "id": "F02",
+      "quote": "### Required Package Dependencies",
+      "repair": "Add a brief explanation of what each dependency is used for in the library.",
+      "reviewer_scope_defect": "the finding asks for 'Purpose of each dependency', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "dependencies",
+      "text": "The candidate dependencies section lists dependencies without explaining their purpose, which reduces clarity for users."
+    },
+    {
+      "absent": [
+        "Expected output comment"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001"
+      ],
+      "id": "F03",
+      "quote": "    // Load it back.",
+      "repair": "Add a comment explaining the expected output of the example, such as 'Prints the value of cell A1'.",
+      "reviewer_scope_defect": "the finding asks for 'Expected output comment', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "quick_start",
+      "text": "The candidate quick start example lacks a comment explaining the expected output, which reduces its usefulness for new users."
+    },
+    {
+      "absent": [
+        "Grouping by functionality"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:workbook",
+        "public_symbol:worksheet",
+        "public_symbol:cell",
+        "public_symbol:cellmut",
+        "public_symbol:cellstyle",
+        "public_symbol:conditionalformattingcollection",
+        "public_symbol:chartcollection",
+        "public_symbol:picturecollection",
+        "public_symbol:shapecollection",
+        "public_symbol:documentproperties",
+        "public_symbol:definedname",
+        "public_symbol:comment",
+        "public_symbol:hyperlink",
+        "public_symbol:sparklinegroup"
+      ],
+      "id": "F04",
+      "quote": "### Core API",
+      "repair": "Group the API reference by functionality (e.g., workbook, worksheet, cell, styling, validation) to improve navigation.",
+      "reviewer_scope_defect": "the finding asks for 'Grouping by functionality', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "api_reference",
+      "text": "The candidate API reference section includes a large table of structs without grouping them by functionality, which makes it harder to navigate."
+    },
+    {
+      "absent": [
+        "Clear distinction between current limitations and future plans"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:074.list"
+      ],
+      "id": "F05",
+      "quote": "The public API surface is broad but incomplete compared to Aspose.Cells, with some features still partial as the crate is early-stage and evolving.",
+      "repair": "Clarify which limitations are current and which are planned for future releases.",
+      "reviewer_scope_defect": "the finding asks for 'Clear distinction between current limitations and future plans', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "scope_limitations",
+      "text": "The candidate scope and limitations section does not clearly distinguish between current limitations and future plans, which can mislead users."
+    },
+    {
+      "absent": [
+        "Explanation of the code block"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:ci"
+      ],
+      "id": "F06",
+      "quote": "```bash",
+      "repair": "Add a brief explanation of what each command in the code block does and why it is important for development and testing.",
+      "reviewer_scope_defect": "the finding asks for 'Explanation of the code block', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "development_testing",
+      "text": "The candidate development and testing section includes a code block that is not clearly explained, which reduces its usefulness for contributors."
+    },
+    {
+      "absent": [
+        "Clear explanation of differences between FOSS and enterprise editions"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:027",
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "quote": "These limitations don't apply to [Aspose.Cells — Enterprise Edition](https://products.aspose.com/cells/).",
+      "repair": "Add a brief explanation of the differences between the FOSS and enterprise editions, including features and support.",
+      "reviewer_scope_defect": "the finding asks for 'Clear explanation of differences between FOSS and enterprise editions', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate enterprise relationship section does not clearly explain the differences between the FOSS and enterprise editions, which can mislead users."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "73fd62a4fd3a76c952e45803ecc87c7e640cb5e69e703dc082f3ee3284c4a1db",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": false
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

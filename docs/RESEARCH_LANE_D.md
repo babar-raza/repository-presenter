@@ -1204,3 +1204,221 @@ the blocker — BC-03 passed on what was rendered. Worth a look before this repo
 
 **What is not claimed.** BC-10 and BC-11 are `PENDING` and were never judged; nothing here says the
 independent review or the no-op proof would pass.
+
+## 2026-09-07 12:26 — G4-W16 third re-run, Cells for Rust: the lane's first seal
+
+`origin/main` at `869fcc7`, branch `lane-d/G4-W16-r3`, worktree `C:\w\d16r3`. Receipt:
+`evidence/build/lanes/lane-d/G4-W16.json`, block `rerun_3_2026_09_07`.
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` at `1a6004af47b1ef15385f9d36d381a8172428cc7e`
+**sealed**: BC-01 to BC-11 all `PASS`, bundle state `READY_FOR_PROPOSAL`, and the no-op proof taken
+in a fresh process with zero provider calls. `repository-presenter status` now prints
+`candidates: 8/34`, up from 7. It is the first candidate in this lane to be judged on every check
+rather than stopping at one.
+
+Two shared-code fixes made it possible and two lane-owned ones (D16, D17) were needed to keep it:
+143 units across 8 sections, 174 visible lines of 894, sealed at 2026-09-07T08:01:18Z with README
+digest `73fd62a4…`.
+
+### PROPOSAL P17's class is closed by measurement, not by a fix
+
+The reviewer investigated P17 and declined it (`e09f31e`): the crates.io probe's `default_fetch`
+already sends a named `User-Agent`, so the proposed hardening would have been a no-op. Measured
+independently before this run: `default_fetch` on
+`https://crates.io/api/v1/crates/aspose-cells-foss-rust` returned HTTP 404 in 780 ms, and
+`cargo.check_published` returned `published=False, ambiguous=False` in 561 ms — conclusive, not a
+connection failure. The run's own `probes.json` then recorded the registry read
+`CONTRADICTED`, item (0)'s verified source-build path carried the install fact, and **BC-02
+passes**. The 2026-09-06 23:18 failure was transient network luck, exactly as the reviewer read it.
+
+One detail from that earlier reading is worth correcting for the record: the bare
+`https://crates.io/` root still answers 404 (1,314 ms this run) while the API answers normally, so
+the root 404 P17 cited as evidence of a refused request never was evidence of anything.
+
+### Item 23 as widened by PROPOSAL P18 closed BC-08 on the first try
+
+Before: two BC-08 failures on a `VERIFIED_PRESERVE` unit, `section_id` null, repair `unrepairable`,
+`no failing check names an LLM-owned section`. After `cd6a705`: the failure carried
+`section_id: development_testing`, and `repairs.json` records repair `R01` re-authoring that unit's
+own text from
+
+> ... `cargo clippy --all-targets`, and `cargo test --all-targets` report 0 tests ...
+
+to a sentence that names `cargo bench` and `cargo doc --no-deps --open` as well. **BC-08 passes.**
+One repair, one round, no re-raise. The fix behaved exactly as P18 said it would, on the disposition
+kind (`VERIFIED_PRESERVE`) that item 23's own wording did not cover.
+
+### Decision D16 — cargo's own clock does not belong in a sealed receipt
+
+*Date* 2026-09-07 12:26 +05:00. *Item* G4-W16 (lane-owned;
+`extractors/platforms/rust_examples.py`). *Decision* `_scrub` removes the trailing duration from
+cargo's closing line — the ` in 0.55s` of `Finished \`dev\` profile [unoptimized + debuginfo]
+target(s) in 0.55s` — keeping the line itself and the toolchain version. *Alternative rejected*
+leaving it and treating the withdrawn proof as a shared-code proposal: the receipt is written by
+this lane's own verifier, `net_examples.py` already cuts MSBuild's `Time Elapsed` line for exactly
+this reason (measured 2026-09-06 on Aspose.Cells for .NET), and nothing outside the lane is
+involved. *Evidence* the candidate sealed with BC-01 to BC-10 green and the fresh-process rerun
+answered `re-sealed: examples.json changed since the last seal; proof withdrawn`; the only
+difference between the two `examples.json` files was that duration. After the cut, the next fresh
+process reproduced every artifact byte for byte and BC-11 was judged. *Reversal path* revert the
+`_FINISHED_IN` substitution in `_scrub` and its test; the receipt then carries the timing again and
+no crate whose examples compile can be no-op-proven.
+
+The test is
+`tests/components/readme/extractors/platforms/test_rust_examples.py::test_two_runs_of_the_same_example_produce_the_same_receipt`:
+two runs whose only difference is `0.55s` versus `1m 04s` must produce identical receipts.
+
+### Decision D17 — a dependency snapshot is emitted in the order its bundle stores it
+
+*Date* 2026-09-07 13:05 +05:00. *Item* G4-W16 (lane-owned; `extractors/platforms/rust.py`).
+*Decision* `_dependency_facts` returns its facts sorted by fact ID — the order
+`FactsDocument.to_dict` writes them in — rather than `Cargo.toml`'s table order. *Alternative
+rejected* sorting the bucket in `composition/renderer.py::_dependencies`: that is shared code, it
+is not this lane's to change, and the emission order is the lane's own to decide. *Evidence* with
+the seal on disk, the full local CI-equivalent went red on
+`tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes[aspose-cells-foss__Aspose.Cells-FOSS-for-Rust]`:
+the sealed README listed `chrono, zip, sha2, base64, serde_json, roxmltree, getrandom` while
+re-rendering the same bundle from its own stored `facts.json` produced them alphabetically — 17
+diff lines, identical length, nothing else different. After the fix the bundle re-renders its own
+bytes exactly (measured: identical, 54,741 characters, 0 diff lines). *Reversal path* drop the
+`sorted(...)` in `_dependency_facts`; the manifest's order returns and the control goes red again
+on the next Rust seal.
+
+That control did exactly what it is for. It is worth saying plainly: the first Rust bundle was
+sealed, no-op proven, and still wrong — the no-op proof compares a rerun against the seal, and both
+sides carried the same order, so only the independent re-render caught it. The seal was discarded
+and taken again after the fix (the pipeline parks a changed composition as `valid update available`
+rather than overwriting a proven seal, so the untracked bundle directory was removed first).
+
+### PROPOSAL P22 — the sealed-bytes control depends on an invariant no rule states
+
+`FactsDocument.to_dict` writes facts sorted by ID; `composition/renderer.py::_dependencies` renders
+the bucket in the facts' own order. Those two agree only if the extractor emitted its facts in ID
+order in the first place, which nothing requires and nothing checks until a bundle is sealed and
+`tests/test_sealed_bytes.py` re-renders it. Lane D hit it on its first Rust seal and fixed it in
+its own module (D17), but the next plugin can reintroduce it as easily. Fix it once in shared code:
+sort the dependency bucket in the renderer, or keep `FactsDocument`'s facts sorted at construction
+so document order and stored order are the same thing by definition. `core/` and `composition/` are
+not lane paths, so this is a proposal.
+
+### PROPOSAL P21 — an ordinary English word folds a review finding on a large surface
+
+`review/independent/review.py::_quoted_verified_fact` folds a presentation finding when the quote
+contains, as a whole word, the bare name of any `SUPPORTED` `public_symbol` fact of three characters
+or more. That is item 33's `ExportToCSV` case, and it is right for it. On this crate's 2,084-symbol
+surface the bare names include Rust's trait methods `from`, `new` and `fmt`, and the product word
+`cells`.
+
+Measured on this bundle's own `review.json` and `facts.json`, calling `presentation_defect` with and
+without the rule:
+
+| finding | section | matched fact | on the word | folds without the rule? |
+| --- | --- | --- | --- | --- |
+| F01 | installation | `public_symbol:borderlinestyle.from` | "build it **from** a source checkout" | yes — installation is deterministic |
+| F02 | installation | `public_symbol:borderlinestyle.from` | the same | yes — same reason |
+| F04 | quick_start | `public_symbol:border.new` | "creates a **new** workbook" | yes — `absence_defect` fires first |
+| F06 | scope_limitations | `public_symbol:cells` | "Aspose.**Cells** FOSS for Rust version 26.7.0" | **no — it would block** |
+| F07 | development_testing | `public_symbol:cellarea.fmt` | "cargo **fmt** --all --check" | **no — it would block** |
+
+So two of the seven findings folded on this rule alone, and both are on LLM-owned sections. The seal
+is honest against the code as landed — every check was judged as written, and no check was weakened
+by this lane — but the rule is wider than the defect it was written for. Narrow it: require the
+qualified value rather than the bare name, or require the quote to name the symbol inside a code
+span, or exclude names that are ordinary words — without losing item 33's case. `review/` is not a
+lane path, so this is a proposal, not a change.
+
+The remaining five folds stand on their own: F03 quotes a renderer-emitted heading, F05 quotes the
+renderer's own sentence, F04 claims an absence the candidate disproves, and F01/F02 are against a
+deterministic section.
+
+### What this seal claims and what it does not
+
+`BC-01` to `BC-11` pass; the bundle is committed with its 14 files and its manifest records
+`no_op_proof.byte_identical: true`, `fresh_process: true`, `provider_calls: 0`. Nothing here claims
+the other two lane D repositories moved: Aspose.PDF for Go was re-run separately and did not seal,
+and Aspose.Cells for Go was not run at all — PROPOSAL P13 is carried over, not landed, and its
+disposition stands as written.
+
+## 2026-09-07 12:26 — G4-W15 fourth re-run, Aspose.PDF for Go, after P14 and item 23
+
+`origin/main` at `869fcc7`, branch `lane-d/G4-W15-r4`, worktree `C:\w\d15r4`. Receipt:
+`evidence/build/lanes/lane-d/G4-W15.json`, block `rerun_4_2026_09_07`.
+
+### Both named blockers landed and both did what their proposals said
+
+`PROPOSAL P14` (`b30bd80`): **BC-07 passes** on the same repository, at the same source revision,
+with the same 1,620 facts, whose own sentence — "confirm full conformance with a dedicated
+`validator` such as veraPDF" — failed it twice and survived a byte-identical repair. The class
+`BC07_INHERITED_VOCABULARY_READ_AS_NARRATION` is closed, measured.
+
+`PROPOSAL P15`/`P18`/item 23 (`cd6a705`): the BC-08 failure now carries
+`section_id: development_testing` where it carried `null`, and `targeted_repair` made two provider
+calls where the previous run made none and recorded `unrepairable` without trying. The routing half
+of that class is closed too.
+
+### It did not seal — 7 pass, 2 fail, 2 pending, and both failures are new
+
+### PROPOSAL P19 — the text BC-08 demands is text no unit may contain
+
+The one remaining BC-08 failure is `inherited_unit:085.paragraph: VERIFIED_PRESERVE keeps the
+command 'go run ./_examples/<name>' but the candidate does not render it`. The repair was routed
+correctly and rejected twice, identically:
+
+> `revised_output: unit summary: text contains HTML ('<')`
+
+`composition/authoring.py`'s `_FORBIDDEN` table (line 115, `("<", "HTML")`, enforced at line 958)
+rejects any unit text containing `<` anywhere. The command the check demands contains `<name>` — the
+upstream README's own placeholder. So the check asks for a string the authoring contract forbids,
+and no number of re-asks can close it: it is unwritable by construction, not by sampling.
+
+**Fix, smallest first.** Exempt angle brackets inside an inline code span, which is exactly the
+reasoning item 36 already applied to `prose_nouns` for a code-span noun; a unit that writes
+`` `go run ./_examples/<name>` `` is writing a command, not HTML. Failing that, exempt text a BC-08
+failure itself names. Widening `_FORBIDDEN` generally is not proposed — bare `<` in prose is real
+HTML and should stay rejected.
+
+**Repository and finding.** `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at
+`2306eeb06216be4d9cb663adcb85155594572c11`; two `targeted_repair` calls, both
+`response_invalid`, both on the same guard.
+
+### PROPOSAL P20 — a preserved unit's anchor to a heading the candidate does not render
+
+BC-06 fails at `COMPOSING`: `#encryption-and-signing: no heading #encryption-and-signing`. The link
+sits in a `VERIFIED_PRESERVE` inherited unit copied verbatim into the candidate (README.md lines
+222–224): "encryption (RC4 / AES-128 / AES-256) is covered in
+[Encryption and Signing](#encryption-and-signing) below." The candidate's 17-of-18-section plan
+renders no such heading — its headings run Navigation, At a Glance, Key Capabilities, Installation,
+Dependencies, Quick Start, Additional Examples, API Reference, Documentation & Resources, Scope and
+Limitations, Development and Testing, License — so the upstream anchor points at nothing. This is
+the first time BC-06 has failed this way in this lane; the unit reached the document because this
+run's dispositions preserved 57 units where the previous run preserved 45.
+
+Two halves, and both are shared code:
+
+1. **Routing.** `validation/registry.py::_check_links` (line 638) builds `Failure("COMPOSING",
+   detail)` with no section, so S7 recorded `unrepairable`, `no failing check names an LLM-owned
+   section` — the exact shape item 23 has just fixed for BC-08, one check over. The narration guard
+   in the same file already locates a failing phrase in the LLM-owned section whose rendered prose
+   contains it; an anchor can be located the same way.
+2. **Cause.** Better still, a preserved unit's intra-document anchor should be resolved against the
+   planned headings when the unit is placed — rewritten to the heading that survived, or dropped to
+   plain text — rather than carried into the document to fail at S9. The upstream README's shape is
+   not the candidate's shape, and preservation copies the link as if it were.
+
+### The disposition this fourth re-run leaves
+
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at `2306eeb06216be4d9cb663adcb85155594572c11`,
+`BLOCKED_SHARED_CODE`, failure class `BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE` with
+`BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED` beside it. Supersedes
+`BC07_INHERITED_VOCABULARY_READ_AS_NARRATION`, closed by `b30bd80`. Resume predicate: PROPOSAL P19
+and PROPOSAL P20 landed on `main`, then rerun `present --repo
+aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` from a fresh lane-d branch.
+
+**One observation, not a class.** The first launch of this run ended at S3: `repository_investigation`
+was rejected twice for citing `inherited_unit:080.list` and then `inherited_unit:080.paragraph`, an
+index the facts hold as `inherited_unit:080.heading`. The relaunch passed S3 on attempt 2 with the
+same prompt digest and the same facts. One occurrence is a measurement, not a rule; if a third
+launch dies the same way the ID scheme's guessable type suffix is worth a proposal of its own.
+
+**What is not claimed.** BC-10 and BC-11 are `PENDING` and were never judged for this repository;
+nothing here says the independent review or the no-op proof would pass.

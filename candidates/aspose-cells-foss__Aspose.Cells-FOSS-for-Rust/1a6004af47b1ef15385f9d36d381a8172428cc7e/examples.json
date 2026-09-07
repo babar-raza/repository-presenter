@@ -1,0 +1,65 @@
+[
+  {
+    "detail": "COMPILED against aspose-cells-foss-rust; cargo 1.98.1",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\n    Finished `dev` profile [unoptimized + debuginfo] target(s)\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `valid_path` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `valid_path` in this scope\n  --> examples\\rp_example_002.rs:12:52\n   |\n12 |     let loaded = Workbook::load_xlsx_with_options(&valid_path, &options)?;\n   |                                                    ^^^^^^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_002\") due to 1 previous error\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `sheet` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `sheet` in this scope\n --> examples\\rp_example_003.rs:6:22\n  |\n6 |     let mut charts = sheet.get_charts();\n  |                      ^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_003\") due to 1 previous error\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `sheet` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `sheet` in this scope\n --> examples\\rp_example_004.rs:6:27\n  |\n6 |     let mut collections = sheet.get_conditional_formattings();\n  |                           ^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_004\") due to 1 previous error\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `sheet` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `sheet` in this scope\n --> examples\\rp_example_005.rs:6:27\n  |\n6 |     let mut validations = sheet.get_validations();\n  |                           ^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_005\") due to 1 previous error\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `sheet` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `sheet` in this scope\n --> examples\\rp_example_006.rs:6:22\n  |\n6 |     let mut tables = sheet.get_list_objects();\n  |                      ^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_006\") due to 1 previous error\n",
+    "stdout": ""
+  },
+  {
+    "detail": "the fence uses `links_sheet`, `workbook` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 101,
+    "stderr": "    Checking aspose-cells-foss-rust v26.7.0 ()\nerror[E0425]: cannot find value `links_sheet` in this scope\n --> examples\\rp_example_007.rs:6:26\n  |\n6 |     let mut hyperlinks = links_sheet.get_hyperlinks();\n  |                          ^^^^^^^^^^^ not found in this scope\n\nerror[E0425]: cannot find value `workbook` in this scope\n  --> examples\\rp_example_007.rs:12:29\n   |\n12 |     let mut defined_names = workbook.get_defined_names();\n   |                             ^^^^^^^^ not found in this scope\n\nFor more information about this error, try `rustc --explain E0425`.\nerror: could not compile `aspose-cells-foss-rust` (example \"rp_example_007\") due to 2 previous errors\n",
+    "stdout": ""
+  }
+]
