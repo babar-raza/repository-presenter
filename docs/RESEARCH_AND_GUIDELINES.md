@@ -5384,3 +5384,34 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   zero-call replay (call-store seeding from a sealed bundle's own artifacts, check 11 extended)
   and the end-to-end proof that (b) (landed above) actually reuses a call across two real
   revisions - both still open, each its own commit.
+
+- **2026-09-07 12:21 (`date` checked) · loop (PROVISIONAL) · G5-W02 predicate (a), first slice
+  landed: the call store seeds from a sealed bundle's own artifacts for the three 1:1 stages.**
+  Sent the reviewer a short approach summary before starting, per their own request given this is
+  "the biggest, most architecturally novel piece" (their words) - approved before landing.
+  `investigation.json`, `dispositions.json`, and `plan.json` are each one job's accepted output
+  written verbatim (`write_investigation`/`write_dispositions`/`write_plan` are each a bare
+  `json.dumps(output)` - confirmed by reading all three, not assumed), so a sealed bundle's own
+  `calls.jsonl` already names the exact `request_sha256` each one was accepted under. New
+  `seal.py::seed_call_store(bundle, store)` reads the sealed ledger, and for each of these three
+  jobs whose successful-attempt count is exactly one, pairs that attempt's `request_sha256` with
+  the sealed artifact's own bytes via `CallStore.put`. A job with two or more successful attempts
+  (a repair round reopened it) is left unseeded on purpose - only the *last* attempt's output
+  matches the sealed artifact, and `calls.jsonl` alone does not say which attempt that was;
+  seeding the wrong one would pair a request hash with content it never returned, which is worse
+  than not seeding at all. Wired into `cli.py::run_present`: `verify_bundle`'s already-computed
+  manifest (previously discarded) now gates a `seed_call_store` call before `run_transaction`
+  starts, printing which jobs it seeded. `section_authoring` (`content_units.json` merges many
+  calls via `merge_units`) and `independent_review` (`review.json` is post-processed, not one
+  call's raw reply) are explicitly NOT seeded here - not 1:1 the same way, and land separately.
+  New test: `test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_bundle`
+  constructs a minimal bundle directly (no live gateway needed) proving all three seed correctly,
+  the two-successful-attempts case is skipped, and a missing bundle directory returns cleanly.
+  All pre-existing seal/CLI tests pass unchanged (`test_cli.py` run explicitly given the wiring
+  change). Full suite green, ruff/mypy clean, before this entry. **Not yet claimed:** this alone
+  does not close predicate (a) - `section_authoring`/`independent_review` seeding and check 11's
+  extension to a genuine fresh-process-plus-empty-`runs/` proof (today's no-op proof only works
+  because a second local run finds the SAME machine's `runs/` still populated) remain open, each
+  its own commit; the reviewer flagged, when landing the harder two jobs, to weigh committed-repo
+  growth from storing full per-call output against the coupling cost of reconstructing from
+  merged artifacts, and report the actual growth number rather than deciding it silently.

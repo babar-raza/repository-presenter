@@ -48,6 +48,7 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.facts import FactsDocument
+from repository_presenter.core.llm.jobs import CallStore
 from repository_presenter.core.llm.ledger import LEDGER_FILENAME, canonical_hash
 from repository_presenter.core.llm.prompts import PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
@@ -353,6 +354,62 @@ def verify_bundle(bundle: Path) -> dict[str, Any] | None:
         if _sha256(data) != digest.get("sha256") or len(data) != digest.get("bytes"):
             raise SealError(f"bundle artifact {name} is corrupt in {bundle.name}")
     return manifest
+
+
+# G5-W02 (27.2 RC4). Each of these three jobs' sealed artifact is that one job's own accepted
+# output written verbatim (investigation.py::write_investigation, dispositions.py::
+# write_dispositions, planning.py::write_plan each do a bare json.dumps(output) - confirmed by
+# reading all three before relying on it). section_authoring (content_units.json merges many
+# calls via merge_units) and independent_review (review.json is post-processed, not one call's
+# raw reply) are not 1:1 this way and need their own mechanism; they are not seeded here.
+_SEEDABLE_JOBS: dict[str, str] = {
+    "repository_investigation": "investigation.json",
+    "source_reconciliation": "dispositions.json",
+    "presentation_planning": "plan.json",
+}
+
+
+def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
+    """Pre-populate ``store`` from a sealed bundle's own committed artifacts, so a fresh clone's
+    first run of an already-sealed revision reuses those calls instead of making them again -
+    the gap RC4 names: the call cache lives under the gitignored runs/ directory, so a hosted
+    runner that never had a prior local run starts with nothing to reuse from.
+
+    Seeds a job only when its sealed ``calls.jsonl`` carries exactly one successful attempt: a
+    repository whose composition reopened this stage through a repair round left two or more
+    successful attempts under the same job name, each against a different packet, and only the
+    last one's output matches what the sealed artifact holds - pairing an earlier attempt's
+    request hash with the final content would claim a call returned something it never did. That
+    job is left unseeded, so a replay still makes one real call for it rather than lying about
+    which attempt is genuine.
+
+    Returns the job names actually seeded, so a caller can report or test the count without
+    reading the store back.
+    """
+    ledger_path = bundle / LEDGER_FILENAME
+    if not ledger_path.is_file():
+        return []
+    successes: dict[str, list[dict[str, Any]]] = {}
+    for line in ledger_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        if record.get("outcome") == "success":
+            successes.setdefault(str(record.get("job")), []).append(record)
+    seeded: list[str] = []
+    for job, filename in _SEEDABLE_JOBS.items():
+        attempts = successes.get(job, [])
+        artifact = bundle / filename
+        if len(attempts) != 1 or not artifact.is_file():
+            continue
+        record = attempts[0]
+        request_sha256 = record.get("request_sha256")
+        if not isinstance(request_sha256, str) or not request_sha256:
+            continue
+        output = json.loads(artifact.read_text(encoding="utf-8"))
+        store.put(request_sha256, job, record.get("model_served"), output)
+        seeded.append(job)
+    return seeded
 
 
 FACTUAL_ARTIFACTS = frozenset({"facts.json", "dispositions.json"})

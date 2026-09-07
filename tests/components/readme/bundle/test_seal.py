@@ -19,9 +19,11 @@ from repository_presenter.components.readme.bundle.seal import (
     invalidate_bundle,
     invalidates,
     seal_candidate,
+    seed_call_store,
     verify_bundle,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.jobs import CallStore
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
@@ -279,6 +281,59 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert factual.changed and manifest["update"]["classification"] == "factual"
     assert manifest["update"]["changed"] == ["facts.json"] and "adopted" in manifest
+
+
+def test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_bundle(
+    tmp_path: Path,
+) -> None:
+    """G5-W02 (27.2 RC4). runs/ is gitignored, so a hosted runner's first run of an
+    already-sealed revision starts with nothing to reuse. investigation.json, dispositions.json,
+    and plan.json are each one job's accepted output written verbatim (confirmed against
+    write_investigation/write_dispositions/write_plan before relying on it), so calls.jsonl's own
+    request_sha256 for that job can be paired with the sealed artifact directly. A job with two
+    successful attempts (a repair reopened it) is left unseeded - only the last attempt's output
+    matches the sealed artifact, and calls.jsonl alone cannot say which one that was."""
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "investigation.json").write_text('{"capabilities": []}\n', encoding="utf-8")
+    (bundle / "dispositions.json").write_text('{"dispositions": []}\n', encoding="utf-8")
+    (bundle / "plan.json").write_text('{"sections": []}\n', encoding="utf-8")
+
+    def _record(job: str, request_sha256: str, outcome: str = "success") -> str:
+        return json.dumps(
+            {
+                "job": job,
+                "outcome": outcome,
+                "request_sha256": request_sha256,
+                "model_served": "qwen3-next-2026",
+            }
+        )
+
+    (bundle / "calls.jsonl").write_text(
+        "\n".join(
+            [
+                _record("repository_investigation", "a" * 64),
+                _record("source_reconciliation", "b" * 64),
+                _record("presentation_planning", "c" * 64),
+                _record("presentation_planning", "d" * 64),  # a repair round re-asked it
+                _record("source_reconciliation", "e" * 64, outcome="response_invalid"),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    store = CallStore(tmp_path / "runs" / "calls")
+    seeded = seed_call_store(bundle, store)
+    assert seeded == ["repository_investigation", "source_reconciliation"]
+    assert store.get("a" * 64) == {"capabilities": []}
+    assert store.get("b" * 64) == {"dispositions": []}
+    # presentation_planning had two successful attempts (a repair round), so neither is seeded -
+    # calls.jsonl alone cannot say which one produced the sealed plan.json.
+    assert store.get("c" * 64) is None and store.get("d" * 64) is None
+    assert store.record("a" * 64)["model_served"] == "qwen3-next-2026"
+
+    empty = seed_call_store(tmp_path / "nonexistent", CallStore(tmp_path / "runs" / "calls2"))
+    assert empty == []
 
 
 def test_a_newer_proven_revision_supersedes_the_older_one(tmp_path: Path) -> None:

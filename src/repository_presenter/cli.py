@@ -26,6 +26,7 @@ from repository_presenter.components.readme.bundle.seal import (
     invalidate_bundle,
     invalidates,
     seal_candidate,
+    seed_call_store,
     upstream_dependencies,
     verify_bundle,
 )
@@ -389,7 +390,7 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
         # by class, naming the earliest stage that reopens - derived from the candidate's own
         # record alone, never from a global hash.
         bundle = bundle_directory(root / CANDIDATES_DIRNAME, entry, clone.revision)
-        verify_bundle(bundle)  # a corrupt or missing artifact fails closed before any call
+        sealed_manifest = verify_bundle(bundle)  # a corrupt/missing artifact fails closed here
         sealed_dependencies = bundle / DEPENDENCIES_FILENAME
         evaluation = None
         if sealed_dependencies.is_file():
@@ -414,6 +415,14 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
         # stage and the downstream stages re-run; a second equivalent failure is reported,
         # never retried.
         ledger = Ledger(transaction / LEDGER_FILENAME)
+        store = CallStore(transaction / CALLS_DIRNAME)
+        if sealed_manifest is not None:
+            # RC4: runs/ is gitignored, so a hosted runner's first run of an already-sealed
+            # revision starts with nothing to reuse - seed what the sealed bundle's own
+            # artifacts can answer for before making any call.
+            seeded = seed_call_store(bundle, store)
+            if seeded:
+                print(f"seeded from sealed bundle: {', '.join(sorted(seeded))}")
         final, repairs, rounds = run_transaction(
             TransactionInputs(
                 entry=entry,
@@ -421,7 +430,7 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
                 prompts=prompts,
                 config=config,
                 ledger=ledger,
-                store=CallStore(transaction / CALLS_DIRNAME),
+                store=store,
                 context=JobContext(entry.repository, clone.revision),
                 original=original,
                 original_bytes=original_bytes,
