@@ -154,6 +154,17 @@ SYMBOL_MAX_DEPTH = 3
 SYMBOL_CAP = 6000
 
 
+# G5-W02 (27.2 RC4). A job packet is rendered to text and hashed to key the call store, so a fact
+# embedded in every packet makes that hash change whenever the fact does - identity:revision is
+# exactly that: constant within one revision, but different on every new one, even when nothing a
+# job would actually reason about (public symbols, formats, examples, links) changed at all. A
+# fresh clone at an unchanged revision needs no exclusion (the value is the same either way), but a
+# new revision could never reuse a cached call while its own coordinate rides along in every
+# packet. The renderer reads identity:revision straight from FactsDocument, never through a
+# packet, so no job ever needed to see it: nothing here narrows what a job may cite or claim.
+_EXCLUDED_FROM_PACKETS = frozenset({"identity:revision"})
+
+
 def bounded_records(
     document: FactsDocument,
     kinds: Iterable[str],
@@ -165,13 +176,17 @@ def bounded_records(
     """Facts of ``kinds`` and ``polarities`` as packet records, with public symbols bounded.
 
     Public symbols enter only to ``symbol_max_depth`` dotted parts and ``symbol_cap`` in document
-    order, so a job's packet stays bounded however large the surface is.
+    order, so a job's packet stays bounded however large the surface is. ``identity:revision``
+    never enters any packet at all, so its own bundled call cache reuses across a revision bump
+    that changes no fact a job would ever reason about.
     """
     admitted_kinds = set(kinds)
     admitted_polarities = set(polarities)
     records: list[dict[str, str]] = []
     symbols = 0
     for fact in document.facts:
+        if fact.id in _EXCLUDED_FROM_PACKETS:
+            continue
         if fact.kind not in admitted_kinds or fact.polarity not in admitted_polarities:
             continue
         if fact.kind == "public_symbol":

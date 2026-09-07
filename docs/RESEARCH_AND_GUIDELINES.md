@@ -5318,3 +5318,41 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   predicate: a future repository that hits this exact shape (one stray token failing one unit
   inside an otherwise-clean section with a fixed slot count) is the concrete case a real fix
   should be built and tested against.
+
+- **2026-09-07 11:58 (`date` checked) · loop (PROVISIONAL) · G5-W02 started (owner decision via
+  the reviewer, 2026-09-07: all three G5 items are real work ahead of G6, G3-W04 runs in parallel
+  on its own agent, and this item was assigned to me specifically). First predicate landed:
+  `identity:revision` is excluded from every job packet.** 27.2 RC4: a job packet is rendered to
+  text and hashed to key the call store, so `identity:revision` embedded in every packet (every
+  packet builder routes through `core/facts.py::bounded_records`, confirmed by reading all seven
+  call sites - `authoring.py`, `coherence.py`, `planning.py`, `dossier.py`, `dispositions.py`,
+  `repair/targeted.py`, `review/independent/review.py` - every one LLM-facing, none deterministic)
+  changes that hash on every new revision even when no fact a job would actually reason about
+  changed, so a trivial revision bump (a README typo fix, say) currently forces every job to
+  re-call rather than reuse its cached response. Fix: `bounded_records` drops `identity:revision`
+  by fact ID (not by kind - `identity:repository` and any future sibling `identity` fact are
+  untouched) before admitting anything else, one change point covering all seven packets at once.
+  The renderer reads `identity:revision` straight from `FactsDocument`, never through a packet, so
+  no job ever needed to see it - nothing here narrows what a job may cite or claim, confirmed by
+  the full local suite passing unchanged (no packet-facing test asserted the fact's presence).
+  `dependencies.json`'s own `facts` hash dict is untouched (it reads `FactsDocument` directly, not
+  through `bounded_records`) and still records `identity:revision`'s hash alongside the `source`
+  class that already reopens EXTRACTING on any revision change - redundant signaling for the same
+  reopening, not a defect. New test: `test_bounded_records_never_admits_identity_revision`
+  (`tests/core/test_facts.py`) proves the exclusion is by ID against a document carrying both
+  facts, and that a sibling `identity` fact still passes through. Full suite green, ruff/mypy
+  clean, before this entry. Not yet closed: predicate (b) ("a new revision with unchanged facts
+  reuses every call") is mechanically enabled by this change but not yet proven end to end against
+  two real revisions - that proof, predicate (a) (fresh-state zero-call replay, needing the call
+  store seeded from a sealed bundle's own artifacts and check 11 extended), and predicate (c) (an
+  environment dependency class reopening EXTRACTING) remain open, each its own commit.
+  **Decision, recorded separately: `project/state.yaml`'s `active_work_item` is left pointing at
+  G4-W17.** Promoting G5-W02 into that single slot would require first formally accepting G4-W17,
+  which needs its own evidence manifest at `evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json`
+  naming every proposal landed or declined across its *entire* history - most of which predates
+  this session and I have no first-hand record of, only a summary. Reconstructing that manifest
+  from memory risks exactly the fabrication rule 12 forbids; the single-active-item schema also
+  cannot represent the multi-agent reality now in play (a dedicated G3-W04 agent, two re-spawned
+  lanes, and me on G5-W02, all genuinely concurrent). Proceeding on the reviewer's direct,
+  owner-authorized instruction without the formal promotion, rather than guessing at a G4-W17
+  acceptance record I cannot verify; deferring that bookkeeping to whoever holds the full history.

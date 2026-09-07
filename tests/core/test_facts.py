@@ -12,6 +12,7 @@ from repository_presenter.core.facts import (
     Evidence,
     Fact,
     FactsDocument,
+    bounded_records,
     fact_id,
     slug,
     write_facts,
@@ -126,6 +127,33 @@ def test_by_kind_filters() -> None:
     document = sample_document()
     assert [fact.id for fact in document.by_kind("package")] == ["package:name"]
     assert document.by_kind("example") == ()
+
+
+def test_bounded_records_never_admits_identity_revision() -> None:
+    """G5-W02 (27.2 RC4). A job packet is rendered to text and hashed to key the call store, so a
+    fact embedded in every packet changes that hash on every new revision even when nothing a job
+    would reason about changed. `identity:revision` is excluded from every packet this way; a
+    sibling `identity` fact (`identity:repository`) is untouched, proving the exclusion is by
+    fact ID, not by kind."""
+    document = sample_document()
+    records = bounded_records(
+        document, ["package", "install_command", "identity"], ("SUPPORTED", "UNRESOLVED")
+    )
+    assert {record["id"] for record in records} == {"package:name", "install_command:pip"}
+    assert "identity:revision" not in {record["id"] for record in records}
+
+    with_repository = FactsDocument(
+        document.repository,
+        document.source_revision,
+        (
+            *document.facts,
+            Fact(
+                fact_id("identity", "repository"), "identity", document.repository, (Evidence("x"),)
+            ),
+        ),
+    )
+    records = bounded_records(with_repository, ["identity"])
+    assert {record["id"] for record in records} == {"identity:repository"}
 
 
 def test_structured_attributes_round_trip_through_json_and_the_schema() -> None:
