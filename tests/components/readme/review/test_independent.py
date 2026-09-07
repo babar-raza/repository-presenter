@@ -934,6 +934,129 @@ def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() ->
     )
 
 
+def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_reviewers_defect() -> (
+    None
+):
+    """G4-W17 arrival item 37. The exemption for content the renderer owns used to be gated on
+    the finding's own `criterion`, so the identical finding against the identical text was the
+    reviewer's defect when it labelled itself presentation and blocked when it labelled itself
+    factuality - while `absence_defect` beside it has always judged whatever the label says.
+
+    Measured 2026-09-06 on Aspose.Cells for Java, whose BC-10 REJECT_FACTUAL rested on three
+    findings, two of them this shape: F01 quoted the LLM-owned opening section's own prose but
+    named the deterministic `identity` row, so the repair loop trusted the label and abandoned it;
+    F03 quoted the renderer's own rendering of a SUPPORTED `dependency:none` fact, calling it
+    contradicted by the Development Dependencies list the renderer prints nine lines below from
+    the same fact set. Neither reached the rule, and neither could be repaired by any unit.
+    """
+    candidate = (
+        "# Aspose.Cells FOSS for Java\n\nIt writes `.glb` files.\n\n## Dependencies\n\n"
+        "This library has no required package dependencies.\n\n"
+        "#### Development Dependencies\n\n- `junit`\n\n"
+        f"## Additional Examples\n\n{ADDITIONAL_EXAMPLES_SUMMARY}\n"
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, Fact("dependency:none", "dependency", "none", (Evidence("x"),))),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    dependencies = (
+        "section dependencies renders from facts under the contract's own checks; its "
+        "presentation is the renderer's, and a factual error there is a factuality finding"
+    )
+    # F03: the renderer's own rendering of a SUPPORTED fact, called false. The candidate really
+    # carries it, so the quote check has nothing to say and only the scope rule can answer.
+    rendered_fact = _finding(
+        "F03", "dependencies", "S6", "This library has no required package dependencies."
+    )
+    assert review_checks({"findings": [rendered_fact]}, candidate, facts) == []
+    assert scope_defect(rendered_fact, candidate, by_id) == dependencies
+    # Its presentation-labelled twin, which already held, answers identically: the label is no
+    # longer what decides.
+    assert scope_defect({**rendered_fact, "criterion": "presentation"}, candidate, by_id) == (
+        dependencies
+    )
+    # F01: a deterministic row named by a finding whose quote is a unit's prose. The row is still
+    # the renderer's, so no revision the loop can ask for would change what the finding names.
+    mislabelled = _finding("F01", "identity", "S6", "It writes `.glb` files.")
+    assert scope_defect(mislabelled, candidate, by_id) == (
+        "section identity renders from facts under the contract's own checks; its presentation "
+        "is the renderer's, and a factual error there is a factuality finding"
+    )
+    # The heading and collapsible-summary exemptions are label-independent for the same reason:
+    # the quote is the renderer's exact text, in a section units otherwise own.
+    heading = _finding("F04", "api_reference", "S6", "#### Detailed Member Reference")
+    assert scope_defect(heading, candidate, by_id) == (
+        "the quote is the heading 'Detailed Member Reference', which the renderer emits because "
+        "the contract's shell requires it; no unit wrote it and none can change it"
+    )
+    chrome = _finding("F05", "additional_examples", "S6", ADDITIONAL_EXAMPLES_SUMMARY)
+    assert scope_defect(chrome, candidate, by_id) == (
+        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-summary "
+        "text; no unit wrote it and none can change it"
+    )
+    # The unblock this buys: a rejection whose findings are all the reviewer's own defect has
+    # nothing the loop can act on, so BC-10 no longer holds the candidate on a required row.
+    document = review_document(
+        {"verdict": "REJECT_FACTUAL", "findings": [rendered_fact], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=candidate,
+        facts=facts,
+    )
+    assert document["verdict"] == ACCEPT and document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"] == dependencies
+    assert document["advisory"][0]["causal_stage"] == "S6"
+    assert deferred_on_required_rows(document) == []
+
+
+def test_a_factuality_finding_against_a_units_own_prose_is_never_exempted() -> None:
+    """The mutation control for G4-W17 arrival item 37: label independence exempts content the
+    renderer wrote, never more content than before.
+
+    Three things the label still decides. Two exemptions stay presentation-only, because a
+    factuality claim about the same text is a claim about the facts and may be true: `structure`
+    is the label a reviewer reaches for when a finding belongs to no section, so a false claim
+    anywhere in the document arrives under it; and BC-04 verifies that an identifier a unit names
+    is a real fact value, never that the sentence around it is accurate. And a criterion outside
+    the two a reviewer uses for text it is reading keeps its own route entirely: a completeness
+    finding against a deterministic section says the fact set that section renders from is short,
+    which S2 can reopen - `test_present_records_an_unrepairable_finding_as_advisory_and_stops`
+    measures that route end to end.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, Fact("dependency:none", "dependency", "none", (Evidence("x"),))),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    # A section a unit owns, quoting the unit's own prose: the finding stands, as it always did.
+    authored = _finding("F06", "key_capabilities", "S6", "It writes `.glb` files.")
+    assert scope_defect(authored, CANDIDATE, by_id) is None
+    # The document-shape exemption is not extended: this is a real claim under a catch-all label.
+    on_structure = _finding("F07", "structure", "S6", "It writes `.glb` files.")
+    assert scope_defect(on_structure, CANDIDATE, by_id) is None
+    assert scope_defect({**on_structure, "criterion": "presentation"}, CANDIDATE, by_id) is not None
+    # Nor is the BC-04 exemption: "Sym7 writes JSON" is wrong about a symbol BC-04 only proved
+    # exists, and a factuality finding is the one route left for saying so.
+    describes = _finding("F08", "api_reference", "S6", "- `pkg.Sym7`: Sym7 writes JSON, not GLB.")
+    assert scope_defect(describes, CANDIDATE, by_id) is None
+    assert scope_defect({**describes, "criterion": "presentation"}, CANDIDATE, by_id) is not None
+    # A factuality finding citing a contradicting fact still routes through factuality_defect.
+    cited = {**authored, "fact_ids": ["inherited_unit:001.paragraph"]}
+    assert scope_defect(cited, CANDIDATE, by_id) is not None
+    # A completeness finding against a deterministic section reports that the fact set is short,
+    # not that the renderer's wording is wrong, so it keeps the S2 route it always had.
+    short = {
+        **_finding("F09", "installation", "S2", "pip install aspose-3d-foss"),
+        "criterion": "completeness",
+        "fact_ids": [],
+    }
+    assert scope_defect(short, CANDIDATE, by_id) is None
+
+
 def test_a_synthetic_oversized_review_is_bounded_by_its_own_schema() -> None:
     # G2-W12 measured a real review truncated at the 6000-token budget: an unbounded findings
     # array and unbounded prose let one reply grow past it. The schema now caps both, so the

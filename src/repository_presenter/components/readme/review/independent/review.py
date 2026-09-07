@@ -297,12 +297,18 @@ def claim_evidence(original_readme: str, facts: FactsDocument | None) -> str:
     return "\n".join([original_readme, *values])
 
 
-def presentation_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
-    """Why a presentation finding is the reviewer's own defect, or None when it may stand.
+# The two criteria a reviewer uses for text it is reading, and the whole reach of item 37's
+# label independence: a finding under either one is a judgment about wording the renderer may own.
+_RENDERER_OWNED_CRITERIA = frozenset({"presentation", "factuality"})
+
+
+def renderer_owned_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
+    """Why a finding against content no unit wrote is the reviewer's own defect, or None.
 
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
     BC-07): its wording and its choice of command are the renderer's, so no stage the loop can
-    reopen would change them. A factual error there is a factuality finding against the fact.
+    reopen would change them. A factual error there is a finding against the fact, not against
+    any unit's prose.
 
     The document's own shape is the same case one level up. Which sections exist, in what order,
     and under which headings is the semantic shell's, evaluated from the facts before any job
@@ -329,11 +335,34 @@ def presentation_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -
     to be deleted as "unsupported" because the upstream README lacked it - the reviewer judging
     against the original README as the standard of support rather than against the facts, the same
     shape as the heading and chrome cases, one level lower still (lane D PROPOSAL P16).
+
+    A heading, a collapsible summary, and a deterministic section's body are text the renderer
+    wrote from the facts: no unit wrote them and no stage the loop can reopen would rewrite them,
+    so whether the finding calls that a presentation defect or a factual one changes nothing about
+    who could act on it. Those three exemptions therefore read the quote and the section, never the
+    finding's self-reported label - the independence ``absence_defect`` beside them already has
+    (G4-W17 arrival item 37). Measured 2026-09-06 on Aspose.Cells for Java, where two of the three
+    findings blocking BC-10 were exactly this shape and both were labelled ``factuality``, so
+    neither reached the rule: one quoted the LLM-owned opening section's own prose while naming the
+    deterministic ``identity`` row, the other quoted the renderer's own rendering of a SUPPORTED
+    ``dependency:none`` fact.
+
+    Three things the label still decides, because each rests on the criterion rather than on who
+    wrote the text. ``structure``/``document`` is where a reviewer files a finding that belongs to
+    no section at all, so a false claim about anything in the document arrives under it. BC-04
+    verifies that an identifier a unit names is a real fact value, never that the sentence around
+    it is accurate - "``ExportToCSV`` writes JSON, not CSV" is a real defect in a unit's own prose
+    that merely happens to name a verified symbol. And a criterion outside the two a reviewer uses
+    for text it is reading - a completeness or scope finding - reports content missing from a
+    deterministic section, which is a claim about the fact set that section renders from and one
+    ``S2`` can reopen.
     """
-    if finding.get("criterion") != "presentation":
+    criterion = finding.get("criterion")
+    if criterion not in _RENDERER_OWNED_CRITERIA:
         return None
+    presentation = criterion == "presentation"
     section = finding.get("section_id")
-    if section in _STRUCTURAL_SECTIONS:
+    if presentation and section in _STRUCTURAL_SECTIONS:
         return (
             "the semantic shell owns which sections exist, in what order, and under which "
             "headings; it is evaluated from the facts, so no stage the loop can reopen would "
@@ -349,7 +378,7 @@ def presentation_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -
             f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-summary "
             "text; no unit wrote it and none can change it"
         )
-    verified = _quoted_verified_fact(finding, by_id)
+    verified = _quoted_verified_fact(finding, by_id) if presentation else None
     if verified is not None:
         return (
             f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies; the "
@@ -478,7 +507,7 @@ def review_checks(
 def rendered_defect(finding: Mapping[str, Any], rendered: Sequence[str]) -> str | None:
     """Why a finding against a sentence the renderer wrote is the reviewer's own defect.
 
-    A deterministic section's presentation is the renderer's (``presentation_defect``); so is a
+    A deterministic section's presentation is the renderer's (``renderer_owned_defect``); so is a
     sentence the renderer writes inside a section an LLM otherwise owns - a count from the facts,
     the suite size, the release line. The unit beside it did not write it and no revision of that
     unit can change it, so no stage the loop can reopen would act on the finding.
@@ -563,7 +592,11 @@ def scope_defect(
     An absence the candidate disproves is judged first, whatever the criterion: a finding that
     names text the candidate contains is refuted by the document itself, and no reading of its
     criterion changes that. So is a quote the facts exclude, for the same reason from the other
-    side - the document could not have carried it.
+    side - the document could not have carried it. Content the renderer owns rather than a unit
+    is judged the same way, before the criterion is read at all: whether the finding calls the
+    renderer's own text a presentation defect or a factual one, no stage the loop can reopen
+    would rewrite it (G4-W17 arrival item 37). Only the criterion-specific refutations - a
+    factuality claim measured against the facts it cites - come after the switch.
     """
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
@@ -574,12 +607,11 @@ def scope_defect(
     written = rendered_defect(finding, rendered)
     if written is not None:
         return written
-    criterion = finding.get("criterion")
-    if criterion == "factuality":
-        quote = str(finding.get("quote", ""))
-        return factuality_defect(finding, quote, by_id)
-    if criterion == "presentation":
-        return presentation_defect(finding, by_id)
+    owned = renderer_owned_defect(finding, by_id)
+    if owned is not None:
+        return owned
+    if finding.get("criterion") == "factuality":
+        return factuality_defect(finding, str(finding.get("quote", "")), by_id)
     return None
 
 
