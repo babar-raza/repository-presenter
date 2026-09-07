@@ -310,6 +310,54 @@ def test_a_preserved_units_own_aspose_link_reserves_headroom_in_the_plans_trim()
     ]
 
 
+def test_a_verified_rewrite_disposition_names_link_targets_the_plan_must_carry() -> None:
+    """Third external review, 2026-09-07, measured on aspose-email-foss/Aspose.Email-FOSS-for-
+    Python: a VERIFIED_REWRITE disposition against an inherited list unit named eight link_target
+    facts for documentation_resources, the plan's own links list carried three, and the missing
+    five - all real, verified links (PUBLIC_API.md, AGENTS.md, CONTRIBUTING.md, SECURITY.md,
+    CHANGELOG.md) - never reached authoring or the renderer, which both build only what the plan
+    hands them. Review correctly rejected the composed candidate for it every time; a repair
+    re-ask of authoring alone could not fix a gap that was already committed one stage earlier."""
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:003.list",
+                "disposition": "VERIFIED_REWRITE",
+                "destination_section": "documentation_resources",
+                "fact_ids": ["link_target:001"],
+                "rationale": "supported by facts, re-authored to the section's own format",
+            }
+        ]
+    }
+    plan = _plan()  # already carries link_target:002 of its own
+    assert plan_checks(plan, FACTS, dispositions=dispositions, ecosystem="python") == []
+    assert plan["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+        {"link_fact_id": "link_target:001", "section_id": "documentation_resources"},
+    ]
+
+    # Already planned: no duplicate is appended.
+    already_planned = _plan(
+        links=[
+            {"link_fact_id": "link_target:001", "section_id": "documentation_resources"},
+            {"link_fact_id": "link_target:002", "section_id": "documentation_resources"},
+        ]
+    )
+    assert plan_checks(already_planned, FACTS, dispositions=dispositions, ecosystem="python") == []
+    assert len(already_planned["links"]) == 2
+
+    # VERIFIED_PRESERVE renders its unit verbatim elsewhere (placement.py), never through the
+    # plan's own links, so it names no completeness obligation here.
+    preserved = {
+        "dispositions": [{**dispositions["dispositions"][0], "disposition": "VERIFIED_PRESERVE"}]
+    }
+    untouched = _plan()
+    assert plan_checks(untouched, FACTS, dispositions=preserved, ecosystem="python") == []
+    assert untouched["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
+    ]
+
+
 def test_a_shell_rendered_link_is_never_a_plans_own_assignment() -> None:
     """README_CONTRACT.md rows 3 and 18: the banner and the closing Enterprise sentence render
     deterministically from these exact IDs, in their own fixed place.
