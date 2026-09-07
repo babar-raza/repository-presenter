@@ -17,11 +17,14 @@ depended on `repairs.json`'s directory history, not on content), and §6's zero-
 required rows, which check 10 now judges — its version moves to 2 with the sentence. §25 records
 the reasoning for the discipline itself. A sixth landed on 2026-09-05 with G2-W17's code: §6's
 absence claims name text the code looks for, and a refuted finding is not deferred work (§27.8,
-§31). Pending revisions, each traced to a measured defect in §27 and carried by a named work item —
-check 11 by G5-W02; a new check 12 only when a sealed candidate exhibits a required-row coverage
-gap (none does at `65b1f577`; expected from the G3 cohort, per loop-prompt §6 rule 14) — are
-specified in `RESEARCH_AND_GUIDELINES.md` §27.8 and enter this document only in that item's
-commit, together with its code and tests.  
+§31). A seventh landed on 2026-09-07 with G5-W02's code: check 11 names what it actually proves -
+a fresh process alone was never enough, since a second local run always finds the same machine's
+gitignored `runs/` directory still populated from the first, the exact gap `RESEARCH_AND_
+GUIDELINES.md` §27.2 RC4 measured; the check now names an empty `runs/` too. Pending revisions,
+each traced to a measured defect in §27 and carried by a named work item — a new check 12 only
+when a sealed candidate exhibits a required-row coverage gap (none does at `65b1f577`; expected
+from the G3 cohort, per loop-prompt §6 rule 14) — are specified in `RESEARCH_AND_GUIDELINES.md`
+§27.8 and enter this document only in that item's commit, together with its code and tests.  
 Authority: `plans/idea.md` decides what a README must be; this document implements it; the
 aspose.org candidates and the live READMEs they produced are an oracle for what is achievable and
 how a reader receives it — evidence to check against, never a third authority (`EXECUTION_STATE_MACHINE.md`
@@ -216,7 +219,7 @@ Exactly these eleven block acceptance at G1. Everything else is advisory until c
 | 8 | Protected content preserved | all |
 | 9 | No configured secret in the bundle | bundle |
 | 10 | Independent review returns `ACCEPT` with the reviewer identity separate from authoring, and no advisory is left on a required row (§6) | review |
-| 11 | Fresh-process rerun is byte-identical with zero provider calls | bundle |
+| 11 | Fresh-process rerun from an empty `runs/` directory is byte-identical with zero provider calls | bundle |
 
 Advisory at G1, candidates for v1 blocking at G2: search-intent lineage per title, prose quality
 (sentence length, hedges, superlatives), navigation completeness, badge floor, dependency claim

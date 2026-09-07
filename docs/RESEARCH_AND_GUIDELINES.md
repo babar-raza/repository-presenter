@@ -2105,7 +2105,10 @@ discipline (small commits, green CI, evidence per item).
   so nothing a fact points at is left dangling outside the seal; `probes.json` records what a live
   read cost and any reading that moves without the repository, and carries a clock, so it is not
   compared byte for byte in the no-op proof.
-- Check 11: fresh-state proof (fresh process and empty `runs/`).
+- Check 11 (G5-W02, 2026-09-07): fresh-state proof (fresh process and empty `runs/`) - landed in
+  the row's own wording; the mechanism that makes the claim true for every job kind (seeding for
+  `section_authoring`/`independent_review`) is not yet complete, so the claim is honest for the
+  three seedable jobs only until it lands.
 - §3 placement rule 3: visibility inheritance as a section property, and the `.code_block`
   carve-out documented or removed.
 
@@ -5415,3 +5418,26 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   its own commit; the reviewer flagged, when landing the harder two jobs, to weigh committed-repo
   growth from storing full per-call output against the coupling cost of reconstructing from
   merged artifacts, and report the actual growth number rather than deciding it silently.
+
+- **2026-09-07 12:31 (`date` checked) · loop (PROVISIONAL) · README_CONTRACT.md check 11 revised:
+  it now names an empty `runs/` directory, not only a fresh process, as part of what a genuine
+  no-op proof requires (G5-W02, §27.8's already-pending revision).** `docs/README_CONTRACT.md`
+  row 11 read "fresh-process rerun is byte-identical with zero provider calls" - true but
+  incomplete, since a second LOCAL run always finds the same machine's gitignored `runs/`
+  directory still populated from the first, so "fresh process" alone never actually exercised the
+  case a hosted runner faces (27.2 RC4). Row 11 now says "from an empty `runs/` directory" too; a
+  seventh numbered revision entry records it in the document's own revision-discipline paragraph,
+  matching the style of the six before it. `RESEARCH_AND_GUIDELINES.md` §27.8's own check-11
+  bullet is marked landed, explicit that the claim is honest only for the three seedable jobs
+  until `section_authoring`/`independent_review` seeding lands too - the row now states the
+  requirement the contract holds every candidate to, not a claim this codebase can meet in full
+  yet. **Deliberately not changed:** `registry.py::record_replay_verdict`'s own verdict text
+  ("judged by the fresh-process replay: every artifact byte-identical, zero provider calls") -
+  the code genuinely does not track whether `runs/` was empty when a proof run started, only
+  that it made zero calls and matched byte for byte, so claiming "empty runs/" there would be an
+  observation the code never made (loop-prompt.md rule 12); no test added for the same reason -
+  the previous commit's `test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_
+  bundle` already constructs its `CallStore` against a brand-new, genuinely empty directory and
+  is the real proof this revision describes. Two-file documentation change only, no source
+  touched; not run against the full suite for that reason (a docs-only change, consistent with
+  this session's own established practice for `docs(...)`-scoped commits).
