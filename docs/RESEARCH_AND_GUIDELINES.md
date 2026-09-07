@@ -5207,3 +5207,35 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` - PDF Go's disposition also names PROPOSAL P15/item 23
   (landed above) as a second blocker, so this alone is not claimed to seal it; the two together
   are its full known resume predicate.
+
+- **2026-09-07 11:14 (`date` checked) · loop (PROVISIONAL) · lane D PROPOSAL P17 investigated, not
+  landed: the stated root cause (missing User-Agent) does not reproduce.** P17's step 1 proposed
+  hardening the crates.io probe's request with a named `User-Agent`, reasoning that its absence
+  explained a 404 on `https://crates.io/`'s root and the resulting `UNRESOLVED` install fact.
+  Measured before writing any patch: `extractors/surface/_vendor/aspose_extraction/
+  package_registries/__init__.py::default_fetch` (the fallback every registry adapter uses, cargo
+  included, confirmed by reading `publication_probe.py`'s `fetch = fetch or default_fetch`)
+  already sends `User-Agent: aspose-org-package-registry-watch/1.0` on every request, and no
+  caller of `extractors/surface/registry.py::observe` overrides it. A live `curl` and a live
+  Python `urllib` call to the actual endpoint `check_published` requests -
+  `https://crates.io/api/v1/crates/aspose-cells-foss-rust` - both returned a conclusive, fast 404
+  ("crate does not exist") in under a second, with the named User-Agent, with no User-Agent at
+  all, and even against the bare root `https://crates.io/` (which 404s unconditionally regardless
+  of headers - it is simply not a valid API path, and no code in this repository requests it).
+  `RegistryObservation`'s `UNRESOLVED` reading ("package registry: cargo could not be read")
+  requires `default_fetch` to return `None`, which only happens on a genuine connection failure
+  (`URLError`/`TimeoutError`/`OSError`), never on an HTTP 404 - so the lane's own probes.json entry
+  for the bare root does not explain the `UNRESOLVED` fact either way. Conclusion: the specific
+  root cause as stated is not reproducible against live crates.io right now, and the fix proposed
+  for it would be a no-op (the header already exists) - landing it would be evidence volume, not a
+  verified fix (loop-prompt.md rule 12). Left uninvestigated, genuinely possible: a transient
+  crates.io slowdown or soft rate-limit specific to that one run (its own probes.json recorded
+  17.5s against my ~0.7s just now), or crates.io's documented crawler policy wanting a contact
+  address in the User-Agent that a bare `aspose-org-package-registry-watch/1.0` lacks - either
+  would be intermittent, matching the 14:05-pass/23:17-fail pattern, and neither is confirmed.
+  Not landed because I could not verify it, per rule 12 - not declined as wrong, just unconfirmed.
+  Recommendation, cheapest first: re-run `present --repo
+  aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` now, since the registry answers normally at this
+  moment; if the failure recurs, capture the exact request (URL, headers, status, latency) from
+  that run's own probes.json rather than a paraphrase, which is what would ground a real patch to
+  the vendored adapter (changed only by recorded patch, section 29.6 E2 - not touched here).
