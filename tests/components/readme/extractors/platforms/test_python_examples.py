@@ -254,6 +254,50 @@ def test_a_package_that_will_not_build_still_runs_its_examples_from_source(
     assert "ran against the repository source tree" in (receipts[0].detail or "")
 
 
+def test_the_source_fallback_installs_the_dependencies_the_manifest_declares(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A source tree with none of what it imports is a library nobody asked about.
+
+    Measured 2026-09-07 on Aspose.BarCode for Python: with the build broken, all six examples
+    ran from source and all six raised `ModuleNotFoundError: No module named 'PIL'` - the
+    failed build had carried the dependency resolution with it.
+    """
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "src" / "widget").mkdir(parents=True)
+    (root / "src" / "widget" / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (root / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["setuptools"]\nbuild-backend = "no.such.backend"\n'
+        '[project]\nname = "widget"\nversion = "1.0"\ndependencies = ["pillow>=10", "lxml"]\n',
+        encoding="utf-8",
+    )
+    seen: list[list[str]] = []
+
+    def record(argv: list[str], **kwargs: object) -> ExecutionResult:
+        seen.append(list(argv))
+        failed = "install" in argv and str(root) in argv
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1 if failed else 0,
+            stdout="",
+            stderr="no build for you" if failed else "",
+            timed_out=False,
+            environment_names=(),
+        )
+
+    monkeypatch.setattr(python_examples, "execute", record)
+    verify_python_examples(
+        root,
+        ["pyproject.toml", "src/widget/__init__.py"],
+        [_candidate(1, "pass\n")],
+        tmp_path / "run",
+    )
+    installs = [argv for argv in seen if "install" in argv]
+    assert any("pillow>=10" in argv and "lxml" in argv for argv in installs), installs
+    assert not any(str(root) in argv for argv in installs[1:])
+
+
 def test_a_tree_with_no_importable_package_stays_unverified_when_the_build_fails(
     tmp_path: Path,
 ) -> None:

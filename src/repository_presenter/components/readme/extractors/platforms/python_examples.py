@@ -16,6 +16,7 @@ import os
 import re
 import shutil
 import sys
+import tomllib
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -201,7 +202,29 @@ def verify_python_examples(
         fallback = _source_roots(root, tree_paths)
         if not fallback:
             return _all_not_verified(candidates, f"package install failed: {_clip(install.stderr)}")
-        import_roots = fallback
+        # The build carried the dependency resolution with it, so the source tree alone is a
+        # library with none of what it imports: every Aspose.BarCode example then failed with
+        # `ModuleNotFoundError: No module named 'PIL'` (2026-09-07), an honest failure of a
+        # question nobody asked. The manifest already declares them, so install those and keep
+        # the repository's own packages ahead of the installed set on the path.
+        requirements = _declared_dependencies(root)
+        if requirements:
+            execute(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--disable-pip-version-check",
+                    "--quiet",
+                    "--target",
+                    str(site),
+                    *requirements,
+                ],
+                workspace=workspace,
+                timeout_seconds=INSTALL_TIMEOUT_SECONDS,
+            )
+        import_roots = [*fallback, site]
         source_note = "ran against the repository source tree; the package would not build"
 
     def run(
@@ -281,6 +304,20 @@ def _serviceable(code: str, root: Path, tree_paths: Sequence[str], produced: Pro
         if _FILE_LITERAL.match(literal) and "/" not in literal
     }
     return any(suffix in produced for suffix in wanted - suffixes)
+
+
+def _declared_dependencies(root: Path) -> list[str]:
+    """The runtime requirements the manifest states, read without building anything."""
+    manifest = root / "pyproject.toml"
+    if not manifest.is_file():
+        return []
+    try:
+        data = tomllib.loads(manifest.read_text(encoding="utf-8-sig", errors="replace"))
+    except tomllib.TOMLDecodeError:
+        return []
+    project = data.get("project")
+    declared = project.get("dependencies", []) if isinstance(project, dict) else []
+    return [item for item in declared if isinstance(item, str) and item.strip()]
 
 
 def _source_roots(root: Path, tree_paths: Sequence[str]) -> list[Path]:
