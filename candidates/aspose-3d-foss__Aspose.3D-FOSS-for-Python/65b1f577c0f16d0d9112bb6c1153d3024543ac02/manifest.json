@@ -91,5 +91,40 @@
   "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
   "schema_version": 1,
   "sealed_at": "2026-09-05T16:02:30Z",
-  "state": "READY_FOR_PROPOSAL"
+  "state": "READY_FOR_PROPOSAL",
+  "update": {
+    "available": true,
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "examples.json",
+      "facts.json",
+      "investigation.json",
+      "plan.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "files": {
+      "README.md": "7987c4f652c409a620ea8fc5f4dfe04e3665181f0921f0da923af8fd54f46a2a",
+      "README.patch": "7f3a9a1d217fc5fdf0145b4fd7a1957cf60f8b3c04b43428112f7ea23bc23cc6",
+      "content_units.json": "8d1538b6e256ada76b11cffa87c43b4faff62a0d47b25a81addb01bd9edbe0f0",
+      "dependencies.json": "eacb1a595c9c240e0f9c9ed6cc29dda1e7a52693165ab226ec3faf5597990df6",
+      "dispositions.json": "9b63fa088cd86cb279a87b27815d41b14b9ec98f520030b5ba64e2756e8d2bf8",
+      "examples.json": "6373be48de5150635af550d3b063a9294a8d6e90f2c00d01f179c582c48974fb",
+      "facts.json": "41af3641497208cad74208f6ca481daae85606d828624091f776c9c8cfac56e3",
+      "investigation.json": "ddc96c56b9a506393686add289bf62876c5c9638ff68108326d96f2bd7b6e8f6",
+      "plan.json": "8ec20d8a43d11e63985a115008b1f2fa416dac0e8cb15cbf21af66cb0f18bd8a",
+      "repairs.json": "709e4b9a0dd00f7599526e25fbca84052ae27b8bd52a9ade2a2644e2d1da2ffc",
+      "review.json": "72d4f6a2d038360dd79ae03f3445bed3e1ed8db0bda412674ff3ece2e66d4ccd",
+      "validation.json": "fe1d6e5bdd4af8ebf7ca47e6c506092a12b8c1318a44ecb1ddea69d82904785c"
+    },
+    "recorded_at": "2026-09-07T10:15:36Z",
+    "transaction": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
+  }
 }
