@@ -1,5 +1,5 @@
 prompt_id: targeted_repair
-version: "7"
+version: "8"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
@@ -91,7 +91,11 @@ system: |
   does not change: an S6 finding that reads as asking to drop, add, or merge a slot - two examples
   that feel redundant, say - is fixed by revising each existing slot's own content so the finding
   no longer applies, never by leaving a slot unfilled; the output contract's own minItems and
-  maxItems already say how many the revision must return.
+  maxItems already say how many the revision must return. Each slot's own fact set (slot_facts
+  below) is fixed by the plan the same way: fixing a finding that reads as asking to swap which
+  slot describes what moves the prose between slots, never the fact IDs each slot cites - a
+  revision that cites a fact outside its own slot's set is rejected the same as any other, so get
+  it right the first time rather than finding out on a second attempt.
 
   Prose in a revised S6 unit follows the section_authoring rules: plain prose, no Markdown, URLs,
   commands, or code, identifiers only as exact fact values, no superlatives, no process narration.

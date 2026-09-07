@@ -5264,3 +5264,30 @@ p-toolchains` with no PATH edit; the C++ probe reproduced independently. Defect 
   15 pre-existing registry tests pass unchanged. Full suite green, ruff/mypy clean, before this
   entry. Resume predicate: re-run `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Java` -
   this was its only named blocker.
+
+- **2026-09-07 11:33 (`date` checked) · loop (PROVISIONAL) · lane D PROPOSAL P9 (item 30) landed: a
+  repair now knows a slot's own fact set is fixed, not only its slot set.** `repair/targeted.py`'s
+  `SlotSetProbe` mechanically catches a revision that changes which slots exist and
+  `repair_checks` already rejects a unit that cites a fact outside its own slot's `slot_facts`
+  set - both real, working guards - but `prompts/targeted_repair.yaml`'s system prompt told the
+  model only the first rule (slots are fixed), never the second. Measured 2026-09-06 on Aspose.
+  Cells for Go (PROPOSAL P8's own finding): a repair correctly swapping two Quick Start
+  lead-in sentences between slots also swapped their fact citations, rejected by the existing
+  mechanical check (`revised_output: unit lead_in:2: cites facts outside its slot's planned set`),
+  costing one wasted round and one false-looking `unrepairable` record before round 2 got it
+  right unprompted. Not a missing check - a missing sentence. Fix: one sentence added to the
+  system prompt's Judgment paragraph, immediately after the existing slot-set-fixity sentence -
+  each slot's own fact set is fixed by the plan the same way, so moving prose between slots means
+  moving the prose, never the fact IDs. Prompt version bumped 7 to 8 (documentary; the actual
+  dependency key is the manifest's own sha256, unaffected either way). No code changed - the
+  guard that caught the violation already existed and is untouched; this only tells the model the
+  rule before it acts rather than after. Test: the one hardcoded reference to this prompt's
+  version (`test_seal.py::test_dependencies_name_exactly_the_consumed_inputs`) updated to "8";
+  every other reference already reads the manifest's real sha256/version dynamically. Full suite
+  green (all tests referencing `targeted_repair` re-run explicitly first), ruff/mypy clean, before
+  this entry. No mutation test possible or meaningful here - there is no new code behavior, only
+  prompt guidance a live LLM call would exercise, which this loop never composes a lane repository
+  to test directly (loop-prompt.md §2). Resume predicate: none named - this is a first-round-cost
+  reduction on every future repair that swaps prose between slots, not a specific repository's
+  blocker; no re-run is required to confirm it, though the next repair round of this shape is
+  where its effect would show as one fewer wasted attempt.
