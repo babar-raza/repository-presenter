@@ -685,10 +685,17 @@ def review_document(
     downstream has to read prose to find out (section 27.5 D5).
 
     ``second`` is a second independent read of the same candidate under a different seed. When it
-    is given, a prose judgment on a required row blocks only if that read raised a finding of the
-    same class; otherwise it is recorded ``single_reader_advisory`` and does not block (the
-    owner's two-reader rule, section 27.8). A second read that returned nothing usable
-    corroborates nothing, which is the same answer as a second reader who saw no such defect.
+    is given (not ``None``), a prose judgment on a required row blocks only if that read raised a
+    finding of the same class; otherwise it is recorded ``single_reader_advisory`` and does not
+    block (the owner's two-reader rule, section 27.8).
+
+    ``second`` must be ``None`` - never ``{}`` - when no usable second reading exists (the job
+    failed, timed out, or was never attempted). A caller passing ``second={}`` for "no reading"
+    was TB-04's own bug: an empty dict is not ``None``, so this function read it as a *completed*
+    reading that raised zero findings, corroborating nothing and silently demoting a real blocking
+    finding to advisory (REJECT_PRESENTATION -> ACCEPT, external review D4, 2026-09-08). Losing
+    verification must never increase assurance; the caller (``repair/rounds.py``) is the one place
+    that enforces this today, by simply never constructing ``second={}``.
     """
     findings: list[dict[str, Any]] = []
     advisory: list[dict[str, Any]] = []

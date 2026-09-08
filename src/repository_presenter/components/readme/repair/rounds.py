@@ -95,7 +95,7 @@ from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
 from repository_presenter.core.llm.ledger import Ledger, canonical_hash
-from repository_presenter.core.llm.prompts import PromptRegistry
+from repository_presenter.core.llm.prompts import LoadedManifest, PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret
 
@@ -141,6 +141,17 @@ class Round:
     @property
     def llm_sections(self) -> set[str]:
         return {task.section_id for task in self.tasks}
+
+
+def _second_opinion(
+    loaded: LoadedManifest, packet: Mapping[str, Any], checks: Any, common: Mapping[str, Any]
+) -> dict[str, Any] | None:
+    """The second reader's output, or ``None`` when the job raised ``JobError`` - never ``{}``,
+    which ``review_document`` reads as a completed reading that corroborated nothing (TB-04)."""
+    try:
+        return run_job(second_reader(loaded), packet, checks=checks, **common).output
+    except JobError:
+        return None
 
 
 def run_round(tx: TransactionInputs) -> Round:
@@ -267,16 +278,17 @@ def run_round(tx: TransactionInputs) -> Round:
     review = document()
     # A prose judgment on a required row is read a second time under a different seed before it
     # holds the candidate unsealed (the owner's two-reader rule, section 27.8). The second read
-    # only ever removes a finding from the blocking set, so a read that cannot produce a usable
-    # review corroborates nothing and the candidate is judged by the first reader's other
-    # findings - it never turns a sealing candidate into a failed transaction.
+    # only ever removes a finding from the blocking set, so a read that cannot produce usable
+    # output corroborates nothing and must leave `review` exactly as the first reader alone
+    # produced it (never `document(second={})` - TB-04, external review D4, 2026-09-08: an empty
+    # dict is not `None`, and review_document reads it as a *completed* reading that raised no
+    # findings, silently demoting the first reader's finding and flipping REJECT_PRESENTATION to
+    # ACCEPT while recording `second_reader.read` true for a reading that never happened). Losing
+    # verification must never increase assurance.
     if any(prose_judgment(finding) for finding in review["findings"]):
-        try:
-            corroboration = run_job(second_reader(loaded), packet, checks=checks, **common)
-        except JobError:
-            review = document(second={})
-        else:
-            review = document(second=corroboration.output)
+        second = _second_opinion(loaded, packet, checks, common)
+        if second is not None:
+            review = document(second=second)
     digests["review"] = write_review(review, tx.directory / REVIEW_FILENAME)
     validation = record_review_verdict(validation, review)
     digests["validation"] = write_validation(validation, tx.directory / VALIDATION_FILENAME)
