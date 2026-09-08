@@ -18,6 +18,11 @@ It is deliberately not another execution plan:
 - [`STATE_MACHINE.md`](STATE_MACHINE.md) owns production runtime states and transitions.
 - This document explains why those contracts exist, records their empirical basis, and identifies
   conclusions that must be retained or revalidated.
+- [`DECISION_LOG.md`](DECISION_LOG.md) is the append-only provisional decision log this document's
+  own §31 grew into (split out 2026-09-08) — the loop's and lanes' running record of decisions made
+  without stopping to ask, in the shape date · item · decision · alternative rejected · evidence ·
+  reversal path. Read it alongside this document, not instead of it: this document is the durable
+  "why"; the decision log is the dated "what happened since."
 
 Labels used below:
 
@@ -713,9 +718,11 @@ A new implementation agent should read:
 4. [`STATE_MACHINE.md`](STATE_MACHINE.md) for the behavior being implemented;
 5. [`plans/idea.md`](../plans/idea.md) for the product outcome and standing constraints, through
    the authority note at its top;
-6. the reuse manifest's file records as pulls create them, and the corpus inventory once the G3
+6. [`DECISION_LOG.md`](DECISION_LOG.md) for every decision made since, in date order — this
+   document does not restate them;
+7. the reuse manifest's file records as pulls create them, and the corpus inventory once the G3
    census produces it; and
-7. only the legacy modules explicitly named by the active reuse record.
+8. only the legacy modules explicitly named by the active reuse record.
 
 This order prevents both context-free implementation and a return to reading the entire legacy
 project as an undifferentiated authority.

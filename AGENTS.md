@@ -22,7 +22,8 @@ Read in this order at the start of every session:
 2. The current gate in `docs/EXECUTION_STATE_MACHINE.md`.
 3. Relevant behavior in `docs/STATE_MACHINE.md`, and `docs/README_CONTRACT.md` whenever the work
    item touches facts, composition, validation, or review.
-4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`.
+4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`, and `docs/DECISION_LOG.md` for decisions
+   made since (its own §31, split out 2026-09-08).
 5. `plans/idea.md` — the human product authority, for the outcome standard and standing
    constraints; never a cursor or task list.
 6. Only reuse-source files (legacy or aspose.org) named by the active reuse-manifest record.
