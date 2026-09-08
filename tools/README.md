@@ -36,6 +36,16 @@ governance tracks, two directories, no overlap.
     anchor-replace shape; `append_entry` added 2026-09-08 after ten more near-identical throwaways
     accumulated for the append shape (see the module docstring) — check here first before writing a
     new one-off script for either shape of edit.
+  - `audit_link_completeness.py` — walks every `candidates/*/*/` manifest directory checking
+    whether a `VERIFIED_REWRITE` disposition's `link_target` facts all reached that revision's
+    `plan.json` `links` list. Written 2026-09-08 landing the `planning.py` fix for exactly this
+    gap, to check the fix's effect across the whole portfolio rather than just the candidate that
+    surfaced it — found the same gap already sealed into two other candidates.
+  - `audit_preserved_api_lists.py` — flags a `VERIFIED_PRESERVE` "list" unit placed into
+    `api_reference` whose disposition cites only a module-level `public_symbol` fact, never an
+    individual class or enum. A diagnostic sweep, not a fix (see `docs/DECISION_LOG.md`, 2026-09-08,
+    for why a safe general fix isn't available without either a live re-dispositioning call or
+    risking silent content loss).
   - `procedure.md` — the wake procedure both cron and a human reviewer follow: cheap check, full
     review, the lane-supervision addendum, commit discipline, the report shape.
   - `.local/` — gitignored. `reviewer_state.json` (wake history, the `watch` field for the next
