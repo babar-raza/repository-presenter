@@ -75,7 +75,7 @@ prompts/                     one governed manifest per job (README_CONTRACT.md �
 schemas/                     JSON Schemas for the cursor, manifest, candidate bundle, prompt manifests
 data/                        registry, link, family, and priority data pulled per migration/reuse-manifest.yaml
 profiles/                    per-repository and per-family policy overlays (ADAPT_AS_PLUGIN)
-docs/                        authority documents (this tree's siblings); RESEARCH_<LANE>.md (RESEARCH_LANE_B.md, _C, _D) is a lane's append-only decision log (RESEARCH §28.12)
+docs/                        authority documents (this tree's siblings); DECISION_LOG.md is the project-wide append-only decision log (RESEARCH_AND_GUIDELINES.md §31, split out 2026-09-08); RESEARCH_<LANE>.md (RESEARCH_LANE_B.md, _C, _D) is a lane's own append-only decision log in the same shape (RESEARCH §28.12)
 plans/                       plans/idea.md, the human product authority
 project/                     state.yaml, loop-prompt.md; loop-prompt-lane.md (the generic lane prompt; loop-prompt-lane-b.md is a pointer to it) and lanes/<lane>.yaml (each lane's cursor, RESEARCH §28.12); portfolio-census.json (owner planning data, RESEARCH §28.11 — never a runtime input)
 migration/                   reuse-manifest.yaml

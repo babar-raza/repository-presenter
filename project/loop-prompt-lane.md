@@ -10,7 +10,7 @@ its report — the reviewer spawns the next run.
 Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them, with these substitutions:
 - Your cursor is `project/lanes/<lane>.yaml` — never `project/state.yaml`. You never edit
   `state.yaml`, `docs/EXECUTION_STATE_MACHINE.md`, `docs/README_CONTRACT.md`, `AGENTS.md`, any loop
-  prompt, `RESEARCH_AND_GUIDELINES.md` (§27.9 or §31), `migration/reuse-manifest.yaml`,
+  prompt, `RESEARCH_AND_GUIDELINES.md` §27.9, `DECISION_LOG.md` §31, `migration/reuse-manifest.yaml`,
   `pyproject.toml`, `requirements-lock.txt`, `tools/` (owner/reviewer tooling, `tools/README.md`),
   or another lane's files.
 - **One narrow, named exception** (owner, 2026-09-06 20:21, after lane C's Java re-run sealed a

@@ -1,8 +1,8 @@
-# lane-d decision log (append-only; entries in RESEARCH_AND_GUIDELINES.md section 31 shape; the owner merges)
+# lane-d decision log (append-only; entries in DECISION_LOG.md section 31 shape; the owner merges)
 
 Lane: `lane-d` (project/lanes/lane-d.yaml). Prompt: project/loop-prompt-lane.md.
 
-The lane appends here in `RESEARCH_AND_GUIDELINES.md` §31's shape — date, item, decision,
+The lane appends here in `DECISION_LOG.md` §31's shape — date, item, decision,
 alternative rejected, evidence, reversal path. The owner reviews asynchronously and merges what
 belongs in §31. A `PROPOSAL` names a defect whose cause is outside lane D's owned paths
 (`composition/`, `review/`, `repair/`, the renderer, `prompts/`, `core/`, the shared façades); the
@@ -372,7 +372,7 @@ against the crate at this revision.
 G4-W16 was accepted at its box with one disposition: `aspose-cells-foss/Aspose.Cells-FOSS-for-Rust`,
 `BLOCKED_SHARED_CODE`, class `BC02_PUBLICATION_ONLY_SUPPORTED_PATH`, whose resume predicate was
 "G4-W17 item (0) is landed on main with PROPOSAL P5's refinement … then rerun `present`". Item (0)
-landed at 12:30 and items (5) and (11) together at 13:29 (`RESEARCH_AND_GUIDELINES.md` §31). Both
+landed at 12:30 and items (5) and (11) together at 13:29 (`DECISION_LOG.md` §31). Both
 landed the *mechanism* only and left one spec field each to the ecosystem — and an ecosystem's spec
 lives in a lane-owned `platforms/<ecosystem>.py`. So the re-run is these two decisions in lane D's
 own paths, then the composition; no shared file is touched.
@@ -536,7 +536,7 @@ G4-W15 was accepted at its box with two dispositions — `aspose-cells-foss/Aspo
 and `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`, both `BLOCKED_SHARED_CODE`, class
 `GO_REGISTRY_NEVER_PROBED_SO_BC02_FAILS` — whose resume predicate was "PROPOSAL P1 and PROPOSAL P2
 are landed on main (G4-W17); then rerun `present`". Both landed together at 14:46 as arrival items
-(8) and (9) (`RESEARCH_AND_GUIDELINES.md` §31; commit `08137a0`, present in this worktree's log).
+(8) and (9) (`DECISION_LOG.md` §31; commit `08137a0`, present in this worktree's log).
 This is the re-run. Worktree `C:\w\d15b`, detached off `origin/main` at `2b88ea4`, fresh `.venv`
 from `C:\Python313`; `go` resolved with `shutil.which("go")` to `C:\Program Files\Go\bin\go.EXE`,
 `go1.26.4 windows/amd64`, with `GOPATH`, `GOMODCACHE` and `GOCACHE` under `runs/` only.
