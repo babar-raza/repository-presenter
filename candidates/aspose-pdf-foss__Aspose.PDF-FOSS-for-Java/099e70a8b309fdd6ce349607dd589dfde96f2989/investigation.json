@@ -3,8 +3,7 @@
     "fact_ids": [
       "identity:platform",
       "identity:ecosystem",
-      "dependency:none",
-      "inherited_unit:004.paragraph"
+      "dependency:none"
     ],
     "text": "Java developers building server-side or desktop applications that require PDF document generation, manipulation, and extraction without third-party runtime dependencies."
   },
@@ -15,7 +14,7 @@
         "example:002",
         "example:005"
       ],
-      "text": "Build pages from scratch using Document, Page, Paragraphs, and objects like TextFragment, Table, Cell, and WidgetAnnotation.",
+      "text": "Build pages from scratch using Document, Page, and Paragraphs to add text, tables, and annotations.",
       "title": "Create and edit PDF content"
     },
     {
@@ -23,7 +22,7 @@
         "example:003",
         "example:004"
       ],
-      "text": "Use TextAbsorber to extract plain text and iterate Resources.getImages() to extract XImage objects from pages.",
+      "text": "Use TextAbsorber to extract plain text and iterate page resources to save embedded images as files.",
       "title": "Extract text and images"
     },
     {
@@ -31,8 +30,8 @@
         "example:006",
         "example:007"
       ],
-      "text": "Access and modify form fields such as TextBoxField and RadioButtonOptionField through the Form API.",
-      "title": "Work with AcroForm fields"
+      "text": "Read and modify AcroForm fields including TextBoxField, RadioButtonOptionField, and other field types.",
+      "title": "Work with interactive forms"
     },
     {
       "fact_ids": [
@@ -40,36 +39,36 @@
         "example:008",
         "example:009"
       ],
-      "text": "Set and read border color, background color, and border style for annotations like WidgetAnnotation and RadioButtonOptionField.",
-      "title": "Configure widget annotation appearance"
+      "text": "Set and retrieve border color, background color, and border style for widget annotations and form fields.",
+      "title": "Configure annotation appearance"
     },
     {
       "fact_ids": [
         "inherited_unit:010.list"
       ],
-      "text": "Reduce file size with optimizeResources() and apply encryption or digital signatures using AES/RC4 and PKCS#7.",
-      "title": "Optimize and secure documents"
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "text": "Validate and convert documents to PDF/A-1 through PDF/A-4 using PdfAValidator and PdfAConverter.",
-      "title": "Convert and validate PDF/A"
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "text": "Export PDF pages to raster formats such as BMP, GIF, JPEG, PNG, and multi-page TIFF using device classes.",
+      "text": "Convert PDF pages to raster formats such as BMP, GIF, JPEG, PNG, and multi-page TIFF using device classes.",
       "title": "Render pages to images"
     },
     {
       "fact_ids": [
         "inherited_unit:010.list"
       ],
-      "text": "Build and inspect tagged PDF structure trees and outline bookmarks using TaggedContent and OutlineItemCollection.",
-      "title": "Manage document structure"
+      "text": "Apply PKCS#7 digital signatures and encrypt documents using AES or RC4 with user/owner passwords.",
+      "title": "Sign and secure documents"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Reduce file size through stream recompression, duplicate linking, and resource subsetting.",
+      "title": "Optimize document size"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "text": "Validate documents against PDF/A standards and convert existing PDFs to PDF/A-1 through PDF/A-4.",
+      "title": "Validate and convert to PDF/A"
     }
   ],
   "limitations": [
@@ -77,37 +76,37 @@
       "fact_ids": [
         "inherited_unit:127.list"
       ],
-      "text": "OCR functionality is not included; dedicated OCR libraries must be used for text recognition in scanned images."
+      "text": "No OCR support for text recognition in scanned images."
     },
     {
       "fact_ids": [
         "inherited_unit:127.list"
       ],
-      "text": "Conversion to non-PDF formats other than HTML/XML is not supported; DOCX, XLSX, PPTX, EPUB, and similar are out of scope."
+      "text": "Conversion to non-PDF formats other than HTML/XML is not supported."
     },
     {
       "fact_ids": [
-        "inherited_unit:127.list"
+        "inherited_unit:130.paragraph"
       ],
-      "text": "Full XFA form rendering is not reproduced; XFA data can be flattened to AcroForm but dynamic layout is not rendered."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:129.list"
-      ],
-      "text": "PdfFileSecurity.setAllowExceptions throws UnsupportedOperationException; the legacy AllowExceptions=false path is not implemented."
+      "text": "Concurrency is not supported for a single Document instance; use one instance per thread."
     },
     {
       "fact_ids": [
         "inherited_unit:129.list"
       ],
-      "text": "Text replacement with non-Latin scripts may differ from a reference renderer due to limited bidirectional reordering and shaping."
+      "text": "Text replacement with non-Latin scripts may differ from reference renderers in complex bidirectional cases."
     },
     {
       "fact_ids": [
         "inherited_unit:129.list"
       ],
-      "text": "Resource optimization supports basic stream recompression but advanced strategies like image downsampling and font merging are limited."
+      "text": "Resource optimization has limited advanced strategies such as image downsampling profiles and font merging."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:129.list"
+      ],
+      "text": "Tagged PDF structure tree coverage for full compliance is partial."
     }
   ],
   "problems_solved": [
@@ -127,22 +126,20 @@
         "example:003",
         "example:004"
       ],
-      "text": "Supports extraction of plain text and images from existing PDFs via absorber and resource APIs."
+      "text": "Supports extraction of plain text and images from existing PDFs for indexing, analysis, or reuse."
     },
     {
       "fact_ids": [
         "example:006",
-        "example:007",
-        "example:008",
-        "example:009"
+        "example:007"
       ],
-      "text": "Provides form field population and interaction with AcroForm widgets such as text boxes and radio button options."
+      "text": "Provides form field population and interaction through AcroForm support including text boxes, radio buttons, checkboxes, and combo boxes."
     },
     {
       "fact_ids": [
-        "inherited_unit:010.list"
+        "example:004"
       ],
-      "text": "Offers document optimization, PDF/A validation/conversion, encryption, and digital signing capabilities."
+      "text": "Allows rendering of PDF pages to raster images and extraction of individual images embedded in the document."
     }
   ],
   "product_summary": {
@@ -151,17 +148,17 @@
       "identity:family",
       "identity:platform",
       "identity:ecosystem",
-      "license:spdx",
       "package:name",
       "package:version",
-      "package:java_release"
+      "package:java_release",
+      "license:spdx"
     ],
     "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents compliant with ISO 32000-1:2008."
   },
   "uncertainties": [
-    "The exact set of public symbols beyond org, org.aspose, and org.aspose.pdf is not fully enumerated in facts.",
-    "Support for public-key-encrypted PDFs via ICustomSecurityHandler is mentioned but no concrete usage example is provided in facts.",
-    "Coverage for building fully well-formed tagged PDF structure trees is described as partial but specific gaps are not detailed in facts."
+    "The exact set of public API types beyond the documented core classes and their method signatures is not fully enumerated in the facts.",
+    "Whether the library supports PDF/X or 3D annotations beyond stating they are out of scope is not confirmed.",
+    "The behavior of PdfFileSecurity.setAllowExceptions in edge cases is not detailed beyond throwing UnsupportedOperationException."
   ],
   "workflows": [
     {
@@ -177,14 +174,14 @@
         "example:003"
       ],
       "name": "Extract text from PDF",
-      "text": "Load a Document, create a TextAbsorber, accept it on pages, and retrieve extracted text as a String."
+      "text": "Load a Document, create a TextAbsorber, call accept on pages, and retrieve extracted text as a String."
     },
     {
       "fact_ids": [
         "example:004"
       ],
       "name": "Extract images from PDF",
-      "text": "Iterate over XImage objects in a page's Resources collection and save each to a file stream."
+      "text": "Load a Document, iterate over page resources' image collections, and save each XImage to a file stream."
     },
     {
       "fact_ids": [
@@ -195,13 +192,19 @@
     },
     {
       "fact_ids": [
-        "example:001",
-        "example:007",
-        "example:008",
-        "example:009"
+        "example:002",
+        "example:007"
       ],
-      "name": "Build interactive form widgets",
-      "text": "Create WidgetAnnotation or RadioButtonOptionField instances with a Rectangle, add them to a Page or Cell, and configure characteristics such as border color or style."
+      "name": "Build form controls in table cells",
+      "text": "Create a Cell, add TextFragment and RadioButtonOptionField instances in desired order, and add the cell to a table."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:008"
+      ],
+      "name": "Configure widget annotation appearance",
+      "text": "Create a WidgetAnnotation with a Rectangle, set border or background color via characteristics, and read back values."
     }
   ]
 }

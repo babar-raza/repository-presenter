@@ -1,79 +1,248 @@
 {
   "coherence": {
     "applied": true,
-    "revised": [
-      "key_capabilities/capability:5",
-      "documentation_resources/link:link_target:022",
-      "documentation_resources/link:link_target:023",
-      "documentation_resources/link:link_target:024",
-      "development_testing/summary"
-    ]
+    "revised": []
   },
   "omitted": [
     {
-      "fact_id": "example:001",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:002",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:003",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:004",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:005",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:006",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:007",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:008",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
-      "fact_id": "example:009",
-      "reason": "example fact, not used in opening unit",
-      "section": "opening"
-    },
-    {
       "fact_id": "inherited_unit:010.list",
-      "reason": "inherited unit, not used in opening paragraph",
-      "section": "opening"
-    },
-    {
-      "fact_id": "link_target:006",
-      "reason": "excluded per do_not_claim",
+      "reason": "This fact is a list of capabilities intended for a later section, not the opening summary.",
       "section": "opening"
     },
     {
       "fact_id": "inherited_unit:024.paragraph",
-      "reason": "inherited_unit, not a fact about the product or example",
+      "reason": "inherited_unit:024.paragraph is an inherited unit, not a fact about the product; it is used by the renderer as a label and must not be cited as a fact.",
       "section": "quick_start"
     },
     {
       "fact_id": "inherited_unit:025.code_block",
-      "reason": "inherited_unit, not a fact about the product or example",
+      "reason": "inherited_unit:025.code_block is an inherited unit, not a fact about the product; it is used by the renderer as a code block and must not be cited as a fact.",
       "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:047.paragraph",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:049.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:051.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:053.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:055.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:057.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:059.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:061.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:063.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:065.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:067.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:069.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:071.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:073.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:075.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:077.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:079.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:081.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:083.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:085.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:087.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:089.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:091.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:093.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:095.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:097.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:099.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:101.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:103.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:105.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:107.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:109.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:110.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:111.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:112.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:113.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:114.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:115.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:116.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:117.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:118.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:119.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:120.heading",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:121.list",
+      "reason": "inherited_unit content is rendered by the deterministic renderer and must not be duplicated in prose units",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "inherited_unit:124.list",
+      "reason": "contains additional links and content not required for the three specified slots",
+      "section": "documentation_resources"
     },
     {
       "fact_id": "identity:repository",
@@ -82,37 +251,37 @@
     },
     {
       "fact_id": "identity:revision",
-      "reason": "Not needed in this summary; revision is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; revision is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:family",
-      "reason": "Not needed in this summary; family identity is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; family identity is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:platform",
-      "reason": "Not needed in this summary; platform identity is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; platform identity is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "identity:ecosystem",
-      "reason": "Not needed in this summary; ecosystem identity is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; ecosystem identity is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "package:name",
-      "reason": "Not needed in this summary; package name is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; package name is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "package:version",
-      "reason": "Not needed in this summary; version is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; version is not referenced in the summary content.",
       "section": "development_testing"
     },
     {
       "fact_id": "package:java_release",
-      "reason": "Not needed in this summary; Java release is not referenced in the build/test instructions.",
+      "reason": "Not needed in this summary; Java release version is not referenced in the summary content.",
       "section": "development_testing"
     }
   ],
@@ -129,12 +298,11 @@
         "package:version",
         "package:java_release",
         "license:spdx",
-        "dependency:none",
-        "inherited_unit:004.paragraph"
+        "dependency:none"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.PDF FOSS for Java is a free, open-source, pure-Java library for creating, reading, and modifying PDF documents. It targets ISO 32000-1:2008 compliance and depends only on the standard Java platform — no third-party runtime libraries. Developers use it to build, inspect, and process PDFs in Java 11 and later applications without external dependencies. The package org.aspose:aspose-pdf-foss version 26.8.0 provides APIs for text handling, form filling, annotations, page manipulation, and export to raster images or HTML."
+      "text": "Aspose.PDF FOSS for Java is a Java library that enables developers to create, read, edit, and convert PDF documents without requiring Adobe Acrobat. It solves problems related to programmatic PDF generation, text extraction, form filling, annotation management, and document conversion, supporting features like form fields, annotations, page manipulation, and PDF/A compliance. Developers working in Java 11 or later use this library to embed robust PDF capabilities into their applications, especially where licensing and dependency constraints favor an open-source solution. The package org.aspose:aspose-pdf-foss version 26.8.0 provides these capabilities with no external runtime dependencies."
     },
     {
       "fact_ids": [
@@ -144,7 +312,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Create and edit PDF content by adding pages, inserting text fragments, and building tables with cells, rows, and paragraphs using the Document, Page, and Table APIs."
+      "text": "Create and edit PDF content by adding pages, inserting text fragments, and building interactive form elements such as radio button options within cells, all using the Document, Page, and WidgetAnnotation APIs."
     },
     {
       "fact_ids": [
@@ -153,7 +321,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Extract text and images from PDF pages using TextAbsorber for plain text and XImage objects for image resources, saving images to files in formats such as PNG."
+      "text": "Extract text and images from PDF pages using TextAbsorber for plain text and XImage for image extraction, supporting page-specific retrieval and file export."
     },
     {
       "fact_ids": [
@@ -162,7 +330,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Work with AcroForm fields including text boxes, check boxes, combo boxes, list boxes, radio button groups, and signature fields through the Form API, supporting field value access and iteration."
+      "text": "Work with interactive forms by reading and modifying AcroForm fields like TextBoxField through the Form interface, iterating all fields, and saving filled forms back to disk."
     },
     {
       "fact_ids": [
@@ -172,7 +340,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Configure widget annotation appearance by setting border color, background color, and border style using WidgetAnnotation characteristics and the Border class."
+      "text": "Configure annotation appearance by setting border colors, background colors, and border styles such as dashed lines on WidgetAnnotation and RadioButtonOptionField instances."
     },
     {
       "fact_ids": [
@@ -180,7 +348,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:5",
-      "text": "Optimize and secure documents by reducing file size with Document.optimizeResources and applying encryption with AES or RC4 using StandardSecurityHandler."
+      "text": "Render pages to images using device classes like BmpDevice, GifDevice, JpegDevice, PngDevice, and TiffDevice for multi-page TIFF output, or extract text per page with TextDevice."
     },
     {
       "fact_ids": [
@@ -188,7 +356,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:6",
-      "text": "Convert and validate PDF/A documents to standards from PDF/A-1 through PDF/A-4 using PdfAConverter and PdfAValidator with detailed validation results."
+      "text": "Sign and secure documents using PKCS#7 with RSA, DSA, or ECDSA via PdfSigner and verify existing signatures with SignatureVerificationResult, plus encrypt or decrypt with AES or RC4 using StandardSecurityHandler."
     },
     {
       "fact_ids": [
@@ -196,7 +364,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:7",
-      "text": "Render pages to images using device classes such as PngDevice, JpegDevice, and TiffDevice for multi-page TIFF output, or extract text per page with TextDevice."
+      "text": "Optimize document size by removing unused objects, linking duplicate streams, recompressing streams, and subsetting fonts or images using Document.optimizeResources with OptimizationOptions and ResourceOptimizer."
     },
     {
       "fact_ids": [
@@ -204,7 +372,7 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:8",
-      "text": "Manage document structure by building and inspecting the logical structure tree through TaggedContent and StructTreeRoot, or editing the outline tree with OutlineCollection."
+      "text": "Validate and convert documents to PDF/A-1 through PDF/A-4 using PdfAValidator, PdfAConverter, and PdfAValidationResult to ensure long-term archival compliance."
     },
     {
       "fact_ids": [
@@ -243,7 +411,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:002",
-      "text": "Mix plain text and a radio button field in a table cell."
+      "text": "Mix plain text with a radio button field in a table cell."
     },
     {
       "fact_ids": [
@@ -259,7 +427,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:003",
-      "text": "Extract all text from an existing PDF document."
+      "text": "Extract all text from a PDF document."
     },
     {
       "fact_ids": [
@@ -355,7 +523,7 @@
       ],
       "section": "additional_examples",
       "slot": "workflow:example:009",
-      "text": "Set and retrieve the border style of a radio button option."
+      "text": "Set and inspect the border style of a radio button option."
     },
     {
       "fact_ids": [
@@ -366,86 +534,69 @@
         "identity:revision",
         "package:java_release",
         "package:name",
-        "package:version",
+        "package:version"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.PDF FOSS for Java provides the Document class as the central entry point for working with PDF documents, with pages accessible through PageCollection and Page, and document-level operations exposed via facades such as PdfFileEditor, PdfContentEditor, PdfBookmarkEditor, PdfExtractor, PdfConverter, and PdfFileSignature. The module is published as org.aspose:aspose-pdf-foss version 26.8.0 for Java 11 and belongs to the pdf family in the java ecosystem."
+    },
+    {
+      "fact_ids": [
         "public_symbol:org",
         "public_symbol:org.aspose",
         "public_symbol:org.aspose.pdf"
       ],
       "section": "api_reference",
-      "slot": "intro",
-      "text": "The Aspose.PDF FOSS for Java library exposes its core functionality through the org.aspose.pdf package, where the Document class serves as the primary entry point for creating, reading, and manipulating PDF documents."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:java_release",
-        "package:name",
-        "package:version",
-        "public_symbol:org"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:org",
-      "text": "The top-level package namespace org organizes the Aspose.PDF FOSS for Java library under the standard Java package hierarchy."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:java_release",
-        "package:name",
-        "package:version",
-        "public_symbol:org.aspose"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:org.aspose",
-      "text": "The org.aspose namespace groups all Aspose product families for Java, including the Aspose.PDF FOSS for Java library."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:java_release",
-        "package:name",
-        "package:version",
-        "public_symbol:org.aspose.pdf"
-      ],
-      "section": "api_reference",
       "slot": "hub:public_symbol:org.aspose.pdf",
-      "text": "The org.aspose.pdf package contains the core classes for working with PDF documents, such as Document, Page, and TextFragment."
+      "text": "The public API surface of Aspose.PDF FOSS for Java is organized under the org.aspose.pdf namespace and includes core types such as Document, Page, and PageCollection, along with facades like PdfFileEditor and PdfContentEditor that provide high-level operations on PDF content."
     },
     {
       "fact_ids": [
-        "link_target:022"
+        "link_target:022",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
-      "text": "Introduces installation, step-by-step walkthroughs, and feature guides for using Aspose.PDF FOSS for Java."
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for using Aspose.PDF FOSS for Java."
     },
     {
       "fact_ids": [
-        "link_target:023"
+        "link_target:023",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
-      "text": "Provides task-focused answers and frequently asked questions for common PDF-processing scenarios."
+      "text": "The how-to guides and FAQ provide task-focused answers for common PDF-processing questions encountered when working with Aspose.PDF FOSS for Java."
     },
     {
       "fact_ids": [
-        "link_target:024"
+        "link_target:024",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "Offers the complete, browsable reference for the public API surface of the library."
+      "text": "The full API reference offers a complete, browsable reference for the public API surface of Aspose.PDF FOSS for Java."
     },
     {
       "fact_ids": [
@@ -454,130 +605,63 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "inherited_unit:126.paragraph",
-        "inherited_unit:127.list",
-        "inherited_unit:128.paragraph",
-        "inherited_unit:129.list",
-        "inherited_unit:130.paragraph",
         "package:java_release",
         "package:name",
         "package:version"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.PDF FOSS for Java provides a Java library for creating, editing, and converting PDF documents, targeting developers who need PDF processing capabilities in Java 11 or later applications using the org.aspose:aspose-pdf-foss package at version 26.8.0."
+      "text": "Aspose.PDF FOSS for Java provides a free, open-source subset of the Aspose.PDF for Java API for working with PDF documents in Java 11 and later, supporting core creation, reading, and manipulation of PDF content."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:127.list",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:126.paragraph",
+        "inherited_unit:127.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "OCR functionality, conversion to non-PDF formats beyond HTML and XML, conversion from non-PDF formats beyond HTML, full XFA form rendering, and 3D annotations with PRC/U3D streams or PDF/X support are not included in this edition."
+      "text": "OCR recognition of text in scanned images is not supported; use a dedicated OCR library instead. Conversion to non-PDF formats other than HTML/XML — DOCX, XLSX, PPTX, EPUB, MOBI, Markdown, LaTeX, and similar — is not supported. Conversion from non-PDF formats other than HTML — DOC, DOCX, XLSX, PPTX, XPS, PCL, PostScript, EPS, and SVG — is not supported. Full XFA form rendering is not reproduced; XFA data is exposed and can be flattened to AcroForm, but the dynamic XFA layout/rendering layer itself is not supported. 3D annotations and PRC/U3D streams, and PDF/X (the print-production family; PDF/A is supported) are not supported."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:129.list",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:130.paragraph"
       ],
       "section": "scope_limitations",
       "slot": "limitation:2",
-      "text": "The PdfFileSecurity.setAllowExceptions method throws UnsupportedOperationException, text replacement with non-Latin scripts has limited support for complex bidirectional reordering, resource optimization lacks advanced strategies, tagged PDF structure tree coverage is partial, and public-key-encrypted PDFs require custom security handlers without built-in helpers."
+      "text": "A single Document instance is not thread-safe, requiring one instance per thread for parallel processing."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:126.paragraph",
-        "inherited_unit:127.list",
         "inherited_unit:128.paragraph",
-        "inherited_unit:129.list",
-        "inherited_unit:130.paragraph",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:129.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:3",
-      "text": "Concurrency is limited because a single Document instance is not thread-safe, requiring one Document per thread for parallel processing."
+      "text": "Some features are only partially implemented, including text replacement for non-Latin scripts, resource optimization strategies, tagged PDF structure completeness, and public-key-encrypted PDF handling without built-in helpers."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:126.paragraph",
-        "inherited_unit:127.list",
-        "inherited_unit:128.paragraph",
-        "inherited_unit:129.list",
-        "inherited_unit:130.paragraph",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:129.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:4",
-      "text": "Text replacement with non-Latin scripts such as CJK, Arabic, and Hebrew works for basic cases but may differ from a reference renderer in complex bidirectional reordering and shaping scenarios."
+      "text": "The PdfFileSecurity.setAllowExceptions method throws UnsupportedOperationException because the legacy AllowExceptions=false toolkit-key-size path is not implemented."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:126.paragraph",
-        "inherited_unit:127.list",
-        "inherited_unit:128.paragraph",
-        "inherited_unit:129.list",
-        "inherited_unit:130.paragraph",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:129.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:5",
-      "text": "Resource optimization supports basic stream recompression but lacks advanced strategies including image downsampling profiles and font merging across resources."
+      "text": "Complex bidirectional text reordering and shaping for Arabic, Hebrew, and CJK scripts may differ from a reference renderer during text replacement operations."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:126.paragraph",
-        "inherited_unit:127.list",
-        "inherited_unit:128.paragraph",
-        "inherited_unit:129.list",
-        "inherited_unit:130.paragraph",
-        "package:java_release",
-        "package:name",
-        "package:version"
+        "inherited_unit:129.list"
       ],
       "section": "scope_limitations",
       "slot": "limitation:6",
-      "text": "Tagged PDF logical structure is readable and supports programmatic construction of structure trees, but coverage for building fully well-formed structure trees remains partial."
+      "text": "Advanced resource optimization strategies such as image downsampling profiles and font merging across resources are limited in this edition."
     },
     {
       "fact_ids": [
@@ -587,17 +671,18 @@
       ],
       "section": "development_testing",
       "slot": "summary",
-      "text": "Build and test the project using Maven commands such as mvn clean compile to compile, mvn test to run all tests, or mvn test with a specific test class and method to run a targeted test; mvn clean install performs a full build including test jar and javadoc generation, with javadoc:javadoc output directed to target/apidocs per the project configuration."
+      "text": "Build and test the project using Maven commands such as mvn clean compile to compile, mvn test to run all tests, or mvn test -Dtest to run a specific test; mvn clean install performs a full build including test jar and javadoc generation, with javadoc output directed to target/apidocs/ per the project configuration."
     },
     {
       "fact_ids": [
         "identity:platform",
         "package:java_release",
+        "identity:ecosystem",
         "package:name"
       ],
       "section": "enterprise_relationship",
       "slot": "context",
-      "text": "Aspose.PDF FOSS for Java provides open-source PDF processing capabilities for Java 11 and later, and the commercial Aspose.PDF for Java extends this with additional features and support."
+      "text": "This package provides open-source PDF processing capabilities for Java 11 and later, and the commercial edition extends it with additional features and support."
     }
   ]
 }

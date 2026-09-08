@@ -1,6 +1,6 @@
 [
   {
-    "elapsed_ms": 628,
+    "elapsed_ms": 1853,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -8,7 +8,7 @@
     "target": "https://docs.aspose.org/pdf/java/"
   },
   {
-    "elapsed_ms": 2746,
+    "elapsed_ms": 2596,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -16,7 +16,7 @@
     "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/actions/workflows/build.yml"
   },
   {
-    "elapsed_ms": 1104,
+    "elapsed_ms": 2420,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -24,7 +24,7 @@
     "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/actions/workflows/build.yml/badge.svg"
   },
   {
-    "elapsed_ms": 1180,
+    "elapsed_ms": 2677,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -32,7 +32,7 @@
     "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java/issues"
   },
   {
-    "elapsed_ms": 490,
+    "elapsed_ms": 591,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -40,7 +40,7 @@
     "target": "https://img.shields.io/badge/Java-11%2B-blue.svg"
   },
   {
-    "elapsed_ms": 500,
+    "elapsed_ms": 943,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -48,7 +48,7 @@
     "target": "https://img.shields.io/badge/License-MIT-yellow.svg"
   },
   {
-    "elapsed_ms": 494,
+    "elapsed_ms": 1128,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -56,7 +56,7 @@
     "target": "https://img.shields.io/maven-central/v/org.aspose/aspose-pdf-foss.svg"
   },
   {
-    "elapsed_ms": 1824,
+    "elapsed_ms": 2518,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -64,7 +64,7 @@
     "target": "https://kb.aspose.org/pdf/java/"
   },
   {
-    "elapsed_ms": 1883,
+    "elapsed_ms": 1832,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -72,7 +72,7 @@
     "target": "https://openjdk.org/projects/jdk/11/"
   },
   {
-    "elapsed_ms": 687,
+    "elapsed_ms": 1827,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -80,7 +80,7 @@
     "target": "https://products.aspose.com/pdf/java/"
   },
   {
-    "elapsed_ms": 1008,
+    "elapsed_ms": 1399,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -88,7 +88,7 @@
     "target": "https://products.aspose.org/media/pdf/java/banner-readme.png"
   },
   {
-    "elapsed_ms": 886,
+    "elapsed_ms": 1413,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -96,7 +96,7 @@
     "target": "https://products.aspose.org/pdf/java/"
   },
   {
-    "elapsed_ms": 638,
+    "elapsed_ms": 2381,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -104,7 +104,7 @@
     "target": "https://reference.aspose.org/pdf/java/"
   },
   {
-    "elapsed_ms": 1693,
+    "elapsed_ms": 2216,
     "kind": "link",
     "observation": null,
     "outcome": "UNCHECKED",

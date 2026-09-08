@@ -12,18 +12,8 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:org"
-      ],
-      "symbol_fact_id": "public_symbol:org"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:org.aspose"
-      ],
-      "symbol_fact_id": "public_symbol:org.aspose"
-    },
-    {
-      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
         "public_symbol:org.aspose.pdf"
       ],
       "symbol_fact_id": "public_symbol:org.aspose.pdf"
@@ -33,12 +23,12 @@
     "capability_titles": [
       "Create and edit PDF content",
       "Extract text and images",
-      "Work with AcroForm fields",
-      "Configure widget annotation appearance",
-      "Optimize and secure documents",
-      "Convert and validate PDF/A",
+      "Work with interactive forms",
+      "Configure annotation appearance",
       "Render pages to images",
-      "Manage document structure"
+      "Sign and secure documents",
+      "Optimize document size",
+      "Validate and convert to PDF/A"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -69,7 +59,7 @@
         "example:007"
       ],
       "shared_fact_ids": [],
-      "title": "Work with AcroForm fields"
+      "title": "Work with interactive forms"
     },
     {
       "fact_ids": [
@@ -80,25 +70,7 @@
       "shared_fact_ids": [
         "example:001"
       ],
-      "title": "Configure widget annotation appearance"
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "shared_fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "title": "Optimize and secure documents"
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "shared_fact_ids": [
-        "inherited_unit:010.list"
-      ],
-      "title": "Convert and validate PDF/A"
+      "title": "Configure annotation appearance"
     },
     {
       "fact_ids": [
@@ -116,24 +88,34 @@
       "shared_fact_ids": [
         "inherited_unit:010.list"
       ],
-      "title": "Manage document structure"
+      "title": "Sign and secure documents"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Optimize document size"
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Validate and convert to PDF/A"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "install_command:maven",
-        "package:version"
-      ],
-      "section_id": "installation",
-      "text": "The Maven and Gradle dependency versions in the inherited README (26.6.0) contradict the verified version 26.8.0."
-    },
-    {
-      "fact_ids": [
         "install_command:maven"
       ],
       "section_id": "installation",
-      "text": "The 'build from source' paragraph and code block are omitted because no supporting facts about building from source exist."
+      "text": "Gradle and build-from-source instructions are omitted because no facts support them."
     },
     {
       "fact_ids": [
@@ -142,7 +124,7 @@
         "public_symbol:org.aspose.pdf"
       ],
       "section_id": "api_reference",
-      "text": "The inherited README claims 1026 public types and includes extensive tables for Core API, Annotations, Devices, Drawing, Engine, Facades, Forms, HTML, Logicalstructure, Operators, Optimization, Printing, Security, Tagged, Text, and Detailed Member Reference sections. None of these tables or the 1026-count claim are supported by facts, so they are omitted."
+      "text": "The full API reference is collapsed behind a details block to stay within visible-line budgets."
     }
   ],
   "flagship_example_id": "example:006",
@@ -161,7 +143,7 @@
     },
     {
       "link_fact_id": "link_target:037",
-      "section_id": "scope_limitations"
+      "section_id": "enterprise_relationship"
     }
   ],
   "material_limitations": [
@@ -170,7 +152,16 @@
         "inherited_unit:127.list"
       ],
       "unit_ids": [
+        "inherited_unit:126.paragraph",
         "inherited_unit:127.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:130.paragraph"
+      ],
+      "unit_ids": [
+        "inherited_unit:130.paragraph"
       ]
     },
     {
@@ -178,6 +169,7 @@
         "inherited_unit:129.list"
       ],
       "unit_ids": [
+        "inherited_unit:128.paragraph",
         "inherited_unit:129.list"
       ]
     }

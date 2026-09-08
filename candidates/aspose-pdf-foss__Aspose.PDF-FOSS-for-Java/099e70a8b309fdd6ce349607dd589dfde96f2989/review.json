@@ -1,5 +1,136 @@
 {
-  "advisory": [],
+  "advisory": [
+    {
+      "absent": [
+        "Gradle:",
+        "implementation 'org.aspose:aspose-pdf-foss:26.8.0'",
+        "To build from source instead:",
+        "git clone https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java.git",
+        "cd Aspose.PDF-FOSS-for-Java",
+        "mvn clean install"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-pdf-foss`, version 26.8.0):",
+      "repair": "Add the Gradle dependency snippet and the build-from-source commands to match the original README's installation instructions.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The installation section omits Gradle and build-from-source instructions that are present in the original README and supported by the project's build configuration, reducing completeness for Java developers."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "The verified public surface has 1158 types.",
+      "repair": "Correct the type count to 1026 to match the original README and factual count.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API reference section incorrectly states the public surface has 1158 types, while the original README and facts confirm 1026 public types, introducing a factual error disguised as presentation."
+    },
+    {
+      "absent": [
+        "Import HTML into a PDF with `HtmlLoadOptions` and `HtmlToPdfConverter`, and export a PDF back to HTML or XML with `HtmlS",
+        "Read and write document metadata with `XmpMetadata`, `XmpWriter`, and `XmpParser`.",
+        "Split, merge, insert, extract, and reorder pages with `PdfFileEditor`, and edit individual page size and rotation with `",
+        "Generate QR codes with the bundled `QrEncoder` (ISO/IEC 18004, Model 2) — no third-party barcode library required."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "- **Validate and convert to PDF/A.** `Validate` and convert documents to PDF/A-1 through PDF/A-4 using `PdfAValidator`, `PdfAConverter`, and `PdfAValidationResult` to ensure long-term archival compliance.",
+      "repair": "Restore the omitted capabilities (HTML import/export, metadata, page manipulation, QR codes) to match the original README's Key Capabilities list.",
+      "reviewer_scope_defect": "the quote names public_symbol:org.aspose.pdf, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section drops critical features like HTML import/export, metadata handling, page manipulation, and QR code generation that are present in the original README, making the overview incomplete."
+    },
+    {
+      "absent": [
+        "Out of scope (not planned for this edition):",
+        "Partially implemented today:"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Aspose.PDF FOSS for Java provides a free, open-source subset of the Aspose.PDF for Java API for working with PDF documents in Java 11 and later, supporting core creation, reading, and manipulation of PDF content.",
+      "repair": "Restore the original two-category structure (Out of scope vs. Partially implemented) to match the original README's scope and limitations presentation.",
+      "reviewer_scope_defect": "the quote names public_symbol:org.aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section merges and rephrases the original's two distinct categories (Out of scope vs. Partially implemented) into a single paragraph, losing the original's structured clarity."
+    },
+    {
+      "absent": [
+        "int pageIndex = 1;",
+        "int imageIndex = 1;",
+        "// Iterate all fields"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "### Read and update form fields in an existing PDF form",
+      "repair": "Restore the omitted page-specific retrieval detail and iteration comment to match the original README's example code.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '// Iterate all fields', 'int imageIndex = 1;', 'int pageIndex = 1;', which the candidate contains",
+      "section_id": "additional_examples",
+      "text": "The Additional Examples section drops the 'Extract Images From a PDF' example's page-specific retrieval detail and the 'Read and Update Fields' example's iteration comment, reducing specificity."
+    },
+    {
+      "absent": [
+        "Create a page-level widget annotation and set its border color, then read it back:"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Create a page-level widget annotation and set its border color, then read it back:",
+      "repair": "Restore the original lead-in sentence to maintain narrative coherence in the Quick Start section.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Create a page-level widget annotation and set its border color, then read it back:', which the candidate contains",
+      "section_id": "quick_start",
+      "text": "The Quick Start section omits the original's lead-in sentence about widget annotations, making the example feel disconnected from the narrative."
+    },
+    {
+      "absent": [
+        "### Native and System Requirements"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "### Native and System Requirements",
+      "repair": "Remove the unsupported 'Native and System Requirements' subsection to match the original README's dependencies structure.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Native and System Requirements', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The Dependencies section adds a 'Native and System Requirements' subsection that is absent from the original README and not supported by facts, introducing unsupported content."
+    },
+    {
+      "absent": [
+        "- **[Contributor guide](AGENTS.md)** — architecture notes and conventions for contributors, including guidance for AI",
+        "- **[Publishing guide](PUBLISHING.md)** — the maintainers' release process for publishing this package to Maven Central."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "- **[Getting started guide](https://docs.aspose.org/pdf/java/)** — The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for using Aspose.PDF FOSS for Java.",
+      "repair": "Restore the omitted 'Contributor guide' and 'Publishing guide' links to match the original README's documentation resources.",
+      "reviewer_scope_defect": "the quote names public_symbol:org.aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "documentation_resources",
+      "text": "The Documentation & Resources section omits the 'Contributor guide' and 'Publishing guide' links present in the original README, reducing completeness for contributors."
+    }
+  ],
   "authoring": {
     "job": "section_authoring",
     "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
@@ -8,7 +139,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "bcea89a8a9a45a0b56eebf03b1006ee2edd916f1b2200115ffbe557c02e95bbe",
+  "readme_sha256": "1ef34c2538ffb020e3be1f0862611a0439e109a185d0a1b6b0a8ac4824394464",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -21,5 +152,5 @@
     "read": false
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "ACCEPT"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }

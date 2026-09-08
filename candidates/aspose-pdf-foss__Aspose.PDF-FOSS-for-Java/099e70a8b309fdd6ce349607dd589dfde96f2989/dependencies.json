@@ -6,6 +6,12 @@
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
+  "environment": {
+    "extractor_version": "1",
+    "os": "Windows",
+    "python_version": "3.13.2",
+    "site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411"
+  },
   "facts": {
     "build_test_asset:ci": "47a5821d814de0a704606cb2311a3a8de9c7d6ca6b3f66b9209e5cac7217ba92",
     "build_test_asset:docs": "edce4e48771d01e63caf5935803493eeed38799954aba486b331436d0c9e9bb4",
@@ -25072,8 +25078,8 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
-      "version": "7"
+      "sha256": "29ef850e5c00fffdd07aad641bd226e144fb2de91b09d0cd189f402544d8e836",
+      "version": "8"
     }
   },
   "protected_content_fingerprint": "8615532b6bbdb57032d5c3c2663346a40902a8bec99418d70b69dc99f9fee668",

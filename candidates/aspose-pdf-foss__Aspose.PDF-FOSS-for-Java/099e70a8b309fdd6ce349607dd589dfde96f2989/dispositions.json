@@ -13,7 +13,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The H1 product name matches the verified repository, family, platform, and ecosystem.",
+      "rationale": "The H1 product name matches the verified repository identity and family.",
       "unit_id": "inherited_unit:001.heading"
     },
     {
@@ -66,7 +66,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "All badges in the row are supported by verified links and facts for build status, license, Maven Central, and Java version.",
+      "rationale": "All badges in the row are supported by verified links and package/license facts.",
       "unit_id": "inherited_unit:002.badge_row"
     },
     {
@@ -76,7 +76,7 @@
         "link_target:product.banner",
         "link_target:product.homepage"
       ],
-      "rationale": "The banner image link and product homepage are verified; the unit is moved to the banner section.",
+      "rationale": "The banner image link and homepage target are verified; moved to the banner section.",
       "unit_id": "inherited_unit:003.badge_row"
     },
     {
@@ -87,13 +87,13 @@
         "identity:family",
         "identity:platform",
         "identity:ecosystem",
-        "license:spdx",
         "package:name",
         "package:version",
         "package:java_release",
+        "license:spdx",
         "dependency:none"
       ],
-      "rationale": "The paragraph's substance is fully supported by facts and matches the required opening content.",
+      "rationale": "The paragraph's substance is covered by the identity, package, and dependency facts; rewritten in the opening section.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -117,7 +117,7 @@
         "link_target:020",
         "link_target:021"
       ],
-      "rationale": "The Navigation heading and list are superseded by the deterministic navigation section.",
+      "rationale": "The Navigation heading and list are rendered from facts; the inherited list is redundant.",
       "unit_id": "inherited_unit:005.heading"
     },
     {
@@ -141,7 +141,7 @@
         "link_target:020",
         "link_target:021"
       ],
-      "rationale": "The navigation list is superseded by the deterministic navigation section.",
+      "rationale": "The navigation list is rendered from facts; the inherited list is redundant.",
       "unit_id": "inherited_unit:006.list"
     },
     {
@@ -150,38 +150,28 @@
       "fact_ids": [
         "example:001",
         "example:002",
-        "example:003",
-        "example:004",
         "example:005",
-        "example:006",
-        "example:007",
-        "example:008",
-        "example:009"
+        "inherited_unit:008.code_block"
       ],
-      "rationale": "The At a Glance heading and Mermaid diagram are superseded by the deterministic at_a_glance section.",
+      "rationale": "The At a Glance section is rendered from the Mermaid flowchart fact and examples; the heading is redundant.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
-      "destination_section": "at_a_glance",
+      "destination_section": null,
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:001",
         "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:007",
-        "example:008",
-        "example:009"
+        "example:005"
       ],
-      "rationale": "The Mermaid diagram is superseded by the deterministic at_a_glance section.",
+      "rationale": "The Mermaid flowchart is supported by examples and placed in the At a Glance section.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
       "destination_section": "key_capabilities",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "inherited_unit:010.list",
         "example:001",
         "example:002",
         "example:003",
@@ -190,10 +180,9 @@
         "example:006",
         "example:007",
         "example:008",
-        "example:009",
-        "inherited_unit:010.list"
+        "example:009"
       ],
-      "rationale": "The Key Capabilities heading and list are superseded by the deterministic key_capabilities section.",
+      "rationale": "The Key Capabilities heading and list are re-authored from facts; the inherited list is redundant.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -208,10 +197,9 @@
         "example:006",
         "example:007",
         "example:008",
-        "example:009",
-        "inherited_unit:010.list"
+        "example:009"
       ],
-      "rationale": "The key capabilities list is superseded by the deterministic key_capabilities section.",
+      "rationale": "The Key Capabilities list is re-authored from facts; the inherited list is redundant.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -222,7 +210,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The Installation heading and content are superseded by the deterministic installation section.",
+      "rationale": "The Installation heading and content are rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:011.heading"
     },
     {
@@ -233,7 +221,7 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The installation paragraph is superseded by the deterministic installation section.",
+      "rationale": "The Installation paragraph is redundant with the installation command fact.",
       "unit_id": "inherited_unit:012.paragraph"
     },
     {
@@ -244,36 +232,28 @@
         "package:name",
         "package:version"
       ],
-      "rationale": "The Maven dependency version in the code block (26.6.0) contradicts the verified version 26.8.0.",
+      "rationale": "The Maven dependency snippet is redundant with the installation command fact.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
-      ],
-      "rationale": "The Gradle paragraph is superseded by the deterministic installation section.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "Gradle installation is not supported by any fact; omitted.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
-      "destination_section": "installation",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [
-        "install_command:maven",
-        "package:name",
-        "package:version"
-      ],
-      "rationale": "The Gradle dependency version in the code block (26.6.0) contradicts the verified version 26.8.0.",
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Gradle dependency snippet is not supported by any fact; omitted.",
       "unit_id": "inherited_unit:015.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'build from source' paragraph is not supported by any fact about building from source.",
+      "rationale": "Building from source is not supported by any fact; omitted.",
       "unit_id": "inherited_unit:016.paragraph"
     },
     {
@@ -282,7 +262,7 @@
       "fact_ids": [
         "install_command:maven"
       ],
-      "rationale": "The build-from-source code block is not supported by any fact about building from source.",
+      "rationale": "The build-from-source command is not supported by any fact; omitted.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
@@ -292,7 +272,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter",
         "dependency:none"
       ],
-      "rationale": "The Dependencies heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Dependencies heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:018.heading"
     },
     {
@@ -302,7 +282,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter",
         "dependency:none"
       ],
-      "rationale": "The Required Package Dependencies heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Required Package Dependencies heading is redundant with the dependencies section.",
       "unit_id": "inherited_unit:019.heading"
     },
     {
@@ -312,7 +292,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter",
         "dependency:none"
       ],
-      "rationale": "The 'no required third-party dependencies' paragraph is supported by the dependency:none fact.",
+      "rationale": "The statement about no required third-party dependencies is verified.",
       "unit_id": "inherited_unit:020.paragraph"
     },
     {
@@ -322,7 +302,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter",
         "dependency:none"
       ],
-      "rationale": "The Development Dependencies heading is superseded by the deterministic dependencies section.",
+      "rationale": "The Development Dependencies heading is redundant with the dependencies section.",
       "unit_id": "inherited_unit:021.heading"
     },
     {
@@ -332,7 +312,7 @@
         "dependency:development.org.junit.jupiter-junit-jupiter",
         "dependency:none"
       ],
-      "rationale": "The development dependencies list is supported by the dependency fact.",
+      "rationale": "The JUnit dependency list is verified and placed in the dependencies section.",
       "unit_id": "inherited_unit:022.list"
     },
     {
@@ -341,16 +321,16 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start heading is superseded by the deterministic quick_start section.",
+      "rationale": "The Quick Start heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:023.heading"
     },
     {
       "destination_section": "quick_start",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_REWRITE",
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start lead-in paragraph is supported by the example:001 fact.",
+      "rationale": "The Quick Start lead-in is rewritten from the example fact.",
       "unit_id": "inherited_unit:024.paragraph"
     },
     {
@@ -359,7 +339,7 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start code block matches the verified example:001.",
+      "rationale": "The Quick Start example is verified and placed in the quick start section.",
       "unit_id": "inherited_unit:025.code_block"
     },
     {
@@ -375,41 +355,37 @@
         "example:008",
         "example:009"
       ],
-      "rationale": "The Additional Examples heading is superseded by the deterministic additional_examples section.",
+      "rationale": "The Additional Examples heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:026.heading"
     },
     {
       "destination_section": "additional_examples",
-      "disposition": "VERIFIED_PRESERVE",
+      "disposition": "VERIFIED_REWRITE",
       "fact_ids": [
         "example:002",
-        "example:003",
-        "example:004",
-        "example:005",
-        "example:006",
-        "example:007",
-        "example:008",
-        "example:009"
+        "example:007"
       ],
-      "rationale": "The Additional Examples lead-in paragraph is supported by the example facts.",
+      "rationale": "The Additional Examples lead-in is rewritten from the verified examples.",
       "unit_id": "inherited_unit:027.paragraph"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:002"
+        "example:002",
+        "example:007"
       ],
-      "rationale": "The 'Mix Text and a Form Field in a Table Cell' heading is supported by the example:002 fact.",
+      "rationale": "The Mix Text and Form Field heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:028.heading"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:002"
+        "example:002",
+        "example:007"
       ],
-      "rationale": "The 'Mix Text and a Form Field in a Table Cell' code block matches the verified example:002.",
+      "rationale": "The Mix Text and Form Field example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:029.code_block"
     },
     {
@@ -425,7 +401,7 @@
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The 'Extract Text From an Existing PDF' heading is supported by the example:003 fact.",
+      "rationale": "The Extract Text From an Existing PDF heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
@@ -434,7 +410,7 @@
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The 'Extract Text From an Existing PDF' code block matches the verified example:003.",
+      "rationale": "The Extract Text example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:032.code_block"
     },
     {
@@ -443,7 +419,7 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The 'Extract Images From a PDF' heading is supported by the example:004 fact.",
+      "rationale": "The Extract Images From a PDF heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
@@ -452,7 +428,7 @@
       "fact_ids": [
         "example:004"
       ],
-      "rationale": "The 'Extract Images From a PDF' code block matches the verified example:004.",
+      "rationale": "The Extract Images example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:034.code_block"
     },
     {
@@ -461,7 +437,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The 'Create and Save a PDF From Scratch' heading is supported by the example:005 fact.",
+      "rationale": "The Create and Save a PDF From Scratch heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:035.heading"
     },
     {
@@ -470,7 +446,7 @@
       "fact_ids": [
         "example:005"
       ],
-      "rationale": "The 'Create and Save a PDF From Scratch' code block matches the verified example:005.",
+      "rationale": "The Create and Save a PDF example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:036.code_block"
     },
     {
@@ -479,7 +455,7 @@
       "fact_ids": [
         "example:006"
       ],
-      "rationale": "The 'Read and Update Fields in an Existing Form' heading is supported by the example:006 fact.",
+      "rationale": "The Read and Update Fields in an Existing Form heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:037.heading"
     },
     {
@@ -488,7 +464,7 @@
       "fact_ids": [
         "example:006"
       ],
-      "rationale": "The 'Read and Update Fields in an Existing Form' code block matches the verified example:006.",
+      "rationale": "The Read and Update Fields example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:038.code_block"
     },
     {
@@ -497,7 +473,7 @@
       "fact_ids": [
         "example:007"
       ],
-      "rationale": "The 'Append Multiple Form Fields to a Cell in Order' heading is supported by the example:007 fact.",
+      "rationale": "The Append Multiple Form Fields to a Cell in Order heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:039.heading"
     },
     {
@@ -506,7 +482,7 @@
       "fact_ids": [
         "example:007"
       ],
-      "rationale": "The 'Append Multiple Form Fields to a Cell in Order' code block matches the verified example:007.",
+      "rationale": "The Append Multiple Form Fields example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:040.code_block"
     },
     {
@@ -515,7 +491,7 @@
       "fact_ids": [
         "example:008"
       ],
-      "rationale": "The 'Set and Read a Widget Annotation's Background Color' heading is supported by the example:008 fact.",
+      "rationale": "The Set and Read a Widget Annotation's Background Color heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
@@ -524,7 +500,7 @@
       "fact_ids": [
         "example:008"
       ],
-      "rationale": "The 'Set and Read a Widget Annotation's Background Color' code block matches the verified example:008.",
+      "rationale": "The Set and Read a Widget Annotation's Background Color example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:042.code_block"
     },
     {
@@ -533,7 +509,7 @@
       "fact_ids": [
         "example:009"
       ],
-      "rationale": "The 'Set a Radio Button Option's Border Style' heading is supported by the example:009 fact.",
+      "rationale": "The Set a Radio Button Option's Border Style heading is verified and placed in additional examples.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
@@ -542,7 +518,7 @@
       "fact_ids": [
         "example:009"
       ],
-      "rationale": "The 'Set a Radio Button Option's Border Style' code block matches the verified example:009.",
+      "rationale": "The Set a Radio Button Option's Border Style example is verified and placed in additional examples.",
       "unit_id": "inherited_unit:044.code_block"
     },
     {
@@ -560,14 +536,18 @@
         "public_symbol:org.aspose",
         "public_symbol:org.aspose.pdf"
       ],
-      "rationale": "The API Reference heading is superseded by the deterministic api_reference section.",
+      "rationale": "The API Reference heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:046.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The API Reference paragraph's claim of 1026 public types is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The API Reference intro is supported by public symbol facts.",
       "unit_id": "inherited_unit:047.paragraph"
     },
     {
@@ -585,511 +565,799 @@
         "public_symbol:org.aspose",
         "public_symbol:org.aspose.pdf"
       ],
-      "rationale": "The Core API heading is supported by the public_symbol facts.",
+      "rationale": "The Core API heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Core API table is not supported by any fact enumerating specific classes.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Core API table is supported by public symbol facts.",
       "unit_id": "inherited_unit:050.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces heading under Core API is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:051.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces table under Core API is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces table is supported by public symbol facts.",
       "unit_id": "inherited_unit:052.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Core API is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:053.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Core API is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:054.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Annotations heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Annotations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:055.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Annotations table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Annotations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:056.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Annotations is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:057.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Annotations is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:058.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Devices heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Devices heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:059.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Devices table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Devices table is supported by public symbol facts.",
       "unit_id": "inherited_unit:060.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Devices is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Devices is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:062.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Drawing heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Drawing heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:063.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Drawing table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Drawing table is supported by public symbol facts.",
       "unit_id": "inherited_unit:064.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Drawing is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:065.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Drawing is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:066.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Engine heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Engine heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:067.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Engine table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Engine table is supported by public symbol facts.",
       "unit_id": "inherited_unit:068.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces heading under Engine is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:069.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces table under Engine is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces table is supported by public symbol facts.",
       "unit_id": "inherited_unit:070.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Engine is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:071.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Engine is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:072.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Facades heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Facades heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:073.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Facades table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Facades table is supported by public symbol facts.",
       "unit_id": "inherited_unit:074.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Facades is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:075.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Facades is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:076.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Forms heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Forms heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:077.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Forms table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Forms table is supported by public symbol facts.",
       "unit_id": "inherited_unit:078.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Forms is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:079.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Forms is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:080.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The HTML heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The HTML heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:081.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The HTML table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The HTML table is supported by public symbol facts.",
       "unit_id": "inherited_unit:082.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Logicalstructure heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Logicalstructure heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:083.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Logicalstructure table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Logicalstructure table is supported by public symbol facts.",
       "unit_id": "inherited_unit:084.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Operators heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Operators heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:085.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Operators table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Operators table is supported by public symbol facts.",
       "unit_id": "inherited_unit:086.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces heading under Operators is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:087.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces table under Operators is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces table is supported by public symbol facts.",
       "unit_id": "inherited_unit:088.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Optimization heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Optimization heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:089.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Optimization table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Optimization table is supported by public symbol facts.",
       "unit_id": "inherited_unit:090.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Printing heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Printing heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:091.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Printing table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Printing table is supported by public symbol facts.",
       "unit_id": "inherited_unit:092.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Printing is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:093.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Printing is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:094.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Security heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Security heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:095.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Security table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Security table is supported by public symbol facts.",
       "unit_id": "inherited_unit:096.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces heading under Security is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:097.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces table under Security is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces table is supported by public symbol facts.",
       "unit_id": "inherited_unit:098.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Security is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:099.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Security is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:100.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Tagged heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Tagged heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:101.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Tagged table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Tagged table is supported by public symbol facts.",
       "unit_id": "inherited_unit:102.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces heading under Tagged is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:103.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Interfaces table under Tagged is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Interfaces table is supported by public symbol facts.",
       "unit_id": "inherited_unit:104.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Text heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Text heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:105.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Text table is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Text table is supported by public symbol facts.",
       "unit_id": "inherited_unit:106.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations heading under Text is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:107.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Enumerations table under Text is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Enumerations table is supported by public symbol facts.",
       "unit_id": "inherited_unit:108.table"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Detailed Member Reference heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Detailed Member Reference heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:109.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Document and Pages heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Document and Pages heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:110.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Document and Pages list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Document and Pages list is supported by public symbol facts.",
       "unit_id": "inherited_unit:111.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Text heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Text heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:112.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Text list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Text list is supported by public symbol facts.",
       "unit_id": "inherited_unit:113.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Forms heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Forms heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:114.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Forms list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Forms list is supported by public symbol facts.",
       "unit_id": "inherited_unit:115.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Facades heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Facades heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:116.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Facades list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Facades list is supported by public symbol facts.",
       "unit_id": "inherited_unit:117.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Security heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Security heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:118.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Security list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Security list is supported by public symbol facts.",
       "unit_id": "inherited_unit:119.list"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Rendering and Devices heading is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Rendering and Devices heading is verified and placed in the API reference section.",
       "unit_id": "inherited_unit:120.heading"
     },
     {
-      "destination_section": null,
-      "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [],
-      "rationale": "The Rendering and Devices list is not supported by any fact.",
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.pdf"
+      ],
+      "rationale": "The Rendering and Devices list is supported by public symbol facts.",
       "unit_id": "inherited_unit:121.list"
     },
     {
@@ -1119,7 +1387,7 @@
         "link_target:035",
         "link_target:036"
       ],
-      "rationale": "The Documentation & Resources heading is superseded by the deterministic documentation_resources section.",
+      "rationale": "The Documentation & Resources heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:123.heading"
     },
     {
@@ -1142,27 +1410,29 @@
         "link_target:035",
         "link_target:036"
       ],
-      "rationale": "The documentation links are all supported by verified link_target facts.",
+      "rationale": "The documentation links are verified and placed in the documentation resources section.",
       "unit_id": "inherited_unit:124.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
+        "inherited_unit:126.paragraph",
         "inherited_unit:127.list",
-        "inherited_unit:129.list"
+        "inherited_unit:128.paragraph",
+        "inherited_unit:129.list",
+        "inherited_unit:130.paragraph"
       ],
-      "rationale": "The Scope and Limitations heading is superseded by the deterministic scope_limitations section.",
+      "rationale": "The Scope and Limitations heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:125.heading"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "inherited_unit:127.list",
-        "inherited_unit:129.list"
+        "inherited_unit:127.list"
       ],
-      "rationale": "The 'Out of scope' paragraph is supported by the inherited_unit:127.list fact.",
+      "rationale": "The out of scope paragraph is verified and placed in the scope limitations section.",
       "unit_id": "inherited_unit:126.paragraph"
     },
     {
@@ -1171,7 +1441,7 @@
       "fact_ids": [
         "inherited_unit:127.list"
       ],
-      "rationale": "The 'Out of scope' list is supported by the inherited_unit:127.list fact.",
+      "rationale": "The out of scope list is verified and placed in the scope limitations section.",
       "unit_id": "inherited_unit:127.list"
     },
     {
@@ -1180,7 +1450,7 @@
       "fact_ids": [
         "inherited_unit:129.list"
       ],
-      "rationale": "The 'Partially implemented today' paragraph is supported by the inherited_unit:129.list fact.",
+      "rationale": "The partially implemented paragraph is verified and placed in the scope limitations section.",
       "unit_id": "inherited_unit:128.paragraph"
     },
     {
@@ -1189,16 +1459,16 @@
       "fact_ids": [
         "inherited_unit:129.list"
       ],
-      "rationale": "The 'Partially implemented today' list is supported by the inherited_unit:129.list fact.",
+      "rationale": "The partially implemented list is verified and placed in the scope limitations section.",
       "unit_id": "inherited_unit:129.list"
     },
     {
       "destination_section": "scope_limitations",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "inherited_unit:129.list"
+        "inherited_unit:130.paragraph"
       ],
-      "rationale": "The concurrency paragraph is supported by the inherited_unit:129.list fact.",
+      "rationale": "The concurrency paragraph is verified and placed in the scope limitations section.",
       "unit_id": "inherited_unit:130.paragraph"
     },
     {
@@ -1207,7 +1477,7 @@
       "fact_ids": [
         "link_target:product.enterprise"
       ],
-      "rationale": "The Enterprise Edition reference is supported by the product.enterprise link_target fact.",
+      "rationale": "The Enterprise Edition reference is verified and moved to the enterprise relationship section.",
       "unit_id": "inherited_unit:131.paragraph"
     },
     {
@@ -1217,7 +1487,7 @@
         "build_test_asset:ci",
         "build_test_asset:docs"
       ],
-      "rationale": "The Development and Testing heading is superseded by the deterministic development_testing section.",
+      "rationale": "The Development and Testing heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:132.heading"
     },
     {
@@ -1227,7 +1497,7 @@
         "build_test_asset:ci",
         "build_test_asset:docs"
       ],
-      "rationale": "The development and testing paragraph is supported by the build_test_asset facts.",
+      "rationale": "The development and testing paragraph is verified and placed in the development testing section.",
       "unit_id": "inherited_unit:133.paragraph"
     },
     {
@@ -1237,7 +1507,7 @@
         "build_test_asset:ci",
         "build_test_asset:docs"
       ],
-      "rationale": "The build and test code block is supported by the build_test_asset facts.",
+      "rationale": "The build and test commands are verified and placed in the development testing section.",
       "unit_id": "inherited_unit:134.code_block"
     },
     {
@@ -1247,7 +1517,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The License heading is superseded by the deterministic license section.",
+      "rationale": "The License heading is rendered from facts; the inherited content is redundant.",
       "unit_id": "inherited_unit:135.heading"
     },
     {
@@ -1257,7 +1527,7 @@
         "license:file",
         "license:spdx"
       ],
-      "rationale": "The license paragraph is supported by the license facts.",
+      "rationale": "The license paragraph is verified and placed in the license section.",
       "unit_id": "inherited_unit:136.paragraph"
     }
   ]

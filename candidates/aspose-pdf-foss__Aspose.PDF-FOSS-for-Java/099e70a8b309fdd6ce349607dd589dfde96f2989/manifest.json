@@ -1,35 +1,59 @@
 {
+  "adopted": {
+    "adopted_at": "2026-09-08T06:41:33Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "investigation.json",
+      "plan.json",
+      "repairs.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-06T14:55:06Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-08T06:35:50Z"
+  },
   "composition": {
-    "advisories": 0,
+    "advisories": 8,
     "blocking_failures": [],
     "coverage_advisories": 0,
     "review_verdict": "ACCEPT",
-    "review_verdict_as_returned": "ACCEPT"
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "files": {
     "README.md": {
-      "bytes": 115719,
-      "sha256": "bcea89a8a9a45a0b56eebf03b1006ee2edd916f1b2200115ffbe557c02e95bbe"
+      "bytes": 116349,
+      "sha256": "1ef34c2538ffb020e3be1f0862611a0439e109a185d0a1b6b0a8ac4824394464"
     },
     "README.patch": {
-      "bytes": 164071,
-      "sha256": "3125e02e4650fbb3c444b39afa63d66bbda5b24d2d34547950bb8c2bd37fbcdc"
+      "bytes": 164693,
+      "sha256": "3cb5b9911340ec744963b955f39b9737272a3c03c9e6324f73bc0911d4eaf37a"
     },
     "calls.jsonl": {
-      "bytes": 78156,
-      "sha256": "bf53a5339f0e2354020bae814709dba00802bfa7ba95371346c16c9647abbb58"
+      "bytes": 42794,
+      "sha256": "912f896550a36516d613a96743d50b6ef64b2e56741a73106704d3a2985862aa"
     },
     "content_units.json": {
-      "bytes": 20667,
-      "sha256": "196c1c9d1322823482d324cef3b5d88a4c6ac01d7391db513d7c4e0ca23e990b"
+      "bytes": 27317,
+      "sha256": "c72d9389802faa31bef45219c2009f6cd4116fb2850b718f61e35b056f4b8cd5"
     },
     "dependencies.json": {
-      "bytes": 3567095,
-      "sha256": "32c0b3886de06feb25fd73ff8b0de425c1ad97bee7845e4739475b8ca9b5b2e9"
+      "bytes": 3567290,
+      "sha256": "3d0024206d4b627b0b1b034280dc4cc29d3c54af8161a1789911b7d75a9f10a4"
     },
     "dispositions.json": {
-      "bytes": 42183,
-      "sha256": "2fc97161cefdb710d2d504f6b3b6eef37853b792dd7532aa0df3a29bf7138c38"
+      "bytes": 51222,
+      "sha256": "dc6769be504c6b07a6df558695f2f1c41be8a302729186b7ce41d8fafa32b094"
     },
     "examples.json": {
       "bytes": 2600,
@@ -40,40 +64,40 @@
       "sha256": "4c979091fc01ec7a2510c1978065765a9c7602ca0d5f8f95529fdef9f2abe8c5"
     },
     "investigation.json": {
-      "bytes": 6947,
-      "sha256": "8bc9b3498ccc14c5847bdd9c854a3a3c6f7a7b06320d361dcd662e2a6ad73032"
+      "bytes": 6728,
+      "sha256": "08127a4e93a6a248bde23f56de1c319cc888591bc77b97ddf457e302b9be165e"
     },
     "plan.json": {
-      "bytes": 6527,
-      "sha256": "f8b4aa5c8d3d029f039044964365c80eb3f259ba1d0eb3d6d0d1dbe77c105c34"
+      "bytes": 5999,
+      "sha256": "c7ca1b25099fa3f44e4a0a0d7813efd81f57f732b4b93141caf97237ed10cb64"
     },
     "probes.json": {
-      "bytes": 2913,
-      "sha256": "38a776fbbfc7806e47d8ba8a234abb6a4cfa109d3216a9f7fab02eea1025f439"
+      "bytes": 2918,
+      "sha256": "10e55883b8991aabf14679f528d52f2f7335dcc40096da9876aa35ad75216557"
     },
     "repairs.json": {
-      "bytes": 416,
-      "sha256": "5878bd877601eaf0462928addb39d3673930a585527e84894eeaf648c4e059f6"
+      "bytes": 3679,
+      "sha256": "dbb5622299ada467f4d9b8534d82f24d7d3286ce774956754cbbaeb55b0a6536"
     },
     "review.json": {
-      "bytes": 678,
-      "sha256": "d03142fe41c8dd1b8288913f475c9ea4256e43351d4f416098b34a7d304cfc4b"
+      "bytes": 9728,
+      "sha256": "3bc84b8b0fef1298529ff2920ec85935d89d5e85c0a3a4bf6b4c6af76cb50ebb"
     },
     "validation.json": {
       "bytes": 10144,
-      "sha256": "a9d44c327833a2b85f02cfc59ac99a11d39d82aba88ad08d830cd597656fff75"
+      "sha256": "bd0c5827c43fb92d67bb0bf2a0f10dbbb2f9318a0c9204fd6751ca10a90d1967"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-06T14:55:06Z",
+    "proven_at": "2026-09-08T06:41:33Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
   "revision": "099e70a8b309fdd6ce349607dd589dfde96f2989",
   "schema_version": 1,
-  "sealed_at": "2026-09-06T14:55:06Z",
+  "sealed_at": "2026-09-08T06:41:34Z",
   "state": "READY_FOR_PROPOSAL"
 }
