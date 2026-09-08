@@ -44,6 +44,7 @@ PER_CANDIDATE_CLASSES = frozenset(
         "contract_version",
         "acceptance_profile_version",
         "protected_content_fingerprint",
+        "environment",
     }
 )
 # Identifier tokens that name a whole control-plane set rather than one candidate's own inputs.

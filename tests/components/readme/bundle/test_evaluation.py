@@ -192,6 +192,7 @@ def test_the_sealed_canary_reopens_nothing_when_nothing_changed() -> None:
         "components",
         "validators",
         "validator_version",
+        "environment",
         "acceptance_profile_version",
         "policy",
         "protected_content_fingerprint",
