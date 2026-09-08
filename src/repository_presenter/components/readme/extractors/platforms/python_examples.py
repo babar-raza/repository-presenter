@@ -264,6 +264,11 @@ def verify_python_examples(
             stderr=_redact(_clip(result.stderr), workspace),
             detail=detail,
             fixtures=tuple(fixtures),
+            # `source_note` is set only when the real package install failed and this example ran
+            # against the repository's own source tree instead (TB-01, external review D1,
+            # 2026-09-08): the example running proves the code, never the distribution, so an
+            # EXECUTED outcome here must not promote the registry install command as verified.
+            build_verified=not source_note,
         )
         written = sorted(
             path for path in run_dir.iterdir() if path.is_file() and path.name not in before

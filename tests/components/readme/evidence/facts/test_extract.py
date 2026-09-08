@@ -163,8 +163,8 @@ def _install(polarity: str = "CONTRADICTED") -> Fact:
     )
 
 
-def _receipt(outcome: str) -> ExampleReceipt:
-    return ExampleReceipt(1, outcome, 0, "", "", "d")  # type: ignore[arg-type]
+def _receipt(outcome: str, build_verified: bool = True) -> ExampleReceipt:
+    return ExampleReceipt(1, outcome, 0, "", "", "d", build_verified=build_verified)  # type: ignore[arg-type]
 
 
 NET_ENTRY = RegistryEntry.model_validate(
@@ -232,6 +232,20 @@ def test_a_registry_less_ecosystems_unresolved_install_is_admitted_too() -> None
         "cd Aspose.Widget-FOSS-for-Cpp\ncmake -S . -B build"
     )
     assert admitted.attributes == {"install_kind": "source"}
+
+
+def test_an_executed_receipt_that_did_not_verify_the_build_admits_nothing() -> None:
+    """TB-01, external review D1, 2026-09-08: EXECUTED alone is not proof the advertised command
+    itself succeeded - a syntax-only check (C++'s -fsyntax-only) or a source-tree fallback after a
+    failed install (Python) both leave the example EXECUTED without proving the build/install this
+    fact is about to advertise as "verified against this revision". Only a receipt whose
+    build_verified is also True may admit the fact."""
+    unverified = _receipt("EXECUTED", build_verified=False)
+    assert _source_build_fact(_install(), NET_ENTRY, [unverified]).polarity == "CONTRADICTED"
+    # A verified receipt alongside an unverified one still admits - one genuine proof suffices.
+    verified = _receipt("EXECUTED", build_verified=True)
+    admitted = _source_build_fact(_install(), NET_ENTRY, [unverified, verified])
+    assert admitted.polarity == "SUPPORTED"
 
 
 def test_a_registry_having_ecosystems_unresolved_install_stays_unresolved() -> None:

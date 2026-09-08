@@ -337,6 +337,7 @@ def verify_cpp_examples(
         stderr = _scrub(result.stderr, workspace, root, include_root, toolchain)
         mine, theirs = split_diagnostics(stdout + "\n" + stderr, name)
         outcome: Any
+        build_verified = True
         if result.timed_out:
             outcome, detail = "TIMED_OUT", f"no exit within {timeout_seconds:g}s"
         elif mine:
@@ -347,6 +348,14 @@ def verify_cpp_examples(
                 f"syntax-checked against {manifest.parent.name} with {version} "
                 f"-std=c++{language} -fsyntax-only; the library's own CMake build {product}"
             )
+            # -fsyntax-only never links or builds the library - it proves the snippet's own calls
+            # are well-formed against the headers, nothing about whether `cmake --build` itself
+            # succeeds. Only a genuinely successful CMake build lets _source_build_fact promote
+            # the advertised `cmake -S . -B build` command as verified (TB-01, external review
+            # D1, 2026-09-08: measured on Aspose.Cells for C++, whose CMake build fails while
+            # every example still syntax-checks - the sealed README nonetheless called `cmake -S
+            # . -B build` "verified against this revision").
+            build_verified = product == "succeeded"
         elif theirs:
             # Not one diagnostic in the example itself: a header it includes stopped the compiler
             # first, so nothing about the snippet's own calls was observed either way. Measured
@@ -372,6 +381,7 @@ def verify_cpp_examples(
                 stderr=_clip(stderr),
                 detail=detail,
                 fixtures=(),
+                build_verified=build_verified,
             )
         )
     return receipts

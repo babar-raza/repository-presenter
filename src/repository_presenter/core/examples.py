@@ -68,7 +68,19 @@ class FixtureBinding:
 
 @dataclass(frozen=True)
 class ExampleReceipt:
-    """The verification outcome of one candidate, with redacted output."""
+    """The verification outcome of one candidate, with redacted output.
+
+    ``build_verified`` distinguishes what ``outcome == "EXECUTED"`` actually proved (TB-01,
+    external review D1, 2026-09-08): a full, genuine build/install of the product, or a weaker
+    path that still legitimately runs the example - a syntax-only compile check (C++'s
+    ``-fsyntax-only``, which never links or builds the library) or a source-tree fallback used
+    after the real package install failed. Defaults to ``True`` because most ecosystems' EXECUTED
+    outcome already means exactly this; only the platforms with a weaker EXECUTED path (currently
+    C++'s syntax check and Python's install-failure fallback) ever set it ``False``.
+    ``extract.py::_source_build_fact`` reads this before promoting an install command to
+    SUPPORTED, so a syntax-only or fallback run is never rendered as "verified against this
+    revision" for a build that was never actually proven to succeed.
+    """
 
     ordinal: int
     outcome: ExampleOutcome
@@ -77,6 +89,7 @@ class ExampleReceipt:
     stderr: str
     detail: str
     fixtures: tuple[FixtureBinding, ...] = ()
+    build_verified: bool = True
 
 
 def write_receipts(receipts: list[ExampleReceipt], path: Path) -> None:

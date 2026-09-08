@@ -48,8 +48,18 @@ file was touched.
 
 ### TB-01 — Distinct evidence strengths for compile / link / execute / install / publish
 
-- **Status:** In Progress
-- **Checklist:** [ ] fix `_source_build_fact` gate [ ] fix `_check_install` evidence-text trust [ ] regression test (Cells-Cpp shape) [ ] full suite
+- **Status:** Done — fixed and pushed. Added `ExampleReceipt.build_verified` (default `True`); C++'s
+  `-fsyntax-only` path now sets it `False` unless the real CMake build also succeeded; Python's
+  source-tree fallback path (after a failed local install) now sets it `False`. `_source_build_fact`
+  requires `outcome == "EXECUTED" and build_verified` before promoting. `_check_install` needed no
+  change - it already fails closed on a non-SUPPORTED fact; the fix stops the false SUPPORTED from
+  ever being written, rather than trying to catch it after the fact. Empirically verified against a
+  real compiler (C++) and real pip/subprocess execution (Python), not mocked. Re-sealing the real
+  Cells-Cpp candidate to reflect the corrected claim is a follow-up through the normal R1
+  record-then-adopt path (`plans/healing/r1-reseal-operations.md`), not part of this taskcard's own
+  scope (code fix + tests).
+- **Checklist:** [x] fix `_source_build_fact` gate [x] fix `_check_install` evidence-text trust (no
+  change needed - see note) [x] regression tests, both ecosystems, real execution [x] full suite
 - **Gap linkage:** D1
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

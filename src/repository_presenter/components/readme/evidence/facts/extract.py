@@ -77,7 +77,12 @@ def _source_build_fact(
     )
     if not admissible:
         return fact
-    if not any(receipt.outcome == "EXECUTED" for receipt in receipts):
+    # An EXECUTED outcome alone is not proof the advertised build/install command itself
+    # succeeded - only `build_verified` is (TB-01, external review D1, 2026-09-08): C++'s
+    # -fsyntax-only check never links the library, and a Python example that ran against the
+    # repository's own source tree after a failed install proves the code, never the command
+    # this fact is about to advertise as "verified against this revision".
+    if not any(receipt.outcome == "EXECUTED" and receipt.build_verified for receipt in receipts):
         return fact
     spec = spec_for(entry.ecosystem)
     command = spec.clone_and_build(entry.repository, entry.repository.split("/")[-1])

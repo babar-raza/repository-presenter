@@ -252,6 +252,28 @@ def test_a_package_that_will_not_build_still_runs_its_examples_from_source(
     assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "EXECUTED")]
     assert "from source" in receipts[0].stdout
     assert "ran against the repository source tree" in (receipts[0].detail or "")
+    # TB-01, external review D1, 2026-09-08: the example running proves the code, never the
+    # distribution - build_verified must be False so extract.py never promotes the registry
+    # install command from this receipt as "verified against this revision".
+    assert receipts[0].build_verified is False
+
+
+def test_a_genuinely_successful_install_still_marks_the_receipt_verified(tmp_path: Path) -> None:
+    """The no-regression case: an ordinary successful install keeps build_verified True."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "widget.py").write_text("VALUE = 'installed'\n", encoding="utf-8")
+    (root / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["setuptools"]\nbuild-backend = "setuptools.build_meta"\n'
+        '[project]\nname = "widget"\nversion = "0.0.1"\n',
+        encoding="utf-8",
+    )
+    tree = ["pyproject.toml", "widget.py"]
+    receipts = verify_python_examples(
+        root, tree, [_candidate(1, "import widget\nprint(widget.VALUE)\n")], tmp_path / "run"
+    )
+    assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "EXECUTED")]
+    assert receipts[0].build_verified is True
 
 
 def test_the_source_fallback_installs_the_dependencies_the_manifest_declares(

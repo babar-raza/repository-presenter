@@ -227,6 +227,39 @@ def test_a_header_that_stops_the_compiler_leaves_the_example_unchecked(tmp_path:
     assert receipts[0].detail.startswith("BLOCKED_TOOLCHAIN: no diagnostic in the example itself")
 
 
+@needs_compiler
+def test_a_syntax_only_pass_does_not_claim_the_library_itself_builds(tmp_path: Path) -> None:
+    """TB-01, external review D1, 2026-09-08: `-fsyntax-only` only compiles the example file,
+    which includes the header, never `src/widget.cpp` - a broken implementation still lets a
+    correct example syntax-check EXECUTED while the real `cmake --build` fails. Measured on
+    Aspose.Cells for C++: the sealed README called `cmake -S . -B build` "verified against this
+    revision" while its own examples.json recorded the CMake build failing. `build_verified` must
+    be False here so extract.py never promotes the advertised build command from this receipt."""
+    manifest = _repository(tmp_path)
+    (tmp_path / "src" / "widget.cpp").write_text(
+        "this is not valid C++ and cmake --build must fail\n", encoding="utf-8", newline="\n"
+    )
+    receipts = cpp_examples.verify_cpp_examples(
+        tmp_path, manifest, tmp_path / "include", "17", _candidates(GOOD), tmp_path / "run", 120.0
+    )
+    assert receipts[0].outcome == "EXECUTED"
+    assert "CMake build failed" in receipts[0].detail
+    assert receipts[0].build_verified is False
+
+
+@needs_compiler
+def test_a_genuinely_successful_build_still_marks_the_receipt_verified(tmp_path: Path) -> None:
+    """The no-regression case: an EXECUTED receipt whose CMake build genuinely succeeded keeps
+    build_verified True, exactly as every EXECUTED receipt behaved before TB-01."""
+    manifest = _repository(tmp_path)
+    receipts = cpp_examples.verify_cpp_examples(
+        tmp_path, manifest, tmp_path / "include", "17", _candidates(GOOD), tmp_path / "run", 120.0
+    )
+    assert receipts[0].outcome == "EXECUTED"
+    assert "CMake build succeeded" in receipts[0].detail
+    assert receipts[0].build_verified is True
+
+
 def test_a_machine_without_a_compiler_verifies_nothing(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
     manifest = _repository(tmp_path)
     monkeypatch.setattr(cpp_examples, "cpp_compiler", lambda: None)
