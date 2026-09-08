@@ -4,7 +4,7 @@
 
 [![Aspose.Cells FOSS for Cpp](https://products.aspose.org/media/cells/cpp/banner-readme.png)](https://products.aspose.org/cells/cpp/)
 
-Aspose.Cells FOSS for Cpp is a free, open-source, MIT-licensed C++ library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel. It solves the problem of programmatic spreadsheet manipulation in C++ applications by exposing a familiar API surface built around `Workbook`, `Worksheet`, and `Cell` objects, matching the structure of Aspose's commercial spreadsheet products. Developers use it to generate reports, process templates, and automate Excel workflows in cross-platform C++17 projects with no external runtime dependencies.
+Aspose.Cells FOSS for Cpp is a free, open-source, MIT-licensed C++ library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel. It exposes an Aspose.Cells-compatible API surface for common XLSX scenarios — the same `Workbook`, `Worksheet`, and `Cell` object shape used by Aspose's commercial spreadsheet products — built as a dependency-free, header-and-source C++17 library with no external runtime dependencies.
 
 ## Navigation
 
@@ -29,15 +29,15 @@ flowchart TD
       direction TB
       c1["Create and save .xlsx workbooks"]
       c2["Read and write cell values and formulas"]
-      c3["Apply cell and range formatting"]
+      c3["Apply cell and range styling"]
       c4["Manage worksheet features"]
     end
     subgraph capr[" "]
       direction TB
-      c5["Apply conditional formatting and validation"]
-      c6["Manage hyperlinks and defined names"]
-      c7["Access document properties"]
-      c8["Integrate via CMake"]
+      c5["Configure document properties"]
+      c6["Support conditional formatting and validation"]
+      c7["Handle AutoFilter and sorting"]
+      c8["Build with CMake"]
     end
   end
   PRODUCT --> Capabilities
@@ -46,13 +46,13 @@ flowchart TD
 ## Key Capabilities
 
 - **Create and save .xlsx workbooks.** Create a blank workbook with the default worksheet or load an existing file from a path or in-memory stream, then save it as an .xlsx file using the `SaveFormat` enumeration.
-- **Read and write cell values and formulas.** Insert values of multiple types into cells using `PutValue` and retrieve them as a variant-typed `CellValue`, while setting and reading formulas with `SetFormula` and `GetFormula`.
-- **Apply cell and range formatting.** Apply formatting to cells by retrieving and setting a `Style` that bundles `Font` properties, fill patterns, foreground and background colors, borders, and alignment options.
-- **Manage worksheet features.** Configure worksheet visibility, zoom, gridlines, headers, right-to-left layout, and protection using the `AutoFilter`, `PageSetup`, and `WorksheetProtection` interfaces.
-- **Apply conditional formatting and validation.** Apply rule-driven formatting to cell ranges with `ConditionalFormattingCollection` and enforce input constraints using `ValidationCollection` scoped to specific `CellArea` ranges.
-- **Manage hyperlinks and defined names.** Attach hyperlinks to cells with `HyperlinkCollection` and manage workbook- or sheet-scoped named ranges through `DefinedNameCollection` with optional comment strings.
-- **Access document properties.** Access core and extended metadata of a workbook through `WorkbookProperties` and `DocumentProperties` exposed by the `Workbook` class.
-- **Integrate via CMake.** Integrate the library into a CMake project using version 3.16 or later with no external runtime dependencies.
+- **Read and write cell values and formulas.** Insert or retrieve cell values of multiple types including strings, integers, doubles, booleans, and dates using `PutValue` and `GetValue`, and manage formulas with `SetFormula` and `GetFormula`.
+- **Apply cell and range styling.** Apply comprehensive styling to cells and ranges by setting font properties, foreground and background colors, fill patterns, and borders through the `Style` object.
+- **Manage worksheet features.** Control worksheet visibility, zoom, gridlines, headers, right-to-left layout, and protection state, while also configuring page setup and hyperlink collections.
+- **Configure document properties.** Access and modify core and extended document properties such as author, title, keywords, and custom metadata through the workbook's property collections.
+- **Support conditional formatting and validation.** Define conditional formatting rules and data validation constraints over cell ranges to enforce input rules and visually highlight values based on criteria.
+- **Handle AutoFilter and sorting.** Apply `AutoFilter` to a cell range and configure custom filters and sort conditions to organize and display data according to user-defined rules.
+- **Build with CMake.** Build the library using CMake version 3.16 or higher with C++17 support and no external dependencies by cloning the repository and running the standard configure command.
 
 ## Installation
 
@@ -76,7 +76,7 @@ No required third-party package dependencies; in `Aspose.Cells.Foss.Cpp/CMakeLis
 
 ## Quick Start
 
-The example creates a new workbook, populates the first worksheet with product names, prices, and a SUM formula, applies header styling, and saves the file as `products.xlsx`.
+This example creates a workbook, populates a worksheet with product data and a SUM formula, applies header styling, and saves the file as `products.xlsx`.
 
 ```cpp
 #include "aspose/cells_foss/Workbook.h"
@@ -119,7 +119,7 @@ int main() {
 
 ## API Reference
 
-Aspose.Cells FOSS for Cpp provides the `Aspose.Cells_FOSS.Workbook` class as the primary entry point for creating and manipulating spreadsheet files, with `Aspose.Cells_FOSS.Worksheet`, `Aspose.Cells_FOSS.Cells`, and `Aspose.Cells_FOSS.Cell` forming the core object graph for working with individual sheets and cells. The library supports C++17 and requires CMake 3.16 or later.
+Aspose.Cells FOSS for Cpp provides the `Workbook` class as the primary entry point for working with spreadsheet files, with `Worksheet`, `Cells`, and `Cell` forming the core object graph for accessing and manipulating cell data. The library supports reading, writing, and converting spreadsheet formats through dedicated classes such as `LoadFormat` and `SaveFormat`, and includes supporting modules for formatting, validation, and document properties.
 
 The verified public surface has 195 types.
 
@@ -333,224 +333,35 @@ The verified public surface has 195 types.
 
 #### Detailed Member Reference
 
-### Workbook
+### Aspose
 
-The `Aspose.Cells_FOSS.Workbook` class enables creating new workbooks, loading existing files, and saving results in various formats including XLSX via the `Aspose.Cells_FOSS.SaveFormat` enumeration, while providing access to worksheets, properties, and defined names through its member methods.
+The Aspose namespace serves as the top-level container for the `Aspose.Cells_FOSS` library, which provides the core spreadsheet processing functionality for C++ developers.
 
-- `Dispose`: Defined as `void Dispose()`.
-- `EnsureUniqueDefinedName`: Defined as `void EnsureUniqueDefinedName(Core::DefinedNameModel currentDefinedName, std::string_view name, std::optional<int> localSheetIndex)`.
-- `EnsureUniqueSheetName`: Defined as `void EnsureUniqueSheetName(std::string_view sheetName, std::optional<std::reference_wrapper<const Core::WorksheetModel>> currentSheet)`.
-- `EnsureValidDefinedNameScope`: Defined as `void EnsureValidDefinedNameScope(std::optional<int> localSheetIndex)`.
-- `GetDefinedNames`: Defined as `DefinedNameCollection GetDefinedNames()`.
-- `GetDefinedNamesModel`: Defined as `std::vector<Core::DefinedNameModel> GetDefinedNamesModel()`.
-- `GetDocumentProperties`: Defined as `DocumentProperties GetDocumentProperties()`.
-- `GetLoadDiagnostics`: Defined as `LoadDiagnostics GetLoadDiagnostics()`.
-- `GetModel`: Defined as `Core::WorkbookModel GetModel()`.
-- `GetProperties`: Defined as `WorkbookProperties GetProperties()`.
-- `GetSettings`: Defined as `WorkbookSettings GetSettings()`.
-- `GetWorksheets`: Defined as `WorksheetCollection GetWorksheets()`.
-- `Save`: Defined as `void Save(std::string_view fileName)`.
-- `Workbook`: Defined as `Workbook Workbook()`.
+### Cells_FOSS
 
-### Cell
+The `Aspose.Cells_FOSS` namespace contains the main API surface including core components such as `Aspose.Cells_FOSS.Core` for fundamental operations, `Aspose.Cells_FOSS.InternalValidation` for internal validation logic, `Aspose.Cells_FOSS.Packaging` for file packaging handling, and `Aspose.Cells_FOSS.Xml` for XML processing support.
 
-The `Aspose.Cells_FOSS.Cell` class represents a single cell in a worksheet and provides methods to set and retrieve values, formulas, and styles, with `Aspose.Cells_FOSS.CellValue` exposing typed access to the underlying data.
+### CellFormatValue
 
-- `GetColumn`: Defined as `int GetColumn()`.
-- `GetDisplayStringValue`: Defined as `std::string GetDisplayStringValue()`.
-- `GetFormula`: Defined as `std::string GetFormula()`.
-- `GetRow`: Defined as `int GetRow()`.
-- `GetStringValue`: Defined as `std::string GetStringValue()`.
-- `GetStyle`: Defined as `Style GetStyle()`.
-- `GetType`: Defined as `CellValueType GetType()`.
-- `GetValue`: Defined as `CellValue GetValue()`.
-- `PutValue`: Defined as `void PutValue(char value)`.
-- `SetFormula`: Defined as `void SetFormula(std::string_view value)`.
-- `SetStyle`: Defined as `void SetStyle(Style style)`.
-- `SetValue`: Defined as `void SetValue(CellValue value)`.
+The `Aspose.Cells_FOSS.CellFormatValue` class provides methods to get and set formatting attributes such as alignment, border ID, fill ID, font ID, number format ID, and protection settings for cell formatting, while supporting conditional formatting through `Aspose.Cells_FOSS.ConditionalFormattingCollection` and related types like `Aspose.Cells_FOSS.FormatCondition` and `Aspose.Cells_FOSS.FormatConditionCollection`.
 
-### Style
-
-The `Aspose.Cells_FOSS.Style` class allows configuring cell appearance through font settings via `Aspose.Cells_FOSS.Font`, background and foreground colors via `Aspose.Cells_FOSS.Color`, and fill patterns via `Aspose.Cells_FOSS.FillPattern`.
-
-- `Borders`: Defined as `Borders Borders()`.
-- `Clone`: Defined as `Style Clone()`.
-- `Color`: Defined as `Color Color()`.
-- `FillPattern`: Defined as `FillPattern FillPattern()`.
-- `Font`: Defined as `Font Font()`.
-- `FromCore`: Defined as `Style FromCore(Core::StyleValue value)`.
-- `GetBackgroundColor`: Defined as `Color GetBackgroundColor()`.
-- `GetBorders`: Defined as `Borders GetBorders()`.
-- `GetCustom`: Defined as `std::string GetCustom()`.
-- `GetFont`: Defined as `Font GetFont()`.
-- `GetForegroundColor`: Defined as `Color GetForegroundColor()`.
-- `GetHorizontalAlignment`: Defined as `HorizontalAlignmentType GetHorizontalAlignment()`.
-- `GetIndentLevel`: Defined as `int GetIndentLevel()`.
-- `GetIsHidden`: Defined as `bool GetIsHidden()`.
-- `GetIsLocked`: Defined as `bool GetIsLocked()`.
-- `GetNumber`: Defined as `int GetNumber()`.
-- `GetNumberFormat`: Defined as `std::string GetNumberFormat()`.
-- `GetPattern`: Defined as `FillPattern GetPattern()`.
-- `GetReadingOrder`: Defined as `int GetReadingOrder()`.
-- `GetRelativeIndent`: Defined as `int GetRelativeIndent()`.
-- `GetShrinkToFit`: Defined as `bool GetShrinkToFit()`.
-- `GetTextRotation`: Defined as `int GetTextRotation()`.
-- `GetVerticalAlignment`: Defined as `VerticalAlignmentType GetVerticalAlignment()`.
-- `GetWrapText`: Defined as `bool GetWrapText()`.
-- `HorizontalAlignmentType`: Defined as `HorizontalAlignmentType HorizontalAlignmentType()`.
-- `SetBackgroundColor`: Defined as `void SetBackgroundColor(Color value)`.
-- `SetBorders`: Defined as `void SetBorders(Borders value)`.
-- `SetCustom`: Defined as `void SetCustom(std::string value)`.
-- `SetFont`: Defined as `void SetFont(Font value)`.
-- `SetForegroundColor`: Defined as `void SetForegroundColor(Color value)`.
-- `SetHorizontalAlignment`: Defined as `void SetHorizontalAlignment(HorizontalAlignmentType value)`.
-- `SetIndentLevel`: Defined as `void SetIndentLevel(int value)`.
-- `SetIsHidden`: Defined as `void SetIsHidden(bool value)`.
-- `SetIsLocked`: Defined as `void SetIsLocked(bool value)`.
-- `SetNumber`: Defined as `void SetNumber(int value)`.
-- `SetNumberFormat`: Defined as `void SetNumberFormat(std::string value)`.
-- `SetPattern`: Defined as `void SetPattern(FillPattern value)`.
-- `SetReadingOrder`: Defined as `void SetReadingOrder(int value)`.
-- `SetRelativeIndent`: Defined as `void SetRelativeIndent(int value)`.
-- `SetShrinkToFit`: Defined as `void SetShrinkToFit(bool value)`.
-- `SetTextRotation`: Defined as `void SetTextRotation(int value)`.
-- `SetVerticalAlignment`: Defined as `void SetVerticalAlignment(VerticalAlignmentType value)`.
-- `SetWrapText`: Defined as `void SetWrapText(bool value)`.
-- `ToCore`: Defined as `Core::StyleValue ToCore()`.
-- `VerticalAlignmentType`: Defined as `VerticalAlignmentType VerticalAlignmentType()`.
-
-### Worksheet
-
-The `Aspose.Cells_FOSS.Worksheet` class provides access to cell data through `Aspose.Cells_FOSS.Cells`, supports data filtering via `Aspose.Cells_FOSS.AutoFilter`, and offers protection and page setup capabilities via `Aspose.Cells_FOSS.WorksheetProtection` and `Aspose.Cells_FOSS.PageSetup`.
-
-- `GetAutoFilter`: Defined as `AutoFilter GetAutoFilter()`.
-- `GetCells`: Defined as `Cells GetCells()`.
-- `GetConditionalFormattings`: Defined as `ConditionalFormattingCollection GetConditionalFormattings()`.
-- `GetHyperlinks`: Defined as `HyperlinkCollection GetHyperlinks()`.
-- `GetModel`: Defined as `Core::WorksheetModel GetModel()`.
-- `GetName`: Defined as `std::string GetName()`.
-- `GetPageSetup`: Defined as `PageSetup GetPageSetup()`.
-- `GetProtection`: Defined as `WorksheetProtection GetProtection()`.
-- `GetRightToLeft`: Defined as `bool GetRightToLeft()`.
-- `GetShowGridlines`: Defined as `bool GetShowGridlines()`.
-- `GetShowRowColumnHeaders`: Defined as `bool GetShowRowColumnHeaders()`.
-- `GetShowZeros`: Defined as `bool GetShowZeros()`.
-- `GetTabColor`: Defined as `Color GetTabColor()`.
-- `GetValidations`: Defined as `ValidationCollection GetValidations()`.
-- `GetVisibilityType`: Defined as `VisibilityType GetVisibilityType()`.
-- `GetWorkbook`: Defined as `Workbook GetWorkbook()`.
-- `GetZoom`: Defined as `int GetZoom()`.
-- `Protect`: Defined as `void Protect()`.
-- `SetName`: Defined as `void SetName(std::string_view value)`.
-- `SetRightToLeft`: Defined as `void SetRightToLeft(bool value)`.
-- `SetShowGridlines`: Defined as `void SetShowGridlines(bool value)`.
-- `SetShowRowColumnHeaders`: Defined as `void SetShowRowColumnHeaders(bool value)`.
-- `SetShowZeros`: Defined as `void SetShowZeros(bool value)`.
-- `SetTabColor`: Defined as `void SetTabColor(Color value)`.
-- `SetVisibilityType`: Defined as `void SetVisibilityType(VisibilityType value)`.
-- `SetZoom`: Defined as `void SetZoom(int value)`.
-- `Unprotect`: Defined as `void Unprotect()`.
-- `Worksheet`: Defined as `Worksheet Worksheet()`.
-
-### ConditionalFormattingCollection
-
-The `Aspose.Cells_FOSS.ConditionalFormattingCollection` class manages conditional formatting rules applied to cell ranges, while `Aspose.Cells_FOSS.ValidationCollection` handles data validation rules for input control.
-
-- `Add`: Defined as `int Add()`.
-- `GetCount`: Defined as `int GetCount()`.
-- `GetNextPriority`: Defined as `int GetNextPriority(std::vector<Core::ConditionalFormattingModel> collections)`.
-- `RemoveArea`: Defined as `void RemoveArea(int startRow, int startColumn, int totalRows, int totalColumns)`.
-- `RemoveAt`: Defined as `void RemoveAt(int index)`.
-
-### HyperlinkCollection
-
-The `Aspose.Cells_FOSS.HyperlinkCollection` class provides methods to add and manage hyperlinks within a worksheet, with `Aspose.Cells_FOSS.DefinedNameCollection` supporting named ranges for formula references.
-
-- `Add`: Defined as `int Add(int firstRow, int firstColumn, int totalRows, int totalColumns, std::string_view address)`.
-- `GetCount`: Defined as `int GetCount()`.
-- `RemoveAt`: Defined as `void RemoveAt(int index)`.
-
-### WorkbookProperties
-
-The `Aspose.Cells_FOSS.WorkbookProperties` class exposes workbook-level metadata, while `Aspose.Cells_FOSS.DocumentProperties` provides access to standard document properties such as author and title.
-
-- `GetBackupFile`: Defined as `bool GetBackupFile()`.
-- `GetCalculation`: Defined as `CalculationProperties GetCalculation()`.
-- `GetCodeName`: Defined as `std::string GetCodeName()`.
-- `GetDefaultThemeVersion`: Defined as `std::optional<int> GetDefaultThemeVersion()`.
-- `GetFilterPrivacy`: Defined as `bool GetFilterPrivacy()`.
-- `GetHidePivotFieldList`: Defined as `bool GetHidePivotFieldList()`.
-- `GetProtection`: Defined as `WorkbookProtection GetProtection()`.
-- `GetSaveExternalLinkValues`: Defined as `bool GetSaveExternalLinkValues()`.
-- `GetShowBorderUnselectedTables`: Defined as `bool GetShowBorderUnselectedTables()`.
-- `GetShowInkAnnotation`: Defined as `bool GetShowInkAnnotation()`.
-- `GetShowObjects`: Defined as `std::string GetShowObjects()`.
-- `GetUpdateLinks`: Defined as `std::string GetUpdateLinks()`.
-- `GetView`: Defined as `WorkbookView GetView()`.
-- `SetBackupFile`: Defined as `void SetBackupFile(bool value)`.
-- `SetCodeName`: Defined as `void SetCodeName(std::string_view value)`.
-- `SetDefaultThemeVersion`: Defined as `void SetDefaultThemeVersion(std::optional<int> value)`.
-- `SetFilterPrivacy`: Defined as `void SetFilterPrivacy(bool value)`.
-- `SetHidePivotFieldList`: Defined as `void SetHidePivotFieldList(bool value)`.
-- `SetSaveExternalLinkValues`: Defined as `void SetSaveExternalLinkValues(bool value)`.
-- `SetShowBorderUnselectedTables`: Defined as `void SetShowBorderUnselectedTables(bool value)`.
-- `SetShowInkAnnotation`: Defined as `void SetShowInkAnnotation(bool value)`.
-- `SetShowObjects`: Defined as `void SetShowObjects(std::string_view value)`.
-- `SetUpdateLinks`: Defined as `void SetUpdateLinks(std::string_view value)`.
-- `WorkbookProperties`: Defined as `WorkbookProperties WorkbookProperties()`.
-
-### WorksheetCollection
-
-The `Aspose.Cells_FOSS.WorksheetCollection` class manages the collection of worksheets within a workbook, with `Aspose.Cells_FOSS.Cells` providing direct access to individual cells by row and column indices.
-
-- `Add`: Defined as `int Add()`.
-- `GetActiveSheetIndex`: Defined as `int GetActiveSheetIndex()`.
-- `GetActiveSheetName`: Defined as `std::string GetActiveSheetName()`.
-- `GetCount`: Defined as `int GetCount()`.
-- `RemoveAt`: Defined as `void RemoveAt(int index)`.
-- `SetActiveSheetIndex`: Defined as `void SetActiveSheetIndex(int value)`.
-- `SetActiveSheetName`: Defined as `void SetActiveSheetName(std::string_view value)`.
-- `WorksheetCollection`: Defined as `WorksheetCollection WorksheetCollection()`.
-- `begin`: Defined as `std::vector<std::unique_ptr<Worksheet>>::const_iterator begin()`.
-- `end`: Defined as `std::vector<std::unique_ptr<Worksheet>>::const_iterator end()`.
-
-### Validation
-
-The `Aspose.Cells_FOSS.Validation` class defines data validation rules with types from `Aspose.Cells_FOSS.ValidationType` and operators from `Aspose.Cells_FOSS.ValidationAlertType` for error messaging.
-
-- `AddArea`: Defined as `void AddArea(CellArea area)`.
-- `GetAlertStyle`: Defined as `ValidationAlertType GetAlertStyle()`.
-- `GetAreas`: Defined as `std::vector<CellArea> GetAreas()`.
-- `GetErrorMessage`: Defined as `std::string GetErrorMessage()`.
-- `GetErrorTitle`: Defined as `std::string GetErrorTitle()`.
-- `GetFormula1`: Defined as `std::string GetFormula1()`.
-- `GetFormula2`: Defined as `std::string GetFormula2()`.
-- `GetIgnoreBlank`: Defined as `bool GetIgnoreBlank()`.
-- `GetInCellDropDown`: Defined as `bool GetInCellDropDown()`.
-- `GetInputMessage`: Defined as `std::string GetInputMessage()`.
-- `GetInputTitle`: Defined as `std::string GetInputTitle()`.
-- `GetOperator`: Defined as `OperatorType GetOperator()`.
-- `GetShowError`: Defined as `bool GetShowError()`.
-- `GetShowInput`: Defined as `bool GetShowInput()`.
-- `GetType`: Defined as `ValidationType GetType()`.
-- `RemoveArea`: Defined as `void RemoveArea(CellArea area)`.
-- `SetAlertStyle`: Defined as `void SetAlertStyle(ValidationAlertType value)`.
-- `SetErrorMessage`: Defined as `void SetErrorMessage(std::string value)`.
-- `SetErrorTitle`: Defined as `void SetErrorTitle(std::string value)`.
-- `SetFormula1`: Defined as `void SetFormula1(std::string value)`.
-- `SetFormula2`: Defined as `void SetFormula2(std::string value)`.
-- `SetIgnoreBlank`: Defined as `void SetIgnoreBlank(bool value)`.
-- `SetInCellDropDown`: Defined as `void SetInCellDropDown(bool value)`.
-- `SetInputMessage`: Defined as `void SetInputMessage(std::string value)`.
-- `SetInputTitle`: Defined as `void SetInputTitle(std::string value)`.
-- `SetOperator`: Defined as `void SetOperator(OperatorType value)`.
-- `SetShowError`: Defined as `void SetShowError(bool value)`.
-- `SetShowInput`: Defined as `void SetShowInput(bool value)`.
-- `SetType`: Defined as `void SetType(ValidationType value)`.
+- `CellFormatValue`: Defined as `CellFormatValue()`.
+- `GetAlignment`: Defined as `Core::AlignmentValue GetAlignment()`.
+- `GetBorderId`: Defined as `int GetBorderId()`.
+- `GetFillId`: Defined as `int GetFillId()`.
+- `GetFontId`: Defined as `int GetFontId()`.
+- `GetNumFmtId`: Defined as `int GetNumFmtId()`.
+- `GetProtection`: Defined as `Core::ProtectionValue GetProtection()`.
+- `SetAlignment`: Defined as `void SetAlignment(Core::AlignmentValue value)`.
+- `SetBorderId`: Defined as `void SetBorderId(int value)`.
+- `SetFillId`: Defined as `void SetFillId(int value)`.
+- `SetFontId`: Defined as `void SetFontId(int value)`.
+- `SetNumFmtId`: Defined as `void SetNumFmtId(int value)`.
+- `SetProtection`: Defined as `void SetProtection(Core::ProtectionValue value)`.
 
 ### AutoFilter
 
-The `Aspose.Cells_FOSS.AutoFilter` class enables filtering of worksheet data using color-based filters via `Aspose.Cells_FOSS.AutoFilterColorFilter` and custom filter expressions via `Aspose.Cells_FOSS.AutoFilterCustomFilter`.
+The `Aspose.Cells_FOSS.AutoFilter` class and its related types including `Aspose.Cells_FOSS.AutoFilterColorFilter`, `Aspose.Cells_FOSS.AutoFilterCustomFilter`, `Aspose.Cells_FOSS.AutoFilterCustomFilterCollection`, `Aspose.Cells_FOSS.AutoFilterDynamicFilter`, `Aspose.Cells_FOSS.AutoFilterSortCondition`, `Aspose.Cells_FOSS.AutoFilterSortConditionCollection`, `Aspose.Cells_FOSS.AutoFilterSortState`, `Aspose.Cells_FOSS.AutoFilterSupport`, and `Aspose.Cells_FOSS.AutoFilterTop10` provide functionality for applying and managing auto filters in spreadsheets.
 
 - `Clear`: Defined as `void Clear()`.
 - `GetFilterColumns`: Defined as `FilterColumnCollection GetFilterColumns()`.
@@ -558,164 +369,39 @@ The `Aspose.Cells_FOSS.AutoFilter` class enables filtering of worksheet data usi
 - `GetSortState`: Defined as `AutoFilterSortState GetSortState()`.
 - `SetRange`: Defined as `void SetRange(std::string value)`.
 
-### PageSetup
+### Border
 
-The `Aspose.Cells_FOSS.PageSetup` class controls print layout options including orientation from `Aspose.Cells_FOSS.PageOrientationType`, paper size from `Aspose.Cells_FOSS.PaperSizeType`, and print area definitions.
+The `Aspose.Cells_FOSS.Border` class and its related types provide comprehensive support for cell borders, cell operations, and worksheet management.
 
-- `AddHorizontalPageBreak`: Defined as `void AddHorizontalPageBreak(int rowIndex)`.
-- `AddVerticalPageBreak`: Defined as `void AddVerticalPageBreak(int columnIndex)`.
-- `ClearHorizontalPageBreaks`: Defined as `void ClearHorizontalPageBreaks()`.
-- `ClearVerticalPageBreaks`: Defined as `void ClearVerticalPageBreaks()`.
-- `GetBottomMargin`: Defined as `double GetBottomMargin()`.
-- `GetBottomMarginInch`: Defined as `double GetBottomMarginInch()`.
-- `GetCenterFooter`: Defined as `std::string GetCenterFooter()`.
-- `GetCenterHeader`: Defined as `std::string GetCenterHeader()`.
-- `GetCenterHorizontally`: Defined as `bool GetCenterHorizontally()`.
-- `GetCenterVertically`: Defined as `bool GetCenterVertically()`.
-- `GetFirstPageNumber`: Defined as `std::optional<int> GetFirstPageNumber()`.
-- `GetFitToPagesTall`: Defined as `std::optional<int> GetFitToPagesTall()`.
-- `GetFitToPagesWide`: Defined as `std::optional<int> GetFitToPagesWide()`.
-- `GetFooterMargin`: Defined as `double GetFooterMargin()`.
-- `GetFooterMarginInch`: Defined as `double GetFooterMarginInch()`.
-- `GetHeaderMargin`: Defined as `double GetHeaderMargin()`.
-- `GetHeaderMarginInch`: Defined as `double GetHeaderMarginInch()`.
-- `GetHorizontalPageBreaks`: Defined as `std::vector<int> GetHorizontalPageBreaks()`.
-- `GetLeftFooter`: Defined as `std::string GetLeftFooter()`.
-- `GetLeftHeader`: Defined as `std::string GetLeftHeader()`.
-- `GetLeftMargin`: Defined as `double GetLeftMargin()`.
-- `GetLeftMarginInch`: Defined as `double GetLeftMarginInch()`.
-- `GetOrientation`: Defined as `PageOrientationType GetOrientation()`.
-- `GetPaperSize`: Defined as `PaperSizeType GetPaperSize()`.
-- `GetPrintArea`: Defined as `std::string GetPrintArea()`.
-- `GetPrintGridlines`: Defined as `bool GetPrintGridlines()`.
-- `GetPrintHeadings`: Defined as `bool GetPrintHeadings()`.
-- `GetPrintTitleColumns`: Defined as `std::string GetPrintTitleColumns()`.
-- `GetPrintTitleRows`: Defined as `std::string GetPrintTitleRows()`.
-- `GetRightFooter`: Defined as `std::string GetRightFooter()`.
-- `GetRightHeader`: Defined as `std::string GetRightHeader()`.
-- `GetRightMargin`: Defined as `double GetRightMargin()`.
-- `GetRightMarginInch`: Defined as `double GetRightMarginInch()`.
-- `GetScale`: Defined as `std::optional<int> GetScale()`.
-- `GetTopMargin`: Defined as `double GetTopMargin()`.
-- `GetTopMarginInch`: Defined as `double GetTopMarginInch()`.
-- `GetVerticalPageBreaks`: Defined as `std::vector<int> GetVerticalPageBreaks()`.
-- `SetBottomMargin`: Defined as `void SetBottomMargin(double value)`.
-- `SetBottomMarginInch`: Defined as `void SetBottomMarginInch(double value)`.
-- `SetCenterFooter`: Defined as `void SetCenterFooter(std::string_view value)`.
-- `SetCenterHeader`: Defined as `void SetCenterHeader(std::string_view value)`.
-- `SetCenterHorizontally`: Defined as `void SetCenterHorizontally(bool value)`.
-- `SetCenterVertically`: Defined as `void SetCenterVertically(bool value)`.
-- `SetFirstPageNumber`: Defined as `void SetFirstPageNumber(std::optional<int> value)`.
-- `SetFitToPagesTall`: Defined as `void SetFitToPagesTall(std::optional<int> value)`.
-- `SetFitToPagesWide`: Defined as `void SetFitToPagesWide(std::optional<int> value)`.
-- `SetFooterMargin`: Defined as `void SetFooterMargin(double value)`.
-- `SetFooterMarginInch`: Defined as `void SetFooterMarginInch(double value)`.
-- `SetHeaderMargin`: Defined as `void SetHeaderMargin(double value)`.
-- `SetHeaderMarginInch`: Defined as `void SetHeaderMarginInch(double value)`.
-- `SetLeftFooter`: Defined as `void SetLeftFooter(std::string_view value)`.
-- `SetLeftHeader`: Defined as `void SetLeftHeader(std::string_view value)`.
-- `SetLeftMargin`: Defined as `void SetLeftMargin(double value)`.
-- `SetLeftMarginInch`: Defined as `void SetLeftMarginInch(double value)`.
-- `SetOrientation`: Defined as `void SetOrientation(PageOrientationType value)`.
-- `SetPaperSize`: Defined as `void SetPaperSize(PaperSizeType value)`.
-- `SetPrintArea`: Defined as `void SetPrintArea(std::string_view value)`.
-- `SetPrintGridlines`: Defined as `void SetPrintGridlines(bool value)`.
-- `SetPrintHeadings`: Defined as `void SetPrintHeadings(bool value)`.
-- `SetPrintTitleColumns`: Defined as `void SetPrintTitleColumns(std::string_view value)`.
-- `SetPrintTitleRows`: Defined as `void SetPrintTitleRows(std::string_view value)`.
-- `SetRightFooter`: Defined as `void SetRightFooter(std::string_view value)`.
-- `SetRightHeader`: Defined as `void SetRightHeader(std::string_view value)`.
-- `SetRightMargin`: Defined as `void SetRightMargin(double value)`.
-- `SetRightMarginInch`: Defined as `void SetRightMarginInch(double value)`.
-- `SetScale`: Defined as `void SetScale(std::optional<int> value)`.
-- `SetTopMargin`: Defined as `void SetTopMargin(double value)`.
-- `SetTopMarginInch`: Defined as `void SetTopMarginInch(double value)`.
-
-### Color
-
-The `Aspose.Cells_FOSS.Color` class supports color definitions using ARGB values and integrates with `Aspose.Cells_FOSS.FillPattern` and `Aspose.Cells_FOSS.Border` to style cell backgrounds and borders.
-
+- `Border`: Defined as `Border()`.
+- `BorderStyleType`: Defined as `BorderStyleType BorderStyleType()`.
+- `Clone`: Defined as `Border Clone()`.
 - `Color`: Defined as `Color Color()`.
-- `Empty`: Defined as `Color Empty()`.
-- `Equals`: Defined as `bool Equals(Color other)`.
-- `FromArgb`: Defined as `Color FromArgb(int a, int r, int g, int b)`.
-- `FromCore`: Defined as `Color FromCore(Core::ColorValue value)`.
-- `GetA`: Defined as `std::uint8_t GetA()`.
-- `GetB`: Defined as `std::uint8_t GetB()`.
-- `GetG`: Defined as `std::uint8_t GetG()`.
-- `GetHashCode`: Defined as `int GetHashCode()`.
-- `GetR`: Defined as `std::uint8_t GetR()`.
-- `ToCore`: Defined as `Core::ColorValue ToCore()`.
-
-
-- `Workbook`
-  - `Workbook()`, `Workbook(fileName)`, `Workbook(fileName, LoadOptions)`, `Workbook(stream, LoadOptions)`
-  - `Save(fileName)`, `Save(fileName, SaveFormat)`, `Save(fileName, SaveOptions)`, `Save(stream, SaveFormat)`, `Save(stream, SaveOptions)`
-  - Properties: `Worksheets: WorksheetCollection`, `Settings: WorkbookSettings`, `Properties: WorkbookProperties`, `DocumentProperties: DocumentProperties`, `DefinedNames: DefinedNameCollection`, `LoadDiagnostics: LoadDiagnostics`
-- `Worksheet`
-  - `Protect()`, `Unprotect()`
-  - Properties: `Name: string`, `VisibilityType: VisibilityType`, `TabColor: Color`, `ShowGridlines/ShowRowColumnHeaders/ShowZeros/RightToLeft: bool`, `Zoom: int`, `Cells: Cells`, `Hyperlinks: HyperlinkCollection`, `Validations: ValidationCollection`, `ConditionalFormattings: ConditionalFormattingCollection`, `PageSetup: PageSetup`, `Protection: WorksheetProtection`, `AutoFilter: AutoFilter`
-- `Cells`
-  - `operator[](cellName)`, `operator()(row, column)`, `Merge(firstRow, firstColumn, totalRows, totalColumns)`
-  - Properties: `Rows: RowCollection`, `Columns: ColumnCollection`, `MergedCells: vector<CellArea>`
-- `Cell`
-  - `PutValue(value)` (string/int/double/bool/`DateTime` overloads), `GetValue()`, `SetValue(CellValue)`, `GetStringValue()`, `GetDisplayStringValue()`, `SetFormula(text)`, `GetFormula()`, `GetStyle()`, `SetStyle(Style)`
-  - Properties: `Row: int`, `Column: int`, `Type: CellValueType`
-- `Style`
-  - `GetFont()`/`SetFont(Font)`, `GetBorders()`/`SetBorders(Borders)`, `GetPattern()`/`SetPattern(FillPattern)`, `GetForegroundColor()`/`SetForegroundColor(Color)`, `GetBackgroundColor()`/`SetBackgroundColor(Color)`, `GetNumberFormat()`/`SetNumberFormat(text)`, `GetHorizontalAlignment()`/`SetHorizontalAlignment(...)`, `GetWrapText()`/`SetWrapText(bool)`
-- `ConditionalFormattingCollection`
-  - `Add()`, `RemoveAt(index)`, `RemoveArea(startRow, startColumn, totalRows, totalColumns)`, `operator[](index) -> FormatConditionCollection`
-  - Properties: `Count: int`
-- `FormatConditionCollection`
-  - `operator[](index) -> FormatCondition`, `AddArea(CellArea)`, `AddCondition(FormatConditionType, OperatorType, formula1, formula2)`, `RemoveArea(CellArea)`, `RemoveCondition(index)`
-  - Properties: `Count: int`, `RangeCount: int`
-- `FormatCondition`
-  - Properties: `Priority: int`, `StopIfTrue: bool`, `Style: Style`, `Formula1: string`, `Formula2: string`, `Type: FormatConditionType`, `Operator: OperatorType`
-- `ValidationCollection`
-  - `Add(CellArea)`, `operator[](index) -> Validation`, `RemoveACell(row, column)`, `RemoveArea(CellArea)`, `GetValidationInCell(row, column)`
-  - Properties: `Count: int`
-- `Validation`
-  - `AddArea(CellArea)`
-  - Properties: `Type: ValidationType`, `Operator: OperatorType`, `Formula1: string`, `Formula2: string`, `ShowError: bool`, `ErrorTitle: string`, `ErrorMessage: string`
-- `HyperlinkCollection`
-  - `Add(cellName, totalRows, totalColumns, address)`, `RemoveAt(index)`
-  - Properties: `Count: int`
-- `Hyperlink`
-  - Properties: `Area: string`, `Address: string`, `TextToDisplay: string`, `ScreenTip: string`
-- `DefinedNameCollection`
-  - `Add(name, formula)`, `Add(name, formula, localSheetIndex)`, `RemoveAt(index)`
-  - Properties: `Count: int`
-- `DefinedName`
-  - Properties: `Comment: string`
-- `PageSetup`
-  - `SetOrientation(PageOrientationType)`, `SetPaperSize(PaperSizeType)`, `SetFitToPagesWide/Tall(int)`, `SetPrintArea(range)`, `SetPrintTitleRows/Columns(range)`, `SetLeftHeader/CenterFooter(text)`, `AddHorizontalPageBreak(row)`, `AddVerticalPageBreak(column)`
-  - Properties: `LeftMargin/RightMargin: double`, `Scale: optional<int>`, `PrintGridlines/CenterHorizontally: bool`
-- Exceptions
-  - `CellsException` — base error type for invalid indices, ranges, and arguments
-  - `WorkbookLoadException` / `WorkbookSaveException` — load/save-specific failures
-  - `InvalidFileFormatException` — the loaded bytes are not a readable OOXML package
-  - `UnsupportedFeatureException` — a requested operation (e.g. non-XLSX save) is not implemented
-  - `FormulaException` / `StyleException` — invalid formula text or style value
+- `GetColor`: Defined as `Color GetColor()`.
+- `GetLineStyle`: Defined as `BorderStyleType GetLineStyle()`.
+- `SetColor`: Defined as `void SetColor(Color value)`.
+- `SetLineStyle`: Defined as `void SetLineStyle(BorderStyleType value)`.
 
 </details>
 
 ## Documentation & Resources
 
-- **[Getting started guide](https://docs.aspose.org/cells/cpp/)** — The getting started guide covers installation, basic walkthroughs, and feature introductions for `aspose_cells_foss_cpp`.
-- **[How-to guides & FAQ](https://kb.aspose.org/cells/cpp/)** — The how-to guides and FAQ provide task-focused answers for common spreadsheet operations using `aspose_cells_foss_cpp`.
-- **[Full API reference](https://reference.aspose.org/cells/cpp/)** — The full API reference offers a complete, browsable reference for all public types in `aspose_cells_foss_cpp`. It covers all 195 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Getting started guide](https://docs.aspose.org/cells/cpp/)** — The getting started guide covers installation, walkthroughs, and feature guides for `aspose_cells_foss_cpp`.
+- **[How-to guides & FAQ](https://kb.aspose.org/cells/cpp/)** — The how-to guides and FAQ provide task-focused answers for common spreadsheet questions.
+- **[Full API reference](https://reference.aspose.org/cells/cpp/)** — The full API reference offers a complete, browsable reference for all public types. It covers all 195 verified public types; the [API Reference](#api-reference) section above covers the essentials.
+- **[Contributor guide](AGENTS.md)** — The contributor guide describes architecture, technology assumptions, and conventions for contributors.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues).
 
 ## Scope and Limitations
 
-Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17 and CMake 3.16 or later.
+Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17, targeting Windows platforms with CMake 3.16 or later.
 
-- Only .xlsx (OOXML) is supported for load and save, with `LoadFormat` and `SaveFormat` each declaring a single Xlsx member, and saving to any other format throws `UnsupportedFeatureException`.
-- Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented, as the mapper classes for it exist in source but their read/write methods unconditionally throw `UnsupportedFeatureException`.
-- `Cell`-level comments or notes are not modeled as a distinct object, since the only Comment field in the public API belongs to `DefinedName` and represents a description string on a named range rather than an Excel cell note or threaded comment.
-- Some advanced conditional-formatting rule types are recognized on load but not preserved, as an unsupported rule type is dropped with a `WarningInfo` diagnostic rather than failing the load outright.
+- Only the Xlsx member of `LoadFormat` and `SaveFormat` is implemented, and saving to any other format throws `UnsupportedFeatureException` with the message Only XLSX save is supported., while legacy SpreadsheetML and formats such as .xls, .xlsb, .ods, and .csv are not supported.
+- `Cell`-level comments and notes are not modeled as a distinct object; the only Comment field in the public API belongs to `DefinedName` and represents a description string on a named range rather than an Excel cell note or threaded comment.
+- Some advanced conditional-formatting rule types are recognized on load but not preserved, and an unsupported rule type is dropped with a `WarningInfo` diagnostic rather than failing the load outright.
 - `AutoFilter` date-group filters using certain patterns are rejected as unsupported during load rather than approximated.
-- Aspose.Cells FOSS for Cpp ships prebuilt static libraries for Windows only built with the MSVC v14x toolset, and its build system errors the build for any other toolset or platform.
+- The package ships prebuilt static libraries for Windows only, built with the MSVC v14x toolset, and errors the build for any other toolset or platform, with no Linux or macOS binaries included.
+- The library is published on NuGet as Aspose.Cells.Cpp.FOSS and requires C++17 and CMake 3.16 or later.
 
 These limitations don't apply to [Aspose.Cells for Cpp — Enterprise Edition](https://products.aspose.com/cells/cpp/). The commercial edition of Aspose.Cells FOSS for Cpp extends this package with additional file format support, advanced rendering capabilities, and enterprise-grade features.
 

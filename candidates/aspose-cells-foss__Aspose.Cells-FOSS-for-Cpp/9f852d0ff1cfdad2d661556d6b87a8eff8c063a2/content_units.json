@@ -2,129 +2,144 @@
   "coherence": {
     "applied": true,
     "revised": [
-      "opening/opening"
+      "api_reference/hub:public_symbol:aspose.cells_foss.border"
     ]
   },
   "omitted": [
     {
-      "fact_id": "install_command:cmake",
-      "reason": "reserved for install section",
+      "fact_id": "example:002",
+      "reason": "contradicted example, not used",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "contradicted example, not used",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "contradicted example, not used",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "contradicted example, not used",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "contradicted example, not used",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "contradicted example, not used",
       "section": "opening"
     },
     {
       "fact_id": "inherited_unit:018.paragraph",
-      "reason": "reserved for build section",
+      "reason": "build instructions belong in a separate section, not opening",
       "section": "opening"
     },
     {
-      "fact_id": "identity:ecosystem",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "fact_id": "inherited_unit:020.heading",
+      "reason": "inherited unit, not a fact about the product",
+      "section": "quick_start"
     },
     {
-      "fact_id": "identity:family",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "fact_id": "inherited_unit:021.paragraph",
+      "reason": "inherited unit, not a fact about the product",
+      "section": "quick_start"
     },
     {
-      "fact_id": "identity:platform",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "fact_id": "inherited_unit:022.code_block",
+      "reason": "inherited unit, not a fact about the product",
+      "section": "quick_start"
     },
     {
       "fact_id": "identity:repository",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
     },
     {
       "fact_id": "identity:revision",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
     },
     {
       "fact_id": "package:name",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
     },
     {
       "fact_id": "package:cxx_standard",
-      "reason": "identity fact used only for disambiguation, not prose content",
-      "section": "key_capabilities"
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:040.heading",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "package:cmake_minimum",
+      "reason": "not needed for this quick start lead-in",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:041.paragraph",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:002",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:043.heading",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:003",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:045.heading",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:004",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:047.heading",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:005",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:049.heading",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:006",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     },
     {
-      "fact_id": "inherited_unit:050.list",
-      "reason": "inherited unit rendered by the deterministic renderer",
-      "section": "api_reference"
+      "fact_id": "example:007",
+      "reason": "contradicted example, not used",
+      "section": "quick_start"
     }
   ],
   "schema_version": 1,
   "units": [
     {
       "fact_ids": [
-        "identity:repository",
-        "identity:revision",
-        "identity:family",
-        "identity:platform",
-        "identity:ecosystem",
-        "package:name",
-        "package:cxx_standard",
-        "package:cmake_minimum",
-        "license:spdx",
-        "dependency:none",
         "inherited_unit:004.paragraph",
-        "public_symbol:aspose.cells_foss",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.saveformat",
-        "public_symbol:aspose.cells_foss.cellvalue",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.color",
-        "public_symbol:aspose.cells_foss.autofilter",
-        "public_symbol:aspose.cells_foss.worksheetprotection",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.hyperlinkcollection",
-        "public_symbol:aspose.cells_foss.definednamecollection",
-        "public_symbol:aspose.cells_foss.workbookproperties",
-        "public_symbol:aspose.cells_foss.documentproperties",
-        "example:001"
+        "identity:repository",
+        "license:spdx",
+        "package:cxx_standard",
+        "dependency:none"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.Cells FOSS for Cpp is a free, open-source, MIT-licensed C++ library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel. It solves the problem of programmatic spreadsheet manipulation in C++ applications by exposing a familiar API surface built around Workbook, Worksheet, and Cell objects, matching the structure of Aspose's commercial spreadsheet products. Developers use it to generate reports, process templates, and automate Excel workflows in cross-platform C++17 projects with no external runtime dependencies."
+      "text": "Aspose.Cells FOSS for Cpp is a free, open-source, MIT-licensed C++ library for creating, loading, editing, and saving Excel .xlsx workbooks without requiring Microsoft Excel. It exposes an Aspose.Cells-compatible API surface for common XLSX scenarios — the same Workbook, Worksheet, and Cell object shape used by Aspose's commercial spreadsheet products — built as a dependency-free, header-and-source C++17 library with no external runtime dependencies."
     },
     {
       "fact_ids": [
@@ -144,66 +159,74 @@
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Insert values of multiple types into cells using PutValue and retrieve them as a variant-typed CellValue, while setting and reading formulas with SetFormula and GetFormula."
+      "text": "Insert or retrieve cell values of multiple types including strings, integers, doubles, booleans, and dates using PutValue and GetValue, and manage formulas with SetFormula and GetFormula."
     },
     {
       "fact_ids": [
         "example:001",
         "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.fillpattern",
         "public_symbol:aspose.cells_foss.font",
         "public_symbol:aspose.cells_foss.style"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Apply formatting to cells by retrieving and setting a Style that bundles Font properties, fill patterns, foreground and background colors, borders, and alignment options."
+      "text": "Apply comprehensive styling to cells and ranges by setting font properties, foreground and background colors, fill patterns, and borders through the Style object."
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
         "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.validationcollection",
         "public_symbol:aspose.cells_foss.worksheet",
         "public_symbol:aspose.cells_foss.worksheetprotection"
       ],
       "section": "key_capabilities",
       "slot": "capability:4",
-      "text": "Configure worksheet visibility, zoom, gridlines, headers, right-to-left layout, and protection using the AutoFilter, PageSetup, and WorksheetProtection interfaces."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.validationcollection"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:5",
-      "text": "Apply rule-driven formatting to cell ranges with ConditionalFormattingCollection and enforce input constraints using ValidationCollection scoped to specific CellArea ranges."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.cells_foss.definednamecollection",
-        "public_symbol:aspose.cells_foss.hyperlinkcollection"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:6",
-      "text": "Attach hyperlinks to cells with HyperlinkCollection and manage workbook- or sheet-scoped named ranges through DefinedNameCollection with optional comment strings."
+      "text": "Control worksheet visibility, zoom, gridlines, headers, right-to-left layout, and protection state, while also configuring page setup and hyperlink collections."
     },
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.documentproperties",
+        "public_symbol:aspose.cells_foss.extendeddocumentproperties",
         "public_symbol:aspose.cells_foss.workbookproperties"
       ],
       "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Access and modify core and extended document properties such as author, title, keywords, and custom metadata through the workbook's property collections."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.formatcondition",
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Define conditional formatting rules and data validation constraints over cell ranges to enforce input rules and visually highlight values based on criteria."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.autofilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter",
+        "public_symbol:aspose.cells_foss.autofiltersortcondition"
+      ],
+      "section": "key_capabilities",
       "slot": "capability:7",
-      "text": "Access core and extended metadata of a workbook through WorkbookProperties and DocumentProperties exposed by the Workbook class."
+      "text": "Apply AutoFilter to a cell range and configure custom filters and sort conditions to organize and display data according to user-defined rules."
     },
     {
       "fact_ids": [
         "dependency:none",
         "install_command:cmake",
-        "package:cmake_minimum"
+        "package:cmake_minimum",
+        "package:cxx_standard"
       ],
       "section": "key_capabilities",
       "slot": "capability:8",
-      "text": "Integrate the library into a CMake project using version 3.16 or later with no external runtime dependencies."
+      "text": "Build the library using CMake version 3.16 or higher with C++17 support and no external dependencies by cloning the repository and running the standard configure command."
     },
     {
       "fact_ids": [
@@ -211,7 +234,7 @@
       ],
       "section": "quick_start",
       "slot": "lead_in",
-      "text": "The example creates a new workbook, populates the first worksheet with product names, prices, and a SUM formula, applies header styling, and saves the file as products.xlsx."
+      "text": "This example creates a workbook, populates a worksheet with product data and a SUM formula, applies header styling, and saves the file as products.xlsx."
     },
     {
       "fact_ids": [
@@ -223,225 +246,170 @@
         "package:cmake_minimum",
         "package:cxx_standard",
         "package:name",
-        "public_symbol:aspose.cells_foss.workbook"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "Aspose.Cells FOSS for Cpp provides the Aspose.Cells_FOSS.Workbook class as the primary entry point for creating and manipulating spreadsheet files, with Aspose.Cells_FOSS.Worksheet, Aspose.Cells_FOSS.Cells, and Aspose.Cells_FOSS.Cell forming the core object graph for working with individual sheets and cells. The library supports C++17 and requires CMake 3.16 or later."
+      "text": "Aspose.Cells FOSS for Cpp provides the Workbook class as the primary entry point for working with spreadsheet files, with Worksheet, Cells, and Cell forming the core object graph for accessing and manipulating cell data. The library supports reading, writing, and converting spreadsheet formats through dedicated classes such as LoadFormat and SaveFormat, and includes supporting modules for formatting, validation, and document properties."
     },
     {
       "fact_ids": [
-        "example:001",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.saveformat",
-        "public_symbol:aspose.cells_foss.workbook"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.workbook",
-      "text": "The Aspose.Cells_FOSS.Workbook class enables creating new workbooks, loading existing files, and saving results in various formats including XLSX via the Aspose.Cells_FOSS.SaveFormat enumeration, while providing access to worksheets, properties, and defined names through its member methods."
+      "slot": "hub:public_symbol:aspose",
+      "text": "The Aspose namespace serves as the top-level container for the Aspose.Cells_FOSS library, which provides the core spreadsheet processing functionality for C++ developers."
     },
     {
       "fact_ids": [
-        "example:001",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.cellvalue"
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.core",
+        "public_symbol:aspose.cells_foss.internalvalidation",
+        "public_symbol:aspose.cells_foss.packaging",
+        "public_symbol:aspose.cells_foss.xml"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.cell",
-      "text": "The Aspose.Cells_FOSS.Cell class represents a single cell in a worksheet and provides methods to set and retrieve values, formulas, and styles, with Aspose.Cells_FOSS.CellValue exposing typed access to the underlying data."
+      "slot": "hub:public_symbol:aspose.cells_foss",
+      "text": "The Aspose.Cells_FOSS namespace contains the main API surface including core components such as Aspose.Cells_FOSS.Core for fundamental operations, Aspose.Cells_FOSS.InternalValidation for internal validation logic, Aspose.Cells_FOSS.Packaging for file packaging handling, and Aspose.Cells_FOSS.Xml for XML processing support."
     },
     {
       "fact_ids": [
-        "example:001",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.color",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.style"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.style",
-      "text": "The Aspose.Cells_FOSS.Style class allows configuring cell appearance through font settings via Aspose.Cells_FOSS.Font, background and foreground colors via Aspose.Cells_FOSS.Color, and fill patterns via Aspose.Cells_FOSS.FillPattern."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.autofilter",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.worksheetprotection"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.worksheet",
-      "text": "The Aspose.Cells_FOSS.Worksheet class provides access to cell data through Aspose.Cells_FOSS.Cells, supports data filtering via Aspose.Cells_FOSS.AutoFilter, and offers protection and page setup capabilities via Aspose.Cells_FOSS.WorksheetProtection and Aspose.Cells_FOSS.PageSetup."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
+        "public_symbol:aspose.cells_foss.cellformatvalue",
         "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.validationcollection"
+        "public_symbol:aspose.cells_foss.displayformatsectioninfo",
+        "public_symbol:aspose.cells_foss.displaytextdateformatsupport",
+        "public_symbol:aspose.cells_foss.displaytextformatter",
+        "public_symbol:aspose.cells_foss.displaytextformattersupport",
+        "public_symbol:aspose.cells_foss.formatcondition",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.formatconditiontype",
+        "public_symbol:aspose.cells_foss.invalidfileformatexception",
+        "public_symbol:aspose.cells_foss.loadformat",
+        "public_symbol:aspose.cells_foss.numberformat",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.xlsxworkbookconditionalformatting"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.conditionalformattingcollection",
-      "text": "The Aspose.Cells_FOSS.ConditionalFormattingCollection class manages conditional formatting rules applied to cell ranges, while Aspose.Cells_FOSS.ValidationCollection handles data validation rules for input control."
+      "slot": "hub:public_symbol:aspose.cells_foss.cellformatvalue",
+      "text": "The Aspose.Cells_FOSS.CellFormatValue class provides methods to get and set formatting attributes such as alignment, border ID, fill ID, font ID, number format ID, and protection settings for cell formatting, while supporting conditional formatting through Aspose.Cells_FOSS.ConditionalFormattingCollection and related types like Aspose.Cells_FOSS.FormatCondition and Aspose.Cells_FOSS.FormatConditionCollection."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.definednamecollection",
-        "public_symbol:aspose.cells_foss.hyperlinkcollection"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.hyperlinkcollection",
-      "text": "The Aspose.Cells_FOSS.HyperlinkCollection class provides methods to add and manage hyperlinks within a worksheet, with Aspose.Cells_FOSS.DefinedNameCollection supporting named ranges for formula references."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.documentproperties",
-        "public_symbol:aspose.cells_foss.workbookproperties"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.workbookproperties",
-      "text": "The Aspose.Cells_FOSS.WorkbookProperties class exposes workbook-level metadata, while Aspose.Cells_FOSS.DocumentProperties provides access to standard document properties such as author and title."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.worksheetcollection"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.worksheetcollection",
-      "text": "The Aspose.Cells_FOSS.WorksheetCollection class manages the collection of worksheets within a workbook, with Aspose.Cells_FOSS.Cells providing direct access to individual cells by row and column indices."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.validationalerttype",
-        "public_symbol:aspose.cells_foss.validationtype"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.validation",
-      "text": "The Aspose.Cells_FOSS.Validation class defines data validation rules with types from Aspose.Cells_FOSS.ValidationType and operators from Aspose.Cells_FOSS.ValidationAlertType for error messaging."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
         "public_symbol:aspose.cells_foss.autofilter",
         "public_symbol:aspose.cells_foss.autofiltercolorfilter",
-        "public_symbol:aspose.cells_foss.autofiltercustomfilter"
+        "public_symbol:aspose.cells_foss.autofiltercustomfilter",
+        "public_symbol:aspose.cells_foss.autofiltercustomfiltercollection",
+        "public_symbol:aspose.cells_foss.autofilterdynamicfilter",
+        "public_symbol:aspose.cells_foss.autofiltersortcondition",
+        "public_symbol:aspose.cells_foss.autofiltersortconditioncollection",
+        "public_symbol:aspose.cells_foss.autofiltersortstate",
+        "public_symbol:aspose.cells_foss.autofiltersupport",
+        "public_symbol:aspose.cells_foss.autofiltertop10"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:aspose.cells_foss.autofilter",
-      "text": "The Aspose.Cells_FOSS.AutoFilter class enables filtering of worksheet data using color-based filters via Aspose.Cells_FOSS.AutoFilterColorFilter and custom filter expressions via Aspose.Cells_FOSS.AutoFilterCustomFilter."
+      "text": "The Aspose.Cells_FOSS.AutoFilter class and its related types including Aspose.Cells_FOSS.AutoFilterColorFilter, Aspose.Cells_FOSS.AutoFilterCustomFilter, Aspose.Cells_FOSS.AutoFilterCustomFilterCollection, Aspose.Cells_FOSS.AutoFilterDynamicFilter, Aspose.Cells_FOSS.AutoFilterSortCondition, Aspose.Cells_FOSS.AutoFilterSortConditionCollection, Aspose.Cells_FOSS.AutoFilterSortState, Aspose.Cells_FOSS.AutoFilterSupport, and Aspose.Cells_FOSS.AutoFilterTop10 provide functionality for applying and managing auto filters in spreadsheets."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
+        "public_symbol:aspose.cells_foss.border",
+        "public_symbol:aspose.cells_foss.borders",
+        "public_symbol:aspose.cells_foss.borderstyletype",
+        "public_symbol:aspose.cells_foss.calculationproperties",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cellarea",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cellsexception",
+        "public_symbol:aspose.cells_foss.cellvalue",
+        "public_symbol:aspose.cells_foss.cellvaluetype",
+        "public_symbol:aspose.cells_foss.color",
+        "public_symbol:aspose.cells_foss.column",
+        "public_symbol:aspose.cells_foss.columncollection",
+        "public_symbol:aspose.cells_foss.coredocumentproperties",
+        "public_symbol:aspose.cells_foss.datetime",
+        "public_symbol:aspose.cells_foss.definedname",
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.definednameutility",
+        "public_symbol:aspose.cells_foss.diagnosticseverity",
+        "public_symbol:aspose.cells_foss.displaytextlocalesupport",
+        "public_symbol:aspose.cells_foss.documentproperties",
+        "public_symbol:aspose.cells_foss.extendeddocumentproperties",
+        "public_symbol:aspose.cells_foss.fillpattern",
+        "public_symbol:aspose.cells_foss.fillvalue",
+        "public_symbol:aspose.cells_foss.filtercolumn",
+        "public_symbol:aspose.cells_foss.filtercolumncollection",
+        "public_symbol:aspose.cells_foss.filteroperatortype",
+        "public_symbol:aspose.cells_foss.filtervaluecollection",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.formulaexception",
+        "public_symbol:aspose.cells_foss.horizontalalignmenttype",
+        "public_symbol:aspose.cells_foss.hyperlink",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.iwarningcallback",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.loadissue",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.operatortype",
         "public_symbol:aspose.cells_foss.pageorientationtype",
         "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.papersizetype"
+        "public_symbol:aspose.cells_foss.papersizetype",
+        "public_symbol:aspose.cells_foss.row",
+        "public_symbol:aspose.cells_foss.rowcollection",
+        "public_symbol:aspose.cells_foss.saveoptions",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.styleexception",
+        "public_symbol:aspose.cells_foss.stylesheetloadcontext",
+        "public_symbol:aspose.cells_foss.stylesheetsavecontext",
+        "public_symbol:aspose.cells_foss.stylevaluesanitizer",
+        "public_symbol:aspose.cells_foss.targetmodetype",
+        "public_symbol:aspose.cells_foss.unsupportedfeatureexception",
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.validationalerttype",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.validationtype",
+        "public_symbol:aspose.cells_foss.verticalalignmenttype",
+        "public_symbol:aspose.cells_foss.visibilitytype",
+        "public_symbol:aspose.cells_foss.warninginfo",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.workbookloadexception",
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.workbookpropertysupport",
+        "public_symbol:aspose.cells_foss.workbookprotection",
+        "public_symbol:aspose.cells_foss.workbooksaveexception",
+        "public_symbol:aspose.cells_foss.workbooksettings",
+        "public_symbol:aspose.cells_foss.workbookview",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetcollection",
+        "public_symbol:aspose.cells_foss.worksheetdefinednamesstate",
+        "public_symbol:aspose.cells_foss.worksheetprotection",
+        "public_symbol:aspose.cells_foss.xlsxdocumentproperties",
+        "public_symbol:aspose.cells_foss.xlsxworkbookarchivehelpers",
+        "public_symbol:aspose.cells_foss.xlsxworkbookautofilter",
+        "public_symbol:aspose.cells_foss.xlsxworkbookdefinednames",
+        "public_symbol:aspose.cells_foss.xlsxworkbookhyperlinks",
+        "public_symbol:aspose.cells_foss.xlsxworkbookpagesetup",
+        "public_symbol:aspose.cells_foss.xlsxworkbookproperties",
+        "public_symbol:aspose.cells_foss.xlsxworkbookserializer",
+        "public_symbol:aspose.cells_foss.xlsxworkbookserializercommon",
+        "public_symbol:aspose.cells_foss.xlsxworkbookstyles",
+        "public_symbol:aspose.cells_foss.xlsxworkbookstylesvaluehelpers",
+        "public_symbol:aspose.cells_foss.xlsxworkbookstylesxml",
+        "public_symbol:aspose.cells_foss.xlsxworkbookvalidations",
+        "public_symbol:aspose.cells_foss.xlsxworkbookworksheetprotection",
+        "public_symbol:aspose.cells_foss.xlsxworkbookworksheetviews",
+        "public_symbol:aspose.cells_foss.xmlattribute",
+        "public_symbol:aspose.cells_foss.xmldocument",
+        "public_symbol:aspose.cells_foss.xmlelement",
+        "public_symbol:aspose.cells_foss.xmlnodedata",
+        "public_symbol:aspose.cells_foss.xnamespace",
+        "public_symbol:aspose.cells_foss.ziparchive",
+        "public_symbol:aspose.cells_foss.ziparchiveentry"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.pagesetup",
-      "text": "The Aspose.Cells_FOSS.PageSetup class controls print layout options including orientation from Aspose.Cells_FOSS.PageOrientationType, paper size from Aspose.Cells_FOSS.PaperSizeType, and print area definitions."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name",
-        "public_symbol:aspose.cells_foss.border",
-        "public_symbol:aspose.cells_foss.color",
-        "public_symbol:aspose.cells_foss.fillpattern"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.color",
-      "text": "The Aspose.Cells_FOSS.Color class supports color definitions using ARGB values and integrates with Aspose.Cells_FOSS.FillPattern and Aspose.Cells_FOSS.Border to style cell backgrounds and borders."
+      "slot": "hub:public_symbol:aspose.cells_foss.border",
+      "text": "The Aspose.Cells_FOSS.Border class and its related types provide comprehensive support for cell borders, cell operations, and worksheet management."
     },
     {
       "fact_ids": [
@@ -2009,7 +1977,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:021",
-      "text": "The getting started guide covers installation, basic walkthroughs, and feature introductions for aspose_cells_foss_cpp."
+      "text": "The getting started guide covers installation, walkthroughs, and feature guides for aspose_cells_foss_cpp."
     },
     {
       "fact_ids": [
@@ -2017,7 +1985,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
-      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet operations using aspose_cells_foss_cpp."
+      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet questions."
     },
     {
       "fact_ids": [
@@ -2025,104 +1993,15 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
-      "text": "The full API reference offers a complete, browsable reference for all public types in aspose_cells_foss_cpp."
+      "text": "The full API reference offers a complete, browsable reference for all public types."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:054.heading",
-        "inherited_unit:055.paragraph",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
+        "link_target:024"
       ],
-      "section": "scope_limitations",
-      "slot": "scope",
-      "text": "Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17 and CMake 3.16 or later."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:056.list",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:1",
-      "text": "Only .xlsx (OOXML) is supported for load and save, with LoadFormat and SaveFormat each declaring a single Xlsx member, and saving to any other format throws UnsupportedFeatureException."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:056.list",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:2",
-      "text": "Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented, as the mapper classes for it exist in source but their read/write methods unconditionally throw UnsupportedFeatureException."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:056.list",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:3",
-      "text": "Cell-level comments or notes are not modeled as a distinct object, since the only Comment field in the public API belongs to DefinedName and represents a description string on a named range rather than an Excel cell note or threaded comment."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:056.list",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:4",
-      "text": "Some advanced conditional-formatting rule types are recognized on load but not preserved, as an unsupported rule type is dropped with a WarningInfo diagnostic rather than failing the load outright."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:056.list",
-        "package:cmake_minimum",
-        "package:cxx_standard",
-        "package:name"
-      ],
-      "section": "scope_limitations",
-      "slot": "limitation:5",
-      "text": "AutoFilter date-group filters using certain patterns are rejected as unsupported during load rather than approximated."
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "The contributor guide describes architecture, technology assumptions, and conventions for contributors."
     },
     {
       "fact_ids": [
@@ -2132,13 +2011,65 @@
         "identity:repository",
         "identity:revision",
         "inherited_unit:012.paragraph",
+        "inherited_unit:054.heading",
+        "inherited_unit:055.paragraph",
+        "inherited_unit:056.list",
         "package:cmake_minimum",
         "package:cxx_standard",
         "package:name"
       ],
       "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Cells FOSS for Cpp provides read and write access to Excel workbooks in the .xlsx format using C++17, targeting Windows platforms with CMake 3.16 or later."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:055.paragraph",
+        "inherited_unit:056.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Only the Xlsx member of LoadFormat and SaveFormat is implemented, and saving to any other format throws UnsupportedFeatureException with the message Only XLSX save is supported., while legacy SpreadsheetML and formats such as .xls, .xlsb, .ods, and .csv are not supported."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:012.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Cell-level comments and notes are not modeled as a distinct object; the only Comment field in the public API belongs to DefinedName and represents a description string on a named range rather than an Excel cell note or threaded comment."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Some advanced conditional-formatting rule types are recognized on load but not preserved, and an unsupported rule type is dropped with a WarningInfo diagnostic rather than failing the load outright."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "AutoFilter date-group filters using certain patterns are rejected as unsupported during load rather than approximated."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:012.paragraph"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "The package ships prebuilt static libraries for Windows only, built with the MSVC v14x toolset, and errors the build for any other toolset or platform, with no Linux or macOS binaries included."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:012.paragraph"
+      ],
+      "section": "scope_limitations",
       "slot": "limitation:6",
-      "text": "Aspose.Cells FOSS for Cpp ships prebuilt static libraries for Windows only built with the MSVC v14x toolset, and its build system errors the build for any other toolset or platform."
+      "text": "The library is published on NuGet as Aspose.Cells.Cpp.FOSS and requires C++17 and CMake 3.16 or later."
     },
     {
       "fact_ids": [

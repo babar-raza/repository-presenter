@@ -1,8 +1,6 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names .xlsx, =, Cell.GetFormula(), Cell.GetStyle(), Cell.GetValue(), Cell.PutValue(), Cell.SetFormula(), Cell.SetStyle(), Cells.Merge(), Style.SetNumberFormat(), Workbook.GetDefinedNames(), Workbook.GetDocumentProperties(), Workbook.GetProperties(), Workbook.Save(), Worksheet.GetConditionalFormattings(), Worksheet.GetHyperlinks(), Worksheet.GetPageSetup(), Worksheet.GetValidations(), mailto:, std::vector<std::uint8_t>",
-    "inherited_unit:041.paragraph: the rewrite no longer names Aspose::Cells_FOSS, reference.aspose.org",
-    "inherited_unit:056.list: the rewrite no longer names .csv, .ods, .xls, .xlsb, .xlsx, Comment, UnsupportedFeatureException(\"Only XLSX save is supported.\"), Xlsx"
+    "inherited_unit:010.list: the rewrite no longer names .xlsx, =, Cell.GetFormula(), Cell.GetStyle(), Cell.GetValue(), Cell.PutValue(), Cell.SetFormula(), Cell.SetStyle(), Cells.Merge(), Style.SetNumberFormat(), Workbook.GetDefinedNames(), Workbook.GetDocumentProperties(), Workbook.GetProperties(), Workbook.Save(), Worksheet.GetConditionalFormattings(), Worksheet.GetHyperlinks(), Worksheet.GetPageSetup(), Worksheet.GetValidations(), mailto:, std::vector<std::uint8_t>"
   ],
   "checks": [
     {
@@ -451,8 +449,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "a107d58b83c327d7054ba4dcebb208bc6f455a48f12ff9f5bc165db441bcc68c",
-  "readme_sha256": "d95b3a3e2e2ecb36f0661e89df794bd66c6a89d76a76cd7c1275d2eeb027919a",
+  "protected_content_fingerprint": "2ee856226d1d2e273b6a0e0929b3e420aaa3be0ac460dad4a7b61847c308d7f4",
+  "readme_sha256": "46ebad06f77ccbf43a847cb3c52531c3923cfc7a2f304bf43779ab6a4cab05f9",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
   "schema_version": 1,
   "source_revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",

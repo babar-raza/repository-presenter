@@ -1,35 +1,58 @@
 {
+  "adopted": {
+    "adopted_at": "2026-09-08T05:47:30Z",
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "investigation.json",
+      "plan.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-06T14:53:49Z",
+      "provider_calls": 0
+    },
+    "recorded_at": "2026-09-08T05:11:32Z"
+  },
   "composition": {
-    "advisories": 5,
+    "advisories": 7,
     "blocking_failures": [],
-    "coverage_advisories": 3,
+    "coverage_advisories": 1,
     "review_verdict": "ACCEPT",
     "review_verdict_as_returned": "REJECT_PRESENTATION"
   },
   "files": {
     "README.md": {
-      "bytes": 57507,
-      "sha256": "d95b3a3e2e2ecb36f0661e89df794bd66c6a89d76a76cd7c1275d2eeb027919a"
+      "bytes": 36703,
+      "sha256": "46ebad06f77ccbf43a847cb3c52531c3923cfc7a2f304bf43779ab6a4cab05f9"
     },
     "README.patch": {
-      "bytes": 79809,
-      "sha256": "0f991fca41947a129d55ce1660138ac3ac20e64f90b73d164b43cef9b67f2311"
+      "bytes": 67070,
+      "sha256": "721448bf25b6b7e5d60fd6f533c3055e93f743e8b7ba0677d13a247028621e2e"
     },
     "calls.jsonl": {
-      "bytes": 37750,
-      "sha256": "4d3eea292dbf85737338ddfab6b38f5c6eaa5d65226569aa34bd287a501e6b82"
+      "bytes": 48201,
+      "sha256": "a9631480f6249874f5ec4f1157d02105f1e5551a189c3e54ff77d660ccc7fec9"
     },
     "content_units.json": {
-      "bytes": 87924,
-      "sha256": "19b312d6107f5b6ac418414414b9bebc4f1dc4b9aaa60847bf654714da547127"
+      "bytes": 87373,
+      "sha256": "927011adb2f393c35e22caaadf41e03227182034b742603b5858969dc81f80fa"
     },
     "dependencies.json": {
-      "bytes": 285410,
-      "sha256": "084c7cb6ed909595fa7515d84020c64d3f48cb6db27f99d60845f6b7efcf8baf"
+      "bytes": 285605,
+      "sha256": "80c1ab7b6691c6088cf7f6737eb10db49d3a367fee929ad57f7b9dcf7572be59"
     },
     "dispositions.json": {
-      "bytes": 23920,
-      "sha256": "c72b45999dc3029cb69c66d795cea56becc20c32525d76f669a752bd1fdc1669"
+      "bytes": 22995,
+      "sha256": "89187324ae51080354f257cf5e533d69300f00054f0fd10874933a6704baf033"
     },
     "examples.json": {
       "bytes": 5910,
@@ -40,36 +63,36 @@
       "sha256": "a25591aa2e080fb018188f7fe44b154bba3f7bcbcd25559885801bbdd9437f10"
     },
     "investigation.json": {
-      "bytes": 7633,
-      "sha256": "96353c5e979662b14cf8f35b0875d564b922f15d14f9fcc083147446bd6372b7"
+      "bytes": 8941,
+      "sha256": "80f6856848f3779f26d1af88b09481d640b10112f8c0edb93a077e205774b4cd"
     },
     "plan.json": {
-      "bytes": 9851,
-      "sha256": "c7cb3207f8a6c83de77751452895cc44feaa11410799166852956b44be9a98c3"
+      "bytes": 15191,
+      "sha256": "4f7960017cd392c38b5e77a58845cba4f3b8cf495684051bc71199d421911683"
     },
     "probes.json": {
-      "bytes": 2992,
-      "sha256": "8cc018fd6ed4b6d8307596afe934749f6b16d4c74461f70373ad34fcef7b0d0e"
+      "bytes": 2993,
+      "sha256": "e936bfee9e8a224314190526a0e36a0f381c2deb3dfbe2dd891ea4bd7a3dd4bc"
     },
     "review.json": {
-      "bytes": 6724,
-      "sha256": "13849441514b21d08068336bfd21211ed85d66bf61b5ceb3fcc4c4db30d96c1f"
+      "bytes": 10497,
+      "sha256": "47b2431470173f48eeaefba9adc30a74531c03eccbfa065fe7355eeccca26f3c"
     },
     "validation.json": {
-      "bytes": 12318,
-      "sha256": "9773f138bb97389aba89aeda4c3ddae390fcbe7de300677e4f9b41ca604393ab"
+      "bytes": 12043,
+      "sha256": "c407dcccd73ff229e38c3e3f3e6317e9bb2fcfe40741f4311c5de8a33189e789"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-06T14:53:49Z",
+    "proven_at": "2026-09-08T05:47:30Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp",
   "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
   "schema_version": 1,
-  "sealed_at": "2026-09-06T14:53:49Z",
+  "sealed_at": "2026-09-08T05:47:30Z",
   "state": "READY_FOR_PROPOSAL"
 }

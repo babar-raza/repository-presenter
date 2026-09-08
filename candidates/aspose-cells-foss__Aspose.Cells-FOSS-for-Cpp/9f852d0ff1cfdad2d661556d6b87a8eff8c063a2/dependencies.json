@@ -6,6 +6,12 @@
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
+  "environment": {
+    "extractor_version": "1",
+    "os": "Windows",
+    "python_version": "3.13.2",
+    "site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411"
+  },
   "facts": {
     "dependency:none": "c090f0c6a13a4e0a8410ac732493e82553e173d2548e91f80934b88763f444ed",
     "example:001": "8206be4dbf52a01427a182bd5234e4a2f14a2e118fb4e96c2093e1cc80813c05",
@@ -2098,11 +2104,11 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
-      "version": "7"
+      "sha256": "29ef850e5c00fffdd07aad641bd226e144fb2de91b09d0cd189f402544d8e836",
+      "version": "8"
     }
   },
-  "protected_content_fingerprint": "a107d58b83c327d7054ba4dcebb208bc6f455a48f12ff9f5bc165db441bcc68c",
+  "protected_content_fingerprint": "2ee856226d1d2e273b6a0e0929b3e420aaa3be0ac460dad4a7b61847c308d7f4",
   "schema_version": 1,
   "source": {
     "revision": "9f852d0ff1cfdad2d661556d6b87a8eff8c063a2",
