@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 import pytest
 
+from repository_presenter.components.readme.bundle.seal import seed_call_store
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import ConfigError, JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -153,8 +154,68 @@ def test_an_accepted_output_is_stored_and_reused_without_a_second_call(
     ]
     assert records[0].prompt_sha256 == MANIFEST.sha256 and records[0].total_tokens == 120
     assert records[0].model_served == "qwen3-next" and records[0].http_status == 200
+    # TB-07, external review D7, 2026-09-08: the live ("provider_call") record's own
+    # request_sha256 field must be the exact value CallStore is actually keyed by - what
+    # run_job() returns as result.request_sha256 - not a different hash that merely shares the
+    # field name. Before this fix it was canonical_hash(payload) alone, never matching the real
+    # cache key (canonical_hash of {"prompt_sha256", "payload"} together), so seed_call_store
+    # (which reads exactly this field from a sealed bundle's ledger to pre-populate a fresh
+    # process's store) seeded a key no lookup could ever find.
+    assert records[0].request_sha256 == result.request_sha256
     assert records[1].request_sha256 == result.request_sha256
     assert ledger.summary().provider_calls == 1 and ledger.summary().cache_reuses == 1
+
+
+def test_a_genuinely_cold_process_reuses_a_seeded_sealed_bundles_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TB-07, external review D7, 2026-09-08: seed_call_store's whole purpose (RC4 - a hosted
+    runner's first run of an already-sealed revision, with nothing under the gitignored runs/
+    directory to reuse) depends on the ledger's own request_sha256 being the exact key CallStore
+    is looked up by. Before this fix it never was, so a genuinely fresh process re-running an
+    already-sealed composition would remake every "seedable" call live - the gap this test proves
+    closed, with a real run_job() computing the key, never a synthetic one."""
+    gateway = _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    sealing_ledger = Ledger(tmp_path / "sealing" / "calls.jsonl")
+    sealed = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=sealing_ledger,
+        store=CallStore(tmp_path / "sealing" / "calls"),
+        context=CONTEXT,
+    )
+    assert sealed.provider_calls == 1  # the original sealing composition's own live call
+
+    # A sealed bundle carrying just this one job's own ledger and its accepted artifact -
+    # everything seed_call_store needs, and nothing a real bundle wouldn't also have.
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "investigation.json").write_text(
+        json.dumps(sealed.output) + "\n", encoding="utf-8"
+    )
+    (bundle / "calls.jsonl").write_bytes((tmp_path / "sealing" / "calls.jsonl").read_bytes())
+
+    fresh_store = CallStore(tmp_path / "cold" / "calls")
+    assert seed_call_store(bundle, fresh_store) == ["repository_investigation"]
+
+    # No further response queued: a live call here would raise IndexError on gateway.responses,
+    # failing the test loudly rather than silently falling back to one.
+    cold = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "cold" / "calls.jsonl"),
+        store=fresh_store,
+        context=CONTEXT,
+    )
+    assert (cold.provider_calls, cold.cache_reused, cold.output) == (0, True, sealed.output)
+    assert len(gateway.requests) == 1  # only the original sealing call ever reached the gateway
 
 
 def test_a_rejected_output_earns_one_re_ask_that_quotes_the_rejection(

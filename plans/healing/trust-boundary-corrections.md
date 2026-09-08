@@ -431,8 +431,12 @@ file was touched.
 
 ### TB-07 — Correct cache-key identity and environment fingerprinting
 
-- **Status:** In Progress
-- **Checklist:** [ ] fix `_base()` hash formula (part 1 only, this pass) [ ] reproduction test [ ] full suite [ ] parts 2/3 (env fingerprint, plugin init) deferred - see note
+- **Status:** In Progress (part 1 of 3 done and pushed; parts 2-3 remain)
+- **Note:** landed only the cache-key identity fix (part 1) this pass. `_site_manifest_hash`
+  targeting the wrong process's environment (part 2) and the fresh-process ecosystem-plugin
+  initialization audit (part 3) are real, independently confirmed, and NOT yet fixed - tracked
+  as the taskcard's remaining scope, not silently dropped.
+- **Checklist:** [x] fix `_base()` hash formula [x] reproduction test (real run_job, real cold-process seed/reuse proof) [x] full suite [ ] part 2 - `_site_manifest_hash` [ ] part 3 - plugin init audit
 - **Gap linkage:** D7
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

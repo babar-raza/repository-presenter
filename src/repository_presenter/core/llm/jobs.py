@@ -301,7 +301,18 @@ class _Attempts:
         error_class: str | None,
         reply: _Reply | None = None,
     ) -> CallRecord:
-        request_sha256 = canonical_hash(payload) if payload is not None else self.logical_id
+        # Must be the exact formula run_job uses for the cache key (canonical_hash of
+        # {"prompt_sha256", "payload"} together), never canonical_hash(payload) alone - the two
+        # diverged before this fix (TB-07, external review D7, 2026-09-06/2026-09-08): the
+        # ledger's own request_sha256 field was computed differently from the value CallStore is
+        # ever actually keyed or looked up by, so seed_call_store seeded a key run_job could
+        # never find, making it non-functional for its stated purpose (a hosted runner's first
+        # run of an already-sealed revision, with no local runs/ cache to fall back on).
+        request_sha256 = (
+            canonical_hash({"prompt_sha256": self.manifest.sha256, "payload": payload})
+            if payload is not None
+            else self.logical_id
+        )
         return CallRecord(
             call_id=_call_id(self.logical_id, self.count, outcome, started_at),
             logical_call_id=self.logical_id,
