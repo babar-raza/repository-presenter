@@ -234,7 +234,7 @@ def _reject_private_targets(request: httpx.Request) -> None:
     caught exactly like a direct link to one."""
     host = request.url.host
     try:
-        resolved = {info[4][0] for info in socket.getaddrinfo(host, None)}
+        resolved = {str(info[4][0]) for info in socket.getaddrinfo(host, None)}
     except OSError:
         return
     private = {ip for ip in resolved if _is_private_address(ip)}

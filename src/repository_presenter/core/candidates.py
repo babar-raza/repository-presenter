@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -29,6 +29,10 @@ from repository_presenter.core.errors import PresenterError
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
 CURRENT_FILENAME = "CURRENT"
+# Must match bundle/seal.py's own DEPENDENCIES_FILENAME - duplicated rather than imported, since
+# core/ may not import a components/readme/ module (this file's own docstring; see also
+# core/ecosystems.py's identical note).
+DEPENDENCIES_FILENAME = "dependencies.json"
 COUNTED_STATES = frozenset({"READY_FOR_PROPOSAL"})
 # The only manifest shape this code knows how to trust. A future, incompatible schema_version
 # must fail closed rather than have its (possibly differently-shaped) `files` map trusted as if
@@ -167,6 +171,83 @@ def count_current_candidates(root: Path) -> int:
         if manifest.get("state") in COUNTED_STATES:
             counted += 1
     return counted
+
+
+@dataclass(frozen=True)
+class StaleCandidate:
+    """One CURRENT candidate whose dependencies.json names a component or check version older
+    than what the running code currently declares."""
+
+    repository_dir: str
+    revision: str
+    reasons: tuple[str, ...]
+
+
+def stale_candidates(
+    root: Path,
+    current_components: Mapping[str, str],
+    current_validators: Mapping[str, str],
+    current_validator_version: str,
+) -> list[StaleCandidate]:
+    """Every CURRENT candidate whose sealed ``dependencies.json`` is behind the running code, by
+    the same versioning rule ``docs/STATE_MACHINE.md`` section 9 already defines (a component or
+    validator version change reopens the earliest affected stage of every candidate that consumed
+    it) - read back as a report instead of requiring a human to diff ``test_sealed_bytes.py``'s
+    raw bytes and reason about it by hand each time (2026-09-09,
+    ``docs/CI_AND_STALENESS_ASSESSMENT.md``: two version bumps were silently skipped in one
+    session before this report existed, and the resulting staleness was invisible until a raw
+    byte comparison against committed state was run by hand).
+
+    A pure read: no clone, no provider call, no state change, and it cannot itself invalidate a
+    candidate - it only reports what the existing rule already says. The caller supplies the
+    running code's current version values, since this module may not import the higher-level
+    modules (``renderer.py``, ``validation/registry.py``) that own them.
+
+    A candidate whose ``dependencies.json`` predates a given component or check entirely (an
+    older schema that never recorded it) is silently not flagged for that one - a component this
+    code has never heard of cannot be judged stale by it, only genuinely absent recordings are
+    skipped, never invented.
+    """
+    candidates = root / CANDIDATES_DIRNAME
+    if not candidates.is_dir():
+        return []
+    stale: list[StaleCandidate] = []
+    for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
+        current = repository_dir / CURRENT_FILENAME
+        if not current.is_file():
+            continue
+        revision = current.read_text(encoding="utf-8").strip()
+        deps_path = repository_dir / revision / DEPENDENCIES_FILENAME
+        if not deps_path.is_file():
+            continue
+        try:
+            deps = json.loads(deps_path.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        if not isinstance(deps, dict):
+            continue
+        reasons: list[str] = []
+        recorded_components = deps.get("components") or {}
+        for name, current_value in sorted(current_components.items()):
+            recorded = recorded_components.get(name)
+            if recorded is not None and recorded != current_value:
+                reasons.append(f"components.{name} {recorded} -> {current_value}")
+        recorded_validators = deps.get("validators") or {}
+        for check_id, current_value in sorted(current_validators.items()):
+            recorded = recorded_validators.get(check_id)
+            if recorded is not None and recorded != current_value:
+                reasons.append(f"validators.{check_id} {recorded} -> {current_value}")
+        recorded_validator_version = deps.get("validator_version")
+        if (
+            recorded_validator_version is not None
+            and recorded_validator_version != current_validator_version
+        ):
+            reasons.append(
+                f"validator_version {recorded_validator_version} -> {current_validator_version}"
+            )
+        if reasons:
+            stale.append(StaleCandidate(repository_dir.name, revision, tuple(reasons)))
+    return stale
 
 
 def _read_state(manifest: Path) -> str:

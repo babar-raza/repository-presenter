@@ -12,8 +12,10 @@ import pytest
 from repository_presenter.core.candidates import (
     BundleError,
     SealedBundle,
+    StaleCandidate,
     count_current_candidates,
     iter_sealed_bundles,
+    stale_candidates,
     verify_bundle,
 )
 from support import write_bundle
@@ -147,6 +149,86 @@ def test_count_current_candidates_rejects_a_manifest_whose_repository_disagrees_
     (bundle / "README.md").write_bytes(b"")
     with pytest.raises(BundleError, match="does not match its directory"):
         count_current_candidates(tmp_path)
+
+
+def _write_dependencies(
+    bundle: Path,
+    components: dict[str, str] | None = None,
+    validators: dict[str, str] | None = None,
+    validator_version: str | None = "3",
+) -> None:
+    payload: dict[str, object] = {"schema_version": 1}
+    if components is not None:
+        payload["components"] = components
+    if validators is not None:
+        payload["validators"] = validators
+    if validator_version is not None:
+        payload["validator_version"] = validator_version
+    (bundle / "dependencies.json").write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_stale_candidates_reports_every_dependency_behind_current(tmp_path: Path) -> None:
+    """2026-09-09, docs/CI_AND_STALENESS_ASSESSMENT.md: this is the same rule
+    docs/STATE_MACHINE.md section 9 already defines (a changed dependency reopens the candidates
+    that consumed it), read back as a report instead of a human-diffed test_sealed_bytes.py
+    byte comparison."""
+    behind = write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_dependencies(
+        behind, components={"renderer": "17", "shell": "5"}, validators={"BC-03": "1"}
+    )
+    current = write_bundle(tmp_path, "b__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_dependencies(
+        current, components={"renderer": "18", "shell": "5"}, validators={"BC-03": "2"}
+    )
+    found = stale_candidates(
+        tmp_path,
+        current_components={"renderer": "18", "shell": "5", "normalisation": "1"},
+        current_validators={"BC-03": "2"},
+        current_validator_version="3",
+    )
+    assert found == [
+        StaleCandidate(
+            "a__repo",
+            "rev1",
+            ("components.renderer 17 -> 18", "validators.BC-03 1 -> 2"),
+        )
+    ]
+
+
+def test_stale_candidates_ignores_a_dependency_the_running_code_has_never_heard_of(
+    tmp_path: Path,
+) -> None:
+    # A dependencies.json that never recorded a given component/check (an older schema) is not
+    # judged stale for it - only a genuinely older recorded value counts, never an absence.
+    bundle = write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_dependencies(bundle, components={}, validators={}, validator_version=None)
+    assert (
+        stale_candidates(
+            tmp_path,
+            current_components={"renderer": "18"},
+            current_validators={"BC-03": "2"},
+            current_validator_version="3",
+        )
+        == []
+    )
+
+
+def test_stale_candidates_skips_a_candidate_with_no_dependencies_file_or_no_current_pointer(
+    tmp_path: Path,
+) -> None:
+    write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")  # no dependencies.json
+    write_bundle(tmp_path, "b__repo", "rev1", "READY_FOR_PROPOSAL", current=False)
+    assert (
+        stale_candidates(
+            tmp_path,
+            current_components={"renderer": "18"},
+            current_validators={},
+            current_validator_version="1",
+        )
+        == []
+    )
+    assert stale_candidates(tmp_path, {}, {}, "1") == []
+    assert count_current_candidates(tmp_path) == 1  # unaffected: a_repo alone counts
 
 
 def test_verify_bundle_none_without_a_bundle_and_rejects_a_corrupt_or_missing_artifact(

@@ -28,11 +28,12 @@ from repository_presenter.components.readme.bundle.seal import (
     seal_candidate,
     seed_call_store,
     upstream_dependencies,
-    verify_bundle,
 )
 from repository_presenter.components.readme.composition.authoring import (
     CONTENT_UNITS_FILENAME,
+    NORMALISATION_VERSION,
 )
+from repository_presenter.components.readme.composition.components.shell import SHELL_VERSION
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     summarize_plan,
@@ -40,6 +41,7 @@ from repository_presenter.components.readme.composition.planning import (
 from repository_presenter.components.readme.composition.renderer import (
     PATCH_FILENAME,
     README_FILENAME,
+    RENDERER_VERSION,
     line_counts,
 )
 from repository_presenter.components.readme.evidence.facts.extract import extract_facts
@@ -67,7 +69,9 @@ from repository_presenter.components.readme.review.independent.review import (
     summarize_review,
 )
 from repository_presenter.components.readme.validation.registry import (
+    BLOCKING_CHECKS,
     VALIDATION_FILENAME,
+    VALIDATOR_VERSION,
     blocking_failures,
     coverage_rows,
     summarize_validation,
@@ -76,6 +80,8 @@ from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     BundleError,
     count_current_candidates,
+    stale_candidates,
+    verify_bundle,
 )
 from repository_presenter.core.config import API_KEY_VARIABLE, load_gateway_config
 from repository_presenter.core.errors import JobError, PresenterError
@@ -148,6 +154,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="report the current gate and current reviewable no-op-proven candidates",
     )
     status.add_argument("--root", type=Path, default=None, help=root_help)
+    status.add_argument(
+        "--stale",
+        action="store_true",
+        help=(
+            "also report every current candidate whose dependencies.json is behind the running "
+            "code's component/check versions - a pure read, makes no provider call"
+        ),
+    )
     present = subcommands.add_parser(
         "present",
         help="run the README transaction for one admitted repository",
@@ -180,7 +194,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "status":
-        return run_status(args.root)
+        return run_status(args.root, stale=args.stale)
     if args.command == "present":
         return run_present(args.repo, args.root, facts_only=args.facts_only)
     if args.command == "preflight":
@@ -216,8 +230,15 @@ def run_preflight(root_argument: Path | None) -> int:
     return EXIT_OK
 
 
-def run_status(root_argument: Path | None) -> int:
-    """Print version, gate, work item, and N/34 progress from sealed bundles on disk."""
+def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
+    """Print version, gate, work item, and N/34 progress from sealed bundles on disk.
+
+    ``--stale`` additionally reports every current candidate whose sealed ``dependencies.json``
+    is behind the running code's component/check versions (``core.candidates.stale_candidates``,
+    2026-09-09, ``docs/CI_AND_STALENESS_ASSESSMENT.md``) - a pure read, makes no provider call,
+    and does not affect the exit status: a stale candidate is not itself an inconsistency, only
+    something due for a re-seal.
+    """
     root = _resolve_root(root_argument)
     if root is None:
         return EXIT_USAGE
@@ -238,6 +259,22 @@ def run_status(root_argument: Path | None) -> int:
     print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
     print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
     print(f"canary: {cursor.canary}")
+    if stale:
+        current_components = {
+            "shell": SHELL_VERSION,
+            "renderer": RENDERER_VERSION,
+            "normalisation": NORMALISATION_VERSION,
+        }
+        current_validators = {check.id: check.version for check in BLOCKING_CHECKS}
+        found = stale_candidates(root, current_components, current_validators, VALIDATOR_VERSION)
+        if found:
+            print(f"stale: {len(found)} current candidate(s) behind the running code -")
+            for candidate in found:
+                print(f"  {candidate.repository_dir} @ {candidate.revision}:")
+                for reason in candidate.reasons:
+                    print(f"    {reason}")
+        else:
+            print("stale: none")
     if on_disk != cursor.recorded_candidates:
         _fail(
             f"cursor records {cursor.recorded_candidates} current candidates "

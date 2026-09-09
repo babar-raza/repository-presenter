@@ -128,7 +128,7 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-03",
-        "1",
+        "2",
         "Every rendered example was executed or compiled in isolation at this revision",
         ("quick_start", "additional_examples"),
         "S9",

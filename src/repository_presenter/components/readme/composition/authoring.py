@@ -78,7 +78,7 @@ _TYPE_OBJECTIVE = (
 # prose, and the rewrites unit_checks makes before judging - decides rendered bytes, so it is a
 # component dependencies.json records and a change to it reopens COMPOSING, exactly as the shell
 # and the renderer do (the gap recorded at d147b4a; docs/STATE_MACHINE.md section 9).
-NORMALISATION_VERSION = "1"
+NORMALISATION_VERSION = "2"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -884,8 +884,23 @@ def merge_repeated_slots(output: dict[str, Any]) -> list[str]:
 _PROSE_EXTENSION = re.compile(r"(?<![\w.])\.[A-Za-z]{2,5}\b")
 _PROSE_WORD = re.compile(r"[A-Za-z]+")
 _PROSE_INPUT_WORDS = frozenset(
-    {"read", "reads", "reading", "load", "loads", "loading", "open", "opens", "opening",
-     "import", "imports", "importing", "parse", "parses", "parsing"}
+    {
+        "read",
+        "reads",
+        "reading",
+        "load",
+        "loads",
+        "loading",
+        "open",
+        "opens",
+        "opening",
+        "import",
+        "imports",
+        "importing",
+        "parse",
+        "parses",
+        "parsing",
+    }
 )
 _PROSE_OUTPUT_WORDS = frozenset(
     {"write", "writes", "writing", "save", "saves", "saving", "export", "exports", "exporting"}
@@ -893,7 +908,7 @@ _PROSE_OUTPUT_WORDS = frozenset(
 
 
 def _prose_direction(text: str) -> str | None:
-    """"input", "output", or None when the text names both or neither direction - an unambiguous
+    """ "input", "output", or None when the text names both or neither direction - an unambiguous
     bag-of-words read, never a sentence-level parse (TB-09, D9)."""
     words = {word.lower() for word in _PROSE_WORD.findall(text)}
     is_input = bool(words & _PROSE_INPUT_WORDS)
