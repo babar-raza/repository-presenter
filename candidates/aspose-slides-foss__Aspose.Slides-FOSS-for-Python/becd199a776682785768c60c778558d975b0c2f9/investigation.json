@@ -1,11 +1,22 @@
 {
   "audience": {
     "fact_ids": [
-      "identity:platform",
-      "identity:ecosystem",
-      "package:python_requires"
+      "example:001",
+      "example:002",
+      "example:003",
+      "example:004",
+      "example:005",
+      "example:006",
+      "example:007",
+      "example:008",
+      "example:009",
+      "example:010",
+      "example:011",
+      "example:012",
+      "example:013",
+      "example:014"
     ],
-    "text": "Python developers who need programmatic PowerPoint generation and editing without rendering or conversion."
+    "text": "Python developers who need to generate, modify, or process PowerPoint presentations programmatically without relying on Microsoft Office or external rendering engines."
   },
   "capabilities": [
     {
@@ -14,7 +25,7 @@
         "format:input.pptx",
         "format:output.pptx"
       ],
-      "text": "Open, create, and save .pptx files while preserving unknown XML parts verbatim.",
+      "text": "Create new presentations from scratch and open existing .pptx files for reading or modification.",
       "title": "Presentation I/O"
     },
     {
@@ -22,54 +33,74 @@
         "example:002",
         "example:005",
         "example:006",
-        "example:014"
+        "example:014",
+        "public_symbol:slides_foss.shapecollection.add_auto_shape",
+        "public_symbol:slides_foss.shapecollection.add_table",
+        "public_symbol:slides_foss.shapecollection.add_connector",
+        "public_symbol:slides_foss.shapecollection.add_group_shape",
+        "public_symbol:slides_foss.shapecollection.add_picture_frame"
       ],
-      "text": "Add, remove, clone, and reorder slides; insert auto shapes, picture frames, tables, connectors, and group shapes.",
+      "text": "Add, remove, clone, hide, and reorder slides; add AutoShapes, PictureFrames, Tables, Connectors, and GroupShapes.",
       "title": "Slide and shape management"
     },
     {
       "fact_ids": [
         "example:003",
-        "example:004"
+        "example:004",
+        "public_symbol:slides_foss.shape.hyperlink_click",
+        "public_symbol:slides_foss.baseportionformat.font_height",
+        "public_symbol:slides_foss.baseportionformat.font_bold",
+        "public_symbol:slides_foss.shape.fill_format"
       ],
-      "text": "Format text at portion, paragraph, and text frame levels, including font properties, bullets, and hyperlinks.",
+      "text": "Format text at portion, paragraph, and text frame levels including font properties, bullets, alignment, and hyperlinks.",
       "title": "Text formatting"
     },
     {
       "fact_ids": [
-        "example:012"
+        "example:012",
+        "public_symbol:slides_foss.charts.charttype"
       ],
-      "text": "Create 73 chart types backed by embedded XLSX workbooks with full series, categories, and data point control.",
-      "title": "Chart creation"
+      "text": "Insert 73 chart types backed by embedded XLSX workbooks, configure series, categories, axes, trendlines, and data labels.",
+      "title": "Charts and data"
     },
     {
       "fact_ids": [
-        "example:013"
+        "example:013",
+        "public_symbol:slides_foss.slideshow.transitiontype",
+        "public_symbol:slides_foss.islideshowtransition.advance_on_click",
+        "public_symbol:slides_foss.islideshowtransition.advance_after_time"
       ],
-      "text": "Apply 57 transition types with per-slide timing and advance settings.",
-      "title": "Slide transitions"
-    },
-    {
-      "fact_ids": [
-        "example:011"
-      ],
-      "text": "Set core, app, and custom document properties including title, author, and version.",
-      "title": "Document properties"
+      "text": "Set slide transition types, timing, and advance settings; support for shape and text animations with sequences and effects.",
+      "title": "Slide transitions and animations"
     },
     {
       "fact_ids": [
         "example:009",
-        "example:010"
+        "example:010",
+        "public_symbol:slides_foss.notesslidemanager.add_notes_slide",
+        "public_symbol:slides_foss.commentauthorcollection.add_author",
+        "public_symbol:slides_foss.commentcollection.add_comment"
       ],
-      "text": "Add speaker notes to slides and insert comments with authors, positions, and timestamps.",
-      "title": "Notes and comments"
+      "text": "Add speaker notes per slide and manage comment authors, comments, and replies with timestamps and positions.",
+      "title": "Comments and notes"
+    },
+    {
+      "fact_ids": [
+        "example:011",
+        "public_symbol:slides_foss.charts.axis.title",
+        "public_symbol:slides_foss.comment.author",
+        "public_symbol:slides_foss.documentproperties.set_custom_property_value"
+      ],
+      "text": "Set built-in and custom document properties such as title, author, keywords, and custom metadata.",
+      "title": "Document properties"
     },
     {
       "fact_ids": [
         "example:008",
-        "format:input.png"
+        "format:input.png",
+        "public_symbol:slides_foss.imagecollection.add_image"
       ],
-      "text": "Embed images from bytes or file-like objects using add_image and add_picture_frame.",
+      "text": "Embed images from bytes or file-like objects using Presentation.images.add_image and add_picture_frame.",
       "title": "Image embedding"
     }
   ],
@@ -79,37 +110,38 @@
         "inherited_unit:050.paragraph",
         "inherited_unit:051.paragraph"
       ],
-      "text": "Only seven SaveFormat values produce valid output; fourteen raise ValueError instead of writing mislabeled files."
+      "text": "Only seven SaveFormat values produce valid output files; fourteen raise ValueError for unsupported formats including PDF, HTML, XPS, TIFF, GIF, ODP, OTP, FODP, XML, and legacy binary PowerPoint formats."
     },
     {
       "fact_ids": [
         "inherited_unit:053.list"
       ],
-      "text": "No rendering or conversion to PDF, HTML, XPS, or image formats is supported; this is a design boundary."
+      "text": "Rendering and conversion to PDF, HTML, XPS, or image formats is not implemented; the library writes OOXML, not rendered output."
     },
     {
       "fact_ids": [
         "inherited_unit:053.list"
       ],
-      "text": "Presentation sections, slide size configuration, SmartArt, OLE objects, VBA macros, and encryption are not implemented."
+      "text": "Presentation sections are not supported; Presentation.sections does not exist."
     },
     {
       "fact_ids": [
-        "inherited_unit:054.paragraph"
+        "inherited_unit:053.list"
       ],
-      "text": "add_image requires image bytes or a file-like object, not a file path."
+      "text": "Slide size cannot be read or changed via public API; new presentations use the bundled template default (16:9)."
     },
     {
       "fact_ids": [
-        "inherited_unit:057.paragraph"
+        "inherited_unit:053.list"
       ],
-      "text": "Comment threads authored in PowerPoint may lose resolved status, @-mentions, and reply chains when saved."
+      "text": "SmartArt, OLE objects, mathematical text, VBA macros, digital signatures, and encryption are not implemented."
     },
     {
       "fact_ids": [
-        "inherited_unit:056.paragraph"
+        "inherited_unit:054.paragraph",
+        "example:008"
       ],
-      "text": "Assigning to a non-existent property raises AttributeError rather than silently ignoring."
+      "text": "add_image requires image bytes or a file-like object; it does not accept a file path directly."
     }
   ],
   "problems_solved": [
@@ -117,94 +149,94 @@
       "fact_ids": [
         "example:001",
         "example:002",
-        "example:003"
-      ],
-      "text": "Enables programmatic creation and modification of PowerPoint presentations using pure Python code."
-    },
-    {
-      "fact_ids": [
+        "example:003",
+        "example:004",
         "example:005",
         "example:006",
+        "example:007",
         "example:008",
-        "example:014"
-      ],
-      "text": "Supports embedding rich content such as tables, charts, images, connectors, and group shapes into presentations."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:058.paragraph"
-      ],
-      "text": "Allows preservation of unknown XML parts when loading and re-saving presentations, preventing data loss."
-    },
-    {
-      "fact_ids": [
         "example:009",
         "example:010",
         "example:011",
-        "example:013"
+        "example:012",
+        "example:013",
+        "example:014"
       ],
-      "text": "Provides support for document properties, speaker notes, comments, and slide transitions for complete presentation authoring."
+      "text": "Enables programmatic creation and modification of PowerPoint presentations using pure Python code without requiring Microsoft Office or external dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:012"
+      ],
+      "text": "Supports embedding and managing charts with embedded XLSX workbooks, allowing dynamic data-driven presentations."
+    },
+    {
+      "fact_ids": [
+        "example:013",
+        "example:010",
+        "example:009",
+        "example:011"
+      ],
+      "text": "Provides support for slide transitions, animations, comments, notes, and document properties to produce feature-complete presentations."
     }
   ],
   "product_summary": {
     "fact_ids": [
       "identity:repository",
+      "identity:family",
       "identity:platform",
       "identity:ecosystem",
-      "package:name"
+      "package:name",
+      "package:version"
     ],
     "text": "Aspose.Slides FOSS for Python is an open-source Python library for creating, reading, and editing PowerPoint (.pptx) presentations."
   },
   "uncertainties": [
-    "The exact set of 24 Markdown dialects supported for export is not specified in the facts.",
-    "Whether the library supports reading non-.pptx formats beyond what is implied by the input format facts is unclear.",
-    "The behavior of the library when encountering malformed or corrupted .pptx files is not documented in the facts."
+    "The exact set of supported chart types beyond the 73 named in the public symbol list is not specified.",
+    "Whether Markdown export supports all 24 flavors mentioned in the README is not confirmed by public symbols.",
+    "The behavior of comment thread preservation when comment authors are modified is described in the README but not directly verified by public symbols."
   ],
   "workflows": [
     {
       "fact_ids": [
-        "example:001"
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009",
+        "example:010",
+        "example:011",
+        "example:012",
+        "example:013",
+        "example:014"
       ],
       "name": "Create new presentation",
-      "text": "Instantiate a Presentation object, add content to slides, and save as .pptx using SaveFormat.PPTX."
+      "text": "Instantiate a Presentation object, add shapes, text, tables, or charts, and save as .pptx using SaveFormat.PPTX."
     },
     {
       "fact_ids": [
         "example:001"
       ],
       "name": "Edit existing presentation",
-      "text": "Load a .pptx file, modify slides, shapes, or text, and save the updated presentation."
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "example:003",
-        "example:007",
-        "example:008"
-      ],
-      "name": "Add shapes and formatting",
-      "text": "Add auto shapes, set fill colors, apply text formatting, and embed images using provided APIs."
+      "text": "Load a .pptx file using Presentation('file.pptx'), modify slides, shapes, text, or formatting, and re-save."
     },
     {
       "fact_ids": [
         "example:012"
       ],
-      "name": "Insert charts with embedded data",
-      "text": "Create charts, populate their backing XLSX workbook, and bind series/categories to cell references."
+      "name": "Add charts with data",
+      "text": "Create a chart with add_chart, access its embedded workbook via chart_data_workbook, populate cells, and bind series/categories to cell references."
     },
     {
       "fact_ids": [
-        "inherited_unit:046.heading"
+        "public_symbol:slides_foss.export.saveformat"
       ],
       "name": "Export to Markdown",
-      "text": "Export presentation text content as Markdown using SaveFormat.MD."
-    },
-    {
-      "fact_ids": [
-        "example:013"
-      ],
-      "name": "Add slide transitions",
-      "text": "Configure transition type, timing, and click behavior per slide."
+      "text": "Save presentation text content as Markdown using SaveFormat.MD with configurable flavor options."
     }
   ]
 }

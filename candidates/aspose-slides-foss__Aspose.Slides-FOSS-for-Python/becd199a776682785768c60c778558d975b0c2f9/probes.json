@@ -1,6 +1,6 @@
 [
   {
-    "elapsed_ms": 1347,
+    "elapsed_ms": 1696,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -8,7 +8,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python"
   },
   {
-    "elapsed_ms": 1183,
+    "elapsed_ms": 1735,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -16,7 +16,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CHANGELOG.md"
   },
   {
-    "elapsed_ms": 1076,
+    "elapsed_ms": 1562,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -24,7 +24,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CODE_OF_CONDUCT.md"
   },
   {
-    "elapsed_ms": 1022,
+    "elapsed_ms": 1598,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -32,7 +32,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CONTRIBUTING.md"
   },
   {
-    "elapsed_ms": 1054,
+    "elapsed_ms": 1563,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -40,7 +40,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/LICENSE"
   },
   {
-    "elapsed_ms": 1106,
+    "elapsed_ms": 1509,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -48,7 +48,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/SECURITY.md"
   },
   {
-    "elapsed_ms": 1126,
+    "elapsed_ms": 1720,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -56,7 +56,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/graphs/contributors"
   },
   {
-    "elapsed_ms": 1139,
+    "elapsed_ms": 1578,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -64,7 +64,7 @@
     "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/issues"
   },
   {
-    "elapsed_ms": 486,
+    "elapsed_ms": 355,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -72,7 +72,7 @@
     "target": "https://img.shields.io/badge/License-MIT-blue.svg"
   },
   {
-    "elapsed_ms": 480,
+    "elapsed_ms": 959,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -80,7 +80,7 @@
     "target": "https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Python.svg"
   },
   {
-    "elapsed_ms": 439,
+    "elapsed_ms": 418,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -88,7 +88,7 @@
     "target": "https://img.shields.io/pypi/pyversions/aspose-slides-foss.svg"
   },
   {
-    "elapsed_ms": 481,
+    "elapsed_ms": 698,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -96,7 +96,7 @@
     "target": "https://img.shields.io/pypi/v/aspose-slides-foss.svg"
   },
   {
-    "elapsed_ms": 900,
+    "elapsed_ms": 937,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -104,7 +104,7 @@
     "target": "https://pypi.org/project/aspose-slides-foss/"
   },
   {
-    "elapsed_ms": 936,
+    "elapsed_ms": 940,
     "kind": "package_registry",
     "observation": "latest 26.8.0",
     "outcome": "FOUND",

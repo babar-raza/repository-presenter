@@ -39,7 +39,7 @@
         "additional_examples"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -460,8 +460,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "1d7463e2d431560e6f43dd05183edb3600515c28ad7054224314c4a69ad22fe4",
-  "readme_sha256": "339ba5db91a03786af0b669b1ea90fa77a3e56411def2d09b4db20575abe5eb2",
+  "protected_content_fingerprint": "06631ee1ccf893baa676fe5d186d50cad3216206d8ce6993568c36d7d7ab4203",
+  "readme_sha256": "e09f3efaa3d66b0a47d68f82ca74e1afdd77933efaf3c1b48fa249437fd496d1",
   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Python",
   "schema_version": 1,
   "source_revision": "becd199a776682785768c60c778558d975b0c2f9",

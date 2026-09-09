@@ -17,87 +17,86 @@
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:slides_foss",
-        "import_path:aspose.slides_foss"
+        "public_symbol:slides_foss"
       ],
       "symbol_fact_id": "public_symbol:slides_foss"
     },
     {
       "fact_ids": [
         "public_symbol:slides_foss.presentation",
-        "example:001"
+        "public_symbol:slides_foss.ipresentation"
       ],
       "symbol_fact_id": "public_symbol:slides_foss.presentation"
     },
     {
       "fact_ids": [
-        "public_symbol:slides_foss.autoshape",
-        "example:002"
+        "public_symbol:slides_foss.slide",
+        "public_symbol:slides_foss.islide"
       ],
-      "symbol_fact_id": "public_symbol:slides_foss.autoshape"
+      "symbol_fact_id": "public_symbol:slides_foss.slide"
     },
     {
       "fact_ids": [
-        "public_symbol:slides_foss.baseportionformat",
-        "example:003"
+        "public_symbol:slides_foss.shape",
+        "public_symbol:slides_foss.ishape"
       ],
-      "symbol_fact_id": "public_symbol:slides_foss.baseportionformat"
+      "symbol_fact_id": "public_symbol:slides_foss.shape"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.textframe",
+        "public_symbol:slides_foss.itextframe"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.textframe"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.paragraph",
+        "public_symbol:slides_foss.iparagraph"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.paragraph"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.portion",
+        "public_symbol:slides_foss.iportion"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.portion"
     },
     {
       "fact_ids": [
         "public_symbol:slides_foss.charts.chart",
-        "example:012"
+        "public_symbol:slides_foss.charts.ichart"
       ],
       "symbol_fact_id": "public_symbol:slides_foss.charts.chart"
     },
     {
       "fact_ids": [
-        "public_symbol:slides_foss.baseslide.slide_show_transition",
-        "example:013"
-      ],
-      "symbol_fact_id": "public_symbol:slides_foss.baseslide.slide_show_transition"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:slides_foss.documentproperties",
-        "example:011"
-      ],
-      "symbol_fact_id": "public_symbol:slides_foss.documentproperties"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:slides_foss.notesslide",
-        "example:009"
-      ],
-      "symbol_fact_id": "public_symbol:slides_foss.notesslide"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:slides_foss.comment",
-        "example:010"
-      ],
-      "symbol_fact_id": "public_symbol:slides_foss.comment"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:slides_foss.images",
-        "example:008"
-      ],
-      "symbol_fact_id": "public_symbol:slides_foss.images"
-    },
-    {
-      "fact_ids": [
         "public_symbol:slides_foss.export.saveformat",
-        "format:output.pptx"
+        "public_symbol:slides_foss.export.isaveoptions"
       ],
       "symbol_fact_id": "public_symbol:slides_foss.export.saveformat"
     },
     {
       "fact_ids": [
-        "public_symbol:slides_foss.hyperlink",
-        "example:004"
+        "public_symbol:slides_foss.drawing.color",
+        "public_symbol:slides_foss.drawing.size"
       ],
-      "symbol_fact_id": "public_symbol:slides_foss.hyperlink"
+      "symbol_fact_id": "public_symbol:slides_foss.drawing.color"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.slideshow.transitiontype",
+        "public_symbol:slides_foss.slideshow.slideshowtransition"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.slideshow.transitiontype"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:slides_foss.commentauthor",
+        "public_symbol:slides_foss.icommentauthor"
+      ],
+      "symbol_fact_id": "public_symbol:slides_foss.commentauthor"
     }
   ],
   "at_a_glance": {
@@ -105,15 +104,14 @@
       "Presentation I/O",
       "Slide and shape management",
       "Text formatting",
-      "Chart creation",
-      "Slide transitions",
+      "Charts and data",
+      "Slide transitions and animations",
+      "Comments and notes",
       "Document properties",
-      "Notes and comments",
       "Image embedding"
     ],
     "input_format_ids": [
-      "format:input.pptx",
-      "format:input.png"
+      "format:input.pptx"
     ],
     "output_format_ids": [
       "format:output.pptx"
@@ -126,9 +124,7 @@
         "format:input.pptx",
         "format:output.pptx"
       ],
-      "shared_fact_ids": [
-        "example:001"
-      ],
+      "shared_fact_ids": [],
       "title": "Presentation I/O"
     },
     {
@@ -136,94 +132,90 @@
         "example:002",
         "example:005",
         "example:006",
-        "example:014"
+        "example:014",
+        "public_symbol:slides_foss.shapecollection.add_auto_shape",
+        "public_symbol:slides_foss.shapecollection.add_table",
+        "public_symbol:slides_foss.shapecollection.add_connector",
+        "public_symbol:slides_foss.shapecollection.add_group_shape",
+        "public_symbol:slides_foss.shapecollection.add_picture_frame"
       ],
-      "shared_fact_ids": [
-        "example:002"
-      ],
+      "shared_fact_ids": [],
       "title": "Slide and shape management"
     },
     {
       "fact_ids": [
         "example:003",
-        "example:004"
+        "example:004",
+        "public_symbol:slides_foss.shape.hyperlink_click",
+        "public_symbol:slides_foss.baseportionformat.font_height",
+        "public_symbol:slides_foss.baseportionformat.font_bold",
+        "public_symbol:slides_foss.shape.fill_format"
       ],
-      "shared_fact_ids": [
-        "example:003"
-      ],
+      "shared_fact_ids": [],
       "title": "Text formatting"
     },
     {
       "fact_ids": [
-        "example:012"
+        "example:012",
+        "public_symbol:slides_foss.charts.charttype"
       ],
       "shared_fact_ids": [],
-      "title": "Chart creation"
+      "title": "Charts and data"
     },
     {
       "fact_ids": [
-        "example:013"
+        "example:013",
+        "public_symbol:slides_foss.slideshow.transitiontype",
+        "public_symbol:slides_foss.islideshowtransition.advance_on_click",
+        "public_symbol:slides_foss.islideshowtransition.advance_after_time"
       ],
       "shared_fact_ids": [],
-      "title": "Slide transitions"
+      "title": "Slide transitions and animations"
     },
     {
       "fact_ids": [
-        "example:011"
+        "example:009",
+        "example:010",
+        "public_symbol:slides_foss.notesslidemanager.add_notes_slide",
+        "public_symbol:slides_foss.commentauthorcollection.add_author",
+        "public_symbol:slides_foss.commentcollection.add_comment"
+      ],
+      "shared_fact_ids": [],
+      "title": "Comments and notes"
+    },
+    {
+      "fact_ids": [
+        "example:011",
+        "public_symbol:slides_foss.charts.axis.title",
+        "public_symbol:slides_foss.comment.author",
+        "public_symbol:slides_foss.documentproperties.set_custom_property_value"
       ],
       "shared_fact_ids": [],
       "title": "Document properties"
     },
     {
       "fact_ids": [
-        "example:009",
-        "example:010"
-      ],
-      "shared_fact_ids": [
-        "example:009"
-      ],
-      "title": "Notes and comments"
-    },
-    {
-      "fact_ids": [
         "example:008",
-        "format:input.png"
+        "format:input.png",
+        "public_symbol:slides_foss.imagecollection.add_image"
       ],
-      "shared_fact_ids": [
-        "example:008"
-      ],
+      "shared_fact_ids": [],
       "title": "Image embedding"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:047.code_block"
-      ],
-      "section_id": "additional_examples",
-      "text": "Markdown export example (inherited_unit:047.code_block) is contradicted and omitted."
-    },
-    {
-      "fact_ids": [
+        "inherited_unit:046.heading",
+        "inherited_unit:047.code_block",
         "inherited_unit:048.paragraph"
       ],
       "section_id": "additional_examples",
-      "text": "Markdown export content paragraph (inherited_unit:048.paragraph) is unsupported and omitted."
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:055.paragraph"
-      ],
-      "section_id": "scope_limitations",
-      "text": "SaveFormat and file name independence paragraph (inherited_unit:055.paragraph) is unsupported and omitted."
+      "text": "The 'Markdown Export' section from the inherited README was omitted because no SUPPORTED example fact (example:015 is CONTRADICTED) validates its content."
     }
   ],
   "flagship_example_id": "example:012",
   "links": [
-    {
-      "link_fact_id": "link_target:product.homepage",
-      "section_id": "identity"
-    },
     {
       "link_fact_id": "link_target:008",
       "section_id": "documentation_resources"
@@ -247,10 +239,6 @@
     {
       "link_fact_id": "link_target:013",
       "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:014",
-      "section_id": "license"
     }
   ],
   "material_limitations": [
@@ -259,31 +247,27 @@
         "inherited_unit:050.paragraph",
         "inherited_unit:051.paragraph"
       ],
-      "unit_ids": []
+      "unit_ids": [
+        "inherited_unit:050.paragraph",
+        "inherited_unit:051.paragraph"
+      ]
     },
     {
       "fact_ids": [
         "inherited_unit:053.list"
       ],
-      "unit_ids": []
+      "unit_ids": [
+        "inherited_unit:053.list"
+      ]
     },
     {
       "fact_ids": [
+        "inherited_unit:054.paragraph",
+        "example:008"
+      ],
+      "unit_ids": [
         "inherited_unit:054.paragraph"
-      ],
-      "unit_ids": []
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:056.paragraph"
-      ],
-      "unit_ids": []
-    },
-    {
-      "fact_ids": [
-        "inherited_unit:057.paragraph"
-      ],
-      "unit_ids": []
+      ]
     }
   ],
   "quick_start_example_id": "example:001",

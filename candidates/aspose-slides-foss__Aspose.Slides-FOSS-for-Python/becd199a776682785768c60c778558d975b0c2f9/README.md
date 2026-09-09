@@ -4,7 +4,7 @@
 
 [![Aspose.Slides FOSS for Python](https://products.aspose.org/media/slides/python/banner-readme.png)](https://products.aspose.org/slides/python/)
 
-Aspose.Slides FOSS for Python is a free, open-source library that enables Python developers to create, read, modify, and convert PowerPoint presentations without requiring Microsoft PowerPoint. It supports common operations such as adding shapes, tables, charts, images, text formatting, hyperlinks, comments, speaker notes, and slide transitions, all while preserving unknown XML content on round-trip saves. Developers use it to automate report generation, build dynamic slide decks, and integrate presentation workflows into Python applications running on Python 3.10 or later under the MIT license.
+Aspose.Slides FOSS for Python lets developers create, edit, and save PowerPoint presentations in the `.pptx` format without licensing fees. It supports adding shapes like rectangles, tables, connectors, grouped shapes, and picture frames, formatting text with font height and bold settings, applying fill colors, embedding images from `.png` files, defining slide transitions with advance-on-click or timed behavior, adding speaker notes, inserting charts with custom data, and attaching hyperlinks or comments to shapes and slides. The library is designed for Python developers targeting version 3.10 or later, distributed under the MIT license, and packaged as aspose-slides-foss version 26.8.0.
 
 ## Navigation
 
@@ -26,7 +26,7 @@ Aspose.Slides FOSS for Python is a free, open-source library that enables Python
 flowchart TD
   subgraph StartingPoints["Starting Points"]
     direction LR
-    i1["An existing PPTX or PNG file"]
+    i1["An existing PPTX file"]
   end
   PRODUCT["Aspose.Slides FOSS for Python"]
   subgraph Capabilities["Core Capabilities"]
@@ -36,13 +36,13 @@ flowchart TD
       c1["Presentation I/O"]
       c2["Slide and shape management"]
       c3["Text formatting"]
-      c4["Chart creation"]
+      c4["Charts and data"]
     end
     subgraph capr[" "]
       direction TB
-      c5["Slide transitions"]
-      c6["Document properties"]
-      c7["Notes and comments"]
+      c5["Slide transitions and animations"]
+      c6["Comments and notes"]
+      c7["Document properties"]
       c8["Image embedding"]
     end
   end
@@ -55,14 +55,14 @@ flowchart TD
 
 ## Key Capabilities
 
-- **Presentation I/O.** Create new presentations from scratch or open existing `.pptx` files and save them back to `.pptx` format using the `Presentation` class and `SaveFormat.PPTX`.
-- **Slide and shape management.** Add and manage shapes including rectangles, bent connectors, tables, and group shapes on slides using methods like `add_auto_shape`, `add_connector`, `add_table`, and `add_group_shape`.
-- **Text formatting.** `Format` text by setting font height, bold style, and solid fill color on portions, and apply hyperlinks to individual text portions or entire shapes.
-- **Chart creation.** Create clustered column charts with embedded workbook data by calling `add_chart` with `ChartType.CLUSTERED_COLUMN` and populating series and categories via `chart_data_workbook`.
-- **Slide transitions.** Configure slide transitions by setting the transition type to CIRCLE and enabling advance on click or after a specified time in milliseconds.
-- **Document properties.** Set built-in document properties such as title and author, and store custom properties like version numbers using `document_properties` methods.
-- **Notes and comments.** Add speaker notes to slides using `notes_slide_manager.add_notes_slide` and attach comments with timestamps and positions via `comment_authors` and comments.
-- **Image embedding.** Embed images from `.png` files by reading them into memory and adding them to the presentation's image collection, then placing them as picture frames on slides.
+- **Presentation I/O.** Create new presentations from scratch or open existing `.pptx` files and save them back to `.pptx` format using the `Presentation` class.
+- **Slide and shape management.** Add rectangles, tables, connectors, group shapes, and picture frames to slides using the `ShapeCollection` methods `add_auto_shape`, `add_table`, `add_connector`, `add_group_shape`, and `add_picture_frame`.
+- **Text formatting.** Set font height and bold formatting on text portions and apply solid fill colors to shapes using the `BasePortionFormat.font_height`, `BasePortionFormat.font_bold`, and `Shape.fill_format` properties.
+- **Charts and data.** Insert clustered column charts and configure their data using an embedded workbook, categories, and series via the `ChartType.CLUSTERED_COLUMN` chart type and related chart data members.
+- **Slide transitions and animations.** Apply circle transitions to slides and configure them to advance on click or after a specified time in milliseconds using `TransitionType.CIRCLE`, `ISlideShowTransition.advance_on_click`, and `ISlideShowTransition.advance_after_time`.
+- **Comments and notes.** Add speaker notes slides and comments with author information and timestamps using `NotesSlideManager.add_notes_slide`, `CommentAuthorCollection.add_author`, and `CommentCollection.add_comment`.
+- **Document properties.** Set built-in properties like title and author and define custom properties such as Version using `DocumentProperties.set_custom_property_value` and `Comment.author`.
+- **Image embedding.** Embed images from `.png` files into presentations by loading them with `ImageCollection.add_image` and placing them as picture frames on slides.
 
 ## Installation
 
@@ -105,7 +105,7 @@ The package declares `python_requires` as `>=3.10`.
 
 ## Quick Start
 
-The example imports the library, creates a new presentation from scratch, and then opens an existing file to read its slide count before saving again.
+The example creates a new presentation from scratch and saves it as PPTX, then opens that file to read its slide count and save a modified copy, demonstrating the core workflow with the aspose-slides-foss package.
 
 ```python
 import aspose.slides_foss as slides
@@ -124,9 +124,9 @@ with slides.Presentation("new.pptx") as prs:
 
 ## Additional Examples
 
-Create shapes, format text, add tables and connectors, insert images, manage notes and comments, set slide transitions, and build charts using Aspose.Slides FOSS for Python.
+Create shapes, format text, add tables and connectors, apply fills, embed images, write speaker notes, add comments, set document properties, build charts, configure slide transitions, and group shapes using Aspose.Slides FOSS for Python.
 
-### Build a clustered column chart and populate its embedded workbook
+### Build a clustered column chart from an empty workbook
 
 ```python
 from aspose.slides_foss.charts import ChartType
@@ -174,7 +174,7 @@ with slides.Presentation() as prs:
 <details>
 <summary>View Additional Examples</summary>
 
-### Add a rectangle shape with text to a slide and save as PPTX
+### Add a rectangle shape with text to a slide
 
 ```python
 from aspose.slides_foss import ShapeType
@@ -188,7 +188,7 @@ with slides.Presentation() as prs:
     prs.save("shapes.pptx", SaveFormat.PPTX)
 ```
 
-### `Format` text font height, bold, and solid fill color for a shape
+### `Format` font height, bold, and solid fill color for text
 
 ```python
 from aspose.slides_foss import ShapeType, NullableBool, FillType
@@ -207,7 +207,7 @@ with slides.Presentation() as prs:
     prs.save("text.pptx", SaveFormat.PPTX)
 ```
 
-### Add click and mouse-over hyperlinks to text and shapes
+### Assign click and mouse-over hyperlinks to shapes
 
 ```python
 import aspose.slides_foss as slides
@@ -224,7 +224,7 @@ with slides.Presentation() as prs:
     prs.save("links.pptx", SaveFormat.PPTX)
 ```
 
-### Create a table with rows and columns and populate cell text
+### Create a table and populate its cells with text
 
 ```python
 import aspose.slides_foss as slides
@@ -237,7 +237,7 @@ with slides.Presentation() as prs:
     prs.save("table.pptx", SaveFormat.PPTX)
 ```
 
-### Connect two rectangles with a bent connector shape
+### Connect two shapes using a bent connector
 
 ```python
 from aspose.slides_foss import ShapeType
@@ -256,7 +256,7 @@ with slides.Presentation() as prs:
     prs.save("connector.pptx", SaveFormat.PPTX)
 ```
 
-### Fill a rectangle shape with a solid color
+### Apply a solid fill color to a shape
 
 ```python
 from aspose.slides_foss import ShapeType, FillType
@@ -271,7 +271,7 @@ with slides.Presentation() as prs:
     prs.save("fill.pptx", SaveFormat.PPTX)
 ```
 
-### Insert an image from bytes and add it as a picture frame
+### Embed an image from bytes and add it as a picture frame
 
 ```python
 import aspose.slides_foss as slides
@@ -285,7 +285,7 @@ with slides.Presentation() as prs:
     prs.save("picture.pptx", SaveFormat.PPTX)
 ```
 
-### Add speaker notes to a slide using the notes slide manager
+### Add speaker notes to a slide
 
 ```python
 import aspose.slides_foss as slides
@@ -297,7 +297,7 @@ with slides.Presentation() as prs:
     prs.save("notes.pptx", SaveFormat.PPTX)
 ```
 
-### Add a comment author and place a comment on a slide
+### Add a comment with author, text, position, and timestamp
 
 ```python
 from aspose.slides_foss.drawing import PointF
@@ -312,7 +312,7 @@ with slides.Presentation() as prs:
     prs.save("comments.pptx", SaveFormat.PPTX)
 ```
 
-### Set document properties and custom properties for the presentation
+### Set built-in and custom document properties
 
 ```python
 import aspose.slides_foss as slides
@@ -325,7 +325,7 @@ with slides.Presentation() as prs:
     prs.save("deck.pptx", SaveFormat.PPTX)
 ```
 
-### Configure circle transition with click and time-based advance
+### Configure circle transition with click and time advance
 
 ```python
 from aspose.slides_foss.slideshow import TransitionType
@@ -340,7 +340,7 @@ with slides.Presentation() as prs:
     prs.save("transition.pptx", SaveFormat.PPTX)
 ```
 
-### Group multiple shapes under a named group shape container
+### Group multiple shapes under a named container
 
 ```python
 from aspose.slides_foss import ShapeType
@@ -360,7 +360,7 @@ with slides.Presentation() as prs:
 
 ## API Reference
 
-The aspose-slides-foss package exposes `slides_foss.Presentation` as the primary entry point for working with presentations, and provides supporting classes such as `AutoShape`, `Chart`, and `Hyperlink` for authoring content.
+Aspose.Slides FOSS for Python provides the `slides_foss` module for working with presentation files, where the `Presentation` class serves as the main entry point for creating, loading, and manipulating presentations.
 
 The verified public surface has 516 types.
 
@@ -375,9 +375,9 @@ The verified public surface has 516 types.
 | `AdjustValueCollection` | Reprasents a collection of shape's adjustments. |
 | `AutoShape` | Represents an AutoShape. |
 | `Background` | Represents background of a slide. |
-| `BaseHandoutNotesSlideHeaderFooterManager` | BaseHandoutNotesSlideHeaderFooterManager manages header and footer elements for handout and notes slides in a presentation. |
+| `BaseHandoutNotesSlideHeaderFooterManager` | The BaseHandoutNotesSlideHeaderFooterManager class provides header and footer management for handout and notes slides in a presentation. |
 | `BasePortionFormat` | Common text portion formatting properties. |
-| `BaseShapeLock` | BaseShapeLock provides base functionality for locking shape properties to prevent user modifications. |
+| `BaseShapeLock` | The BaseShapeLock class defines base locking behavior for shape properties to prevent unintended modifications. |
 | `BaseSlide` | Represents common data for all slide types. |
 | `BulletFormat` | Represents paragraph bullet formatting properties. |
 | `Camera` | Represents Camera. |
@@ -397,13 +397,13 @@ The verified public surface has 516 types.
 | `FillFormat` | Represents a fill formatting options. |
 | `FontData` | Represents a font definition. Immutable. |
 | `Fonts` | Fonts collection. |
-| `GeometryShape` | GeometryShape represents a shape with geometric properties such as connector lines and built-in shapes like rectangles and circles. |
+| `GeometryShape` | The GeometryShape class represents a shape with geometric properties such as BENT_CONNECTOR3, CIRCLE, and RECTANGLE. |
 | `GlobalLayoutSlideCollection` | Represents a collection of all layout slides in presentation. Extends LayoutSlideCollection class with methods for adding/cloning layout slides in context of uniting of the individual collections of master's layout slides. |
 | `GradientFormat` | Represent a gradient format. |
 | `GradientStop` | Represents a gradient format. |
 | `GradientStopCollection` | Represnts a collection of gradient stops. |
-| `GraphicalObject` | GraphicalObject is an abstract base class for shapes that support graphical formatting and rendering. |
-| `GraphicalObjectLock` | GraphicalObjectLock extends BaseShapeLock to provide locking capabilities specific to graphical objects. |
+| `GraphicalObject` | The GraphicalObject class represents a graphical element in a slide that supports fill, line, and 3D formatting. |
+| `GraphicalObjectLock` | The GraphicalObjectLock class extends BaseShapeLock to lock specific properties of graphical objects. |
 | `GroupShape` | Represents a group of shapes on a slide. |
 | `GroupShapeLock` | Determines which operations are disabled on the parent GroupShape. |
 | `HeadingPair` | Represents a 'Heading pair' property of the document. It indicates the group name of document parts and the number of parts in group. |
@@ -433,9 +433,9 @@ The verified public surface has 516 types.
 | `IConnector` | Represents a connector. |
 | `IDocumentProperties` | Represents properties of a presentation. |
 | `IEffectFormat` | Represents effect properties of shape. |
-| `IEffectParamSource` | IEffectParamSource defines the interface for objects that supply parameters for visual effects. |
+| `IEffectParamSource` | The IEffectParamSource interface defines a source for effect parameters used in slide animations. |
 | `IFillFormat` | Represents a fill formatting options. |
-| `IFillParamSource` | IFillParamSource defines the interface for objects that supply parameters for shape fill formatting. |
+| `IFillParamSource` | The IFillParamSource interface defines a source for fill parameters used in shape rendering. |
 | `IFontData` | Represents a font definition. |
 | `IFonts` | Represents fonts collection. |
 | `IGeometryShape` | Represents the parent class for all geometric shapes. |
@@ -456,9 +456,9 @@ The verified public surface has 516 types.
 | `ILightRig` | Represents LightRig. |
 | `ILineFillFormat` | Represents properties for lines filling. |
 | `ILineFormat` | Represents format of a line. |
-| `ILineParamSource` | ILineParamSource defines the interface for objects that supply parameters for shape line formatting. |
-| `ILoadOptions` | ILoadOptions provides configuration settings for loading presentations from files or streams. |
-| `IMasterLayoutSlideCollection` | IMasterLayoutSlideCollection represents a collection of master and layout slides in a presentation. |
+| `ILineParamSource` | The ILineParamSource interface defines a source for line parameters used in shape rendering. |
+| `ILoadOptions` | The ILoadOptions interface specifies options for loading a presentation file. |
+| `IMasterLayoutSlideCollection` | The IMasterLayoutSlideCollection interface represents a collection of master layout slides in a presentation. |
 | `IMasterSlide` | Represents a master slide in a presentation. |
 | `IMasterSlideCollection` | Represents a collection of master slides. |
 | `INotesSize` | Represents a size of notes slide. |
@@ -475,12 +475,12 @@ The verified public surface has 516 types.
 | `IPictureFrameLock` | Determines which operations are disabled on the parent PictureFrameEx. |
 | `IPortion` | Represents a portion of text inside a text paragraph. |
 | `IPortionCollection` | Represents a collection of a portions. |
-| `IPortionFormat` | IPortionFormat defines formatting properties for text portions including font, color, and hyperlink behavior. |
+| `IPortionFormat` | The IPortionFormat interface defines formatting properties for text portions including font, color, and hyperlinks. |
 | `IPresentation` | Presentation document |
 | `IPresentationComponent` | Represents a component of a presentation. |
 | `IRow` | Represents a row in a table. |
 | `IRowCollection` | Represents table row collection. |
-| `ISection` | ISection defines the interface for a logical section within a presentation structure. |
+| `ISection` | The ISection interface represents a section in a presentation that groups related slides. |
 | `IShape` | Represents a shape on a slide. |
 | `IShapeBevel` | Represents properties of shape's main face relief. |
 | `IShapeCollection` | Represents a collection of shapes. |
@@ -495,7 +495,7 @@ The verified public surface has 516 types.
 | `ITextFrame` | Represents a TextFrame. |
 | `ITextFrameFormat` | Contains the TextFrame's formatting properties. |
 | `IThreeDFormat` | Represents 3-D properties. |
-| `IThreeDParamSource` | IThreeDParamSource defines the interface for objects that supply parameters for three-dimensional effects. |
+| `IThreeDParamSource` | The IThreeDParamSource interface defines a source for 3D parameters used in shape rendering. |
 | `Image` | Represents a raster or vector image. |
 | `ImageCollection` | Represents collection of PPImage. |
 | `Images` | Methods to instantiate and work with . |
@@ -694,13 +694,13 @@ The verified public surface has 516 types.
 | `IBlur` | Represents a Blur effect that is applied to the entire shape, including its fill. All color channels, including alpha, are affected. |
 | `IFillOverlay` | Represents a Fill Overlay effect. A fill overlay may be used to specify an additional fill for an object and blend the two fills together. |
 | `IGlow` | Represents a Glow effect, in which a color blurred outline is added outside the edges of the object. |
-| `IImageTransformOperation` | IImageTransformOperation defines the interface for image transformation operations applied to picture frames. |
+| `IImageTransformOperation` | The IImageTransformOperation interface defines an image transformation operation such as cropping or color adjustment. |
 | `IInnerShadow` | Represents a inner shadow effect. |
 | `IOuterShadow` | Represents an Outer Shadow effect. |
 | `IPresetShadow` | Represents a Preset Shadow effect. |
 | `IReflection` | Represents a reflection effect. |
 | `ISoftEdge` | Represents a Soft Edge effect. The edges of the shape are blurred, while the fill is not affected. |
-| `ImageTransformOperation` | ImageTransformOperation implements image transformation operations such as cropping, color adjustments, and artistic effects. |
+| `ImageTransformOperation` | The ImageTransformOperation class implements an image transformation operation applied to picture frames. |
 | `InnerShadow` | Represents a Inner Shadow effect. |
 | `OuterShadow` | Represents an Outer Shadow effect. |
 | `PresetShadow` | Represents a Preset Shadow effect. |
@@ -897,11 +897,11 @@ The verified public surface has 516 types.
 
 ### slides_foss
 
-The `slides_foss` module serves as the top-level namespace for the Aspose.Slides FOSS for Python API, exposing core classes like `Presentation`, `AutoShape`, and `Chart`.
+The `slides_foss` module exposes core presentation processing types including `Presentation`, `Slide`, `Shape`, `TextFrame`, `Paragraph`, `Portion`, `Chart`, `SaveFormat`, `Color`, `TransitionType`, and `CommentAuthor`.
 
 ### Presentation
 
-The `Presentation` class enables creating new presentations from scratch or opening existing ones, and provides access to slides, masters, notes, images, comments, document properties, and transition settings through its members.
+The `Presentation` class represents a complete presentation document and provides access to slides, shapes, masters, layout slides, images, document properties, and notes size, while offering methods to save the presentation in various formats.
 
 - `as_i_presentation_component`: Defined as `def as_i_presentation_component(self) -> IPresentationComponent`.
 - `comment_authors`: Returns the collection of comment authors. Read-only.
@@ -919,51 +919,90 @@ The `Presentation` class enables creating new presentations from scratch or open
 - `slides`: Returns a list of all slides that are defined in the presentation. Read-only .
 - `source_format`: Returns information about from which format presentation was loaded. Read-only .
 
-### AutoShape
+### Slide
 
-`AutoShape` represents geometric shapes and text boxes on a slide, supporting operations like adding text frames and querying shape type or text content.
+The `Slide` class represents an individual slide within a presentation and provides access to its comments, hidden status, layout slide, notes slide manager, slide number, and theme manager.
 
-- `add_text_frame`: Defined as `def add_text_frame(self, text) -> ITextFrame`.
-- `as_i_geometry_shape`: Defined as `def as_i_geometry_shape(self) -> IGeometryShape`.
-- `is_text_box`: Specifies if the shape is a text box.
-- `shape_type`: Defined as `def shape_type(self) -> ShapeType`.
-- `text_frame`: Returns TextFrame object for the AutoShape. Read-only .
+- `get_slide_comments`: Returns all comments on this slide, optionally filtered by author.
+- `hidden`: Determines whether the specified slide is hidden during a slide show. Read/write .
+- `layout_slide`: Returns or sets the layout slide for the current slide. Read/write .
+- `notes_slide_manager`: Allow to access notes slide, add and remove it. Read-only.
+- `remove`: Defined as `def remove(self) -> None`.
+- `slide_number`: Returns a number of slide. Index of slide in collection is always equal to SlideNumber - Presentation.FirstSlideNumber. Read/write .
+- `theme_manager`: Returns the overriding theme manager. Read-only .
 
-### BasePortionFormat
+### Shape
 
-`BasePortionFormat` exposes text formatting properties such as font height, bold, italic, underline, fill, and line settings for individual text portions.
+The `Shape` class represents a drawing object on a slide such as a rectangle, circle, connector, chart, picture frame, table, or text frame, and exposes properties for formatting, positioning, rotation, hyperlinking, and alternative text.
 
-- `alternative_language_id`: Returns or sets the Id of an alternative language. Read/write .
-- `complex_script_font`: Returns or sets the complex script font info. Null means font is undefined and should be inherited from the Master. Read/write .
-- `east_asian_font`: Returns or sets the East Asian font info. Null means font is undefined and should be inherited from the Master. Read/write .
-- `effect_format`: Returns the text EffectFormat properties. No inheritance applied. Read-only .
-- `escapement`: Returns or sets the superscript or subscript text. Value from -100% (subscript) to 100% (superscript). float.NaN means value is undefined and should be inherited from the Master. Read/write .
-- `fill_format`: Returns the text FillFormat properties. No inheritance applied. Read-only .
-- `font_bold`: Determines whether the font is bold. No inheritance applied. Read/write .
-- `font_height`: Returns or sets the font height of a portion. float.NaN means height is undefined and should be inherited from the Master. Read/write .
-- `font_italic`: Determines whether the font is itallic. No inheritance applied. Read/write .
-- `font_underline`: Returns or sets the text underline type. No inheritance applied. Read/write .
-- `highlight_color`: Returns the color used to highlight a text. No inheritance applied. Read-only .
-- `is_hard_underline_fill`: Determines whether the underline style has own FillFormat properties or inherits it from the FillFormat properties of the text. Read/write .
-- `is_hard_underline_line`: Determines whether the underline style has own LineFormat properties or inherits it from the LineFormat properties of the text. Read/write .
-- `kerning_minimal_size`: Returns or sets the minimal font size, for which kerning should be switched on. float.NaN means value is undefined and should be inherited from the Master. Read/write .
-- `kumimoji`: Determines whether the numbers should ignore text eastern language-specific vertical text layout. No inheritance applied. Read/write .
-- `language_id`: Returns or sets the Id of a proofing language. Used for checking spelling and grammar. Read/write .
-- `latin_font`: Returns or sets the Latin font info. Null means font is undefined and should be inherited from the Master. Read/write .
-- `line_format`: Returns the LineFormat properties for text outlining. No inheritance applied. Read-only .
-- `normalise_height`: Determines whether the height of a text should be normalized. No inheritance applied. Read/write .
-- `proof_disabled`: Determines whether the text shouldn't be proofed. No inheritance applied. Read/write .
-- `spacing`: Returns or sets the intercharacter spacing increment. float.NaN means value is undefined and should be inherited from the Master. Read/write .
-- `spell_check`: Gets or sets a value indicating whether spell checking is enabled for the text portion. When this property is set to false, spelling checks for text elements are suppressed. When set to true, spell checking is allowed. Default value is false.
-- `strikethrough_type`: Returns or sets the strikethrough type of a text. No inheritance applied. Read/write .
-- `symbol_font`: Returns or sets the symbolic font info. Null means font is undefined and should be inherited from the Master. Read/write .
-- `text_cap_type`: Returns or sets the type of text capitalization. No inheritance applied. Read/write .
-- `underline_fill_format`: Returns the underline line FillFormat properties. No inheritance applied. Read-only .
-- `underline_line_format`: Returns the LineFormat properties used to outline underline line. No inheritance applied. Read-only .
+- `alternative_text`: Returns or sets the alternative text associated with a shape. Read/write .
+- `alternative_text_title`: Returns or sets the title of alternative text associated with a shape. Read/write .
+- `as_i_presentation_component`: Defined as `def as_i_presentation_component(self) -> IPresentationComponent`.
+- `as_i_slide_component`: Defined as `def as_i_slide_component(self) -> ISlideComponent`.
+- `connection_site_count`: Returns the number of connection sites on the shape. Read-only .
+- `effect_format`: Returns the EffectFormat object which contains pixel effects applied to a shape. Note: can return null for certain types of shapes which don't have effect properties. Read-only .
+- `fill_format`: Returns the FillFormat object that contains fill formatting properties for a shape. Note: can return null for certain types of shapes which don't have fill properties. Read-only .
+- `frame`: Returns or sets the shape frame's properties. Read/write .
+- `height`: Gets or sets the height of the shape, measured in points. Read/write .
+- `hidden`: Determines whether the shape is hidden. Read/write .
+- `hyperlink_click`: Returns or sets the hyperlink followed when the shape is clicked. Read/write .
+- `hyperlink_mouse_over`: Returns or sets the hyperlink followed when the pointer rests on the shape. Read/write .
+- `is_decorative`: Gets or sets 'Mark as decorative' option Reed/write .
+- `is_grouped`: Determines whether the shape is grouped. Read-only .
+- `line_format`: Returns the LineFormat object that contains line formatting properties for a shape. Note: can return null for certain types of shapes which don't have line properties. Read-only .
+- `name`: Returns or sets the name of a shape. Must be not null. Use empty string value if needed. Read/write .
+- `office_interop_shape_id`: Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document. Read-only . See also .
+- `presentation`: Returns the parent presentation of a slide. Read-only .
+- `raw_frame`: Returns or sets the raw shape frame's properties. Read/write .
+- `rotation`: Returns or sets the number of degrees the specified shape is rotated around the z-axis. A positive value indicates clockwise rotation; a negative value indicates counterclockwise rotation. Read/write .
+- `slide`: Returns the parent slide of a shape. Read-only .
+- `three_d_format`: Returns the ThreeDFormat object that 3d effect properties for a shape. Note: can return null for certain types of shapes which don't have 3d properties. Read-only .
+- `unique_id`: Returns an internal, presentation-scoped identifier intended for use by add-ins or other code. Because this value can be reassigned by the user or programmatically, it must not be treated as a persistent unique key. Read-only . See also .
+- `width`: Gets or sets the width of the shape, measured in points. Read/write .
+- `x`: Gets or sets the x-coordinate of the shape's upper-left corner, measured in points. Read/write .
+- `y`: Gets or sets the y-coordinate of the shape's upper-left corner, measured in points. Read/write .
+- `z_order_position`: Returns the position of a shape in the z-order. Shapes[0] returns the shape at the back of the z-order, and Shapes[Shapes.Count - 1] returns the shape at the front of the z-order. Read-only .
+
+### TextFrame
+
+The `TextFrame` class represents a container for text content on a shape and provides access to its paragraphs, as well as properties for frame formatting and positioning.
+
+- `as_i_presentation_component`: Defined as `def as_i_presentation_component(self) -> IPresentationComponent`.
+- `as_i_slide_component`: Defined as `def as_i_slide_component(self) -> ISlideComponent`.
+- `paragraphs`: Returns the list of all paragraphs in a frame. Read-only .
+- `parent_cell`: Returns the parent cell or null if the parent object does not implement the ICell interface. Read-only .
+- `parent_shape`: Returns the parent shape or null if the parent object does not implement the IShape interface Read-only .
+- `presentation`: Returns the parent presentation of a TextFrame. Read-only .
+- `slide`: Returns the parent slide of a TextFrame. Read-only .
+- `text`: Gets or sets the plain text for a TextFrame. Read/write .
+- `text_frame_format`: Returns the formatting object for this TextFrame object. Read-only .
+
+### Paragraph
+
+The `Paragraph` class represents a paragraph within a text frame and provides access to its portions, formatting, and alignment.
+
+- `as_i_presentation_component`: Defined as `def as_i_presentation_component(self) -> IPresentationComponent`.
+- `as_i_slide_component`: Defined as `def as_i_slide_component(self) -> ISlideComponent`.
+- `paragraph_format`: Returns the formatting object for this paragraph. Read-only .
+- `portions`: Returns the collection of a text portions. Read-only .
+- `presentation`: Defined as `def presentation(self) -> IPresentation`.
+- `slide`: Defined as `def slide(self) -> IBaseSlide`.
+- `text`: Gets or sets the the plain text of a paragraph. Read/write .
+
+### Portion
+
+The `Portion` class represents a run of text with consistent formatting within a paragraph and exposes properties for font formatting such as bold and height.
+
+- `as_i_presentation_component`: Defined as `def as_i_presentation_component(self) -> IPresentationComponent`.
+- `as_i_slide_component`: Defined as `def as_i_slide_component(self) -> ISlideComponent`.
+- `portion_format`: Returns oformatting bject which contains explicitly set formatting properties of the text portion with no inheritance applied. Read-only .
+- `presentation`: Defined as `def presentation(self) -> IPresentation`.
+- `slide`: Defined as `def slide(self) -> IBaseSlide`.
+- `text`: Gets or sets the plain text of a portion. Read/write .
 
 ### Chart
 
-`Chart` provides access to chart data, axes, title, and series, enabling programmatic creation and modification of embedded charts backed by an XLSX workbook.
+The `Chart` class represents a chart shape on a slide and provides access to its data, series, categories, title, data points, and chart data workbook.
 
 - `axes`: Defined as `def axes(self) -> 'IAxesManager'`.
 - `back_wall`: Defined as `def back_wall(self) -> 'IChartWall'`.
@@ -992,124 +1031,77 @@ The `Presentation` class enables creating new presentations from scratch or open
 - `type`: Defined as `def type(self) -> ChartType`.
 - `validate_chart_layout`: Defined as `def validate_chart_layout(self) -> None`.
 
-### slide_show_transition
-
-`slide_show_transition` on `BaseSlide` controls slide transition behavior, including type, advance on click, and advance after a specified time in milliseconds.
-
-### DocumentProperties
-
-`DocumentProperties` holds built-in properties like title and author, and supports custom properties for metadata storage on a presentation.
-
-- `app_version`: Returns the app version. Read-only .
-- `application_template`: Returns or sets the template of a application. Read/write .
-- `author`: Returns or sets the author of a presentation. Read/write .
-- `category`: Returns or sets the category of a presentation. Read/write .
-- `clear_built_in_properties`: Defined as `def clear_built_in_properties(self) -> None`.
-- `clear_custom_properties`: Defined as `def clear_custom_properties(self) -> None`.
-- `comments`: Returns or sets the comments of a presentation. Read/write .
-- `company`: Returns or sets the company property. Read/write .
-- `contains_custom_property`: Defined as `def contains_custom_property(self, name) -> bool`.
-- `content_status`: Returns or sets the content status of a presentation. Read/write .
-- `content_type`: Returns or sets the content type of a presentation. Read/write .
-- `count_of_custom_properties`: Returns the number of custom properties actually contained in a collection. Read-only .
-- `created_time`: Returns the date a presentation was created. Values are in UTC. Read/write .
-- `get_custom_property_name`: Defined as `def get_custom_property_name(self, index) -> str`.
-- `get_custom_property_value`: Get a custom property value by name. The value is returned via the second argument (list).
-- `heading_pairs`: Indicates the grouping of document parts and the number of parts in each group. Read-only .
-- `hidden_slides`: Returns the number of hidden slides in a presentation document. Read-only .
-- `hyperlink_base`: Returns or sets the HyperlinkBase document property. Read/write .
-- `hyperlinks_changed`: Specifies that one or more hyperlinks in this part were updated exclusively in this part by a producer. The next producer to open this document shall update the hyperlink relationships with the new hyperlinks specified in this part. Read/write .
-- `keywords`: Returns or sets the keywords of a presentation. Read/write .
-- `last_printed`: Returns the date when a presentation was printed last time. Read/write .
-- `last_saved_by`: Returns or sets the name of a last person who modified a presentation. Read/write .
-- `last_saved_time`: Returns the date a presentation was last modified. Values are in UTC. Read-only in case of Presentation.DocumentProperties (because it will be updated internally while IPresentation object saving process). Can be changed via DocumentProperties instance returning by method Please see the example in method summary.
-- `links_up_to_date`: Indicates whether hyperlinks in a document are up-to-date. Set this element to true to indicate that hyperlinks are updated. Set this element to false to indicate that hyperlinks are outdated. Read/write .
-- `manager`: Returns or sets the manager property. Read/write .
-- `multimedia_clips`: Returns the total number of sound or video clips that are present in the document. Read-only .
-- `name_of_application`: Returns or sets the name of the application. Read/write .
-- `notes`: Returns the number of slides in a presentation containing notes. Read-only .
-- `paragraphs`: Returns the total number of paragraphs found in a document if applicable. Read-only .
-- `presentation_format`: Returns or sets the intended format of a presentation. Read/write .
-- `remove_custom_property`: Defined as `def remove_custom_property(self, name) -> bool`.
-- `revision_number`: Returns or sets the presentation revision number. Read/write .
-- `scale_crop`: Indicates the display mode of the document thumbnail. Set this element to true to enable scaling of the document thumbnail to the display. Set this element to false to enable cropping of the document thumbnail to show only sections that fits the display. Read/write .
-- `set_custom_property_value`: Set a custom property value by name.
-- `shared_doc`: Determines whether the presentation is shared between multiple people. Read/write .
-- `slides`: Returns the total number of slides in a presentation document. Read-only .
-- `subject`: Returns or sets the subject of a presentation. Read/write .
-- `title`: Returns or sets the title of a presentation. Read/write .
-- `titles_of_parts`: Specifies the title of each document part. These parts are not document parts but conceptual representations of document sections. Read-only .
-- `total_editing_time`: Total editing time of a presentation. Read/write .
-- `words`: Returns the total number of words contained in a document. Read-only .
-
-### NotesSlide
-
-`NotesSlide` stores speaker notes associated with a slide and provides access to its text frame for authoring notes content.
-
-- `as_i_base_slide`: Defined as `def as_i_base_slide(self) -> IBaseSlide`.
-- `header_footer_manager`: Returns HeaderFooter manager of the notes slide. Read-only.
-- `notes_text_frame`: Returns a TextFrame with notes' text if there is one. Read-only.
-- `parent_slide`: Returns the parent slide. Read-only.
-
-### Comment
-
-`Comment` represents a user comment attached to a slide, including author, text, position, and timestamp.
-
-- `author`: Returns the author of a comment. Read-only.
-- `created_time`: Returns or sets the time of a comment creation. Read/write datetime.
-- `parent_comment`: Gets or sets parent comment. Read/write IComment.
-- `position`: Returns or sets the position of a comment on a slide. Read/write PointF.
-- `remove`: Removes comment and all its replies from the parent collection.
-- `slide`: Returns the parent slide of a comment. Read-only.
-- `text`: Returns or sets the plain text of a slide comment. Read/write str.
-
-### Images
-
-`Images` allows adding image objects to a presentation, which can then be inserted into picture frames on slides.
-
-- `from_file`: Defined as `def from_file(*args, **kwargs) -> IImage`.
-- `from_stream`: Defined as `def from_stream(*args, **kwargs) -> IImage`.
-
 ### SaveFormat
 
-`SaveFormat` enumerates supported output formats, including `.pptx` for saving presentations.
+The `SaveFormat` enumeration defines output formats for saving presentations, including PPTX and other supported file types.
 
-### Hyperlink
+### Color
 
-`Hyperlink` enables associating clickable links with text portions or entire shapes, supporting both click and mouse-over actions.
+The `Color` class provides methods for creating and manipulating colors, including the `from_argb` factory method.
 
-- `external_url`: Returns the target URL of the hyperlink. Read-only .
-- `target_frame`: Returns the frame the link opens in. Read-only .
-- `tooltip`: Returns the text shown when the pointer rests on the link. Read-only .
+- `a`: Defined as `def a(self) -> int`.
+- `b`: Defined as `def b(self) -> int`.
+- `from_argb`: Create a Color from ARGB components.
+- `g`: Defined as `def g(self) -> int`.
+- `r`: Defined as `def r(self) -> int`.
+
+### TransitionType
+
+The `TransitionType` enumeration defines slide transition effects that can be applied to slides for slide shows.
+
+### CommentAuthor
+
+The `CommentAuthor` class represents a person who can author comments in a presentation and provides properties for author name and initials.
+
+- `comments`: Returns the collection of comments made by this author. Read-only.
+- `initials`: Returns or sets the author's initials. Read/write str.
+- `name`: Returns or sets the author's name. Read/write str.
+- `remove`: Removes the author from the parent collection.
 
 </details>
 
 ## Documentation & Resources
 
-- **[CHANGELOG.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CHANGELOG.md)** — The changelog documents version-specific changes, new features, bug fixes, and breaking changes introduced in each release of Aspose.Slides FOSS for Python.
-- **[GitHub Repository](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)** — The GitHub repository hosts the source code, release artifacts, and supporting files for Aspose.Slides FOSS for Python, enabling inspection and contribution.
-- **[Contributing](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CONTRIBUTING.md)** — The contributing guidelines outline how developers can submit code, documentation, or test improvements to Aspose.Slides FOSS for Python.
-- **[Security policy](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/SECURITY.md)** — The security policy describes how to report vulnerabilities and the process Aspose.Slides FOSS for Python follows to address security concerns.
-- **[Code of conduct](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CODE_OF_CONDUCT.md)** — The code of conduct defines expected behavior and community standards for participants interacting in the Aspose.Slides FOSS for Python project.
+- **[CHANGELOG.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CHANGELOG.md)** — The changelog documents changes and notable updates introduced in each release of Aspose.Slides FOSS for Python.
+- **[GitHub Repository](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)** — The GitHub repository hosts the source code, documentation, and release artifacts for Aspose.Slides FOSS for Python.
+- **[Contributing](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CONTRIBUTING.md)** — The contributing guidelines describe how to build the project, run tests, and submit contributions to Aspose.Slides FOSS for Python.
+- **[Security policy](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/SECURITY.md)** — The security policy outlines the process for privately reporting security vulnerabilities affecting Aspose.Slides FOSS for Python.
+- **[Code of conduct](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CODE_OF_CONDUCT.md)** — The code of conduct defines the expected behavior and community standards for participants interacting with Aspose.Slides FOSS for Python.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/issues).
 
 ## Scope and Limitations
 
-Aspose.Slides FOSS for Python version 26.8.0 creates and edits PowerPoint presentations in the OOXML family, supporting Python 3.10 and later under the MIT license.
+Aspose.Slides FOSS for Python creates and edits PowerPoint presentations in the OOXML family, writes them to disk, and supports basic slide content such as shapes, charts, images, tables, text frames, comments, and hyperlinks.
 
-- Only seven `SaveFormat` values write valid files — PPTX, PPTM, PPSX, PPSM, POTX, POTM, and MD — while the remaining fourteen raise ValueError instead of producing mislabelled output.
-- Rendering and conversion to PDF, HTML, XPS, or images is not supported, slide size cannot be read or changed, and SmartArt, OLE objects, mathematical text, VBA macros, digital signatures, encryption, and most action settings are absent.
+- Only seven `SaveFormat` values produce valid output files; fourteen others raise ValueError instead of writing a mislabelled file.
+- Rendering and conversion to PDF, HTML, XPS, or images is not implemented, and presentation sections, slide size, SmartArt, OLE objects, mathematical text, VBA macros, digital signatures, encryption, and most action settings are absent.
 - The `add_image` method requires image bytes or a file-like object, not a file path, so callers must open the file and pass the handle or its bytes.
-- Assigning a shape or formatting object to a property that does not accept it raises AttributeError, ensuring misspelt property names fail at the point of assignment.
-- `Comment` threads are written from the classic comment list on save, so resolved status, @-mentions, and reply chains that the classic list cannot express are lost if the presentation's comment authors are modified before saving.
-- Unknown XML parts encountered during load are preserved verbatim on save, so opening and re-saving a file never strips content this library does not yet understand.
+- Assigning to a property a shape or formatting object that does not have that property raises AttributeError, so misspelt property names fail where they are written.
+- `Comment` threads written on save come from the classic comment list; resolved status, @-mentions, and reply chains that the classic list cannot express are lost if the presentation's comment authors are modified before saving.
+- Unknown XML parts encountered during load are preserved verbatim on save, so opening and re-saving a file will never strip content this library does not yet understand.
+
+`SaveFormat` and the file name are independent: `save("deck.pptx",
+SaveFormat.POTX)` writes a genuine template under a `.pptx` name, and
+PowerPoint refuses to open a file whose extension disagrees with the format
+declared inside it. Give the file the extension of the format you asked for.
+
+Assigning to a property a shape or a formatting object does not have raises
+`AttributeError` rather than being accepted and discarded, so a misspelt
+property name fails where it is written. Names beginning with an underscore
+are unaffected.
+
+Comment threads are written from the classic comment list on save. A deck
+authored in PowerPoint can carry resolved status, @-mentions and reply chains
+that the classic list cannot express; those are lost if the presentation's
+comment authors are touched before saving. Loading and saving without going
+near comments preserves the file's own threads untouched.
 
 Unknown XML parts encountered during load are preserved verbatim on save —
 opening and re-saving a file will never strip content this library does not yet understand.
 
 ## Development and Testing
 
-Build and test the aspose-slides-foss package using the tests directory and CI workflows defined in .github/workflows/, ensuring compatibility with Python >=3.10 under the MIT license.
+Build and test the aspose-slides-foss package using the tests directory and CI workflows defined in .github/workflows/.
 
 The suite covers 52 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).
 

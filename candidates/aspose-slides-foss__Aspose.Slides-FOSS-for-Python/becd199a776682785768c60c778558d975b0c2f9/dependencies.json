@@ -1,11 +1,18 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "1",
-    "renderer": "17",
+    "normalisation": "2",
+    "renderer": "18",
+    "reviewer_logic": "2",
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
+  "environment": {
+    "extractor_version": "1",
+    "os": "Windows",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "python_version": "3.13.2"
+  },
   "facts": {
     "build_test_asset:ci": "7e66b358a426cc2e174f824489b16cbabf529bccb8dfb9955ba06d9004b8cc82",
     "build_test_asset:tests": "1bc7d96a1ad5b9f2ca67879df1620fffb3c854451928d480f15eb29be1d1ab0b",
@@ -3311,13 +3318,13 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
-      "version": "9"
+      "sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+      "version": "10"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "879d3baaa167f3fe92d9e0fcf1ee4c7c3743ded2e0f649cdf50d6088e7841a7e",
-      "version": "9"
+      "sha256": "4b015cd738cfd282200d4a247bcbd32af854a9f406a419975a9aadc604da65ee",
+      "version": "11"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -3326,21 +3333,21 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
-      "version": "12"
+      "sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+      "version": "14"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "bd6c8191396a1f7a36d054e9055d256b69d9bda840f182b79a0b411e71a77068",
-      "version": "4"
+      "sha256": "6032ff725883be991fae201fc04ce6295e5a5b05fceebcf265fb201ce9e9ef8b",
+      "version": "5"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
-      "version": "7"
+      "sha256": "29ef850e5c00fffdd07aad641bd226e144fb2de91b09d0cd189f402544d8e836",
+      "version": "8"
     }
   },
-  "protected_content_fingerprint": "1d7463e2d431560e6f43dd05183edb3600515c28ad7054224314c4a69ad22fe4",
+  "protected_content_fingerprint": "06631ee1ccf893baa676fe5d186d50cad3216206d8ce6993568c36d7d7ab4203",
   "schema_version": 1,
   "source": {
     "revision": "becd199a776682785768c60c778558d975b0c2f9",
@@ -3350,7 +3357,7 @@
   "validators": {
     "BC-01": "1",
     "BC-02": "1",
-    "BC-03": "1",
+    "BC-03": "2",
     "BC-04": "1",
     "BC-05": "1",
     "BC-06": "1",
