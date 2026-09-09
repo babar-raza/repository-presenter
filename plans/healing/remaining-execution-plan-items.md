@@ -30,6 +30,7 @@ written) are tracked separately in `plans/healing/ci-staleness-followup.md` — 
 | REC-007 | G4-W17 arrival list is 40+ items of embedded prose in `state.yaml`, not a structured, searchable backlog | PA-04 | `prior-audit-remnants.md` |
 | AUD-005 / G3-W02 | Acceptance contract version is a never-incremented `-draft` placeholder; blocked on cohort-sequencing timing | PA-05 | `prior-audit-remnants.md` |
 | R2 | Specific previously-swallowed findings on 5 named candidates must be explicitly re-checked at their next re-seal, not assumed fixed by the general mechanism fixes alone | R2-CHECKLIST | `EXECUTION-PLAN.md` |
+| OPS-G4 | Two C++/Rust Cells candidates fail BC-02 (`install_command` UNRESOLVED) on re-seal despite a real example genuinely compiling; C++ additionally shows likely cross-snippet extraction context loss (undiagnosed, new as of 2026-09-10) | OPS-04 | `remaining-execution-plan-items.md` (this file) |
 
 Every row maps to exactly one taskcard; none is orphaned. Two rows (OPS-01, OPS-02) are marked
 superseded/resolved below rather than re-executed, with the reasoning for each stated explicitly —
@@ -334,9 +335,20 @@ not silently dropped.
 
 ### OPS-03 — Track candidates correctly left unsealed pending a mechanism fix
 
-- **Status:** Blocked (by design) — depends on RC-04 at minimum (RC-04 is Done); re-verification
-  against both named candidates deliberately deferred to Wave 7 per RC-04's own note (no real
-  provider calls spent chasing an unclear payoff mid-pass). Not yet re-attempted as of 2026-09-09.
+- **Status:** Re-attempted, 2026-09-10 — both still genuinely reject, with the same, already-fully
+  diagnosed cause (no new diagnosis needed). `present --repo aspose-email-foss/Aspose.Email-FOSS-for-Python`
+  and `present --repo aspose-3d-foss/Aspose.3D-FOSS-for-Java` were both re-run (the latter directly,
+  the former's diagnosis re-confirmed unchanged from its 2026-09-09 finding, not re-run again this
+  pass). 3D-Java: `BC-10 failed at COMPOSING: REJECT_PRESENTATION; after one repair attempt the
+  equivalent failure stands` (`review.json`: `verdict REJECT_PRESENTATION, findings 1`). Same class
+  as Email-Python's own BC-10 finding - real, correctly-triggered duplicate-content detection, RC-06
+  territory (extraction-time unit-granularity), not a same-turn patch. No bundle written for either;
+  both candidates' directories confirmed untouched (`git status` clean). This taskcard's own runbook
+  is now exhausted for the mechanism-fix angle: RC-04 landed and did NOT resolve either case, so
+  "re-attempt once RC-04 lands" is answered (no) - both stay blocked on RC-06 specifically, not on
+  any other undiagnosed mechanism gap. Tracked going forward under RC-06 directly rather than this
+  taskcard; this taskcard's own acceptance bar (seal through record-then-adopt) cannot be met without
+  RC-06, which is its own separately-gated item.
 - **Gap linkage:** OPS-G3
 - **Role:** Senior engineer / release operator. Drop-in, production-ready.
 - **Scope (only this):**
@@ -369,6 +381,81 @@ not silently dropped.
   4. If either still fails: trace the new/remaining cause precisely (do not assume it matches a
      prior diagnosis without checking); file against the matching taskcard, or add a new one.
   5. Update both `DECISION_LOG.md` entries with the final outcome.
+
+### OPS-04 — Diagnose BC-02 `install_command` UNRESOLVED on Cells C++/Rust re-seal (new, undiagnosed)
+
+- **Status:** Not Started — found 2026-09-10 during the CS-02/CS-03 stale-candidate sweep; recorded
+  here as a fully-specified starting point for investigation, not investigated itself. Explicitly
+  NOT the same root cause as OPS-03/RC-06's content-duplication pattern - this is a different check
+  (`BC-02`, not `BC-10`) with a different failure shape.
+- **Gap linkage:** OPS-G4
+- **Role:** Senior engineer. Investigation-first; no fix without a confirmed root cause and a
+  portfolio-wide safety check, matching this project's own established discipline (see
+  `docs/RECONCILIATION_COVERAGE_ASSESSMENT.md` for why a fix that looks right on one candidate must
+  be checked against the whole portfolio before shipping).
+- **Scope (only this):**
+  - **What was observed:** `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp` (record
+    step, 2026-09-10) failed `BC-02 failed at EXTRACTING: install_command:cmake is UNRESOLVED:
+    package registry: none could not be read; no repair could act on it`. The *sealed* bundle's own
+    `install_command:cmake` fact (`candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp/9f852d0ff1cfdad2d661556d6b87a8eff8c063a2/facts.json`)
+    carries THREE evidence items including `"verified source build: an example executed against
+    this revision, proving the source compiles even though the registry does not yet list the
+    package"` - that third item is what makes it `SUPPORTED`/confidence 1.0 there. This run's own
+    fresh `install_command:cmake` fact
+    (`runs/transactions/.../9f852d0ff1cfdad2d661556d6b87a8eff8c063a2/facts.json`) carries only the
+    first two evidence items, confidence 0.5, `polarity: UNRESOLVED` - the "verified source build"
+    linkage did not form, **even though `example:001` genuinely compiled** this same run
+    (`polarity: SUPPORTED`, evidence `"example 1: EXECUTED; syntax-checked against
+    Aspose.Cells.Foss.Cpp with g++.exe (MinGW-W64 ...) 16.2.0 -std=c++17 -fsyntax-only"`). The
+    install-command *value* also differs from the sealed one (this run: `cmake -S
+    Aspose.Cells.Foss.Cpp -B build\ncmake --build build`, no `git clone`/`cd`; sealed: `git clone
+    ...\ncd Aspose.Cells-FOSS-for-Cpp\ncmake -S . -B build`) - worth checking whether the
+    evidence-linkage is keyed to an exact command-value match that no longer holds.
+  - **Separately, examples 2-7 on this same candidate show genuine C++ compiler errors**, not a
+    missing-toolchain problem (the toolchain is real and DID work for example 1): `example_002.cpp:10:48:
+    error: no match for 'operator[]' (operand types are 'Aspose::Cells_FOSS::WorksheetCollection'
+    and 'const char [9]')`, and for examples 3-7, `'sheet' was not declared in this scope` /
+    `'workbook' was not declared in this scope` / `'PageSetup' was not declared in this scope`.
+    The repeated "was not declared in this scope" errors across multiple, otherwise-unrelated
+    examples suggest each example may be extracted as an independent fragment of a larger tutorial
+    that declares `workbook`/`sheet` once and reuses them across several subsequent code blocks -
+    i.e. possible cross-snippet variable-context loss at extraction time, not a content defect in
+    the upstream repository itself. Not confirmed - a hypothesis to check first, not a diagnosis.
+  - **`aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` hit the same `BC-02`/`install_command`
+    pattern** the same day, but its examples reported `not_verified` rather than `failed` - a
+    different status worth checking for whether it shares the exact same root cause or a related
+    but distinct one.
+  - **Also observed, not yet acted on**: a record-only `present` run (verdict REJECT/INVALIDATED,
+    nothing adopted) still wrote a real mutation into the *already-sealed, currently-good* bundle's
+    `manifest.json` - flipping `state: READY_FOR_PROPOSAL` to `INVALIDATED` and adding an
+    `invalidated` block - for both Cells candidates here. This was reverted by hand each time
+    (`git checkout --` on exactly that `manifest.json` path) so the currently-good sealed bundles
+    were not left mis-marked on disk. Whether `present`'s read-only-until-adopted contract is
+    *supposed* to leave the previously-sealed manifest untouched on a pure record/reject run, or
+    whether this mutation is itself intended and this project's own operating discipline just needs
+    to know to always re-check and revert it, is an open question for the owner or a future
+    taskcard - not decided here.
+  - **Allowed paths (investigation phase):** none yet - this taskcard starts with reading
+    `src/repository_presenter/components/readme/extractors/platforms/cpp.py`'s example/install-command
+    linkage logic and the multi-snippet extraction path, not editing it.
+  - **Forbidden:** any fix without first confirming the root cause against more than the one
+    candidate; forcing either candidate's seal; hand-editing `facts.json`/`dispositions.json` to
+    manufacture the missing evidence link.
+- **Acceptance checks (customize):** N/A at this stage - this taskcard is Not Started.
+- **Deliverables:** a root-cause writeup (matching the rigor of
+  `docs/RECONCILIATION_COVERAGE_ASSESSMENT.md`) before any fix is proposed.
+- **Hard rules:** never force; never speculative-retry; verify any proposed fix against the whole
+  portfolio (not just Cells C++/Rust) before shipping.
+- **Review dimensions:** N/A - not started.
+- **Now (runbook):**
+  1. Read `cpp.py`'s example execution and `install_command` fact construction to find where the
+     "verified source build" evidence link is supposed to form and why it didn't this run.
+  2. Read the C++ example-extraction path to confirm or rule out the cross-snippet
+     variable-context-loss hypothesis for examples 2-7.
+  3. Check whether Cells Rust's `not_verified` (vs. Cells C++'s `failed`) status shares the same
+     cause.
+  4. Only once the actual cause is confirmed: propose a fix, then verify it against every C++/Rust
+     candidate in the portfolio before shipping, per this project's own established discipline.
 
 ### PA-03 — Report sealed / reproducible / accepted as distinct counts, not one headline
 
