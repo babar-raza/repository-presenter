@@ -78,8 +78,14 @@ commit history directly.
 
 ### SR-02 — Add regression tests for `research_edit.py`'s `append_entry`
 
-- **Status:** In Progress — the helper itself is done and live-verified; a committed test file is
-  the missing deliverable this taskcard closes.
+- **Status:** Done (commit pending — see runbook step 7). `tools/reviewer/test_research_edit.py`
+  (8 tests, all passing) and the `tools/README.md` pointer are both landed. Step 3's revert-check
+  was run for real: temporarily removing `newline="\n"` from `append_entry` made
+  `test_append_entry_handles_a_file_with_no_trailing_newline` fail with
+  `AssertionError: assert b'\r' not in b'...\r\n...'`, confirming the test actually guards the
+  behavior; reverted immediately after, confirmed byte-identical to HEAD via `git diff` before
+  moving on. `pytest tests/ -q --tb=no` after the change shows only the two known, already-tracked
+  candidate-staleness failures (3D-Python, Email-Python) — no new failures.
 - **Gap linkage:** SR-G2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

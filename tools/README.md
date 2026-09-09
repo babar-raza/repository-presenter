@@ -36,6 +36,11 @@ governance tracks, two directories, no overlap.
     anchor-replace shape; `append_entry` added 2026-09-08 after ten more near-identical throwaways
     accumulated for the append shape (see the module docstring) — check here first before writing a
     new one-off script for either shape of edit.
+  - `test_research_edit.py` — regression tests for `research_edit.py`'s three functions, run
+    directly (`pytest tools/reviewer/test_research_edit.py`; outside `pyproject.toml`'s
+    `pythonpath`/collection scope, so it never runs as part of `pytest tests/`). SR-02
+    (`plans/healing/self-review-remediation.md`), added 2026-09-09 after `append_entry` and
+    `safe_replace` had been relied on for three days with no test at all.
   - `audit_link_completeness.py` — walks every `candidates/*/*/` manifest directory checking
     whether a `VERIFIED_REWRITE` disposition's `link_target` facts all reached that revision's
     `plan.json` `links` list. Written 2026-09-08 landing the `planning.py` fix for exactly this
