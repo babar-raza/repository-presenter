@@ -1,11 +1,18 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "1",
-    "renderer": "17",
+    "normalisation": "2",
+    "renderer": "18",
+    "reviewer_logic": "2",
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
+  "environment": {
+    "extractor_version": "1",
+    "os": "Windows",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "python_version": "3.13.2"
+  },
   "facts": {
     "build_test_asset:ci": "817de0d5db593fa60d8d672601165dc91adc4a98315d4d7ae2c68298f61d7cc8",
     "build_test_asset:docs": "4ebcc00d4a48089245cadd1873ad4176d8085e91128282e081a3e17e085741ab",
@@ -18,7 +25,7 @@
     "example:004": "e2bbff302a3ea74f37747c8c71ae97eb77999b2b4a44cd861ba413a950aeae44",
     "example:005": "e99c61a0b6d2c25daef265481cd9d7ba8b12f47bf4162f9e6045e1f4e9f58b72",
     "example:006": "341a83735eb5e2e47c7cacd232db9651d49a07771e1c85d07f181c78f8b8ef4a",
-    "example:007": "88b21da38f287207584ff6c7781c7b93c4bb2162183453c5ccd79616944a9389",
+    "example:007": "6e765192e725817717a540d0c588af29bddf31c4b398b85d26c1d0d8dee8086d",
     "example:008": "1078b5bef3e15aa4a79870f8824146486c8d58c402cf144aca384d482e364087",
     "example:009": "775a64a6972918417d8e4e26d3a6c453fb6cd77463165f09b1d88c5222f34d67",
     "example:010": "eeeb9fa0d74a29b44af8eb697966339892a8f8c8a6535f451c562b4072903c6e",
@@ -28,7 +35,7 @@
     "format:input.dae": "dd6776c458bb25536fa0454ffafee131f5650ce4d71c8011ac5ff2d603a2879a",
     "format:input.fbx": "6f5e812ff6588341eab9b182813cb0847ef0b923b23cf347ac91b8542856ab56",
     "format:input.glb": "12eba4f3461489af2c1ff9cb0c9cae3a90a04d5b306fce881f7f6eab1f396f6e",
-    "format:input.gltf": "03e081039ab22e15d20eff3fcbde9a5bb176d4cf0e41caa38574039a041c3cbd",
+    "format:input.gltf": "fbb0e8b1ec5901440246a071ce01e9d3418267e450ee1653639a763b5ce7cdf5",
     "format:input.obj": "2cc3039b0b4ea0793e080a2a212d35b3f6680b2a659df582b25892addf79e630",
     "format:input.stl": "0adac4083b6e930fe6837a949f64b3196a6c596eacf8419bf75de0a3e475b489",
     "format:output.3mf": "1b63ba64b451176c317ae5410adb5ffdb7f168bde336fe53ed341bb246946bf1",
@@ -1739,13 +1746,13 @@
   "prompts": {
     "independent_review": {
       "model_route": "qwen3-next",
-      "sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
-      "version": "9"
+      "sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+      "version": "10"
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "879d3baaa167f3fe92d9e0fcf1ee4c7c3743ded2e0f649cdf50d6088e7841a7e",
-      "version": "9"
+      "sha256": "4b015cd738cfd282200d4a247bcbd32af854a9f406a419975a9aadc604da65ee",
+      "version": "11"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -1754,21 +1761,21 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
-      "version": "12"
+      "sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+      "version": "14"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
-      "sha256": "bd6c8191396a1f7a36d054e9055d256b69d9bda840f182b79a0b411e71a77068",
-      "version": "4"
+      "sha256": "6032ff725883be991fae201fc04ce6295e5a5b05fceebcf265fb201ce9e9ef8b",
+      "version": "5"
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
-      "version": "7"
+      "sha256": "29ef850e5c00fffdd07aad641bd226e144fb2de91b09d0cd189f402544d8e836",
+      "version": "8"
     }
   },
-  "protected_content_fingerprint": "e160e9c2d4bf428b7a80ed121ffcf2513d006d5c7e4e90f249283b19f4dbb8df",
+  "protected_content_fingerprint": "e2b91421ffa659620402a30dd61c88eb279a5bde46ab723bc13da09c166bf6da",
   "schema_version": 1,
   "source": {
     "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
@@ -1778,7 +1785,7 @@
   "validators": {
     "BC-01": "1",
     "BC-02": "1",
-    "BC-03": "1",
+    "BC-03": "2",
     "BC-04": "1",
     "BC-05": "1",
     "BC-06": "1",

@@ -1,5 +1,6 @@
 [
   {
+    "build_verified": true,
     "detail": "FileNotFoundError: the example opens an input the repository does not provide",
     "fixtures": [],
     "ordinal": 1,
@@ -9,6 +10,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 2,
@@ -18,6 +20,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "FileNotFoundError: the example opens an input the repository does not provide",
     "fixtures": [],
     "ordinal": 3,
@@ -27,6 +30,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 4,
@@ -36,6 +40,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 5,
@@ -45,6 +50,7 @@
     "stdout": "{'baseColorFactor': [0.8, 0.2, 0.3, 1.0], 'metallicFactor': 0.5, 'roughnessFactor': 0.7}\r\n"
   },
   {
+    "build_verified": true,
     "detail": "FileNotFoundError: the example opens an input the repository does not provide",
     "fixtures": [],
     "ordinal": 6,
@@ -54,15 +60,23 @@
     "stdout": ""
   },
   {
-    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
-    "fixtures": [],
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "model.gltf",
+        "produced_by": 2,
+        "source_path": "crate.gltf"
+      }
+    ],
     "ordinal": 7,
-    "outcome": "NEEDS_INPUT",
-    "return_code": 1,
-    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_007\\example.py\", line 4, in <module>\r\n    scene.open(\"model.gltf\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.gltf'\r\n",
-    "stdout": ""
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "(unnamed)\r\n  Crate\r\n"
   },
   {
+    "build_verified": true,
     "detail": "TypeError",
     "fixtures": [],
     "ordinal": 8,
@@ -72,6 +86,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 9,
@@ -81,6 +96,7 @@
     "stdout": "solid exported\r\n  facet normal 0.000000e+00 0.000000e+00 1.000000e+00\r\n    outer loop\r\n      vertex 0.000000e+00 0.000000e+00 0.000000e+00\r\n      vertex 1.000000e+00 0.000000e+00 0.000000e+00\r\n      vertex 1.000000e+00 1.000000e+00 0.000000e+00\r\n    endloop\r\n  endfacet\r\nendsolid exported\r\n"
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 10,
@@ -90,6 +106,7 @@
     "stdout": "Control points: 8\r\n"
   },
   {
+    "build_verified": true,
     "detail": "FileNotFoundError: the example opens an input the repository does not provide",
     "fixtures": [],
     "ordinal": 11,
@@ -99,6 +116,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "exit 0",
     "fixtures": [],
     "ordinal": 12,

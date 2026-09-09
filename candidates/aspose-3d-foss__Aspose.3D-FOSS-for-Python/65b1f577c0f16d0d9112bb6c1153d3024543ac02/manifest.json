@@ -1,99 +1,6 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-05T16:02:30Z",
-    "changed": [
-      "dependencies.json",
-      "facts.json"
-    ],
-    "classification": "factual",
-    "earliest_affected_stage": "EXTRACTING",
-    "previous_proof": {
-      "byte_identical": true,
-      "fresh_process": true,
-      "proven_at": "2026-09-05T14:01:42Z",
-      "provider_calls": 0
-    },
-    "recorded_at": "2026-09-05T16:01:37Z"
-  },
-  "composition": {
-    "advisories": 3,
-    "blocking_failures": [],
-    "coverage_advisories": 1,
-    "review_verdict": "ACCEPT",
-    "review_verdict_as_returned": "REJECT_PRESENTATION"
-  },
-  "files": {
-    "README.md": {
-      "bytes": 55403,
-      "sha256": "73fce16435f330cc5a7351ca5702e6d47615636215a56ac858c482a8d6df4aeb"
-    },
-    "README.patch": {
-      "bytes": 90635,
-      "sha256": "81f590414224aaca8220fc6274aa2e41db1541328af61bc927a19d0e9134cae1"
-    },
-    "calls.jsonl": {
-      "bytes": 260181,
-      "sha256": "a2ec5fabdaccebf1561b208df9170a7fbcc633e62789933351bb812188351fb2"
-    },
-    "content_units.json": {
-      "bytes": 73255,
-      "sha256": "d41ff75f4bca9790b66f90d6468634b6526b148431f0a70f392aeb33690be185"
-    },
-    "dependencies.json": {
-      "bytes": 223286,
-      "sha256": "664fffc6b960ee041785bca1c0999020b6bc9bb0522dbc2e53c4ef13e2e2cd26"
-    },
-    "dispositions.json": {
-      "bytes": 34051,
-      "sha256": "7bf22a4419cf4dd41027a316a02cf9d782e3f5ac890f4ae239c7d9b74a32a2cf"
-    },
-    "examples.json": {
-      "bytes": 5248,
-      "sha256": "3e09be01a99dd3b3f69a5efca72b978dc6e3c9665a3ee8b9cb4d91afa9fb4210"
-    },
-    "facts.json": {
-      "bytes": 1136735,
-      "sha256": "79148432e936528a88fbc833ca259616aa6a5712e5ef2f0c7c590253f1419e4b"
-    },
-    "investigation.json": {
-      "bytes": 8122,
-      "sha256": "d27d06421afb2ace3351902e3db6c63f40127bba50a28bcdd7704a12dc00f7c5"
-    },
-    "plan.json": {
-      "bytes": 7873,
-      "sha256": "f7f3eeb453bdba1c253fbc35a3d4aacac94d798aa8ace0649a1effc262c4dd6c"
-    },
-    "probes.json": {
-      "bytes": 2868,
-      "sha256": "61c5742fa9f2b92c2e92e4d1e6764a9008bdf28c127c7b55713ec67e4a41b731"
-    },
-    "repairs.json": {
-      "bytes": 24114,
-      "sha256": "415fac0aad36a346162d16c37933b384f6b46e50de8b017dfcbdfca473f2bf59"
-    },
-    "review.json": {
-      "bytes": 3075,
-      "sha256": "9de760006f0934540388354b40130b8ace955adcb9493aceb30a25886c34fc24"
-    },
-    "validation.json": {
-      "bytes": 13906,
-      "sha256": "512c6bdbe19b5293d199ebceca8a1e81b87f78003f27c13f61c34a7676aa222f"
-    }
-  },
-  "no_op_proof": {
-    "byte_identical": true,
-    "fresh_process": true,
-    "proven_at": "2026-09-05T16:02:30Z",
-    "provider_calls": 0
-  },
-  "provider_calls": 0,
-  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
-  "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
-  "schema_version": 1,
-  "sealed_at": "2026-09-05T16:02:30Z",
-  "state": "READY_FOR_PROPOSAL",
-  "update": {
-    "available": true,
+    "adopted_at": "2026-09-09T18:46:59Z",
     "changed": [
       "README.md",
       "README.patch",
@@ -110,21 +17,200 @@
     ],
     "classification": "factual",
     "earliest_affected_stage": "EXTRACTING",
-    "files": {
-      "README.md": "7987c4f652c409a620ea8fc5f4dfe04e3665181f0921f0da923af8fd54f46a2a",
-      "README.patch": "7f3a9a1d217fc5fdf0145b4fd7a1957cf60f8b3c04b43428112f7ea23bc23cc6",
-      "content_units.json": "8d1538b6e256ada76b11cffa87c43b4faff62a0d47b25a81addb01bd9edbe0f0",
-      "dependencies.json": "eacb1a595c9c240e0f9c9ed6cc29dda1e7a52693165ab226ec3faf5597990df6",
-      "dispositions.json": "9b63fa088cd86cb279a87b27815d41b14b9ec98f520030b5ba64e2756e8d2bf8",
-      "examples.json": "6373be48de5150635af550d3b063a9294a8d6e90f2c00d01f179c582c48974fb",
-      "facts.json": "41af3641497208cad74208f6ca481daae85606d828624091f776c9c8cfac56e3",
-      "investigation.json": "ddc96c56b9a506393686add289bf62876c5c9638ff68108326d96f2bd7b6e8f6",
-      "plan.json": "8ec20d8a43d11e63985a115008b1f2fa416dac0e8cb15cbf21af66cb0f18bd8a",
-      "repairs.json": "709e4b9a0dd00f7599526e25fbca84052ae27b8bd52a9ade2a2644e2d1da2ffc",
-      "review.json": "72d4f6a2d038360dd79ae03f3445bed3e1ed8db0bda412674ff3ece2e66d4ccd",
-      "validation.json": "fe1d6e5bdd4af8ebf7ca47e6c506092a12b8c1318a44ecb1ddea69d82904785c"
+    "previous_proof": {
+      "byte_identical": true,
+      "fresh_process": true,
+      "proven_at": "2026-09-05T16:02:30Z",
+      "provider_calls": 0
     },
-    "recorded_at": "2026-09-07T10:15:36Z",
-    "transaction": "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
-  }
+    "recorded_at": "2026-09-09T18:45:28Z"
+  },
+  "call_variance": [
+    {
+      "distinct_responses": 9,
+      "job": "independent_review",
+      "response_sha256s": [
+        "0957084e569530143c1c8afe5dfbfece207d99b8fdd9dc75f2ff2b94e6fcbf44",
+        "2396cd868897f8d2370f1710f6e4d6a024cf01de6cb9201097952684b82d7d48",
+        "28ead60cd124b3592691f4554cd0acc5f4d960c3e34087baad4fcff4ec6fc693",
+        "67e820f2962af7c701c12eba239a04f5bbc49f1d5657aaa96cb369aa81cd270a",
+        "7c3e524babc5b851c2f5252b718cc071670d71795e65bdd2ebf26593b196a585",
+        "8ce248041a914b0afe281fac83aaf49362acb0abb38f431f94c9703c2fae9dcb",
+        "98aff79902eb67c858f6136a2fa07180c74ecc6fedaae7566bb1f4879fa61344",
+        "ee35206a858671fd5583336ff82de96af18ca4d5f05b9e03f55b32d722d5a95c",
+        "ff8db29ddc6102cea4dc0f3b8694ea6c6a954137875793222dbd612a6ec66c38"
+      ]
+    },
+    {
+      "distinct_responses": 5,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "01795a71fe9fe233dd3af3555d1e781dfb8b620447a91e99bc4e0d3474f32eaa",
+        "0c1ca9bdb623d607ede6bf9b8ea3489ead592f39482a44311f8d4a8cb9ed35f7",
+        "a9a6f00247e8fefc5962a92618d615c965d2b884ac1cb838646b12a2ad552d68",
+        "b25449c85f8a3233fd8684f71912657fb36e047e440c9927e83b6a8456a2b2ca",
+        "d6375f574bddf7d4c64aee314df5ac4d28e32a8e1947b48869a0fd2fbb5ea0e6"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "repository_investigation",
+      "response_sha256s": [
+        "0e6b20add3cb7ca6b122a0ca855678b158bf1f98c449eb6562700b8998a7d3e6",
+        "1382b4db81d46d75f35452b4d9940b66bb055de371d0276b22716f0d8be5f88a",
+        "55b04de5408cfb55aecb4d00e16abe7bc826bfee7238ab4d081d21e336dedfad",
+        "9e73c44a4d22864330f51c823743a7aa4935ad0436c35aae2c593a55a0385b4c"
+      ]
+    },
+    {
+      "distinct_responses": 56,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "04a2b89b67ccd21337842c688c31d3e1948ddcefb61b890fabf1d22214df86fa",
+        "0a63ecb9ceb8446adef9fc64893e1aaaee0b40db2fb4613e6ef1d84bab6b78ed",
+        "0f80700629fa0c3b373521ea2e73b6e9e74e12d539256aec05980aa26d061244",
+        "17e53c73887f043e71bb38f2a1d92592688d8ce6cd0f3de550a9664b3ed634db",
+        "18a36b22a25c4f055aa7a718164c4f38e471fe5f7f964f2d05039553a9875051",
+        "1afa6ee082c4681f5ccb2281ac463e6ea8e01da018439ffe5dcf936bb7ca82bd",
+        "1ba7e17c425aa585703d2d313869582698189e29241beec1c123a7e1dab40b5b",
+        "1e868567f533a141c02018fffca2ba8e065ec9443f0d5d6e21efefdb616cc7fd",
+        "21d5fab0139497680220fc9d3d082e6109843f9cd24b238c7f04003a6f7b45d5",
+        "223be932a8d2a778b24401bba342a0515a2e992b5423f29e4b7fedf1243ecdc3",
+        "249521beb9dd7dc37773a15399f4c5088cdcc82ff15a076d20331df46d41fdd3",
+        "25c0b2bfb4137cd1c2a505efe8a00e8a641b6c9a196b318a4b9c985b5acdd37e",
+        "2dc0ea061718039f3457a25e6d2ce500476ef1302e837060acf609ca25ee3666",
+        "329add7a8ca105a51d925ee10e936c0e128a03a6da0fc587a3784efa5c4a49d9",
+        "39ab626bb1dfb7baa14679c7161b94c76293c2c7953f52da7742ebd93ea4678f",
+        "3ec40622f9955fe0a2ff4d2294551b8ef3d191f8a4683374f07efe894548b493",
+        "464cd57dc6adc3a8da02341716dddddbcb8a7209109fbe7ad31b78d774e22788",
+        "46e1cf0aa746773da8b753d1b9818c71fe4eba0981bf1291977e6abcff98d00d",
+        "4a6c56569a0de04c44d27910d5f85fcfd7f61a42bd1d765ccd1a566dbea6902a",
+        "4c1ede868a43a99ba4cfccbf6763fe352a84aa1feac8de8dd018d5c4859e08d2",
+        "537f210abc6ba87b26fcc7c5c672e5a109c4b14e3d2543455409c03f0cc59ffd",
+        "59adb4202c83fc27e6f66f83945f0f44071dbc0abdfbf272afd26eb5ef31def4",
+        "59db2a5889c77e278082c0f3176c99515abe81a7f3f86dd92ee4fad618cba7c2",
+        "652ddc74e2f45fa15c5deeefcc2fbb0539f32be26fe65b0fc3f3452f54a1a4b8",
+        "65b04fe4cb0e6ff6fdfd68842e53e5fbe2c2ddf9c0f3592673626aa2f7f6e38e",
+        "6650de5924cf54dd2373932d1042d5ec3a1fb93d583c5ab8972c51a88bed206b",
+        "6884abf4887d10613473dfb65a731ef11acf7616c8a12ad986dfda8959560130",
+        "6d038e95a2c2d1b180fbd58be3676c0956556c33256b9877f33753123d7d5869",
+        "76222d5dc7533f300e7ce90556e645e5ac614d91684fa4fc999b95cd916cd90e",
+        "768268dd838ed7e7c44147d1cafb9514fad04a71fe23f5f6d6852ef4e2f73ce8",
+        "7902f03e2c7b99fed237e59f546cc7374d5de3d803e1ff48df3055cb82ae4aea",
+        "7c0ad33132035b3acc277923b702d9a93aa7971090e1a17fe05fca0cf8a7291f",
+        "82318528249ff9ddb5404cbc6c7867373258469738923ad41003b575f3f10599",
+        "8527df189d29903993e3272f87a85be52b562f90a93902f465aaccf61e0d0c2a",
+        "88591c858706f1ab135d4c5ce5d9c7c8f67e72950471e4bef370dedeb93e6a0a",
+        "8969de7563aa30886d2483971a29a90025b3bd2a61ed5a60222d7adeabceac22",
+        "8a49f32e58541495aa04210cfb2ee0e922fd6329847ca1bb240ac20fa9b44dab",
+        "8fa2b2d298670501b80666271e43788bfe278ccc5918a13db6a823dd279a6218",
+        "95620935e51df3b67eb713c7554479adbbf01c4be408e004a9aef6944c529bc4",
+        "96b6a3730c0ce94a6e8f5bac7bce4a4edfaf3fcce60c1a6c31bce6f6ae476233",
+        "a3016ff857e0953a8ae59968769f9c2ac03fd3dcee7b4a20be63d9b3977d5f13",
+        "a451067ac43d40a11404645cd8922d8406bdd72086312da2caad170076758584",
+        "b0753da891c60d74b36d5087b7b2d252cb9c79ee224501942430d7c46dfee31a",
+        "b30fea16dcd6b616a338281d31af576d38e7123ba2e7568f34c3bcd7fa851826",
+        "b48a3feed2e9297d248c9d1d11cd13ccf2f85da078d3b6492186eda93b4bad24",
+        "ba6592971536b2244c1852f4623d933fd4e86527e485c7e675d6a2dc98795f36",
+        "bbb5acc1968f9387f981df829375f90caae0420842cc24739233eb58864e3978",
+        "c330c21aeab2658dcc12385b0b3a74ebb4dba576927c65edd2b61c97fd3dd3d5",
+        "d855daa2618eeb6c95c23cc563e147206111cb4ffcbe014f033115287574d2af",
+        "dbc205ea8e15edce1fd6348000c23f13c49de4582b8d80007266cb87baeab565",
+        "e522c82c01544ba298b333ea1737e6fc86a45b9cb0112697b276b9550238e1ca",
+        "e921c9e8125e9a63419ec16b78cf543cadc1e40a0b1dbce9cccf324668850d69",
+        "ed960cf6acd848e9ac64da3deb17c21ec04fd7b3a1809b24eaf953477de4129c",
+        "ee8b4d2e0a58de3a78b02d3d80ba42d8e6315537a20f670619ab21e76ad46b1b",
+        "f2a253f034e458d44113787b88de8b1253085b70ffe9f45e1122af2b971fc607",
+        "f7c0a010e29b8177fe937669d3a31e089d99890b6a0a05d8f6e23bb813a873b5"
+      ]
+    },
+    {
+      "distinct_responses": 5,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "185dac144d53e9327b3d71ec87334ed8176804d6d15b136a547960600ea47fa5",
+        "71a30c26d25beb5258f94fd6a617a7fade8bcf3754e95beba36945c1b4e8fccf",
+        "a2e091b48498cee503a8670173f65711f3e6309b1249a331584dcd9d1e531a64",
+        "add0b7e7a85a1b3baf468d73ca6cda77157039c45b148c963f4975a57843b80b",
+        "fb388c4e5e1040c36d41b926dc3ef5787f8bc1228095e5653c27f7dec9d084d3"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 9,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 49872,
+      "sha256": "b693f34f29d82af98720a7df4716bf3b8dbddaaafff38656d2fcf9936b9870fd"
+    },
+    "README.patch": {
+      "bytes": 84532,
+      "sha256": "5859ce5720c25f320f23e2ad23b03fdc3eb6cbd170247b1cc69025d3adedf47a"
+    },
+    "calls.jsonl": {
+      "bytes": 61609,
+      "sha256": "c07355a36d5d5d3a331605bea421bbe9265076b279c4d6003d399631b0b4f824"
+    },
+    "content_units.json": {
+      "bytes": 70656,
+      "sha256": "ee2b530f64181f670f87a7d7d0e413400a0619074cd754fcb2f8a702135500a8"
+    },
+    "dependencies.json": {
+      "bytes": 223520,
+      "sha256": "62ad20602b930c89b4364f9363edf33ab3610b7ae16591c99167cd734974aa01"
+    },
+    "dispositions.json": {
+      "bytes": 31918,
+      "sha256": "561142a30a6b1e83cb9dfa435e4d539c886ea548a4305d0dffc75d8d63ab8565"
+    },
+    "examples.json": {
+      "bytes": 5287,
+      "sha256": "aba175faf786e86cbd5b3c143c2d656ab3a82955e9a90016ff976710fe27d830"
+    },
+    "facts.json": {
+      "bytes": 1136845,
+      "sha256": "41af3641497208cad74208f6ca481daae85606d828624091f776c9c8cfac56e3"
+    },
+    "investigation.json": {
+      "bytes": 7363,
+      "sha256": "11820a892fd549f3df80be3d12904cf08da17d6ef321dc1930deb80d855b33b9"
+    },
+    "plan.json": {
+      "bytes": 7152,
+      "sha256": "9eb9f2f78e7665bff3d2d9e68c43d8e8a0439664c3fd43b174e83fc228aad8ed"
+    },
+    "probes.json": {
+      "bytes": 2876,
+      "sha256": "bd881f44cf19c94da6889c1993b4a163ac5de204623d92eaa1df689a081390df"
+    },
+    "repairs.json": {
+      "bytes": 575,
+      "sha256": "709e4b9a0dd00f7599526e25fbca84052ae27b8bd52a9ade2a2644e2d1da2ffc"
+    },
+    "review.json": {
+      "bytes": 9358,
+      "sha256": "1712aed7d575a2baee17c564e0b3e2d598040f10be2a9e063bc85d0bc66d18e6"
+    },
+    "validation.json": {
+      "bytes": 13843,
+      "sha256": "347cba131f091e1377a8b0dfc00fce2a63f079c248b7597c86afdaaa1a7e45ff"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-09T18:46:59Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "revision": "65b1f577c0f16d0d9112bb6c1153d3024543ac02",
+  "schema_version": 1,
+  "sealed_at": "2026-09-09T18:46:59Z",
+  "state": "READY_FOR_PROPOSAL"
 }

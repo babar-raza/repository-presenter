@@ -2,75 +2,168 @@
   "advisory": [
     {
       "absent": [
+        "version 26.1.0"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Aspose.3D FOSS for Python version 26.1.0 is a Python library that enables developers to read, write, and convert 3D documents in formats including `.obj`, `.stl`, `.gltf`, `.glb`, `.dae`, `.3mf`, and `.fbx`.",
+      "repair": "Remove the version number from the opening paragraph to match the original README's structure.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'version 26.1.0', which the candidate contains",
+      "section_id": "identity",
+      "text": "The candidate adds a version number (26.1.0) to the opening paragraph that is not present in the original README's opening paragraph, and the original README does not include version information in the opening paragraph."
+    },
+    {
+      "absent": [
+        "AnimationClip",
+        "AnimationNode",
+        "KeyframeSequence",
+        "BonePose"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "Support keyframe animation. Support keyframe animation by constructing `AnimationClip` objects with name, description, start, and stop properties, adding `AnimationNode` instances via `AnimationClip.create_animation_node()`, and populating `KeyframeSequence` with key frames that reference `BonePose` matrices and bind points.",
+      "repair": "Restore the original level of specificity by including the exact class and method names as they appear in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'AnimationClip', 'AnimationNode', 'BonePose', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section reorders and consolidates capabilities in a way that omits specific class and method names (e.g., `AnimationClip`, `AnimationNode`, `KeyframeSequence`, `BonePose`) that are present in the original README and are important for developers."
+    },
+    {
+      "absent": [
         "python3 -m pip install aspose-3d-foss"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F01",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):",
-      "repair": "Replace `pip install aspose-3d-foss` with `python3 -m pip install aspose-3d-foss` to match the verified command.",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "pip install aspose-3d-foss",
+      "repair": "Use `python3 -m pip install aspose-3d-foss` to match the original README's precision.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
       "section_id": "installation",
-      "text": "The candidate uses `pip install aspose-3d-foss` instead of the verified `python3 -m pip install aspose-3d-foss` command."
-    },
-    {
-      "absent": [
-        "python3 -m pip install -e .",
-        "cd Aspose.3D-FOSS-for-Python",
-        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F02",
-      "quote": "To work from a source checkout instead, install the clone with pip:",
-      "repair": "Restore the editable install instructions exactly as in the original: `git clone ...`, `cd ...`, `python3 -m pip install -e .`.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cd Aspose.3D-FOSS-for-Python', 'git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git', 'python3 -m pip install -e .', which the candidate contains",
-      "section_id": "installation",
-      "text": "The candidate omits the editable install verification step present in the original README."
+      "text": "The candidate's installation command uses `pip install aspose-3d-foss` instead of the original `python3 -m pip install aspose-3d-foss`, which is less precise for multi-Python environments and deviates from the original README."
     },
     {
       "absent": [
         "python3 -c ",
-        "from aspose.threed import Scene"
+        "repair"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F03",
-      "quote": "Verify the install:",
-      "repair": "Replace `python -c ",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'from aspose.threed import Scene', which the candidate contains",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "python -c ",
+      "repair": "Use `python3 -c ",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
       "section_id": "installation",
       "text": "The candidate's verification command `python -c "
+    },
+    {
+      "absent": [
+        "pip install -e .[dev]"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "pytest>=7.0.0 (extra `dev`)",
+      "repair": "Add the `dev` extra installation command to match the original README.",
+      "reviewer_scope_defect": "the finding asks for 'pip install -e .[dev]', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "dependencies",
+      "text": "The candidate omits the `dev` extra in the development dependencies section, which is present in the original README (`pip install -e .[dev]`)."
+    },
+    {
+      "absent": [
+        "Import an OBJ file and inspect its geometry"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Create a textured crate using a `Box` primitive and a Lambert material, then export it as a GLTF file.",
+      "repair": "Restore the original first quick start example (OBJ import) as the primary quick start example.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.threed.box, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The candidate's quick start examples are reordered and the first example is changed from the original's OBJ import to a Box primitive example, which deviates from the original's intended first example."
+    },
+    {
+      "absent": [
+        "305"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The verified public surface has 337 types.",
+      "repair": "Use the verified count of 305 public types from the original README.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate's API reference section lists 337 types, while the original README states 305 public types, and the candidate does not provide evidence for the higher count."
+    },
+    {
+      "absent": [
+        "no bundled test opens a real `.fbx` fixture through it",
+        "the only FBX tests exercise the tokenizer directly against hand-written snippets"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "FBX support is experimental: `FbxImporter` has a working tokenizer and parser but no bundled test opens a real `.fbx` file through it, and `FbxExporter.save()` and `save_to_stream()` both raise NotImplementedError outright, so FBX is import-only at best.",
+      "repair": "Restore the original level of specificity about FBX testing status and the exact behavior of `FbxExporter`.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.threed.scene.save, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate's scope and limitations section is reordered and some limitations are merged or rephrased in a way that obscures specific technical details (e.g., the FBX exporter limitation is less precise)."
+    },
+    {
+      "absent": [
+        "33",
+        "OBJ, STL, glTF, COLLADA, and 3MF import/export",
+        "polygon triangulation",
+        "format-detection behavior"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F09",
+      "quote": "The suite covers 34 test files under `tests/`.",
+      "repair": "Restore the original count of 33 test files and the specific test coverage details.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate's development and testing section omits the mention of 33 real test files (original states 33, candidate states 34) and the specific test files covered (OBJ, STL, glTF, COLLADA, and 3MF import/export, polygon triangulation, and format-detection behavior)."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "73fce16435f330cc5a7351ca5702e6d47615636215a56ac858c482a8d6df4aeb",
+  "readme_sha256": "b693f34f29d82af98720a7df4716bf3b8dbddaaafff38656d2fcf9936b9870fd",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
     "stage": "S10"
   },
   "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": false
+  },
   "verdict": "ACCEPT",
   "verdict_as_returned": "REJECT_PRESENTATION"
 }

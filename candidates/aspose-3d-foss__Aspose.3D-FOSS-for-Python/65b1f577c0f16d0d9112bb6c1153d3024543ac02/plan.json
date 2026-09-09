@@ -1,6 +1,7 @@
 {
   "additional_example_ids": [
     "example:005",
+    "example:007",
     "example:009",
     "example:010",
     "example:012"
@@ -26,9 +27,9 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.primitive"
+        "public_symbol:aspose.threed.entities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.primitive"
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
     },
     {
       "fact_ids": [
@@ -38,55 +39,43 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animationclip"
+        "public_symbol:aspose.threed.formats"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animationclip"
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.animationnode"
+        "public_symbol:aspose.threed.utilities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.animationnode"
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.keyframesequence"
+        "public_symbol:aspose.threed.animation"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.keyframesequence"
+      "symbol_fact_id": "public_symbol:aspose.threed.animation"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.pose"
+        "public_symbol:aspose.threed.deformers"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.pose"
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.render"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.transform"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.transform"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.polygonbuilder"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.polygonbuilder"
+      "symbol_fact_id": "public_symbol:aspose.threed.render"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "Load multiple 3D formats",
-      "Export to interchange formats",
-      "Scene graph manipulation",
-      "Mesh construction and editing",
-      "Material assignment",
-      "Animation support"
+      "Load and save multiple 3D formats",
+      "Build and edit scene graphs",
+      "Create and manipulate mesh geometry",
+      "Assign materials with PBR support",
+      "Support keyframe animation",
+      "No external dependencies"
     ],
     "input_format_ids": [
       "format:input.obj",
@@ -113,86 +102,82 @@
         "format:input.glb",
         "format:input.dae",
         "format:input.3mf",
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "title": "Load multiple 3D formats"
-    },
-    {
-      "fact_ids": [
         "format:output.obj",
         "format:output.stl",
         "format:output.gltf",
         "format:output.glb",
-        "format:output.3mf",
-        "public_symbol:aspose.threed.scene"
+        "format:output.3mf"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.scene"
-      ],
-      "title": "Export to interchange formats"
+      "shared_fact_ids": [],
+      "title": "Load and save multiple 3D formats"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.scene",
-        "public_symbol:aspose.threed.node",
-        "public_symbol:aspose.threed.transform"
-      ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.scene"
-      ],
-      "title": "Scene graph manipulation"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.primitive",
+        "example:002",
+        "example:004",
         "example:005",
-        "example:009",
-        "example:010"
+        "example:007"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.threed.mesh",
+        "example:002",
+        "example:004",
         "example:005"
       ],
-      "title": "Mesh construction and editing"
+      "title": "Build and edit scene graphs"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
+        "example:005",
+        "example:009",
+        "example:010",
+        "example:012"
+      ],
+      "shared_fact_ids": [
+        "example:005"
+      ],
+      "title": "Create and manipulate mesh geometry"
+    },
+    {
+      "fact_ids": [
         "example:002",
         "example:004",
         "example:005"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.threed.shading",
+        "example:002",
+        "example:004",
         "example:005"
       ],
-      "title": "Material assignment"
+      "title": "Assign materials with PBR support"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
         "public_symbol:aspose.threed.keyframesequence",
+        "public_symbol:aspose.threed.bonepose",
         "public_symbol:aspose.threed.pose"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.animationclip"
+      "shared_fact_ids": [],
+      "title": "Support keyframe animation"
+    },
+    {
+      "fact_ids": [
+        "dependency:none",
+        "package:python_requires",
+        "package:python_versions"
       ],
-      "title": "Animation support"
+      "shared_fact_ids": [],
+      "title": "No external dependencies"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:068.paragraph",
-        "link_target:product.enterprise"
+        "inherited_unit:067.list"
       ],
-      "section_id": "enterprise_relationship",
-      "text": "These limitations don't apply to Aspose.3D for Python — Enterprise Edition, which adds the broader proprietary-format support (PDF, PLY, USD, and more), rendering, and advanced mesh operations that this FOSS build leaves unimplemented."
+      "section_id": "additional_examples",
+      "text": "The 'Position a Node With Transform' example raises NotImplementedError and is omitted."
     }
   ],
   "flagship_example_id": "example:005",
@@ -219,7 +204,9 @@
       "fact_ids": [
         "inherited_unit:067.list"
       ],
-      "unit_ids": []
+      "unit_ids": [
+        "inherited_unit:067.list"
+      ]
     }
   ],
   "quick_start_example_id": "example:002",
