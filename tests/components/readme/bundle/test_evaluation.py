@@ -16,6 +16,10 @@ from repository_presenter.components.readme.bundle.evaluation import (
     summarize_evaluation,
     write_evaluation,
 )
+from repository_presenter.components.readme.bundle.seal import upstream_dependencies
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
+from support import REPO_ROOT
 
 SEALED: dict[str, Any] = {
     "schema_version": 1,
@@ -142,14 +146,25 @@ def test_changes_order_by_state_and_the_earliest_wins(tmp_path: Path) -> None:
     assert summarize_evaluation(unsealed) == "no sealed bundle for this revision; every stage runs"
 
 
-# The invalidation matrix (docs/STATE_MACHINE.md section 9, G2-W05) against the sealed canary
-# bundle's own dependency record: one case per dependency class, as a path into the record and
-# the state its change reopens.
-SEALED_CANARY = (
-    Path(__file__).resolve().parents[4]
-    / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
-    / "65b1f577c0f16d0d9112bb6c1153d3024543ac02/dependencies.json"
-)
+# The invalidation matrix (docs/STATE_MACHINE.md section 9, G2-W05) against a *real* dependency
+# record's own shape - one case per dependency class, as a path into the record and the state its
+# change reopens. Built from the real production function (upstream_dependencies), not read from
+# a live, mutable candidate directory (CS-05, plans/healing/ci-staleness-followup.md, 2026-09-09:
+# reading a real sealed candidate's dependencies.json directly let an uncommitted, in-flight
+# change to that candidate silently change what these two tests actually checked, without this
+# file itself changing). This keeps the two tests' original point - proving the mapping holds
+# against the *real* shape the real code produces, not just the hand-typed SEALED fixture above -
+# while never depending on any particular candidate's current on-disk state.
+def _real_dependency_record() -> dict[str, Any]:
+    facts = FactsDocument(
+        "owner/repo",
+        "r" * 40,
+        (Fact("identity:repository", "identity", "owner/repo", (Evidence("x"),)),),
+    )
+    prompts = load_manifests(REPO_ROOT / "prompts")
+    return upstream_dependencies("r" * 40, "t" * 64, facts, prompts)
+
+
 DEPENDENCY_CLASSES: dict[str, tuple[list[str], str]] = {
     "source revision": (["source", "revision"], "EXTRACTING"),
     "fact extractor (a fact record's digest)": (["facts", "identity:repository"], "EXTRACTING"),
@@ -165,10 +180,6 @@ DEPENDENCY_CLASSES: dict[str, tuple[list[str], str]] = {
 }
 
 
-def _sealed_canary() -> dict[str, Any]:
-    return json.loads(SEALED_CANARY.read_text("utf-8"))
-
-
 def _changed(document: dict[str, Any], path: list[str]) -> dict[str, Any]:
     current = copy.deepcopy(document)
     target: Any = current
@@ -179,11 +190,14 @@ def _changed(document: dict[str, Any], path: list[str]) -> dict[str, Any]:
     return current
 
 
-def test_the_sealed_canary_reopens_nothing_when_nothing_changed() -> None:
-    sealed = _sealed_canary()
+def test_a_real_dependency_record_reopens_nothing_when_nothing_changed() -> None:
+    sealed = _real_dependency_record()
     assert evaluate(sealed, copy.deepcopy(sealed)).earliest == "NONE"
     # The record lists only what the candidate consumed: no global control-plane hash.
-    assert set(sealed) == {
+    # dependencies_document() (seal.py) adds protected_content_fingerprint on top of
+    # upstream_dependencies()'s own keys; unioned in here since it is not part of this
+    # function's own output but is part of every real sealed record's top-level shape.
+    assert {*sealed, "protected_content_fingerprint"} == {
         "schema_version",
         "source",
         "facts",
@@ -200,11 +214,11 @@ def test_the_sealed_canary_reopens_nothing_when_nothing_changed() -> None:
 
 
 @pytest.mark.parametrize(("label", "case"), sorted(DEPENDENCY_CLASSES.items()))
-def test_each_dependency_class_of_the_sealed_canary_reopens_its_own_state(
+def test_each_dependency_class_of_a_real_record_reopens_its_own_state(
     label: str, case: tuple[list[str], str]
 ) -> None:
     path, state = case
-    sealed = _sealed_canary()
+    sealed = _real_dependency_record()
     evaluation = evaluate(sealed, _changed(sealed, path))
     assert evaluation.earliest == state, label
     assert len(evaluation.changes) == 1, (label, evaluation.changes)

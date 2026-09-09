@@ -55,6 +55,7 @@ from repository_presenter.components.readme.composition.policy import (
 )
 from repository_presenter.components.readme.composition.renderer import RENDERER_VERSION
 from repository_presenter.components.readme.extractors.surface.extractor import EXTRACTOR_VERSION
+from repository_presenter.components.readme.review.independent.review import REVIEWER_LOGIC_VERSION
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     VALIDATOR_VERSION,
@@ -214,6 +215,7 @@ def upstream_dependencies(
             "shell": SHELL_VERSION,
             "renderer": RENDERER_VERSION,
             "normalisation": NORMALISATION_VERSION,
+            "reviewer_logic": REVIEWER_LOGIC_VERSION,
         },
         "validators": {check.id: check.version for check in BLOCKING_CHECKS},
         "validator_version": VALIDATOR_VERSION,

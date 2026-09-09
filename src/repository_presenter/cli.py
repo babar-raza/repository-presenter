@@ -66,6 +66,7 @@ from repository_presenter.components.readme.repair.rounds import (
 )
 from repository_presenter.components.readme.review.independent.review import (
     REVIEW_FILENAME,
+    REVIEWER_LOGIC_VERSION,
     summarize_review,
 )
 from repository_presenter.components.readme.validation.registry import (
@@ -264,6 +265,7 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
             "shell": SHELL_VERSION,
             "renderer": RENDERER_VERSION,
             "normalisation": NORMALISATION_VERSION,
+            "reviewer_logic": REVIEWER_LOGIC_VERSION,
         }
         current_validators = {check.id: check.version for check in BLOCKING_CHECKS}
         found = stale_candidates(root, current_components, current_validators, VALIDATOR_VERSION)

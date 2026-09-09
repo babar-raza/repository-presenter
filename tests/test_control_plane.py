@@ -18,18 +18,17 @@ rather than being deleted.
 from __future__ import annotations
 
 import ast
-import json
 from collections.abc import Iterable
 from pathlib import Path
 
+import pytest
+
+from repository_presenter.components.readme.bundle.seal import upstream_dependencies
+from repository_presenter.core.facts import FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
 from support import REPO_ROOT
 
 SOURCE_ROOT = REPO_ROOT / "src/repository_presenter"
-SEALED_CANARY = (
-    REPO_ROOT
-    / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"
-    / "65b1f577c0f16d0d9112bb6c1153d3024543ac02"
-)
 # The dependency classes a candidate records; each names the earliest state its change reopens.
 PER_CANDIDATE_CLASSES = frozenset(
     {
@@ -245,8 +244,42 @@ def test_a_digest_folded_over_every_validator_is_flagged(tmp_path: Path) -> None
     assert "the digest folds over the control plane (validators)" in findings[0]
 
 
-def test_the_sealed_canary_depends_only_on_per_candidate_classes() -> None:
-    # The rule from the other side: the record lists what this candidate consumed, so no key
-    # can carry a value shared with candidates that consumed something else.
-    record = json.loads((SEALED_CANARY / "dependencies.json").read_text(encoding="utf-8"))
+def test_a_dependency_record_depends_only_on_per_candidate_classes() -> None:
+    # The rule from the other side: the record lists what a candidate consumed, so no key can
+    # carry a value shared with candidates that consumed something else. Built from the real
+    # production function with minimal synthetic inputs, not read from a live, mutable candidate
+    # directory (CS-05, plans/healing/ci-staleness-followup.md, 2026-09-09: reading a real sealed
+    # candidate's dependencies.json directly let an uncommitted, in-flight change to that
+    # candidate silently change what this test actually checked, without this file itself
+    # changing - a purely structural check like this one needs only the function's own real
+    # output shape, which stays accurate automatically as the function evolves, unlike a frozen
+    # copy that would need manual re-freezing).
+    facts = FactsDocument("owner/repo", "r" * 40, ())
+    prompts = load_manifests(REPO_ROOT / "prompts")
+    record = {
+        **upstream_dependencies("r" * 40, "t" * 64, facts, prompts),
+        "protected_content_fingerprint": "f" * 64,
+    }
+    assert set(record) == PER_CANDIDATE_CLASSES
+
+
+def test_a_dependency_record_is_immune_to_a_mutated_candidate_directory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """CS-05's own acceptance check: a converted test's result must not change if the live
+    candidate directory it used to read is mutated. Proven here by making any read under
+    ``candidates/`` raise - the fixed test above must never attempt one at all."""
+    real_read_text = Path.read_text
+
+    def _guarded_read_text(self: Path, *args: object, **kwargs: object) -> str:
+        assert "candidates" not in self.parts, f"unexpected read of a candidate path: {self}"
+        return real_read_text(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(Path, "read_text", _guarded_read_text)
+    facts = FactsDocument("owner/repo", "r" * 40, ())
+    prompts = load_manifests(REPO_ROOT / "prompts")
+    record = {
+        **upstream_dependencies("r" * 40, "t" * 64, facts, prompts),
+        "protected_content_fingerprint": "f" * 64,
+    }
     assert set(record) == PER_CANDIDATE_CLASSES

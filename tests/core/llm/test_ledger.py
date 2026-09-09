@@ -81,6 +81,11 @@ def test_canonical_hash_ignores_key_order_and_whitespace_only() -> None:
 # is about 24 provider calls, so a single extra rejection moves the rate four points, and two
 # compositions of the same configuration measured 91.7 and 87.5. A floor tighter than the
 # sample supports would fail on noise rather than on a regression.
+#
+# Deliberately reads the real, current canary's real calls.jsonl off disk, the same way
+# tests/test_sealed_bytes.py does (CS-05, plans/healing/ci-staleness-followup.md, 2026-09-09):
+# this measures the real canary's real call-volume statistics on purpose - freezing a copy would
+# defeat this test's entire point, which is catching a real regression in real call behavior.
 SEALED_LEDGER = (
     REPO_ROOT
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"

@@ -35,6 +35,17 @@ from repository_presenter.core.registry.models import RegistryEntry
 
 REVIEW_FILENAME = "review.json"
 ACCEPT = "ACCEPT"
+# The deterministic judgment this module owns - scope_defect and everything it calls
+# (absence_defect, excluded_evidence_defect, rendered_defect, renderer_owned_defect,
+# factuality_defect), plus quote_located and review_checks - decides which findings block a
+# candidate, so it is a component dependencies.json records and a change to it reopens REVIEWING,
+# the same way renderer.py/authoring.py/registry.py's own constants do (docs/STATE_MACHINE.md
+# section 9). Only the *prompt's* hash/version was tracked before this (CS-04,
+# docs/CI_AND_STALENESS_ASSESSMENT.md, 2026-09-09: this asymmetry meant a real logic change here -
+# PA-02's quote_located section-scoping - had nothing to bump, unlike RENDERER_VERSION/BC-03/
+# NORMALISATION_VERSION's own confirmed-missed-then-corrected bumps the same day). Starts at "2",
+# not "1": retroactively credited for PA-02's already-landed change, which predates this constant.
+REVIEWER_LOGIC_VERSION = "2"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {

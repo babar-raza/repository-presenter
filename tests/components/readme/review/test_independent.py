@@ -1185,6 +1185,11 @@ def test_a_synthetic_oversized_review_is_bounded_by_its_own_schema() -> None:
 # The sealed canary's advisories, adjudicated against the bundle rather than against the
 # reviewer's wording (project/loop-prompt.md section 5): a finding is code-caused when a
 # deterministic check can express it, whatever prose the reviewer chose.
+#
+# Deliberately reads the real, current canary bundle off disk, the same way
+# tests/test_sealed_bytes.py does (CS-05, plans/healing/ci-staleness-followup.md, 2026-09-09):
+# this checks real, evolving content (the real advisories a real sealed review currently
+# carries), not a structural shape a frozen fixture could stand in for.
 SEALED_CANARY = (
     REPO_ROOT
     / "candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python"

@@ -316,6 +316,7 @@ candidates; it invalidates one only on a factual, safety, or protected-content f
 | Section authoring prompt/model | `COMPOSING` for affected sections |
 | Deterministic validator | `VALIDATING` |
 | Reviewer prompt/model/rubric | `REVIEWING` |
+| Reviewer's own deterministic logic (`review.py`'s `scope_defect` and what it calls, `quote_located`, `review_checks`) | `COMPOSING` in the current implementation - `evaluate()`'s `components` comparison (`bundle/evaluation.py`) treats every entry in `dependencies.json`'s `components` map uniformly, the same coarse behavior `shell`/`renderer`/`normalisation` already had; conservative (composing is upstream of reviewing, so nothing under-reopens) but not the precise `REVIEWING` this row's neighbor gets for the reviewer *prompt*. Tracked honestly rather than left undocumented (CS-04, `plans/healing/ci-staleness-followup.md`, 2026-09-09) - refining `evaluate()` to distinguish per-component target stages is a distinct, not-yet-scoped follow-up. |
 | Authorization/effect policy only | `AWAITING_AUTHORIZATION` |
 
 Factual, safety, protected-content, or severe acceptance defects invalidate an accepted candidate.

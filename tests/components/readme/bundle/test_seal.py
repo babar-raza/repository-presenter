@@ -122,6 +122,12 @@ def test_the_sealed_canary_carries_the_receipt_its_example_facts_cite() -> None:
     named examples.json as the evidence for its outcome, and the bundle did not hold that
     file - the verification receipt lived only in the gitignored transaction, so a reader of
     the sealed candidate could not see why an example was SUPPORTED or UNRESOLVED.
+
+    Deliberately reads the real, current canary bundle off disk, the same way
+    tests/test_sealed_bytes.py does (CS-05, plans/healing/ci-staleness-followup.md,
+    2026-09-09): this checks real, evolving content (which facts a real candidate's real
+    examples currently cite), not a structural shape a frozen fixture could stand in for -
+    freezing it would defeat the point of catching a real future regression.
     """
     bundle = (
         REPO_ROOT
@@ -191,6 +197,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
         "shell": "5",
         "renderer": "18",
         "normalisation": "2",
+        "reviewer_logic": "2",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
     assert document["acceptance_profile_version"] is None
