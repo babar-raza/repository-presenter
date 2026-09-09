@@ -556,16 +556,18 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-07 — CI genuinely green: umbrella tracking taskcard
 
-- **Status:** In Progress, 2026-09-10 — CS-02 and CS-03 are both done and the full local
-  CI-equivalent (`scripts/ci_check.sh`) passes clean (lint/format/typecheck/pytest/entrypoint all
-  `success`, no `--no-verify` needed for this push). Marked Done only once a real `gh run watch`
-  on the actual pushed commit confirms it, per this taskcard's own Acceptance checks below - not
-  before. CS-01 remains its own separately-tracked, still-`Not Started` item (the held 3D-Python
-  WIP now lives on `wip/3d-python-canary`; not required for CI green, since `main`'s working tree
-  was already clean going into CS-02/CS-03's real runs). The one test-suite change this depended on
-  (Email-Python's `xfail`) was the owner's own explicit choice, not an autonomous shortcut around
-  this taskcard's own "Forbidden" clause below — see CS-02's 2026-09-10 resolution note for the
-  exact authorization.
+- **Status:** Done, 2026-09-10. Real confirmation, not inferred: pushed commits `1443a85`
+  (3D-Python re-seal) and `effda7f` (Email-Python xfail) to `origin/main`; the pre-push hook's own
+  `scripts/ci_check.sh` passed clean with no `--no-verify`; `gh run watch 34393688236 --exit-status`
+  exited 0 with every step of all three Python matrix jobs (3.11, 3.12, 3.13) - including the
+  `Summary` step this workflow's own redesign (CS-06) added specifically so a real failure can't
+  hide behind other green steps - reporting success. `gh run list --branch main --limit 1` shows
+  `completed / success`. CI is genuinely, fully green on `main`, not just locally. CS-01 remains
+  its own separately-tracked, still-`Not Started` item (the held 3D-Python WIP now lives on
+  `wip/3d-python-canary`; not required for CI green, since `main`'s working tree was already clean
+  going into CS-02/CS-03's real runs). The one test-suite change this depended on (Email-Python's
+  `xfail`) was the owner's own explicit choice, not an autonomous shortcut around this taskcard's
+  own "Forbidden" clause below — see CS-02's 2026-09-10 resolution note for the exact authorization.
 - **Gap linkage:** G7
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
