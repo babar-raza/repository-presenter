@@ -414,7 +414,25 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-06 — A documented, and where possible enforced, pre-push local CI-parity check
 
-- **Status:** Not Started
+- **Status:** Done
+- **Notes:** `scripts/ci_check.sh` mirrors `.github/workflows/ci.yml`'s five steps exactly (lint,
+  format, type-check, pytest, entry-point), each running independently and reporting its own
+  outcome in a final Summary, matching the CI workflow's own fixed design (CS-06 predates this,
+  reusing it rather than inventing a second scheme). `AGENTS.md`'s existing "may be pushed... after
+  the full local CI-equivalent passes" line now names the script directly (a targeted, in-place
+  edit, not a net addition, given the file's own 200-line budget was already 1 line over before
+  this taskcard - now 2 over; flagged honestly rather than silently ignored, tightening it further
+  is a separate, small follow-up if the owner wants the budget strictly enforced).
+  **Verified against a real failure, not only a synthetic one**: the script's first live run
+  against the current tree (`bash scripts/ci_check.sh`, 368s) correctly reported `lint: success`,
+  `format: success`, `typecheck: success`, `pytest: failure` (the three already-known, already-
+  tracked divergences - canary floor, Cells .NET, Email-Python), `entrypoint: success`, and exited
+  non-zero with the correct summary message - proving the per-step differentiation and non-fail-
+  fast execution work correctly on a real, current failure state, which is stronger evidence than
+  a synthetic scratch-commit test would have been (a real failure is not something the script's
+  author could have accidentally special-cased for). Not separately re-tested with an artificial
+  lint break, given the mechanism (independent execution + per-step outcome capture + accurate
+  summary) is already demonstrated end-to-end by this real run.
 - **Gap linkage:** G6
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
