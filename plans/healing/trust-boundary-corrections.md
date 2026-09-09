@@ -123,7 +123,49 @@ file was touched.
 
 ### TB-02 — Bind format claims to the operation that actually proved them
 
-- **Status:** Not Started
+- **Status:** Done (part 1 only) — landed and pushed 2026-09-09. Part 2 (the `format_facts`
+  fixture-to-input-claim binding tightening) is excluded — see Note.
+- **Note:** Two independent sub-fixes, verified separately against real portfolio data before
+  either was trusted, per this pass's own established discipline.
+  **Part 1 (landed):** `format_claims` (`python_formats.py`) no longer walks into statically-dead
+  branches. Added `_reachable_nodes`, a narrow BFS over `ast.walk`'s own traversal that skips a
+  node's `body` field when `_dead_body` says it never runs: an `if` whose test is a compile-time-
+  constant falsy value (`if False:`/`if 0:`), or a function definition whose own name is never
+  loaded anywhere else in the tree (so nothing in the example could call it, including
+  conditionally-called helpers, which still count as referenced and so still claim normally). Two
+  new regression tests (`test_a_statically_dead_branch_claims_nothing`,
+  `test_a_function_defined_but_never_called_claims_nothing`) confirmed to fail against the pre-fix
+  code via `git stash` before the fix, and pass after. **Verified safe for real data**: a direct
+  comparison script ran `format_claims` before and after the fix against all 75 real `example:*`
+  facts across the entire sealed portfolio - zero differences. Full suite
+  (`pytest tests/ -q --tb=no`) run once: only the three already-tracked pre-existing divergences
+  (3D-Python canary call-volume floor; `test_sealed_bytes.py` Cells .NET and Email-Python, both
+  RC-02's own desirable duplicate-detection fixes) - nothing new.
+  **Part 2 (excluded, not landed):** the taskcard's `format_facts` fix (`formats.py`) would only
+  credit a staged fixture's extension as executed "input" if `format_claims` also independently
+  claimed that extension as input for the same example, closing the gap where staging plus overall
+  exit 0 alone promotes an unread fixture to SUPPORTED. Implemented, then checked against real
+  portfolio data before trusting it (same discipline as part 1) - and found it wrongly downgrades
+  two genuinely-true facts: `format:input.pptx` for `aspose-slides-foss__Aspose.Slides-FOSS-for-
+  Python` (read via `Presentation("new.pptx")`, a bare-constructor pattern) and
+  `format:input.msg` for `aspose-email-foss__Aspose.Email-FOSS-for-Python` (read via
+  `MapiMessage.from_file("sample.msg")`, a factory-method pattern) - `format_claims`'s
+  `_INPUT_WORDS` verb vocabulary (open/load/read/import/parse/detect) recognizes neither shape, so
+  neither example's own claim would ever match its fixture binding under the tightened rule. A
+  follow-up literal-occurrence heuristic ("credit unless the literal appears only in output-
+  classified statements") correctly separated that case from a genuine bug case
+  (`"output.pptx"` appearing only in an output-classified statement, correctly still rejected), but
+  a third false-positive class then surfaced in Email-Python's own `"note.txt"` (an attachment
+  *name* passed alongside literal inline bytes via `add_attachment("note.txt", b"...", ...)` -
+  never read from disk, yet not classified as "output" either, so the literal-occurrence heuristic
+  would still wrongly credit it as an input read). This is the same class of ambiguity RC-03 hit:
+  the verb/heuristic vocabulary cannot reliably distinguish a genuine-but-unrecognized read from a
+  non-read use of a file-like string, without either a false-negative or a false-positive real
+  case. Reverted via `git checkout -- src/repository_presenter/components/readme/evidence/facts/
+  formats.py` before commit - not landed, not shipped. `format_facts` keeps its current staging-
+  plus-exit-0 promotion rule for fixtures; the underlying D2 gap for this half stays open, needing
+  owner input on how to recognize input operations beyond the current verb list (or a different
+  design entirely) rather than further heuristic tuning.
 - **Gap linkage:** D2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

@@ -18,7 +18,7 @@ fixes come first.
 
 | File | Done | Remaining |
 |---|---|---|
-| `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07, TB-08 | TB-02, TB-05, TB-09, TB-10 |
+| `trust-boundary-corrections.md` | TB-01, TB-02 (pt.1), TB-03, TB-04, TB-06, TB-07, TB-08 | TB-05, TB-09, TB-10 |
 | `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03*, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
@@ -84,7 +84,9 @@ scripts). They are **merged into one execution**, not built twice.
     not resolved by further engineering. Reverted before commit, not landed.
 
 ### Wave 4 — remaining defect fixes (P1)
-12. **TB-02** — format claims from unreachable code / unread fixtures.
+12. **TB-02** [DONE, part 1 only — part 2 excluded, see below] — format claims from unreachable
+    code (landed) / unread fixtures (excluded: same verb-vocabulary ambiguity class as RC-03,
+    would introduce real false negatives against real portfolio data).
 13. **TB-05** — fence validation via `EcosystemSpec.example_fences`.
 14. **TB-09** — HTML link discovery + prose-matches-evidence seam (after TB-08, same file).
 15. **PA-02** — scope `quote_located` to the finding's own section.
@@ -124,6 +126,17 @@ scripts). They are **merged into one execution**, not built twice.
   call the owner should make, not this session unilaterally. No code was committed; the
   in-progress prototype was reverted before commit. `plans/healing/production-consistency-
   reassessment.md`'s own RC-03 entry has the full investigation and a concrete reversal path.
+- **TB-02 part 2** (`format_facts`'s fixture-to-input-claim binding tightening, `formats.py`):
+  implemented, then verified against real portfolio data before trusting it - found it wrongly
+  downgrades two genuinely-true facts, `format:input.pptx` (Slides-Python, read via a bare
+  `Presentation("new.pptx")` constructor) and `format:input.msg` (Email-Python, read via
+  `MapiMessage.from_file(...)`, a factory method) - `format_claims`'s verb vocabulary recognizes
+  neither shape as an input operation. A follow-up literal-occurrence heuristic fixed those two but
+  introduced a third false-positive class (Email-Python's `"note.txt"`, an attachment name paired
+  with inline bytes, never read from disk). Same class of ambiguity as RC-03: the heuristic cannot
+  separate a genuine-but-unrecognized read from a non-read use of a file-like string without a real
+  false case on one side or the other. Reverted before commit; `trust-boundary-corrections.md`'s
+  TB-02 entry has the full investigation.
 - **The 3D-Python canary call-volume floor** (`>= 20` calls): a tracked-metric policy call with
   three options recorded in `DECISION_LOG.md`, none chosen. Not resolved unilaterally.
 - **SR-03** (RESEARCH_AND_GUIDELINES.md phase-2 split): already explicitly deferred by owner
