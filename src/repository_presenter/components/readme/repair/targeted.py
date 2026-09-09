@@ -7,7 +7,10 @@ units change. A finding that blames the evidence (S2) is repairable only when th
 cites exists and is SUPPORTED and the section is LLM-owned - then the disagreement is in how the
 section used the evidence, an S6 matter; otherwise extraction is reopened, which without a source
 or extractor change yields the same facts, and the finding is recorded as advisory. A defect in a
-deterministic section is advisory too: those blocks change only when their facts change.
+deterministic section is advisory too: those blocks change only when their facts change. A finding
+whose quote is a preserved or moved unit's own placed text is routed to S4 regardless of its
+claimed causal stage, recorded ``misrouted``: authoring never placed that text and cannot revise
+it (RC-04, RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08).
 
 The fingerprint names the target - source, section, stage, criterion or check - so two findings
 that would be repaired the same way are equivalent. repairs.json records every attempt; a second
@@ -104,19 +107,42 @@ def defect_fingerprint(
 
 
 def review_defects(
-    review: dict[str, Any], facts: FactsDocument, llm_sections: set[str], repairer: str = ""
+    review: dict[str, Any],
+    facts: FactsDocument,
+    llm_sections: set[str],
+    repairer: str = "",
+    placed: Mapping[str, list[str]] | None = None,
 ) -> list[Defect]:
     """The review's blocking findings routed to the stage a repair may revise; ``repairer`` is
-    the repair prompt's hash, part of the fingerprint like the reviewer's own."""
+    the repair prompt's hash, part of the fingerprint like the reviewer's own.
+
+    ``placed`` is `composition/placement.py`'s own ``placed_texts()`` output (destination section
+    to the verbatim texts it renders) for this round, when the caller has it. Before trusting a
+    finding's own ``causal_stage``, its quote is checked against that section's placed texts: a
+    match means the cited text is a preserved or moved unit `section_authoring` never wrote and
+    cannot revise, so the finding cannot be an authoring (S6) defect regardless of what
+    ``causal_stage`` claims - routed to S4 (`source_reconciliation`, which made the placement's
+    disposition) instead, and recorded ``misrouted: True`` (RC-04, RESEARCH_AND_GUIDELINES.md
+    27.2 RC4/SW4, 2026-09-08: two real candidates - Aspose.Email Python's `api_reference`
+    duplication, Aspose.3D for Java's F08 - each burned their one repair attempt on authoring
+    revising units it had never placed and could not touch, since the model-guessed
+    ``causal_stage`` was the only signal ever trusted).
+    """
     context = f"{review.get('reviewer', {}).get('prompt_sha256', '')}|{repairer}"
+    placed = placed or {}
     defects: list[Defect] = []
     for finding in review.get("findings", []):
         section = str(finding.get("section_id") or "") or None
         named = str(finding.get("causal_stage") or "")
         criterion = str(finding.get("criterion") or "")
+        quote = str(finding.get("quote") or "")
         stage: str | None = "S6" if named in _COMPOSITION_STAGES else named
         reason: str | None = None
-        if named == "S2":
+        misrouted = False
+        placed_here = placed.get(section, []) if section is not None else []
+        if quote and any(quote in text for text in placed_here):
+            stage, misrouted = "S4", True
+        elif named == "S2":
             # In an LLM-authored section the claim either misused evidence that exists or
             # asserts what no fact supports; both are fixed by revising the units. Only a
             # deterministic section's content follows the facts themselves.
@@ -131,6 +157,9 @@ def review_defects(
             )
         if stage is not None and stage not in STAGE_JOBS:
             stage, reason = None, f"stage {named} is not repairable by revision"
+        record = dict(finding)
+        if misrouted:
+            record["misrouted"] = True
         defects.append(
             Defect(
                 defect_fingerprint("review", section, stage or named, criterion, context),
@@ -138,7 +167,7 @@ def review_defects(
                 str(finding.get("id", "?")),
                 section,
                 stage,
-                dict(finding),
+                record,
                 reason,
             )
         )
@@ -258,6 +287,11 @@ class RepairLedger:
             "reason": defect.reason,
             "request_sha256": request_sha256,
             "changes": list(changes),
+            # Distinct from "unrepairable": this finding never had a chance - its own quote is a
+            # preserved/moved unit's text, which the stage it was routed to (S4, not whatever the
+            # reviewer's causal_stage guessed) is now correctly targeting instead (RC-04,
+            # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08). Absent or False otherwise.
+            "misrouted": bool(defect.record.get("misrouted", False)),
         }
         self.write()
 
@@ -291,10 +325,15 @@ class RepairLedger:
         advisory = sum(1 for a in self.attempts.values() if a["outcome"] == "unrepairable")
         escalated = sum(1 for a in self.attempts.values() if a["outcome"] == "escalated")
         re_raised = sum(len(a.get("re_raised", [])) for a in self.attempts.values())
+        # .get(..., False), not ["misrouted"]: a repairs.json written before RC-04 has no such
+        # key on its older attempts, and reading one must not raise.
+        misrouted = sum(1 for a in self.attempts.values() if a.get("misrouted", False))
         parts = [f"{len(repaired)} repaired" + (f" ({', '.join(repaired)})" if repaired else "")]
         if escalated:
             parts.append(f"{escalated} escalated to a plan-level repair")
         parts.append(f"{advisory} unrepairable recorded advisory")
+        if misrouted:
+            parts.append(f"{misrouted} misrouted, now targeting the causing stage")
         if re_raised:
             # Never "recorded advisory": a re-raised defect blocks and the transaction reports
             # it (section 27.5 D5), the same outcome an unrepairable one on its first attempt

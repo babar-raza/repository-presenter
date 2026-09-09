@@ -50,14 +50,16 @@ FACTS = FactsDocument(
 LLM_SECTIONS = {"opening", "key_capabilities", "scope_limitations"}
 
 
-def _finding(label: str, section: str, stage: str, *fact_ids: str) -> dict[str, Any]:
+def _finding(
+    label: str, section: str, stage: str, *fact_ids: str, quote: str = ""
+) -> dict[str, Any]:
     return {
         "id": label,
         "section_id": section,
         "causal_stage": stage,
         "criterion": "factuality",
         "text": "t",
-        "quote": "",
+        "quote": quote,
         "fact_ids": list(fact_ids),
         "absent": [],
         "repair": "r",
@@ -117,6 +119,128 @@ def test_review_findings_route_to_the_stage_a_repair_may_revise() -> None:
         opening.record["id"] == "F01" and defects["F01"].record.get("equivalent_findings") is None
     )
     assert len(folded) == len({d.fingerprint for d in defects.values()})
+
+
+def test_a_finding_whose_quote_is_a_placed_units_own_text_routes_to_s4_not_s6() -> None:
+    """RC-04, RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08: a review finding whose
+    causal_stage names authoring but whose quote is a preserved/moved unit's own placed text
+    cannot really be an authoring defect - section_authoring never wrote that text and cannot
+    revise it. The mechanical check overrides the model's guess."""
+    review = {
+        "findings": [
+            _finding("F01", "additional_examples", "S6", quote="the exact placed sentence"),
+        ]
+    }
+    placed = {"additional_examples": ["Some preamble. the exact placed sentence Some coda."]}
+    defect = review_defects(review, FACTS, LLM_SECTIONS, placed=placed)[0]
+    assert defect.stage == "S4" and defect.reason is None
+    assert defect.record["misrouted"] is True
+
+
+def test_a_genuine_authoring_finding_whose_quote_is_not_placed_routes_to_s6_unchanged() -> None:
+    """The no-op case: a quote that does not appear in any placed text is not a misroute, and
+    the causal_stage-derived routing is untouched."""
+    review = {
+        "findings": [
+            _finding("F01", "opening", "S6", quote="a sentence section_authoring actually wrote"),
+        ]
+    }
+    placed = {"additional_examples": ["Some preserved unit text, unrelated to this finding."]}
+    defect = review_defects(review, FACTS, LLM_SECTIONS, placed=placed)[0]
+    assert defect.stage == "S6" and defect.record.get("misrouted") is None
+
+
+def test_review_defects_without_a_placed_argument_behaves_exactly_as_before() -> None:
+    """The new parameter is additive and optional - every call site that does not (yet) supply
+    it keeps routing exactly as it always has."""
+    review = {"findings": [_finding("F01", "opening", "S6", quote="anything at all")]}
+    defect = review_defects(review, FACTS, LLM_SECTIONS)[0]
+    assert defect.stage == "S6" and "misrouted" not in defect.record
+
+
+def test_aspose_3d_javas_real_f08_finding_is_now_routed_to_s4() -> None:
+    """Reproduces the exact finding recorded against a real transaction (`runs/transactions/
+    aspose-3d-foss__Aspose.3D-FOSS-for-Java/e308de58888635956cd66e5b0e2994dd42cd4356/review.json`,
+    2026-09-08): review named `causal_stage: S6` for a defect in `additional_examples`, but the
+    quoted text is `inherited_unit:023.paragraph`'s own `VERIFIED_PRESERVE`-disposed content
+    (`dispositions.json`, same transaction) - a repair aimed at authoring's own output could never
+    reach it, which is exactly why the one repair attempt re-raised instead of resolving
+    (`docs/DECISION_LOG.md`, 2026-09-08 05:55 entry). This candidate's currently-*sealed* bundle
+    predates this finding entirely (an older, unrelated seal); this reproduces the blocked
+    re-seal attempt's own data directly.
+    """
+    real_finding = {
+        "id": "F08",
+        "section_id": "additional_examples",
+        "causal_stage": "S6",
+        "criterion": "presentation",
+        "text": (
+            "The Additional Examples section includes a redundant paragraph about the test "
+            "suite after the collapsible details block, which is misplaced and disrupts the "
+            "flow of examples."
+        ),
+        "quote": "Every example below is exercised by the project's own test suite. See the",
+        "fact_ids": ["link_target:020"],
+        "absent": [],
+        "repair": (
+            "Move the test suite reference to the beginning of the Additional Examples section "
+            "or remove it entirely to avoid redundancy."
+        ),
+    }
+    real_placed_unit_text = (
+        "Every example below is exercised by the project's own test suite. See the\n"
+        "[`src/test/java/com/aspose/threed`]"
+        "(https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/tree/master/"
+        "src/test/java/com/aspose/threed)\ntests for the full set."
+    )
+    placed = {"additional_examples": [real_placed_unit_text]}
+    defect = review_defects({"findings": [real_finding]}, FACTS, LLM_SECTIONS, placed=placed)[0]
+    assert defect.stage == "S4" and defect.record["misrouted"] is True
+
+
+def test_aspose_email_pythons_real_finding_does_not_match_this_mechanism_honestly() -> None:
+    """The companion candidate DECISION_LOG.md names as "the same defect class" - but its own
+    real finding's quote is checked directly here, and it does NOT substring-match any of the
+    five preserved `api_reference` units' real text (`runs/transactions/aspose-email-foss__
+    Aspose.Email-FOSS-for-Python/10a906b48c0c11005c4d93b524e4431901c9717c/`, both files,
+    2026-09-08): the review quotes the Core API *table*'s own header ("| Class | Description |"),
+    which is renderer/plan output, never a preserved unit's own text, so this mechanical check -
+    exactly as scoped by this taskcard - correctly does not touch it. Recorded honestly rather
+    than assumed: this candidate's blocking defect needs a different, separately-scoped fix (or a
+    fresh, non-deterministic reconciliation re-run producing a different disposition shape), not
+    claimed resolved by RC-04.
+    """
+    real_finding = {
+        "id": "F03",
+        "section_id": "api_reference",
+        "causal_stage": "S7",
+        "criterion": "presentation",
+        "text": (
+            "The candidate's API reference section duplicates the same tables twice (once in a "
+            "table format and again in a list format), making the structure confusing and "
+            "inconsistent with the original's single, well-organized table."
+        ),
+        "quote": "| Class | Description |",
+        "fact_ids": [],
+        "absent": [],
+        "repair": (
+            "Remove the duplicated list-based API reference section and retain only the "
+            "original table format for clarity and consistency."
+        ),
+    }
+    real_preserved_texts = [
+        "- `MapiMessage`\n  - `create(subject, body, unicode_strings) -> \"MapiMessage\"`",
+        "- `MsgReader`\n  - `from_file(path, strict) -> \"MsgReader\"`",
+        "- `CFBReader`\n  - `from_file(path) -> \"CFBReader\"`",
+        "- `CommonMessagePropertyId` / `PropertyId`",
+        "- `CFBError`\n- `MsgError`",
+    ]
+    placed = {"api_reference": real_preserved_texts}
+    defect = review_defects(
+        {"findings": [real_finding]}, FACTS, {"api_reference", *LLM_SECTIONS}, placed=placed
+    )[0]
+    assert defect.record.get("misrouted") is None  # honestly not caught by this mechanism
+    assert defect.stage == "S6"  # unchanged: routes exactly as causal_stage S7 always mapped it
 
 
 def test_validation_failures_route_by_causal_state_and_named_section() -> None:
@@ -202,6 +326,7 @@ def test_the_ledger_records_each_fingerprint_once_and_survives_reload(tmp_path: 
         "reason": "why",
         "request_sha256": None,
         "changes": [],
+        "misrouted": False,
     }
     assert reloaded.summary() == "1 repaired (F01 S6 opening), 1 unrepairable recorded advisory"
     reloaded.note_re_raised(Defect("abc", "review", "F03", "opening", "S6", {"id": "F03"}))

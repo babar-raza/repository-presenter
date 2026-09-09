@@ -33,6 +33,7 @@ from repository_presenter.components.readme.composition.coherence import (
     coherence_packet,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
+from repository_presenter.components.readme.composition.placement import placed_texts, placements
 from repository_presenter.components.readme.composition.planning import (
     PLAN_FILENAME,
     plan_checks,
@@ -339,7 +340,21 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
         repairer,
     )
     if review_failed:
-        defects.extend(review_defects(current.review, tx.facts, current.llm_sections, repairer))
+        # A finding's causal_stage is a model guess with no cross-check; a mechanical one is
+        # cheap and available here - whether its quote is a placed, preserved/moved unit's own
+        # text, which authoring never wrote and cannot revise regardless of the guess (RC-04,
+        # RESEARCH_AND_GUIDELINES.md 27.2 RC4/SW4, 2026-09-08).
+        placed = placed_texts(
+            placements(
+                current.planned.output,
+                current.reconciled.output,
+                tx.facts,
+                tx.entry.ecosystem,
+            )
+        )
+        defects.extend(
+            review_defects(current.review, tx.facts, current.llm_sections, repairer, placed)
+        )
     return defects
 
 

@@ -19,7 +19,7 @@ fixes come first.
 | File | Done | Remaining |
 |---|---|---|
 | `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07, TB-08 | TB-02, TB-05, TB-09, TB-10 |
-| `production-consistency-reassessment.md` | RC-05 | RC-01, RC-02, RC-03, RC-04, RC-06*, RC-07 |
+| `production-consistency-reassessment.md` | RC-04, RC-05 | RC-01, RC-02, RC-03, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
 | `prior-audit-remnants.md` | PA-01 | PA-02, PA-03, PA-04, PA-05* |
@@ -63,8 +63,11 @@ scripts). They are **merged into one execution**, not built twice.
 7. **TB-08** [DONE] — isolation boundary + private-address (SSRF) check.
 
 ### Wave 3 — machinery correctness (P0/P1)
-8. **RC-04** — repair-routing self-check. Highest-priority machinery fix: this is what actually
-   unblocks Email-Python and 3D-Java.
+8. **RC-04** [DONE, live re-verification deferred to Wave 7 — see its own Note] — repair-routing
+   self-check. Verified against both real candidates' exact historical data directly: 3D-Java's
+   F08 confirms the fix; Email-Python's F03 honestly does not match this mechanism (a different,
+   separately-scoped defect). Neither candidate has a live composition blocked by this specific
+   issue right now to re-run `present` against - see the taskcard's own Note for the full finding.
 9. **RC-02** — unify section coverage with the renderer (root cause of the duplicated-API-list
    defect).
 10. **RC-01** — generalize the completeness-backstop pattern into one registered mechanism.

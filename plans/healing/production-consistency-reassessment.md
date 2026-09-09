@@ -245,7 +245,60 @@ duplicate of them.
 
 ### RC-04 — Repair-routing self-check for placed-text misattribution
 
-- **Status:** Not Started
+- **Status:** Done — mechanism fixed, tested against both real candidates' exact historical
+  data; live CLI re-verification (runbook steps 5-6) deliberately deferred, not attempted, for
+  reasons found and recorded below rather than assumed.
+- **Note, mechanism fix:** `review_defects()` (`targeted.py`) gained a `placed: Mapping[str,
+  list[str]] | None = None` parameter (additive, optional - every existing call site is
+  unaffected without it, confirmed by a dedicated test) - `composition/placement.py`'s own
+  `placed_texts()` output. Before trusting a finding's `causal_stage`, its `quote` is checked
+  against that section's placed texts; a match forces the route to S4 regardless of what
+  `causal_stage` claimed, and records `misrouted: True` on both the in-memory `Defect.record` and
+  (via `RepairLedger.record()`, extended) `repairs.json` itself - `summary()` reports a count,
+  reading the field with `.get(..., False)` so an older `repairs.json` without it never raises.
+  The one real caller, `rounds.py::round_defects()`, now computes `placed_texts(placements(
+  current.planned.output, current.reconciled.output, tx.facts, tx.entry.ecosystem))` and passes
+  it through - **`rounds.py` was not in this taskcard's original Allowed paths list**, but there
+  is no other way to thread this real data through the only caller; a minimal, necessary
+  extension, not a redesign.
+- **Note, real-candidate verification - found a real discrepancy against the taskcard's own
+  premise, verified rather than assumed, and did not force either candidate to "pass":**
+  - **Aspose.3D for Java (F08):** confirmed both directions directly against the real transaction
+    at `runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-Java/e308de58888635956cd66e5b0e2994dd42cd4356/`
+    (still present locally, gitignored): F08's exact quote **is** a substring of
+    `inherited_unit:023.paragraph`'s exact `VERIFIED_PRESERVE`-disposed text - the fix correctly
+    routes it to S4. But this candidate's **currently-sealed** bundle (`sealed_at:
+    2026-09-06T18:27:50Z`, `state: READY_FOR_PROPOSAL`) predates this finding entirely - it is an
+    older, unrelated seal from before the 2026-09-08 re-seal attempt (the one that hit F08) ever
+    ran. That attempt made no manifest/README change on failure (confirmed in the 2026-09-08
+    05:55 `DECISION_LOG.md` entry itself), so there is no live-blocked candidate for this specific
+    incident to re-verify against right now - re-running `present` today would start a *fresh*
+    reconciliation, which `RC-05` (landed this same pass) established is genuinely
+    non-deterministic, so it might not even reproduce F08's own disposition shape.
+  - **Aspose.Email for Python (F03):** checked directly, not assumed "the same defect class" as
+    the taskcard's own Gap linkage framed it - the real finding's quote (`"| Class | Description
+    |"`, from `runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-Python/
+    10a906b48c0c11005c4d93b524e4431901c9717c/review.json`) is the Core API **table**'s own
+    header, renderer/plan output, and does **not** substring-match any of the five preserved
+    `api_reference` list units' real text (checked against all five directly). This mechanism,
+    exactly as scoped by this taskcard, correctly does not touch it - recorded honestly as a new
+    test (`test_aspose_email_pythons_real_finding_does_not_match_this_mechanism_honestly`) rather
+    than forced to assert S4 routing that the real data does not support. This candidate's
+    blocking defect needs a different, separately-scoped fix (or a fresh, non-deterministic
+    reconciliation run producing a different disposition shape) - not claimed resolved here.
+  - **Decision:** given (a) neither candidate has a live, currently-blocked composition this
+    specific fix would visibly unblock right now, (b) a live re-run costs real provider calls and
+    wall-clock time for confirmatory value already established more reliably by the two
+    real-data regression tests above, and (c) this session's own `EXECUTION-PLAN.md` explicitly
+    holds all candidate-sealing work for Wave 7 - runbook steps 5-6 (`repository-presenter
+    present --repo ...` against both real candidates) are deliberately **not** run in this pass.
+    Both candidates' `DECISION_LOG.md` entries are updated with this exact finding (not "resolved
+    by RC-04") so a future Wave-7 re-seal attempt starts from accurate, current information.
+- **Checklist:** [x] mechanism fix, additive signature [x] `repairs.json` gains `misrouted`,
+  forward-compatible [x] misrouting-detection + no-op unit tests [x] both real candidates' exact
+  historical findings reproduced and checked directly (one confirms the fix, one honestly does
+  not) [x] full suite (only the two known pre-existing failures remain) [ ] live CLI
+  re-verification - deliberately deferred to Wave 7, not attempted, for the reasons above.
 - **Gap linkage:** RC4, SW4 (also the direct unblock path for the `aspose-3d-foss/Aspose.3D-FOSS-for-Java`
   and `aspose-email-foss/Aspose.Email-FOSS-for-Python` candidates recorded unsealed in `DECISION_LOG.md`, 2026-09-08)
 - **Role:** Senior engineer. Drop-in, production-ready.
