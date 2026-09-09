@@ -19,7 +19,7 @@ fixes come first.
 | File | Done | Remaining |
 |---|---|---|
 | `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07, TB-08 | TB-02, TB-05, TB-09, TB-10 |
-| `production-consistency-reassessment.md` | RC-04, RC-05 | RC-01, RC-02, RC-03, RC-06*, RC-07 |
+| `production-consistency-reassessment.md` | RC-02, RC-04, RC-05 | RC-01, RC-03, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
 | `prior-audit-remnants.md` | PA-01 | PA-02, PA-03, PA-04, PA-05* |
@@ -68,12 +68,12 @@ scripts). They are **merged into one execution**, not built twice.
    F08 confirms the fix; Email-Python's F03 honestly does not match this mechanism (a different,
    separately-scoped defect). Neither candidate has a live composition blocked by this specific
    issue right now to re-run `present` against - see the taskcard's own Note for the full finding.
-9. **RC-02** [IN PROGRESS — api_reference half done, documentation_resources half next] — unify
-   section coverage with the renderer (root cause of the duplicated-API-list defect). Landed
-   additively (union with the plan's own signal, not a replacement) after a self-caught bug
-   during implementation broke four real candidates by replacing instead of adding; two real
-   candidates (Cells .NET, Email-Python) now show a genuine, desirable new divergence in
-   `test_sealed_bytes.py` - see the taskcard's own Note.
+9. **RC-02** [DONE] — unify section coverage with the renderer (root cause of the duplicated-
+   API-list defect). Landed additively (union with the plan's own signal, not a replacement) in
+   two separate commits (api_reference, then documentation_resources) after a self-caught bug
+   during api_reference's implementation broke four real candidates by replacing instead of
+   adding; two real candidates (Cells .NET, Email-Python) now show a genuine, desirable new
+   divergence in `test_sealed_bytes.py` - see the taskcard's own Note.
 10. **RC-01** — generalize the completeness-backstop pattern into one registered mechanism.
 11. **RC-03** — deterministic citation-completeness gate at reconciliation.
 

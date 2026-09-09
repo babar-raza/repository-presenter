@@ -11,6 +11,7 @@ from repository_presenter.components.readme.composition.placement import (
     placed_texts,
     placements,
     planned_fact_ids,
+    renderer_fact_ids,
     renders_verbatim,
 )
 from repository_presenter.components.readme.composition.planning import plan_checks
@@ -251,6 +252,52 @@ def test_api_reference_hub_methods_and_covered_fact_ids_agree_with_the_renderer(
         "public_symbol:aspose.threed.scene.save",
     }
     assert "public_symbol:aspose.threed.node.detach" not in covered
+
+
+def test_documentation_resources_coverage_includes_the_renderers_own_issues_line() -> None:
+    """RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08: `_documentation_resources`
+    always appends its own "Open an issue" line from `identity:repository` when it is SUPPORTED,
+    whether or not any plan link names it - a preserved unit citing only that fact for an issues
+    mention duplicates a line the renderer produces, not the plan. The section's *link* coverage
+    itself was already accurate via `planned_fact_ids`'s own generic per-section links loop; this
+    is the one small additional gap.
+    """
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (_fact("identity:repository", "identity", REPOSITORY),),
+    )
+    assert renderer_fact_ids("documentation_resources", facts, {}) == {"identity:repository"}
+    unresolved = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (_fact("identity:repository", "identity", REPOSITORY, "UNRESOLVED"),),
+    )
+    assert renderer_fact_ids("documentation_resources", unresolved, {}) == frozenset()
+
+    plan = _plan()
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:095.paragraph", "documentation_resources", "identity:repository")
+        ]
+    }
+    doc_facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", REPOSITORY),
+            _fact(
+                "inherited_unit:095.paragraph",
+                "inherited_unit",
+                "File issues at the project's own tracker.",
+            ),
+        ),
+    )
+    decisions = {
+        p.unit_id: p for p in placements(plan, dispositions, doc_facts, "python")
+    }
+    assert decisions["inherited_unit:095.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:095.paragraph"].overlap == ("identity:repository",)
 
 
 def test_placement_is_exclusive_on_overlap_and_never_silent_when_excluded() -> None:

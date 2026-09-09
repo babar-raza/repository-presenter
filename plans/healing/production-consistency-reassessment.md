@@ -96,8 +96,20 @@ duplicate of them.
 
 ### RC-02 — Unify section coverage with the renderer instead of shadowing it
 
-- **Status:** `api_reference` half done and pushed; `documentation_resources` half not yet
-  started (this taskcard's own runbook wants them as two separate commits).
+- **Status:** Done — both halves landed and pushed as two separate commits, per this taskcard's
+  own runbook.
+- **Note, documentation_resources half:** smaller than api_reference's - `planned_fact_ids`'s
+  existing generic per-section `plan["links"]` loop already named exactly what
+  `_documentation_resources` iterates, so that half of its coverage was already accurate before
+  this taskcard. The one real gap: the renderer always appends its own "Open an issue" line from
+  `identity:repository` when SUPPORTED, regardless of whether any plan link names it - a
+  preserved unit citing only that fact for an issues mention duplicated a line the renderer
+  produces, undetected. `renderer_fact_ids` gained a `documentation_resources` branch
+  (`_documentation_resources_issues_fact_id`) covering exactly that, additive to the existing
+  link-based coverage via the same union `placements()` already performs - applying the
+  union-not-replace lesson from the api_reference half from the start this time. Verified directly
+  against the real portfolio via `test_sealed_bytes.py` *before* writing any tests: the same three
+  already-explained divergences, nothing new.
 - **Note, api_reference half:** `placement.py` gained `api_reference_hub_methods(plan, facts)`
   (the exact hub/method-ownership computation `renderer.py`'s `_api_reference` now also calls,
   so the two cannot independently drift) and `api_reference_covered_fact_ids(plan, facts)` (every
@@ -137,7 +149,9 @@ duplicate of them.
   Email Python module-only-citation shape, which needs RC-06's finer-grained extraction, not
   this taskcard - see RC-04's own honest note on the same distinction) [x] verified against every
   real candidate directly, self-caught and fixed one real bug before committing [x] full suite
-  (three known, now-explained divergences; see above) [ ] `documentation_resources` half.
+  (three known, now-explained divergences; see above) [x] `documentation_resources` half - the
+  smaller Issues-line gap, verified against the real portfolio before writing tests this time,
+  no new divergence.
 - **Gap linkage:** RC2, SW2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

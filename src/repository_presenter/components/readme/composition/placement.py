@@ -164,11 +164,27 @@ def api_reference_covered_fact_ids(
     return frozenset(covered)
 
 
+def _documentation_resources_issues_fact_id(facts: FactsDocument) -> frozenset[str]:
+    """``renderer.py``'s ``_documentation_resources`` always appends its own "Open an issue" line
+    from ``identity:repository`` when it is SUPPORTED, whether or not any plan link names it - so
+    a preserved unit citing only that fact for an issues/bug-report mention still duplicates a
+    line the renderer, not the plan, produces (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2,
+    2026-09-08). The section's *link* coverage itself was already accurate before this taskcard -
+    ``planned_fact_ids``'s own generic per-section ``plan["links"]`` loop already names exactly
+    what `_documentation_resources` iterates; this fills the one small gap around it, additively.
+    """
+    identity = next((f for f in facts.by_kind("identity") if f.id == "identity:repository"), None)
+    if identity is not None and identity.polarity == "SUPPORTED":
+        return frozenset({"identity:repository"})
+    return frozenset()
+
+
 def renderer_fact_ids(
     section: str, facts: FactsDocument, plan: Mapping[str, Any] | None = None
 ) -> frozenset[str]:
     """The facts a mixed section's own deterministic content rests on: Development and Testing
-    states the suite size and links the release workflow from the build assets; API Reference's
+    states the suite size and links the release workflow from the build assets; Documentation and
+    Resources always appends its own Issues line from ``identity:repository``; API Reference's
     Core API table and Detailed Member Reference cover every verified class/enum and every
     hub-owned method (``api_reference_covered_fact_ids``, which needs ``plan`` too - additive,
     optional, so an existing caller that only asks about a plan-independent section is
@@ -176,6 +192,8 @@ def renderer_fact_ids(
     """
     if section == "api_reference":
         return api_reference_covered_fact_ids(plan or {}, facts)
+    if section == "documentation_resources":
+        return _documentation_resources_issues_fact_id(facts)
     if section != "development_testing":
         return frozenset()
     return frozenset(
