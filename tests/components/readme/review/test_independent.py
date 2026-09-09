@@ -347,6 +347,49 @@ def test_one_unlocatable_quote_is_folded_out_and_the_other_findings_are_kept() -
     assert [f["id"] for f in invented["findings"]] == ["F01", "F02"]
 
 
+def test_a_quote_true_of_another_section_does_not_locate_a_finding_naming_this_one() -> None:
+    """PA-02, REC-005 (remainder): the exact AUD-002 shape `absence_defect` already fixed via
+    `_section_slice`, reproduced for `quote_located`'s other call site in `review_checks`. A
+    quote that is real candidate text, but under a *different* heading than the finding names,
+    must not locate the finding - text present somewhere in a large README does not disprove, or
+    here confirm, a claim about one specific section (external audit, 2026-09-07)."""
+    sectioned = (
+        "# Aspose.3D FOSS for Python\n\n"
+        "## Key Capabilities\n\n"
+        "Build scenes in memory.\n\n"
+        "## Installation\n\n"
+        "It writes `.glb` files.\n"
+    )
+    quote = "It writes `.glb` files."
+    # The quote is Installation's own text: naming Installation locates it, same as before.
+    own_section = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [_finding("F01", "installation", "S6", quote)],
+        "preserve": [],
+    }
+    assert review_checks(own_section, sectioned) == []
+
+    # The identical quote exists in the document, but under Key Capabilities, not the section
+    # this finding names - it must not be treated as located there.
+    wrong_section = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [_finding("F01", "key_capabilities", "S6", quote)],
+        "preserve": [],
+    }
+    assert review_checks(wrong_section, sectioned) == [
+        "finding F01: quote is not the candidate's text: 'It writes `.glb` files.'"
+    ]
+
+    # No-regression case: a section with no heading of its own (`opening`) keeps the existing
+    # whole-document fallback exactly as before this fix.
+    no_heading = {
+        "verdict": "REJECT_FACTUAL",
+        "findings": [_finding("F01", "opening", "S6", quote)],
+        "preserve": [],
+    }
+    assert review_checks(no_heading, sectioned) == []
+
+
 def test_the_document_splits_advisory_findings_and_records_both_identities(
     tmp_path: Path,
 ) -> None:

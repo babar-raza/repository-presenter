@@ -263,6 +263,10 @@ def _section_slice(section_id: str, candidate_readme: str) -> str:
     it is missing. Falls back to the whole document (never to nothing) when the section's heading
     cannot be located - a missing boundary is a reason to search everywhere, not nowhere, so this
     can only narrow a search, never cause one to miss real candidate text.
+
+    `review_checks`'s own `quote_located` call (PA-02, REC-005, 2026-09-09) scopes to this same
+    slice, for the identical reason: a finding's quote is checked against its own named section,
+    not the whole document.
     """
     heading = _SECTION_HEADINGS.get(section_id)
     if not heading:
@@ -542,7 +546,10 @@ def review_checks(
                 f"got {section!r}"
             )
         quote = str(finding.get("quote", ""))
-        if not quote_located(quote, candidate_readme):
+        # PA-02, REC-005: scoped to the finding's own named section, the same fix AUD-002 gave
+        # absence_defect - text present somewhere else in a large README does not locate a quote
+        # a finding says belongs here (external audit, 2026-09-07).
+        if not quote_located(quote, _section_slice(section, candidate_readme)):
             unlocated.append(
                 f"finding {label}: quote is not the candidate's text: {quote.strip()[:60]!r}"
             )

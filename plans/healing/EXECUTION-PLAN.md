@@ -22,7 +22,7 @@ fixes come first.
 | `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03*, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
-| `prior-audit-remnants.md` | PA-01 | PA-02, PA-03, PA-04, PA-05* |
+| `prior-audit-remnants.md` | PA-01, PA-02 | PA-03, PA-04, PA-05* |
 
 `*` RC-03, RC-06, and PA-05 are explicitly excluded from this pass — see "Excluded" below.
 `†` OPS-02 (pop the stash) is subsumed by PA-01, which pops the same stash as part of its own
@@ -97,7 +97,8 @@ scripts). They are **merged into one execution**, not built twice.
     a cited example against that example's own recorded format claims. Verified against all 8
     real sealed candidates: zero regressions, zero false positives across 866 real units, and
     confirmed genuinely exercised (not vacuous) by real matching-direction cases.
-15. **PA-02** — scope `quote_located` to the finding's own section.
+15. **PA-02** [DONE] — scope `quote_located` to the finding's own section, reusing
+    `_section_slice` directly (no second implementation). Wave 4 complete.
 
 ### Wave 5 — prevention/observability (P2, depends on Wave 3–4)
 16. **TB-10 + RC-07 (merged)** — portfolio-wide CI-gated evidence-consistency sweep. Requires

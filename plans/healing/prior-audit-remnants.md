@@ -143,7 +143,29 @@ isolation.
 
 ### PA-02 — Scope `quote_located` to the finding's own section, matching `absence_defect`'s fix
 
-- **Status:** Not Started
+- **Status:** Done — fixed and pushed 2026-09-09.
+- **Note:** `quote_located` itself needed no change - its two existing call sites in
+  `absence_defect` already computed `_section_slice(section_id, candidate_readme)` before calling
+  it. The remaining, un-scoped call site was `review_checks`'s own per-finding quote check, which
+  passed the whole `candidate_readme` directly. Fixed by the same one-line pattern:
+  `quote_located(quote, _section_slice(section, candidate_readme))`, reusing `_section_slice`
+  directly rather than writing a second implementation. `_section_slice`'s own docstring now notes
+  that `review_checks` shares its scoping, per the taskcard's own documentation requirement.
+  Regression test reproduces the exact AUD-002 shape: a two-section synthetic README where a
+  finding naming "installation" and quoting Installation's own text still locates (no
+  regression); the identical quote, on a finding naming "key_capabilities" instead (text that is
+  real candidate text, just under a different heading), no longer locates - the wrong-section
+  case AUD-002 fixed for `absence_defect` is now closed here too. A third case confirms `opening`
+  (a section with no heading of its own) keeps the existing whole-document fallback unchanged.
+  Confirmed to fail against the pre-fix code before the fix.
+  **Real-portfolio check**: all 8 real sealed candidates' `review.json` carry zero recorded
+  findings (every one is a clean ACCEPT with no findings surviving to the sealed record), so there
+  is no real historical finding data to spot-check this against - an honest "nothing to check"
+  result, not a gap; the taskcard's own Acceptance checks name only the two tests, no CLI/real-
+  portfolio requirement.
+  Full suite (`pytest tests/ -q --tb=short`) run once: only the three already-tracked pre-existing
+  divergences (3D-Python canary floor; Cells .NET and Email-Python's `test_sealed_bytes.py`
+  entries, both RC-02's own desirable fixes).
 - **Gap linkage:** REC-005 (remainder)
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
