@@ -37,7 +37,21 @@ isolation.
 
 ### PA-01 — Land the stashed cache-seeding work, with a real lineage check on the part that needs one
 
-- **Status:** Not Started
+- **Status:** Done — fixed and pushed. Popped `stash@{0}` cleanly (zero file overlap with the
+  held 3D-Python canary-floor changes, verified before popping; auto-merged cleanly with TB-04's
+  and TB-07's already-landed changes to the same files). Landed the stash's own `seed_call_store`
+  (`logical_call_id`-keyed) and `request_hash()` additions as-is. Added
+  `_reconstruction_lineage_holds()` to `authoring.py`: a reconstruction is trusted only when the
+  sealed bundle's own `dependencies.json` shows both the `section_authoring` prompt's sha256 and
+  every cited fact's `canonical_hash` are still bit-identical to what is sealed - reusing the
+  exact same hashing this project's dependency-evaluation already trusts, not a new comparison
+  mechanism. Caught and fixed for real: `tests/test_cli.py::test_a_changed_prompt_reopens_only_its_stage_and_records_an_update`
+  failed against the stash's own code before this check existed (the prompt-changed case, not
+  just the fact-changed case originally designed for) and passes with it.
+- **Checklist:** [x] pop the stash cleanly [x] land the good `seed_call_store`/`request_hash` work
+  [x] add the lineage check (facts AND prompt, both needed - the live test caught the prompt case)
+  [x] regression tests (new synthetic pair + the pre-existing live integration test now passing)
+  [x] full suite - only the 2 pre-existing known failures
 - **Gap linkage:** R5
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

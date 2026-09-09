@@ -375,13 +375,23 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
     the gap RC4 names: the call cache lives under the gitignored runs/ directory, so a hosted
     runner that never had a prior local run starts with nothing to reuse from.
 
+    Keyed by ``logical_call_id``, not the ledger's own ``request_sha256`` field: the latter is
+    ``canonical_hash(payload)`` for one physical attempt (distinct per retry, if a re-ask changed
+    the payload), while ``core/llm/jobs.py::run_job``'s actual ``CallStore`` cache key is
+    ``canonical_hash({"prompt_sha256": ..., "payload": ...})`` - carried on every attempt's own
+    record as ``logical_call_id`` precisely so a caller never has to recompute it. Confirmed by a
+    live integration test (``test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``)
+    after this field mix-up shipped silently once: the "seeded from sealed bundle" line printed
+    correctly, but every seeded job still made a real call, because nothing had ever looked up
+    the key it was actually stored under.
+
     Seeds a job only when its sealed ``calls.jsonl`` carries exactly one successful attempt: a
     repository whose composition reopened this stage through a repair round left two or more
     successful attempts under the same job name, each against a different packet, and only the
     last one's output matches what the sealed artifact holds - pairing an earlier attempt's
-    request hash with the final content would claim a call returned something it never did. That
-    job is left unseeded, so a replay still makes one real call for it rather than lying about
-    which attempt is genuine.
+    logical call ID with the final content would claim a call returned something it never did.
+    That job is left unseeded, so a replay still makes one real call for it rather than lying
+    about which attempt is genuine.
 
     Returns the job names actually seeded, so a caller can report or test the count without
     reading the store back.
@@ -403,11 +413,11 @@ def seed_call_store(bundle: Path, store: CallStore) -> list[str]:
         if len(attempts) != 1 or not artifact.is_file():
             continue
         record = attempts[0]
-        request_sha256 = record.get("request_sha256")
-        if not isinstance(request_sha256, str) or not request_sha256:
+        logical_call_id = record.get("logical_call_id")
+        if not isinstance(logical_call_id, str) or not logical_call_id:
             continue
         output = json.loads(artifact.read_text(encoding="utf-8"))
-        store.put(request_sha256, job, record.get("model_served"), output)
+        store.put(logical_call_id, job, record.get("model_served"), output)
         seeded.append(job)
     return seeded
 

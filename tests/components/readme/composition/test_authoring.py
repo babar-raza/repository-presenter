@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ from repository_presenter.components.readme.composition.authoring import (
     merge_units,
     proper_noun,
     prose_nouns,
+    reconstructed_task_output,
     section_selections,
     section_spellings,
     slot_fact_sets,
@@ -37,6 +39,7 @@ from repository_presenter.components.readme.composition.authoring import (
     write_content_units,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT
@@ -483,6 +486,190 @@ def test_units_merge_in_shell_order_and_write_deterministically(tmp_path: Path) 
     raw = path.read_bytes()
     assert raw.endswith(b"}\n") and b"\r\n" not in raw and json.loads(raw) == document
     assert write_content_units(document, path) == digest
+
+
+_RECON_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        _fact("package:a", "package", "va"),
+        _fact("package:c", "package", "vc"),
+        _fact("package:d", "package", "vd"),
+    ),
+)
+_RECON_PROMPT_SHA = "p" * 64
+
+
+def _recon_dependencies(
+    facts: FactsDocument = _RECON_FACTS, prompt_sha256: str = _RECON_PROMPT_SHA
+) -> dict[str, Any]:
+    return {
+        "prompts": {"section_authoring": {"sha256": prompt_sha256}},
+        "facts": {fact.id: canonical_hash(asdict(fact)) for fact in facts.facts},
+    }
+
+
+def _write_recon_bundle(
+    bundle: Path, document: dict[str, Any], dependencies: dict[str, Any]
+) -> None:
+    bundle.mkdir(exist_ok=True)
+    write_content_units(document, bundle / "content_units.json")
+    (bundle / "dependencies.json").write_text(json.dumps(dependencies), encoding="utf-8")
+
+
+def test_reconstructed_task_output_rebuilds_one_tasks_own_content(tmp_path: Path) -> None:
+    """G5-W02 (27.2 RC4). A sealed bundle's `content_units.json` already carries every unit's
+    own `section` and `slot` (the model's own output schema requires both), so a non-batch
+    task's exact accepted output is recoverable from it without committing anything new. A
+    batch task is never reconstructed: `merge_units` flattens every batch's own `omitted` list
+    under their shared section with nothing left distinguishing which batch it came from."""
+    document = merge_units(
+        {
+            "opening": {
+                "units": [
+                    {
+                        "section": "opening",
+                        "slot": "opening",
+                        "text": "x",
+                        "fact_ids": ["package:a"],
+                    }
+                ],
+                "omitted": [{"fact_id": "b", "reason": "r"}],
+            },
+            "key_capabilities": {
+                "units": [
+                    {
+                        "section": "key_capabilities",
+                        "slot": "capability:1",
+                        "text": "y",
+                        "fact_ids": ["package:c"],
+                    },
+                    {
+                        "section": "key_capabilities",
+                        "slot": "capability:2",
+                        "text": "z",
+                        "fact_ids": ["package:d"],
+                    },
+                ],
+                "omitted": [],
+            },
+        }
+    )
+    bundle = tmp_path / "bundle"
+    _write_recon_bundle(bundle, document, _recon_dependencies())
+
+    opening = SectionTask("opening", {}, frozenset({"package:a"}), ("opening",))
+    assert reconstructed_task_output(bundle, opening, _RECON_FACTS, _RECON_PROMPT_SHA) == {
+        "units": [
+            {"section": "opening", "slot": "opening", "text": "x", "fact_ids": ["package:a"]}
+        ],
+        "omitted": [{"fact_id": "b", "reason": "r"}],
+    }
+
+    # A non-batch task claims exactly its own slots - both capabilities here - never a
+    # different section's units.
+    capabilities = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"package:c", "package:d"}),
+        ("capability:1", "capability:2"),
+    )
+    assert reconstructed_task_output(bundle, capabilities, _RECON_FACTS, _RECON_PROMPT_SHA) == {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "y",
+                "fact_ids": ["package:c"],
+            },
+            {
+                "section": "key_capabilities",
+                "slot": "capability:2",
+                "text": "z",
+                "fact_ids": ["package:d"],
+            },
+        ],
+        "omitted": [],
+    }
+
+    # A batch task is never reconstructed - merge_units cannot tell its own omitted facts apart
+    # from its section's other batches once merged.
+    batch = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"package:c"}),
+        ("capability:1",),
+        key="key_capabilities:batch1",
+    )
+    assert reconstructed_task_output(bundle, batch, _RECON_FACTS, _RECON_PROMPT_SHA) is None
+
+    # A slot with no matching unit at all is an incomplete reconstruction, not a partial one.
+    missing_slot = SectionTask("opening", {}, frozenset({"package:a"}), ("opening", "extra"))
+    assert reconstructed_task_output(bundle, missing_slot, _RECON_FACTS, _RECON_PROMPT_SHA) is None
+
+    # No sealed bundle at this path: nothing to reconstruct from, not an error.
+    assert (
+        reconstructed_task_output(
+            tmp_path / "nonexistent", opening, _RECON_FACTS, _RECON_PROMPT_SHA
+        )
+        is None
+    )
+
+
+def test_reconstructed_task_output_rejects_a_reconstruction_whose_lineage_has_moved(
+    tmp_path: Path,
+) -> None:
+    """R5, external review, 2026-09-08. Matching a reconstructed unit to a task by section+slot
+    name alone is not proof it was ever produced by a request resembling this task's current one.
+    Reproduces both ways the lineage can move since the bundle was sealed: a cited fact's own
+    value changing, and the section_authoring prompt itself changing - the second is the exact
+    live regression tests/test_cli.py's own
+    test_a_changed_prompt_reopens_only_its_stage_and_records_an_update caught before this fix,
+    where the reconstruction was seeded under a hash the changed prompt correctly computed, but
+    with content the old prompt had produced."""
+    document = merge_units(
+        {
+            "opening": {
+                "units": [
+                    {
+                        "section": "opening",
+                        "slot": "opening",
+                        "text": "x",
+                        "fact_ids": ["package:a"],
+                    }
+                ],
+                "omitted": [],
+            }
+        }
+    )
+    task = SectionTask("opening", {}, frozenset({"package:a"}), ("opening",))
+
+    # Baseline: matching lineage reconstructs.
+    matching = tmp_path / "matching"
+    _write_recon_bundle(matching, document, _recon_dependencies())
+    assert reconstructed_task_output(matching, task, _RECON_FACTS, _RECON_PROMPT_SHA) is not None
+
+    # A cited fact's own value changed since the seal: the sealed dependencies.json still
+    # records the *old* fact's hash, which no longer matches the current fact.
+    changed_fact = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (_fact("package:a", "package", "va-changed"), *_RECON_FACTS.facts[1:]),
+    )
+    stale_facts = tmp_path / "stale_facts"
+    _write_recon_bundle(stale_facts, document, _recon_dependencies())  # sealed under the old value
+    assert reconstructed_task_output(stale_facts, task, changed_fact, _RECON_PROMPT_SHA) is None
+
+    # The section_authoring prompt itself changed since the seal (sealed under the old prompt).
+    stale_prompt = tmp_path / "stale_prompt"
+    _write_recon_bundle(stale_prompt, document, _recon_dependencies())
+    assert reconstructed_task_output(stale_prompt, task, _RECON_FACTS, "q" * 64) is None
+
+    # No dependencies.json at all: nothing to verify lineage against, never trusted blind.
+    no_deps = tmp_path / "no_deps"
+    no_deps.mkdir()
+    write_content_units(document, no_deps / "content_units.json")
+    assert reconstructed_task_output(no_deps, task, _RECON_FACTS, _RECON_PROMPT_SHA) is None
 
 
 def test_public_methods_recorded_on_the_surface_may_be_spelled() -> None:

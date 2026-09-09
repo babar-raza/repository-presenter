@@ -370,6 +370,20 @@ def _parse(
     return (output if not errors else None), errors
 
 
+def request_hash(
+    manifest: LoadedManifest, packet: Mapping[str, Any], call_schema: dict[str, Any] | None = None
+) -> str:
+    """The store key ``run_job`` would compute for this exact packet, without calling anything.
+
+    G5-W02 (27.2 RC4): a caller that can reconstruct a job's own accepted output from other
+    evidence (a sealed bundle's own artifacts) needs this same key to seed the store before
+    ``run_job`` runs, so the reconstruction is found the same way a real cache hit would be.
+    """
+    messages = render_messages(manifest, packet, call_schema)
+    payload = request_payload(manifest, messages, call_schema)
+    return canonical_hash({"prompt_sha256": manifest.sha256, "payload": payload})
+
+
 def run_job(
     manifest: LoadedManifest,
     packet: Mapping[str, Any],

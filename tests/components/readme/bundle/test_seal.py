@@ -290,21 +290,30 @@ def test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_bundle
     already-sealed revision starts with nothing to reuse. investigation.json, dispositions.json,
     and plan.json are each one job's accepted output written verbatim (confirmed against
     write_investigation/write_dispositions/write_plan before relying on it), so calls.jsonl's own
-    request_sha256 for that job can be paired with the sealed artifact directly. A job with two
-    successful attempts (a repair reopened it) is left unseeded - only the last attempt's output
-    matches the sealed artifact, and calls.jsonl alone cannot say which one that was."""
+    ``logical_call_id`` for that job's one successful attempt can be paired with the sealed
+    artifact directly - never the record's own ``request_sha256`` field, which is
+    ``canonical_hash(payload)`` for one physical attempt, distinct from
+    ``core/llm/jobs.py::run_job``'s actual ``CallStore`` key
+    (``canonical_hash({"prompt_sha256":..., "payload":...})``, carried as ``logical_call_id`` on
+    every attempt precisely so a caller never recomputes it) - confirmed live, after this exact
+    field mix-up shipped and silently seeded nothing anything ever looked up
+    (``test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``, tests/test_cli.py). A
+    job with two successful attempts (a repair reopened it) is left unseeded - only the last
+    attempt's output matches the sealed artifact, and calls.jsonl alone cannot say which one that
+    was."""
     bundle = tmp_path / "bundle"
     bundle.mkdir()
     (bundle / "investigation.json").write_text('{"capabilities": []}\n', encoding="utf-8")
     (bundle / "dispositions.json").write_text('{"dispositions": []}\n', encoding="utf-8")
     (bundle / "plan.json").write_text('{"sections": []}\n', encoding="utf-8")
 
-    def _record(job: str, request_sha256: str, outcome: str = "success") -> str:
+    def _record(job: str, logical_call_id: str, outcome: str = "success") -> str:
         return json.dumps(
             {
                 "job": job,
                 "outcome": outcome,
-                "request_sha256": request_sha256,
+                "logical_call_id": logical_call_id,
+                "request_sha256": f"attempt-payload-hash-{logical_call_id}",
                 "model_served": "qwen3-next-2026",
             }
         )

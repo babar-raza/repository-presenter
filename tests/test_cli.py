@@ -890,6 +890,54 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     ] * 12
 
 
+def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G5-W02 (27.2 RC4). `runs/` is gitignored, so a hosted runner's first run of an
+    already-sealed revision starts with nothing local to reuse - the exact case the prior test
+    (same-process, warm `runs/`) never exercises. Deleting the whole transaction workspace
+    between two `present` runs is the faithful simulation: both seeding mechanisms
+    (`seed_call_store`'s pre-pass for investigation/reconciliation/planning, and
+    `reconstructed_task_output`'s per-task seeding for section_authoring) read only from the
+    sealed bundle under `candidates/`, never from `runs/`.
+
+    This canary's plan carries one bounded batch task (`api_reference`'s member types) that is
+    never seeded by design (`reconstructed_task_output` declines a batch - its own omitted facts
+    are not separable from its section's other batches once merged), and `coherence` shares
+    `section_authoring`'s own job name but a packet no mechanism here reconstructs, so both cost
+    a real call regardless. `independent_review` is not seeded at all (G5-W02's own remaining
+    gap). Six of the seven authoring tasks - everything but the one genuine batch - and all
+    three of investigation/reconciliation/planning cost zero calls; this test caught the exact
+    bug where they silently did not (`seed_call_store` keyed by the ledger's own
+    `request_sha256` field, `canonical_hash(payload)` for one physical attempt, instead of
+    `logical_call_id`, the actual `CallStore` key) before this commit fixed it.
+    """
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    before = len(gateway_ready.requests)
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    assert transaction.is_dir()
+    shutil.rmtree(transaction)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK
+    seeded_line = next(
+        line for line in captured.out.splitlines() if line.startswith("seeded from sealed bundle:")
+    )
+    assert seeded_line == (
+        "seeded from sealed bundle: presentation_planning, repository_investigation, "
+        "source_reconciliation"
+    )
+    made = gateway_ready.requests[before:]
+    names = [request["response_format"]["json_schema"]["name"] for request in made]
+    # The batch task and coherence (out of scope here, see the docstring) plus the unseeded
+    # review - three real calls, not the fourteen-plus a fully cold run would cost.
+    assert names == ["section_authoring", "section_authoring", "independent_review"]
+
+
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
 _PROMPTS = load_manifests(REPO_ROOT / "prompts")
 OPENING_FINGERPRINT = defect_fingerprint(

@@ -23,6 +23,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_schema,
     authoring_tasks,
     merge_units,
+    reconstructed_task_output,
     unit_checks,
     write_content_units,
 )
@@ -93,7 +94,13 @@ from repository_presenter.components.readme.validation.registry import (
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import JobError
 from repository_presenter.core.facts import FactsDocument
-from repository_presenter.core.llm.jobs import CallStore, JobContext, JobResult, run_job
+from repository_presenter.core.llm.jobs import (
+    CallStore,
+    JobContext,
+    JobResult,
+    request_hash,
+    run_job,
+)
 from repository_presenter.core.llm.ledger import Ledger, canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptRegistry
 from repository_presenter.core.registry.models import RegistryEntry
@@ -118,6 +125,10 @@ class TransactionInputs:
     tree_paths: Sequence[str]
     directory: Path
     secrets: Sequence[ConfiguredSecret]
+    # G5-W02 (27.2 RC4): a sealed bundle for this exact revision, when one exists, so an
+    # authoring task whose accepted output is reconstructable from it seeds the store before
+    # its own run_job call rather than making a call the bundle already answers.
+    sealed_bundle: Path | None = None
 
 
 @dataclass
@@ -200,11 +211,23 @@ def run_round(tx: TransactionInputs) -> Round:
     tasks = authoring_tasks(entry, facts, investigation.output, reconciled.output, planned.output)
     authored: dict[str, JobResult] = {}
     for task in tasks:
+        call_schema = authoring_schema(loaded, task)
+        # G5-W02 (27.2 RC4): a fresh clone of an already-sealed revision has nothing in its own
+        # runs/ to reuse, but the sealed bundle's own content_units.json may already answer this
+        # exact task - seed the store at the hash this call would use before making it.
+        if tx.sealed_bundle is not None:
+            task_hash = request_hash(loaded, task.packet, call_schema)
+            if tx.store.get(task_hash) is None:
+                reconstructed = reconstructed_task_output(
+                    tx.sealed_bundle, task, facts, loaded.sha256
+                )
+                if reconstructed is not None:
+                    tx.store.put(task_hash, loaded.manifest.prompt_id, None, reconstructed)
         authored[task.label] = run_job(
             loaded,
             task.packet,
             checks=functools.partial(unit_checks, task=task, facts=facts, name=name),
-            call_schema=authoring_schema(loaded, task),
+            call_schema=call_schema,
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])

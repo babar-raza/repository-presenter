@@ -439,6 +439,7 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
                 tree_paths=tree_paths,
                 directory=transaction,
                 secrets=configured_secrets(os.environ),
+                sealed_bundle=bundle if sealed_manifest is not None else None,
             )
         )
     except (PresenterError, RetryableOperationError) as exc:
