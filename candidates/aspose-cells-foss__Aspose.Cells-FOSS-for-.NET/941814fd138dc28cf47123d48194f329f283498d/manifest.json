@@ -1,26 +1,113 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-06T06:25:48Z",
+    "adopted_at": "2026-09-09T17:01:43Z",
     "changed": [
       "README.md",
       "README.patch",
       "content_units.json",
+      "dependencies.json",
+      "dispositions.json",
+      "examples.json",
+      "investigation.json",
       "plan.json",
       "review.json",
       "validation.json"
     ],
-    "classification": "presentation",
-    "earliest_affected_stage": "NONE",
+    "classification": "factual",
+    "earliest_affected_stage": "EXTRACTING",
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-06T04:45:16Z",
+      "proven_at": "2026-09-06T06:25:48Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-06T06:21:26Z"
+    "recorded_at": "2026-09-09T16:54:47Z"
   },
+  "call_variance": [
+    {
+      "distinct_responses": 6,
+      "job": "independent_review",
+      "response_sha256s": [
+        "481408f3d062674279ca882ed02aad157f957f1b6aa8e776bc7ac8c61a428d42",
+        "8a3149cf5e2f73e1beedc5b3127f3afc28bdfae0b6b036fb21f2a59ee28479d9",
+        "9d04981d2135e8f7d4fc3fb93965cc6db45b1fec390c0875d2346e22a87d1397",
+        "a4e488eca760e1a8488b7387df1d258e96cebf7e127e00199752895796211f03",
+        "a62d519669cb62e365cae4b5ab7400b9124c88038b72bc61d8c6232c5be348fa",
+        "baaaded4af29372e67f39c4f169f7286bf277884cbf01d3a6d8b7fc4bae229db"
+      ]
+    },
+    {
+      "distinct_responses": 12,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "0a5be051d384aa90510acdaa05899fb977987f3a2e141dad1ae7c4b4581e0d33",
+        "3841c2d430eb7ae3853d958c021af43cf2e64a391eea17aef79c67e516055983",
+        "4f268cf522852a7c20c8bb1572d0146f13f455d4c9de4499794480377e4cf70a",
+        "5606bb254898b76133bd91f6a251184b08a1f02e93944ccd0423188fe3f0c808",
+        "5bbde52bd8ff87651c4caa053d2a6c447adfd3364b8a7392ac81659a25f803e1",
+        "7f0abd1ad9fe2d0b226d686066cf8a61f940bb98c18b2463274b1dc33e1c3802",
+        "81a644d01c862012ae972135cb463c51c24398205c7a2d71ef486835976bd91a",
+        "8fb5fd020e32f098335db8c7dcb9b4e15e9148e4ec8f92d8831b8c9c11be9b4a",
+        "a87e0858f74e7a5eebcf5712457fb8ce4702412deaa1ea767bd59cfd2167d627",
+        "cbdf7dca783fac63e2d91e09c124f70f22c58ce168863f9e593041a5ebdd086c",
+        "f5e6c48dce40022d1f85a169c0bd671ab8d8a8087d5c61fa82506bec6038bd94",
+        "f6b2d614a092ac6ae1f00e6e686744e1562a97f1ce8a092572dc93ced1daf1ec"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "repository_investigation",
+      "response_sha256s": [
+        "052773085472fdeea976ed7a963d3e4abd1df4cdb9b1050ba07e50f04ac1bf15",
+        "cc8eb1bd385e7cc78456b514627bd15c76de99e7e01e26489f6d6602ddecd620",
+        "d6cf824a49e53c867d898e2aca86f1ddb57349ab281b3e55bf87497df8668cad",
+        "f82da9a919e8c55e342a789262d5cc9cd8d7249bda2b97f6aea86d51d3e599d8"
+      ]
+    },
+    {
+      "distinct_responses": 22,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "05bc23e3e8c9ba96c504c4a3afcfa4cb81503c79d9b0779bc3c8777f20614660",
+        "0fdb35de3741723fef26ec7bfda69d437ee1192a29e7eac909d873f3bc0f6673",
+        "2515fdde7d2e93ef0d3524d3505cf523c29ef2c203c59555fbbde8ed949c2cb9",
+        "26da1a24267a637ea4276102f3fb4fc0fc40c7a7d797608872e95106daa86d3f",
+        "277053beefd2d62b6bbf27297df4d66c34962ab6684dec3bca30bc2496fed035",
+        "2aa7bfa087ad584b58fa8d3a3cb74794bbacb7730d679b6eef8a6806e03c5291",
+        "43b138170bbf7117ae8346bf0dd4b551018b33e62e589c9a87f05c05d4349355",
+        "4eee9bcc250e6fa17e350ae952ecc6c74d8a0294e3c43feaf15a1f5eae78705f",
+        "5bf67e0fb3e4bc14ad10b461208ee2fc5aa1215fcba5bc0a4b770673ccff777a",
+        "69316957322d3f0f8169e9d1cd8c677e0a9f1bc2fbb60d7148ba0fff51458a3f",
+        "6a68929365b04d4f9c3abf8a409a348cc55e46733e668c967993a1fe75477d3e",
+        "8b4ff264425736f8756f459f629f6859cc2cc8e2b255bc6cf18bd0b37c540b49",
+        "8cf73466ae9f9ccf2d579679d9d5113f797adc8242fa1f05a0814773354b349f",
+        "8fbd5d63af382f69fb527c2eceb24d36d974eb70c7951e54990bd49f77650bd7",
+        "8fe697cd74d56ddb5ccaa29484e9ac65c187131780465f17f642888289ecf2c2",
+        "92f3407e93997414798d552fa7fc8bbc876f06a81939fdd3b2ed7b0d2d91f021",
+        "9be7974debf88b74f5dc06f3ebf7865697e89d37a8a5348a049b08ac3e07c9cf",
+        "a5fff65e70632f6e6db23080672d1101b437ae26f29da06b2b632c358bf10091",
+        "b46110f4f8dd01c33e71ffb9713132f2f9400dbadb8c2869cb67023009db5823",
+        "b48eb31393eb9dfe27b556037c3503e3f90ddb1428a2251efdfdfc5253b29a9b",
+        "d07cce1fe415f603781527b5e8fe1e1334aa51d2fce1a4cfe04d31a329c3f25a",
+        "f8e8202e2b44178903c4490cf7cf6361cfa6fae3f626bb5bb39f31e1197b55b8"
+      ]
+    },
+    {
+      "distinct_responses": 7,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "0ad77a76b996871d2fa5ecd069289ab79eb29af0df46f5359e889d40267f287d",
+        "1283b99820c79f64b44ff102bf7dbdf0c45b59aeab1aa99a93fc26328d5158de",
+        "6a09cd4fb338dd594e6a499fd2c9370818d679a1ea6bf23dd7d3c58ae0d5f342",
+        "8129afbea08dbc73296556a00624bf28f8d0a0fefeeda3817cd87fb18ceeebaa",
+        "a18206e80d31eefbabf4731ce1a729e36a8ad39765005d0c53b1a8548d802634",
+        "a1ef670d68bccbf2e24a662062a418976f56e9b6e25f3f9de6226642c147685c",
+        "ee99b6966a52b6e0928c2587c351a8b63dd3bf9519bbc7256401fd5e41f09ef4"
+      ]
+    }
+  ],
   "composition": {
-    "advisories": 7,
+    "advisories": 3,
     "blocking_failures": [],
     "coverage_advisories": 1,
     "review_verdict": "ACCEPT",
@@ -28,72 +115,72 @@
   },
   "files": {
     "README.md": {
-      "bytes": 26104,
-      "sha256": "628f772e7e8cd17d8252ccde41bbcaf31e27613f9da030ae4c70362163aaddea"
+      "bytes": 32457,
+      "sha256": "41b8503e3f5615ddc3afcf8e431b6a87297fdb10cb95450e8326250e6f7f9fcf"
     },
     "README.patch": {
-      "bytes": 38879,
-      "sha256": "edbf5892c6f372f705342e8c8e799d1e761f9825bce95a2e645a2f54803b0eec"
+      "bytes": 38384,
+      "sha256": "00870d2e7669ee3cbc76bb3e30c83ce514434d34dc038bcab1f76293da8451f3"
     },
     "calls.jsonl": {
-      "bytes": 83325,
-      "sha256": "5a39da9e5ad06d1fceeb702b1bbbe07f6bc859aa3ab2afb851af2e6d4e33d9f4"
+      "bytes": 27154,
+      "sha256": "b8a055be1c364cf13795887cbb478443f7c2f03343799a9aa5bd5ceec9336f87"
     },
     "content_units.json": {
-      "bytes": 19785,
-      "sha256": "57960a81516847ba9f80fa477f2837fa61beacd63507d2ab00ff347281a1e9c4"
+      "bytes": 23646,
+      "sha256": "ce0d2f65598e28f7fd4230fae93319e2042492cf13d32433724eaead51edf03c"
     },
     "dependencies.json": {
-      "bytes": 99349,
-      "sha256": "242cd4025888dd3a909df816595a5320977809520a0d1815758a7c66b65f4655"
+      "bytes": 99581,
+      "sha256": "801c0a4c711c17ea863d027ec35d8f2d283a1073eca39590f3d93e3ebe4bf75a"
     },
     "dispositions.json": {
-      "bytes": 28150,
-      "sha256": "8c78e9318e3b2f10d3ddf232e2f628ccb6b61e7c697238f86f2c599360a9a93c"
+      "bytes": 29210,
+      "sha256": "8d713a69c77f6dc1dcea9ada4b8afcf0883616f994e24ab9010865ba24476f45"
     },
     "examples.json": {
-      "bytes": 17488,
-      "sha256": "42a8d47e9fc8dfa88f6cf9368d280a7875b6e699b20c0828d0f1451dfe22f290"
+      "bytes": 17740,
+      "sha256": "6e0d5d34fa7d638dfd5db3e965f07389321629eceb890a757334804655d9b73d"
     },
     "facts.json": {
       "bytes": 445182,
       "sha256": "5338e47ca06959bb4a595d12a84e31d3ea2927e109cf34ca51c1640b15beda18"
     },
     "investigation.json": {
-      "bytes": 6976,
-      "sha256": "38dfd3e0415bb81f214d7fdb4a10abed000b0a11d30eb810bedb5cd8503ba87e"
+      "bytes": 7342,
+      "sha256": "4b5e0cc0f4ec6c91b4e62d387a2e5ff28ab538ba88a7407ef82009d662764fb4"
     },
     "plan.json": {
-      "bytes": 8460,
-      "sha256": "f3c0e4552ab5b99fe27b7b513529de8ab3e17a7826f62dc36a80f2ca4f2b77a7"
+      "bytes": 9044,
+      "sha256": "beb96e29813b30c6b7afe385aa6f31ecc06244fe36e9ed429c7cb248ac2dd657"
     },
     "probes.json": {
-      "bytes": 2973,
-      "sha256": "0c9741646fc517605e2742bd1274f41fc94103fa8b0d0057f788afa684cf934f"
+      "bytes": 2979,
+      "sha256": "6d0ce92ff7a4411f8aae90cfa27b6b371f325f023f8fbaacb239f13ee2e7a304"
     },
     "repairs.json": {
       "bytes": 2464,
       "sha256": "95693e769dbbd03285519bdfa053e7e95305c8638da52443b0813104c2157a38"
     },
     "review.json": {
-      "bytes": 7750,
-      "sha256": "131f3e45a859839110b54b63719231280458fc8335b28bf3f74df52f7bd98e38"
+      "bytes": 4848,
+      "sha256": "e18a1355741147be7497aba831ea8d890c9acd297d3ca8bf266b563a2ac83898"
     },
     "validation.json": {
-      "bytes": 12841,
-      "sha256": "45c33f05aaf7daa966c515823c2aa51b5c406e261c476d3075eb6dfa718bf33c"
+      "bytes": 12727,
+      "sha256": "a666c6a3d98d9e2f98617aac2531cbe9d1a797f4686f76adae5439d91aec7da6"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-06T06:25:48Z",
+    "proven_at": "2026-09-09T17:01:43Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
   "revision": "941814fd138dc28cf47123d48194f329f283498d",
   "schema_version": 1,
-  "sealed_at": "2026-09-06T06:25:48Z",
+  "sealed_at": "2026-09-09T17:01:43Z",
   "state": "READY_FOR_PROPOSAL"
 }

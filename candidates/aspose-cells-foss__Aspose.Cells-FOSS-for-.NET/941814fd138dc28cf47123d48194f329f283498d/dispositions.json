@@ -68,13 +68,15 @@
       "destination_section": "opening",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "identity:repository",
+        "identity:ecosystem",
         "identity:platform",
+        "package:name",
         "package:target_framework",
-        "license:spdx",
-        "package:name"
+        "example:001",
+        "example:002",
+        "example:003"
       ],
-      "rationale": "The paragraph describes the product, its platform support, and license, which are supported by facts and fits the opening section.",
+      "rationale": "The paragraph's substance is covered by the opening section; facts support its core claims about functionality, target users, and environment compatibility.",
       "unit_id": "inherited_unit:004.paragraph"
     },
     {
@@ -115,13 +117,28 @@
     },
     {
       "destination_section": "at_a_glance",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The At a Glance heading is rendered by the at_a_glance section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.chartcollection"
+      ],
+      "rationale": "The heading is supported by facts and the Mermaid diagram is placed in the at_a_glance section.",
       "unit_id": "inherited_unit:007.heading"
     },
     {
-      "destination_section": "at_a_glance",
+      "destination_section": null,
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
         "example:001",
@@ -129,16 +146,39 @@
         "example:003",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.chartcollection"
       ],
-      "rationale": "The Mermaid diagram is rendered deterministically by the at_a_glance section.",
+      "rationale": "The Mermaid diagram is supported by facts and placed in the at_a_glance section.",
       "unit_id": "inherited_unit:008.code_block"
     },
     {
       "destination_section": "key_capabilities",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Key Capabilities heading is rendered by the key_capabilities section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.chartcollection"
+      ],
+      "rationale": "The heading is supported by facts and the list items are re-authored in the key_capabilities section.",
       "unit_id": "inherited_unit:009.heading"
     },
     {
@@ -150,20 +190,17 @@
         "example:003",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.style",
         "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.borders",
         "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
         "public_symbol:aspose.cells_foss.pdfsaveoptions",
-        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
         "public_symbol:aspose.cells_foss.listobject",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.chart"
+        "public_symbol:aspose.cells_foss.chartcollection"
       ],
-      "rationale": "The list items are supported by facts and are re-authored into the key_capabilities section.",
+      "rationale": "The list items are supported by facts and re-authored in the key_capabilities section.",
       "unit_id": "inherited_unit:010.list"
     },
     {
@@ -188,7 +225,7 @@
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The XML PackageReference is not a supported installation method per facts.",
+      "rationale": "The PackageReference XML snippet is not supported by any fact and is not required.",
       "unit_id": "inherited_unit:013.code_block"
     },
     {
@@ -198,14 +235,16 @@
         "dependency:skiasharp",
         "package:target_framework"
       ],
-      "rationale": "The paragraph describes target frameworks and dependencies, which are supported by facts.",
+      "rationale": "The paragraph's substance about target frameworks and dependencies is placed in the dependencies section.",
       "unit_id": "inherited_unit:014.paragraph"
     },
     {
       "destination_section": "quick_start",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Quick Start heading is rendered by the quick_start section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The Quick Start heading is supported by facts and the example is placed in the quick_start section.",
       "unit_id": "inherited_unit:015.heading"
     },
     {
@@ -223,7 +262,7 @@
       "fact_ids": [
         "example:001"
       ],
-      "rationale": "The Quick Start example is supported by facts.",
+      "rationale": "The Quick Start example is supported by facts and placed in the quick_start section.",
       "unit_id": "inherited_unit:017.code_block"
     },
     {
@@ -232,16 +271,14 @@
       "fact_ids": [
         "example:002"
       ],
-      "rationale": "The lead-in for the additional example is supported by facts.",
+      "rationale": "The paragraph introduces the Additional Examples section and is supported by facts.",
       "unit_id": "inherited_unit:018.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:002"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The repair example code block is contradicted by example:002 and is not placed.",
       "unit_id": "inherited_unit:019.code_block"
     },
     {
@@ -250,23 +287,28 @@
       "fact_ids": [
         "example:003"
       ],
-      "rationale": "The lead-in for the additional example is supported by facts.",
+      "rationale": "The paragraph introduces the PDF export example and is supported by facts.",
       "unit_id": "inherited_unit:020.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The PDF export example code block is contradicted by example:003 and is not placed.",
+      "unit_id": "inherited_unit:021.code_block"
     },
     {
       "destination_section": "additional_examples",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "example:003"
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "example:009"
       ],
-      "rationale": "The PDF export example is supported by facts.",
-      "unit_id": "inherited_unit:021.code_block"
-    },
-    {
-      "destination_section": "additional_examples",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Additional Examples heading is rendered by the additional_examples section and is not a material unit.",
+      "rationale": "The Additional Examples heading is supported by facts and the subsections are placed in the additional_examples section.",
       "unit_id": "inherited_unit:022.heading"
     },
     {
@@ -275,124 +317,115 @@
       "fact_ids": [
         "link_target:021"
       ],
-      "rationale": "The lead-in for additional examples is supported by facts.",
+      "rationale": "The paragraph introducing the samples directory is supported by facts.",
       "unit_id": "inherited_unit:023.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Build a Table With Totals' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Build a Table With Totals' heading is not supported by facts.",
       "unit_id": "inherited_unit:024.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:004"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The table example code block is contradicted by example:004 and is not placed.",
       "unit_id": "inherited_unit:025.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:026.html_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Validate Cell Input' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Validate Cell Input' heading is not supported by facts.",
       "unit_id": "inherited_unit:027.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:005"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The validation example code block is contradicted by example:005 and is not placed.",
       "unit_id": "inherited_unit:028.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Highlight Data With Conditional Formatting' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Highlight Data With Conditional Formatting' heading is not supported by facts.",
       "unit_id": "inherited_unit:029.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:006"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The conditional formatting example code block is contradicted by example:006 and is not placed.",
       "unit_id": "inherited_unit:030.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Add Hyperlinks and Named Ranges' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Add Hyperlinks and Named Ranges' heading is not supported by facts.",
       "unit_id": "inherited_unit:031.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:007"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The hyperlinks and names example code block is contradicted by example:007 and is not placed.",
       "unit_id": "inherited_unit:032.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Create a Chart' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Create a Chart' heading is not supported by facts.",
       "unit_id": "inherited_unit:033.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:008"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The chart example code block is contradicted by example:008 and is not placed.",
       "unit_id": "inherited_unit:034.code_block"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The 'Convert XLSX to PDF' heading and its example are CONTRADICTED and omitted.",
+      "rationale": "The 'Convert XLSX to PDF' heading is not supported by facts.",
       "unit_id": "inherited_unit:035.heading"
     },
     {
       "destination_section": null,
       "disposition": "OMIT_UNSUPPORTED",
-      "fact_ids": [
-        "example:009"
-      ],
-      "rationale": "The example is CONTRADICTED and never placed.",
+      "fact_ids": [],
+      "rationale": "The PDF conversion example code block is contradicted by example:009 and is not placed.",
       "unit_id": "inherited_unit:036.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The closing HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:037.html_block"
     },
     {
       "destination_section": "api_reference",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The API Reference heading is rendered by the api_reference section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The API Reference heading is supported by facts and the tables are placed in the api_reference section.",
       "unit_id": "inherited_unit:038.heading"
     },
     {
@@ -400,237 +433,225 @@
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
         "public_symbol:aspose",
-        "public_symbol:aspose.cells_foss",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The paragraph introduces the API reference and is supported by facts.",
+      "rationale": "The paragraph introducing the API reference is supported by facts.",
       "unit_id": "inherited_unit:039.paragraph"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The opening HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:040.html_block"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Core API' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Core API heading is supported by facts and the table is placed in the api_reference section.",
       "unit_id": "inherited_unit:041.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.autofilter",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.comment",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.definedname",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.hyperlink",
-        "public_symbol:aspose.cells_foss.listobject",
-        "public_symbol:aspose.cells_foss.loadoptions",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.picture",
-        "public_symbol:aspose.cells_foss.shape",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The table summarizes the supported public API surface and is supported by facts.",
+      "rationale": "The Core API table is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:042.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Interfaces' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Interfaces heading is supported by facts and the table is placed in the api_reference section.",
       "unit_id": "inherited_unit:043.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.iwarningcallback"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The table summarizes the supported interfaces and is supported by facts.",
+      "rationale": "The Interfaces table is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:044.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Structs' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Structs heading is supported by facts and the table is placed in the api_reference section.",
       "unit_id": "inherited_unit:045.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.cellarea",
-        "public_symbol:aspose.cells_foss.color"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The table summarizes the supported structs and is supported by facts.",
+      "rationale": "The Structs table is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:046.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Enumerations' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Enumerations heading is supported by facts and the table is placed in the api_reference section.",
       "unit_id": "inherited_unit:047.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "SUPERSEDE_REDUNDANT",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.autoshapetype",
-        "public_symbol:aspose.cells_foss.charttype",
-        "public_symbol:aspose.cells_foss.fillpattern",
-        "public_symbol:aspose.cells_foss.filteroperatortype",
-        "public_symbol:aspose.cells_foss.fontunderlinetype",
-        "public_symbol:aspose.cells_foss.formatconditiontype",
-        "public_symbol:aspose.cells_foss.horizontalalignmenttype",
-        "public_symbol:aspose.cells_foss.loadformat",
-        "public_symbol:aspose.cells_foss.operatortype",
-        "public_symbol:aspose.cells_foss.pageorientationtype",
-        "public_symbol:aspose.cells_foss.papersizetype",
-        "public_symbol:aspose.cells_foss.saveformat",
-        "public_symbol:aspose.cells_foss.tablestyletype",
-        "public_symbol:aspose.cells_foss.totalscalculation",
-        "public_symbol:aspose.cells_foss.validationtype",
-        "public_symbol:aspose.cells_foss.verticalalignmenttype",
-        "public_symbol:aspose.cells_foss.visibilitytype"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The table summarizes the supported enumerations and is supported by facts.",
+      "rationale": "The Enumerations table is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:048.table"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Detailed Member Reference' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Detailed Member Reference heading is supported by facts and the subsections are placed in the api_reference section.",
       "unit_id": "inherited_unit:049.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Workbook and Worksheets' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Workbook and Worksheets heading is supported by facts and the list is placed in the api_reference section.",
       "unit_id": "inherited_unit:050.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.loadoptions",
-        "public_symbol:aspose.cells_foss.loaddiagnostics"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The list summarizes the supported members and is supported by facts.",
+      "rationale": "The Workbook and Worksheets list is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:051.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Cells, Values, Styling, and Save Options' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Cells, Values, Styling, and Save Options heading is supported by facts and the list is placed in the api_reference section.",
       "unit_id": "inherited_unit:052.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.cells",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.saveoptions",
-        "public_symbol:aspose.cells_foss.pdfsaveoptions"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The list summarizes the supported members and is supported by facts.",
+      "rationale": "The Cells, Values, Styling, and Save Options list is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:053.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Validation, Conditional Formatting, and Tables' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Validation, Conditional Formatting, and Tables heading is supported by facts and the list is placed in the api_reference section.",
       "unit_id": "inherited_unit:054.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.formatcondition",
-        "public_symbol:aspose.cells_foss.listobject"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The list summarizes the supported members and is supported by facts.",
+      "rationale": "The Validation, Conditional Formatting, and Tables list is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:055.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Links, Names, and Drawing Objects' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Links, Names, and Drawing Objects heading is supported by facts and the list is placed in the api_reference section.",
       "unit_id": "inherited_unit:056.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.hyperlink",
-        "public_symbol:aspose.cells_foss.definedname",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.chartcollection"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The list summarizes the supported members and is supported by facts.",
+      "rationale": "The Links, Names, and Drawing Objects list is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:057.list"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
-      "fact_ids": [],
-      "rationale": "The 'Exceptions' heading is supported and placed in the API reference section.",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
+      ],
+      "rationale": "The Exceptions heading is supported by facts and the list is placed in the api_reference section.",
       "unit_id": "inherited_unit:058.heading"
     },
     {
       "destination_section": "api_reference",
       "disposition": "VERIFIED_PRESERVE",
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.cellsexception",
-        "public_symbol:aspose.cells_foss.workbookloadexception",
-        "public_symbol:aspose.cells_foss.workbooksaveexception",
-        "public_symbol:aspose.cells_foss.invalidfileformatexception",
-        "public_symbol:aspose.cells_foss.styleexception",
-        "public_symbol:aspose.cells_foss.formulaexception",
-        "public_symbol:aspose.cells_foss.unsupportedfeatureexception"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
-      "rationale": "The list summarizes the supported exceptions and is supported by facts.",
+      "rationale": "The Exceptions list is supported by facts and placed in the api_reference section.",
       "unit_id": "inherited_unit:059.list"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The closing HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:060.html_block"
     },
     {
       "destination_section": "documentation_resources",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Documentation & Resources heading is rendered by the documentation_resources section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025"
+      ],
+      "rationale": "The Documentation & Resources heading is supported by facts and the list is placed in the documentation_resources section.",
       "unit_id": "inherited_unit:061.heading"
     },
     {
@@ -642,14 +663,16 @@
         "link_target:024",
         "link_target:025"
       ],
-      "rationale": "The list of documentation links is supported by facts.",
+      "rationale": "The Documentation & Resources list is supported by facts and placed in the documentation_resources section.",
       "unit_id": "inherited_unit:062.list"
     },
     {
       "destination_section": "scope_limitations",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Scope and Limitations heading is rendered by the scope_limitations section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "inherited_unit:064.list"
+      ],
+      "rationale": "The Scope and Limitations heading is supported by facts and the list is placed in the scope_limitations section.",
       "unit_id": "inherited_unit:063.heading"
     },
     {
@@ -658,7 +681,7 @@
       "fact_ids": [
         "inherited_unit:064.list"
       ],
-      "rationale": "The limitations list is supported by facts.",
+      "rationale": "The Scope and Limitations list is supported by facts and placed in the scope_limitations section.",
       "unit_id": "inherited_unit:064.list"
     },
     {
@@ -672,58 +695,74 @@
     },
     {
       "destination_section": "development_testing",
-      "disposition": "SUPERSEDE_REDUNDANT",
-      "fact_ids": [],
-      "rationale": "The Development and Testing heading is rendered by the development_testing section and is not a material unit.",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "rationale": "The Development and Testing heading is supported by facts and the subsections are placed in the development_testing section.",
       "unit_id": "inherited_unit:066.heading"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The build instruction is supported by facts.",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "rationale": "The paragraph introducing the build command is supported by facts.",
       "unit_id": "inherited_unit:067.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [],
-      "rationale": "The build command is supported by facts.",
+      "rationale": "The build command code block is not supported by facts.",
       "unit_id": "inherited_unit:068.code_block"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The sample run instruction is supported by facts.",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "rationale": "The paragraph introducing the sample run command is supported by facts.",
       "unit_id": "inherited_unit:069.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [],
-      "rationale": "The sample run command is supported by facts.",
+      "rationale": "The sample run command code block is not supported by facts.",
       "unit_id": "inherited_unit:070.code_block"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
-      "fact_ids": [],
-      "rationale": "The PDF sample instruction is supported by facts.",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "rationale": "The paragraph introducing the PDF sample is supported by facts.",
       "unit_id": "inherited_unit:071.paragraph"
     },
     {
       "destination_section": null,
       "disposition": "DEFER_UNRESOLVED",
       "fact_ids": [],
-      "rationale": "The PDF sample command is supported by facts.",
+      "rationale": "The PDF sample command code block is not supported by facts.",
       "unit_id": "inherited_unit:072.code_block"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The opening HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:073.html_block"
     },
     {
@@ -732,7 +771,7 @@
       "fact_ids": [
         "link_target:021"
       ],
-      "rationale": "The sample projects description is supported by facts.",
+      "rationale": "The paragraph introducing the samples directory is supported by facts.",
       "unit_id": "inherited_unit:074.paragraph"
     },
     {
@@ -741,14 +780,14 @@
       "fact_ids": [
         "link_target:021"
       ],
-      "rationale": "The list of sample projects is supported by facts.",
+      "rationale": "The samples list is supported by facts and placed in the development_testing section.",
       "unit_id": "inherited_unit:075.list"
     },
     {
       "destination_section": null,
-      "disposition": "NON_CONTENT",
+      "disposition": "OMIT_UNSUPPORTED",
       "fact_ids": [],
-      "rationale": "The HTML details block is a separator and not a material unit.",
+      "rationale": "The closing HTML details block is not supported by facts.",
       "unit_id": "inherited_unit:076.html_block"
     },
     {

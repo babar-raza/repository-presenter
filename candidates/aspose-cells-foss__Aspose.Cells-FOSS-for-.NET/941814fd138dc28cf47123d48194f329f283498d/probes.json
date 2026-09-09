@@ -1,6 +1,6 @@
 [
   {
-    "elapsed_ms": 707,
+    "elapsed_ms": 1465,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -8,7 +8,7 @@
     "target": "https://docs.aspose.org/cells/net/"
   },
   {
-    "elapsed_ms": 1588,
+    "elapsed_ms": 2093,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -16,7 +16,7 @@
     "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/blob/master/License/LICENSE.txt"
   },
   {
-    "elapsed_ms": 1138,
+    "elapsed_ms": 1561,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -24,7 +24,7 @@
     "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/graphs/contributors"
   },
   {
-    "elapsed_ms": 1158,
+    "elapsed_ms": 1739,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -32,7 +32,7 @@
     "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues"
   },
   {
-    "elapsed_ms": 411,
+    "elapsed_ms": 484,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -40,7 +40,7 @@
     "target": "https://img.shields.io/badge/License-MIT-blue.svg"
   },
   {
-    "elapsed_ms": 1195,
+    "elapsed_ms": 1001,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -48,7 +48,7 @@
     "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg"
   },
   {
-    "elapsed_ms": 1239,
+    "elapsed_ms": 986,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -56,7 +56,7 @@
     "target": "https://img.shields.io/github/issues/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.svg"
   },
   {
-    "elapsed_ms": 818,
+    "elapsed_ms": 1707,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -64,7 +64,7 @@
     "target": "https://img.shields.io/nuget/v/Aspose.Cells.FOSS.svg"
   },
   {
-    "elapsed_ms": 707,
+    "elapsed_ms": 1466,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -72,7 +72,7 @@
     "target": "https://kb.aspose.org/cells/net/"
   },
   {
-    "elapsed_ms": 608,
+    "elapsed_ms": 1466,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -80,7 +80,7 @@
     "target": "https://products.aspose.com/cells/net/"
   },
   {
-    "elapsed_ms": 469,
+    "elapsed_ms": 1176,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -88,7 +88,7 @@
     "target": "https://products.aspose.org/cells/net/"
   },
   {
-    "elapsed_ms": 459,
+    "elapsed_ms": 1323,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -96,7 +96,7 @@
     "target": "https://products.aspose.org/media/cells/net/banner-readme.png"
   },
   {
-    "elapsed_ms": 628,
+    "elapsed_ms": 1588,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",
@@ -104,7 +104,7 @@
     "target": "https://reference.aspose.org/cells/net/"
   },
   {
-    "elapsed_ms": 1917,
+    "elapsed_ms": 2160,
     "kind": "link",
     "observation": null,
     "outcome": "RESOLVED",

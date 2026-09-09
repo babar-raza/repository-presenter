@@ -1,5 +1,6 @@
 [
   {
+    "build_verified": true,
     "detail": "compiled against Aspose.Cells_FOSS.csproj; SDK 10.0.204",
     "fixtures": [],
     "ordinal": 1,
@@ -9,6 +10,7 @@
     "stdout": "\r\nBuild succeeded.\r\n    0 Warning(s)\r\n    0 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "compiled against Aspose.Cells_FOSS.csproj; SDK 10.0.204",
     "fixtures": [],
     "ordinal": 2,
@@ -18,6 +20,7 @@
     "stdout": "\r\nBuild succeeded.\r\n    0 Warning(s)\r\n    0 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "compiled against Aspose.Cells_FOSS.csproj; SDK 10.0.204",
     "fixtures": [],
     "ordinal": 3,
@@ -27,6 +30,7 @@
     "stdout": "\r\nBuild succeeded.\r\n    0 Warning(s)\r\n    0 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 4,
@@ -36,6 +40,7 @@
     "stdout": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(17,24): error CS0103: The name 'TableStyleType' does not exist in the current context [Example.csproj]\r\n\r\nBuild FAILED.\r\n\r\nProgram.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(17,24): error CS0103: The name 'TableStyleType' does not exist in the current context [Example.csproj]\r\n    0 Warning(s)\r\n    2 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 5,
@@ -45,6 +50,7 @@
     "stdout": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(6,49): error CS0103: The name 'CellArea' does not exist in the current context [Example.csproj]\r\nProgram.cs(8,23): error CS0103: The name 'ValidationType' does not exist in the current context [Example.csproj]\r\n\r\nBuild FAILED.\r\n\r\nProgram.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(6,49): error CS0103: The name 'CellArea' does not exist in the current context [Example.csproj]\r\nProgram.cs(8,23): error CS0103: The name 'ValidationType' does not exist in the current context [Example.csproj]\r\n    0 Warning(s)\r\n    3 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 6,
@@ -54,6 +60,7 @@
     "stdout": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(10,15): error CS0103: The name 'CellArea' does not exist in the current context [Example.csproj]\r\nProgram.cs(11,37): error CS0103: The name 'FormatConditionType' does not exist in the current context [Example.csproj]\r\nProgram.cs(11,68): error CS0103: The name 'OperatorType' does not exist in the current context [Example.csproj]\r\nProgram.cs(12,22): error CS0103: The name 'FillPattern' does not exist in the current context [Example.csproj]\r\nProgram.cs(13,30): error CS0103: The name 'Color' does not exist in the current context [Example.csproj]\r\n\r\nBuild FAILED.\r\n\r\nProgram.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(10,15): error CS0103: The name 'CellArea' does not exist in the current context [Example.csproj]\r\nProgram.cs(11,37): error CS0103: The name 'FormatConditionType' does not exist in the current context [Example.csproj]\r\nProgram.cs(11,68): error CS0103: The name 'OperatorType' does not exist in the current context [Example.csproj]\r\nProgram.cs(12,22): error CS0103: The name 'FillPattern' does not exist in the current context [Example.csproj]\r\nProgram.cs(13,30): error CS0103: The name 'Color' does not exist in the current context [Example.csproj]\r\n    0 Warning(s)\r\n    6 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 7,
@@ -63,6 +70,7 @@
     "stdout": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\n\r\nBuild FAILED.\r\n\r\nProgram.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\n    0 Warning(s)\r\n    1 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 8,
@@ -72,6 +80,7 @@
     "stdout": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(11,35): error CS0103: The name 'ChartType' does not exist in the current context [Example.csproj]\r\n\r\nBuild FAILED.\r\n\r\nProgram.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?) [Example.csproj]\r\nProgram.cs(11,35): error CS0103: The name 'ChartType' does not exist in the current context [Example.csproj]\r\n    0 Warning(s)\r\n    2 Error(s)\r\n\r\n"
   },
   {
+    "build_verified": true,
     "detail": "Program.cs(1,20): error CS0246: The type or namespace name 'Workbook' could not be found (are you missing a using directive or an assembly reference?)",
     "fixtures": [],
     "ordinal": 9,

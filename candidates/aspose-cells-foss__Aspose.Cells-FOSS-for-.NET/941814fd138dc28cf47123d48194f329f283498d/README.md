@@ -4,7 +4,7 @@
 
 [![Aspose.Cells FOSS for .NET](https://products.aspose.org/media/cells/net/banner-readme.png)](https://products.aspose.org/cells/net/)
 
-Aspose.Cells FOSS for .NET is a free, open-source library for creating, editing, and converting Excel workbooks and worksheets in .NET applications. It enables developers to generate reports, process spreadsheets, and export to PDF without requiring Microsoft Excel, supporting formats such as XLSX and PDF through classes like `Workbook`, `Worksheet`, `Cell`, `Style`, `Font`, `Borders`, `PageSetup`, and `PdfSaveOptions`. Users can load files with repair options via `LoadOptions` and inspect diagnostics via `LoadDiagnostics` to detect potential data loss or repairs. The library targets netstandard2.0 and is versioned 26.9.0.0, licensed under the MIT license.
+Aspose.Cells FOSS for .NET is a free, open-source library that enables developers to create, read, convert, and manipulate Excel spreadsheets programmatically in .NET applications. It supports loading workbooks with repair options for corrupted files, applying styles to cells, and saving documents in XLSX and PDF formats. Users can configure page layout, add data validation, and inspect load diagnostics to detect potential data loss or repairs. The library targets netstandard2.0 and exposes core types such as `Workbook`, `Worksheet`, `Style`, `LoadOptions`, `PdfSaveOptions`, and `PageSetup`.
 
 ## Navigation
 
@@ -29,14 +29,14 @@ flowchart TD
     subgraph capl[" "]
       direction TB
       c1["Create and edit workbooks"]
-      c2["Apply cell formatting"]
-      c3["Add data validation and conditional formatting"]
+      c2["Format cells and styles"]
+      c3["Validate and highlight data"]
     end
     subgraph capr[" "]
       direction TB
       c4["Export to PDF"]
-      c5["Support structured tables and charts"]
-      c6["Configure page layout and print settings"]
+      c5["Repair malformed files"]
+      c6["Add structured tables and charts"]
     end
   end
   PRODUCT --> Capabilities
@@ -44,12 +44,12 @@ flowchart TD
 
 ## Key Capabilities
 
-- **Create and edit workbooks.** Create a new workbook with `Workbook()` or load an existing file with `Workbook`(fileName), then populate cells via `Worksheet.Cells` and write values with `Cell.PutValue`, formulas with `Cell.Formula`, and save the result with `Workbook.Save`.
-- **Apply cell formatting.** Apply formatting to cells using `Style`, `Font`, and `Borders` through `Cell.GetStyle` and `Cell.SetStyle`, setting properties such as background color, font weight, border style, and fill pattern to customize appearance.
-- **Add data validation and conditional formatting.** Enforce data entry rules with `ValidationCollection.Add` and `Validation`, supporting types such as whole-number, decimal, list, and date validation, and highlight data patterns using `ConditionalFormattingCollection` to apply conditional rules.
-- **Export to PDF.** Export a workbook to PDF using `Workbook.Save` with `PdfSaveOptions`, configuring options such as `OnePagePerSheet` and page geometry through `Worksheet.PageSetup` to control layout and output fidelity.
-- **Support structured tables and charts.** Build structured Excel tables with `ListObject` and render data visually using `ChartCollection` and `Chart` to create bar, line, pie, and other chart types directly on worksheets.
-- **Configure page layout and print settings.** Set page layout and print options for a worksheet using `PageSetup` to define `PaperSizeType` such as A4, `PageOrientationType` such as Landscape, and other print-related settings to prepare documents for output.
+- **Create and edit workbooks.** Create a new workbook with the `Aspose.Cells_FOSS.Workbook` constructor or load an existing file, then edit worksheets through the `Workbook.Worksheets` collection and save the result.
+- **Format cells and styles.** Apply fonts and styles to cells using `Aspose.Cells_FOSS.Style` and `Aspose.Cells_FOSS.Font` to control background, foreground, bold, color, and number formatting.
+- **Validate and highlight data.** Enforce data entry rules with `Aspose.Cells_FOSS.ValidationCollection` and highlight values using `Aspose.Cells_FOSS.FormatConditionCollection` for conditional formatting.
+- **Export to PDF.** Export a workbook to PDF using `Aspose.Cells_FOSS.PdfSaveOptions` to control page geometry, orientation, and one-page-per-sheet layout.
+- **Repair malformed files.** Repair malformed Excel files by configuring `Aspose.Cells_FOSS.LoadOptions` with repair flags and inspecting `Aspose.Cells_FOSS.LoadDiagnostics` for potential data loss.
+- **Add structured tables and charts.** Add structured Excel tables with `Aspose.Cells_FOSS.ListObject` and create charts using `Aspose.Cells_FOSS.ChartCollection` to visualize data.
 
 ## Installation
 
@@ -79,7 +79,7 @@ dotnet build
 
 ## Quick Start
 
-Create a new workbook, populate and style cells, and save the file as `products.xlsx`.
+Create a new workbook, populate a sheet with product data, apply header styling, and save the file as `products.xlsx` using `Aspose.Cells.FOSS` version 26.9.0.0 targeting netstandard2.0.
 
 ```csharp
 using Aspose.Cells_FOSS;
@@ -107,31 +107,7 @@ sheet.Cells["B1"].SetStyle(headerStyle);
 workbook.Save("products.xlsx");
 ```
 
-Open an existing `report.xlsx` workbook, configure page layout, and export it to PDF.
-
-```csharp
-using Aspose.Cells_FOSS;
-
-var workbook = new Workbook("report.xlsx");
-var sheet = workbook.Worksheets[0];
-
-sheet.PageSetup.PaperSize = PaperSizeType.PaperA4;
-sheet.PageSetup.Orientation = PageOrientationType.Landscape;
-
-workbook.Save("report.pdf", new PdfSaveOptions
-{
-    OnePagePerSheet = true
-});
-```
-
-## Additional Examples
-
-Aspose.Cells FOSS for .NET supports workbook recovery diagnostics and export to PDF. Example 002 demonstrates loading a workbook with recovery options and saving the updated file.
-
-<details>
-<summary>View Additional Examples</summary>
-
-### Load a workbook with recovery diagnostics and save the updated file
+Load a potentially corrupted Excel file with repair options enabled, check for data loss risk, update a cell, and save the repaired workbook as `updated.xlsx` using `Aspose.Cells.FOSS` version 26.9.0.0 targeting netstandard2.0.
 
 ```csharp
 using System;
@@ -155,16 +131,34 @@ workbook.Worksheets[0].Cells["A1"].PutValue("Updated");
 workbook.Save("updated.xlsx");
 ```
 
+## Additional Examples
 
-Export a worksheet to PDF:
+Load a workbook and convert it to PDF with A4 landscape settings, or export a worksheet to PDF with one page per sheet.
+
+### Convert an Excel file to PDF with A4 landscape layout and one page per sheet
+
+```csharp
+using Aspose.Cells_FOSS;
+
+var workbook = new Workbook("report.xlsx");
+var sheet = workbook.Worksheets[0];
+
+sheet.PageSetup.PaperSize = PaperSizeType.PaperA4;
+sheet.PageSetup.Orientation = PageOrientationType.Landscape;
+
+workbook.Save("report.pdf", new PdfSaveOptions
+{
+    OnePagePerSheet = true
+});
+```
+
+Load a workbook with recovery diagnostics:
 
 More runnable snippets adapted from the sample projects under [`samples/`](samples/README.md) are collected below.
 
-</details>
-
 ## API Reference
 
-Aspose.Cells FOSS for .NET exposes its public API under the `Aspose.Cells_FOSS` namespace, with `Workbook` as the root object and `Worksheet`, `Cells`, and `Cell` as the types most developers interact with day to day. The package targets netstandard2.0 and is versioned at 26.9.0.0.
+Aspose.Cells FOSS for .NET exposes its public API under the `Aspose.Cells_FOSS` namespace, with `Workbook` as the root object and `Worksheet`, `Cells`, and `Cell` as the types most developers interact with day to day. The API supports reading, writing, and manipulating spreadsheet content through these core classes.
 
 The verified public surface has 98 types.
 
@@ -283,7 +277,7 @@ The verified public surface has 98 types.
 
 ### Workbook
 
-The `Workbook` class serves as the entry point for creating and manipulating spreadsheets, providing access to Worksheets through its Worksheets property and supporting operations such as saving to file or stream, managing document properties, and handling load diagnostics.
+The `Workbook` class serves as the primary entry point for working with spreadsheet files, providing constructors that accept file paths, streams, and load options, and exposing properties such as Worksheets, `DefinedNames`, Properties, `DocumentProperties`, and `LoadDiagnostics`.
 
 - `DefinedNames`: Gets the workbook-defined names collection.
 - `Dispose`: Releases resources associated with the workbook instance.
@@ -295,9 +289,26 @@ The `Workbook` class serves as the entry point for creating and manipulating spr
 - `Workbook`: Initializes a new workbook with one default worksheet.
 - `Worksheets`: Gets the worksheets in workbook order.
 
+### Cell
+
+The `Cell` class represents an individual cell in a worksheet and provides methods such as `PutValue` and `GetStyle`, along with properties including Value, `StringValue`, `DisplayStringValue`, Formula, and Type.
+
+- `Characters`: Returns a rich-text character range within the cell text.
+- `DisplayStringValue`: Gets the display text generated from the cell value, style, and workbook culture.
+- `Formula`: Gets or sets the cell formula.
+- `GetCharacters`: Returns all rich-text character ranges in the cell text.
+- `GetStyle`: Gets a detached copy of the cell style.
+- `IsRichText`: Indicates whether the cell string contains rich-text formatting runs.
+- `PutValue`: Sets the cell value to a string.
+- `SetCharacters`: Sets rich-text formatting runs for the current cell text.
+- `SetStyle`: Replaces the cell style with the supplied style object.
+- `StringValue`: Gets a stable string representation of the cell value without applying style-based display formatting.
+- `Type`: Gets the current logical cell value type.
+- `Value`: Gets or sets the logical cell value.
+
 ### Style
 
-The `Style` class enables formatting control through properties such as `Font`, `Borders`, Pattern, `ForegroundColor`, `BackgroundColor`, `NumberFormat`, and `HorizontalAlignment`, with methods like Copy, Equals, and `GetHashCode` for style management.
+The `Style` class enables formatting control through properties such as `Font`, `Borders`, Pattern, `ForegroundColor`, `BackgroundColor`, `NumberFormat`, `HorizontalAlignment`, `VerticalAlignment`, `WrapText`, `IsLocked`, and `IsHidden`.
 
 - `BackgroundColor`: Gets or sets the fill background color.
 - `Borders`: Gets or sets border settings.
@@ -323,30 +334,43 @@ The `Style` class enables formatting control through properties such as `Font`, 
 - `VerticalAlignment`: Gets or sets the vertical alignment.
 - `WrapText`: Gets or sets whether text wraps within the cell.
 
-### Validation
+### ValidationCollection
 
-The `Validation` class defines data validation rules with properties such as Areas, Type, Operator, Formula1, Formula2, `AlertStyle`, and `InCellDropDown`, while `ValidationCollection` provides methods to add, remove, and retrieve validations within a worksheet.
+The `ValidationCollection` class manages data validation rules on a worksheet, offering methods such as Add, `GetValidationInCell`, `RemoveACell`, and `RemoveArea`, and exposing a Count property.
 
-- `AddArea`: Adds the specified item.
-- `AlertStyle`: Gets or sets the alert style.
-- `Areas`: Gets the areas.
-- `ErrorMessage`: Gets or sets the error message.
-- `ErrorTitle`: Gets or sets the error title.
-- `Formula1`: Gets or sets the formula1.
-- `Formula2`: Gets or sets the formula2.
-- `IgnoreBlank`: Gets or sets a value indicating whether ignore blank.
-- `InCellDropDown`: Gets or sets a value indicating whether in cell drop down.
-- `InputMessage`: Gets or sets the input message.
-- `InputTitle`: Gets or sets the input title.
-- `Operator`: Gets or sets the operator.
+- `Add`: Adds the specified item.
+- `Count`: Gets the number of items.
+- `GetValidationInCell`: Gets the validation in cell.
+- `RemoveACell`: Removes the specified item.
 - `RemoveArea`: Removes the specified item.
-- `ShowError`: Gets or sets a value indicating whether show error.
-- `ShowInput`: Gets or sets a value indicating whether show input.
-- `Type`: Gets or sets the type.
+
+### FormatConditionCollection
+
+The `FormatConditionCollection` class provides conditional formatting capabilities through methods such as Add, `AddCondition`, `AddArea`, `GetCellArea`, `RemoveArea`, and `RemoveCondition`, and exposes Count and `RangeCount` properties.
+
+- `Add`: Adds the specified item.
+- `AddArea`: Adds the specified item.
+- `AddCondition`: Adds the specified item.
+- `Count`: Gets the number of items.
+- `GetCellArea`: Gets the cell area.
+- `RangeCount`: Gets the range count.
+- `RemoveArea`: Removes the specified item.
+- `RemoveCondition`: Removes the specified item.
+
+### LoadOptions
+
+The `LoadOptions` class configures how a workbook is loaded, offering properties such as `StrictMode`, `TryRepairPackage`, `TryRepairXml`, `WarningCallback`, Issues, `HasRepairs`, and `HasDataLossRisk`.
+
+- `LoadFormat`: Gets or sets the expected input format.
+- `PreserveUnsupportedParts`: Gets or sets whether unsupported parts should be preserved when possible.
+- `StrictMode`: Gets or sets whether loading should reject ambiguous repairs.
+- `TryRepairPackage`: Gets or sets whether package-level repairs are allowed during load.
+- `TryRepairXml`: Gets or sets whether XML-level repairs are allowed during load.
+- `WarningCallback`: Gets or sets a warning callback that receives recoverable-load diagnostics.
 
 ### PdfSaveOptions
 
-`PdfSaveOptions` controls how a workbook is exported to PDF, offering properties such as `SaveFormat`, `OnePagePerSheet`, `AllColumnsInOnePagePerSheet`, and `DefaultFont` to customize the output layout and appearance.
+The `PdfSaveOptions` class controls PDF export behavior with properties such as `SaveFormat`, `OnePagePerSheet`, `AllColumnsInOnePagePerSheet`, and `DefaultFont`.
 
 - `AllColumnsInOnePagePerSheet`: Gets or sets whether all columns of each worksheet are rendered on a single page width.
 - `CompactStyles`: Gets or sets whether equivalent styles should be compacted during save.
@@ -360,7 +384,7 @@ The `Validation` class defines data validation rules with properties such as Are
 
 ### ListObject
 
-`ListObject` represents a table in a worksheet, supporting operations like resizing, converting to a range, and toggling the auto-filter, with properties such as `DisplayName`, `TableStyleType`, `ShowTotals`, and `ListColumns` for structured data management.
+The `ListObject` class represents an Excel table, providing methods such as Resize, `ShowAutoFilter`, `RemoveAutoFilter`, and `ConvertToRange`, and exposing properties including `DisplayName`, `TableStyleType`, `ShowTotals`, and `ListColumns`.
 
 - `Comment`: Gets or sets an optional comment for the table.
 - `ConvertToRange`: Removes the table structure, leaving the cell data in place.
@@ -382,48 +406,114 @@ The `Validation` class defines data validation rules with properties such as Are
 - `TableStyleName`: Gets or sets the raw table style name used in the SpreadsheetML tableStyleInfo element.
 - `TableStyleType`: Gets or sets the built-in table style type.
 
-### PageSetup
+### ChartCollection
 
-`PageSetup` configures page layout settings for a worksheet, including orientation via `PageOrientationType`, margins, header/footer options, and print area definitions to prepare documents for printing or PDF export.
+The `ChartCollection` class manages chart objects on a worksheet, offering an Add method that accepts chart type, data range, and positioning parameters, and exposing a Count property.
 
-- `AddHorizontalPageBreak`: Adds a horizontal page break at the specified zero-based row index.
-- `AddVerticalPageBreak`: Adds a vertical page break at the specified zero-based column index.
-- `BottomMargin`: Gets or sets the bottom margin in centimeters.
-- `BottomMarginInch`: Gets or sets the bottom margin in inches.
-- `CenterFooter`: Gets or sets the center footer text.
-- `CenterHeader`: Gets or sets the center header text.
-- `CenterHorizontally`: Gets or sets whether content is centered horizontally on the page.
-- `CenterVertically`: Gets or sets whether content is centered vertically on the page.
-- `ClearHorizontalPageBreaks`: Removes all horizontal page breaks.
-- `ClearVerticalPageBreaks`: Removes all vertical page breaks.
-- `FirstPageNumber`: Gets or sets the first printed page number.
-- `FitToPagesTall`: Gets or sets the number of pages tall to fit when printing.
-- `FitToPagesWide`: Gets or sets the number of pages wide to fit when printing.
-- `FooterMargin`: Gets or sets the footer margin in centimeters.
-- `FooterMarginInch`: Gets or sets the footer margin in inches.
-- `HeaderMargin`: Gets or sets the header margin in centimeters.
-- `HeaderMarginInch`: Gets or sets the header margin in inches.
-- `HorizontalPageBreaks`: Gets the horizontal page breaks as sorted zero-based row indexes.
-- `LeftFooter`: Gets or sets the left footer text.
-- `LeftHeader`: Gets or sets the left header text.
-- `LeftMargin`: Gets or sets the left margin in centimeters.
-- `LeftMarginInch`: Gets or sets the left margin in inches.
-- `Orientation`: Gets or sets the page orientation.
-- `PaperSize`: Gets or sets the paper size.
-- `PrintArea`: Gets or sets the print area reference.
-- `PrintGridlines`: Gets or sets whether gridlines are printed.
-- `PrintHeadings`: Gets or sets whether row and column headings are printed.
-- `PrintTitleColumns`: Gets or sets the repeating title columns reference.
-- `PrintTitleRows`: Gets or sets the repeating title rows reference.
-- `RightFooter`: Gets or sets the right footer text.
-- `RightHeader`: Gets or sets the right header text.
-- `RightMargin`: Gets or sets the right margin in centimeters.
-- `RightMarginInch`: Gets or sets the right margin in inches.
-- `Scale`: Gets or sets the print scaling percentage.
-- `TopMargin`: Gets or sets the top margin in centimeters.
-- `TopMarginInch`: Gets or sets the top margin in inches.
-- `VerticalPageBreaks`: Gets the vertical page breaks as sorted zero-based column indexes.
+- `Add`: Adds a new chart of the specified type to the worksheet.
+- `Count`: Gets the number of charts on the worksheet.
 
+### Worksheet
+
+The `Worksheet` class represents a single worksheet, exposing properties such as Name, `VisibilityType`, `ShowGridlines`, `RightToLeft`, Zoom, `Cells`, Hyperlinks, Validations, `ConditionalFormattings`, `PageSetup`, Protection, `AutoFilter`, `ListObjects`, Pictures, Shapes, Charts, and Comments.
+
+- `AutoFilter`: Gets auto-filter settings for the worksheet.
+- `Cells`: Gets the cell grid facade for the worksheet.
+- `Charts`: Gets the collection of charts on this worksheet.
+- `Comments`: Gets the collection of comments (legacy notes) on this worksheet.
+- `ConditionalFormattings`: Gets the worksheet conditional formatting collection.
+- `Hyperlinks`: Gets the worksheet hyperlink collection.
+- `ListObjects`: Gets the collection of Excel tables on this worksheet.
+- `Name`: Gets or sets the worksheet name.
+- `PageSetup`: Gets page setup settings for the worksheet.
+- `Pictures`: Gets the collection of pictures on this worksheet.
+- `Protect`: Marks the worksheet as protected using the current protection settings.
+- `Protection`: Gets worksheet protection settings.
+- `RightToLeft`: Gets or sets whether the worksheet view is right-to-left.
+- `Shapes`: Gets the collection of drawing objects (shapes) on this worksheet.
+- `ShowGridlines`: Gets or sets whether gridlines are shown in the worksheet view.
+- `ShowRowColumnHeaders`: Gets or sets whether row and column headers are shown in the worksheet view.
+- `ShowZeros`: Gets or sets whether zero values are shown in the worksheet view.
+- `TabColor`: Gets or sets the worksheet tab color.
+- `Unprotect`: Clears worksheet protection and resets supported protection flags.
+- `Validations`: Gets the worksheet data validation collection.
+- `VisibilityType`: Gets or sets the worksheet visibility state.
+- `Zoom`: Gets or sets the worksheet zoom percentage.
+
+### HyperlinkCollection
+
+The `HyperlinkCollection` class manages hyperlinks on a worksheet, offering methods such as Add and `RemoveAt`, and exposing a Count property.
+
+- `Add`: Adds a hyperlink anchored at a cell or rectangular range specified by its top-left A1 reference.
+- `Capacity`: Gets or sets the number of elements the collection can contain before resizing.
+- `Clear`: Removes all hyperlinks from the worksheet.
+- `Count`: Gets the number of hyperlinks in the worksheet.
+- `RemoveAt`: Removes the hyperlink at the specified zero-based index.
+
+### DefinedNameCollection
+
+The `DefinedNameCollection` class manages named ranges at the workbook level, offering methods such as Add and `RemoveAt`, and exposing a Count property.
+
+- `Add`: Adds the specified item.
+- `Count`: Gets the number of items.
+- `GetEnumerator`: Returns an enumerator that iterates through the collection.
+- `RemoveAt`: Removes the specified item.
+
+
+The public API is exposed under the `Aspose.Cells_FOSS` namespace, with `Workbook` as the root object and `Worksheet`, `Cells`, and `Cell` as the types most developers interact with day to day. The table below summarizes the supported public surface present in this checkout.
+
+- `Workbook`
+  - Constructors: `Workbook()`, `Workbook(fileName)`, `Workbook(stream)`, `Workbook(fileName, options)`, `Workbook(stream, options)`
+  - `Save(fileName)`, `Save(fileName, format)`, `Save(fileName, options)`, `Save(stream, format)`, `Save(stream, options)`, `Dispose()`
+  - Properties: `Worksheets: WorksheetCollection`, `Settings: WorkbookSettings`, `Properties: WorkbookProperties`, `DocumentProperties: DocumentProperties`, `DefinedNames: DefinedNameCollection`, `LoadDiagnostics: LoadDiagnostics`
+- `Worksheet`
+  - `Protect()`, `Unprotect()`
+  - Properties: `Name: string`, `VisibilityType: VisibilityType`, `ShowGridlines: bool`, `RightToLeft: bool`, `Zoom: int`, `Cells: Cells`, `Hyperlinks: HyperlinkCollection`, `Validations: ValidationCollection`, `ConditionalFormattings: ConditionalFormattingCollection`, `PageSetup: PageSetup`, `Protection: WorksheetProtection`, `AutoFilter: AutoFilter`, `ListObjects: ListObjectCollection`, `Pictures: PictureCollection`, `Shapes: ShapeCollection`, `Charts: ChartCollection`, `Comments: CommentCollection`
+- `LoadOptions` / `LoadDiagnostics`
+  - Properties: `StrictMode: bool`, `TryRepairPackage: bool`, `TryRepairXml: bool`, `WarningCallback: IWarningCallback`, `Issues: IReadOnlyList<LoadIssue>`, `HasRepairs: bool`, `HasDataLossRisk: bool`
+
+- `Cell`
+  - `PutValue(value)`, `PutValue(value, isConverted)`, `PutValue(value, isConverted, setStyle)`, `GetStyle()`, `GetStyle(checkBorders)`, `SetStyle(style)`, `SetStyle(style, explicitFlag)`, `SetStyle(style, flag)`
+  - Properties: `Value: object`, `StringValue: string`, `DisplayStringValue: string`, `Formula: string`, `Type: CellValueType`
+- `Cells`
+  - `Merge(firstRow, firstColumn, totalRows, totalColumns)`
+  - Properties: `Rows: RowCollection`, `Style: Style`, `Columns: ColumnCollection`, `MergedCells: IReadOnlyList<CellArea>`
+- `Style`
+  - `Copy(source)`, `Equals(obj)`, `GetHashCode()`
+  - Properties: `Font: Font`, `Borders: Borders`, `Pattern: FillPattern`, `ForegroundColor: Color`, `BackgroundColor: Color`, `NumberFormat: string`, `HorizontalAlignment: HorizontalAlignmentType`, `VerticalAlignment: VerticalAlignmentType`, `WrapText: bool`, `IsLocked: bool`, `IsHidden: bool`
+- `SaveOptions` / `PdfSaveOptions`
+  - Properties: `SaveFormat: SaveFormat`, `OnePagePerSheet: bool`, `AllColumnsInOnePagePerSheet: bool`, `DefaultFont: string`
+
+- `ValidationCollection`
+  - `Add(area)`, `GetValidationInCell(row, column)`, `RemoveACell(row, column)`, `RemoveArea(cellArea)`
+  - Properties: `Count: int`
+- `Validation`
+  - `AddArea(area)`, `RemoveArea(area)`
+  - Properties: `Areas: IReadOnlyList<CellArea>`, `Type: ValidationType`, `Operator: OperatorType`, `Formula1: string`, `Formula2: string`, `AlertStyle: ValidationAlertType`, `InCellDropDown: bool`
+- `ConditionalFormattingCollection`
+  - `Add()`, `RemoveAt(index)`, `RemoveArea(startRow, startColumn, totalRows, totalColumns)`
+  - Properties: `Count: int`
+- `FormatConditionCollection`
+  - `Add(area, type, operatorType, formula1, formula2)`, `AddCondition(type)`, `AddCondition(type, operatorType, formula1, formula2)`, `AddArea(area)`, `GetCellArea(index)`, `RemoveArea(index)`, `RemoveCondition(index)`
+  - Properties: `Count: int`, `RangeCount: int`
+- `ListObjectCollection`
+  - `Add(startRow, startColumn, endRow, endColumn, hasHeaders)`, `Add(startCellName, endCellName, hasHeaders)`, `RemoveAt(index)`
+  - Properties: `Count: int`
+- `ListObject`
+  - `Resize(startRow, startColumn, endRow, endColumn, hasHeaders)`, `ShowAutoFilter()`, `RemoveAutoFilter()`, `ConvertToRange()`
+  - Properties: `DisplayName: string`, `TableStyleType: TableStyleType`, `ShowTotals: bool`, `ListColumns: ListColumnCollection`
+
+- `HyperlinkCollection`
+  - `Add(cellName, totalRows, totalColumns, address)`, `Add(firstRow, firstColumn, totalRows, totalColumns, address)`, `Add(startCellName, endCellName, address, textToDisplay, screenTip)`, `RemoveAt(index)`, `Clear()`
+  - Properties: `Count: int`
+- `DefinedNameCollection`
+  - `Add(name, formula)`, `Add(name, formula, localSheetIndex)`, `RemoveAt(index)`
+  - Properties: `Count: int`
+- `ChartCollection`
+  - `Add(type, dataRange, upperLeftRow, upperLeftColumn, lowerRightRow, lowerRightColumn)`
+  - Properties: `Count: int`
+- `Chart`
+  - Properties: `Name: string`, `ChartType: ChartType`, `UpperLeftRow: int`, `UpperLeftColumn: int`, `LowerRightRow: int`, `LowerRightColumn: int`, `ExtentCx: long`, `ExtentCy: long`
 
 - `CellsException` - base type for the library's exceptions
 - `WorkbookLoadException` / `WorkbookSaveException` - raised for a failed load or save
@@ -434,24 +524,23 @@ The `Validation` class defines data validation rules with properties such as Are
 
 ## Documentation & Resources
 
-- **[Getting started guide](https://docs.aspose.org/cells/net/)** — The getting started guide covers installation, step-by-step walkthroughs, and an overview of key features for `Aspose.Cells.FOSS` version 26.9.0.0 targeting netstandard2.0.
-- **[How-to guides & FAQ](https://kb.aspose.org/cells/net/)** — The how-to guides and FAQ provide task-focused answers for common spreadsheet operations and troubleshooting questions when using `Aspose.Cells.FOSS`.
-- **[Full API reference](https://reference.aspose.org/cells/net/)** — The full API reference offers a complete browsable reference for all public types in `Aspose.Cells.FOSS` version 26.9.0.0. It covers all 98 verified public types; the [API Reference](#api-reference) section above covers the essentials.
-- **[Contributor guide](agents.md)** — The contributor guide describes the repository layout, build commands, verification notes, and conventions for developers contributing to Aspose.Cells-FOSS-for-.NET.
+- **[Getting started guide](https://docs.aspose.org/cells/net/)** — The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for `Aspose.Cells.FOSS` targeting netstandard2.0.
+- **[How-to guides & FAQ](https://kb.aspose.org/cells/net/)** — The how-to guides and FAQ provide task-focused answers for common spreadsheet operations using `Aspose.Cells.FOSS` version 26.9.0.0.
+- **[Full API reference](https://reference.aspose.org/cells/net/)** — The full API reference offers a complete browsable reference for all public types in `Aspose.Cells.FOSS` for .NET. It covers all 98 verified public types; the [API Reference](#api-reference) section above covers the essentials.
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues).
 
 ## Scope and Limitations
 
-Aspose.Cells FOSS for .NET version 26.9.0.0 targets netstandard2.0 and provides read and write capabilities for XLSX files and export to PDF, supporting structured tables and charts without formula calculation, image or HTML export, print execution, macros, or pivot tables.
+Aspose.Cells FOSS for .NET version 26.9.0.0 targets netstandard2.0 and provides read and write capabilities for XLSX files and export to PDF, supporting structured tables and charts without formula calculation, image or HTML export, print execution, macros, VBA, or pivot tables.
 
-- Load support is limited to XLSX files, and legacy formats such as XLS, ODS, and CSV are not loaded.
-- Save support currently covers XLSX and PDF output, with no image or HTML rendering available in this checkout.
-- The library does not parse, evaluate, or recalculate formulas; `Cell.Formula` stores the formula as a string only.
-- `Worksheet.PageSetup` configures print settings, but the library itself does not send workbooks to a printer.
+- Load support is limited to XLSX using `LoadFormat`.Auto or `LoadFormat`.Xlsx, and legacy formats such as XLS, ODS, and CSV are not loaded.
+- Save support currently covers XLSX and PDF only, with no image or HTML rendering output available in this checkout.
+- The library does not parse, evaluate, or recalculate formulas; `Cell.Formula` stores the formula as a string without computation.
+- `Worksheet.PageSetup` configures how a spreadsheet application would print the file, but the library itself does not send workbooks to a printer.
 - The public API has no VBA-project or macro-related types, so macro-enabled workbooks round-trip only their non-macro content.
-- Structured tables and charts are supported, but pivot tables are not part of the public API surface.
+- Pivot tables are not part of the public API surface, while structured tables and charts are supported.
 
-These limitations don't apply to [Aspose.Cells for .NET — Enterprise Edition](https://products.aspose.com/cells/net/). Aspose.Cells FOSS for .NET provides core spreadsheet functionality, while Aspose.Cells for .NET commercial edition adds advanced features such as comprehensive charting, pivot tables, macros, and document protection capabilities.
+These limitations don't apply to [Aspose.Cells for .NET — Enterprise Edition](https://products.aspose.com/cells/net/). Aspose.Cells FOSS for .NET provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot tables, macros, and support for additional file formats including DOCX, HTML, and SVG.
 
 ## License
 

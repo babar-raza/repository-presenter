@@ -1,6 +1,6 @@
 {
   "advisory": [
-    "inherited_unit:010.list: the rewrite no longer names .pdf, .xlsx, Cell.GetStyle(), Cell.PutValue(value), Cell.StringValue, Cell.Value, ChartCollection.Add(), CommentCollection.Add(), DateTime, DefinedNameCollection.Add(), HasDataLossRisk, HasRepairs, HyperlinkCollection.Add(), LoadOptions.TryRepairPackage, Save(...), SaveFormat.Pdf, SetStyle(), StrictMode, TryRepairXml, ValidationCollection.Add(), Workbook(fileName), Workbook(stream), Workbook.Worksheets, Worksheet.ConditionalFormattings, Worksheet.ListObjects, Worksheet.Protect(), bool, decimal, int, string"
+    "inherited_unit:010.list: the rewrite no longer names .pdf, .xlsx, Cell.GetStyle(), Cell.PutValue(value), Cell.StringValue, Cell.Value, ChartCollection.Add(), CommentCollection.Add(), DateTime, DefinedNameCollection.Add(), HyperlinkCollection.Add(), LoadOptions.TryRepairPackage, Save(...), SaveFormat.Pdf, SetStyle(), ValidationCollection.Add(), Worksheet.ConditionalFormattings, Worksheet.ListObjects, Worksheet.Protect(), bool, decimal, int, string"
   ],
   "checks": [
     {
@@ -41,7 +41,7 @@
         "additional_examples"
       ],
       "verdict": "PASS",
-      "version": "1"
+      "version": "2"
     },
     {
       "causal_stage": null,
@@ -449,8 +449,8 @@
       "section_id": "license"
     }
   ],
-  "protected_content_fingerprint": "5c20b3db1092803593c71699718b2860809d6541af63b15b9d6e8ee8d520224a",
-  "readme_sha256": "628f772e7e8cd17d8252ccde41bbcaf31e27613f9da030ae4c70362163aaddea",
+  "protected_content_fingerprint": "868f07ebad9230a0a71be83dd251956cbbb043ca2a2e80337f17c920ffa35bca",
+  "readme_sha256": "41b8503e3f5615ddc3afcf8e431b6a87297fdb10cb95450e8326250e6f7f9fcf",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-.NET",
   "schema_version": 1,
   "source_revision": "941814fd138dc28cf47123d48194f329f283498d",

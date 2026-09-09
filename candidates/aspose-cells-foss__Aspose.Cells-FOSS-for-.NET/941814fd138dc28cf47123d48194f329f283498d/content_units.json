@@ -5,38 +5,83 @@
   },
   "omitted": [
     {
+      "fact_id": "public_symbol:aspose.cells_foss.font",
+      "reason": "Font is a nested type of Style and not used as a top-level symbol in any accepted example; omitted per coherence and fact coverage rules.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.cells_foss.formatconditioncollection",
+      "reason": "FormatConditionCollection is not referenced in any accepted example; omitted per fact coverage rules.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.cells_foss.listobject",
+      "reason": "ListObject is not referenced in any accepted example; omitted per fact coverage rules.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "public_symbol:aspose.cells_foss.chartcollection",
+      "reason": "ChartCollection is not referenced in any accepted example; omitted per fact coverage rules.",
+      "section": "opening"
+    },
+    {
       "fact_id": "example:004",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
       "fact_id": "example:005",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
       "fact_id": "example:006",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
       "fact_id": "example:007",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
       "fact_id": "example:008",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
       "fact_id": "example:009",
-      "reason": "contradicted example",
+      "reason": "Contradicted example; omitted per do_not_claim rules.",
       "section": "opening"
     },
     {
-      "fact_id": "inherited_unit:010.list",
-      "reason": "inherited_unit is not a public_symbol, example, or identity fact and is excluded per evidence discipline",
+      "fact_id": "example:004",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "example is CONTRADICTED and not used by any capability unit",
       "section": "key_capabilities"
     },
     {
@@ -50,7 +95,7 @@
       "section": "additional_examples"
     },
     {
-      "fact_id": "inherited_unit:021.code_block",
+      "fact_id": "inherited_unit:022.heading",
       "reason": "inherited unit, not a fact about the product",
       "section": "additional_examples"
     },
@@ -64,96 +109,102 @@
   "units": [
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
         "identity:repository",
         "identity:revision",
-        "license:spdx",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
         "package:name",
-        "package:target_framework",
         "package:version",
-        "public_symbol:aspose.cells_foss.borders",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.listobject",
-        "public_symbol:aspose.cells_foss.loaddiagnostics",
-        "public_symbol:aspose.cells_foss.loadoptions",
-        "public_symbol:aspose.cells_foss.pageorientationtype",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.papersizetype",
-        "public_symbol:aspose.cells_foss.pdfsaveoptions",
-        "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
+        "package:target_framework",
         "example:001",
         "example:002",
-        "example:003"
+        "example:003",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.validationcollection",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.pagesetup",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet"
       ],
       "section": "opening",
       "slot": "opening",
-      "text": "Aspose.Cells FOSS for .NET is a free, open-source library for creating, editing, and converting Excel workbooks and worksheets in .NET applications. It enables developers to generate reports, process spreadsheets, and export to PDF without requiring Microsoft Excel, supporting formats such as XLSX and PDF through classes like Workbook, Worksheet, Cell, Style, Font, Borders, PageSetup, and PdfSaveOptions. Users can load files with repair options via LoadOptions and inspect diagnostics via LoadDiagnostics to detect potential data loss or repairs. The library targets netstandard2.0 and is versioned 26.9.0.0, licensed under the MIT license."
+      "text": "Aspose.Cells FOSS for .NET is a free, open-source library that enables developers to create, read, convert, and manipulate Excel spreadsheets programmatically in .NET applications. It supports loading workbooks with repair options for corrupted files, applying styles to cells, and saving documents in XLSX and PDF formats. Users can configure page layout, add data validation, and inspect load diagnostics to detect potential data loss or repairs. The library targets netstandard2.0 and exposes core types such as Workbook, Worksheet, Style, LoadOptions, PdfSaveOptions, and PageSetup."
     },
     {
       "fact_ids": [
         "example:001",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.cell",
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet"
       ],
       "section": "key_capabilities",
       "slot": "capability:1",
-      "text": "Create a new workbook with Workbook() or load an existing file with Workbook(fileName), then populate cells via Worksheet.Cells and write values with Cell.PutValue, formulas with Cell.Formula, and save the result with Workbook.Save."
+      "text": "Create a new workbook with the Aspose.Cells_FOSS.Workbook constructor or load an existing file, then edit worksheets through the Workbook.Worksheets collection and save the result."
     },
     {
       "fact_ids": [
         "example:001",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.borders",
         "public_symbol:aspose.cells_foss.font",
         "public_symbol:aspose.cells_foss.style"
       ],
       "section": "key_capabilities",
       "slot": "capability:2",
-      "text": "Apply formatting to cells using Style, Font, and Borders through Cell.GetStyle and Cell.SetStyle, setting properties such as background color, font weight, border style, and fill pattern to customize appearance."
+      "text": "Apply fonts and styles to cells using Aspose.Cells_FOSS.Style and Aspose.Cells_FOSS.Font to control background, foreground, bold, color, and number formatting."
     },
     {
       "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection",
-        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
         "public_symbol:aspose.cells_foss.validationcollection"
       ],
       "section": "key_capabilities",
       "slot": "capability:3",
-      "text": "Enforce data entry rules with ValidationCollection.Add and Validation, supporting types such as whole-number, decimal, list, and date validation, and highlight data patterns using ConditionalFormattingCollection to apply conditional rules."
+      "text": "Enforce data entry rules with Aspose.Cells_FOSS.ValidationCollection and highlight values using Aspose.Cells_FOSS.FormatConditionCollection for conditional formatting."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.cells_foss.pdfsaveoptions"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Export a workbook to PDF using Aspose.Cells_FOSS.PdfSaveOptions to control page geometry, orientation, and one-page-per-sheet layout."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.loadoptions"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Repair malformed Excel files by configuring Aspose.Cells_FOSS.LoadOptions with repair flags and inspecting Aspose.Cells_FOSS.LoadDiagnostics for potential data loss."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chartcollection",
+        "public_symbol:aspose.cells_foss.listobject"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Add structured Excel tables with Aspose.Cells_FOSS.ListObject and create charts using Aspose.Cells_FOSS.ChartCollection to visualize data."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a new workbook, populate a sheet with product data, apply header styling, and save the file as products.xlsx using Aspose.Cells.FOSS version 26.9.0.0 targeting netstandard2.0."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Load a potentially corrupted Excel file with repair options enabled, check for data loss risk, update a cell, and save the repaired workbook as updated.xlsx using Aspose.Cells.FOSS version 26.9.0.0 targeting netstandard2.0."
     },
     {
       "fact_ids": [
@@ -165,13 +216,193 @@
         "identity:revision",
         "package:name",
         "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Load a workbook and convert it to PDF with A4 landscape settings, or export a worksheet to PDF with one page per sheet."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Convert an Excel file to PDF with A4 landscape layout and one page per sheet."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:039.paragraph",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Cells FOSS for .NET exposes its public API under the Aspose.Cells_FOSS namespace, with Workbook as the root object and Worksheet, Cells, and Cell as the types most developers interact with day to day. The API supports reading, writing, and manipulating spreadsheet content through these core classes."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.coredocumentproperties",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.worksheet"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.workbook",
+      "text": "The Workbook class serves as the primary entry point for working with spreadsheet files, providing constructors that accept file paths, streams, and load options, and exposing properties such as Worksheets, DefinedNames, Properties, DocumentProperties, and LoadDiagnostics."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cellvaluetype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.cell",
+      "text": "The Cell class represents an individual cell in a worksheet and provides methods such as PutValue and GetStyle, along with properties including Value, StringValue, DisplayStringValue, Formula, and Type."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.borders",
+        "public_symbol:aspose.cells_foss.fillpattern",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.style"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.style",
+      "text": "The Style class enables formatting control through properties such as Font, Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, HorizontalAlignment, VerticalAlignment, WrapText, IsLocked, and IsHidden."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.validation",
+        "public_symbol:aspose.cells_foss.validationalerttype",
+        "public_symbol:aspose.cells_foss.validationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.validationcollection",
+      "text": "The ValidationCollection class manages data validation rules on a worksheet, offering methods such as Add, GetValidationInCell, RemoveACell, and RemoveArea, and exposing a Count property."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.formatcondition",
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.formatconditiontype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.formatconditioncollection",
+      "text": "The FormatConditionCollection class provides conditional formatting capabilities through methods such as Add, AddCondition, AddArea, GetCellArea, RemoveArea, and RemoveCondition, and exposes Count and RangeCount properties."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.loadissue",
+        "public_symbol:aspose.cells_foss.loadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.loadoptions",
+      "text": "The LoadOptions class configures how a workbook is loaded, offering properties such as StrictMode, TryRepairPackage, TryRepairXml, WarningCallback, Issues, HasRepairs, and HasDataLossRisk."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
         "package:version",
         "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.pdfsaveoptions"
+        "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.saveoptions"
       ],
-      "section": "key_capabilities",
-      "slot": "capability:4",
-      "text": "Export a workbook to PDF using Workbook.Save with PdfSaveOptions, configuring options such as OnePagePerSheet and page geometry through Worksheet.PageSetup to control layout and output fidelity."
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.pdfsaveoptions",
+      "text": "The PdfSaveOptions class controls PDF export behavior with properties such as SaveFormat, OnePagePerSheet, AllColumnsInOnePagePerSheet, and DefaultFont."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.cells_foss.listcolumn",
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.listobjectcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.listobject",
+      "text": "The ListObject class represents an Excel table, providing methods such as Resize, ShowAutoFilter, RemoveAutoFilter, and ConvertToRange, and exposing properties including DisplayName, TableStyleType, ShowTotals, and ListColumns."
     },
     {
       "fact_ids": [
@@ -185,11 +416,11 @@
         "package:version",
         "public_symbol:aspose.cells_foss.chart",
         "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.listobject"
+        "public_symbol:aspose.cells_foss.charttype"
       ],
-      "section": "key_capabilities",
-      "slot": "capability:5",
-      "text": "Build structured Excel tables with ListObject and render data visually using ChartCollection and Chart to create bar, line, pie, and other chart types directly on worksheets."
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.cells_foss.chartcollection",
+      "text": "The ChartCollection class manages chart objects on a worksheet, offering an Add method that accepts chart type, data range, and positioning parameters, and exposing a Count property."
     },
     {
       "fact_ids": [
@@ -201,77 +432,13 @@
         "package:name",
         "package:target_framework",
         "package:version",
-        "public_symbol:aspose.cells_foss.pageorientationtype",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.papersizetype"
-      ],
-      "section": "key_capabilities",
-      "slot": "capability:6",
-      "text": "Set page layout and print options for a worksheet using PageSetup to define PaperSizeType such as A4, PageOrientationType such as Landscape, and other print-related settings to prepare documents for output."
-    },
-    {
-      "fact_ids": [
-        "example:001"
-      ],
-      "section": "quick_start",
-      "slot": "lead_in",
-      "text": "Create a new workbook, populate and style cells, and save the file as products.xlsx."
-    },
-    {
-      "fact_ids": [
-        "example:003"
-      ],
-      "section": "quick_start",
-      "slot": "lead_in:2",
-      "text": "Open an existing report.xlsx workbook, configure page layout, and export it to PDF."
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version"
-      ],
-      "section": "additional_examples",
-      "slot": "preview",
-      "text": "Aspose.Cells FOSS for .NET supports workbook recovery diagnostics and export to PDF. Example 002 demonstrates loading a workbook with recovery options and saving the updated file."
-    },
-    {
-      "fact_ids": [
-        "example:002",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version"
-      ],
-      "section": "additional_examples",
-      "slot": "workflow:example:002",
-      "text": "Load a workbook with recovery diagnostics and save the updated file."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "inherited_unit:039.paragraph",
-        "package:name",
-        "package:target_framework",
-        "package:version"
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetcollection",
+        "public_symbol:aspose.cells_foss.worksheetprotection"
       ],
       "section": "api_reference",
-      "slot": "intro",
-      "text": "Aspose.Cells FOSS for .NET exposes its public API under the Aspose.Cells_FOSS namespace, with Workbook as the root object and Worksheet, Cells, and Cell as the types most developers interact with day to day. The package targets netstandard2.0 and is versioned at 26.9.0.0."
+      "slot": "hub:public_symbol:aspose.cells_foss.worksheet",
+      "text": "The Worksheet class represents a single worksheet, exposing properties such as Name, VisibilityType, ShowGridlines, RightToLeft, Zoom, Cells, Hyperlinks, Validations, ConditionalFormattings, PageSetup, Protection, AutoFilter, ListObjects, Pictures, Shapes, Charts, and Comments."
     },
     {
       "fact_ids": [
@@ -283,13 +450,12 @@
         "package:name",
         "package:target_framework",
         "package:version",
-        "public_symbol:aspose.cells_foss.cell",
-        "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet"
+        "public_symbol:aspose.cells_foss.hyperlink",
+        "public_symbol:aspose.cells_foss.hyperlinkcollection"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.workbook",
-      "text": "The Workbook class serves as the entry point for creating and manipulating spreadsheets, providing access to Worksheets through its Worksheets property and supporting operations such as saving to file or stream, managing document properties, and handling load diagnostics."
+      "slot": "hub:public_symbol:aspose.cells_foss.hyperlinkcollection",
+      "text": "The HyperlinkCollection class manages hyperlinks on a worksheet, offering methods such as Add and RemoveAt, and exposing a Count property."
     },
     {
       "fact_ids": [
@@ -301,81 +467,12 @@
         "package:name",
         "package:target_framework",
         "package:version",
-        "public_symbol:aspose.cells_foss.borders",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.style"
+        "public_symbol:aspose.cells_foss.definedname",
+        "public_symbol:aspose.cells_foss.definednamecollection"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.style",
-      "text": "The Style class enables formatting control through properties such as Font, Borders, Pattern, ForegroundColor, BackgroundColor, NumberFormat, and HorizontalAlignment, with methods like Copy, Equals, and GetHashCode for style management."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.validationcollection"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.validation",
-      "text": "The Validation class defines data validation rules with properties such as Areas, Type, Operator, Formula1, Formula2, AlertStyle, and InCellDropDown, while ValidationCollection provides methods to add, remove, and retrieve validations within a worksheet."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.pdfsaveoptions"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.pdfsaveoptions",
-      "text": "PdfSaveOptions controls how a workbook is exported to PDF, offering properties such as SaveFormat, OnePagePerSheet, AllColumnsInOnePagePerSheet, and DefaultFont to customize the output layout and appearance."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.chart",
-        "public_symbol:aspose.cells_foss.listobject"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.listobject",
-      "text": "ListObject represents a table in a worksheet, supporting operations like resizing, converting to a range, and toggling the auto-filter, with properties such as DisplayName, TableStyleType, ShowTotals, and ListColumns for structured data management."
-    },
-    {
-      "fact_ids": [
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:name",
-        "package:target_framework",
-        "package:version",
-        "public_symbol:aspose.cells_foss.pageorientationtype",
-        "public_symbol:aspose.cells_foss.pagesetup"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:aspose.cells_foss.pagesetup",
-      "text": "PageSetup configures page layout settings for a worksheet, including orientation via PageOrientationType, margins, header/footer options, and print area definitions to prepare documents for printing or PDF export."
+      "slot": "hub:public_symbol:aspose.cells_foss.definednamecollection",
+      "text": "The DefinedNameCollection class manages named ranges at the workbook level, offering methods such as Add and RemoveAt, and exposing a Count property."
     },
     {
       "fact_ids": [
@@ -391,7 +488,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:022",
-      "text": "The getting started guide covers installation, step-by-step walkthroughs, and an overview of key features for Aspose.Cells.FOSS version 26.9.0.0 targeting netstandard2.0."
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for Aspose.Cells.FOSS targeting netstandard2.0."
     },
     {
       "fact_ids": [
@@ -407,7 +504,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:023",
-      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet operations and troubleshooting questions when using Aspose.Cells.FOSS."
+      "text": "The how-to guides and FAQ provide task-focused answers for common spreadsheet operations using Aspose.Cells.FOSS version 26.9.0.0."
     },
     {
       "fact_ids": [
@@ -423,20 +520,7 @@
       ],
       "section": "documentation_resources",
       "slot": "link:link_target:024",
-      "text": "The full API reference offers a complete browsable reference for all public types in Aspose.Cells.FOSS version 26.9.0.0."
-    },
-    {
-      "fact_ids": [
-        "link_target:025",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision"
-      ],
-      "section": "documentation_resources",
-      "slot": "link:link_target:025",
-      "text": "The contributor guide describes the repository layout, build commands, verification notes, and conventions for developers contributing to Aspose.Cells-FOSS-for-.NET."
+      "text": "The full API reference offers a complete browsable reference for all public types in Aspose.Cells.FOSS for .NET."
     },
     {
       "fact_ids": [
@@ -445,14 +529,13 @@
         "identity:platform",
         "identity:repository",
         "identity:revision",
-        "inherited_unit:064.list",
         "package:name",
         "package:target_framework",
         "package:version"
       ],
       "section": "scope_limitations",
       "slot": "scope",
-      "text": "Aspose.Cells FOSS for .NET version 26.9.0.0 targets netstandard2.0 and provides read and write capabilities for XLSX files and export to PDF, supporting structured tables and charts without formula calculation, image or HTML export, print execution, macros, or pivot tables."
+      "text": "Aspose.Cells FOSS for .NET version 26.9.0.0 targets netstandard2.0 and provides read and write capabilities for XLSX files and export to PDF, supporting structured tables and charts without formula calculation, image or HTML export, print execution, macros, VBA, or pivot tables."
     },
     {
       "fact_ids": [
@@ -460,7 +543,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:1",
-      "text": "Load support is limited to XLSX files, and legacy formats such as XLS, ODS, and CSV are not loaded."
+      "text": "Load support is limited to XLSX using LoadFormat.Auto or LoadFormat.Xlsx, and legacy formats such as XLS, ODS, and CSV are not loaded."
     },
     {
       "fact_ids": [
@@ -468,7 +551,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:2",
-      "text": "Save support currently covers XLSX and PDF output, with no image or HTML rendering available in this checkout."
+      "text": "Save support currently covers XLSX and PDF only, with no image or HTML rendering output available in this checkout."
     },
     {
       "fact_ids": [
@@ -476,7 +559,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:3",
-      "text": "The library does not parse, evaluate, or recalculate formulas; Cell.Formula stores the formula as a string only."
+      "text": "The library does not parse, evaluate, or recalculate formulas; Cell.Formula stores the formula as a string without computation."
     },
     {
       "fact_ids": [
@@ -484,7 +567,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:4",
-      "text": "Worksheet.PageSetup configures print settings, but the library itself does not send workbooks to a printer."
+      "text": "Worksheet.PageSetup configures how a spreadsheet application would print the file, but the library itself does not send workbooks to a printer."
     },
     {
       "fact_ids": [
@@ -500,7 +583,7 @@
       ],
       "section": "scope_limitations",
       "slot": "limitation:6",
-      "text": "Structured tables and charts are supported, but pivot tables are not part of the public API surface."
+      "text": "Pivot tables are not part of the public API surface, while structured tables and charts are supported."
     },
     {
       "fact_ids": [
@@ -515,7 +598,7 @@
       ],
       "section": "enterprise_relationship",
       "slot": "context",
-      "text": "Aspose.Cells FOSS for .NET provides core spreadsheet functionality, while Aspose.Cells for .NET commercial edition adds advanced features such as comprehensive charting, pivot tables, macros, and document protection capabilities."
+      "text": "Aspose.Cells FOSS for .NET provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot tables, macros, and support for additional file formats including DOCX, HTML, and SVG."
     }
   ]
 }

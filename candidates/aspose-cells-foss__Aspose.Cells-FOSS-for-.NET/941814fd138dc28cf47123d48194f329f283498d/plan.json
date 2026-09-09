@@ -1,34 +1,62 @@
 {
   "additional_example_ids": [
-    "example:002"
+    "example:003"
   ],
   "api_hubs": [
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.workbook",
         "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
+        "public_symbol:aspose.cells_foss.workbookproperties",
+        "public_symbol:aspose.cells_foss.coredocumentproperties"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.workbook"
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cellvaluetype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.cell"
+    },
+    {
+      "fact_ids": [
         "public_symbol:aspose.cells_foss.style",
         "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.borders"
+        "public_symbol:aspose.cells_foss.borders",
+        "public_symbol:aspose.cells_foss.fillpattern"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.style"
     },
     {
       "fact_ids": [
+        "public_symbol:aspose.cells_foss.validationcollection",
         "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.validationcollection"
+        "public_symbol:aspose.cells_foss.validationalerttype"
       ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.validation"
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.validationcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formatconditioncollection",
+        "public_symbol:aspose.cells_foss.formatcondition",
+        "public_symbol:aspose.cells_foss.formatconditiontype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.formatconditioncollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics",
+        "public_symbol:aspose.cells_foss.loadissue"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.loadoptions"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.pdfsaveoptions",
+        "public_symbol:aspose.cells_foss.saveoptions",
         "public_symbol:aspose.cells_foss.pagesetup"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.pdfsaveoptions"
@@ -36,26 +64,50 @@
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.listobject",
-        "public_symbol:aspose.cells_foss.chart"
+        "public_symbol:aspose.cells_foss.listobjectcollection",
+        "public_symbol:aspose.cells_foss.listcolumn"
       ],
       "symbol_fact_id": "public_symbol:aspose.cells_foss.listobject"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.pageorientationtype"
+        "public_symbol:aspose.cells_foss.chartcollection",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.charttype"
       ],
-      "symbol_fact_id": "public_symbol:aspose.cells_foss.pagesetup"
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.chartcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheetcollection",
+        "public_symbol:aspose.cells_foss.worksheetprotection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.worksheet"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.hyperlinkcollection",
+        "public_symbol:aspose.cells_foss.hyperlink"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.hyperlinkcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.definednamecollection",
+        "public_symbol:aspose.cells_foss.definedname"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.definednamecollection"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
       "Create and edit workbooks",
-      "Apply cell formatting",
-      "Add data validation and conditional formatting",
+      "Format cells and styles",
+      "Validate and highlight data",
       "Export to PDF",
-      "Support structured tables and charts",
-      "Configure page layout and print settings"
+      "Repair malformed files",
+      "Add structured tables and charts"
     ],
     "input_format_ids": [],
     "output_format_ids": []
@@ -65,8 +117,7 @@
       "fact_ids": [
         "example:001",
         "public_symbol:aspose.cells_foss.workbook",
-        "public_symbol:aspose.cells_foss.worksheet",
-        "public_symbol:aspose.cells_foss.cell"
+        "public_symbol:aspose.cells_foss.worksheet"
       ],
       "shared_fact_ids": [
         "example:001"
@@ -77,103 +128,74 @@
       "fact_ids": [
         "example:001",
         "public_symbol:aspose.cells_foss.style",
-        "public_symbol:aspose.cells_foss.font",
-        "public_symbol:aspose.cells_foss.borders"
+        "public_symbol:aspose.cells_foss.font"
       ],
       "shared_fact_ids": [
         "example:001"
       ],
-      "title": "Apply cell formatting"
+      "title": "Format cells and styles"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.cells_foss.validationcollection",
-        "public_symbol:aspose.cells_foss.validation",
-        "public_symbol:aspose.cells_foss.conditionalformattingcollection"
+        "public_symbol:aspose.cells_foss.formatconditioncollection"
       ],
       "shared_fact_ids": [],
-      "title": "Add data validation and conditional formatting"
+      "title": "Validate and highlight data"
     },
     {
       "fact_ids": [
         "example:003",
-        "public_symbol:aspose.cells_foss.pdfsaveoptions",
-        "public_symbol:aspose.cells_foss.pagesetup"
+        "public_symbol:aspose.cells_foss.pdfsaveoptions"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.cells_foss.pagesetup"
-      ],
+      "shared_fact_ids": [],
       "title": "Export to PDF"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.listobject",
-        "public_symbol:aspose.cells_foss.chartcollection",
-        "public_symbol:aspose.cells_foss.chart"
+        "example:002",
+        "public_symbol:aspose.cells_foss.loadoptions",
+        "public_symbol:aspose.cells_foss.loaddiagnostics"
       ],
       "shared_fact_ids": [],
-      "title": "Support structured tables and charts"
+      "title": "Repair malformed files"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.cells_foss.pagesetup",
-        "public_symbol:aspose.cells_foss.pageorientationtype",
-        "public_symbol:aspose.cells_foss.papersizetype"
+        "public_symbol:aspose.cells_foss.listobject",
+        "public_symbol:aspose.cells_foss.chartcollection"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.cells_foss.pagesetup"
-      ],
-      "title": "Configure page layout and print settings"
+      "shared_fact_ids": [],
+      "title": "Add structured tables and charts"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:024.heading",
-        "inherited_unit:025.code_block",
-        "inherited_unit:027.heading",
-        "inherited_unit:028.code_block",
-        "inherited_unit:029.heading",
-        "inherited_unit:030.code_block",
-        "inherited_unit:031.heading",
-        "inherited_unit:032.code_block",
-        "inherited_unit:033.heading",
-        "inherited_unit:034.code_block",
-        "inherited_unit:035.heading",
-        "inherited_unit:036.code_block"
+        "example:003"
       ],
       "section_id": "additional_examples",
-      "text": "The Additional Examples section omits all example headings and code blocks from the inherited README because they are marked as CONTRADICTED in the dispositions."
+      "text": "The Additional Examples section includes only the PDF export example; other example subsections from the inherited README are omitted because they are contradicted by example facts not present in the accepted set."
     },
     {
       "fact_ids": [
-        "inherited_unit:042.table",
-        "inherited_unit:044.table",
-        "inherited_unit:046.table",
-        "inherited_unit:048.table"
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss"
       ],
       "section_id": "api_reference",
-      "text": "The API Reference section includes only the public symbols explicitly listed in the public_symbol facts; other symbols from the inherited table are omitted."
+      "text": "The API Reference section includes only the public symbols and tables explicitly listed in the inherited README; member reference subsections are omitted because they are not supported by facts."
     },
     {
       "fact_ids": [
-        "inherited_unit:066.heading",
-        "inherited_unit:067.paragraph",
-        "inherited_unit:068.code_block",
-        "inherited_unit:069.paragraph",
-        "inherited_unit:070.code_block",
-        "inherited_unit:071.paragraph",
-        "inherited_unit:072.code_block",
-        "inherited_unit:073.html_block",
-        "inherited_unit:074.paragraph",
-        "inherited_unit:075.list",
-        "inherited_unit:076.html_block"
+        "example:001",
+        "example:002",
+        "example:003"
       ],
       "section_id": "development_testing",
-      "text": "The Development and Testing section is omitted because the condition (build or test assets exist) is not satisfied per the dispositions."
+      "text": "The Development and Testing section is omitted because build and test assets are not supported by facts."
     }
   ],
-  "flagship_example_id": null,
+  "flagship_example_id": "example:003",
   "links": [
     {
       "link_fact_id": "link_target:022",
@@ -185,10 +207,6 @@
     },
     {
       "link_fact_id": "link_target:024",
-      "section_id": "documentation_resources"
-    },
-    {
-      "link_fact_id": "link_target:025",
       "section_id": "documentation_resources"
     },
     {
@@ -207,7 +225,7 @@
     }
   ],
   "quick_start_example_id": "example:001",
-  "second_quick_start_example_id": "example:003",
+  "second_quick_start_example_id": "example:002",
   "sections": [
     {
       "include": true,

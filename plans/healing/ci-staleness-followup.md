@@ -105,9 +105,34 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-02 — Re-seal Cells .NET and Email-Python against the landed renderer fix
 
-- **Status:** Not Started — unblocked (unlike CS-03), but deliberately not run without owner
-  confirmation, since re-sealing is real candidate work spending provider calls, held for Wave 7
-  by this session's own `EXECUTION-PLAN.md` throughout the pass.
+- **Status:** Partially Done, 2026-09-09 (owner confirmed via independent review: "up to the mark
+  should mean a green `gh run watch`").
+  - **Cells .NET: Done.** Two-run record-then-adopt cycle completed exactly as designed - first
+    run recorded `VALID_UPDATE_AVAILABLE` (15 provider calls), second run adopted it with
+    `provider calls 0; update adopted (factual): a fresh process reproduced the waiting update
+    byte for byte`. `test_sealed_bytes.py`'s Cells .NET case now passes; `status --stale` dropped
+    from 8 to 7. Committed.
+  - **Email-Python: genuinely rejected, not forced through - a new, real finding, not a retry
+    candidate.** `present`'s first run failed at `BC-10`/`REJECT_PRESENTATION`: the composed
+    candidate's API reference carries the class table *and* a duplicate list-format rendering of
+    the same classes. Traced directly: this transaction's `source_reconciliation` was seeded from
+    the sealed bundle (reused, not re-run), so the disposition keeping that list-format unit
+    `VERIFIED_PRESERVE` predates RC-02's placement-coverage fix - the *placement* layer now
+    correctly recognizes the overlap (RC-02 working as designed), but the *disposition* driving
+    what gets preserved was never revisited to match. A repair round tried and the equivalent
+    failure recurred, meaning this needs `RECONCILING` to genuinely re-run with the RC-02-aware
+    model, not a `COMPOSING`-stage patch. **New, previously-undiscovered structural gap found as a
+    side effect**: `bundle/evaluation.py`'s `evaluate()` maps every `components.*` change to
+    `COMPOSING` uniformly (see CS-04's own honest note in `docs/STATE_MACHINE.md` section 9) -
+    never `RECONCILING` - so a placement-coverage improvement like RC-02's can land, verify clean
+    in isolation, and never actually get exercised against a real candidate's reconciliation
+    output until something else independently reopens `RECONCILING`. No bundle was written (exit
+    code 1); Email-Python's prior sealed state is completely unaffected. Full finding in
+    `docs/DECISION_LOG.md`'s 2026-09-09 21:50 entry. Tracked going forward under
+    `r1-reseal-operations.md`'s OPS-03 shape (a candidate correctly left unsealed pending a
+    mechanism fix) - the mechanism fix itself (either a narrow `evaluate()` addition mapping a
+    coverage-relevant component change to `RECONCILING`, or a more targeted trigger) is a new,
+    not-yet-taskcarded gap this file does not invent a fix for unilaterally.
 - **Gap linkage:** G2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

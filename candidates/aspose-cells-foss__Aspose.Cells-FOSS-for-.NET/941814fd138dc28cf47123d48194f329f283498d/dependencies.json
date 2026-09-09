@@ -1,11 +1,18 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "1",
-    "renderer": "17",
+    "normalisation": "2",
+    "renderer": "18",
+    "reviewer_logic": "2",
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
+  "environment": {
+    "extractor_version": "1",
+    "os": "Windows",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "python_version": "3.13.2"
+  },
   "facts": {
     "dependency:skiasharp": "f51e4fba9795173fc614e1b8fc64bb52a53bde5fbc92dc4ee528941f124cdcb7",
     "example:001": "1d3621cc05b650d1ef6221aaa96f03ddc2fbc4bdc9a4f469e1fb7368eb60ccf9",
@@ -797,8 +804,8 @@
     },
     "presentation_planning": {
       "model_route": "qwen3-next",
-      "sha256": "332d8258a7d34e93f9c17c72e37e26fc66f680f45c201707f8b7c9f5f4c2ab46",
-      "version": "10"
+      "sha256": "4b015cd738cfd282200d4a247bcbd32af854a9f406a419975a9aadc604da65ee",
+      "version": "11"
     },
     "repository_investigation": {
       "model_route": "qwen3-next",
@@ -807,8 +814,8 @@
     },
     "section_authoring": {
       "model_route": "qwen3-next",
-      "sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
-      "version": "12"
+      "sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+      "version": "14"
     },
     "source_reconciliation": {
       "model_route": "qwen3-next",
@@ -817,11 +824,11 @@
     },
     "targeted_repair": {
       "model_route": "qwen3-next",
-      "sha256": "3d17c207ad307f3aadc2c0d63d0837f401714cbb98a71d5ca5f4148ccf82ce0b",
-      "version": "7"
+      "sha256": "29ef850e5c00fffdd07aad641bd226e144fb2de91b09d0cd189f402544d8e836",
+      "version": "8"
     }
   },
-  "protected_content_fingerprint": "5c20b3db1092803593c71699718b2860809d6541af63b15b9d6e8ee8d520224a",
+  "protected_content_fingerprint": "868f07ebad9230a0a71be83dd251956cbbb043ca2a2e80337f17c920ffa35bca",
   "schema_version": 1,
   "source": {
     "revision": "941814fd138dc28cf47123d48194f329f283498d",
@@ -831,7 +838,7 @@
   "validators": {
     "BC-01": "1",
     "BC-02": "1",
-    "BC-03": "1",
+    "BC-03": "2",
     "BC-04": "1",
     "BC-05": "1",
     "BC-06": "1",
