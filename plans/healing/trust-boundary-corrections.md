@@ -386,7 +386,37 @@ file was touched.
 
 ### TB-05 — Validate examples against the ecosystem's own fence contract
 
-- **Status:** Not Started
+- **Status:** Done — fixed and pushed 2026-09-09.
+- **Note:** `_check_examples` (`registry.py`) compared a fence's bare language against
+  `candidate.entry.ecosystem` itself (`"python"`, `"net"`, ...), never against
+  `EcosystemSpec.example_fences`. A .NET example is fenced ```csharp, never ```net - so
+  `language == candidate.entry.ecosystem` could never match a single real .NET fence, and an
+  unplanned ```csharp block passed BC-03 silently; a Python example fenced under its own admitted
+  `py`/`python3` aliases escaped the same way. Fixed by comparing against
+  `spec_for(candidate.entry.ecosystem).example_fences` instead - the set every ecosystem already
+  declares for exactly this purpose.
+  `_fences` was also rewritten to parse through the project's own CommonMark parser
+  (`MarkdownIt("commonmark")`, the same one `evidence/facts/links.py` already uses) rather than a
+  hand-rolled ```-only line scan, so a tilde fence (`~~~python`) and a multi-word info string
+  (`` ```py noqa: mixed-indent ``, keeping only the first word as the language) parse the same way
+  a real renderer does - the old scanner recognized neither shape at all.
+  Six regression tests added to `test_registry.py`, confirmed to fail against the pre-fix code
+  before the fix: an admitted alias for a verified example still passes; an unplanned block under
+  an admitted alias now fails (both the general case and .NET's own confirming ```csharp case,
+  the second exercised directly against `_check_examples` since a full .NET candidate is out of
+  scope to construct through `render_readme`); edited verified code still fails unchanged; a
+  non-example fence (bash) never false-positives; a tilde-fenced unplanned block is now caught;
+  the sound base candidate stays a no-regression pass.
+  **Spot-checked against all 8 real sealed candidates directly** (`_check_examples` run against
+  each one's real `README.md`/`facts.json`/`plan.json` and its registry entry's real ecosystem,
+  platform plugins pre-registered via `known_ecosystems()`/`plugin_for` to avoid the
+  `ConfigError` this pass has already documented for isolated runs): zero BC-03 failures for
+  every candidate, confirmed exercised (not vacuously passing) by checking `_fences` actually
+  found the real fence languages - Cells .NET's own README carries three real ```csharp fences,
+  all correctly recognized and all matching their planned values. Full suite
+  (`pytest tests/ -q --tb=no`) run once: only the three already-tracked pre-existing divergences
+  (3D-Python canary floor; Cells .NET and Email-Python's `test_sealed_bytes.py` entries, both
+  RC-02's own desirable fixes) - nothing new.
 - **Gap linkage:** D5
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlsplit
 
+from markdown_it import MarkdownIt
+
 from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     allowed_identifiers,
@@ -52,6 +54,7 @@ from repository_presenter.components.readme.evidence.facts.links import (
     heading_slugs,
 )
 from repository_presenter.components.readme.evidence.facts.product_pages import banner_target
+from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from repository_presenter.core.secrets import ConfiguredSecret, scan_for_secrets
@@ -306,20 +309,18 @@ def _normalized(text: str) -> str:
 
 
 def _fences(readme: str) -> list[tuple[str, str]]:
-    """(language, body) of every fenced block, in document order."""
+    """(language, body) of every fenced block, in document order - read through the project's own
+    CommonMark parser (`markdown_it`, already used by `evidence/facts/links.py`) so a tilde fence
+    and a multi-word info string parse the same way a real example's fence does (TB-05, D5: a
+    hand-rolled ```-only line scan never saw either shape). The info string's first word is the
+    language; the rest is free text CommonMark itself does not constrain."""
     found: list[tuple[str, str]] = []
-    language: str | None = None
-    body: list[str] = []
-    for line in readme.splitlines():
-        stripped = line.strip()
-        if language is None and stripped.startswith("```"):
-            language = stripped[3:].strip()
-            body = []
-        elif language is not None and stripped == "```":
-            found.append((language, "\n".join(body)))
-            language = None
-        elif language is not None:
-            body.append(line)
+    for token in MarkdownIt("commonmark").parse(readme):
+        if token.type != "fence":
+            continue
+        info = token.info.strip()
+        language = info.split()[0] if info else ""
+        found.append((language, token.content))
     return found
 
 
@@ -464,6 +465,11 @@ def _check_install(candidate: Candidate) -> list[Failure]:
 
 
 def _check_examples(candidate: Candidate) -> list[Failure]:
+    """BC-03: every planned example fact was actually executed, and every fence in the
+    ecosystem's own declared aliases (`EcosystemSpec.example_fences`) is one of the planned,
+    verified bodies. TB-05, D5: comparing a fence's language against the bare ecosystem string
+    (`candidate.entry.ecosystem`) missed every real .NET example - fenced ```csharp, never
+    ```net - and any Python example fenced under its own admitted `py`/`python3` aliases."""
     failures: list[Failure] = []
     by_id = {fact.id: fact for fact in candidate.facts.facts}
     plan = candidate.plan
@@ -494,8 +500,13 @@ def _check_examples(candidate: Candidate) -> list[Failure]:
                 )
             )
     values = {by_id[fact_id].value.rstrip("\n") for fact_id in planned if fact_id in by_id}
+    # D5: a fence's language is compared against the ecosystem's own declared aliases
+    # (EcosystemSpec.example_fences - `py`/`python3` for Python, `csharp`/`cs`/`c#` for .NET),
+    # never against the bare ecosystem string itself - a .NET example is fenced ```csharp, never
+    # ```net, so `language == candidate.entry.ecosystem` could never catch an unplanned .NET block.
+    example_fences = spec_for(candidate.entry.ecosystem).example_fences
     for language, body in _fences(candidate.readme):
-        if language == candidate.entry.ecosystem and body.rstrip("\n") not in values:
+        if language in example_fences and body.rstrip("\n") not in values:
             first = body.strip().splitlines()[0] if body.strip() else ""
             failures.append(
                 Failure(

@@ -18,7 +18,7 @@ fixes come first.
 
 | File | Done | Remaining |
 |---|---|---|
-| `trust-boundary-corrections.md` | TB-01, TB-02 (pt.1), TB-03, TB-04, TB-06, TB-07, TB-08 | TB-05, TB-09, TB-10 |
+| `trust-boundary-corrections.md` | TB-01, TB-02 (pt.1), TB-03, TB-04, TB-05, TB-06, TB-07, TB-08 | TB-09, TB-10 |
 | `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03*, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
@@ -87,7 +87,10 @@ scripts). They are **merged into one execution**, not built twice.
 12. **TB-02** [DONE, part 1 only — part 2 excluded, see below] — format claims from unreachable
     code (landed) / unread fixtures (excluded: same verb-vocabulary ambiguity class as RC-03,
     would introduce real false negatives against real portfolio data).
-13. **TB-05** — fence validation via `EcosystemSpec.example_fences`.
+13. **TB-05** [DONE] — fence validation via `EcosystemSpec.example_fences`, plus a CommonMark-
+    based `_fences` (tilde fences, multi-word info strings). Verified against all 8 real sealed
+    candidates directly - zero new BC-03 failures, exercised (Cells .NET's three real ```csharp
+    fences correctly recognized).
 14. **TB-09** — HTML link discovery + prose-matches-evidence seam (after TB-08, same file).
 15. **PA-02** — scope `quote_located` to the finding's own section.
 
