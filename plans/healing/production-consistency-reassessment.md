@@ -312,7 +312,25 @@ duplicate of them.
 
 ### RC-05 — Surface reconciliation call-history variance on the manifest
 
-- **Status:** Not Started
+- **Status:** Done — landed and pushed.
+- **Note:** Grouped by job across the whole transaction ledger (`inputs.transaction/calls.jsonl`,
+  read directly - not `staged[LEDGER_FILENAME]`, which `composition_ledger()` already trims to
+  only the calls the final accepted composition consumed), not by job **and**
+  `logical_call_id` together: empirically checked against this session's own real, already-
+  observed Aspose.Email Python `calls.jsonl` history first, which showed the diagnosed
+  `source_reconciliation` variance comes from *four different* `logical_call_id`s (one per
+  repair-round packet), not one repeated identically - a same-`logical_call_id`-only design
+  (the taskcard's own literal Fix wording, read narrowly) would have surfaced nothing for it at
+  all. Verified directly: `_call_variance` against that real ledger reports
+  `source_reconciliation: 4`, matching the hand diagnosis exactly; the real candidate directory
+  itself was never mutated (read-only check per the runbook). New optional manifest field
+  `call_variance`: a list of `{"job", "distinct_responses", "response_sha256s"}`, present only
+  when a job's successful attempts disagree, absent otherwise (chosen and tested explicitly, per
+  the taskcard's own requirement not to leave that ambiguous). `verify_bundle()` unchanged - the
+  field is optional and not part of its checks.
+- **Checklist:** [x] two test cases (variance present / absent) [x] real-history check against
+  Aspose.Email Python (read-only) [x] schema + README_CONTRACT.md + seal.py docstring updated
+  [x] full suite (only the two known pre-existing failures remain)
 - **Gap linkage:** RC5, SW6
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

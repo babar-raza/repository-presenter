@@ -265,6 +265,12 @@ version — because a fact's evidence is hashed and must not move when only the 
 transaction that composed without one seals without it; `probes.json` and `calls.jsonl` carry a
 clock, so neither is compared byte for byte in the no-op proof. The manifest seals the
 bundle (`schemas/candidate-bundle.schema.json`); only `READY_FOR_PROPOSAL` counts toward N/34.
+The manifest also carries an optional `call_variance`: when a job's successful attempts across
+the transaction's whole history - every repair round and reopening, not only what the accepted
+composition ultimately consumed - never settled on one response, that job and every distinct
+response hash it returned are listed there, so provider non-determinism is visible from
+`manifest.json` alone rather than a manual `calls.jsonl` read (RC-05, RESEARCH_AND_GUIDELINES.md
+27.2 RC5/SW6). Absent when no such variance exists.
 `candidates/<owner>__<name>/CURRENT` names the revision of the current candidate so a reviewer
 opens one stable path. Superseded revisions stay in place with state `SUPERSEDED`.
 

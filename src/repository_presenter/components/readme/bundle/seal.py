@@ -24,6 +24,11 @@ A bundle is published by staging every file to a sibling temp directory, scannin
 configured secrets, and only promoting it into place - and only then updating CURRENT - once the
 scan passes: a leak must leave no trace on disk, never merely raise after the files and CURRENT
 were already published (TB-06, external review D6, 2026-09-08).
+
+The manifest also carries an optional call_variance: any job whose successful attempts across the
+transaction's whole history never settled on one response, named with every distinct response
+hash, so provider non-determinism is visible from manifest.json alone (RC-05,
+RESEARCH_AND_GUIDELINES.md 27.2 RC5/SW6).
 """
 
 from __future__ import annotations
@@ -255,6 +260,41 @@ def _composition(staged: Mapping[str, bytes]) -> dict[str, Any]:
     }
 
 
+def _call_variance(ledger: bytes) -> list[dict[str, Any]]:
+    """Distinct-response variance among a job's successful attempts across the transaction's
+    whole history - every repair round and reopening, not only what the final accepted
+    composition consumed - naming a job whose provider never settled on one answer.
+
+    Surfaced on the manifest so a later reader sees non-determinism in one ``manifest.json``
+    lookup instead of the 30+ minutes of manual ``calls.jsonl`` reading the Aspose.Email Python
+    ``source_reconciliation`` diagnosis needed this session (RC-05, RESEARCH_AND_GUIDELINES.md
+    27.2 RC5/SW6; empirically confirmed against that candidate's own real transaction ledger,
+    which reproduces exactly the four distinct responses that diagnosis found by hand). This does
+    not fix non-determinism; it makes it observable. Grouped by job alone, not job and
+    ``logical_call_id`` together: a job re-run across separate repair rounds gets a *different*
+    ``logical_call_id`` each time (a changed packet), so restricting to one ``logical_call_id``
+    would miss exactly the cross-round drift this exists to surface. Empty when every job's
+    successful attempts agree, or there are none - never a trivial single-entry list, so a caller
+    can treat "no ``call_variance`` on the manifest" as "no variance seen."
+    """
+    responses: dict[str, set[str]] = {}
+    for line in ledger.decode("utf-8").splitlines():
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        if record.get("outcome") != "success":
+            continue
+        response = record.get("response_sha256")
+        if not response:
+            continue
+        responses.setdefault(str(record.get("job")), set()).add(response)
+    return [
+        {"job": job, "distinct_responses": len(hashes), "response_sha256s": sorted(hashes)}
+        for job, hashes in sorted(responses.items())
+        if len(hashes) > 1
+    ]
+
+
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -342,6 +382,12 @@ def _write_bundle(
     files = {
         name: {"sha256": _sha256(data), "bytes": len(data)} for name, data in sorted(staged.items())
     }
+    # The full, unfiltered transaction ledger, not staged[LEDGER_FILENAME]: composition_ledger()
+    # already trimmed that to only the calls the *final accepted* composition consumed, which
+    # hides exactly the cross-repair-round drift this is meant to surface (confirmed empirically
+    # - the sealed, filtered ledger showed no source_reconciliation variance at all for the real
+    # Aspose.Email Python candidate, while its raw transaction ledger reproduced the diagnosis).
+    variance = _call_variance((inputs.transaction / LEDGER_FILENAME).read_bytes())
     manifest = {
         "schema_version": 1,
         "repository": inputs.entry.repository,
@@ -352,6 +398,7 @@ def _write_bundle(
         "provider_calls": provider_calls,
         "no_op_proof": proof,
         "composition": _composition(staged),
+        **({"call_variance": variance} if variance else {}),
         **dict(extra or {}),
     }
     bundle.parent.mkdir(parents=True, exist_ok=True)

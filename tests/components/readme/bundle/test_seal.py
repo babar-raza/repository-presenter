@@ -198,6 +198,80 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert len(document["policy"]["sha256"]) == 64 and document["policy"]["version"] == "1"
 
 
+def test_call_variance_surfaces_non_determinism_and_is_absent_without_it(tmp_path: Path) -> None:
+    """RC-05 (RESEARCH_AND_GUIDELINES.md 27.2 RC5/SW6): the Aspose.Email Python
+    source_reconciliation diagnosis took over 30 minutes of manual calls.jsonl reading; a
+    manifest field makes the same non-determinism visible from one manifest.json lookup.
+
+    Grouped by job across the whole transaction, not by one logical_call_id: confirmed directly
+    against that real candidate's own transaction ledger, where every one of the four distinct
+    source_reconciliation responses the diagnosis found came from a *different* logical_call_id
+    (a different repair-round packet each time) - restricting to one logical_call_id would have
+    shown no variance for it at all.
+    """
+    transaction = _transaction(tmp_path)
+    lines = [
+        {  # a repair round (different logical_call_id) still counts toward the same job.
+            "job": "source_reconciliation",
+            "logical_call_id": "a",
+            "outcome": "success",
+            "response_sha256": "1" * 64,
+        },
+        {
+            "job": "source_reconciliation",
+            "logical_call_id": "b",
+            "outcome": "success",
+            "response_sha256": "2" * 64,
+        },
+        {  # a different job: on its own, one successful attempt is not variance.
+            "job": "presentation_planning",
+            "logical_call_id": "c",
+            "outcome": "success",
+            "response_sha256": "3" * 64,
+        },
+        {  # rejected, so it never counts as a second successful response.
+            "job": "presentation_planning",
+            "logical_call_id": "c",
+            "outcome": "response_invalid",
+            "response_sha256": "4" * 64,
+        },
+    ]
+    (transaction / "calls.jsonl").write_text(
+        "".join(f"{json.dumps(line)}\n" for line in lines), encoding="utf-8", newline="\n"
+    )
+    sealed = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    manifest = json.loads((sealed.bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert manifest["call_variance"] == [
+        {
+            "job": "source_reconciliation",
+            "distinct_responses": 2,
+            "response_sha256s": ["1" * 64, "2" * 64],
+        }
+    ]
+
+    # A no-op case - one successful attempt only - surfaces no such field at all.
+    other_revision = "d" * 40
+    other_transaction = _transaction(tmp_path, revision=other_revision)
+    (other_transaction / "calls.jsonl").write_text(
+        json.dumps(
+            {
+                "job": "presentation_planning",
+                "logical_call_id": "b",
+                "outcome": "success",
+                "response_sha256": "5" * 64,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    quiet = seal_candidate(_inputs(tmp_path, provider_calls=0, revision=other_revision))
+    quiet_manifest = json.loads((quiet.bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(quiet_manifest)
+    assert "call_variance" not in quiet_manifest
+
+
 def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_op(
     tmp_path: Path,
 ) -> None:

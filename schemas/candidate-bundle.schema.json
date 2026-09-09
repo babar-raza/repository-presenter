@@ -89,6 +89,23 @@
         "recorded_at": { "$ref": "#/$defs/timestamp" }
       }
     },
+    "call_variance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["job", "distinct_responses", "response_sha256s"],
+        "properties": {
+          "job": { "type": "string" },
+          "distinct_responses": { "type": "integer", "minimum": 2 },
+          "response_sha256s": {
+            "type": "array",
+            "minItems": 2,
+            "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+          }
+        }
+      }
+    },
     "composition": {
       "type": "object",
       "additionalProperties": false,
