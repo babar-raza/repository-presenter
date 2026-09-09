@@ -1,16 +1,9 @@
 {
   "adopted": {
-    "adopted_at": "2026-09-08T06:41:33Z",
+    "adopted_at": "2026-09-09T20:03:52Z",
     "changed": [
-      "README.md",
-      "README.patch",
-      "content_units.json",
       "dependencies.json",
-      "dispositions.json",
-      "investigation.json",
-      "plan.json",
-      "repairs.json",
-      "review.json",
+      "examples.json",
       "validation.json"
     ],
     "classification": "factual",
@@ -18,11 +11,57 @@
     "previous_proof": {
       "byte_identical": true,
       "fresh_process": true,
-      "proven_at": "2026-09-06T14:55:06Z",
+      "proven_at": "2026-09-08T06:41:33Z",
       "provider_calls": 0
     },
-    "recorded_at": "2026-09-08T06:35:50Z"
+    "recorded_at": "2026-09-09T20:01:58Z"
   },
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "b60699f488df8e02078ef3a4abddeabedf7481524a197d2888de85516ade36fb",
+        "c0fa0a32be0f7418240d500c5ee64d905b29e564c585072dba509f0ad171f40f"
+      ]
+    },
+    {
+      "distinct_responses": 12,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "064bd4a62be3c0e40046eb8745c034f62de75abd58436d35646aac400938a30f",
+        "0d07140f947e2c206440f32d6658b4497a1cd863fd66dbfcfddf951c8091ddfc",
+        "3960cc6331fccb1411b6de2007c56f878f9db919a5a9c7ebf3b9f5a32f3a3394",
+        "50fab048a6bdc7f669d142b01cc7b41c553c4ab06001e525cf0bf83a40287bc5",
+        "621a31ca01430b88562b3ceb891ea121c1b3b594ccd39fc4b64862d2582ae902",
+        "6ce702770257625fd886c287ac70f3b3d56ff5cef984c054dffe4bd4c0d361c1",
+        "7e404c8fabc952c49e6b73f2d2f0762e48d300f978a710768d81c9181f9518b7",
+        "868aedb49960dfdf8476dbe229ffe92aa06ac746a7e0fa9d6c97de6f1fa5d492",
+        "9fc94a5db39a2e3256227c6de078fd8ee34d8ff48c38dc6210d09d3a3de7da1e",
+        "a74b7a0898505d1789d09703583598bd5056ec7f5cf1c804f8b4b35e658a6162",
+        "c8ff1f6bb1810de3fa3bd8d1d49c34b0a708d41910ed6ff4d60ecd162800341d",
+        "fc8c647a2618e02346fb357111474b5c089bd826880913f51bda7e56530449c2"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "2538a7b20125404cbfd810ad4348d20be38cd7854b61c3da880253522a5dc41a",
+        "253f66844141437e99e0a08d5a8e9309e27d79b4fb9ade50b4f3c259af1c1e97"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "targeted_repair",
+      "response_sha256s": [
+        "82156cf1e7d91ff8463196ada20409212ffb81d7ec95c6eabdb5a77720c285e9",
+        "dc19c62e3e82a1a87aa7c4a7be2c6b3e7396f603f190c327defa3e676d4c3bf2",
+        "eafc5cda2772d1ae8211a1619977b4b0aaa19d6e6c76722ee8fc2b7ef8bba857",
+        "f12920cd84e7f0740a35252cd197c10e3cd09dd36b60e4f8e870c78114ca7537"
+      ]
+    }
+  ],
   "composition": {
     "advisories": 8,
     "blocking_failures": [],
@@ -40,24 +79,24 @@
       "sha256": "3cb5b9911340ec744963b955f39b9737272a3c03c9e6324f73bc0911d4eaf37a"
     },
     "calls.jsonl": {
-      "bytes": 42794,
-      "sha256": "912f896550a36516d613a96743d50b6ef64b2e56741a73106704d3a2985862aa"
+      "bytes": 69288,
+      "sha256": "61ad5aa193dce9a4c0874b90f3e46bd5c888e1030c5cd9e0041d5c27be3b16ab"
     },
     "content_units.json": {
       "bytes": 27317,
       "sha256": "c72d9389802faa31bef45219c2009f6cd4116fb2850b718f61e35b056f4b8cd5"
     },
     "dependencies.json": {
-      "bytes": 3567290,
-      "sha256": "3d0024206d4b627b0b1b034280dc4cc29d3c54af8161a1789911b7d75a9f10a4"
+      "bytes": 3567327,
+      "sha256": "3e51850329f7411c0b299f92e0e0e41719d5985e61b1f4e87cfe6686641a5235"
     },
     "dispositions.json": {
       "bytes": 51222,
       "sha256": "dc6769be504c6b07a6df558695f2f1c41be8a302729186b7ce41d8fafa32b094"
     },
     "examples.json": {
-      "bytes": 2600,
-      "sha256": "7ec5945334579f921a7e897724acd40718143be08041a57561516b9b3e7218fe"
+      "bytes": 2852,
+      "sha256": "ccdab8f67f90ba723907c21f028f76c1d51f8ceb28b714c901427259c55fbbae"
     },
     "facts.json": {
       "bytes": 15684969,
@@ -72,8 +111,8 @@
       "sha256": "c7ca1b25099fa3f44e4a0a0d7813efd81f57f732b4b93141caf97237ed10cb64"
     },
     "probes.json": {
-      "bytes": 2918,
-      "sha256": "10e55883b8991aabf14679f528d52f2f7335dcc40096da9876aa35ad75216557"
+      "bytes": 2917,
+      "sha256": "dbf526db321b8326f8c3559314e9d97b7dcab4583517408515f208afc93a2ba6"
     },
     "repairs.json": {
       "bytes": 3679,
@@ -85,19 +124,19 @@
     },
     "validation.json": {
       "bytes": 10144,
-      "sha256": "bd0c5827c43fb92d67bb0bf2a0f10dbbb2f9318a0c9204fd6751ca10a90d1967"
+      "sha256": "a7b41afe92ce93ffa2a0e815a22e49a66386c5be3938bcd2e02fdcf0530a9cfe"
     }
   },
   "no_op_proof": {
     "byte_identical": true,
     "fresh_process": true,
-    "proven_at": "2026-09-08T06:41:33Z",
+    "proven_at": "2026-09-09T20:03:52Z",
     "provider_calls": 0
   },
   "provider_calls": 0,
   "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
   "revision": "099e70a8b309fdd6ce349607dd589dfde96f2989",
   "schema_version": 1,
-  "sealed_at": "2026-09-08T06:41:34Z",
+  "sealed_at": "2026-09-09T20:03:52Z",
   "state": "READY_FOR_PROPOSAL"
 }

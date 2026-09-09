@@ -1,16 +1,17 @@
 {
   "acceptance_profile_version": null,
   "components": {
-    "normalisation": "1",
-    "renderer": "17",
+    "normalisation": "2",
+    "renderer": "18",
+    "reviewer_logic": "2",
     "shell": "5"
   },
   "contract_version": "readme-contract-v1-draft",
   "environment": {
     "extractor_version": "1",
     "os": "Windows",
-    "python_version": "3.13.2",
-    "site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411"
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "python_version": "3.13.2"
   },
   "facts": {
     "build_test_asset:ci": "47a5821d814de0a704606cb2311a3a8de9c7d6ca6b3f66b9209e5cac7217ba92",
@@ -25092,7 +25093,7 @@
   "validators": {
     "BC-01": "1",
     "BC-02": "1",
-    "BC-03": "1",
+    "BC-03": "2",
     "BC-04": "1",
     "BC-05": "1",
     "BC-06": "1",

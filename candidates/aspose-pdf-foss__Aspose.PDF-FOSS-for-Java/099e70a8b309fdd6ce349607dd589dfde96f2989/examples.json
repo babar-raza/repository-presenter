@@ -1,5 +1,6 @@
 [
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 1,
@@ -9,6 +10,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 2,
@@ -18,6 +20,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 3,
@@ -27,6 +30,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 4,
@@ -36,6 +40,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 5,
@@ -45,6 +50,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 6,
@@ -54,6 +60,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*, org.aspose.pdf.Cell, org.aspose.pdf.Document, org.aspose.pdf.Page, org.aspose.pdf.forms.RadioButtonOptionField",
     "fixtures": [],
     "ordinal": 7,
@@ -63,6 +70,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*, org.aspose.pdf.Document, org.aspose.pdf.Page, org.aspose.pdf.annotations.WidgetAnnotation",
     "fixtures": [],
     "ordinal": 8,
@@ -72,6 +80,7 @@
     "stdout": ""
   },
   {
+    "build_verified": true,
     "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.pdf.*",
     "fixtures": [],
     "ordinal": 9,
