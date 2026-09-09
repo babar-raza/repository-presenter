@@ -195,9 +195,7 @@ def test_a_genuinely_cold_process_reuses_a_seeded_sealed_bundles_call(
     # everything seed_call_store needs, and nothing a real bundle wouldn't also have.
     bundle = tmp_path / "bundle"
     bundle.mkdir()
-    (bundle / "investigation.json").write_text(
-        json.dumps(sealed.output) + "\n", encoding="utf-8"
-    )
+    (bundle / "investigation.json").write_text(json.dumps(sealed.output) + "\n", encoding="utf-8")
     (bundle / "calls.jsonl").write_bytes((tmp_path / "sealing" / "calls.jsonl").read_bytes())
 
     fresh_store = CallStore(tmp_path / "cold" / "calls")

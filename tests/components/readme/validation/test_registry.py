@@ -706,12 +706,12 @@ def test_fences_reads_commonmark_not_a_hand_rolled_backtick_scan() -> None:
     info string parsed however the substring happened to fall. The project's own CommonMark
     parser (`markdown_it`, already used by `evidence/facts/links.py`) reads both the same way a
     real renderer does."""
-    assert _fences('```python\nprint(1)\n```\n') == [("python", "print(1)\n")]
+    assert _fences("```python\nprint(1)\n```\n") == [("python", "print(1)\n")]
     assert _fences("~~~csharp\nConsole.WriteLine(1);\n~~~\n") == [
         ("csharp", "Console.WriteLine(1);\n")
     ]
     # CommonMark's info string is free text; only its first word names the language.
-    assert _fences('```py noqa: mixed-indent\nx = 1\n```\n') == [("py", "x = 1\n")]
+    assert _fences("```py noqa: mixed-indent\nx = 1\n```\n") == [("py", "x = 1\n")]
     assert _fences("```\nno language\n```\n") == [("", "no language\n")]
 
 
@@ -750,9 +750,9 @@ def test_bc03_checks_the_ecosystems_own_declared_fence_aliases(tmp_path: Path) -
     # Control 4 - a fence in an unrelated, non-example language (bash, already present for
     # Installation) must never false-positive.
     assert "```bash" in readme
-    assert "BC-03" not in {f["id"] for f in blocking_failures(validate_candidate(
-        _candidate(), tmp_path, ()
-    ))}
+    assert "BC-03" not in {
+        f["id"] for f in blocking_failures(validate_candidate(_candidate(), tmp_path, ()))
+    }
 
     # Control 5 - a tilde-fenced unplanned block in the ecosystem's own language must now be
     # caught too: the old line-scan recognized only backtick fences.
@@ -763,9 +763,9 @@ def test_bc03_checks_the_ecosystems_own_declared_fence_aliases(tmp_path: Path) -
     # Control 6 - the sound base candidate is the no-regression case: unchanged, BC-03 still
     # passes (also covered by test_a_sound_candidate_passes_nine_checks_and_pends_the_two_judged_
     # later, restated here beside its own controls).
-    assert "BC-03" not in {f["id"] for f in blocking_failures(validate_candidate(
-        _candidate(), tmp_path, ()
-    ))}
+    assert "BC-03" not in {
+        f["id"] for f in blocking_failures(validate_candidate(_candidate(), tmp_path, ()))
+    }
 
 
 def test_bc03_reaches_net_only_through_its_own_declared_aliases(tmp_path: Path) -> None:
@@ -775,7 +775,7 @@ def test_bc03_reaches_net_only_through_its_own_declared_aliases(tmp_path: Path) 
     directly against `_check_examples` (helper level) since building a full .NET candidate through
     `render_readme` is out of this taskcard's scope."""
     net_entry = ENTRY.model_copy(update={"ecosystem": "net", "platform": "net"})
-    net_example = "using Aspose.ThreeD;\nvar scene = new Scene();\nscene.Save(\"a.glb\");\n"
+    net_example = 'using Aspose.ThreeD;\nvar scene = new Scene();\nscene.Save("a.glb");\n'
     facts = FactsDocument(
         ENTRY.repository,
         REVISION,
@@ -797,7 +797,7 @@ def test_bc03_reaches_net_only_through_its_own_declared_aliases(tmp_path: Path) 
     net_candidate = dataclasses.replace(base, entry=net_entry)
 
     # An unplanned ```csharp block (the ecosystem's real, declared fence) must now be caught.
-    stray_readme = f"```csharp\n{net_example}```\n\n```csharp\nConsole.WriteLine(\"stray\");\n```\n"
+    stray_readme = f'```csharp\n{net_example}```\n\n```csharp\nConsole.WriteLine("stray");\n```\n'
     stray = dataclasses.replace(net_candidate, readme=stray_readme)
     failures = _check_examples(stray)
     assert any("csharp" in failure.detail and "stray" in failure.detail for failure in failures)

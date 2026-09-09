@@ -41,7 +41,5 @@ def test_a_successful_second_reader_job_returns_its_output() -> None:
         model_served="qwen3-next",
         total_tokens=100,
     )
-    with patch(
-        "repository_presenter.components.readme.repair.rounds.run_job", return_value=result
-    ):
+    with patch("repository_presenter.components.readme.repair.rounds.run_job", return_value=result):
         assert _second_opinion(LOADED, PACKET, None, COMMON) == result.output

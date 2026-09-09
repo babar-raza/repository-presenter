@@ -41,7 +41,9 @@ def test_a_cancellation_during_communicate_still_kills_the_process_tree(
     captured: dict[str, subprocess.Popen[bytes]] = {}
     original_communicate = subprocess.Popen.communicate
 
-    def raising_communicate(self: subprocess.Popen[bytes], *args: object, **kwargs: object) -> object:
+    def raising_communicate(
+        self: subprocess.Popen[bytes], *args: object, **kwargs: object
+    ) -> object:
         captured["process"] = self
         monkeypatch.setattr(subprocess.Popen, "communicate", original_communicate)
         raise KeyboardInterrupt

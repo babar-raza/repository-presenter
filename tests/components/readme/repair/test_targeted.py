@@ -229,9 +229,9 @@ def test_aspose_email_pythons_real_finding_does_not_match_this_mechanism_honestl
         ),
     }
     real_preserved_texts = [
-        "- `MapiMessage`\n  - `create(subject, body, unicode_strings) -> \"MapiMessage\"`",
-        "- `MsgReader`\n  - `from_file(path, strict) -> \"MsgReader\"`",
-        "- `CFBReader`\n  - `from_file(path) -> \"CFBReader\"`",
+        '- `MapiMessage`\n  - `create(subject, body, unicode_strings) -> "MapiMessage"`',
+        '- `MsgReader`\n  - `from_file(path, strict) -> "MsgReader"`',
+        '- `CFBReader`\n  - `from_file(path) -> "CFBReader"`',
         "- `CommonMessagePropertyId` / `PropertyId`",
         "- `CFBError`\n- `MsgError`",
     ]

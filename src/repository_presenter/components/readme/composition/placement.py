@@ -141,9 +141,7 @@ def api_reference_hub_methods(
     return owned
 
 
-def api_reference_covered_fact_ids(
-    plan: Mapping[str, Any], facts: FactsDocument
-) -> frozenset[str]:
+def api_reference_covered_fact_ids(plan: Mapping[str, Any], facts: FactsDocument) -> frozenset[str]:
     """Every fact ID `renderer.py`'s ``_api_reference`` actually displays: every verified
     class/enum ``public_symbol`` (the Core API table always lists all of them, regardless of the
     plan's chosen hubs) plus every verified method owned by a hub (Detailed Member Reference).

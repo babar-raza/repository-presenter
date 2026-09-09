@@ -293,9 +293,7 @@ def test_documentation_resources_coverage_includes_the_renderers_own_issues_line
             ),
         ),
     )
-    decisions = {
-        p.unit_id: p for p in placements(plan, dispositions, doc_facts, "python")
-    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, doc_facts, "python")}
     assert decisions["inherited_unit:095.paragraph"].outcome == "overlap"
     assert decisions["inherited_unit:095.paragraph"].overlap == ("identity:repository",)
 

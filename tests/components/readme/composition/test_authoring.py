@@ -1157,9 +1157,7 @@ def test_a_capability_sentence_is_held_to_the_title_it_fills() -> None:
     ]
 
 
-def test_a_units_prose_about_a_cited_example_is_held_to_that_examples_own_recorded_claims() -> (
-    None
-):
+def test_a_units_prose_about_a_cited_example_is_held_to_that_examples_own_recorded_claims() -> None:
     """TB-09, D9: a synthetic reproduction of the original 3D-Python defect's shape - a lead-in
     naming one action for an example whose own recorded format claims (evidence/facts/formats.py)
     say a different one. The historical instance is no longer reproducible against current data,
@@ -1184,7 +1182,12 @@ def test_a_units_prose_about_a_cited_example_is_held_to_that_examples_own_record
     )
 
     def unit(text: str, *fact_ids: str) -> dict[str, object]:
-        return {"section": "quick_start", "slot": "lead_in", "text": text, "fact_ids": list(fact_ids)}
+        return {
+            "section": "quick_start",
+            "slot": "lead_in",
+            "text": text,
+            "fact_ids": list(fact_ids),
+        }
 
     # The example's own claim (input .obj) matches the prose: no defect.
     matching = {"units": [unit("This example reads a .obj file.", "example:001")], "omitted": []}
