@@ -34,7 +34,30 @@ duplicate of them.
 
 ### RC-01 — Generalize the completeness-backstop pattern into one registered mechanism
 
-- **Status:** Not Started
+- **Status:** Done — landed and pushed.
+- **Note:** `planning.py` gained a small `_BACKSTOPS` table (`(field_name, required_fn, apply_fn)`
+  tuples) driving a single generic loop in `plan_checks`; the two existing backstops
+  (`additional_example_ids`, `links`) kept their own per-field `required`/`apply` functions
+  (their shapes differ too much - bare IDs excluded by quick-start membership vs.
+  `{link_fact_id, section_id}` objects gated on `VERIFIED_REWRITE` dispositions - to force a
+  single shared computation), but a future third instance is now one tuple row plus two small
+  functions, never a new call site inside `plan_checks` itself. `conditions["additional_examples"]`
+  stayed exactly where it was (a genuinely different concern - section inclusion, not field
+  completeness - that the taskcard never named).
+  **A taskcard claim didn't hold, checked directly rather than assumed:** the taskcard's own
+  acceptance text named an "existing `additional_example_ids` missing-append test" that would
+  keep passing unmodified - no such test actually existed (checked: the shared fixtures always
+  already carried every verified example, so the append branch was never exercised by anything).
+  Added directly as part of this refactor instead, pinning behavior the refactor must preserve
+  rather than leaving it merely assumed unchanged.
+  Verified against the real portfolio directly (not only the test suite) before and after: the
+  same three already-explained divergences from `RC-02`/the pre-existing canary floor, nothing
+  new - a pure refactor.
+- **Checklist:** [x] `_BACKSTOPS` table + generic loop [x] both real backstops byte-identical
+  (verified directly against the real portfolio) [x] synthetic third-entry test proving
+  genericity [x] schema-consistency test (a typo'd field name fails loudly) [x] new
+  `additional_example_ids` append-behavior test (none existed before) [x] full suite (three
+  known, already-explained divergences).
 - **Gap linkage:** RC1, SW1
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

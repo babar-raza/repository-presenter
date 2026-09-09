@@ -6,8 +6,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
 from jsonschema import Draft202012Validator
 
+from repository_presenter.components.readme.composition import planning
 from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.composition.planning import (
     plan_checks,
@@ -356,6 +358,69 @@ def test_a_verified_rewrite_disposition_names_link_targets_the_plan_must_carry()
     assert untouched["links"] == [
         {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
     ]
+
+
+def test_a_further_verified_example_is_appended_to_additional_examples() -> None:
+    """RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08: no existing test actually
+    exercised the append branch of this backstop (the shared fixtures always already carried
+    every verified example) - added directly as part of the table refactor so the behavior this
+    taskcard's own refactor must preserve byte-identically is actually pinned, not merely assumed
+    unchanged because the surrounding tests still pass."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("example:004", "example", "print(4)")),
+    )
+    # example:002 is already the plan's own additional example; example:004 is verified but
+    # named nowhere in the plan yet, so only it is missing and gets appended after it.
+    plan = _plan()
+    assert plan_checks(plan, facts) == []
+    assert plan["additional_example_ids"] == ["example:002", "example:004"]
+
+    # Already carried: nothing is appended twice.
+    already = _plan(additional_example_ids=["example:002", "example:004"])
+    assert plan_checks(already, facts) == []
+    assert already["additional_example_ids"] == ["example:002", "example:004"]
+
+
+def test_plan_checks_backstop_table_applies_a_third_synthetic_entry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Proves the table-driven mechanism is generic - a third, synthetic backstop entry is
+    applied without touching the two existing ones, not merely that the two known cases still
+    pass (which a hard-coded pair of if-blocks disguised as a "table" could also satisfy)."""
+
+    def _required(
+        output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+    ) -> list[str]:
+        return [] if output.get("synthetic_marker") else ["synthetic:value"]
+
+    def _apply(output: dict[str, Any], missing: list[Any]) -> None:
+        output["synthetic_marker"] = missing
+
+    monkeypatch.setattr(
+        planning,
+        "_BACKSTOPS",
+        (*planning._BACKSTOPS, ("synthetic_marker", _required, _apply)),
+    )
+    plan = _plan()
+    assert plan_checks(plan, FACTS) == []
+    assert plan["synthetic_marker"] == ["synthetic:value"]
+    # The two real backstops are unaffected by the third entry's presence.
+    assert plan["additional_example_ids"] == ["example:002"]
+    assert plan["links"] == [
+        {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}
+    ]
+
+
+def test_every_backstop_field_name_names_a_real_planning_schema_property() -> None:
+    """A typo'd field name in `_BACKSTOPS` must fail loudly here, not silently no-op forever
+    (a table row naming a field the schema does not have would apply its append to a key the
+    schema-validated output never checks, so a typo would never be caught any other way)."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS)
+    field_names = {field for field, _, _ in planning._BACKSTOPS}
+    assert field_names and field_names <= set(schema["properties"])
 
 
 def test_a_shell_rendered_link_is_never_a_plans_own_assignment() -> None:

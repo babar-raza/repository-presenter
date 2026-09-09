@@ -14,6 +14,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -218,6 +219,73 @@ def _capability_facts_apart(capabilities: list[dict[str, Any]]) -> list[str]:
     return errors
 
 
+# RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08: a free-form plan field that must
+# contain everything a deterministic source (facts, dispositions) says it must was fixed twice as
+# two separately-written, bespoke backstops (additional_example_ids, then links, landed 29ebb7c)
+# - the next instance of this same shape was going to be a third bespoke diff discovered by
+# incident, not a table row. Each entry pairs what a field is missing with how to append it; the
+# two functions still own their own field's logic (they differ too much - one field's shape is a
+# list of bare IDs excluded by quick-start membership, the other a list of {link_fact_id,
+# section_id} objects gated on VERIFIED_REWRITE dispositions - to force a single computation), but
+# adding a class like these is now one new tuple row plus two small functions, never a new call
+# site or a new place `plan_checks` itself has to know about.
+_BackstopRequired = Callable[[dict[str, Any], FactsDocument, "dict[str, Any] | None"], list[Any]]
+_BackstopApply = Callable[[dict[str, Any], list[Any]], None]
+
+
+def _missing_additional_examples(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> list[str]:
+    verified_examples = sorted(
+        fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
+    )
+    starts = {output.get("quick_start_example_id"), output.get("second_quick_start_example_id")}
+    starts -= {None}
+    additional = [i for i in output.get("additional_example_ids", []) if i not in starts]
+    return [i for i in verified_examples if i not in starts and i not in additional]
+
+
+def _apply_additional_examples(output: dict[str, Any], missing: list[Any]) -> None:
+    starts = {output.get("quick_start_example_id"), output.get("second_quick_start_example_id")}
+    starts -= {None}
+    additional = [i for i in output.get("additional_example_ids", []) if i not in starts]
+    output["additional_example_ids"] = additional + missing
+
+
+def _missing_links(
+    output: dict[str, Any], facts: FactsDocument, dispositions: dict[str, Any] | None
+) -> list[dict[str, str]]:
+    if dispositions is None:
+        return []
+    rewritten_link_sections: dict[str, str] = {}
+    for entry in dispositions.get("dispositions", []):
+        if entry.get("disposition") != "VERIFIED_REWRITE":
+            continue
+        destination = entry.get("destination_section")
+        if not destination:
+            continue
+        for fact_id in entry.get("fact_ids") or []:
+            fact_id = str(fact_id)
+            if fact_id.startswith("link_target:") and fact_id not in _SHELL_OWNED_LINKS:
+                rewritten_link_sections[fact_id] = str(destination)
+    planned_link_ids = {str(link.get("link_fact_id")) for link in output.get("links", [])}
+    return [
+        {"link_fact_id": fact_id, "section_id": section}
+        for fact_id, section in rewritten_link_sections.items()
+        if fact_id not in planned_link_ids
+    ]
+
+
+def _apply_links(output: dict[str, Any], missing: list[Any]) -> None:
+    output["links"] = [*output.get("links", []), *missing]
+
+
+_BACKSTOPS: tuple[tuple[str, _BackstopRequired, _BackstopApply], ...] = (
+    ("additional_example_ids", _missing_additional_examples, _apply_additional_examples),
+    ("links", _missing_links, _apply_links),
+)
+
+
 def plan_checks(
     output: dict[str, Any],
     facts: FactsDocument,
@@ -230,53 +298,33 @@ def plan_checks(
     The shell's inclusion decisions are composed here, not asked for: deterministic code already
     evaluates every condition from the facts, so asking the model to restate the decision list and
     then rejecting it for restating it wrongly is RESEARCH_AND_GUIDELINES.md section 27.2's RC1
-    (section 27.5 D1). Three rules still normalise or fail closed because planning is where they
-    are first knowable: every further verified example belongs in Additional Examples
-    (README_CONTRACT.md section 2 row 12), so a missing one is appended and the condition holds;
-    a placed inherited unit whose destination is excluded at this revision is never dropped
-    silently (section 3), so the transaction fails closed naming the unit; and a VERIFIED_REWRITE
-    disposition names the link_target facts its replacement content must carry, so any it names
-    that the plan's own links omitted are appended too (third external review, 2026-09-07: a
-    disposition named eight link_target facts for Aspose.Email Python's documentation_resources
-    list, the plan's own links carried three, and review correctly rejected the other five as
-    silently dropped verified content - authoring and the renderer already build every link the
-    plan hands them; the gap was always here, one stage upstream of either).
+    (section 27.5 D1). Beyond that, one rule fails closed and a small, explicit table of backstops
+    normalises: a placed inherited unit whose destination is excluded at this revision is never
+    dropped silently (section 3), so the transaction fails closed naming the unit; and every field
+    named in ``_BACKSTOPS`` (RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08) gets
+    whatever a deterministic source says it must carry appended when the plan omitted it - today,
+    every further verified example belonging in Additional Examples (README_CONTRACT.md section 2
+    row 12), and every link_target fact a VERIFIED_REWRITE disposition names appended to the
+    plan's own links (third external review, 2026-09-07: a disposition named eight link_target
+    facts for Aspose.Email Python's documentation_resources list, the plan's own links carried
+    three, and review correctly rejected the other five as silently dropped verified content -
+    authoring and the renderer already build every link the plan hands them; the gap was always
+    here, one stage upstream of either).
     """
     errors: list[str] = []
     conditions = section_conditions(facts, policy)
     verified_examples = sorted(
         fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED"
     )
-    quick = output.get("quick_start_example_id")
-    second = output.get("second_quick_start_example_id")
-    starts = {quick, second} - {None}
-    additional = [i for i in output.get("additional_example_ids", []) if i not in starts]
-    missing = [i for i in verified_examples if i not in starts and i not in additional]
+    starts = {output.get("quick_start_example_id"), output.get("second_quick_start_example_id")}
+    starts -= {None}
     # The facts-only condition counts every verified example; the plan's quick starts consume
     # some, so Additional Examples holds only when a further example remains.
     conditions["additional_examples"] = bool(set(verified_examples) - starts)
-    if missing:
-        output["additional_example_ids"] = additional + missing
-    if dispositions is not None:
-        rewritten_link_sections: dict[str, str] = {}
-        for entry in dispositions.get("dispositions", []):
-            if entry.get("disposition") != "VERIFIED_REWRITE":
-                continue
-            destination = entry.get("destination_section")
-            if not destination:
-                continue
-            for fact_id in entry.get("fact_ids") or []:
-                fact_id = str(fact_id)
-                if fact_id.startswith("link_target:") and fact_id not in _SHELL_OWNED_LINKS:
-                    rewritten_link_sections[fact_id] = str(destination)
-        planned_link_ids = {str(link.get("link_fact_id")) for link in output.get("links", [])}
-        missing_links = [
-            {"link_fact_id": fact_id, "section_id": section}
-            for fact_id, section in rewritten_link_sections.items()
-            if fact_id not in planned_link_ids
-        ]
-        if missing_links:
-            output["links"] = [*output.get("links", []), *missing_links]
+    for _field_name, required, apply in _BACKSTOPS:
+        missing = required(output, facts, dispositions)
+        if missing:
+            apply(output, missing)
     output["sections"] = [_decision(section, conditions[section.id]) for section in SEMANTIC_SHELL]
     decisions = {entry["section_id"]: entry for entry in output["sections"]}
     included = {section for section, entry in decisions.items() if entry["include"]}
