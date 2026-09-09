@@ -68,8 +68,12 @@ scripts). They are **merged into one execution**, not built twice.
    F08 confirms the fix; Email-Python's F03 honestly does not match this mechanism (a different,
    separately-scoped defect). Neither candidate has a live composition blocked by this specific
    issue right now to re-run `present` against - see the taskcard's own Note for the full finding.
-9. **RC-02** — unify section coverage with the renderer (root cause of the duplicated-API-list
-   defect).
+9. **RC-02** [IN PROGRESS — api_reference half done, documentation_resources half next] — unify
+   section coverage with the renderer (root cause of the duplicated-API-list defect). Landed
+   additively (union with the plan's own signal, not a replacement) after a self-caught bug
+   during implementation broke four real candidates by replacing instead of adding; two real
+   candidates (Cells .NET, Email-Python) now show a genuine, desirable new divergence in
+   `test_sealed_bytes.py` - see the taskcard's own Note.
 10. **RC-01** — generalize the completeness-backstop pattern into one registered mechanism.
 11. **RC-03** — deterministic citation-completeness gate at reconciliation.
 

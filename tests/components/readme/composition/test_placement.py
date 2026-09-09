@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import Any
 
 from repository_presenter.components.readme.composition.placement import (
+    api_reference_covered_fact_ids,
+    api_reference_hub_methods,
     placed_texts,
     placements,
     planned_fact_ids,
@@ -148,8 +150,107 @@ def test_planned_fact_ids_name_each_sections_own_content() -> None:
     }
     assert planned_fact_ids(plan, "quick_start") == {"example:001"}
     assert planned_fact_ids(plan, "additional_examples") == {"example:002"}
+    # RC-02: kept, not replaced - renderer_fact_ids adds to this, tested separately below.
     assert planned_fact_ids(plan, "api_reference") == {"public_symbol:aspose.threed.scene"}
     assert planned_fact_ids(plan, "opening") == frozenset()
+
+
+def test_api_reference_coverage_is_renderer_derived_not_hub_only() -> None:
+    """RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08: the Core API table lists
+    every verified class/enum unconditionally, but the coverage model used to know only the
+    plan's chosen hub symbols - narrower than what actually renders. A preserved unit citing a
+    non-hub class the table already covers used to place beside a duplicate of itself ("placed");
+    it must now be caught as "overlap".
+    """
+    hub_class = Fact(
+        "public_symbol:aspose.threed.scene",
+        "public_symbol",
+        "aspose.threed.Scene",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "class"},
+    )
+    non_hub_class = Fact(
+        "public_symbol:aspose.threed.node",
+        "public_symbol",
+        "aspose.threed.Node",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "class"},
+    )
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", REPOSITORY),
+            hub_class,
+            non_hub_class,
+            _fact(
+                "inherited_unit:090.list", "inherited_unit", "- `Node.parent`\n- `Node.children`"
+            ),
+        ),
+    )
+    plan = _plan()
+    dispositions = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:090.list",
+                "api_reference",
+                "public_symbol:aspose.threed.node",
+            )
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    # The old, hub-only model treated this as "placed" - a duplicate the reviewer had to catch
+    # by hand every time (the exact shape behind RC-04's F08/api_reference incidents). The
+    # renderer-derived model catches it mechanically instead.
+    assert decisions["inherited_unit:090.list"].outcome == "overlap"
+    assert decisions["inherited_unit:090.list"].overlap == ("public_symbol:aspose.threed.node",)
+
+
+def test_api_reference_hub_methods_and_covered_fact_ids_agree_with_the_renderer() -> None:
+    """The two functions `renderer.py`'s ``_api_reference`` and this module's coverage check
+    both read - proven to actually agree here, not merely both individually plausible."""
+    hub_class = Fact(
+        "public_symbol:aspose.threed.scene",
+        "public_symbol",
+        "aspose.threed.Scene",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "class"},
+    )
+    hub_method = Fact(
+        "public_symbol:aspose.threed.scene.save",
+        "public_symbol",
+        "aspose.threed.Scene.save",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "method"},
+    )
+    non_hub_class = Fact(
+        "public_symbol:aspose.threed.node",
+        "public_symbol",
+        "aspose.threed.Node",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "class"},
+    )
+    non_hub_method = Fact(
+        "public_symbol:aspose.threed.node.detach",
+        "public_symbol",
+        "aspose.threed.Node.detach",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "method"},
+    )
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (hub_class, hub_method, non_hub_class, non_hub_method)
+    )
+    plan = _plan()
+    hub_methods = api_reference_hub_methods(plan, facts)
+    assert hub_methods == {"aspose.threed.Scene": [hub_method]}
+    covered = api_reference_covered_fact_ids(plan, facts)
+    # Every class/enum, hub or not (the table lists all of them); only the hub's own method.
+    assert covered == {
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.scene.save",
+    }
+    assert "public_symbol:aspose.threed.node.detach" not in covered
 
 
 def test_placement_is_exclusive_on_overlap_and_never_silent_when_excluded() -> None:

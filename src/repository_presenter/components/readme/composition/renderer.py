@@ -37,6 +37,7 @@ from repository_presenter.components.readme.composition.components.shell import 
     Section,
 )
 from repository_presenter.components.readme.composition.placement import (
+    api_reference_hub_methods,
     placed_texts,
     placements,
     renders_verbatim,
@@ -466,9 +467,9 @@ def _api_reference(context: RenderContext) -> list[str]:
     if enums:
         lines += ["", "#### Enumerations", "", "| Enumeration | Description |", "| --- | --- |"]
         lines += [f"| `{names[f.value]}` | {_symbol_description(context, f)} |" for f in enums]
-    members: dict[str, list[Fact]] = {}
-    for fact in by_kind.get("method", []):
-        members.setdefault(fact.value.rsplit(".", 1)[0], []).append(fact)
+    # Shared with placement.py's own coverage model (RC-02) so "which methods does this hub
+    # own" has one answer, not two that can independently drift.
+    hub_methods = api_reference_hub_methods(context.plan, context.facts)
     hubs: list[tuple[dict[str, Any], Fact]] = []
     for hub in context.plan.get("api_hubs", []):
         symbol = context.fact(hub.get("symbol_fact_id", ""))
@@ -479,7 +480,7 @@ def _api_reference(context: RenderContext) -> list[str]:
         for hub, symbol in hubs:
             lines += ["", f"### {names.get(symbol.value, symbol.value.rsplit('.', 1)[-1])}", ""]
             lines.append(context.unit(sid, f"hub:{hub['symbol_fact_id']}"))
-            owned = sorted(members.get(symbol.value, []), key=lambda f: f.value)
+            owned = sorted(hub_methods.get(symbol.value, []), key=lambda f: f.value)
             if owned:
                 lines.append("")
                 lines += [

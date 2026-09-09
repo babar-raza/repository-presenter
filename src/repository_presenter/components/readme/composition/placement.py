@@ -11,15 +11,24 @@ the unit (planning.plan_checks), and here it is recorded as excluded so the vali
 
 A code block the plan or the renderer already owns - an ecosystem example or a Mermaid block -
 renders through them, not verbatim; any other unit renders as written.
+
+``api_reference``'s coverage (what counts as "the destination's own plan-driven content" for the
+overlap check above) additionally includes what the renderer itself actually displays, on top of
+the plan's own per-hub citations: ``api_reference_covered_fact_ids`` computes exactly what
+`renderer.py`'s ``_api_reference`` shows - every verified class/enum, not only the plan's chosen
+hubs - closing a real gap without discarding the plan's own signal, which several real
+candidates' dispositions turned out to depend on even though it is itself only an approximation
+(RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08).
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 
 from repository_presenter.core.ecosystems import spec_for
-from repository_presenter.core.facts import FactsDocument
+from repository_presenter.core.facts import Fact, FactsDocument
 
 PLACED = frozenset({"VERIFIED_PRESERVE", "VERIFIED_MOVE"})
 PLACING = frozenset(
@@ -63,7 +72,19 @@ def renders_verbatim(unit_id: str, value: str, ecosystem: str) -> bool:
 
 
 def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
-    """The fact and unit IDs the plan's own content for ``section`` rests on."""
+    """The fact and unit IDs the plan's own content for ``section`` rests on.
+
+    ``api_reference``'s own per-hub ``symbol_fact_id``/``fact_ids`` stay modeled here - kept, not
+    replaced: a disposition frequently cites a coarse, namespace-level fact (``public_symbol:org.
+    aspose.pdf``, say) rather than the individual class facts the plan's hub actually names, and
+    for several real candidates that coarse citation only ever intersected the plan's own
+    per-hub ``fact_ids`` (empirically confirmed - removing this branch in favor of
+    ``renderer_fact_ids`` alone silently un-placed and re-included four real candidates'
+    already-correctly-excluded duplicate content, caught by `test_sealed_bytes.py` before this
+    landed). ``renderer_fact_ids`` (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08)
+    adds the renderer's own, more complete class/enum/hub-method coverage on top of this, via the
+    union `placements()` already takes - additive, not a replacement.
+    """
     ids: set[str] = set()
     if section == "key_capabilities":
         for item in plan.get("core_capabilities", []):
@@ -94,9 +115,67 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
 _RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
 
 
-def renderer_fact_ids(section: str, facts: FactsDocument) -> frozenset[str]:
-    """The facts a mixed section's own deterministic sentences rest on: Development and
-    Testing states the suite size and links the release workflow from the build assets."""
+def api_reference_hub_methods(
+    plan: Mapping[str, Any], facts: FactsDocument
+) -> dict[str, list[Fact]]:
+    """Every verified method ``public_symbol`` grouped by the hub symbol's own display value it
+    belongs to - the exact computation `renderer.py`'s ``_api_reference`` uses to build its
+    Detailed Member Reference bullets, shared here so the renderer and this module's coverage
+    model read one answer to "which methods does this hub own", not two that can drift apart
+    (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08).
+    """
+    methods = [
+        fact
+        for fact in facts.by_kind("public_symbol")
+        if fact.polarity == "SUPPORTED" and (fact.attributes or {}).get("symbol_kind") == "method"
+    ]
+    by_owner: dict[str, list[Fact]] = {}
+    for fact in methods:
+        by_owner.setdefault(fact.value.rsplit(".", 1)[0], []).append(fact)
+    by_id = {fact.id: fact for fact in facts.facts}
+    owned: dict[str, list[Fact]] = {}
+    for hub in plan.get("api_hubs", []):
+        symbol = by_id.get(str(hub.get("symbol_fact_id", "")))
+        if symbol is not None:
+            owned[symbol.value] = by_owner.get(symbol.value, [])
+    return owned
+
+
+def api_reference_covered_fact_ids(
+    plan: Mapping[str, Any], facts: FactsDocument
+) -> frozenset[str]:
+    """Every fact ID `renderer.py`'s ``_api_reference`` actually displays: every verified
+    class/enum ``public_symbol`` (the Core API table always lists all of them, regardless of the
+    plan's chosen hubs) plus every verified method owned by a hub (Detailed Member Reference).
+
+    The single source of truth this module's overlap check now reads, replacing a narrower,
+    independently hand-modeled approximation that only ever knew the plan's own per-hub
+    ``fact_ids`` list - the exact drift that let a preserved member-reference list's overlap with
+    the Core API table go undetected (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2,
+    2026-09-08).
+    """
+    symbols = [fact for fact in facts.by_kind("public_symbol") if fact.polarity == "SUPPORTED"]
+    kinds: dict[str, list[Fact]] = {}
+    for fact in symbols:
+        kinds.setdefault((fact.attributes or {}).get("symbol_kind", ""), []).append(fact)
+    covered = {fact.id for fact in (*kinds.get("class", []), *kinds.get("enum", []))}
+    for methods in api_reference_hub_methods(plan, facts).values():
+        covered.update(fact.id for fact in methods)
+    return frozenset(covered)
+
+
+def renderer_fact_ids(
+    section: str, facts: FactsDocument, plan: Mapping[str, Any] | None = None
+) -> frozenset[str]:
+    """The facts a mixed section's own deterministic content rests on: Development and Testing
+    states the suite size and links the release workflow from the build assets; API Reference's
+    Core API table and Detailed Member Reference cover every verified class/enum and every
+    hub-owned method (``api_reference_covered_fact_ids``, which needs ``plan`` too - additive,
+    optional, so an existing caller that only asks about a plan-independent section is
+    unaffected).
+    """
+    if section == "api_reference":
+        return api_reference_covered_fact_ids(plan or {}, facts)
     if section != "development_testing":
         return frozenset()
     return frozenset(
@@ -129,7 +208,7 @@ def placements(
         if destination not in included:
             result.append(Placement(unit_id, destination, unit.value, "excluded"))
             continue
-        covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts)
+        covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts, plan)
         overlap = (
             ()
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders

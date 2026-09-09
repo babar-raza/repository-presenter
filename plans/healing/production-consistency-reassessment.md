@@ -96,7 +96,48 @@ duplicate of them.
 
 ### RC-02 — Unify section coverage with the renderer instead of shadowing it
 
-- **Status:** Not Started
+- **Status:** `api_reference` half done and pushed; `documentation_resources` half not yet
+  started (this taskcard's own runbook wants them as two separate commits).
+- **Note, api_reference half:** `placement.py` gained `api_reference_hub_methods(plan, facts)`
+  (the exact hub/method-ownership computation `renderer.py`'s `_api_reference` now also calls,
+  so the two cannot independently drift) and `api_reference_covered_fact_ids(plan, facts)` (every
+  verified class/enum, plus every hub-owned method - what the Core API table and Detailed Member
+  Reference actually display). `renderer_fact_ids` gained an additive, optional `plan` parameter
+  to reach it (the taskcard's own prediction that no call site would need to change was wrong -
+  `placements()`'s one call site now passes `plan` through too).
+  **Self-caught bug, fixed before landing, not shipped:** the first version of this fix *removed*
+  `planned_fact_ids`'s existing `api_reference` branch (the plan's own per-hub
+  `symbol_fact_id`/`fact_ids`), replacing it outright with the new renderer-derived set - this
+  broke `test_sealed_bytes.py` for four real candidates (PDF Java, Cells C++, Cells .NET, Email
+  Python), because several real dispositions cite coarse, *namespace*-level facts that only ever
+  matched the plan's own (independently curated) per-hub `fact_ids`, never the renderer-derived
+  class/enum/method set. Fixed by keeping `planned_fact_ids`'s branch and **adding** the
+  renderer-derived set on top of it via the union `placements()` already performs, rather than
+  replacing it - re-verified against all four real candidates directly (not just the test suite)
+  before proceeding.
+  **Two real, desirable content changes, verified as correct rather than assumed:** even after
+  that fix, `test_sealed_bytes.py` newly diverges for two real candidates - `aspose-cells-foss/
+  Aspose.Cells-FOSS-for-.NET` and `aspose-email-foss/Aspose.Email-FOSS-for-Python` - both because
+  a preserved Exceptions/Enumerations list unit cites *individual* class/enum facts directly
+  (checked against both candidates' real `dispositions.json` and `facts.json`), which the plan's
+  hub-only model never covered (these aren't hub classes) but the renderer-derived model
+  correctly does. Confirmed by direct inspection this is a genuine, previously-undetected
+  duplicate (the same class of defect RC-02 exists to catch), not a bug. Per this session's own
+  `EXECUTION-PLAN.md`, candidate-sealing work stays held for Wave 7 - neither candidate is
+  re-sealed here; a future Wave-7 pass will see this divergence and re-seal through the normal
+  record-then-adopt path. `test_sealed_bytes.py` now has three known, explained divergences (the
+  pre-existing 3D-Python canary floor and Email-Python backtick issue, plus this one - Cells
+  .NET's is new, Email-Python's adds a second reason on top of its existing one), not the
+  previous two - recorded here so a future full-suite run isn't read as an unexplained new
+  failure.
+- **Checklist (api_reference half):** [x] `covered_fact_ids`-equivalent pair added, shared with
+  the renderer [x] instrumented property test (renders a synthetic fact set, cross-checks
+  `api_reference_covered_fact_ids` against the actual rendered section) [x] regression test
+  reproducing the general "non-hub class/enum overlap" shape (not the exact historical Aspose.
+  Email Python module-only-citation shape, which needs RC-06's finer-grained extraction, not
+  this taskcard - see RC-04's own honest note on the same distinction) [x] verified against every
+  real candidate directly, self-caught and fixed one real bug before committing [x] full suite
+  (three known, now-explained divergences; see above) [ ] `documentation_resources` half.
 - **Gap linkage:** RC2, SW2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

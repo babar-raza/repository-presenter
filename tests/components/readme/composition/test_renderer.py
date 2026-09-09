@@ -11,6 +11,9 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     unit_checks,
 )
+from repository_presenter.components.readme.composition.placement import (
+    api_reference_covered_fact_ids,
+)
 from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
     anchor,
@@ -916,6 +919,64 @@ def test_the_api_reference_follows_row_fourteen_with_docstring_first_description
         "- `save`: Defined as `def save(self, path)`.\n"
     )
     assert section.rstrip("\n").endswith("</details>")
+
+
+def test_api_reference_covered_fact_ids_matches_what_this_render_actually_shows() -> None:
+    """RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08: the property test the
+    taskcard itself asks for - every fact ``api_reference_covered_fact_ids`` declares covered
+    must actually appear in this real render's own API Reference section, and a method excluded
+    from it (not owned by any plan hub) must not appear there either. Catches drift between the
+    renderer's own display logic and the coverage model automatically, rather than needing a
+    human to notice (which is exactly what let RC-02's gap stand until this session)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if not f.id.startswith("public_symbol:")),
+            Fact(
+                "public_symbol:aspose.threed.scene",
+                "public_symbol",
+                "aspose.threed.Scene",
+                (Evidence("x", "line 1; class; public by name"),),
+                attributes={"symbol_kind": "class"},
+            ),
+            Fact(
+                "public_symbol:aspose.threed.scene.save",
+                "public_symbol",
+                "aspose.threed.Scene.save",
+                (Evidence("x", "line 9; method; public by name"),),
+                attributes={"symbol_kind": "method"},
+            ),
+            Fact(
+                "public_symbol:aspose.threed.node",
+                "public_symbol",
+                "aspose.threed.Node",
+                (Evidence("x", "line 1; class; public by name"),),
+                attributes={"symbol_kind": "class"},
+            ),
+            Fact(
+                "public_symbol:aspose.threed.node.detach",
+                "public_symbol",
+                "aspose.threed.Node.detach",
+                (Evidence("x", "line 1; method; public by name"),),
+                attributes={"symbol_kind": "method"},
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    section = readme.split("## API Reference\n\n", 1)[1].split("\n## ", 1)[0]
+    covered = api_reference_covered_fact_ids(PLAN, facts)
+    by_id = {f.id: f for f in facts.facts}
+    assert covered == {
+        "public_symbol:aspose.threed.scene",  # hub class - in the table and Detailed Reference
+        "public_symbol:aspose.threed.node",  # non-hub class - the table lists it regardless
+        "public_symbol:aspose.threed.scene.save",  # the hub's own method
+    }
+    for fact_id in covered:
+        display_name = by_id[fact_id].value.rsplit(".", 1)[-1]
+        assert f"`{display_name}`" in section, (fact_id, section)
+    # Not covered, and not shown: Node has no hub, so its own method never renders here.
+    assert "detach" not in section
 
 
 def test_a_synthetic_net_spec_renders_csharp_fences_a_nuget_badge_and_a_dotnet_install(
