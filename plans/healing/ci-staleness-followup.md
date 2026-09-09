@@ -105,8 +105,12 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-02 — Re-seal Cells .NET and Email-Python against the landed renderer fix
 
-- **Status:** Partially Done, 2026-09-09 (owner confirmed via independent review: "up to the mark
-  should mean a green `gh run watch`").
+- **Status:** Done, 2026-09-10. Cells .NET re-sealed; Email-Python's real BC-10 rejection is now
+  explicitly owner-accepted as a tracked, documented `xfail` pending RC-06 (owner answer,
+  2026-09-10, to a direct AskUserQuestion naming this exact option and its reason) - not forced,
+  not a same-turn patch, not an autonomous shortcut. See the CS-07 note below: this is the one
+  case CS-07's own "Forbidden" clause anticipated and reserved for an explicit owner decision, and
+  that decision has now been made.
   - **Cells .NET: Done.** Two-run record-then-adopt cycle completed exactly as designed - first
     run recorded `VALID_UPDATE_AVAILABLE` (15 provider calls), second run adopted it with
     `provider calls 0; update adopted (factual): a fresh process reproduced the waiting update
@@ -143,6 +147,15 @@ listed as a dependency, not a duplicate mapping.
     not show). **Not shipped** - reverted before commit. This is RC-06's own "member reference
     list granularity, high-risk, prototype-first" territory, not a quick fix; Email-Python stays
     genuinely unresolved under OPS-03 until RC-06's own prototype process runs.
+  - **Resolution, 2026-09-10**: taken back to the owner directly (AskUserQuestion, framed as one
+    of two remaining CI-green blockers) rather than decided unilaterally a third time. Owner chose
+    "xfail with a reason citing RC-06/F03" over "start RC-06 now" or "leave it failing". Implemented
+    in `tests/test_sealed_bytes.py`: the Email-Python case is now `pytest.mark.xfail(strict=True,
+    reason=...)`, citing this exact finding and RC-06's own gated status - `strict=True` so an
+    eventual accidental fix surfaces as a failing XPASS requiring the mark's removal, rather than
+    silently passing unnoticed under a stale xfail. The candidate's own sealed state is completely
+    unchanged (no seal attempted, no code touched) - only the test's expectation of it changed, and
+    only by explicit owner authorization for this one, already-deeply-investigated case.
 - **Gap linkage:** G2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
@@ -200,9 +213,16 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-03 — Re-seal or explicitly hold the canary (3D-Python), gated on the call-volume-floor decision
 
-- **Status:** Blocked — by the still-open canary call-volume-floor policy decision (3 options
-  recorded in `docs/DECISION_LOG.md`, none chosen; see `plans/healing/EXECUTION-PLAN.md`'s
-  Excluded section). Not executable until the owner decides.
+- **Status:** Done, 2026-09-10. Owner chose "cumulative-ledger redesign" for the floor question
+  (AskUserQuestion), framed against evidence that a single `--fresh` run measured only 18 calls
+  (under the 20 floor). Before building that redesign, a second, independent real record-then-adopt
+  cycle was run to seed it - and measured 33 calls (2 invalid, 93.9% first-attempt rate), clearing
+  the *existing, unmodified* floor test outright. This corrects the earlier framing: the 18-call
+  run was an unlucky low sample from real run-to-run variance, not a structural ceiling (this
+  test's own long-standing comment already names exactly this variance as the reason the floor
+  sits below the highest composition ever measured, not at it). No redesign was needed or built;
+  the canary is genuinely re-sealed against current bytes with real, honest data. Told to the user
+  directly as a correction to what the AskUserQuestion had asserted, not silently substituted.
 - **Gap linkage:** G3
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
@@ -536,8 +556,16 @@ listed as a dependency, not a duplicate mapping.
 
 ### CS-07 — CI genuinely green: umbrella tracking taskcard
 
-- **Status:** Blocked — depends on CS-01, CS-02, and CS-03 (or an explicit owner decision to
-  accept the current staleness as a known, documented state rather than fix it).
+- **Status:** In Progress, 2026-09-10 — CS-02 and CS-03 are both done and the full local
+  CI-equivalent (`scripts/ci_check.sh`) passes clean (lint/format/typecheck/pytest/entrypoint all
+  `success`, no `--no-verify` needed for this push). Marked Done only once a real `gh run watch`
+  on the actual pushed commit confirms it, per this taskcard's own Acceptance checks below - not
+  before. CS-01 remains its own separately-tracked, still-`Not Started` item (the held 3D-Python
+  WIP now lives on `wip/3d-python-canary`; not required for CI green, since `main`'s working tree
+  was already clean going into CS-02/CS-03's real runs). The one test-suite change this depended on
+  (Email-Python's `xfail`) was the owner's own explicit choice, not an autonomous shortcut around
+  this taskcard's own "Forbidden" clause below — see CS-02's 2026-09-10 resolution note for the
+  exact authorization.
 - **Gap linkage:** G7
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
