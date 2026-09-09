@@ -33,18 +33,51 @@ jobs:
           python -m pip install --disable-pip-version-check --no-deps -e .
 
       - name: Lint
+        id: lint
+        continue-on-error: true
         run: ruff check .
 
       - name: Format
+        id: format
+        continue-on-error: true
         run: ruff format --check .
 
       - name: Type-check
+        id: typecheck
+        continue-on-error: true
         run: mypy src
 
       - name: Unit tests, schema validation, canary, and path budget
+        id: pytest
+        continue-on-error: true
         run: pytest
 
       - name: Official entry point
+        id: entrypoint
+        continue-on-error: true
         run: |
           repository-presenter --version
           repository-presenter status
+
+      # Each step above runs independently (continue-on-error) so one broken gate never hides
+      # whether the others - especially the test suite - actually pass. This summary is the one
+      # place the job's real pass/fail comes from (2026-09-09, docs/CI_AND_STALENESS_ASSESSMENT.md
+      # section 2.3: a fail-fast pipeline had made every CI run "red" mean nothing more specific
+      # than "something is wrong," hiding whether the test suite itself passed on Linux for
+      # potentially the whole prior healing pass).
+      - name: Summary
+        if: always()
+        run: |
+          echo "lint: ${{ steps.lint.outcome }}"
+          echo "format: ${{ steps.format.outcome }}"
+          echo "typecheck: ${{ steps.typecheck.outcome }}"
+          echo "pytest: ${{ steps.pytest.outcome }}"
+          echo "entrypoint: ${{ steps.entrypoint.outcome }}"
+          if [ "${{ steps.lint.outcome }}" != "success" ] ||
+             [ "${{ steps.format.outcome }}" != "success" ] ||
+             [ "${{ steps.typecheck.outcome }}" != "success" ] ||
+             [ "${{ steps.pytest.outcome }}" != "success" ] ||
+             [ "${{ steps.entrypoint.outcome }}" != "success" ]; then
+            echo "One or more checks failed - see the outcomes above for exactly which."
+            exit 1
+          fi
