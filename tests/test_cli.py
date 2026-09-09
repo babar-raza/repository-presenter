@@ -939,6 +939,39 @@ def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
     assert names == ["section_authoring", "section_authoring", "independent_review"]
 
 
+def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """CS-03 follow-up (docs/CI_AND_STALENESS_ASSESSMENT.md, 2026-09-09): a maturing cache can
+    shrink a real re-seal's live call count below a call-volume-sensitive floor (the canary's own
+    ``>= 20`` first-attempt-rate check) even though the ratio metrics it protects still hold.
+    ``--fresh`` exists to periodically refresh such a record against the full call set, without
+    disabling seeding for routine re-seals. Mirrors
+    ``test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle``'s own setup; the first
+    (un-flagged) run here warms `runs/` exactly as that test's does, so this also proves ``--fresh``
+    clears a *local* leftover call cache too, not merely skips seeding from the sealed bundle -
+    seeding alone would not be enough once this exact revision has already been run once this
+    session, which is precisely the shape a repeated canary refresh has to handle correctly.
+    """
+    main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    before = len(gateway_ready.requests)
+
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry), "--fresh"])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK
+    lines = captured.out.splitlines()
+    assert not any(line.startswith("seeded from sealed bundle:") for line in lines)
+    assert "fresh: call store not seeded from the sealed bundle; every job calls live" in lines
+    made = gateway_ready.requests[before:]
+    # The seeded case costs exactly 3 real calls (the sibling test's own documented count);
+    # --fresh, against the identical revision and an already-warm local transaction, must cost
+    # strictly more - proof neither the sealed bundle nor the leftover local cache answered.
+    assert len(made) > 3
+
+
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
 _PROMPTS = load_manifests(REPO_ROOT / "prompts")
 OPENING_FINGERPRINT = defect_fingerprint(

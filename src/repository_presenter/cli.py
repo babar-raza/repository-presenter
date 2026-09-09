@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import sys
 from collections import Counter
 from collections.abc import Sequence
@@ -182,6 +183,16 @@ def build_parser() -> argparse.ArgumentParser:
             "provider call; the cohort preflight (RESEARCH_AND_GUIDELINES.md section 28.12)"
         ),
     )
+    present.add_argument(
+        "--fresh",
+        action="store_true",
+        help=(
+            "do not seed this run's call store from the sealed bundle's own history - every job "
+            "makes a genuinely live call even where a prior seal already answered it. For "
+            "periodically refreshing a call-volume-sensitive record (e.g. the canary's own "
+            "first-attempt-rate floor) against a matured cache, not routine re-seals"
+        ),
+    )
     preflight = subcommands.add_parser(
         "preflight",
         help="reach the LLM gateway from the process environment and record its model catalog",
@@ -197,7 +208,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "status":
         return run_status(args.root, stale=args.stale)
     if args.command == "present":
-        return run_present(args.repo, args.root, facts_only=args.facts_only)
+        return run_present(args.repo, args.root, facts_only=args.facts_only, fresh=args.fresh)
     if args.command == "preflight":
         return run_preflight(args.root)
     parser.error(f"unknown command {args.command!r}")
@@ -338,12 +349,21 @@ def _report_facts_only(
     return EXIT_OK
 
 
-def run_present(repository: str, root_argument: Path | None, *, facts_only: bool = False) -> int:
+def run_present(
+    repository: str, root_argument: Path | None, *, facts_only: bool = False, fresh: bool = False
+) -> int:
     """Admit ``repository`` from the registry, then run the transaction stages.
 
     ``facts_only`` stops after S2 with the processability and coverage record and makes no
     provider call: the cohort preflight reads every repository's failure class before any
     composition spends a token (RESEARCH_AND_GUIDELINES.md section 28.12).
+
+    ``fresh`` skips seeding this run's call store from the sealed bundle's own history, so every
+    job makes a genuinely live call - for periodically refreshing a call-volume-sensitive record
+    (the canary's own first-attempt-rate floor) against a matured cache, never a routine re-seal
+    (CS-03 follow-up, docs/CI_AND_STALENESS_ASSESSMENT.md, 2026-09-09: a maturing cache reduced a
+    real re-seal to 14 live calls, below the floor's own ``>= 20`` "enough to mean anything" bar,
+    even though the ratio metrics it protects - ``first_attempt_rate``, ``reask_share`` - held).
     """
     root = _resolve_root(root_argument)
     if root is None:
@@ -461,14 +481,24 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
         # stage and the downstream stages re-run; a second equivalent failure is reported,
         # never retried.
         ledger = Ledger(transaction / LEDGER_FILENAME)
+        if fresh:
+            # A prior local run of this exact repo+revision (runs/ is gitignored, ephemeral
+            # working state, never the durable record) would otherwise still answer from its own
+            # leftover call cache even with seeding from the sealed bundle skipped below - fresh
+            # means fresh, not merely un-seeded.
+            shutil.rmtree(transaction / CALLS_DIRNAME, ignore_errors=True)
         store = CallStore(transaction / CALLS_DIRNAME)
-        if sealed_manifest is not None:
+        if sealed_manifest is not None and not fresh:
             # RC4: runs/ is gitignored, so a hosted runner's first run of an already-sealed
             # revision starts with nothing to reuse - seed what the sealed bundle's own
-            # artifacts can answer for before making any call.
+            # artifacts can answer for before making any call. Skipped under --fresh: every job
+            # makes a genuinely live call instead (CS-03 follow-up, see this function's own
+            # docstring).
             seeded = seed_call_store(bundle, store)
             if seeded:
                 print(f"seeded from sealed bundle: {', '.join(sorted(seeded))}")
+        elif fresh:
+            print("fresh: call store not seeded from the sealed bundle; every job calls live")
         final, repairs, rounds = run_transaction(
             TransactionInputs(
                 entry=entry,
