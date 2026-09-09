@@ -431,12 +431,23 @@ file was touched.
 
 ### TB-07 — Correct cache-key identity and environment fingerprinting
 
-- **Status:** In Progress (part 1 of 3 done and pushed; parts 2-3 remain)
-- **Note:** landed only the cache-key identity fix (part 1) this pass. `_site_manifest_hash`
-  targeting the wrong process's environment (part 2) and the fresh-process ecosystem-plugin
-  initialization audit (part 3) are real, independently confirmed, and NOT yet fixed - tracked
-  as the taskcard's remaining scope, not silently dropped.
-- **Checklist:** [x] fix `_base()` hash formula [x] reproduction test (real run_job, real cold-process seed/reuse proof) [x] full suite [ ] part 2 - `_site_manifest_hash` [ ] part 3 - plugin init audit
+- **Status:** Done — all three parts landed and pushed.
+- **Note (part 2, scoped down deliberately):** `_site_manifest_hash` was not built into a full
+  per-ecosystem toolchain fingerprint (C++ compiler/CMake version, JDK, cargo/rustc, go, node -
+  none of this exists anywhere today as structured, capturable data; building it would need new
+  extraction-time plumbing and its own design, the same caution RC-06 already applies elsewhere
+  in this plan). Instead: renamed to `_presenter_site_manifest_hash`/`"presenter_site_manifest"`
+  and rewrote its docstring to state plainly what it has always actually measured (repository-
+  presenter's own environment, never the target's) - closing the misleading-naming half of the
+  defect honestly, without claiming a fix this pass didn't do. The full toolchain-fingerprint gap
+  remains open and undocumented as its own future item - flagged here, not silently dropped.
+- **Part 3 fixed and empirically verified:** `known_ecosystems()` (already existing, already
+  import-every-platform-module-by-design) called once in `tests/test_sealed_bytes.py` closes the
+  exact false `ConfigError` this session hit firsthand running that file standalone - confirmed
+  by running it standalone before and after: before, `ConfigError: no ecosystem spec registered
+  for 'java'/'cpp'/'rust'`; after, the single already-known Email-Python `test_sealed_bytes`
+  failure, matching the full suite's own baseline exactly.
+- **Checklist:** [x] fix `_base()` hash formula [x] reproduction test (real run_job, real cold-process seed/reuse proof) [x] part 2 - honest rename (full toolchain fingerprint deliberately deferred, flagged) [x] part 3 - plugin init audit, empirically verified standalone [x] full suite
 - **Gap linkage:** D7
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

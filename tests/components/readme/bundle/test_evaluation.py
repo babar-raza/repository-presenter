@@ -24,7 +24,7 @@ SEALED: dict[str, Any] = {
         "python_version": "3.13.2",
         "os": "Windows",
         "extractor_version": "1",
-        "site_manifest": "e" * 64,
+        "presenter_site_manifest": "e" * 64,
     },
     "facts": {"identity:repository": "1" * 64, "format:output.glb": "2" * 64},
     "prompts": {

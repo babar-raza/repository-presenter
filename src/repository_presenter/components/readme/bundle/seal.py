@@ -130,11 +130,24 @@ def bundle_directory(candidates: Path, entry: RegistryEntry, revision: str) -> P
     return candidates / f"{entry.owner}__{entry.name}" / revision
 
 
-def _site_manifest_hash() -> str:
-    """A canonical hash of the resolved installed package set (27.2 RC7): what actually answered
-    an import at extraction time, never what pyproject.toml merely asked for - two environments
-    that resolved a dependency to different versions are not the same environment even when
-    every other input agrees."""
+def _presenter_site_manifest_hash() -> str:
+    """A canonical hash of *repository-presenter's own* resolved installed package set - the
+    process running this code, never the separate environment a target candidate's own examples
+    were verified in (TB-07 part 2, external review D7, 2026-09-08: named ``site_manifest`` and
+    read as if it fingerprinted the target's own resolved dependencies; it never has - a Java,
+    C++, Rust, or Go candidate's toolchain has no Python "installed package set" to fingerprint
+    at all, and even for a Python candidate this measures the tool's own venv, not the target's).
+
+    Kept, correctly scoped and honestly named: a change in *this* process's own dependencies can
+    change extraction or rendering behavior in ways worth reopening for, exactly like
+    ``extractor_version``. It is deliberately not claimed to be more than that. A genuine
+    per-ecosystem *target* toolchain fingerprint (the C++ compiler and CMake versions, the JDK,
+    cargo/rustc, go, node/npm actually used to verify a candidate's own examples) needs new,
+    structured capture at extraction time threaded through to sealing - no such data exists
+    anywhere today to fold in cheaply, and building it under this deadline risks exactly the
+    rushed-heuristic mistake this project has already made and undone once (item 49). Tracked as
+    its own, separately-scoped follow-up, not attempted here.
+    """
     packages = sorted(f"{dist.name}=={dist.version}" for dist in distributions() if dist.name)
     return canonical_hash(packages)
 
@@ -142,14 +155,15 @@ def _site_manifest_hash() -> str:
 def environment_dependencies() -> dict[str, Any]:
     """What answered this run's extraction, never a claim the repository itself makes (27.2
     RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor
-    version, and the resolved package set. A change in any reopens EXTRACTING, the same stage a
+    version, and repository-presenter's own resolved package set (never the target's - see
+    ``_presenter_site_manifest_hash``). A change in any reopens EXTRACTING, the same stage a
     source or fact change would - a fact SUPPORTED under one environment is not trusted
     unchanged under a different one."""
     return {
         "python_version": platform.python_version(),
         "os": platform.system(),
         "extractor_version": EXTRACTOR_VERSION,
-        "site_manifest": _site_manifest_hash(),
+        "presenter_site_manifest": _presenter_site_manifest_hash(),
     }
 
 

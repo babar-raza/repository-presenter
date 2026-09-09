@@ -19,12 +19,27 @@ from typing import Any
 import pytest
 
 from repository_presenter.components.readme.composition.renderer import render_readme
+from repository_presenter.components.readme.extractors.platforms.registry import (
+    known_ecosystems,
+)
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT
 
 CANDIDATES = REPO_ROOT / "candidates"
 REGISTRY = REPO_ROOT / "data" / "registry.json"
+# TB-07 part 3, external review D7, 2026-09-08: core/ecosystems.py's SPECS starts with only
+# python and net; every other ecosystem's EcosystemSpec registers as a side effect of its own
+# platforms/<ecosystem>.py module being imported somewhere, which normally happens via
+# plugin_for() during a real `present` run. This file renders every sealed candidate directly,
+# spanning every ecosystem in the portfolio, without going through `present` - run standalone
+# (not as part of the full suite, which happens to import every platform module via some other
+# test first), render_readme's own spec_for() calls failed closed with "no ecosystem spec
+# registered" for anything beyond python/net. known_ecosystems() discovers every ecosystem by
+# importing each platforms/*.py module (RESEARCH_AND_GUIDELINES.md section 29.6 E3's own
+# discovery mechanism) - calling it once here registers every spec deterministically, with no
+# ecosystem name hardcoded to go stale as the portfolio grows.
+known_ecosystems()
 
 
 def sealed_bundles() -> list[Path]:
