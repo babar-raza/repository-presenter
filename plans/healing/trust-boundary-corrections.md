@@ -768,7 +768,47 @@ file was touched.
 
 ### TB-09 — HTML link discovery and prose-matches-evidence checking
 
-- **Status:** Not Started
+- **Status:** Done — both parts fixed and pushed 2026-09-09.
+- **Note:** Two independent fixes, each verified against real portfolio data before trusting it.
+  **Part 1:** `extract_links`/`_inline_links` (`evidence/facts/links.py`) now also discover a
+  target written as raw HTML - `<a href="...">text</a>` or a bare `<img src="...">` - that
+  markdown-it tokenizes as `html_inline` when it sits inside ordinary paragraph prose, via a
+  narrow regex tag/attribute parser (`_html_tag`/`_html_attrs`, no new dependency). This reaches
+  the common inline-prose case and a raw-HTML anchor wrapping a raw-HTML image (a badge/logo
+  link). A tag CommonMark instead classifies as a whole `html_block` - one occupying an entire
+  line by itself, or wrapped in a block-level container tag like `<p>` - is a distinct token
+  shape this fix does not reach; checked directly (2026-09-09) and no candidate in the sealed
+  portfolio uses one, and closing that gap too is documented as explicit future work, not
+  silently assumed covered, in `links.py`'s own module docstring - deliberately not pulled into
+  this taskcard's scope, since the taskcard's own Fix text and Acceptance checks name only the
+  `html_inline` shape. Verified against all 8 real sealed candidates' committed READMEs directly
+  (isolated from the dirty working tree the held 3D-Python candidate WIP leaves on disk): every
+  count byte-identical to the pre-fix baseline (31/26/20/25/21/25/28/23 links) - zero regressions,
+  zero newly-discovered real HTML links.
+  **Part 2:** the authoring-side seam (`composition/authoring.py`'s `unit_checks`) was chosen over
+  the independent-review seam (`review/independent/review.py`'s `scope_defect` family judges
+  *reviewer findings*, not the candidate's own prose - the wrong direction for this taskcard).
+  New `unit_example_action_mismatches(unit, facts)`: a unit's prose about a specific cited example
+  is checked against that example's own recorded format claims (`evidence/facts/formats.py`'s
+  existing evidence, already on hand - no new extraction). Only a direction word (reads/opens/...
+  vs writes/exports/...) paired with an extension the cited example's own evidence *disputes*
+  (claims in the opposite direction) is a defect; an extension the example makes no claim for at
+  all is not one (the example may do something `format_claims` does not yet recognize - TB-02's
+  own still-open verb-vocabulary gap - and guessing from silence would be exactly the general NLP
+  verifier this taskcard forbids). A real ordinal-formatting mismatch was caught and fixed during
+  verification, not assumed: `example:NNN` fact IDs are zero-padded (`example:008`) but
+  `evidence/facts/formats.py`'s own evidence text names the example by its plain int ordinal
+  (`"example 8: ..."`, straight from `ExampleCandidate.ordinal: int`) - the first test-only draft
+  used a synthetic zero-padded marker and failed to match even the matching-direction control
+  case until corrected against the real evidence wording (confirmed directly in a real sealed
+  candidate's `facts.json`). Verified against all 8 real sealed candidates' actual
+  `content_units.json`/`facts.json` (866 real authored units): zero false positives, and confirmed
+  genuinely exercised, not vacuously passing - 3 real units across the portfolio trigger the
+  direction+extension detection path, including Slides-Python's `.png` "reading them into memory"
+  unit, which correctly cross-validates against its own `format:input.png` evidence with no flag.
+  Both parts: full suite (`pytest tests/ -q --tb=short`) run once - only the three already-tracked
+  pre-existing divergences (3D-Python canary floor; Cells .NET and Email-Python's
+  `test_sealed_bytes.py` entries, both RC-02's own desirable fixes).
 - **Gap linkage:** D9
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

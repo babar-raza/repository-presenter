@@ -52,6 +52,39 @@ def test_links_are_extracted_once_each_in_order_with_kind_line_and_text() -> Non
     assert extract_links("") == []
 
 
+def test_extract_links_discovers_raw_html_anchors_and_images() -> None:
+    """TB-09, D9: markdown-it tokenizes a raw `<a href>`/`<img src>` tag as `html_inline`,
+    invisible to the CommonMark `link_open`/`image` handling alone - a target only ever written
+    as raw HTML (a common README banner/badge pattern) was silently missing from link checking."""
+    html_readme = (
+        "# Title\n\n"
+        'See <a href="https://example.com/docs">the docs</a> for more.\n\n'
+        'Badge: <a href="https://example.com/">'
+        '<img src="https://example.com/badge.svg" alt="Badge"></a>\n'
+    )
+    links = extract_links(html_readme)
+    assert [(link.href, link.kind, link.text) for link in links] == [
+        ("https://example.com/docs", "external", "the docs"),
+        ("https://example.com/badge.svg", "external", "Badge"),
+        ("https://example.com/", "external", ""),
+    ]
+    # The markdown-syntax equivalent of the first case returns the identical target.
+    markdown_equivalent = "# Title\n\nSee [the docs](https://example.com/docs) for more.\n"
+    assert extract_links(markdown_equivalent)[0].href == links[0].href
+
+    # A bare, unwrapped <img> tag (no anchor) is discovered the same way as a markdown image -
+    # as long as prose keeps it part of the paragraph's own inline content; markdown-it tokenizes
+    # a *lone* HTML tag occupying an entire line by itself as a block, not `html_inline`, which
+    # is this fix's own documented, out-of-scope boundary (see links.py's docstring).
+    bare_image = extract_links('Logo: <img src="https://example.com/logo.png" alt="Logo">\n')
+    assert [(link.href, link.text) for link in bare_image] == [
+        ("https://example.com/logo.png", "Logo")
+    ]
+
+    # A stray, unmatched closing tag or an unrelated raw HTML element claims no target.
+    assert extract_links("</a> and <br> and <span>text</span>\n") == []
+
+
 def test_heading_slugs_follow_the_github_form() -> None:
     assert heading_slug("Quick start") == "quick-start"
     assert heading_slug("Scene graph (`aspose.threed`)") == "scene-graph-asposethreed"

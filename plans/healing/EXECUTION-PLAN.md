@@ -18,7 +18,7 @@ fixes come first.
 
 | File | Done | Remaining |
 |---|---|---|
-| `trust-boundary-corrections.md` | TB-01, TB-02 (pt.1), TB-03, TB-04, TB-05, TB-06, TB-07, TB-08 | TB-09, TB-10 |
+| `trust-boundary-corrections.md` | TB-01, TB-02 (pt.1), TB-03, TB-04, TB-05, TB-06, TB-07, TB-08, TB-09 | TB-10 |
 | `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03*, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
@@ -91,7 +91,12 @@ scripts). They are **merged into one execution**, not built twice.
     based `_fences` (tilde fences, multi-word info strings). Verified against all 8 real sealed
     candidates directly - zero new BC-03 failures, exercised (Cells .NET's three real ```csharp
     fences correctly recognized).
-14. **TB-09** — HTML link discovery + prose-matches-evidence seam (after TB-08, same file).
+14. **TB-09** [DONE] — HTML link discovery (`extract_links`, `html_inline` shape only - a
+    `html_block`-only raw tag stays a documented, out-of-scope gap, unused by the real portfolio)
+    + a new authoring-side seam (`unit_example_action_mismatches`) checking a unit's prose about
+    a cited example against that example's own recorded format claims. Verified against all 8
+    real sealed candidates: zero regressions, zero false positives across 866 real units, and
+    confirmed genuinely exercised (not vacuous) by real matching-direction cases.
 15. **PA-02** — scope `quote_located` to the finding's own section.
 
 ### Wave 5 — prevention/observability (P2, depends on Wave 3–4)

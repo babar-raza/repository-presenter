@@ -876,6 +876,90 @@ def merge_repeated_slots(output: dict[str, Any]) -> list[str]:
     return folded
 
 
+# A prose direction word beside a format extension, mirroring evidence/facts/formats.py's own
+# input/output vocabulary but for English sentences, not Python identifiers - a distinct task
+# (classifying prose, not code), so this is not a duplicate of that module's vocabulary, and
+# `core/` layering forbids importing an extractor's own word lists here regardless
+# (docs/REPOSITORY_LAYOUT.md section 2.1).
+_PROSE_EXTENSION = re.compile(r"(?<![\w.])\.[A-Za-z]{2,5}\b")
+_PROSE_WORD = re.compile(r"[A-Za-z]+")
+_PROSE_INPUT_WORDS = frozenset(
+    {"read", "reads", "reading", "load", "loads", "loading", "open", "opens", "opening",
+     "import", "imports", "importing", "parse", "parses", "parsing"}
+)
+_PROSE_OUTPUT_WORDS = frozenset(
+    {"write", "writes", "writing", "save", "saves", "saving", "export", "exports", "exporting"}
+)
+
+
+def _prose_direction(text: str) -> str | None:
+    """"input", "output", or None when the text names both or neither direction - an unambiguous
+    bag-of-words read, never a sentence-level parse (TB-09, D9)."""
+    words = {word.lower() for word in _PROSE_WORD.findall(text)}
+    is_input = bool(words & _PROSE_INPUT_WORDS)
+    is_output = bool(words & _PROSE_OUTPUT_WORDS)
+    if is_input == is_output:
+        return None
+    return "input" if is_input else "output"
+
+
+def _example_format_claims(facts: FactsDocument, ordinal: str) -> dict[str, frozenset[str]]:
+    """The (direction -> extensions) one example already claims for itself, read straight from
+    the evidence `evidence/facts/formats.py` already recorded for it (its own
+    ``f"example {ordinal}: {direction} {extension}"`` wording) - no new extraction, only data
+    already on hand (TB-09, D9)."""
+    marker = f"example {ordinal}:"
+    by_direction: dict[str, set[str]] = {"input": set(), "output": set()}
+    for fact in facts.by_kind("format"):
+        direction = fact.id.split(":", 1)[-1].split(".", 1)[0]
+        if direction not in by_direction:
+            continue
+        if any(marker in (item.detail or "") for item in fact.evidence):
+            by_direction[direction].add(fact.value.lower())
+    return {direction: frozenset(values) for direction, values in by_direction.items()}
+
+
+def unit_example_action_mismatches(unit: Mapping[str, Any], facts: FactsDocument) -> list[str]:
+    """A unit's prose about a specific cited example, checked against that example's own recorded
+    format claims (TB-09, external review D9, 2026-09-08: the reviewer once caught a lead-in
+    naming one action for an example whose recorded code said a different one - the original
+    instance is no longer reproducible against current data, but the shape recurs by construction
+    whenever authoring paraphrases an example instead of only describing what it already proved).
+
+    Only a direction word (reads/opens/... vs writes/exports/...) paired with an extension the
+    cited example's own evidence *disputes* - claims in the opposite direction - is a defect. An
+    extension the example makes no claim for at all is not one: the example may do something
+    `format_claims` does not (yet) recognize (TB-02's own, still-open verb-vocabulary gap), and
+    guessing from silence would be exactly the general NLP verifier this taskcard forbids
+    building. Never a new controller: this reads facts already computed, nothing else.
+    """
+    direction = _prose_direction(str(unit.get("text", "")))
+    if direction is None:
+        return []
+    opposite = "output" if direction == "input" else "input"
+    extensions = {ext.lower() for ext in _PROSE_EXTENSION.findall(str(unit.get("text", "")))}
+    if not extensions:
+        return []
+    errors: list[str] = []
+    for fact_id in unit.get("fact_ids", []):
+        if not str(fact_id).startswith("example:"):
+            continue
+        # The fact ID's ordinal is zero-padded ("example:001"); the evidence
+        # evidence/facts/formats.py already wrote for it names the same example by its plain int
+        # ordinal ("example 1: ..."), since it comes straight from `ExampleCandidate.ordinal`.
+        digits = str(fact_id).split(":", 1)[-1]
+        if not digits.isdigit():
+            continue
+        ordinal = str(int(digits))
+        claims = _example_format_claims(facts, ordinal)
+        for extension in sorted(extensions & claims[opposite] - claims[direction]):
+            errors.append(
+                f"names {extension} as {direction}, but example {ordinal}'s own recorded "
+                f"format claims say {opposite}"
+            )
+    return errors
+
+
 def unit_checks(
     output: dict[str, Any], task: SectionTask, facts: FactsDocument, name: str
 ) -> list[str]:
@@ -992,6 +1076,9 @@ def unit_checks(
             errors.append(
                 f"unit {slot}: cites facts outside this section's set: {', '.join(outside)}"
             )
+        errors.extend(
+            f"unit {slot}: {mismatch}" for mismatch in unit_example_action_mismatches(unit, facts)
+        )
     return errors
 
 

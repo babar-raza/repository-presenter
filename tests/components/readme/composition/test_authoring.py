@@ -1157,6 +1157,58 @@ def test_a_capability_sentence_is_held_to_the_title_it_fills() -> None:
     ]
 
 
+def test_a_units_prose_about_a_cited_example_is_held_to_that_examples_own_recorded_claims() -> (
+    None
+):
+    """TB-09, D9: a synthetic reproduction of the original 3D-Python defect's shape - a lead-in
+    naming one action for an example whose own recorded format claims (evidence/facts/formats.py)
+    say a different one. The historical instance is no longer reproducible against current data,
+    so this constructs the same shape directly: a unit citing `example:001` that says the example
+    *exports* to an extension the example's own evidence says it only ever *reads*."""
+
+    def evidence(ordinal: int, direction: str, extension: str) -> Evidence:
+        return Evidence("README.md", f"line 1; example {ordinal}: {direction} {extension}")
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact("format:input.obj", "format", ".obj", (evidence(1, "input", ".obj"),))
+            if fact.id == "format:input.obj"
+            else fact
+            for fact in FACTS.facts
+        ),
+    )
+    task = SectionTask(
+        "quick_start", {}, frozenset({"example:001", "format:input.obj"}), ("lead_in",)
+    )
+
+    def unit(text: str, *fact_ids: str) -> dict[str, object]:
+        return {"section": "quick_start", "slot": "lead_in", "text": text, "fact_ids": list(fact_ids)}
+
+    # The example's own claim (input .obj) matches the prose: no defect.
+    matching = {"units": [unit("This example reads a .obj file.", "example:001")], "omitted": []}
+    assert unit_checks(matching, task, facts, NAME) == []
+
+    # The prose claims the opposite direction of what the example's own evidence records.
+    contradicted = {
+        "units": [unit("This example exports a .obj file.", "example:001")],
+        "omitted": [],
+    }
+    assert unit_checks(contradicted, task, facts, NAME) == [
+        "unit lead_in: names .obj as output, but example 1's own recorded format claims say input"
+    ]
+
+    # A format the example makes no claim for at all is not a contradiction - it may simply do
+    # something format_claims does not (yet) recognize (TB-02's own, still-open verb gap) - so
+    # this must not be flagged.
+    unclaimed = {
+        "units": [unit("This example also writes a .pdf report.", "example:001")],
+        "omitted": [],
+    }
+    assert unit_checks(unclaimed, task, facts, NAME) == []
+
+
 def test_slot_records_name_the_slot_its_subject_and_the_facts_it_may_cite() -> None:
     assert slot_records(
         ("capability:1", "opening"),

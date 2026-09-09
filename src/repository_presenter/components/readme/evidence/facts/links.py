@@ -5,6 +5,17 @@ only on transient failures; anchors are checked against the README's own heading
 paths against the tree inventory. A link that resolves is SUPPORTED, one that is gone is
 CONTRADICTED, and one that cannot be checked is UNRESOLVED, never assumed.
 
+`extract_links` also discovers a target written as raw HTML - `<a href="...">text</a>` or a bare
+`<img src="...">` - that markdown-it tokenizes as `html_inline` when it sits inside ordinary
+paragraph prose (TB-09, external review D9, 2026-09-08: previously invisible to link checking, a
+gap regex/attribute parsing closes without a new dependency). This reaches the common inline
+prose case and a raw-HTML anchor wrapping a raw-HTML image (a badge/logo link), matching how
+markdown-it itself tokenizes each. A tag CommonMark instead classifies as a whole `html_block` -
+one occupying an entire line by itself, or wrapped in a block-level container tag like `<p>` - is
+a distinct token shape this fix does not reach; no candidate in the sealed portfolio uses one
+(checked directly, 2026-09-09), and closing that gap too is future work, not silently assumed
+covered here.
+
 A link target is untrusted: it is prose from a README this codebase did not write. Before every
 outbound request `fetch_status` makes - the original URL and, since `follow_redirects=True`,
 every hop a redirect leads to - it resolves the target host and refuses to connect if the
@@ -91,6 +102,31 @@ def _attr(token: Token, name: str) -> str:
     return "" if value is None else str(value)
 
 
+_HTML_OPEN_TAG = re.compile(r"(?is)^<(a|img)\b(.*)>\s*$")
+_HTML_ATTR = re.compile(r"""(?is)([a-zA-Z][\w-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))""")
+
+
+def _html_attrs(attrs_text: str) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for name, double, single, bare in _HTML_ATTR.findall(attrs_text):
+        values[name.lower()] = double or single or bare
+    return values
+
+
+def _html_tag(html: str) -> tuple[str, dict[str, str]] | None:
+    """(tag name, attributes) of a raw HTML fragment's own opening ``<a>`` or ``<img>`` tag, or
+    None for anything else - a closing tag, or an unrelated element. A narrow regex, not a
+    general HTML parse: the one shape a README's raw HTML ever needs for a link target."""
+    match = _HTML_OPEN_TAG.match(html.strip())
+    if match is None:
+        return None
+    return match.group(1).lower(), _html_attrs(match.group(2))
+
+
+def _is_html_close(token: Token, name: str) -> bool:
+    return token.type == "html_inline" and token.content.strip().lower() == f"</{name}>"
+
+
 def _inline_links(inline: Token, line: int, found: list[tuple[str, int, str]]) -> None:
     children = inline.children or []
     index = 0
@@ -111,6 +147,34 @@ def _inline_links(inline: Token, line: int, found: list[tuple[str, int, str]]) -
                     text_parts.append(inner.content)
                 index += 1
             found.append((href, line, "".join(text_parts).strip()))
+        elif child.type == "html_inline":
+            # TB-09, D9: a target only ever written as raw HTML - `<a href="...">text</a>` or a
+            # bare `<img src="...">` - is invisible to the CommonMark-native cases above, which
+            # markdown-it tokenizes as `html_inline`, never `link_open`/`image`.
+            tag = _html_tag(child.content)
+            if tag is None:
+                pass
+            elif tag[0] == "img":
+                found.append((tag[1].get("src", ""), line, tag[1].get("alt", "")))
+            else:  # tag[0] == "a"
+                href = tag[1].get("href", "")
+                text_parts = []
+                index += 1
+                while index < len(children) and not _is_html_close(children[index], "a"):
+                    inner = children[index]
+                    if inner.type == "image":
+                        found.append((_attr(inner, "src"), line, inner.content))
+                        text_parts.append(inner.content)
+                    elif inner.type in {"text", "code_inline"}:
+                        text_parts.append(inner.content)
+                    elif inner.type == "html_inline":
+                        inner_tag = _html_tag(inner.content)
+                        if inner_tag is not None and inner_tag[0] == "img":
+                            found.append(
+                                (inner_tag[1].get("src", ""), line, inner_tag[1].get("alt", ""))
+                            )
+                    index += 1
+                found.append((href, line, "".join(text_parts).strip()))
         index += 1
 
 
