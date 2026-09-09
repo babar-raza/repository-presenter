@@ -280,8 +280,23 @@ isolation.
 
 ### PA-05 — Freeze and version the acceptance contract (G3-W02)
 
-- **Status:** Not Started — **this is the largest, least-bounded item in this file; treat the
-  "Now" runbook's step 1 as a hard gate, not a suggestion.**
+- **Status:** Excluded from autonomous execution (2026-09-09) — **do not run without explicit
+  owner direction.** While preparing to execute this, `project/state.yaml`'s own G3-W02 entry was
+  re-read and it explicitly says: "Freeze acceptance contract v1 after every cohort has sealed
+  against it (moved behind the cohorts 2026-09-05, section 28.12)." That has not happened - only
+  8 of 34 portfolio items are sealed, and G3-W04 (Python cohort second pass) and the G4
+  multi-language cohorts are themselves still `PENDING`. This taskcard's own text (authored
+  earlier this session from AUD-005's "high, CONFIRMED, still PENDING" verdict) did not check
+  that constraint and told a future executor to run it now. Running it now would freeze the
+  contract version, and re-seal all 8 current candidates against that freeze, *before* the
+  cohorts the freeze is deliberately timed to wait for - preempting a real, dated project-
+  sequencing decision, not a style preference. Left Not Started technically, but excluded here
+  exactly like RC-06 and the 3D-Python canary floor: a design/timing decision only the owner can
+  resolve, not a case for autonomous judgment. AUD-005 itself remains an accurate, still-open
+  finding; only the *timing* of its fix is in question.
+- **Original status text (superseded by the above, kept for record):** Not Started — "this is the
+  largest, least-bounded item in this file; treat the 'Now' runbook's step 1 as a hard gate, not a
+  suggestion."
 - **Gap linkage:** AUD-005 / G3-W02
 - **Role:** Senior engineer. Drop-in, production-ready — for the bounded technical half only; the
   versioning *scheme* itself (what bumps `contract_version`, what bumps

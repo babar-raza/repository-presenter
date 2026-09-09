@@ -21,18 +21,19 @@ fixes come first.
 | `trust-boundary-corrections.md` | TB-01, TB-04, TB-06, TB-07 | TB-02, TB-03, TB-05, TB-08, TB-09, TB-10 |
 | `production-consistency-reassessment.md` | RC-05 | RC-01, RC-02, RC-03, RC-04, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
-| `r1-reseal-operations.md` | — | OPS-01, OPS-02†, OPS-03 |
-| `prior-audit-remnants.md` | — | PA-01, PA-02, PA-03, PA-04, PA-05 |
+| `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
+| `prior-audit-remnants.md` | PA-01 | PA-02, PA-03, PA-04, PA-05* |
 
-`*` RC-06 is explicitly excluded from this pass — see "Excluded" below.
+`*` RC-06 and PA-05 are explicitly excluded from this pass — see "Excluded" below.
 `†` OPS-02 (pop the stash) is subsumed by PA-01, which pops the same stash as part of its own
 runbook. Executing PA-01 resolves OPS-02; it is not run separately.
 
 ## Same-file clusters (must run sequentially, never in parallel with each other)
 
-`bundle/seal.py` is touched by **five** different taskcards: PA-01, TB-07(pt.2), TB-06, RC-05,
-PA-05. Each lands as its own commit with a full-suite check before the next starts — this is the
-single biggest sequencing constraint in this plan.
+`bundle/seal.py` was touched by **four** taskcards actually executed: PA-01, TB-07(pt.2), TB-06,
+RC-05 (PA-05 would have been a fifth, but is excluded — see below). Each landed as its own commit
+with a full-suite check before the next started — this was the single biggest sequencing
+constraint in this plan.
 
 `evidence/facts/links.py` is touched by both TB-08 (private-address boundary on `fetch_status`)
 and TB-09 (HTML discovery in `extract_links`) — different functions, same file; sequential, not
@@ -52,8 +53,9 @@ scripts). They are **merged into one execution**, not built twice.
 3. **TB-06** [DONE] — bundle integrity (`verify_bundle`, `_write_bundle` secret-scan ordering,
    `_record_update`, `count_current_candidates`).
 4. **RC-05** [DONE] — surface call-history variance on the manifest.
-5. **PA-05** — freeze and version the acceptance contract. Last in this cluster — benefits from
-   TB-06 already being in place, and is the least-bounded item, so it gets the most context.
+5. ~~**PA-05**~~ [EXCLUDED 2026-09-09 — see "Excluded" below] — freeze and version the acceptance
+   contract. `state.yaml`'s own G3-W02 entry says this is deliberately deferred until every
+   cohort has sealed, which has not happened; moved to Excluded rather than executed.
 
 ### Wave 2 — other independent P0 items
 6. **TB-03** — snapshot immutability (`git ls-tree` blind to uncommitted tracked-file edits).
@@ -102,6 +104,14 @@ scripts). They are **merged into one execution**, not built twice.
   choice, optional.
 - **AUD-003** (`plans/idea.md`'s denominator): owner-owned file, not mine to edit.
 - **AUD-004** (gate-cursor drift): confirmed intentional parallelization, not a defect — no action.
+- **PA-05** (freeze and version the acceptance contract, G3-W02): discovered mid-pass, 2026-09-09,
+  re-reading `state.yaml` before starting it — G3-W02's own entry there says this is "moved behind
+  the cohorts" (§28.12): deliberately deferred until every cohort has sealed, which has not
+  happened (8 of 34 sealed; G3-W04 and the G4 cohorts are themselves still `PENDING`). This
+  taskcard's own text did not check that constraint when it was authored. Not executed; would
+  freeze the contract and re-seal every current candidate against that freeze ahead of a real,
+  dated project-sequencing decision. AUD-005 (the underlying finding) stays open; only its timing
+  is disputed. Needs owner direction, not autonomous judgment.
 
 ## Checkpoint and pause rules
 
