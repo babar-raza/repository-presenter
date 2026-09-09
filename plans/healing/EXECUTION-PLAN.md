@@ -19,12 +19,12 @@ fixes come first.
 | File | Done | Remaining |
 |---|---|---|
 | `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07, TB-08 | TB-02, TB-05, TB-09, TB-10 |
-| `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03, RC-06*, RC-07 |
+| `production-consistency-reassessment.md` | RC-01, RC-02, RC-04, RC-05 | RC-03*, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
 | `prior-audit-remnants.md` | PA-01 | PA-02, PA-03, PA-04, PA-05* |
 
-`*` RC-06 and PA-05 are explicitly excluded from this pass — see "Excluded" below.
+`*` RC-03, RC-06, and PA-05 are explicitly excluded from this pass — see "Excluded" below.
 `†` OPS-02 (pop the stash) is subsumed by PA-01, which pops the same stash as part of its own
 runbook. Executing PA-01 resolves OPS-02; it is not run separately.
 
@@ -77,7 +77,11 @@ scripts). They are **merged into one execution**, not built twice.
 10. **RC-01** [DONE] — generalize the completeness-backstop pattern into one registered
     mechanism. Pure refactor, verified byte-identical against the real portfolio; a taskcard
     claim of a pre-existing append-behavior test didn't hold (none existed) - added directly.
-11. **RC-03** — deterministic citation-completeness gate at reconciliation.
+11. ~~**RC-03**~~ [EXCLUDED 2026-09-09 — see "Excluded" below] — deterministic citation-
+    completeness gate at reconciliation. Investigated and prototyped twice, both verified
+    empirically against the real portfolio; the real remaining question (how many additional
+    reconciliation re-asks across the whole portfolio is an acceptable cost) is a policy call,
+    not resolved by further engineering. Reverted before commit, not landed.
 
 ### Wave 4 — remaining defect fixes (P1)
 12. **TB-02** — format claims from unreachable code / unread fixtures.
@@ -108,6 +112,18 @@ scripts). They are **merged into one execution**, not built twice.
 
 - **RC-06** (extraction-time unit-granularity fix): explicitly flagged high-risk, prototype-first
   in its own taskcard. Not attempted without an owner go/no-go on the prototype step first.
+- **RC-03** (deterministic citation-completeness gate at reconciliation): investigated and
+  prototyped twice this pass, both verified empirically against every real candidate's sealed
+  `dispositions.json` (not assumed) - a bare word-boundary match (the taskcard's own literal Fix
+  text) produced 20-38 false positives per candidate from short/generic symbol names doubling as
+  ordinary English words; a backtick-code-span-restricted redesign found real, previously-unknown
+  citation gaps with realistic precision, but still 3-10 per candidate portfolio-wide. The
+  question left open is not precision - it is whether the aggregate cost of that many additional
+  reconciliation re-asks across the whole portfolio (`source_reconciliation` is independently
+  confirmed non-deterministic, `RC-05` this pass) is worth the completeness gain, a policy/product
+  call the owner should make, not this session unilaterally. No code was committed; the
+  in-progress prototype was reverted before commit. `plans/healing/production-consistency-
+  reassessment.md`'s own RC-03 entry has the full investigation and a concrete reversal path.
 - **The 3D-Python canary call-volume floor** (`>= 20` calls): a tracked-metric policy call with
   three options recorded in `DECISION_LOG.md`, none chosen. Not resolved unilaterally.
 - **SR-03** (RESEARCH_AND_GUIDELINES.md phase-2 split): already explicitly deferred by owner

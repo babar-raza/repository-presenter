@@ -245,7 +245,55 @@ duplicate of them.
 
 ### RC-03 — Deterministic citation-completeness gate at reconciliation
 
-- **Status:** Not Started
+- **Status:** Excluded from autonomous execution (2026-09-09) — **do not run without explicit
+  owner direction**, same standing as RC-06 and the 3D-Python canary floor. Investigated fully
+  and prototyped twice; both prototypes were verified empirically against every real candidate's
+  sealed `dispositions.json` before being trusted, per this pass's own established discipline -
+  and both showed the same real problem: precision/recall here is a policy call, not something
+  more regex tuning resolves.
+  - **Prototype 1** (bare word-boundary match against every non-module `public_symbol` display
+    name, exactly as the taskcard's own Fix text describes): catastrophic false-positive rate -
+    20-38 "under-citation" errors per real candidate, every candidate affected. Root cause found
+    by direct inspection: many symbol display names are short, generic, or ordinary English words
+    once reduced to their last dotted component (`Color.a` → `"a"`, matching the word "a" inside
+    "At **a** Glance"; `...ColladaExporter.export` → `"export"`, matching "**export** it to
+    glTF" in ordinary prose). A minimum-length filter alone did not fix this (`"library"`,
+    `"transform"`, `"version"` are 6+ characters and still ordinary words) - the taskcard's own
+    comparison to `_LOWER_WORD` (a small, curated abbreviation list) does not transfer to
+    matching against every symbol name in a real portfolio, most of which are far more numerous
+    and far less distinctive than an abbreviation list.
+  - **Prototype 2** (restricted to backtick-delimited code spans only, e.g. `` `MapiMessage` ``,
+    matching the exact shape Aspose.Email Python's own under-cited units use): dramatically
+    better precision - false positives from ordinary prose essentially eliminated - but still
+    found 3-10 flagged units per real candidate across the whole portfolio (49 total), and spot
+    verification found these are **real, previously-unknown citation gaps**, not noise (example:
+    Aspose.Cells .NET's `inherited_unit:039.paragraph` names `` `Cells` `` in its own text but
+    cites only `.cell`, not `.cells` - genuinely under-cited, confirmed by reading the real
+    disposition and fact table directly).
+  - **Why this is not a "keep refining until zero false positives" problem:** the real, remaining
+    question is not precision but consequence - this gate would fire during *every future*
+    `source_reconciliation` run across the *entire* portfolio, each firing forcing the one bounded
+    re-ask this project's own `run_job` mechanism already provides generically (confirmed by
+    reading `core/llm/jobs.py` directly: `_re_ask`'s `rejection_template` substitution already
+    quotes back any check's error strings verbatim, so - correcting the taskcard's own assumption
+    - **no `prompts/source_reconciliation.yaml` change is actually needed** for the re-ask
+    mechanism itself to work). Given `source_reconciliation` is independently confirmed
+    non-deterministic (`RC-05`, this same pass), adding a new, portfolio-wide class of rejection
+    trigger changes the *aggregate* sealability of the whole portfolio in a way no amount of
+    regex precision tuning resolves - how strict evidence-citation should be here is a product/
+    policy decision (how much incidental, minor under-citation is worth blocking a seal over),
+    not a pure engineering one. This is exactly the class of decision this plan's own
+    Checkpoint rule reserves for the owner, not autonomous judgment.
+  - **Not implemented; no code changed.** The in-progress prototype was reverted before commit
+    (`git checkout -- .../dispositions.py`) rather than landed in a not-production-ready state -
+    verified against real data BEFORE committing, exactly as this pass's own established
+    discipline requires, and found wanting before it ever reached the repository's history.
+  - **Reversal path:** if the owner wants this gate, the backtick-code-span design (Prototype 2)
+    is the right starting point - already verified to have realistic precision - but needs an
+    explicit decision on scope (which disposition types, whether module-kind symbols are
+    excluded, a minimum-length floor) and, most importantly, an explicit call on how many
+    additional re-ask cycles across the portfolio going forward is an acceptable cost for the
+    completeness gain.
 - **Gap linkage:** RC3
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
