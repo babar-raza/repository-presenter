@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from collections.abc import Callable
@@ -80,15 +81,37 @@ def write_bundle(
     state: str | None,
     *,
     raw: str | None = None,
+    current: bool = True,
 ) -> Path:
-    """Create a bundle directory; seal it with a manifest when ``state`` or ``raw`` is given."""
+    """Create a bundle directory; seal it with a manifest when ``state`` or ``raw`` is given.
+
+    Writes ``CURRENT`` pointing at ``revision`` too (unless ``current=False``), matching what a
+    real seal always does - ``count_current_candidates`` (TB-06) only ever resolves a repository
+    through its own ``CURRENT`` file, never by scanning revision directories directly.
+    """
     bundle = root / "candidates" / repository_dir / revision
     bundle.mkdir(parents=True, exist_ok=True)
     manifest = bundle / "manifest.json"
     if raw is not None:
         manifest.write_text(raw, encoding="utf-8")
     elif state is not None:
-        manifest.write_text(json.dumps({"schema_version": 1, "state": state}), encoding="utf-8")
+        readme = bundle / "README.md"
+        readme.write_bytes(b"")
+        digest = {"README.md": {"sha256": hashlib.sha256(b"").hexdigest(), "bytes": 0}}
+        manifest.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "repository": repository_dir.replace("__", "/", 1),
+                    "revision": revision,
+                    "state": state,
+                    "files": digest,
+                }
+            ),
+            encoding="utf-8",
+        )
+    if current and (raw is not None or state is not None):
+        (bundle.parent / "CURRENT").write_text(f"{revision}\n", encoding="utf-8")
     return bundle
 
 

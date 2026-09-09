@@ -366,7 +366,38 @@ file was touched.
 
 ### TB-06 — Bundle integrity, currentness, and publication order
 
-- **Status:** Not Started
+- **Status:** Done — all four sub-fixes landed and pushed.
+- **Note:** (1) `verify_bundle` moved from `seal.py` to `core/candidates.py` (the lower-level
+  module both `seal.py` and `count_current_candidates` depend on; `candidates.py` calling back
+  into `seal.py` would have been circular) and now validates `schema_version` and rejects an
+  empty `files` inventory before trusting it, in addition to the pre-existing per-file
+  existence/digest checks; it now raises `BundleError` (extended to inherit `PresenterError` too,
+  so `cli.py`'s existing `except (PresenterError, RetryableOperationError)` in `run_present` still
+  fails closed on it with no `cli.py` change needed) rather than `SealError`. (2)
+  `count_current_candidates` now reads each repository's `CURRENT` file and verifies only that
+  exact revision - never scans every historical revision directory - and additionally checks the
+  manifest's own `revision`/`repository` fields agree with `CURRENT` and the directory it was
+  found under. (3) `_write_bundle` now stages every file to a sibling temp directory, scans *that*
+  for secrets, and only rmtree+renames it into place - and only then updates `CURRENT` - once the
+  scan passes; no existing staging/atomic-publication facility existed anywhere in this codebase
+  (checked first). (4) `_record_update` now distinguishes a factual contradiction from harmless
+  presentation drift by moving the manifest's own `state` to the newly-implemented
+  `VALID_UPDATE_AVAILABLE` (named in `docs/STATE_MACHINE.md` sections 5 and 9 but never
+  previously written by any code) for the factual case only, excluding it from
+  `COUNTED_STATES`; `seal_candidate`'s record/adopt guard was extended to also recognize that
+  state so the two-run, zero-provider-call adoption discipline still applies to a bundle sitting
+  at `VALID_UPDATE_AVAILABLE` (proven live: the giant lifecycle test in `test_seal.py` now drives
+  a factual update all the way through un-counting and back through adoption to
+  `READY_FOR_PROPOSAL`). `candidate-bundle.schema.json` gained the new state value and its
+  `no_op_proof`/`update` invariants. One pre-existing test in `test_cli.py` asserted the old,
+  incorrect behavior (a factual update staying `READY_FOR_PROPOSAL`) and was corrected, not
+  reverted. Verified directly against the real 8-candidate portfolio (unchanged count) and the
+  live CLI (`repository-presenter status`), per the taskcard's own deliverable requirement.
+- **Checklist:** [x] verify_bundle schema/inventory validation [x] count_current_candidates reads
+  only CURRENT [x] _write_bundle stages+scans+atomically-promotes before touching CURRENT
+  [x] _record_update's factual/presentation state distinction (VALID_UPDATE_AVAILABLE) [x] ten
+  regression controls [x] real-portfolio verification [x] full suite (only the two known
+  pre-existing failures remain)
 - **Gap linkage:** D6
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

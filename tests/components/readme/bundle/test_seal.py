@@ -22,6 +22,7 @@ from repository_presenter.components.readme.bundle.seal import (
     seed_call_store,
     verify_bundle,
 )
+from repository_presenter.core.candidates import BundleError, count_current_candidates
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
 from repository_presenter.core.llm.jobs import CallStore
 from repository_presenter.core.llm.prompts import load_manifests
@@ -281,6 +282,24 @@ def test_the_first_seal_is_accepted_and_a_fresh_zero_call_replay_proves_the_no_o
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert factual.changed and manifest["update"]["classification"] == "factual"
     assert manifest["update"]["changed"] == ["facts.json"] and "adopted" in manifest
+    # TB-06 (external review D6, 2026-09-08): a factual contradiction moves the bundle's own
+    # state out of the counted READY_FOR_PROPOSAL - unlike the presentation update above, which
+    # stayed READY_FOR_PROPOSAL and counted throughout.
+    assert factual.state == "VALID_UPDATE_AVAILABLE"
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE"
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert count_current_candidates(tmp_path) == 0  # no longer counts as current
+    # A fresh zero-call process reproducing that exact factual update still proves and adopts it
+    # (the Forbidden clause: the two-run, zero-provider-call discipline is preserved exactly even
+    # once the state has moved off READY_FOR_PROPOSAL to VALID_UPDATE_AVAILABLE).
+    resolved = seal_candidate(_inputs(tmp_path, provider_calls=0, stage="EXTRACTING"))
+    assert resolved.state == "READY_FOR_PROPOSAL" and resolved.changed
+    assert resolved.note.startswith("update adopted (factual): a fresh process reproduced")
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    jsonschema.Draft202012Validator(SCHEMA).validate(manifest)
+    assert manifest["state"] == "READY_FOR_PROPOSAL" and "update" not in manifest
+    assert (bundle / "facts.json").read_text("utf-8") == '{"facts": ["new"]}\n'
+    assert count_current_candidates(tmp_path) == 1  # counts again once adopted
 
 
 def test_seed_call_store_reuses_the_three_one_to_one_stages_from_a_sealed_bundle(
@@ -371,16 +390,16 @@ def test_a_corrupt_bundle_fails_closed_and_a_factual_failure_invalidates(tmp_pat
     assert verify_bundle(bundle) is not None
     assert verify_bundle(tmp_path / "nowhere") is None
     (bundle / "plan.json").write_text('{"sections": ["x"]}\n', encoding="utf-8", newline="\n")
-    with pytest.raises(SealError, match=r"bundle artifact plan\.json is corrupt in c{40}"):
+    with pytest.raises(BundleError, match=r"bundle artifact plan\.json is corrupt in c{40}"):
         verify_bundle(bundle)
-    with pytest.raises(SealError, match=r"plan\.json is corrupt"):
+    with pytest.raises(BundleError, match=r"plan\.json is corrupt"):
         seal_candidate(_inputs(tmp_path, provider_calls=0))
     (bundle / "plan.json").unlink()
-    with pytest.raises(SealError, match=r"bundle artifact plan\.json is missing"):
+    with pytest.raises(BundleError, match=r"bundle artifact plan\.json is missing"):
         verify_bundle(bundle)
 
     transaction = _transaction(tmp_path)
-    with pytest.raises(SealError, match=r"plan\.json is missing"):
+    with pytest.raises(BundleError, match=r"plan\.json is missing"):
         seal_candidate(_inputs(tmp_path, provider_calls=0))  # a bundle never self-heals
     (bundle / "plan.json").write_bytes((transaction / "plan.json").read_bytes())
     assert verify_bundle(bundle) is not None
@@ -412,8 +431,45 @@ def test_a_corrupt_bundle_fails_closed_and_a_factual_failure_invalidates(tmp_pat
 def test_a_missing_artifact_or_a_leaked_secret_fails_the_seal_closed(tmp_path: Path) -> None:
     transaction = _transaction(tmp_path, readme="# Doc with sk-live-secret-value\n")
     secret = ConfiguredSecret("GPT_OSS_API_KEY", b"sk-live-secret-value")
+    bundle = tmp_path / "candidates" / "aspose-3d-foss__Aspose.3D-FOSS-for-Python" / REVISION
     with pytest.raises(BundleLeakError, match=r"GPT_OSS_API_KEY in README\.md"):
         seal_candidate(_inputs(tmp_path, provider_calls=0, secrets=(secret,)))
+    # TB-06 (external review D6, 2026-09-08): a leak must leave no trace on disk, not merely
+    # raise after the files and CURRENT pointer were already published - there was never a
+    # prior bundle here (this is a first seal), so nothing at all should exist now.
+    assert not bundle.is_dir()
+    assert not (bundle.parent / "CURRENT").exists()
+    assert list(bundle.parent.iterdir()) == []  # no orphaned staging directory either
     (transaction / "review.json").unlink()
     with pytest.raises(SealError, match=r"no review\.json"):
         seal_candidate(_inputs(tmp_path, provider_calls=0))
+
+
+def test_a_publish_failure_partway_through_leaves_no_partial_bundle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TB-06 (external review D6, 2026-09-08): staged to a temp directory and promoted only
+    after the secret scan passes, so a crash partway through never leaves CURRENT pointing at a
+    partially-written bundle, and never corrupts a pre-existing proven one."""
+    _transaction(tmp_path)
+    first = seal_candidate(_inputs(tmp_path, provider_calls=0))
+    bundle = first.bundle
+    before_files = {p.name: p.read_bytes() for p in bundle.iterdir()}
+    before_current = (bundle.parent / "CURRENT").read_bytes()
+
+    _transaction(tmp_path, readme="# Draft\n")
+    original_write_bytes = Path.write_bytes
+
+    def _flaky_write_bytes(self: Path, data: bytes) -> int:
+        if self.name == "dependencies.json":
+            raise OSError("simulated crash mid-publish")
+        return original_write_bytes(self, data)
+
+    monkeypatch.setattr(Path, "write_bytes", _flaky_write_bytes)
+    with pytest.raises(OSError, match="simulated crash mid-publish"):
+        seal_candidate(_inputs(tmp_path, provider_calls=2))
+    monkeypatch.undo()
+
+    assert {p.name: p.read_bytes() for p in bundle.iterdir()} == before_files
+    assert (bundle.parent / "CURRENT").read_bytes() == before_current
+    assert [p for p in bundle.parent.iterdir() if p.name.startswith(".")] == []

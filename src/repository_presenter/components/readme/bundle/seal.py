@@ -11,11 +11,19 @@ nothing. A run whose artifacts differ re-seals an unproven bundle at ACCEPTED an
 proof; on a proven bundle it records a valid update instead and touches no artifact
 (docs/STATE_MACHINE.md section 5), and a later fresh process that reproduces that exact update
 with zero provider calls proves it, so the bundle adopts it as its proven content and keeps the
-previous proof on the manifest for the record.
+previous proof on the manifest for the record. A recorded update that contradicts sealed facts
+(not merely presentation) moves the manifest's own state to VALID_UPDATE_AVAILABLE, out of the
+counted READY_FOR_PROPOSAL state, until it is resolved or adopted (TB-06, external review D6,
+2026-09-08); a harmless presentation-only update stays counted, exactly as before.
 
 Three files carry a clock by design and are exempt from the byte comparison: the ledger, the
 manifest itself, and the probe record. validation.json is compared with check 11 blanked, since
 the proof is what judges it. CURRENT names the revision a reviewer opens.
+
+A bundle is published by staging every file to a sibling temp directory, scanning *that* for
+configured secrets, and only promoting it into place - and only then updating CURRENT - once the
+scan passes: a leak must leave no trace on disk, never merely raise after the files and CURRENT
+were already published (TB-06, external review D6, 2026-09-08).
 """
 
 from __future__ import annotations
@@ -23,6 +31,8 @@ from __future__ import annotations
 import hashlib
 import json
 import platform
+import shutil
+import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -45,7 +55,7 @@ from repository_presenter.components.readme.validation.registry import (
     VALIDATOR_VERSION,
     record_replay_verdict,
 )
-from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME
+from repository_presenter.core.candidates import BUNDLE_MANIFEST_NAME, verify_bundle
 from repository_presenter.core.errors import PresenterError
 from repository_presenter.core.facts import FactsDocument
 from repository_presenter.core.llm.jobs import CallStore
@@ -86,6 +96,11 @@ OPTIONAL_ARTIFACTS = (
 REPLAY_EXEMPT = frozenset({"calls.jsonl", "probes.json", BUNDLE_MANIFEST_NAME})
 STATE_ACCEPTED = "ACCEPTED"
 STATE_READY = "READY_FOR_PROPOSAL"
+# docs/STATE_MACHINE.md sections 5 and 9 name this state for an update that is available but not
+# yet adopted; TB-06 (external review D6, 2026-09-08) is its first implementation - previously
+# every recorded update blanket-preserved STATE_READY regardless of whether the new evidence
+# merely improved presentation or actually contradicted what was sealed.
+STATE_UPDATE_AVAILABLE = "VALID_UPDATE_AVAILABLE"
 
 
 class SealError(PresenterError):
@@ -324,9 +339,6 @@ def _write_bundle(
     inputs: SealInputs,
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    bundle.mkdir(parents=True, exist_ok=True)
-    for name, data in staged.items():
-        (bundle / name).write_bytes(data)
     files = {
         name: {"sha256": _sha256(data), "bytes": len(data)} for name, data in sorted(staged.items())
     }
@@ -342,33 +354,41 @@ def _write_bundle(
         "composition": _composition(staged),
         **dict(extra or {}),
     }
-    (bundle / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(manifest))
+    bundle.parent.mkdir(parents=True, exist_ok=True)
+    # Staged to a sibling temp directory and scanned for secrets before anything under `bundle`
+    # itself - or CURRENT - is touched: a leak must leave no trace on disk, never merely raise
+    # after the files and CURRENT pointer were already published (TB-06, external review D6,
+    # 2026-09-08). No existing staging/atomic-publication facility exists anywhere in this
+    # codebase to reuse (checked first); a temp-directory-then-rename is the narrowest primitive
+    # that closes the gap without a new general-purpose framework.
+    staging = Path(tempfile.mkdtemp(dir=bundle.parent, prefix=f".{bundle.name}.staging-"))
+    try:
+        for name, data in staged.items():
+            (staging / name).write_bytes(data)
+        (staging / BUNDLE_MANIFEST_NAME).write_bytes(_canonical_json(manifest))
+        leaks = scan_for_secrets(staging, inputs.secrets)
+        if leaks:
+            names = ", ".join(sorted({f"{leak.variable} in {leak.path.name}" for leak in leaks}))
+            raise BundleLeakError(f"seal: a configured secret appears in the bundle: {names}")
+        if bundle.is_dir():
+            shutil.rmtree(bundle)
+        staging.rename(bundle)
+    finally:
+        if staging.is_dir():
+            shutil.rmtree(staging, ignore_errors=True)
+    # CURRENT is updated last, strictly after the rename above: it must never be able to point at
+    # a bundle directory that is only partially published (TB-06, external review D6, 2026-09-08).
     current = bundle.parent / CURRENT_FILENAME
     pointer = f"{inputs.source_revision}\n".encode()
     if not current.is_file() or current.read_bytes() != pointer:
         current.write_bytes(pointer)
-    leaks = scan_for_secrets(bundle, inputs.secrets)
-    if leaks:
-        names = ", ".join(sorted({f"{leak.variable} in {leak.path.name}" for leak in leaks}))
-        raise BundleLeakError(f"seal: a configured secret appears in the bundle: {names}")
     return files
 
 
-def verify_bundle(bundle: Path) -> dict[str, Any] | None:
-    """The bundle's manifest, after every file it lists is present with its recorded digest;
-    a missing or corrupt artifact fails closed naming the file. None when there is no bundle."""
-    manifest = _read_manifest(bundle / BUNDLE_MANIFEST_NAME)
-    if manifest is None:
-        return None
-    for name, digest in sorted(dict(manifest.get("files", {})).items()):
-        path = bundle / name
-        if not path.is_file():
-            raise SealError(f"bundle artifact {name} is missing from {bundle.name}")
-        data = path.read_bytes()
-        if _sha256(data) != digest.get("sha256") or len(data) != digest.get("bytes"):
-            raise SealError(f"bundle artifact {name} is corrupt in {bundle.name}")
-    return manifest
-
+# ``verify_bundle`` now lives in core/candidates.py, the lower-level module both this file and
+# count_current_candidates() depend on - candidates.py could not call back into this module
+# without a circular import, so the check moved down to where both callers can reach it
+# (TB-06, external review D6, 2026-09-08). Imported above and used directly by name here.
 
 # G5-W02 (27.2 RC4). Each of these three jobs' sealed artifact is that one job's own accepted
 # output written verbatim (investigation.py::write_investigation, dispositions.py::
@@ -460,6 +480,12 @@ def _record_update(
     factual = bool(FACTUAL_ARTIFACTS & set(differing)) or (
         inputs.earliest_affected_stage in EARLY_STATES
     )
+    # A factual contradiction moves the bundle's own manifest state out of the counted
+    # READY_FOR_PROPOSAL, to VALID_UPDATE_AVAILABLE (docs/STATE_MACHINE.md sections 5, 9);
+    # genuinely harmless presentation drift stays READY_FOR_PROPOSAL, counted, exactly as before.
+    # Both were blanket-preserved as READY_FOR_PROPOSAL before this fix (TB-06, external review
+    # D6, 2026-09-08), which let a factually-contradicted bundle keep counting as current.
+    state = STATE_UPDATE_AVAILABLE if factual else STATE_READY
     update = {
         "available": True,
         "classification": "factual" if factual else "presentation",
@@ -469,20 +495,26 @@ def _record_update(
         "files": _update_digests(staged),
     }
     existing = {k: v for k, v in dict(manifest.get("update") or {}).items() if k != "recorded_at"}
-    changed = existing != update
+    changed = existing != update or manifest.get("state") != state
     if changed:
         (bundle / BUNDLE_MANIFEST_NAME).write_bytes(
-            _canonical_json({**manifest, "update": {**update, "recorded_at": _now()}})
+            _canonical_json(
+                {**manifest, "state": state, "update": {**update, "recorded_at": _now()}}
+            )
         )
     return SealResult(
         bundle,
-        STATE_READY,
+        state,
         dict(manifest.get("files", {})),
         manifest.get("no_op_proof"),
         changed,
         f"valid update available ({update['classification']}): {', '.join(differing)} changed "
-        f"at {inputs.earliest_affected_stage or 'an unknown stage'}; the proven candidate stays "
-        "valid and the update waits in the transaction",
+        f"at {inputs.earliest_affected_stage or 'an unknown stage'}; "
+        + (
+            "the candidate no longer counts as current until this is resolved or adopted"
+            if factual
+            else "the proven candidate stays valid and the update waits in the transaction"
+        ),
     )
 
 
@@ -618,7 +650,15 @@ def seal_candidate(inputs: SealInputs) -> SealResult:
             or not _identical(name, data, (bundle / name).read_bytes())
         )
     )
-    if differing and manifest.get("state") == STATE_READY and manifest.get("no_op_proof"):
+    # A bundle already sitting at VALID_UPDATE_AVAILABLE (a previously recorded, not yet adopted,
+    # factual update - TB-06) is still a proven bundle with a waiting update: a rerun reproducing
+    # that exact update must still be able to adopt it, not fall through to the destructive
+    # re-seal-as-ACCEPTED branch below just because the state moved off READY_FOR_PROPOSAL.
+    if (
+        differing
+        and manifest.get("state") in (STATE_READY, STATE_UPDATE_AVAILABLE)
+        and manifest.get("no_op_proof")
+    ):
         waiting = dict(manifest.get("update") or {})
         if inputs.provider_calls == 0 and waiting.get("files") == _update_digests(staged):
             # The waiting update is proven the way a first seal is: a fresh process reproduced

@@ -18,7 +18,7 @@ fixes come first.
 
 | File | Done | Remaining |
 |---|---|---|
-| `trust-boundary-corrections.md` | TB-01, TB-04, TB-07(pt.1) | TB-02, TB-03, TB-05, TB-06, TB-07(pt.2-3), TB-08, TB-09, TB-10 |
+| `trust-boundary-corrections.md` | TB-01, TB-04, TB-06, TB-07 | TB-02, TB-03, TB-05, TB-08, TB-09, TB-10 |
 | `production-consistency-reassessment.md` | — | RC-01, RC-02, RC-03, RC-04, RC-05, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | — | OPS-01, OPS-02†, OPS-03 |
@@ -45,11 +45,11 @@ scripts). They are **merged into one execution**, not built twice.
 ## Execution order
 
 ### Wave 1 — `seal.py`/`jobs.py` cluster (sequential, P0)
-1. **PA-01** — land the stashed cache-seeding work + fix R5's lineage gap. First, because it's the
-   largest, most foundational item and resolves OPS-02 as a side effect.
-2. **TB-07 (parts 2–3)** — `_site_manifest_hash` target fix + plugin-init audit. Same file area,
-   immediately after.
-3. **TB-06** — bundle integrity (`verify_bundle`, `_write_bundle` secret-scan ordering,
+1. **PA-01** [DONE] — land the stashed cache-seeding work + fix R5's lineage gap. First, because
+   it's the largest, most foundational item and resolves OPS-02 as a side effect.
+2. **TB-07 (parts 2–3)** [DONE] — `_site_manifest_hash` target fix + plugin-init audit. Same file
+   area, immediately after.
+3. **TB-06** [DONE] — bundle integrity (`verify_bundle`, `_write_bundle` secret-scan ordering,
    `_record_update`, `count_current_candidates`).
 4. **RC-05** — surface call-history variance on the manifest.
 5. **PA-05** — freeze and version the acceptance contract. Last in this cluster — benefits from

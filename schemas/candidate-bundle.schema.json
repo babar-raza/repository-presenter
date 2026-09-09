@@ -20,7 +20,14 @@
     "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
     "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "state": {
-      "enum": ["ACCEPTED", "PROVING_NO_OP", "READY_FOR_PROPOSAL", "INVALIDATED", "SUPERSEDED"]
+      "enum": [
+        "ACCEPTED",
+        "PROVING_NO_OP",
+        "READY_FOR_PROPOSAL",
+        "VALID_UPDATE_AVAILABLE",
+        "INVALIDATED",
+        "SUPERSEDED"
+      ]
     },
     "sealed_at": { "$ref": "#/$defs/timestamp" },
     "files": {
@@ -115,6 +122,13 @@
     {
       "if": { "properties": { "state": { "const": "READY_FOR_PROPOSAL" } } },
       "then": { "properties": { "no_op_proof": { "type": "object" } } }
+    },
+    {
+      "if": { "properties": { "state": { "const": "VALID_UPDATE_AVAILABLE" } } },
+      "then": {
+        "required": ["update"],
+        "properties": { "no_op_proof": { "type": "object" } }
+      }
     }
   ],
   "$defs": {

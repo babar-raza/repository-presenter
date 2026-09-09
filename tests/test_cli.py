@@ -2027,12 +2027,14 @@ def test_a_changed_fact_record_reopens_extracting_and_records_a_factual_update(
     # stored output is judged and reused without a call.
     assert len(gateway_ready.requests) == before
     bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
-    # A changed fact is a factual update: recorded, waiting, and the proven candidate kept.
-    assert "(state READY_FOR_PROPOSAL," in bundle_line
+    # A changed fact is a factual update: recorded, waiting, and the candidate previously proven
+    # no longer counts as current until the contradiction is resolved or adopted (TB-06, external
+    # review D6, 2026-09-08) - unlike a merely presentational update, which stays counted.
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
     assert "valid update available (factual):" in bundle_line
-    assert "the proven candidate stays valid" in bundle_line
+    assert "no longer counts as current until this is resolved or adopted" in bundle_line
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
-    assert manifest["state"] == "READY_FOR_PROPOSAL" and manifest["update"]["available"]
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
     assert "facts.json" in manifest["update"]["changed"]
     assert "README.md" not in manifest["update"]["changed"]  # the same bytes render again
     assert (bundle / "README.md").read_bytes() == readme_before
