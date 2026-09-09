@@ -366,6 +366,10 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
             workspace_key = hashlib.sha256(
                 f"{entry.repository}@{clone.revision}".encode()
             ).hexdigest()[:12]
+            # Example verification builds and executes code against clone.path (TB-03, external
+            # review D3, 2026-09-08): re-verify immediately before handing it a working tree that
+            # could have drifted since capture, rather than trusting the one check done earlier.
+            verify_snapshot(snapshot, clone.path)
             receipts = plugin.verify_examples(
                 clone.path, tree_paths, candidates, root / RUNS_DIRNAME / "verify" / workspace_key
             )
@@ -375,6 +379,9 @@ def run_present(repository: str, root_argument: Path | None, *, facts_only: bool
             for outcome, count in sorted(Counter(r.outcome for r in receipts).items())
         )
         print(f"examples: {len(candidates)} candidates; {outcomes or 'none'}")
+        # Example verification (above) is the stage most likely to have just run build/install
+        # tooling against clone.path; re-verify once more before fact extraction reads it too.
+        verify_snapshot(snapshot, clone.path)
         document, probes = extract_facts(
             entry, snapshot, clone.path, tree_paths, plugin, manifest, candidates, receipts
         )

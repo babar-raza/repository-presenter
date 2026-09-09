@@ -3,7 +3,19 @@
 The artifact is a pure function of the revision: it carries no timestamps and no absolute paths,
 so a rerun on the same revision is byte-identical. The tree inventory is git's own
 ``ls-tree -r --full-tree HEAD`` listing, and the README is copied byte for byte under its own
-name. Drift between capture and any later stage fails closed through :func:`verify_snapshot`.
+name. Drift between capture and any later stage fails closed through :func:`verify_snapshot`,
+called again at every later stage boundary that reads from the clone (manifest detection is
+covered by the call immediately after capture; example verification and fact extraction each get
+their own call in ``cli.py``, since a build/install step run for the first can leave the clone
+different by the time the second reads it).
+
+``ls-tree HEAD`` alone is not enough: it lists paths and blob hashes from git's own committed
+object database, never the working tree, so a tracked file edited on disk without a commit - a
+build hook rewriting a manifest, a stray edit to a source file - is invisible to it (TB-03,
+external review D3, 2026-09-08; confirmed empirically before this fix: editing a tracked,
+non-README file in a clone and calling ``verify_snapshot`` raised nothing). ``verify_snapshot``
+now also runs ``git diff-index --quiet HEAD --``, which does read the working tree, to catch
+exactly that.
 """
 
 from __future__ import annotations
@@ -116,7 +128,9 @@ def write_source_artifacts(
 
 
 def verify_snapshot(snapshot: RepositorySnapshot, clone_path: Path) -> None:
-    """Fail closed if the clone, its tree, or its README changed since capture."""
+    """Fail closed if the pinned revision moved, the committed tree changed, the README changed,
+    or any tracked file was edited on disk without a commit (the module docstring explains why
+    each of these is a distinct check, not redundant with the others)."""
     if not clone_path.is_dir():
         raise RepositorySnapshotError(f"snapshot root disappeared: {clone_path}")
     revision = _git_text(clone_path, ["rev-parse", "HEAD"], "repository revision").strip()
@@ -132,6 +146,19 @@ def verify_snapshot(snapshot: RepositorySnapshot, clone_path: Path) -> None:
             raise RepositorySnapshotError("snapshot README disappeared during the transaction")
         if _sha256(readme.read_bytes()) != snapshot.readme_sha256:
             raise RepositorySnapshotError("snapshot README changed during the transaction")
+    result = run_git(["diff-index", "--quiet", "HEAD", "--"], cwd=clone_path, timeout=60)
+    if result.returncode not in (0, 1):
+        raise RepositorySnapshotError(
+            f"cannot verify the working tree against HEAD in {clone_path}: {result.stderr}"
+        )
+    if result.returncode == 1:
+        changed = _git_text(
+            clone_path, ["diff-index", "--name-only", "HEAD", "--"], "drifted tracked files"
+        ).strip()
+        names = ", ".join(changed.splitlines()) or "unknown"
+        raise RepositorySnapshotError(
+            f"tracked file(s) changed on disk since capture, without a commit: {names}"
+        )
 
 
 def list_tree_paths(clone_path: Path) -> list[str]:

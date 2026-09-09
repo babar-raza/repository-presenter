@@ -147,3 +147,68 @@ def test_verify_fails_closed_when_the_clone_disappears(tmp_path: Path) -> None:
     snapshot = capture_snapshot(REPOSITORY, clone)
     with pytest.raises(RepositorySnapshotError, match="disappeared"):
         verify_snapshot(snapshot, tmp_path / "gone")
+
+
+# TB-03, external review D3, 2026-09-08: `ls-tree HEAD` reads git's committed object database,
+# never the working tree, so a tracked file edited on disk without a commit was invisible to
+# verify_snapshot - confirmed empirically (an editor script run against a real clone, matching
+# this same real-git-repo technique) before this fix existed. The four regression controls below.
+
+
+def test_verify_fails_closed_when_a_tracked_non_readme_file_changes_without_a_commit(
+    tmp_path: Path,
+) -> None:
+    """A tracked manifest, license, or source file edited on disk - no commit, so `ls-tree HEAD`
+    and the revision are both unchanged - is exactly what the prior mechanism missed."""
+    clone = _clone(tmp_path, _source(tmp_path))
+    snapshot = capture_snapshot(REPOSITORY, clone)
+    (clone.path / "pkg" / "__init__.py").write_text("VERSION = 'HACKED'\n", encoding="utf-8")
+    with pytest.raises(RepositorySnapshotError, match=r"pkg/__init__\.py"):
+        verify_snapshot(snapshot, clone.path)
+    (clone.path / "License.txt").write_text("GPL\n", encoding="utf-8")
+    with pytest.raises(RepositorySnapshotError, match=r"License\.txt"):
+        verify_snapshot(snapshot, clone.path)
+
+
+def test_verify_fails_closed_when_a_build_hook_rewrites_source_between_stage_boundaries(
+    tmp_path: Path,
+) -> None:
+    """A build/install step (real example: `plugin.verify_examples` in cli.py) can rewrite a
+    tracked file as a side effect; the next verify_snapshot call at the following stage boundary
+    (cli.py calls it again before fact extraction) must catch it, not only the one right after
+    capture."""
+    clone = _clone(tmp_path, _source(tmp_path))
+    snapshot = capture_snapshot(REPOSITORY, clone)
+    verify_snapshot(snapshot, clone.path)  # the boundary right after capture: still clean
+
+    def _simulated_build_hook() -> None:
+        (clone.path / "pkg" / "__init__.py").write_text("VERSION = '1.0.1'\n", encoding="utf-8")
+
+    _simulated_build_hook()
+    with pytest.raises(RepositorySnapshotError, match="tracked file"):
+        verify_snapshot(snapshot, clone.path)  # the next boundary: now caught
+
+
+def test_verify_does_not_catch_a_new_untracked_file_shadowing_an_import(tmp_path: Path) -> None:
+    """Explicitly out of scope, not silently ignored: `git diff-index` reports only tracked
+    content, so a new untracked file - one that could still shadow an import at runtime - passes
+    verification. Recording the set of untracked paths at capture time to compare against later
+    would be a genuinely different mechanism (a full directory listing, not a git tree diff) and
+    its own separately-scoped fix; not attempted here."""
+    clone = _clone(tmp_path, _source(tmp_path))
+    snapshot = capture_snapshot(REPOSITORY, clone)
+    (clone.path / "pkg" / "helpers.py").write_text("def shadowed(): ...\n", encoding="utf-8")
+    verify_snapshot(snapshot, clone.path)  # does not raise - the documented gap
+
+
+def test_verify_succeeds_with_harmless_untracked_build_output(tmp_path: Path) -> None:
+    """The no-regression case: a build step's ordinary untracked output (a build/ directory, a
+    compiled artifact) must not trip verification just for existing alongside unchanged tracked
+    source."""
+    clone = _clone(tmp_path, _source(tmp_path))
+    snapshot = capture_snapshot(REPOSITORY, clone)
+    build = clone.path / "build"
+    build.mkdir()
+    (build / "output.o").write_bytes(b"\x00\x01binary")
+    (clone.path / "pkg" / "__pycache__").mkdir()
+    verify_snapshot(snapshot, clone.path)  # does not raise

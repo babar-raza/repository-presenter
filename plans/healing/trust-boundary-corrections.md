@@ -177,7 +177,38 @@ file was touched.
 
 ### TB-03 — Verify the bytes actually consumed, not only the committed tree
 
-- **Status:** Not Started
+- **Status:** Done — fixed and pushed.
+- **Note:** Approach (a) chosen, documented here per the runbook's own gate: `git ls-tree HEAD`
+  reads git's committed object database, never the working tree, so a tracked file edited on disk
+  without a commit was invisible to it - confirmed empirically first (editing a tracked,
+  non-README file in a real clone and calling `verify_snapshot` raised nothing). `verify_snapshot`
+  now also runs `git diff-index --quiet HEAD --` (a single fast git-native check that reads the
+  working tree, correctly handling permissions/symlinks/etc. rather than hand-rolled file
+  hashing) and, on a non-zero exit, names every drifted tracked file via `--name-only`. Approach
+  (b) (a `git archive` materialized copy) was rejected: it would require re-plumbing every
+  consumer of `clone.path` across `cli.py` (detect_manifest, list_tree_paths, example
+  verification, fact extraction - at least six call sites) and touching `git_safety/clone.py`,
+  explicitly forbidden without a narrowly-scoped need; (a) is the smaller, safer change against
+  the current architecture.
+  `cli.py` now calls `verify_snapshot` twice more beyond the existing post-capture call: right
+  before example verification (the stage most likely to run build/install tooling against
+  `clone.path`) and right before fact extraction (which reads `clone.path` again after that
+  tooling ran). Manifest detection needed no new call - nothing mutates `clone.path` between
+  capture and it.
+  **Cost measured, not assumed:** `git diff-index --quiet HEAD --` against a real clone
+  (Aspose.3D-FOSS-for-Python) averaged ~70-85ms per call; two extra calls per `present` run add
+  well under 200ms total, negligible against a pipeline measured in minutes.
+  **Untracked files (a generated file shadowing an import) explicitly left out of scope**, not
+  silently ignored: `git diff-index` reports only tracked content; catching a new *untracked*
+  file would need capturing the untracked-file set at capture time (a plain directory listing,
+  not a git tree diff) - a genuinely different, separately-scoped mechanism. Tested directly
+  (`test_verify_does_not_catch_a_new_untracked_file_shadowing_an_import`) so the gap is documented
+  and regression-visible, not silent.
+- **Checklist:** [x] approach decided and documented before coding [x] four regression controls
+  (tracked-file drift, build-hook-shaped drift caught at the next boundary, untracked-file gap
+  documented, harmless untracked build output does not false-positive) [x] two new call sites in
+  `cli.py` [x] cost measured against a real clone [x] full suite (only the two known pre-existing
+  failures remain)
 - **Gap linkage:** D3
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
