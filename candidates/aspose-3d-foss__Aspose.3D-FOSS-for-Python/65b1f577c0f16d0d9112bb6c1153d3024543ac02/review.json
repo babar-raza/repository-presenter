@@ -2,75 +2,153 @@
   "advisory": [
     {
       "absent": [
-        "python3 -m pip install aspose-3d-foss"
-      ],
-      "causal_stage": "S6",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F01",
-      "quote": "Install the published package from PyPI (`aspose-3d-foss`, version 26.1.0):",
-      "repair": "Replace `pip install aspose-3d-foss` with `python3 -m pip install aspose-3d-foss` to match the verified command.",
-      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "installation",
-      "text": "The candidate uses `pip install aspose-3d-foss` instead of the verified `python3 -m pip install aspose-3d-foss` command."
-    },
-    {
-      "absent": [
-        "python3 -m pip install -e .",
+        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git",
         "cd Aspose.3D-FOSS-for-Python",
-        "git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git"
+        "pip install .",
+        "python -c",
+        "import aspose.threed"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
-      "id": "F02",
+      "fact_ids": [],
+      "id": "F01",
       "quote": "To work from a source checkout instead, install the clone with pip:",
-      "repair": "Restore the editable install instructions exactly as in the original: `git clone ...`, `cd ...`, `python3 -m pip install -e .`.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cd Aspose.3D-FOSS-for-Python', 'git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git', 'python3 -m pip install -e .', which the candidate contains",
+      "repair": "Restore the editable install and verify instructions from the original README to support developers who want to contribute or test the library.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cd Aspose.3D-FOSS-for-Python', 'git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git', 'import aspose.threed', which the candidate contains",
       "section_id": "installation",
-      "text": "The candidate omits the editable install verification step present in the original README."
+      "text": "The candidate omits the editable install and verify install instructions, which are present in the original README and provide value to developers who want to contribute or test the library."
     },
     {
       "absent": [
-        "python3 -c ",
-        "from aspose.threed import Scene"
+        "3.7, 3.8, 3.9, 3.10, 3.11, and 3.12",
+        "python_requires"
       ],
       "causal_stage": "S6",
       "causal_state": null,
       "criterion": "presentation",
-      "fact_ids": [
-        "install_command:pip"
-      ],
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "The package supports Python 3.7, 3.8, 3.9, 3.10, 3.11, and 3.12 and declares `python_requires` as `>=3.7`.",
+      "repair": "Restore the Python version list and explicit `python_requires` mention from the original README to provide full compatibility context.",
+      "reviewer_scope_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "dependencies",
+      "text": "The candidate omits the Python version list (3.7 through 3.12) and the explicit `python_requires` mention, which are present in the original README and provide useful context for compatibility."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
       "id": "F03",
-      "quote": "Verify the install:",
-      "repair": "Replace `python -c ",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'from aspose.threed import Scene', which the candidate contains",
-      "section_id": "installation",
-      "text": "The candidate's verification command `python -c "
+      "quote": "The verified public surface has 337 types.",
+      "repair": "Remove the duplicated line to ensure the API reference section reads cleanly.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate duplicates the line 'The verified public surface has 337 types' twice, which is a rendering error that degrades readability."
+    },
+    {
+      "absent": [
+        "RuntimeError",
+        "NotImplementedError"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "No file format registers an importer or exporter for PDF, PLY, RVM, U3D, JT, AMF, HTML5, A3DW, USD, or Draco in this build — `PdfSaveOptions`, `PlyLoadOptions`, `DracoSaveOptions`, and similar option classes exist as public types, but `Scene.open()` and `Scene.save()` cannot detect or dispatch any of these extensions and raise a RuntimeError if you try.",
+      "repair": "Restore the explicit mention of `RuntimeError` and `NotImplementedError` to accurately convey the nature of the limitations.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'NotImplementedError', 'RuntimeError', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The candidate omits the explicit mention of `RuntimeError` and `NotImplementedError`, which are present in the original README and are critical for developers to understand the nature of the limitations."
+    },
+    {
+      "absent": [
+        "IOService",
+        "ColladaExporter",
+        "FbxExporter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "COLLADA import works, but COLLADA export is not reachable through `Scene.save()` because `IOService`'s exporter lookup reaches `FbxExporter` before `ColladaExporter`, so the lookup fails before a working `ColladaExporter` is ever consulted.",
+      "repair": "Restore the explanation of why COLLADA export is unreachable to provide developers with actionable context.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'ColladaExporter', 'FbxExporter', 'IOService', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The candidate omits the critical detail that COLLADA export is not reachable through `Scene.save()` due to `IOService`'s exporter lookup failing before `ColladaExporter` is consulted, which is present in the original README and explains why the limitation exists."
+    },
+    {
+      "absent": [
+        "aspose.threed.formats.collada.ColladaLoadOptions",
+        "aspose.threed.formats"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Always import a format's load/save options class from its own format submodule, never from the shared top-level `aspose.threed.formats` package — for OBJ, STL, glTF, and COLLADA specifically, the top-level package name resolves to a broken duplicate with no working base class, which format detection silently rejects.",
+      "repair": "Restore the instruction to import format options from their own submodules to prevent developers from encountering silent import failures.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate omits the critical detail that format options must be imported from their own format submodules (e.g., `aspose.threed.formats.collada.ColladaLoadOptions`) and not from the top-level `aspose.threed.formats` package, which is present in the original README and prevents common import errors."
+    },
+    {
+      "absent": [
+        "tests.test_obj_importer"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The suite covers 34 test files under `tests/`. Releases run through the [publish workflow](.github/workflows/publish.yml).",
+      "repair": "Restore the specific test file name example to help developers quickly run individual tests.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'tests.test_obj_importer', which the candidate contains",
+      "section_id": "development_testing",
+      "text": "The candidate omits the specific test file name `tests.test_obj_importer`, which is present in the original README and provides a concrete example for running individual tests."
+    },
+    {
+      "absent": [
+        "enhanced performance",
+        "commercial licensing options"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "Aspose.3D FOSS for Python provides open-source 3D processing capabilities, while Aspose.3D commercial edition adds advanced features such as support for additional file formats, enhanced performance, and commercial licensing options.",
+      "repair": "Remove the promotional text and replace it with a factual description of the enterprise edition's additional features as stated in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'commercial licensing options', 'enhanced performance', which the candidate contains",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate adds promotional text about 'enhanced performance' and 'commercial licensing options', which is not present in the original README and introduces marketing language where factual descriptions belong."
     }
   ],
   "authoring": {
     "job": "section_authoring",
-    "prompt_sha256": "c1c28f35fefece0d90653341d6e7f828a4f73e945f266b17a9f2be02979427c6",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
     "stage": "S6"
   },
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "73fce16435f330cc5a7351ca5702e6d47615636215a56ac858c482a8d6df4aeb",
+  "readme_sha256": "0081eb232f963e7f9448dafc25c4e949663a4f890550b128d5d334b2706a8422",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
-    "prompt_sha256": "7447fb89ae9ff5ac11486c08ffcf0e3e1110821c38302ac66b5d6301844f03dc",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
     "stage": "S10"
   },
   "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": false
+  },
   "verdict": "ACCEPT",
   "verdict_as_returned": "REJECT_PRESENTATION"
 }

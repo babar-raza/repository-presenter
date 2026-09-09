@@ -54,13 +54,19 @@
     "stdout": ""
   },
   {
-    "detail": "FileNotFoundError: the example opens an input the repository does not provide",
-    "fixtures": [],
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "model.gltf",
+        "produced_by": 2,
+        "source_path": "crate.gltf"
+      }
+    ],
     "ordinal": 7,
-    "outcome": "NEEDS_INPUT",
-    "return_code": 1,
-    "stderr": "Traceback (most recent call last):\r\n  File \"<workspace>\\example_007\\example.py\", line 4, in <module>\r\n    scene.open(\"model.gltf\")\r\n    ~~~~~~~~~~^^^^^^^^^^^^^^\r\n  File \"<workspace>\\site\\aspose\\threed\\Scene.py\", line 123, in open\r\n    stream = open(file_name, 'rb')\r\nFileNotFoundError: [Errno 2] No such file or directory: 'model.gltf'\r\n",
-    "stdout": ""
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "(unnamed)\r\n  Crate\r\n"
   },
   {
     "detail": "TypeError",

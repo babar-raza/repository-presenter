@@ -224,20 +224,24 @@
     },
     {
       "attributes": null,
-      "confidence": 0.5,
+      "confidence": 1.0,
       "evidence": [
         {
           "detail": "lines 258-270; python fence; unit inherited_unit:044.code_block",
           "path": "README.md"
         },
         {
-          "detail": "example 7: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+          "detail": "example 7: EXECUTED; exit 0",
+          "path": "examples.json"
+        },
+        {
+          "detail": "staged as model.gltf from example 2's output crate.gltf",
           "path": "examples.json"
         }
       ],
       "id": "example:007",
       "kind": "example",
-      "polarity": "UNRESOLVED",
+      "polarity": "SUPPORTED",
       "value": "from aspose.threed import Scene\n\nscene = Scene()\nscene.open(\"model.gltf\")\n\ndef walk(node, depth=0):\n    print(\"  \" * depth + (node.name or \"(unnamed)\"))\n    for child in node.child_nodes:\n        walk(child, depth + 1)\n\nwalk(scene.root_node)\n"
     },
     {
@@ -419,8 +423,12 @@
           "path": "README.md"
         },
         {
-          "detail": "example 7: NEEDS_INPUT; FileNotFoundError: the example opens an input the repository does not provide",
+          "detail": "example 7: EXECUTED; exit 0",
           "path": "examples.json"
+        },
+        {
+          "detail": "staged as model.gltf; example 7 read it: EXECUTED",
+          "path": "crate.gltf"
         },
         {
           "detail": "line 46; FileFormat imports GltfFormat, which states .gltf",

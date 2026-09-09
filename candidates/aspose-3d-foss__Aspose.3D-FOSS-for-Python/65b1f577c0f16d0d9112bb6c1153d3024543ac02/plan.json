@@ -1,6 +1,8 @@
 {
   "additional_example_ids": [
+    "example:004",
     "example:005",
+    "example:007",
     "example:009",
     "example:010",
     "example:012"
@@ -26,15 +28,15 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.primitive"
-      ],
-      "symbol_fact_id": "public_symbol:aspose.threed.primitive"
-    },
-    {
-      "fact_ids": [
         "public_symbol:aspose.threed.shading"
       ],
       "symbol_fact_id": "public_symbol:aspose.threed.shading"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.threed.entities"
     },
     {
       "fact_ids": [
@@ -56,36 +58,36 @@
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.pose"
+        "public_symbol:aspose.threed.formats"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.pose"
+      "symbol_fact_id": "public_symbol:aspose.threed.formats"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
+        "public_symbol:aspose.threed.utilities"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.fileformat"
+      "symbol_fact_id": "public_symbol:aspose.threed.utilities"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.transform"
+        "public_symbol:aspose.threed.render"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.transform"
+      "symbol_fact_id": "public_symbol:aspose.threed.render"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.polygonbuilder"
+        "public_symbol:aspose.threed.deformers"
       ],
-      "symbol_fact_id": "public_symbol:aspose.threed.polygonbuilder"
+      "symbol_fact_id": "public_symbol:aspose.threed.deformers"
     }
   ],
   "at_a_glance": {
     "capability_titles": [
-      "Load multiple 3D formats",
-      "Export to interchange formats",
+      "Import multiple 3D formats",
+      "Export to common 3D formats",
       "Scene graph manipulation",
       "Mesh construction and editing",
-      "Material assignment",
+      "Material and lighting support",
       "Animation support"
     ],
     "input_format_ids": [
@@ -112,13 +114,10 @@
         "format:input.gltf",
         "format:input.glb",
         "format:input.dae",
-        "format:input.3mf",
-        "public_symbol:aspose.threed.fileformat"
+        "format:input.3mf"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.fileformat"
-      ],
-      "title": "Load multiple 3D formats"
+      "shared_fact_ids": [],
+      "title": "Import multiple 3D formats"
     },
     {
       "fact_ids": [
@@ -126,13 +125,10 @@
         "format:output.stl",
         "format:output.gltf",
         "format:output.glb",
-        "format:output.3mf",
-        "public_symbol:aspose.threed.scene"
+        "format:output.3mf"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.scene"
-      ],
-      "title": "Export to interchange formats"
+      "shared_fact_ids": [],
+      "title": "Export to common 3D formats"
     },
     {
       "fact_ids": [
@@ -140,59 +136,95 @@
         "public_symbol:aspose.threed.node",
         "public_symbol:aspose.threed.transform"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.scene"
-      ],
+      "shared_fact_ids": [],
       "title": "Scene graph manipulation"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.mesh",
-        "public_symbol:aspose.threed.primitive",
         "example:005",
         "example:009",
-        "example:010"
+        "example:010",
+        "public_symbol:aspose.threed.mesh",
+        "public_symbol:aspose.threed.entities"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.threed.mesh",
         "example:005"
       ],
       "title": "Mesh construction and editing"
     },
     {
       "fact_ids": [
-        "public_symbol:aspose.threed.shading",
         "example:002",
         "example:004",
-        "example:005"
+        "example:005",
+        "public_symbol:aspose.threed.shading"
       ],
       "shared_fact_ids": [
-        "public_symbol:aspose.threed.shading",
         "example:005"
       ],
-      "title": "Material assignment"
+      "title": "Material and lighting support"
     },
     {
       "fact_ids": [
         "public_symbol:aspose.threed.animationclip",
         "public_symbol:aspose.threed.animationnode",
-        "public_symbol:aspose.threed.keyframesequence",
-        "public_symbol:aspose.threed.pose"
+        "public_symbol:aspose.threed.keyframesequence"
       ],
-      "shared_fact_ids": [
-        "public_symbol:aspose.threed.animationclip"
-      ],
+      "shared_fact_ids": [],
       "title": "Animation support"
     }
   ],
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:068.paragraph",
-        "link_target:product.enterprise"
+        "install_command:pip"
       ],
-      "section_id": "enterprise_relationship",
-      "text": "These limitations don't apply to Aspose.3D for Python — Enterprise Edition, which adds the broader proprietary-format support (PDF, PLY, USD, and more), rendering, and advanced mesh operations that this FOSS build leaves unimplemented."
+      "section_id": "installation",
+      "text": "The editable install instruction and verify install instruction are omitted because only the PyPI install is verified."
+    },
+    {
+      "fact_ids": [
+        "package:python_requires"
+      ],
+      "section_id": "dependencies",
+      "text": "The Python version list is omitted because only the minimum version is verified."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section_id": "quick_start",
+      "text": "The OBJ import example is omitted because only the Box example is verified."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:007",
+        "example:009",
+        "example:010",
+        "example:012"
+      ],
+      "section_id": "additional_examples",
+      "text": "The Convert Between Formats, PBR material, Mesh From Control Points, Triangulate an Imported Mesh, Walk the Scene Graph, Build a Mesh and Export It to STL, Convert a Parametric Primitive to a Mesh, Import a COLLADA File, and Build a Cube and Export It to 3MF headings and code blocks are omitted because the examples are verified but not for these specific tasks."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pydrawing",
+        "public_symbol:aspose.threed"
+      ],
+      "section_id": "api_reference",
+      "text": "The API table and Enumerations table are omitted because the API reference is rendered from facts."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "build_test_asset:docs"
+      ],
+      "section_id": "development_testing",
+      "text": "The single test file instruction and release process description are omitted because they are not supported by any fact."
     }
   ],
   "flagship_example_id": "example:005",
@@ -212,6 +244,38 @@
     {
       "link_fact_id": "link_target:033",
       "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
     }
   ],
   "material_limitations": [
@@ -223,7 +287,7 @@
     }
   ],
   "quick_start_example_id": "example:002",
-  "second_quick_start_example_id": "example:004",
+  "second_quick_start_example_id": null,
   "sections": [
     {
       "include": true,
