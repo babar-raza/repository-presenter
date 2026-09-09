@@ -1,4 +1,6 @@
-"""Run subprocesses without an interactive stdin and kill the whole process tree on timeout."""
+"""Run subprocesses without an interactive stdin and kill the whole process tree on timeout - or
+on any other exit from ``communicate()``, ``KeyboardInterrupt`` included (TB-08, external review
+D8, 2026-09-08: only a timeout was ever cleaned up before this fix)."""
 
 from __future__ import annotations
 
@@ -55,26 +57,35 @@ def run_bounded(
 
     process: subprocess.Popen[bytes] = subprocess.Popen(args, **popen_kwargs)
     try:
-        stdout, stderr = process.communicate(timeout=timeout)
-        return subprocess.CompletedProcess(
-            args=args,
-            returncode=process.returncode,
-            stdout=stdout.decode("utf-8", errors="replace"),
-            stderr=stderr.decode("utf-8", errors="replace"),
-        )
-    except subprocess.TimeoutExpired:
-        _terminate_process_tree(process)
         try:
-            stdout, stderr = process.communicate(timeout=5)
+            stdout, stderr = process.communicate(timeout=timeout)
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=process.returncode,
+                stdout=stdout.decode("utf-8", errors="replace"),
+                stderr=stderr.decode("utf-8", errors="replace"),
+            )
         except subprocess.TimeoutExpired:
-            if process.stdout is not None:
-                process.stdout.close()
-            if process.stderr is not None:
-                process.stderr.close()
-            stdout, stderr = b"", b""
-        return subprocess.CompletedProcess(
-            args=args,
-            returncode=TIMEOUT_EXIT_CODE,
-            stdout=stdout.decode("utf-8", errors="replace"),
-            stderr=stderr.decode("utf-8", errors="replace"),
-        )
+            _terminate_process_tree(process)
+            try:
+                stdout, stderr = process.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                if process.stdout is not None:
+                    process.stdout.close()
+                if process.stderr is not None:
+                    process.stderr.close()
+                stdout, stderr = b"", b""
+            return subprocess.CompletedProcess(
+                args=args,
+                returncode=TIMEOUT_EXIT_CODE,
+                stdout=stdout.decode("utf-8", errors="replace"),
+                stderr=stderr.decode("utf-8", errors="replace"),
+            )
+    finally:
+        # Any exit that is not one of the two ordinary returns above - KeyboardInterrupt during
+        # communicate(), or anything else it might raise - must not leave the child process tree
+        # running (TB-08, external review D8, 2026-09-08: only TimeoutExpired was ever cleaned
+        # up). A no-op in both ordinary cases, since the process has already exited or already
+        # been terminated by then.
+        if process.poll() is None:
+            _terminate_process_tree(process)

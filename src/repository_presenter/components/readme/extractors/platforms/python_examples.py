@@ -164,10 +164,16 @@ def verify_python_examples(
     workspace.mkdir(parents=True)
     venv = workspace / "venv"
     site = workspace / "site"
+    # Redirected into the workspace like the per-example run below: bootstrap and install are
+    # exactly the pip/venv activity profile_environment's own docstring names, and leaving them
+    # unredirected read and wrote the developer's real account (TB-08, external review D8,
+    # 2026-09-08).
+    install_environment = profile_environment(workspace)
     bootstrap = execute(
         [sys.executable, "-m", "venv", "--without-pip", str(venv)],
         workspace=workspace,
         timeout_seconds=INSTALL_TIMEOUT_SECONDS,
+        extra_environment=install_environment,
     )
     if bootstrap.return_code != 0:
         return _all_not_verified(candidates, f"venv creation failed: {_clip(bootstrap.stderr)}")
@@ -186,6 +192,7 @@ def verify_python_examples(
         ],
         workspace=workspace,
         timeout_seconds=INSTALL_TIMEOUT_SECONDS,
+        extra_environment=install_environment,
     )
     import_roots = [site]
     source_note = ""
@@ -223,6 +230,7 @@ def verify_python_examples(
                 ],
                 workspace=workspace,
                 timeout_seconds=INSTALL_TIMEOUT_SECONDS,
+                extra_environment=install_environment,
             )
         import_roots = [*fallback, site]
         source_note = "ran against the repository source tree; the package would not build"

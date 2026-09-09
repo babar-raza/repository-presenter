@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import socket
+from collections.abc import Callable
+
 import httpx
+import pytest
 
 from repository_presenter.components.readme.evidence.facts.links import (
+    PrivateAddressError,
     check_anchor,
     check_external,
     check_relative,
@@ -154,3 +159,91 @@ def test_a_head_that_condemns_a_link_is_confirmed_with_a_get() -> None:
     # The hostile host was asked twice; the well-behaved one only once.
     assert [method for method, url in calls if "hostile" in url] == ["HEAD", "GET"]
     assert [method for method, url in calls if "plain" in url] == ["HEAD"]
+
+
+def _mock_addresses(monkeypatch: pytest.MonkeyPatch, hosts: dict[str, str]) -> None:
+    """Deterministic, network-free DNS: only the named hosts resolve, to the given address."""
+
+    def fake_getaddrinfo(host: object, *args: object, **kwargs: object) -> object:
+        if host in hosts:
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (hosts[host], 0))]
+        raise socket.gaierror(f"unresolvable in test: {host!r}")
+
+    monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+
+
+def _with_mock_transport(
+    monkeypatch: pytest.MonkeyPatch, handler: Callable[[httpx.Request], httpx.Response]
+) -> None:
+    transport = httpx.MockTransport(handler)
+    original = httpx.Client
+
+    def client(**kwargs: object) -> httpx.Client:
+        kwargs["transport"] = transport
+        return original(**kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(httpx, "Client", client)
+
+
+# TB-08, external review D8, 2026-09-08: fetch_status made no address check at all, so a link
+# resolving - directly or via a redirect - to a loopback, link-local, or otherwise private/
+# reserved address was fetched exactly like any other. No test here ever makes a real network
+# request: DNS resolution is monkeypatched deterministically, and the HTTP layer is MockTransport,
+# the same technique the external review packet itself used.
+
+
+def test_fetch_status_rejects_a_direct_link_to_a_private_address(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _mock_addresses(monkeypatch, {"internal": "169.254.169.254"})
+    _with_mock_transport(monkeypatch, lambda request: httpx.Response(200))
+    with pytest.raises(PrivateAddressError, match="private/reserved address"):
+        fetch_status("https://internal/metadata")
+
+
+def test_fetch_status_rejects_a_redirect_to_a_private_address(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(str(request.url))
+        if request.url.host == "redirector":
+            return httpx.Response(302, headers={"Location": "https://internal/"})
+        return httpx.Response(200)
+
+    _mock_addresses(monkeypatch, {"redirector": "93.184.216.34", "internal": "127.0.0.1"})
+    _with_mock_transport(monkeypatch, handler)
+    with pytest.raises(PrivateAddressError, match="private/reserved address"):
+        fetch_status("https://redirector/")
+    # The redirect target itself was never actually requested - rejected before that request.
+    assert calls == ["https://redirector/"]
+
+
+def test_check_external_reports_a_rejected_private_target_as_unchecked_without_retrying(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    attempts: list[str] = []
+
+    def fetch(url: str) -> tuple[int, str]:
+        attempts.append(url)
+        raise PrivateAddressError(f"{url} resolves to a private/reserved address")
+
+    result = check_external("https://internal/", fetch=fetch, sleep=lambda s: None)
+    assert result.outcome == "UNCHECKED"
+    assert result.detail.startswith("rejected:")
+    assert len(attempts) == 1  # never retried - a private address does not become public
+
+
+def test_fetch_status_does_not_reject_a_host_that_fails_to_resolve(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Nothing to protect against reaching if the name resolves to nothing; left to fail
+    naturally at the transport layer, exactly as before this fix - proven directly rather than
+    only inferred from the pre-existing tests above (which happen to use unresolvable hosts)."""
+    _mock_addresses(monkeypatch, {})  # every host is unresolvable
+    _with_mock_transport(monkeypatch, lambda request: httpx.Response(200))
+    assert fetch_status("https://anything-unresolvable/") == (
+        200,
+        "https://anything-unresolvable/",
+    )

@@ -580,7 +580,50 @@ file was touched.
 
 ### TB-08 — A real isolation boundary for untrusted execution and outbound fetches
 
-- **Status:** Not Started
+- **Status:** Done — all four sub-fixes landed and pushed.
+- **Note (1), credential filtering:** `execute()` used to merge `extra_environment` in raw after
+  filtering the base, so a caller-supplied credential-like name bypassed the boundary entirely.
+  Extracted the credential-name rejection into `_without_secret_names()` and apply it to
+  `extra_environment` too - deliberately *not* also applying `_SAFE_ENV_NAMES`'s allow-list to it,
+  since a caller's overlay legitimately adds names outside that list (a toolchain cache
+  directory); `removed_secret_values` (used for output redaction) now also covers values rejected
+  from the overlay.
+- **Note (2), install redirection:** `python_examples.py`'s bootstrap (venv creation) and install
+  calls ran with no `extra_environment` at all - unlike the later per-example run, already
+  redirected - so pip's own caches/config, and anything a build script reads via HOME, fell
+  through to the developer's real account. All three `execute()` calls before the per-example
+  loop (bootstrap, install, the source-fallback dependency install) now pass
+  `profile_environment(workspace)`. Every other ecosystem's `*_examples.py` (cpp, go, java, net,
+  rust, typescript) already did this consistently for both install and execution calls - Python
+  was the sole outlier, confirmed by grep before touching anything else.
+- **Note (3), process-tree cleanup:** `run_bounded` only cleaned up the child process tree in its
+  `except subprocess.TimeoutExpired` branch; any other exception escaping `communicate()`
+  (`KeyboardInterrupt` included) leaked it. Restructured around a `finally` that checks
+  `process.poll() is None` - a no-op on both ordinary return paths, real cleanup on every other
+  exit. Regression test confirmed failing against the pre-fix code before confirming it passes
+  against the fix (a real child process, `communicate()` monkeypatched to raise
+  `KeyboardInterrupt`, asserting the process is gone afterward).
+- **Note (4), SSRF boundary:** `fetch_status` made no address check at all. Added an `httpx`
+  `request` event hook (`_reject_private_targets`) that resolves the target host via
+  `socket.getaddrinfo` and raises `PrivateAddressError` if any resolved address is
+  private/loopback/link-local/reserved/multicast/unspecified (stdlib `ipaddress`, no new dep) -
+  fires for the original request *and* every redirect hop, confirmed empirically (a mocked
+  redirect to a private target was rejected before the redirect request was ever sent).
+  `check_external` catches it and returns `UNCHECKED` (reusing the existing outcome vocabulary,
+  not a new one - the same shape as an access-gated 401/403: "we would not ask", not "this link is
+  broken"), never retried. **Deliberate design choice:** a host that fails to resolve at all is
+  *not* rejected (there is nothing to protect against reaching), left to fail naturally at the
+  transport layer - necessary for compatibility with every existing `httpx.MockTransport`-based
+  test in this codebase, which use synthetic, non-resolving hostnames, and confirmed directly with
+  its own test rather than only inferred.
+- **Known, deliberate remaining limit (runbook step 7):** none of this is OS-level sandboxing.
+  `execute()`'s own module docstring already said so before this fix and still does; this pass
+  closed four concrete gaps within that stated boundary, not the boundary's fundamental scope.
+  Container isolation for hosted runs remains a G4 item, unchanged by this taskcard.
+- **Checklist:** [x] four sub-fixes, each independently landable [x] five negative-control tests,
+  none making a real network request [x] no regressions across 2+ real ecosystems' example flows
+  (existing suites for cpp/go/java/net/rust/typescript untouched and still green) [x] full suite
+  (only the two known pre-existing failures remain)
 - **Gap linkage:** D8
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**

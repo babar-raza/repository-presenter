@@ -65,6 +65,41 @@ def test_examples_run_without_secrets_and_their_output_is_redacted(tmp_path: Pat
     assert "GH_TOKEN" not in result.environment_names
 
 
+def test_extra_environment_is_filtered_for_credential_like_names_too(tmp_path: Path) -> None:
+    """TB-08, external review D8, 2026-09-08: extra_environment used to be merged in raw after
+    the base was filtered, so a caller-supplied credential-like name bypassed the boundary."""
+    script = tmp_path / "leak.py"
+    script.write_text(
+        "import os\n"
+        "print('MY_API_KEY' in os.environ)\n"
+        "print(os.environ.get('CACHE_DIR'))\n"
+        # Simulates the value leaking into output through some other channel entirely (a log
+        # line, a traceback) - proving removed_secret_values covers extra_environment too, not
+        # only whether the child's own os.environ carries the name.
+        "print('leaked elsewhere: sk-injected-through-the-overlay')\n",
+        encoding="utf-8",
+    )
+    result = execute(
+        [sys.executable, "-I", str(script)],
+        workspace=tmp_path,
+        timeout_seconds=60,
+        base_environment={"PATH": "x"},
+        extra_environment={
+            "SYSTEMROOT": "C:/Windows",
+            "PATH": __import__("os").environ["PATH"],
+            "MY_API_KEY": "sk-injected-through-the-overlay",
+            "CACHE_DIR": "kept, not credential-shaped",
+        },
+    )
+    assert result.return_code == 0, result.stderr
+    lines = result.stdout.splitlines()
+    assert lines[0] == "False"  # MY_API_KEY never reached the child's environment
+    assert lines[1] == "kept, not credential-shaped"  # a legitimate overlay name still passes
+    assert "MY_API_KEY" not in result.environment_names
+    assert "CACHE_DIR" in result.environment_names
+    assert "sk-injected-through-the-overlay" not in result.stdout + result.stderr
+
+
 def test_timeout_kills_the_example_and_is_recorded(tmp_path: Path) -> None:
     result = execute(
         [sys.executable, "-c", "import time; time.sleep(60)"],

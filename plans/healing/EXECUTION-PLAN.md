@@ -18,7 +18,7 @@ fixes come first.
 
 | File | Done | Remaining |
 |---|---|---|
-| `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07 | TB-02, TB-05, TB-08, TB-09, TB-10 |
+| `trust-boundary-corrections.md` | TB-01, TB-03, TB-04, TB-06, TB-07, TB-08 | TB-02, TB-05, TB-09, TB-10 |
 | `production-consistency-reassessment.md` | RC-05 | RC-01, RC-02, RC-03, RC-04, RC-06*, RC-07 |
 | `self-review-remediation.md` | SR-01 | SR-02 (SR-03 deferred by choice) |
 | `r1-reseal-operations.md` | PA-01 (resolves OPS-02†) | OPS-01, OPS-03 |
@@ -60,7 +60,7 @@ scripts). They are **merged into one execution**, not built twice.
 ### Wave 2 — other independent P0 items
 6. **TB-03** [DONE] — snapshot immutability (`git ls-tree` blind to uncommitted tracked-file
    edits).
-7. **TB-08** — isolation boundary + private-address (SSRF) check.
+7. **TB-08** [DONE] — isolation boundary + private-address (SSRF) check.
 
 ### Wave 3 — machinery correctness (P0/P1)
 8. **RC-04** — repair-routing self-check. Highest-priority machinery fix: this is what actually

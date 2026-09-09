@@ -154,6 +154,43 @@ def test_an_uninstallable_package_leaves_every_candidate_unverified(tmp_path: Pa
     assert receipts[0].detail.startswith("package install failed")
 
 
+def test_bootstrap_and_install_are_redirected_into_the_workspace_like_the_example_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """TB-08, external review D8, 2026-09-08: bootstrap (venv creation) and install used to run
+    with no ``extra_environment`` at all, so pip's own caches and config - and anything a build
+    script reads via HOME - fell through to the developer's real account instead of the
+    disposable workspace, unlike the later per-example run, which was already redirected. A
+    host-file access attempt during install is now contained to the redirected profile."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    seen: list[dict[str, object]] = []
+
+    def record(argv: list[str], **kwargs: object) -> ExecutionResult:
+        seen.append(kwargs)
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=0,
+            stdout="",
+            stderr="",
+            timed_out=False,
+            environment_names=(),
+        )
+
+    monkeypatch.setattr(python_examples, "execute", record)
+    verify_python_examples(root, tree, [_candidate(1, "pass\n")], tmp_path / "run")
+
+    assert len(seen) >= 2, seen
+    bootstrap_kwargs, install_kwargs = seen[0], seen[1]
+    for kwargs in (bootstrap_kwargs, install_kwargs):
+        overlay = kwargs.get("extra_environment")
+        assert isinstance(overlay, dict) and overlay, kwargs
+        home = Path(str(overlay["HOME"]))
+        assert home.is_relative_to(tmp_path / "run")
+        assert home != Path.home()
+
+
 def test_a_toolchain_that_cannot_be_provisioned_leaves_every_example_unresolved(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

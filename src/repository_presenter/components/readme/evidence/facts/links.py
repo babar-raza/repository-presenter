@@ -4,11 +4,24 @@ External links get one bounded HTTP request each (HEAD, then GET when HEAD is re
 only on transient failures; anchors are checked against the README's own headings; relative
 paths against the tree inventory. A link that resolves is SUPPORTED, one that is gone is
 CONTRADICTED, and one that cannot be checked is UNRESOLVED, never assumed.
+
+A link target is untrusted: it is prose from a README this codebase did not write. Before every
+outbound request `fetch_status` makes - the original URL and, since `follow_redirects=True`,
+every hop a redirect leads to - it resolves the target host and refuses to connect if the
+resolved address is loopback, link-local, or otherwise private/reserved (TB-08, external review
+D8, 2026-09-08: neither check existed before this fix, so a link to a private/internal address,
+directly or via a redirect, was fetched like any other). Refused the same way an access-gated
+response already is: UNCHECKED, never a new outcome value, since the boundary is "we would not
+ask", not "this link is broken". A host that fails to resolve at all is not refused here - there
+is nothing to protect against reaching if the name resolves to nothing - and is left to fail
+naturally at the transport layer, exactly as before this fix.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import re
+import socket
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -135,6 +148,36 @@ def heading_slugs(readme_text: str) -> set[str]:
     return slugs
 
 
+class PrivateAddressError(Exception):
+    """A link target resolved to a loopback, link-local, or otherwise private/reserved address."""
+
+
+def _is_private_address(raw: str) -> bool:
+    address = ipaddress.ip_address(raw)
+    return (
+        address.is_private
+        or address.is_loopback
+        or address.is_link_local
+        or address.is_reserved
+        or address.is_multicast
+        or address.is_unspecified
+    )
+
+
+def _reject_private_targets(request: httpx.Request) -> None:
+    """An ``httpx`` request event hook: fires for the original request and, since
+    ``fetch_status`` follows redirects, for every hop - so a redirect to a private address is
+    caught exactly like a direct link to one."""
+    host = request.url.host
+    try:
+        resolved = {info[4][0] for info in socket.getaddrinfo(host, None)}
+    except OSError:
+        return
+    private = {ip for ip in resolved if _is_private_address(ip)}
+    if private:
+        raise PrivateAddressError(f"{host} resolves to a private/reserved address ({private!r})")
+
+
 def fetch_status(url: str) -> tuple[int, str]:
     """HEAD, then GET whenever HEAD's answer would condemn the link.
 
@@ -148,6 +191,7 @@ def fetch_status(url: str) -> tuple[int, str]:
         timeout=REQUEST_TIMEOUT_SECONDS,
         headers={"User-Agent": USER_AGENT},
         follow_redirects=True,
+        event_hooks={"request": [_reject_private_targets]},
     ) as client:
         response = client.head(url)
         if response.status_code in _HEAD_UNCONFIRMED_STATUSES:
@@ -181,6 +225,10 @@ def check_external(
 
     try:
         status, final = run_with_retry("link_check", attempt, sleep=sleep or time.sleep)
+    except PrivateAddressError as exc:
+        # Never retried: a private/reserved address does not become a public one by asking
+        # again (TB-08, external review D8, 2026-09-08).
+        return LinkResult("UNCHECKED", f"rejected: {exc}", elapsed_ms=since_start())
     except RetryableOperationError as exc:
         return LinkResult("UNCHECKED", f"unreachable: {exc}", elapsed_ms=since_start())
     elapsed = since_start()
