@@ -148,7 +148,9 @@ deterministic gate result, or directly mutates a repository.
 - This control repository may be pushed to its own `origin` after `scripts/ci_check.sh` (full
   local CI-equivalent) passes, per `publication.control_repository` in `project/state.yaml`:
   directly to `main` while unprotected, by branch and PR with auto-merge once protected. Never
-  force, never a product repo.
+  force, never a product repo. Run `git config core.hooksPath .githooks` once per clone so this
+  is enforced automatically, not left to memory - `git push --no-verify` bypasses it only with a
+  specific, understood reason CI is expected to be red.
 - Candidate acceptance never implies publication authorization.
 - Recheck upstream revision immediately before an effect; reconcile uncertain remote effects before
   retrying.

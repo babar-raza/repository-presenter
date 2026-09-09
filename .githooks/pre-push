@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Blocks a push to this repository unless scripts/ci_check.sh (the full local CI-equivalent)
+# passes - the durable version of AGENTS.md's own "may be pushed after the full local
+# CI-equivalent passes" rule (CS-06, plans/healing/ci-staleness-followup.md,
+# docs/CI_AND_STALENESS_ASSESSMENT.md, 2026-09-09: lint/format/mypy drifted silently for an
+# entire healing pass because nothing enforced running them before a push).
+#
+# Versioned here rather than in .git/hooks/ (git never versions that directory) so every clone
+# gets the same hook by running, once: git config core.hooksPath .githooks
+#
+# git calls this hook as: pre-push <remote name> <remote URL>, with ref updates on stdin (unused
+# here - every push to this remote is checked, not only specific refs).
+remote_name="$1"
+remote_url="$2"
+
+# REPOSITORY_ONLY: this hook only runs scripts/ci_check.sh when pushing THIS repository's own
+# `origin` (a `repository-presenter` remote) - never for a target product repository this tool
+# analyzes, which this hook cannot distinguish on its own and must never block or slow down.
+case "$remote_url" in
+  *repository-presenter*) ;;
+  *)
+    exit 0
+    ;;
+esac
+
+echo "pre-push: running scripts/ci_check.sh before pushing to $remote_name ($remote_url)"
+if ! bash scripts/ci_check.sh; then
+  echo
+  echo "pre-push: scripts/ci_check.sh failed - push blocked. Fix the failing check(s) above, or"
+  echo "use 'git push --no-verify' to bypass this hook (only if you have a specific, understood"
+  echo "reason CI is expected to be red - never as a default)."
+  exit 1
+fi

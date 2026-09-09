@@ -133,6 +133,16 @@ listed as a dependency, not a duplicate mapping.
     mechanism fix) - the mechanism fix itself (either a narrow `evaluate()` addition mapping a
     coverage-relevant component change to `RECONCILING`, or a more targeted trigger) is a new,
     not-yet-taskcarded gap this file does not invent a fix for unilaterally.
+  - **Deep-dive follow-up, 2026-09-09 22:20**: root-caused precisely and prototyped
+    (`docs/RECONCILIATION_COVERAGE_ASSESSMENT.md`) - `dispositions.py`'s existing deterministic
+    `api_reference` normalization only ever covered `.table`-shaped duplicates, never `.list`.
+    A fix was implemented, then verified against all 8 real sealed candidates before trusting it:
+    it correctly closed 4 of Email-Python's 5 duplicates, but flagged 22 units on Aspose.Cells
+    FOSS for Rust, including content unrelated to the API reference entirely, and - even narrowed
+    to `.list` only - risked real content loss (method-signature detail the Core API table does
+    not show). **Not shipped** - reverted before commit. This is RC-06's own "member reference
+    list granularity, high-risk, prototype-first" territory, not a quick fix; Email-Python stays
+    genuinely unresolved under OPS-03 until RC-06's own prototype process runs.
 - **Gap linkage:** G2
 - **Role:** Senior engineer. Drop-in, production-ready.
 - **Scope (only this):**
