@@ -54,6 +54,32 @@ def _supported(facts: FactsDocument, kind: str) -> list[str]:
     return [fact.id for fact in facts.by_kind(kind) if fact.polarity == "SUPPORTED"]  # type: ignore[arg-type]
 
 
+def _simple_symbol_name(value: str) -> str:
+    return value.rsplit(".", 1)[-1].lower().replace("_", "")
+
+
+def _mis_hubbed_symbol_ids(facts: FactsDocument) -> frozenset[str]:
+    """SUPPORTED public_symbol IDs that are module/package-kind but have an available,
+    same-named class/enum sibling one path segment deeper (a module fact `mapi_message` when the
+    sibling class fact `MapiMessage` also exists) - the real, narrow defect shape, not every
+    module-kind symbol: many (a crate's own top-level module, `cfb`/`msg` on the real
+    aspose-email-foss/Aspose.Email-FOSS-for-Python candidate) are genuinely whole-module concepts
+    with no better substitute, and flagging those too made every attempt at picking a hub for
+    them unsatisfiable - caught live, 2026-09-10, docs/DECISION_LOG.md."""
+    supported = [f for f in facts.by_kind("public_symbol") if f.polarity == "SUPPORTED"]
+    class_enum_names = {
+        _simple_symbol_name(f.value)
+        for f in supported
+        if (f.attributes or {}).get("symbol_kind") in ("class", "enum")
+    }
+    return frozenset(
+        f.id
+        for f in supported
+        if (f.attributes or {}).get("symbol_kind") not in ("class", "enum")
+        and _simple_symbol_name(f.value) in class_enum_names
+    )
+
+
 def section_conditions(
     facts: FactsDocument, policy: PlanningPolicy = DEFAULT_POLICY
 ) -> dict[str, bool | None]:
@@ -151,6 +177,13 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     zero. A rejection message asks the model to notice its own mistake; an enum makes the mistake
     impossible to write in the first place, which is the same reason a contradicted example was
     never left to a rejection message either.
+
+    An api_hub's own symbol carries the same treatment for the identical reason, excluding a
+    module/package symbol only when an available, same-named class/enum sibling exists
+    (`_mis_hubbed_symbol_ids`) - live-validated 2026-09-10 on the real, currently-sealed
+    aspose-email-foss/Aspose.Email-FOSS-for-Python candidate: a `plan_checks` rejection message
+    alone was not enough here either - the model named the same module fact twice in a row across
+    two attempts at the identical, unmodified planning packet.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     verified = sorted(fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED")
@@ -167,6 +200,15 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
             if fact.polarity == "SUPPORTED" and fact.id not in _SHELL_OWNED_LINKS
         )
         link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
+    hub_properties = properties.get("api_hubs", {}).get("items", {}).get("properties", {})
+    if "symbol_fact_id" in hub_properties:
+        mis_hubbed = _mis_hubbed_symbol_ids(facts)
+        hubbable = sorted(
+            fact.id
+            for fact in facts.by_kind("public_symbol")
+            if fact.polarity == "SUPPORTED" and fact.id not in mis_hubbed
+        )
+        hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
     if not verified:
         return schema
     properties["quick_start_example_id"]["enum"] = verified
@@ -468,36 +510,10 @@ def plan_checks(
         errors.append(f"api_hubs exceed the ceiling of {policy.api_hubs_max}")
     if any(hub not in symbols for hub in hub_ids):
         errors.append("api_hubs must each be a supported public_symbol fact")
-    # A hub one path segment off its own class (a module fact named `mapi_message` picked
-    # instead of the sibling class fact `MapiMessage`, differing only by casing/underscore)
-    # passes the check above - it IS a supported public_symbol - but api_reference_hub_methods
-    # (placement.py) matches methods by exact parent-path equality against the hub's own value,
-    # so this near-miss renders a Detailed Member Reference heading with zero method bullets.
-    # Deliberately narrow: only a hub with an actual, same-named class/enum SIBLING is flagged,
-    # never every module/package-kind hub outright - live-validated 2026-09-10 against the real
-    # aspose-email-foss/Aspose.Email-FOSS-for-Python candidate that `cfb` and `msg` are genuinely
-    # whole-module concepts with no single class to substitute (no sibling fact exists at all);
-    # a blanket rule rejected every attempt outright with nothing for the model to correct to,
-    # which a first version of this fix did and a live present run caught immediately.
-    by_id = {fact.id: fact for fact in facts.by_kind("public_symbol")}
-
-    def _simple_name(value: str) -> str:
-        return value.rsplit(".", 1)[-1].lower().replace("_", "")
-
-    class_enum_names = {
-        _simple_name(fact.value)
-        for fact in facts.by_kind("public_symbol")
-        if fact.polarity == "SUPPORTED"
-        and (fact.attributes or {}).get("symbol_kind") in ("class", "enum")
-    }
-    mis_hubbed = sorted(
-        hub
-        for hub in hub_ids
-        if hub in by_id
-        and (kind := (by_id[hub].attributes or {}).get("symbol_kind"))
-        and kind not in ("class", "enum")
-        and _simple_name(by_id[hub].value) in class_enum_names
-    )
+    # Defense in depth behind planning_schema's own enum (the primary defense - excludes these
+    # IDs from what the model may even write): catches a hub that reaches here some other way,
+    # the same layering quick_start_example_id/link_fact_id already use below and above.
+    mis_hubbed = sorted(hub for hub in hub_ids if hub in _mis_hubbed_symbol_ids(facts))
     if mis_hubbed:
         errors.append(
             "api_hubs name a module/package fact with a same-named class or enum sibling "

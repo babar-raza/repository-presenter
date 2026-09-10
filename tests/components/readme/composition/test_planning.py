@@ -266,46 +266,11 @@ def test_a_repeated_hub_and_an_over_ceiling_aspose_link_are_trimmed_not_rejected
     ]
 
 
-MIS_HUB_FACTS = FactsDocument(
-    ENTRY.repository,
-    "a" * 40,
-    (
-        *FACTS.facts,
-        Fact(
-            "public_symbol:widget.mapi_message",
-            "public_symbol",
-            "widget.mapi_message",
-            (Evidence("x"),),
-            attributes={"symbol_kind": "module"},
-        ),
-        Fact(
-            "public_symbol:widget.mapimessage",
-            "public_symbol",
-            "widget.MapiMessage",
-            (Evidence("x"),),
-            attributes={"symbol_kind": "class"},
-        ),
-        # No class/enum sibling exists for this one at all - a genuinely whole-module concept,
-        # the real shape of aspose-email-foss/Aspose.Email-FOSS-for-Python's own `cfb`/`msg`.
-        Fact(
-            "public_symbol:widget.cfb",
-            "public_symbol",
-            "widget.cfb",
-            (Evidence("x"),),
-            attributes={"symbol_kind": "module"},
-        ),
-    ),
-)
-
-
-def test_a_hub_naming_a_module_instead_of_its_sibling_class_is_rejected() -> None:
-    """Measured 2026-09-10 on the real, currently-sealed aspose-email-foss/Aspose.Email-FOSS-
-    for-Python plan: a hub (mapi_message) picked the MODULE-kind public_symbol fact instead of
-    the sibling CLASS-kind fact one path segment deeper, differing only by an underscore/casing -
-    api_reference_hub_methods (placement.py) matches methods by exact parent-path equality
-    against the hub's own value, so this near-miss renders a Detailed Member Reference heading
-    with zero method bullets. The existing "supported public_symbol fact" check above does not
-    catch this - a module fact IS a supported public_symbol fact."""
+def test_plan_checks_catches_a_mis_hubbed_symbol_that_bypasses_the_schema() -> None:
+    """Defense in depth behind planning_schema's own enum exclusion (the primary defense - see
+    test_a_hub_naming_a_module_with_an_available_class_sibling_cannot_be_written_at_all): a hub
+    reaching plan_checks some other way is still caught, the same layering quick_start_example_id
+    already has below its own schema enum."""
     plan = _plan(
         api_hubs=[
             {"symbol_fact_id": "public_symbol:widget.mapi_message", "fact_ids": ["example:001"]}
@@ -325,7 +290,7 @@ def test_a_hub_naming_a_module_instead_of_its_sibling_class_is_rejected() -> Non
     assert plan_checks(corrected, MIS_HUB_FACTS) == []
 
 
-def test_a_hub_naming_a_genuinely_whole_module_concept_is_not_flagged() -> None:
+def test_plan_checks_does_not_flag_a_genuinely_whole_module_hub() -> None:
     """A first version of this fix rejected every module/package-kind hub outright - live-
     validated against the real candidate immediately: `cfb` and `msg` are genuinely whole-module
     concepts with no single class to substitute (no sibling fact exists at all), so a blanket
@@ -799,3 +764,74 @@ def test_a_link_target_the_shell_already_renders_cannot_be_written_at_all() -> N
         for error in validator.iter_errors(plan)
         if error.json_path == "$.links[0].link_fact_id"
     ] == [f"'link_target:product.enterprise' is not one of {link_fact_id['enum']!r}"]
+
+
+MIS_HUB_FACTS = FactsDocument(
+    ENTRY.repository,
+    "a" * 40,
+    (
+        *FACTS.facts,
+        Fact(
+            "public_symbol:widget.mapi_message",
+            "public_symbol",
+            "widget.mapi_message",
+            (Evidence("x"),),
+            attributes={"symbol_kind": "module"},
+        ),
+        Fact(
+            "public_symbol:widget.mapimessage",
+            "public_symbol",
+            "widget.MapiMessage",
+            (Evidence("x"),),
+            attributes={"symbol_kind": "class"},
+        ),
+        # No class/enum sibling exists for this one at all - a genuinely whole-module concept,
+        # the real shape of aspose-email-foss/Aspose.Email-FOSS-for-Python's own `cfb`/`msg`.
+        Fact(
+            "public_symbol:widget.cfb",
+            "public_symbol",
+            "widget.cfb",
+            (Evidence("x"),),
+            attributes={"symbol_kind": "module"},
+        ),
+    ),
+)
+
+
+def test_a_hub_naming_a_module_with_an_available_class_sibling_cannot_be_written_at_all() -> None:
+    """A rejection message asks the model to notice its own mistake; an enum makes the mistake
+    impossible to write in the first place - the same reason a link the shell already renders is
+    never left to a rejection message either.
+
+    Measured 2026-09-10 on the real, currently-sealed aspose-email-foss/Aspose.Email-FOSS-for-
+    Python candidate: a `plan_checks` rejection message alone was not enough here either - the
+    model named the same module-kind symbol (mapi_message) twice in a row across two attempts at
+    an otherwise unmodified planning packet, instead of the sibling class fact (MapiMessage)
+    api_reference_hub_methods (placement.py) actually needs to render its method bullets.
+
+    A genuinely whole-module concept with no class/enum sibling at all (cfb, msg on the same real
+    candidate) stays a valid, unexcluded choice - only a hub with an actual, better alternative
+    available is excluded.
+    """
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, MIS_HUB_FACTS)
+    symbol_fact_id = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]
+    assert "public_symbol:widget.mapi_message" not in symbol_fact_id["enum"]
+    expected_present = {
+        "public_symbol:widget.scene",
+        "public_symbol:widget.mapimessage",
+        "public_symbol:widget.cfb",
+    }
+    assert expected_present <= set(symbol_fact_id["enum"])
+
+    validator = Draft202012Validator(schema)
+    plan = _plan(
+        api_hubs=[
+            {"symbol_fact_id": "public_symbol:widget.mapi_message", "fact_ids": ["example:001"]}
+        ]
+    )
+    assert [
+        error.message
+        for error in validator.iter_errors(plan)
+        if error.json_path == "$.api_hubs[0].symbol_fact_id"
+    ] == [f"'public_symbol:widget.mapi_message' is not one of {symbol_fact_id['enum']!r}"]
