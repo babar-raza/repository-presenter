@@ -82,6 +82,7 @@ from repository_presenter.core.candidates import (
     CANDIDATES_DIRNAME,
     BundleError,
     count_current_candidates,
+    examples_verification_summary,
     stale_candidates,
     verify_bundle,
 )
@@ -270,6 +271,8 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
     print(f"gate: {cursor.current_gate_id} ({cursor.current_gate_status})")
     print(f"work item: {cursor.active_work_item_id} ({cursor.active_work_item_status})")
     print(f"candidates: {on_disk}/{cursor.denominator} current reviewable no-op-proven")
+    executed, example_total = examples_verification_summary(root)
+    print(f"examples: {executed}/{example_total} verified across counted candidates")
     print(f"canary: {cursor.canary}")
     if stale:
         current_components = {

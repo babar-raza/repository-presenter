@@ -14,6 +14,7 @@ from repository_presenter.core.candidates import (
     SealedBundle,
     StaleCandidate,
     count_current_candidates,
+    examples_verification_summary,
     iter_sealed_bundles,
     stale_candidates,
     verify_bundle,
@@ -43,6 +44,43 @@ def test_count_is_per_repository_and_only_no_op_proven(tmp_path: Path) -> None:
     write_bundle(tmp_path, "b__repo", "rev1", "ACCEPTED")
     write_bundle(tmp_path, "c__repo", "rev1", "PROVING_NO_OP")
     assert count_current_candidates(tmp_path) == 1
+
+
+def _write_examples(bundle: Path, *outcomes: str) -> None:
+    receipts = [{"ordinal": i + 1, "outcome": outcome} for i, outcome in enumerate(outcomes)]
+    (bundle / "examples.json").write_text(json.dumps(receipts), encoding="utf-8")
+
+
+def test_examples_verification_summary_counts_executed_out_of_total_across_current_bundles(
+    tmp_path: Path,
+) -> None:
+    """Taskcard F Tier 4: a non-blocking, portfolio-visible signal - EXECUTED against every
+    outcome an examples.json can carry, summed across every counted candidate."""
+    a = write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_examples(a, "EXECUTED", "EXECUTED", "NOT_VERIFIED", "FAILED")
+    b = write_bundle(tmp_path, "b__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_examples(b, "EXECUTED", "TIMED_OUT")
+    assert examples_verification_summary(tmp_path) == (3, 6)
+
+
+def test_examples_verification_summary_ignores_uncounted_or_missing_examples(
+    tmp_path: Path,
+) -> None:
+    """A candidate not in a counted state contributes nothing, even with real examples.json data;
+    one with none (an ecosystem that verifies nothing, or a seal predating this file) contributes
+    zero to both counts, never an error - this signal is informational only."""
+    counted = write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_examples(counted, "EXECUTED")
+    not_counted = write_bundle(tmp_path, "b__repo", "rev1", "ACCEPTED")
+    _write_examples(not_counted, "EXECUTED", "EXECUTED")
+    write_bundle(tmp_path, "c__repo", "rev1", "READY_FOR_PROPOSAL")  # no examples.json at all
+    assert examples_verification_summary(tmp_path) == (1, 1)
+
+
+def test_examples_verification_summary_with_no_candidates_directory_is_zero_over_zero(
+    tmp_path: Path,
+) -> None:
+    assert examples_verification_summary(tmp_path) == (0, 0)
 
 
 @pytest.mark.parametrize(

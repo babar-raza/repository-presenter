@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from repository_presenter.core.errors import PresenterError
+from repository_presenter.core.examples import RECEIPTS_FILENAME
 
 CANDIDATES_DIRNAME = "candidates"
 BUNDLE_MANIFEST_NAME = "manifest.json"
@@ -171,6 +172,56 @@ def count_current_candidates(root: Path) -> int:
         if manifest.get("state") in COUNTED_STATES:
             counted += 1
     return counted
+
+
+def examples_verification_summary(root: Path) -> tuple[int, int]:
+    """``(executed, total)`` examples across every ``CURRENT`` bundle in a counted state, read
+    from each bundle's own ``examples.json``.
+
+    Taskcard F Tier 4: a non-blocking, portfolio-visible signal - a candidate with unresolved or
+    failed examples still counts toward ``count_current_candidates``'s own N/34 exactly as it
+    already does; nothing here changes that or any blocking check. Assumes the caller already
+    established bundle integrity in the same pass (e.g. via ``count_current_candidates`` just
+    before it), so this reads ``manifest.json``'s state and ``examples.json`` directly rather than
+    re-verifying every file's digest a second time; a bundle with no ``examples.json`` (an
+    ecosystem that verifies nothing, or a seal that predates this file) contributes zero to both
+    counts, not an error - this signal is informational, never a reason to fail closed.
+    """
+    candidates = root / CANDIDATES_DIRNAME
+    if not candidates.is_dir():
+        return (0, 0)
+    executed = 0
+    total = 0
+    for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
+        current = repository_dir / CURRENT_FILENAME
+        if not current.is_file():
+            continue
+        revision = current.read_text(encoding="utf-8").strip()
+        bundle = repository_dir / revision
+        manifest_path = bundle / BUNDLE_MANIFEST_NAME
+        if not manifest_path.is_file():
+            continue
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        if not isinstance(manifest, dict) or manifest.get("state") not in COUNTED_STATES:
+            continue
+        examples_path = bundle / RECEIPTS_FILENAME
+        if not examples_path.is_file():
+            continue
+        try:
+            receipts = json.loads(examples_path.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        if not isinstance(receipts, list):
+            continue
+        for receipt in receipts:
+            if isinstance(receipt, dict):
+                total += 1
+                if receipt.get("outcome") == "EXECUTED":
+                    executed += 1
+    return (executed, total)
 
 
 @dataclass(frozen=True)

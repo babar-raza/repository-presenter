@@ -56,7 +56,30 @@ def test_status_reports_this_repository_cursor(
     assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[1])
     assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[2])
     assert re.fullmatch(r"candidates: \d+/34 current reviewable no-op-proven", out[3])
-    assert out[4] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+    assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[4])
+    assert out[5] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+
+
+def test_status_reports_examples_verified_across_sealed_bundles(
+    project_with_registry: Path,
+    sealed_canary: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Taskcard F Tier 4: a non-blocking, portfolio-visible signal, wired end to end through the
+    real status command against the real sealed canary's own examples.json - never a check
+    outcome, a candidate with failed or unresolved examples still counts toward N/34 unaffected."""
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
+    receipts = json.loads((bundle / "examples.json").read_text("utf-8"))
+    expected_executed = sum(1 for receipt in receipts if receipt["outcome"] == "EXECUTED")
+    # The fixture copies a sealed bundle straight onto disk without updating the project's own
+    # cursor.recorded_candidates, which run_status's own separate consistency check (unrelated to
+    # this line) correctly flags - the examples line prints before that check, which is this
+    # test's own concern.
+    assert main(["status", "--root", str(project_with_registry)]) == EXIT_INCONSISTENT
+    out = capsys.readouterr().out
+    assert (
+        f"examples: {expected_executed}/{len(receipts)} verified across counted candidates"
+    ) in out
 
 
 def test_status_discovers_root_from_nested_working_directory(
