@@ -258,7 +258,13 @@ def test_an_undeclared_binding_is_not_verified_but_a_real_type_error_still_fails
         tmp_path / "run",
         120.0,
     )
-    assert [receipt.outcome for receipt in receipts] == ["NOT_VERIFIED", "FAILED"]
+    outcomes = [receipt.outcome for receipt in receipts]
+    assert outcomes == ["NOT_VERIFIED", "FAILED"], (
+        f"outcomes={outcomes}\n"
+        f"receipts[0].detail={receipts[0].detail!r}\n"
+        f"receipts[0].stdout={receipts[0].stdout!r}\n"
+        f"receipts[0].stderr={receipts[0].stderr!r}"
+    )
     assert receipts[0].detail == (
         "the fence uses `sheet`, `Missing` without binding it; the README establishes it in an "
         "earlier section"
