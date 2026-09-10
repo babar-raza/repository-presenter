@@ -153,6 +153,20 @@ SYMBOL_MAX_DEPTH = 3
 # proposed before this session's own larger readings were available.
 SYMBOL_CAP = 6000
 
+LINK_CAP = 100
+# PHASE0/J2 (found by J1's own new structural tests, xfail(strict=True) until this landed):
+# bounded_records's numeric cap was hardwired to fact.kind == "public_symbol" only - link_target
+# passed through with zero limit even after link_fact_id's own enum construction started routing
+# through this function for code-path consistency with the packet (Taskcard H). Measured
+# 2026-09-10 across all 8 currently-sealed candidates (loop-prompt.md section 3's own "at least
+# three compositions" rule): aspose-pdf-foss-Java's own 41 link_target facts is the observed
+# maximum. Set with real headroom above it, mirroring SYMBOL_CAP's own "largest measured plus
+# margin" precedent above, not a guess.
+EXAMPLE_CAP = 30
+# Same gap, same fix: the four example-ID enums fed by the same "verified" list also passed
+# through uncapped. Measured 2026-09-10 across the same 8 candidates: aspose-slides-foss-Python's
+# own 14 example facts is the observed maximum.
+
 
 # G5-W02 (27.2 RC4). A job packet is rendered to text and hashed to key the call store, so a fact
 # embedded in every packet makes that hash change whenever the fact does - identity:revision is
@@ -172,18 +186,25 @@ def bounded_records(
     *,
     symbol_max_depth: int = SYMBOL_MAX_DEPTH,
     symbol_cap: int = SYMBOL_CAP,
+    link_cap: int = LINK_CAP,
+    example_cap: int = EXAMPLE_CAP,
 ) -> list[dict[str, str]]:
-    """Facts of ``kinds`` and ``polarities`` as packet records, with public symbols bounded.
+    """Facts of ``kinds`` and ``polarities`` as packet records, with public symbols, links, and
+    examples all bounded.
 
     Public symbols enter only to ``symbol_max_depth`` dotted parts and ``symbol_cap`` in document
-    order, so a job's packet stays bounded however large the surface is. ``identity:revision``
-    never enters any packet at all, so its own bundled call cache reuses across a revision bump
-    that changes no fact a job would ever reason about.
+    order; ``link_target`` and ``example`` facts enter only to ``link_cap``/``example_cap`` in
+    document order too (PHASE0/J2) - so a job's packet stays bounded however large the repository's
+    own surface, link count, or example count is. ``identity:revision`` never enters any packet at
+    all, so its own bundled call cache reuses across a revision bump that changes no fact a job
+    would ever reason about.
     """
     admitted_kinds = set(kinds)
     admitted_polarities = set(polarities)
     records: list[dict[str, str]] = []
     symbols = 0
+    links = 0
+    examples = 0
     for fact in document.facts:
         if fact.id in _EXCLUDED_FROM_PACKETS:
             continue
@@ -193,6 +214,14 @@ def bounded_records(
             if fact.value.count(".") >= symbol_max_depth or symbols >= symbol_cap:
                 continue
             symbols += 1
+        elif fact.kind == "link_target":
+            if links >= link_cap:
+                continue
+            links += 1
+        elif fact.kind == "example":
+            if examples >= example_cap:
+                continue
+            examples += 1
         record = {"id": fact.id, "kind": fact.kind, "value": fact.value}
         if admitted_polarities != {"SUPPORTED"}:
             record["polarity"] = fact.polarity

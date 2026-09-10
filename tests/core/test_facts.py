@@ -9,6 +9,8 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.core.facts import (
+    EXAMPLE_CAP,
+    LINK_CAP,
     Evidence,
     Fact,
     FactsDocument,
@@ -178,3 +180,51 @@ def test_structured_attributes_round_trip_through_json_and_the_schema() -> None:
     }
     with pytest.raises(ValueError, match="attributes must map"):
         Fact("identity:x", "identity", "x", (Evidence("p"),), attributes={"k": ""})
+
+
+def _document_of(kind: str, count: int) -> FactsDocument:
+    return FactsDocument(
+        "example-org/Aspose.Example-FOSS-for-Python",
+        REVISION,
+        tuple(
+            Fact(fact_id(kind, str(i)), kind, f"value-{i}", (Evidence("x"),)) for i in range(count)
+        ),
+    )
+
+
+def test_bounded_records_bounds_link_target_and_example_by_their_own_default_cap() -> None:
+    """PHASE0/J2: link_target and example were the same unbounded gap SYMBOL_CAP already closed
+    for public_symbol - bounded_records() now caps them too, in document order."""
+    links = bounded_records(_document_of("link_target", LINK_CAP + 50), ["link_target"])
+    assert len(links) == LINK_CAP
+    assert [r["id"] for r in links] == [f"link_target:{i}" for i in range(LINK_CAP)]
+
+    examples = bounded_records(_document_of("example", EXAMPLE_CAP + 50), ["example"])
+    assert len(examples) == EXAMPLE_CAP
+    assert [r["id"] for r in examples] == [f"example:{i}" for i in range(EXAMPLE_CAP)]
+
+
+def test_bounded_records_link_and_example_caps_are_independently_overridable() -> None:
+    document = FactsDocument(
+        "example-org/Aspose.Example-FOSS-for-Python",
+        REVISION,
+        (
+            *(
+                Fact(fact_id("link_target", str(i)), "link_target", f"l{i}", (Evidence("x"),))
+                for i in range(10)
+            ),
+            *(
+                Fact(fact_id("example", str(i)), "example", f"e{i}", (Evidence("x"),))
+                for i in range(10)
+            ),
+        ),
+    )
+    records = bounded_records(document, ["link_target", "example"], link_cap=3, example_cap=5)
+    assert sum(1 for r in records if r["kind"] == "link_target") == 3
+    assert sum(1 for r in records if r["kind"] == "example") == 5
+
+
+def test_bounded_records_under_the_cap_admits_every_link_target_and_example() -> None:
+    document = _document_of("link_target", 5)
+    records = bounded_records(document, ["link_target"])
+    assert len(records) == 5

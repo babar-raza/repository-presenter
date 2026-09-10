@@ -899,17 +899,9 @@ def test_the_symbol_enum_size_grows_sub_linearly_not_proportionally() -> None:
     assert len(tenx_enum) < 10 * len(base_enum)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "J1: bounded_records()'s own numeric cap is hardwired to fact.kind == 'public_symbol' "
-        "(its own documented limitation) - link_fact_id now routes through bounded_records() "
-        "for code-path consistency with the packet (H), but link_target facts pass through "
-        "with zero limit, so the enum still grows exactly proportionally. Needs a per-kind cap "
-        "before this can pass; not yet scoped to a taskcard."
-    ),
-)
 def test_the_link_enum_size_grows_sub_linearly_not_proportionally() -> None:
+    """PHASE0/J2: bounded_records()'s own LINK_CAP now bounds link_target the same way SYMBOL_CAP
+    already bounds public_symbol - was xfail(strict=True) (J1) until this landed."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
     base = planning_schema(loaded, _links_facts(200))
     tenx = planning_schema(loaded, _links_facts(2000))
@@ -918,16 +910,9 @@ def test_the_link_enum_size_grows_sub_linearly_not_proportionally() -> None:
     assert len(tenx_enum) < 10 * len(base_enum)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "J1: same gap as link_fact_id - bounded_records()'s cap is hardwired to public_symbol, "
-        "so the four example-ID enums (fed by the same 'verified' list) still grow exactly "
-        "proportionally with the repository's own verified-example count. Needs a per-kind cap "
-        "before this can pass; not yet scoped to a taskcard."
-    ),
-)
 def test_the_example_enum_size_grows_sub_linearly_not_proportionally() -> None:
+    """PHASE0/J2: bounded_records()'s own EXAMPLE_CAP now bounds example the same way - was
+    xfail(strict=True) (J1) until this landed."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
     base = planning_schema(loaded, _examples_facts(200))
     tenx = planning_schema(loaded, _examples_facts(2000))
