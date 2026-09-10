@@ -566,8 +566,19 @@ duplicate of them.
 
 ### RC-06 — Extraction-time unit granularity for member-reference lists (high-risk, prototype first)
 
-- **Status:** Not Started — **explicitly flagged as not safe to build under deadline pressure**
-  without further prototyping. Requires an owner go/no-go before any code is written.
+- **Status:** Done, 2026-09-10 (commit `b8d3a0e`) — the prototype gate below was run read-only
+  against the real portfolio before writing any split logic (22 of 23 known duplicate units
+  matched the shape, zero false positives across the other 56 `.list` units), then live-validated
+  against the real, currently-blocking `aspose-email-foss/Aspose.Email-FOSS-for-Python` candidate:
+  the original F03 finding ("the candidate's API reference section duplicates the same tables
+  twice") is confirmed gone from a real `present` run, both findings and advisories. A compounding
+  defect found during this work (a mis-hubbed API symbol, `plan.api_hubs[].symbol_fact_id` picking
+  a module fact instead of an available same-named class fact) is fixed separately (commit
+  `c575035`, after two earlier attempts were reverted following live-validation failures - see
+  `docs/DECISION_LOG.md`). The candidate itself remains genuinely blocked, but for a different,
+  unrelated, newly-surfaced reason (F07, a `development_testing` content gap) - not RC-06's scope,
+  needs its own future taskcard; `tests/test_sealed_bytes.py`'s `xfail` reason updated to name this
+  honestly instead of the now-fixed F03.
 - **Gap linkage:** RC6
 - **Role:** Senior engineer. Drop-in, production-ready — **but only after the prototype gate below
   passes**; this is the one taskcard in this file where "drop-in" does not mean "start now."
