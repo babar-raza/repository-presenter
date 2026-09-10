@@ -7,17 +7,22 @@ library's public include root - which proves exactly what the contract claims, t
 types and calls exist and check against this revision, without linking or running anything the
 repository built.
 
-Four rules the outcome respects. A toolchain this machine lacks is `NOT_VERIFIED`, which the facts
+Five rules the outcome respects. A toolchain this machine lacks is `NOT_VERIFIED`, which the facts
 stage records as `UNRESOLVED` - never `CONTRADICTED`, because "we could not check" is not "we
 checked and it is false". The compiler is called by its resolved absolute path with the toolchain's
 own directories prepended to the *subprocess* `PATH` only, never the user's or the machine's
 (`evidence/build/lanes/lane-b/LANE-B-00.json`). Every cache and configuration store is redirected
-into the run directory. And the verdict is read from where the diagnostics were raised: a
-diagnostic in the example's own file makes the example false, while a tree whose *own* headers do
-not compile with this compiler leaves the example unchecked rather than condemned - measured
-2026-09-06 on Aspose.Cells for C++, whose sources use `std::numeric_limits` without including
-`<limits>` and whose build GCC 16.2 rejects outright, which is a fact about the repository's
-portability and says nothing about whether its README is true.
+into the run directory. The verdict is read from where the diagnostics were raised: a diagnostic
+in the example's own file makes the example false, while a tree whose *own* headers do not compile
+with this compiler leaves the example unchecked rather than condemned - measured 2026-09-06 on
+Aspose.Cells for C++, whose sources use `std::numeric_limits` without including `<limits>` and
+whose build GCC 16.2 rejects outright, which is a fact about the repository's portability and says
+nothing about whether its README is true. And an example whose *only* diagnostics are unbound
+identifiers is `NOT_VERIFIED`, not false: a fence opening on `sheet`/`workbook` its README
+established in a section this extractor never inherited alongside it (Taskcard C; the same class
+`rust_examples.py`'s `unbound_values()` already excluded, Aspose.Cells-FOSS-for-Cpp's own
+example:003-007) is incomplete, not wrong - a fence naming something the library genuinely does
+not export (example:002's real `operator[]` mismatch) still fails.
 """
 
 from __future__ import annotations
@@ -40,6 +45,16 @@ _DEFAULT_STANDARD = "17"
 # group is non-greedy so a Windows drive letter's colon does not end it.
 _DIAGNOSTIC = re.compile(
     r"^(?P<file>.+?):(?P<line>\d+):(?:(?P<column>\d+):)?\s*(?:fatal )?error:\s*(?P<rest>.+)$"
+)
+# GCC's two diagnostic shapes for a name the fence never declared: "was not declared in this
+# scope" for a bare identifier (`sheet`), "has not been declared" for one used to its own left of
+# `::` (`CellArea::CreateCellArea`) - both raised by Aspose.Cells-FOSS-for-Cpp's own
+# example_003-007, all opening on a binding (`sheet`, `workbook`, `PageSetup`, and the enum/type
+# names only their local scope would resolve) their README establishes in an earlier, un-
+# inherited section (Taskcard C; rust_examples.py's unbound_values() is the same check for
+# Rust's own E0425 - measured live 2026-09-10, the real repository's current source).
+_UNBOUND_IDENTIFIER = re.compile(
+    r"'([^']+)' (?:was not declared in this scope|has not been declared)"
 )
 # The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
 # by the absolute path the machine-local registry the lane's receipt records.
@@ -220,6 +235,24 @@ def split_diagnostics(output: str, example: str) -> tuple[list[str], list[str]]:
     return (mine, theirs)
 
 
+def unbound_identifiers(diagnostics: Sequence[str]) -> list[str]:
+    """The names an example uses and never binds, when they are the only thing wrong.
+
+    A fence opens on a binding its README established in prose - `sheet`, `workbook`,
+    `PageSetup`. That is the one error class which says the fence is incomplete rather than
+    false, so it counts only when every diagnostic the compiler raised is of that class; a fence
+    that also names something genuinely wrong (Aspose.Cells-FOSS-for-Cpp's own example:002, a
+    real `no match for 'operator[]'` type mismatch) must still say so, never be relabeled.
+    """
+    found: list[str] = []
+    for line in diagnostics:
+        match = _UNBOUND_IDENTIFIER.search(line)
+        if match is None:
+            return []
+        found.append(match.group(1))
+    return found
+
+
 def _version(compiler: str, workspace: Path, path: str) -> str:
     result = execute(
         [compiler, "--version"],
@@ -341,7 +374,16 @@ def verify_cpp_examples(
         if result.timed_out:
             outcome, detail = "TIMED_OUT", f"no exit within {timeout_seconds:g}s"
         elif mine:
-            outcome, detail = "FAILED", mine[0][:400]
+            unbound = unbound_identifiers(mine)
+            if unbound:
+                outcome = "NOT_VERIFIED"
+                detail = (
+                    "the fence uses "
+                    + ", ".join(f"`{name}`" for name in dict.fromkeys(unbound))
+                    + " without binding it; the README establishes it in an earlier section"
+                )
+            else:
+                outcome, detail = "FAILED", mine[0][:400]
         elif result.return_code == 0:
             outcome = "EXECUTED"
             detail = (

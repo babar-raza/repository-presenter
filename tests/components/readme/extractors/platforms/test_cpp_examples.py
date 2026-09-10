@@ -142,6 +142,37 @@ def test_the_example_diagnostics_are_separated_from_every_other_file() -> None:
     assert not any("note:" in line for line in mine + theirs)
 
 
+def test_only_unbound_identifiers_make_a_fence_an_excerpt_rather_than_a_falsehood() -> None:
+    """Live-verified 2026-09-10 against the real repository's current source: five of Aspose.
+    Cells-FOSS-for-Cpp's seven examples open on names their README establishes in an earlier,
+    un-inherited section (Taskcard C; the same class rust_examples.py's unbound_values() already
+    excludes for Rust's own E0425). GCC raises two diagnostic shapes for this - "was not
+    declared in this scope" for a bare identifier (`sheet`), "has not been declared" for one used
+    to its own left of `::` (`CellArea::CreateCellArea`, example:003's own real shape)."""
+    lines = [
+        "example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+        "example_003.cpp:5:24: error: 'CellArea' has not been declared",
+        "example_007.cpp:3:17: error: 'workbook' was not declared in this scope",
+    ]
+    assert cpp_examples.unbound_identifiers(lines) == ["sheet", "CellArea", "workbook"]
+
+
+def test_a_fence_that_names_something_the_library_lacks_is_not_an_excerpt() -> None:
+    """A real type mismatch is a real defect, and must not be excused as missing context -
+    Aspose.Cells-FOSS-for-Cpp's own example:002."""
+    real_bug = [
+        "example_002.cpp:10:48: error: no match for 'operator[]' (operand types are "
+        "'Aspose::Cells_FOSS::WorksheetCollection' and 'const char [9]')"
+    ]
+    assert cpp_examples.unbound_identifiers(real_bug) == []
+    mixed = [
+        "example_003.cpp:3:25: error: 'sheet' was not declared in this scope",
+        "example_003.cpp:4:1: error: 'Missing' was not declared in this scope",
+        "example_003.cpp:5:1: error: no match for 'operator[]' (operand types are 'int' and 'int')",
+    ]
+    assert cpp_examples.unbound_identifiers(mixed) == []
+
+
 def test_the_toolchain_reaches_the_subprocess_path_and_never_the_process_one() -> None:
     """Loop-prompt section 1.3: nothing this lane provisions is on the user or system PATH."""
     before = os.environ.get("PATH", "")
@@ -205,6 +236,34 @@ def test_a_true_example_compiles_and_a_false_one_does_not(tmp_path: Path) -> Non
     # A receipt becomes a fact's evidence, so no absolute path of this machine may survive in it.
     for receipt in receipts:
         assert str(tmp_path) not in receipt.detail + receipt.stdout + receipt.stderr
+
+
+@needs_compiler
+def test_an_undeclared_binding_is_not_verified_but_a_real_type_error_still_fails(
+    tmp_path: Path,
+) -> None:
+    """Taskcard C, end to end with the real compiler: a fence opening on names its README
+    established elsewhere - both GCC's diagnostic shapes at once, matching Aspose.Cells-FOSS-
+    for-Cpp's own real example:003 (`sheet` was not declared in this scope; `Missing` has not
+    been declared) - is incomplete, not false. `BAD` (a real, genuinely wrong member call) still
+    fails alongside it in the same run, so the relabeling never excuses an actual defect."""
+    manifest = _repository(tmp_path)
+    unbound = 'sheet.Save("out.bin");\nauto value = Missing::Create();\n'
+    receipts = cpp_examples.verify_cpp_examples(
+        tmp_path,
+        manifest,
+        tmp_path / "include",
+        "17",
+        _candidates(unbound, BAD),
+        tmp_path / "run",
+        120.0,
+    )
+    assert [receipt.outcome for receipt in receipts] == ["NOT_VERIFIED", "FAILED"]
+    assert receipts[0].detail == (
+        "the fence uses `sheet`, `Missing` without binding it; the README establishes it in an "
+        "earlier section"
+    )
+    assert "Explode" in receipts[1].detail
 
 
 @needs_compiler
