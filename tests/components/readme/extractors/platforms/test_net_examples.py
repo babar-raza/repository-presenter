@@ -107,6 +107,91 @@ def test_a_compile_error_reports_the_compilers_own_first_diagnostic(
     assert "CS0246" in (receipts[0].detail or "")
 
 
+def test_public_types_reads_both_real_namespace_styles(tmp_path: Path) -> None:
+    """Measured 2026-09-10 across all six .NET cohort repositories: block-scoped
+    (`namespace X { ... }`, Cells and Words) and file-scoped (`namespace X;`, 3D/PDF/Slides/
+    Email all use it extensively) both appear in real product source - and never more than one
+    namespace per file, so the first one found governs every public type the file declares."""
+    (tmp_path / "Workbook.cs").write_text(
+        "namespace Aspose.Cells_FOSS\n{\n"
+        "    public class Workbook : IDisposable\n    {\n    }\n}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "PdfDocument.cs").write_text(
+        "namespace Aspose.Pdf_FOSS;\n\npublic class Document\n{\n}\npublic enum SaveFormat\n{\n}\n",
+        encoding="utf-8",
+    )
+    assert net_examples.public_types(tmp_path) == {
+        "Workbook": "Aspose.Cells_FOSS.Workbook",
+        "Document": "Aspose.Pdf_FOSS.Document",
+        "SaveFormat": "Aspose.Pdf_FOSS.SaveFormat",
+    }
+
+
+def test_public_types_drops_a_simple_name_two_files_disagree_on(tmp_path: Path) -> None:
+    """Picking one when picking one would be an invention - the same rule java_examples.py's
+    own public_types() already applies."""
+    (tmp_path / "a.cs").write_text(
+        "namespace Aspose.A\n{\n    public class Style\n    {\n    }\n}\n", encoding="utf-8"
+    )
+    (tmp_path / "b.cs").write_text(
+        "namespace Aspose.B;\n\npublic class Style\n{\n}\n", encoding="utf-8"
+    )
+    assert net_examples.public_types(tmp_path) == {}
+
+
+def test_needed_usings_supplies_only_a_namespace_not_already_declared() -> None:
+    types = {"Workbook": "Aspose.Cells_FOSS.Workbook", "Style": "Aspose.Cells_FOSS.Style"}
+    # Neither namespace declared: both get a using.
+    assert net_examples._needed_usings(
+        "var w = new Workbook(); var s = new Style();", [], types
+    ) == ["using Aspose.Cells_FOSS;"]
+    # A using targets the whole namespace, so one already covers every type in it.
+    assert (
+        net_examples._needed_usings("var w = new Workbook();", ["Aspose.Cells_FOSS"], types) == []
+    )
+    # A name the product does not export is never invented a using for.
+    assert net_examples._needed_usings("var x = new Missing();", [], types) == []
+
+
+def test_a_missing_using_is_supplied_and_a_real_type_error_still_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Taskcard F Tier 2, end to end: a snippet naming a product type without its own `using`
+    compiles once one is supplied; a genuinely undeclared name still fails."""
+    source = tmp_path / "src" / "Aspose.Widget"
+    source.mkdir(parents=True)
+    project = source / "Aspose.Widget.csproj"
+    project.write_text('<Project Sdk="Microsoft.NET.Sdk" />', encoding="utf-8")
+    (source / "Widget.cs").write_text(
+        "namespace Aspose.Widget.Core;\n\npublic class Widget\n{\n}\n", encoding="utf-8"
+    )
+
+    written: dict[int, str] = {}
+
+    def fake(argv: list[str], **kwargs: Any) -> ExecutionResult:
+        if argv[1] == "--version":
+            return _result(0, stdout="10.0.204\n")
+        ordinal = int(str(kwargs["workspace"]).rsplit("_", 1)[-1])
+        written[ordinal] = (kwargs["workspace"] / "Program.cs").read_text("utf-8")
+        if "Missing" in written[ordinal]:
+            return _result(1, stdout="Program.cs(1,9): error CS0246: type 'Missing' not found\n")
+        return _result(0)
+
+    monkeypatch.setattr(net_examples, "dotnet_executable", lambda: "dotnet")
+    monkeypatch.setattr(net_examples, "execute", fake)
+    receipts = net_examples.verify_net_examples(
+        tmp_path,
+        project,
+        [_candidate(1, "var w = new Widget();"), _candidate(2, "var m = new Missing();")],
+        tmp_path / "run",
+    )
+    assert [r.outcome for r in receipts] == ["EXECUTED", "FAILED"]
+    assert "using Aspose.Widget.Core;" in written[1]
+    assert "usings supplied: using Aspose.Widget.Core;" in (receipts[0].detail or "")
+    assert "CS0246" in (receipts[1].detail or "")
+
+
 def test_a_build_that_never_returns_times_out_rather_than_failing(
     tmp_path: Path, project: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

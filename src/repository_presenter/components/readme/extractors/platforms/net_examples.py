@@ -6,11 +6,15 @@ a program, so it is wrapped in a console project that references the product's o
 built; what that proves is exactly what the contract claims — the example's types and calls exist
 and type-check against this revision.
 
-Three rules the outcome must respect. A toolchain this machine lacks is `NOT_VERIFIED`, which the
+Four rules the outcome must respect. A toolchain this machine lacks is `NOT_VERIFIED`, which the
 facts stage records as `UNRESOLVED` — never `CONTRADICTED`, because "we could not check" is not
 "we checked and it is false". Every cache and credential store is redirected into the run
-directory, so a build cannot read or leave state in the developer's account. And the resolved SDK
+directory, so a build cannot read or leave state in the developer's account. The resolved SDK
 version goes into the receipt, because a build is only as reproducible as the toolchain that ran.
+And a snippet naming a product type without its own `using` is supplied one, the way
+`ImplicitUsings` already supplies the base class library's own common namespaces but never the
+product's (Taskcard F Tier 2; `java_examples.py`'s own `_needed_imports()` is the same check for
+Java's imports) - a snippet naming something the product genuinely does not export still fails.
 """
 
 from __future__ import annotations
@@ -50,6 +54,27 @@ _TRAILING_PROJECT = re.compile(r"\s*\[[^\]]*\]\s*$")
 # evidence about the repository.
 _TIME_ELAPSED = re.compile(r"(?m)^Time Elapsed .*\r?\n?")
 _WORKSPACE_ATTEMPTS = 5
+# A README fence is written for a reader who already has the `using` its surrounding prose
+# established - the same gap java_examples.py's own _needed_imports() already closes for Java
+# (Taskcard F Tier 2). Real Aspose .NET source (measured 2026-09-10 across all six cohort
+# repositories) declares exactly one namespace per file - block-scoped (`namespace X { ... }`,
+# Cells and Words) or file-scoped (`namespace X;`, 3D/PDF/Slides/Email all use it extensively) -
+# so the first namespace found in a file is the namespace every public type declared in that
+# same file belongs to; no brace-tracking needed.
+# \s* (not [ \t]*) between the name and its terminator: Allman style puts the opening brace of a
+# block-scoped namespace on its own line (measured 2026-09-10 on the real Cells-.NET source),
+# which a same-line-only whitespace class would miss entirely.
+_CS_NAMESPACE = re.compile(r"(?m)^[ \t]*namespace[ \t]+([\w.]+)\s*[;{]")
+_CS_TYPE = re.compile(
+    r"(?m)^[ \t]*public[ \t]+"
+    r"(?:(?:abstract|sealed|static|partial|readonly|unsafe)[ \t]+)*"
+    r"(?:class|struct|interface|enum|record)[ \t]+"
+    r"(\w+)"
+)
+# `using static X;` targets a type's own static members, not a namespace - excluded, the same
+# way ImplicitUsings only ever supplies namespace-level usings.
+_CS_USING = re.compile(r"(?m)^[ \t]*using[ \t]+(?!static\b)([\w.]+)[ \t]*;")
+_CS_IDENTIFIER = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
 
 
 def dotnet_executable() -> str | None:
@@ -150,6 +175,50 @@ def _sdk_version(dotnet: str, workspace: Path) -> str:
     return result.stdout.strip() if result.return_code == 0 else ""
 
 
+def public_types(source_root: Path) -> dict[str, str]:
+    """Every product type whose simple name is unambiguous, mapped to its fully qualified name.
+
+    A simple name two files disagree on is dropped rather than guessed - a `using` naming one of
+    them would silently prefer whichever this scan happened to see last, which is picking one
+    when picking one would be an invention (the same rule java_examples.py's own public_types()
+    already applies).
+    """
+    seen: dict[str, str] = {}
+    ambiguous: set[str] = set()
+    for path in sorted(source_root.rglob("*.cs")):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        found_namespace = _CS_NAMESPACE.search(text)
+        if found_namespace is None:
+            continue
+        namespace = found_namespace.group(1)
+        for match in _CS_TYPE.finditer(text):
+            name = match.group(1)
+            qualified = f"{namespace}.{name}"
+            if name in seen and seen[name] != qualified:
+                ambiguous.add(name)
+            seen[name] = qualified
+    return {name: qualified for name, qualified in seen.items() if name not in ambiguous}
+
+
+def _needed_usings(code: str, declared: Sequence[str], types: dict[str, str]) -> list[str]:
+    """Namespace usings for the product types the snippet names and whose namespace it does not
+    already bring in - a `using` targets a namespace, not a single type, so a reference is
+    already covered whenever its own namespace is among the ones the snippet already declares
+    (``declared``: the namespaces ``_CS_USING`` already found in the snippet, not raw lines).
+
+    Ported from java_examples.py's own _needed_imports() (Taskcard F Tier 2, PHASE0-MASTER-
+    PLAN.md's appendix: ".NET's 6 non-EXECUTED examples are a missing-using problem, not
+    undeclared-variable - Java's _needed_imports() pattern applies directly").
+    """
+    already = set(declared)
+    wanted = {
+        types[name].rsplit(".", 1)[0]
+        for name in _CS_IDENTIFIER.findall(code)
+        if name in types and types[name].rsplit(".", 1)[0] not in already
+    }
+    return sorted(f"using {namespace};" for namespace in wanted)
+
+
 def verify_net_examples(
     root: Path,
     project: Path | None,
@@ -171,6 +240,7 @@ def verify_net_examples(
     version = _sdk_version(dotnet, workspace)
     if not version:
         return _blocked(candidates, "BLOCKED_TOOLCHAIN: the dotnet SDK did not report a version")
+    types = public_types(project.parent)
 
     receipts: list[ExampleReceipt] = []
     for candidate in candidates:
@@ -184,7 +254,10 @@ def verify_net_examples(
             encoding="utf-8",
             newline="\n",
         )
-        (run_dir / "Program.cs").write_text(candidate.code, encoding="utf-8", newline="\n")
+        declared = _CS_USING.findall(candidate.code)
+        supplied = _needed_usings(candidate.code, declared, types)
+        program = "".join(f"{line}\n" for line in supplied) + candidate.code
+        (run_dir / "Program.cs").write_text(program, encoding="utf-8", newline="\n")
         result: ExecutionResult = execute(
             # WarningLevel=0 silences the compiler entirely, not just this project: the
             # ProjectReference rebuilds the product from source every time (§29.6 E5 - the
@@ -203,7 +276,9 @@ def verify_net_examples(
         if result.timed_out:
             outcome, detail = "TIMED_OUT", f"no exit within {NET.example_timeout_seconds:g}s"
         elif result.return_code == 0:
-            outcome, detail = "EXECUTED", f"compiled against {project.name}; SDK {version}"
+            added = f"; usings supplied: {', '.join(supplied)}" if supplied else ""
+            outcome = "EXECUTED"
+            detail = f"compiled against {project.name}; SDK {version}{added}"
         else:
             outcome, detail = "FAILED", _first_error(result.stdout, result.stderr, run_dir)
         receipts.append(
