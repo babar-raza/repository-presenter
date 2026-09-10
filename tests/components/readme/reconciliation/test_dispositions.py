@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from repository_presenter.components.readme.reconciliation.dispositions import (
     contradicted_code_units,
     normalize,
@@ -103,6 +105,36 @@ def test_the_packet_carries_every_unit_the_polar_facts_and_the_shell() -> None:
     assert packet["investigation"] == {"product_summary": {}}
     assert [section["id"] for section in packet["sections"]][:2] == ["identity", "badges"]
     assert reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST) == packet
+
+
+def _inherited_units_facts(count: int) -> FactsDocument:
+    # A minimal document of exactly `count` inherited_unit facts - FACTS's own small, fixed
+    # baseline set would otherwise skew a 10x ratio comparison at these small counts.
+    return FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            _fact(f"inherited_unit:{i:05}.paragraph", "inherited_unit", f"Paragraph {i}.")
+            for i in range(count)
+        ),
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "J1/G1a: reconciliation_packet()'s own 'inherited_units' field lists every "
+        "inherited_unit fact directly, no cap - unlike the packet's 'facts' field, which "
+        "already routes through bounded_records(). The real fix is Taskcard G's batching "
+        "redesign; not implemented here, only proven still open."
+    ),
+)
+def test_the_packets_inherited_units_field_grows_sub_linearly_not_proportionally() -> None:
+    """J1: the structural test that would have caught c575035's bug class before it reached a
+    real candidate, applied to reconciliation_packet()'s own uncapped inherited_units field."""
+    base = reconciliation_packet(ENTRY, _inherited_units_facts(200), {}, MANIFEST)
+    tenx = reconciliation_packet(ENTRY, _inherited_units_facts(2000), {}, MANIFEST)
+    assert len(tenx["inherited_units"]) < 10 * len(base["inherited_units"])
 
 
 def test_placements_into_deterministic_sections_fold_into_supersessions() -> None:

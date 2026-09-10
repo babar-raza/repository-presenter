@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.reconciliation.dispositions import (
@@ -452,3 +453,38 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     short = {"dispositions": [entry(u) for u in units[:-1]]}
     assert [error.json_path for error in validator.iter_errors(short)] == ["$.dispositions"]
     assert list(validator.iter_errors({"dispositions": [entry(u) for u in units]})) == []
+
+
+def _inherited_units_facts(count: int) -> FactsDocument:
+    # A minimal document of exactly `count` inherited_unit facts and nothing else -
+    # reconciliation_schema() reads only by_kind("inherited_unit"), and FACTS's own small,
+    # fixed baseline set would otherwise skew a 10x ratio comparison at these small counts.
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(
+            _fact(f"inherited_unit:{i:05}.paragraph", "inherited_unit", f"Paragraph {i}.")
+            for i in range(count)
+        ),
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "J1/G1a: reconciliation_schema()'s dispositions.minItems/maxItems/unit_id enum are "
+        "built directly from every inherited_unit fact, no cap - c575035's own bug class, "
+        "predating it, currently dormant only because no candidate's inherited_unit count is "
+        "large yet. The real fix is Taskcard G's batching redesign (or G1a's standalone bound "
+        "if G slips); not implemented here, only proven still open."
+    ),
+)
+def test_the_schema_size_grows_sub_linearly_not_proportionally() -> None:
+    """J1: the structural test that would have caught c575035's bug class before it reached a
+    real candidate, applied to reconciliation_schema()'s own uncapped dispositions binding."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    base = reconciliation_schema(loaded, _inherited_units_facts(200))
+    tenx = reconciliation_schema(loaded, _inherited_units_facts(2000))
+    assert tenx["properties"]["dispositions"]["maxItems"] < (
+        10 * base["properties"]["dispositions"]["maxItems"]
+    )

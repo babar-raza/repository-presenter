@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.composition.authoring import (
@@ -34,6 +35,7 @@ from repository_presenter.components.readme.composition.authoring import (
     source_prose,
     surface_members,
     title_terms,
+    undocumented_types,
     unit_checks,
     verified_members,
     write_content_units,
@@ -956,6 +958,42 @@ def test_undocumented_types_are_authored_in_bounded_batches_bound_to_their_signa
     assert "never a count" in first.packet["objective"]
     merged = merge_units([(t.section_id, {"units": [{"slot": s} for s in t.slots]}) for t in tasks])
     assert len(merged["units"]) == len(tasks[0].slots) + 81
+
+
+def _undocumented_types_facts(count: int) -> FactsDocument:
+    def _type(index: int) -> Fact:
+        return Fact(
+            f"public_symbol:pkg.t{index}",
+            "public_symbol",
+            f"pkg.T{index}",
+            (Evidence("pkg/t.py", f"line {index}; class; public by name"),),
+            attributes={"symbol_kind": "class", "signature": f"class T{index}(Base)"},
+        )
+
+    return FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *(_type(i) for i in range(count)))
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "J1: undocumented_types() has no cap of its own (unlike bounded_records()'s "
+        "SYMBOL_CAP for public_symbol), so _type_batches()'s own call count grows exactly "
+        "proportionally with the repository's undocumented-type count, not sub-linearly - "
+        "a real batch-count-explosion risk on a large surface, structurally identical to "
+        "H's now-fixed enum-size risk but with no fix landed yet. Needs its own cap constant "
+        "before this can pass; not yet scoped to a taskcard."
+    ),
+)
+def test_undocumented_type_count_grows_sub_linearly_not_proportionally() -> None:
+    """J1: the structural test that would have caught H's own bug class before it reached a
+    real candidate, applied to undocumented_types()'s own uncapped output - one synthetic
+    FactsDocument at a realistic count, one at 10x, asserting the function's own output size
+    (and so the batch count downstream) does not grow the full 10x."""
+    base = len(undocumented_types(_undocumented_types_facts(200)))
+    tenx = len(undocumented_types(_undocumented_types_facts(2000)))
+    assert tenx < 10 * base
 
 
 def test_a_unit_for_a_slot_the_task_never_asked_for_is_dropped_not_rejected() -> None:

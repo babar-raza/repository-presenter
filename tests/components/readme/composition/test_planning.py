@@ -851,3 +851,86 @@ def test_the_symbol_and_link_enums_stay_bounded_like_the_packet_the_model_actual
     symbol_fact_id = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]
     assert "public_symbol:widget.a.b.c.deep" not in symbol_fact_id["enum"]
     assert "public_symbol:widget.scene" in symbol_fact_id["enum"]
+
+
+def _shallow_symbols_facts(count: int) -> FactsDocument:
+    # Shallow names (one dot, well under SYMBOL_MAX_DEPTH) isolate SYMBOL_CAP as the only
+    # bounding mechanism in play - a minimal document, not FACTS, so its own small baseline
+    # set cannot skew a 10x ratio comparison at these counts.
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(
+            _fact(f"public_symbol:pkg.sym{i}", "public_symbol", f"pkg.Sym{i}") for i in range(count)
+        ),
+    )
+
+
+def _links_facts(count: int) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(
+            _fact(f"link_target:{i:05}", "link_target", f"https://example.com/{i}")
+            for i in range(count)
+        ),
+    )
+
+
+def _examples_facts(count: int) -> FactsDocument:
+    return FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        tuple(_fact(f"example:{i:05}", "example", f"print({i})") for i in range(count)),
+    )
+
+
+def test_the_symbol_enum_size_grows_sub_linearly_not_proportionally() -> None:
+    """J1: the structural test that would have caught H's own bug class before it reached a
+    real candidate - one synthetic FactsDocument at a realistic public_symbol count, one at
+    10x, asserting the enum's own size does not grow the full 10x once SYMBOL_CAP (6000) is
+    crossed. This is the case H's own fix genuinely closes."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    base = planning_schema(loaded, _shallow_symbols_facts(1000))
+    tenx = planning_schema(loaded, _shallow_symbols_facts(10000))
+    base_enum = base["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]["enum"]
+    tenx_enum = tenx["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]["enum"]
+    assert len(base_enum) == 1000
+    assert len(tenx_enum) < 10 * len(base_enum)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "J1: bounded_records()'s own numeric cap is hardwired to fact.kind == 'public_symbol' "
+        "(its own documented limitation) - link_fact_id now routes through bounded_records() "
+        "for code-path consistency with the packet (H), but link_target facts pass through "
+        "with zero limit, so the enum still grows exactly proportionally. Needs a per-kind cap "
+        "before this can pass; not yet scoped to a taskcard."
+    ),
+)
+def test_the_link_enum_size_grows_sub_linearly_not_proportionally() -> None:
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    base = planning_schema(loaded, _links_facts(200))
+    tenx = planning_schema(loaded, _links_facts(2000))
+    base_enum = base["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
+    tenx_enum = tenx["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
+    assert len(tenx_enum) < 10 * len(base_enum)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "J1: same gap as link_fact_id - bounded_records()'s cap is hardwired to public_symbol, "
+        "so the four example-ID enums (fed by the same 'verified' list) still grow exactly "
+        "proportionally with the repository's own verified-example count. Needs a per-kind cap "
+        "before this can pass; not yet scoped to a taskcard."
+    ),
+)
+def test_the_example_enum_size_grows_sub_linearly_not_proportionally() -> None:
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    base = planning_schema(loaded, _examples_facts(200))
+    tenx = planning_schema(loaded, _examples_facts(2000))
+    assert len(tenx["properties"]["quick_start_example_id"]["enum"]) < (
+        10 * len(base["properties"]["quick_start_example_id"]["enum"])
+    )
