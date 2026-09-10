@@ -970,8 +970,12 @@ def _undocumented_types_facts(count: int) -> FactsDocument:
             attributes={"symbol_kind": "class", "signature": f"class T{index}(Base)"},
         )
 
+    # A minimal document of exactly `count` undocumented types - FACTS's own two public_symbol
+    # facts happen to lack a symbol_kind attribute today, so splicing them in would not currently
+    # affect the count, but that is luck, not isolation (the same fixture-contamination class
+    # already caught and fixed for the reconciliation_schema/reconciliation_packet J1 tests).
     return FactsDocument(
-        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *(_type(i) for i in range(count)))
+        FACTS.repository, FACTS.source_revision, tuple(_type(i) for i in range(count))
     )
 
 
