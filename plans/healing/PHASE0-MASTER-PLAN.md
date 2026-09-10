@@ -136,7 +136,7 @@ This table is the forest view: what exists, its state, and the order to run it i
 | 11 | G (+ G1a) | Durable `source_reconciliation` batching fix; folds in `reconciliation_schema()`'s own older unbounded-enum twin | Not started — larger, architectural | No |
 | 12 | F (Tier 2) | .NET missing-`using` inference | **Done, shipped, live-validated** — Cells-.NET confirmed `failed 6→1` (the 1 remaining is a genuinely different real bug, correctly untouched); 2 real bugs caught by new tests before the live run (`docs/DECISION_LOG.md` §31, 2026-09-10 17:03 UTC) | No |
 | 13 | F (Tier 1) | Real cross-snippet stitching for the sibling-fence majority | Not started — highest content-risk item in Phase 0 | No |
-| 14 | TB-10+RC-07 | Promote two audit scripts into real `tests/` coverage | Not started | No |
+| 14 | TB-10+RC-07 | Promote two audit scripts into real `tests/` coverage | **Done, shipped, live-validated** — `tests/test_bundle_audits.py` imports both existing scripts plus 3 new rule functions (install-claim, format-claim, second-reader-ledger); real, currently-live findings in the sealed portfolio (8 link-completeness gaps, 12 preserved-list suspects) pinned as `xfail(strict=True)`, not silently passed (`docs/DECISION_LOG.md` §31, 2026-09-10 17:50 UTC) | No |
 | 15 | PA-03 | Real 4-count progress reporting, replacing the single "N/34" headline | Not started | No |
 | 16 | PA-04 | Restructure `state.yaml`'s embedded arrival-list prose into `project/arrival-list.yaml` | Not started | No |
 | 17 | E | Investigate: does a non-adopting `present` run wrongly invalidate an already-sealed-good bundle? | Not started — investigation only | No |
