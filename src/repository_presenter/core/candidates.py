@@ -132,6 +132,34 @@ def verify_bundle(bundle: Path) -> dict[str, Any] | None:
     return manifest
 
 
+def integrity_valid_candidates(root: Path) -> int:
+    """How many repositories have a `CURRENT` bundle that passes `verify_bundle` cleanly.
+
+    PA-03's second count: a pass/fail wrapper around the same check `count_current_candidates`
+    already applies, but reported as a count on its own rather than raising on the first bad
+    bundle - a repository whose `CURRENT` names no sealed bundle, or whose manifest fails
+    integrity verification, simply is not counted here, the same way a repository with no
+    `CURRENT` at all is not counted (this is a portfolio-health signal, not a gate; the raising
+    behaviour `count_current_candidates` still needs for its own contract is untouched).
+    """
+    candidates = root / CANDIDATES_DIRNAME
+    if not candidates.is_dir():
+        return 0
+    valid = 0
+    for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
+        current = repository_dir / CURRENT_FILENAME
+        if not current.is_file():
+            continue
+        revision = current.read_text(encoding="utf-8").strip()
+        try:
+            manifest = verify_bundle(repository_dir / revision)
+        except BundleError:
+            continue
+        if manifest is not None:
+            valid += 1
+    return valid
+
+
 def count_current_candidates(root: Path) -> int:
     """Return how many repositories have their ``CURRENT`` revision sealed in a counted state.
 

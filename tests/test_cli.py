@@ -56,8 +56,13 @@ def test_status_reports_this_repository_cursor(
     assert re.fullmatch(rf"gate: G\d_[A-Z_]+ {STATUS}", out[1])
     assert re.fullmatch(rf"work item: G\d-W\d\d {STATUS}", out[2])
     assert re.fullmatch(r"candidates: \d+/34 current reviewable no-op-proven", out[3])
-    assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[4])
-    assert out[5] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
+    assert re.fullmatch(
+        r"progress: \d+ ever sealed, \d+ integrity-valid, \d+ current-code reproducible, "
+        r"\d+ independently accepted \(stale-excluded\)",
+        out[4],
+    )
+    assert re.fullmatch(r"examples: \d+/\d+ verified across counted candidates", out[5])
+    assert out[6] == "canary: aspose-3d-foss/Aspose.3D-FOSS-for-Python"
 
 
 def test_status_reports_examples_verified_across_sealed_bundles(

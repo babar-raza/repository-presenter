@@ -15,6 +15,7 @@ from repository_presenter.core.candidates import (
     StaleCandidate,
     count_current_candidates,
     examples_verification_summary,
+    integrity_valid_candidates,
     iter_sealed_bundles,
     stale_candidates,
     verify_bundle,
@@ -281,3 +282,30 @@ def test_verify_bundle_none_without_a_bundle_and_rejects_a_corrupt_or_missing_ar
     (bundle / "README.md").unlink()
     with pytest.raises(BundleError, match=r"artifact README\.md is missing"):
         verify_bundle(bundle)
+
+
+def test_integrity_valid_candidates_with_no_candidates_directory_is_zero(tmp_path: Path) -> None:
+    assert integrity_valid_candidates(tmp_path) == 0
+
+
+def test_integrity_valid_candidates_counts_only_current_bundles_that_pass_verification(
+    tmp_path: Path,
+) -> None:
+    """PA-03's second count: a pass/fail wrapper, never raising - a corrupt CURRENT bundle
+    simply is not counted, the same way count_current_candidates raises on it (checked
+    separately, above) but this one must not."""
+    write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")  # valid, counted
+    write_bundle(tmp_path, "b__repo", "rev1", "ACCEPTED")  # valid but not READY - still counted
+    tampered = write_bundle(tmp_path, "c__repo", "rev1", "READY_FOR_PROPOSAL")
+    (tampered / "README.md").write_bytes(b"tampered")  # digest mismatch - integrity failure
+    write_bundle(tmp_path, "d__repo", "rev1", "READY_FOR_PROPOSAL", current=False)  # no CURRENT
+    assert integrity_valid_candidates(tmp_path) == 2
+
+
+def test_integrity_valid_candidates_does_not_raise_on_a_current_naming_no_bundle(
+    tmp_path: Path,
+) -> None:
+    repository = tmp_path / "candidates" / "a__repo"
+    repository.mkdir(parents=True)
+    (repository / "CURRENT").write_text("rev1\n", encoding="utf-8")
+    assert integrity_valid_candidates(tmp_path) == 0
