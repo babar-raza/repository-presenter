@@ -1836,7 +1836,7 @@ def _assert_presentation_update(
         assert "provider calls 0" in line, line
 
 
-def test_a_template_component_change_reopens_composing_and_reuses_every_call(
+def test_a_template_component_change_reopens_reconciling_and_records_a_factual_update(
     project_with_registry: Path,
     sealed_canary: Path,
     local_canary: dict[str, Any],
@@ -1853,13 +1853,50 @@ def test_a_template_component_change_reopens_composing_and_reuses_every_call(
     code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
     out = capsys.readouterr().out
     assert code == EXIT_OK
-    assert "(earliest affected stage COMPOSING; 1 changes (components.renderer -> COMPOSING)" in out
-    # Nothing an LLM produced depends on the component version: zero calls, every stage reused.
+    assert (
+        "(earliest affected stage RECONCILING; 1 changes (components.renderer -> RECONCILING)"
+    ) in out
+    # dispositions.py's normalize()/placement_errors() consume shell, and RC-06's coverage logic
+    # lives in renderer.py - both are read starting at RECONCILING (EVAL-01), so a renderer bump
+    # is now a factual update, not the silently-reused presentation-only one it used to be: every
+    # stage is still seeded from the sealed bundle and reused byte-for-byte without a call, since
+    # nothing an LLM produced actually depends on the component version.
+    assert "seeded from sealed bundle: presentation_planning, repository_investigation, " in out
     assert len(gateway_ready.requests) == before
-    _assert_presentation_update(
-        out, bundle, "COMPOSING", ["dependencies.json"], ("plan: ", "units: ", "review: ")
-    )
+    bundle_line = next(line for line in out.splitlines() if line.startswith("bundle: "))
+    assert "(state VALID_UPDATE_AVAILABLE," in bundle_line
+    assert "valid update available (factual):" in bundle_line
+    assert "no longer counts as current until this is resolved or adopted" in bundle_line
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
+    assert manifest["update"]["changed"] == ["dependencies.json"]
     assert (bundle / "README.md").read_bytes() == readme_before
+
+
+def test_a_shell_component_change_also_reopens_reconciling(
+    project_with_registry: Path,
+    sealed_canary: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The shell component's own version bump (EVAL-01) - control case for the same fix, so a
+    change to either it or the renderer takes the same, no-longer-blanket-COMPOSING path."""
+    from repository_presenter.components.readme.bundle import seal
+
+    bundle = _seal_and_prove(sealed_canary, project_with_registry, capsys)
+    monkeypatch.setattr(seal, "SHELL_VERSION", "999")
+    before = len(gateway_ready.requests)
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    out = capsys.readouterr().out
+    assert code == EXIT_OK
+    assert (
+        "(earliest affected stage RECONCILING; 1 changes (components.shell -> RECONCILING)"
+    ) in out
+    assert len(gateway_ready.requests) == before
+    manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
+    assert manifest["state"] == "VALID_UPDATE_AVAILABLE" and manifest["update"]["available"]
 
 
 def test_a_validator_change_reopens_validating_and_rechecks_without_a_call(

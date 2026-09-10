@@ -45,7 +45,7 @@ SEALED: dict[str, Any] = {
         "targeted_repair": {"sha256": "x" * 64, "version": "2", "model_route": "qwen3-next"},
     },
     "contract_version": "readme-contract-v1-draft",
-    "components": {"shell": "1", "renderer": "1", "normalisation": "1"},
+    "components": {"shell": "1", "renderer": "1", "normalisation": "1", "reviewer_logic": "1"},
     "validators": {"BC-01": "1", "BC-02": "1"},
     "validator_version": "1",
     "acceptance_profile_version": None,
@@ -101,10 +101,15 @@ def test_each_dependency_class_names_the_state_it_reopens() -> None:
         "prompts__independent_review__sha256": ("prompts.independent_review", "REVIEWING"),
         "prompts__targeted_repair__sha256": ("prompts.targeted_repair", "REVIEWING"),
         "contract_version": ("contract_version", "VALIDATING"),
-        "components__renderer": ("components.renderer", "COMPOSING"),
+        # dispositions.py's normalize()/placement_errors() consume shell; RC-06's coverage logic
+        # lives in renderer.py - both are read starting at RECONCILING, not COMPOSING (EVAL-01).
+        "components__shell": ("components.shell", "RECONCILING"),
+        "components__renderer": ("components.renderer", "RECONCILING"),
         # The normalisation the composition package owns decides rendered bytes, so a change
-        # to it reopens COMPOSING like any other component (the gap recorded at d147b4a).
+        # to it reopens COMPOSING (the gap recorded at d147b4a); reviewer_logic is genuinely
+        # COMPOSING-only too (docs/STATE_MACHINE.md section 9) - both control cases for EVAL-01.
         "components__normalisation": ("components.normalisation", "COMPOSING"),
+        "components__reviewer_logic": ("components.reviewer_logic", "COMPOSING"),
         "validators__BC-02": ("validators", "VALIDATING"),
         "validator_version": ("validators", "VALIDATING"),
         "acceptance_profile_version": ("acceptance_profile_version", "REVIEWING"),
@@ -177,8 +182,10 @@ DEPENDENCY_CLASSES: dict[str, tuple[list[str], str]] = {
     "reconciliation prompt": (["prompts", "source_reconciliation", "sha256"], "RECONCILING"),
     "planning prompt": (["prompts", "presentation_planning", "sha256"], "PLANNING"),
     "model route": (["prompts", "section_authoring", "model_route"], "COMPOSING"),
-    "template component": (["components", "renderer"], "COMPOSING"),
+    "shell component": (["components", "shell"], "RECONCILING"),
+    "template component": (["components", "renderer"], "RECONCILING"),
     "normalisation component": (["components", "normalisation"], "COMPOSING"),
+    "reviewer logic component": (["components", "reviewer_logic"], "COMPOSING"),
     "validator": (["validators", "BC-07"], "VALIDATING"),
     "reviewer rubric": (["prompts", "independent_review", "sha256"], "REVIEWING"),
     "link policy": (["policy", "sha256"], "PLANNING"),

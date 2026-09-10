@@ -5,8 +5,10 @@ asks for anything, the inputs it would consume now are compared with that record
 class, and each change names the state it reopens (docs/STATE_MACHINE.md section 9): the source
 revision or tree, the fact records, and the environment (Python version, OS, extractor version,
 resolved site manifest - 27.2 RC7) reopen EXTRACTING; a prompt reopens its own stage; a
-template component reopens COMPOSING; the contract version or a validator reopens VALIDATING;
-the acceptance profile reopens REVIEWING; the policy reopens PLANNING. The earliest affected
+component reopens the earliest stage it actually touches (shell/renderer: RECONCILING;
+normalisation/reviewer_logic: COMPOSING - EVAL-01, 2026-09-10); the contract version or a
+validator reopens VALIDATING; the acceptance profile reopens REVIEWING; the policy reopens
+PLANNING. The earliest affected
 state is the answer, or NONE when nothing changed. The protected-content fingerprint is derived
 from the accepted dispositions rather than consumed, so the seal compares it, not this record.
 
@@ -40,6 +42,16 @@ PROMPT_STATES: dict[str, str] = {
     "section_authoring": "COMPOSING",
     "independent_review": "REVIEWING",
     "targeted_repair": "REVIEWING",
+}
+# EVAL-01: shell/renderer feed dispositions.py's normalize()/placement_errors() and the coverage
+# logic RC-06 changed, both consumed starting at RECONCILING - the earliest stage either actually
+# touches, not the blanket COMPOSING every component used to reopen (docs/STATE_MACHINE.md
+# section 9). normalisation/reviewer_logic are genuinely COMPOSING-only and keep that mapping.
+COMPONENT_STATES: dict[str, str] = {
+    "shell": "RECONCILING",
+    "renderer": "RECONCILING",
+    "normalisation": "COMPOSING",
+    "reviewer_logic": "COMPOSING",
 }
 
 
@@ -130,7 +142,7 @@ def evaluate(sealed: dict[str, Any], current: dict[str, Any]) -> Evaluation:
                 Change(
                     f"components.{name}",
                     f"{sealed_components.get(name)} -> {current_components.get(name)}",
-                    "COMPOSING",
+                    COMPONENT_STATES.get(name, "RECONCILING"),
                 )
             )
     if _differs(sealed.get("validators"), current.get("validators")) or _differs(
