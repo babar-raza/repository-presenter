@@ -14,11 +14,17 @@ finds a type in a source file only when the file is named after it. A repository
 declare a required dependency gets `NOT_VERIFIED` with that stated, never a compile failure
 blamed on the example, and so does one whose own sources will not compile.
 
-Three rules the outcome must respect. A toolchain this machine lacks is `NOT_VERIFIED`, which the
+Four rules the outcome must respect. A toolchain this machine lacks is `NOT_VERIFIED`, which the
 facts stage records as `UNRESOLVED` — never `CONTRADICTED`. Every cache and credential store is
 redirected into the run directory, so a build cannot read or leave state in the developer's
-account. And the resolved compiler version goes into the receipt, because a build is only as
-reproducible as the toolchain that ran.
+account. The resolved compiler version goes into the receipt, because a build is only as
+reproducible as the toolchain that ran. And an example whose only diagnostics are `cannot find
+symbol: variable <name>` is `NOT_VERIFIED`, not false: a fence opening on a binding its README
+established in a section this extractor never inherited alongside it (Taskcard F Tier 0; the same
+class `rust_examples.py`'s `unbound_values()` and `cpp_examples.py`'s `unbound_identifiers()`
+already exclude for their own ecosystems, `Aspose.3D-FOSS-for-Java`'s own `Example.java:10`/`13`,
+both `scene`) — a missing *type* or *method* symbol still fails, since `_needed_imports()` above
+already resolves a genuinely available type before compilation ever runs.
 """
 
 from __future__ import annotations
@@ -47,6 +53,11 @@ _PUBLIC_TYPE = re.compile(
     r"(?m)^[ \t]*(?:@\w+[ \t]*)*public[ \t]+"
     r"(?:(?:final|abstract|sealed|non-sealed)[ \t]+)*(?:class|interface|enum|record)[ \t]+(\w+)"
 )
+# javac's own multi-line diagnostic shape: `<file>:<line>: error: cannot find symbol`, then a few
+# lines later `symbol:   variable <name>` (or `class`/`method`, which are real defects and never
+# relabeled - `_needed_imports()` above already resolves a genuinely available type).
+_JAVAC_ERROR = re.compile(r"^(?P<file>.+?):(?P<line>\d+): error: (?P<message>.+)$")
+_UNBOUND_VARIABLE = re.compile(r"^\s*symbol:\s*variable\s+(\S+)\s*$")
 _WRAPPER = "Example"
 # What a snippet that declares no import of its own is compiled with. Java has no equivalent of
 # C#'s implicit usings, and a README fence is written for a reader who already has the imports -
@@ -416,8 +427,17 @@ def verify_java_examples(
             outcome = "EXECUTED"
             detail = f"compiled against the product's own classes; javac {version}{added}"
         else:
-            outcome = "FAILED"
-            detail = _first_error(result.stdout, result.stderr, run_dir, source_root)
+            unbound = unbound_variables(result.stdout + "\n" + result.stderr)
+            if unbound:
+                outcome = "NOT_VERIFIED"
+                detail = (
+                    "the fence uses "
+                    + ", ".join(f"`{name}`" for name in dict.fromkeys(unbound))
+                    + " without binding it; the README establishes it in an earlier section"
+                )
+            else:
+                outcome = "FAILED"
+                detail = _first_error(result.stdout, result.stderr, run_dir, source_root)
         receipts.append(
             ExampleReceipt(
                 ordinal=candidate.ordinal,
@@ -438,3 +458,36 @@ def _first_error(stdout: str, stderr: str, run_dir: Path, source_root: Path) -> 
         if ": error:" in line:
             return line.strip()[:400]
     return "the compilation failed without naming a diagnostic"
+
+
+def unbound_variables(output: str) -> list[str]:
+    """The variable names an example uses and never binds, when they are the only thing wrong.
+
+    A fence opens on a binding its README established in prose - `scene`, `workbook`. That is
+    the one error class which says the fence is incomplete rather than false, so it counts only
+    when every error javac raised is `cannot find symbol` naming a *variable* (`Aspose.3D-FOSS-
+    for-Java`'s own `Example.java:10`/`13`, both `scene`) - a missing type or method is a real
+    defect and must not be excused as missing context.
+    """
+    lines = output.splitlines()
+    names: list[str] = []
+    saw_error = False
+    for index, line in enumerate(lines):
+        match = _JAVAC_ERROR.match(line)
+        if match is None:
+            continue
+        saw_error = True
+        if match.group("message").strip() != "cannot find symbol":
+            return []
+        symbol = None
+        for lookahead in lines[index + 1 : index + 5]:
+            if _JAVAC_ERROR.match(lookahead):
+                break
+            variable = _UNBOUND_VARIABLE.match(lookahead)
+            if variable:
+                symbol = variable.group(1)
+                break
+        if symbol is None:
+            return []
+        names.append(symbol)
+    return names if saw_error else []

@@ -360,6 +360,60 @@ def test_a_required_dependency_blocks_the_compiler_rather_than_failing_the_examp
     assert "poi-ooxml" in receipts[0].detail
 
 
+def test_only_unbound_variables_make_a_fence_an_excerpt_rather_than_a_falsehood() -> None:
+    """Real diagnostic text from the currently-sealed Aspose.3D-FOSS-for-Java candidate
+    (Example.java:10/13, both `scene`, Taskcard F Tier 0 - the same class `rust_examples.py`'s
+    `unbound_values()` and `cpp_examples.py`'s `unbound_identifiers()` already exclude)."""
+    output = (
+        "Example.java:10: error: cannot find symbol\n"
+        '        scene.save("output.stl", FileFormat.STLASCII);\n'
+        "        ^\n"
+        "  symbol:   variable scene\n"
+        "  location: class Example\n"
+        "Example.java:13: error: cannot find symbol\n"
+        '        scene.save("output.stl", new StlSaveOptions());\n'
+        "        ^\n"
+        "  symbol:   variable scene\n"
+        "  location: class Example\n"
+        "2 errors\n"
+    )
+    assert java_examples.unbound_variables(output) == ["scene", "scene"]
+
+
+def test_a_fence_that_names_a_missing_type_or_method_is_not_an_excerpt() -> None:
+    """A missing type or method is a real defect - `_needed_imports()` already resolves a type
+    that genuinely exists before compilation ever runs, so a `cannot find symbol` naming one
+    past that point means it does not, and must not be excused as missing context."""
+    missing_type = (
+        "Example.java:4: error: cannot find symbol\n"
+        "        Missing value = new Missing();\n"
+        "        ^\n"
+        "  symbol:   class Missing\n"
+        "  location: class Example\n"
+    )
+    assert java_examples.unbound_variables(missing_type) == []
+    missing_method = (
+        "Example.java:6: error: cannot find symbol\n"
+        "        scene.explode();\n"
+        "               ^\n"
+        "  symbol:   method explode()\n"
+        "  location: variable scene of type Scene\n"
+    )
+    assert java_examples.unbound_variables(missing_method) == []
+    mixed = (
+        "Example.java:3: error: cannot find symbol\n"
+        "        scene.save();\n"
+        "        ^\n"
+        "  symbol:   variable scene\n"
+        "  location: class Example\n"
+        "Example.java:5: error: incompatible types: int cannot be converted to String\n"
+        "        String s = 1;\n"
+        "                   ^\n"
+    )
+    assert java_examples.unbound_variables(mixed) == []
+    assert java_examples.unbound_variables("1 error\n") == []
+
+
 def test_the_floor_becomes_the_javac_flags_the_pom_itself_implies() -> None:
     """`maven.compiler.release` is `--release`; `target`/`source` are `-source`/`-target`.
 
