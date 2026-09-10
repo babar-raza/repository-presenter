@@ -248,7 +248,7 @@ def test_an_undeclared_binding_is_not_verified_but_a_real_type_error_still_fails
     been declared) - is incomplete, not false. `BAD` (a real, genuinely wrong member call) still
     fails alongside it in the same run, so the relabeling never excuses an actual defect."""
     manifest = _repository(tmp_path)
-    unbound = 'sheet.Save("out.bin");\nauto value = Missing::Create();\n'
+    unbound = 'sheet.Save("out.bin");\nMissing::Create();\n'
     receipts = cpp_examples.verify_cpp_examples(
         tmp_path,
         manifest,
