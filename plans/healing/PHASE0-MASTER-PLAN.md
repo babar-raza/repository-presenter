@@ -139,8 +139,8 @@ This table is the forest view: what exists, its state, and the order to run it i
 | 14 | TB-10+RC-07 | Promote two audit scripts into real `tests/` coverage | **Done, shipped, live-validated** — `tests/test_bundle_audits.py` imports both existing scripts plus 3 new rule functions (install-claim, format-claim, second-reader-ledger); real, currently-live findings in the sealed portfolio (8 link-completeness gaps, 12 preserved-list suspects) pinned as `xfail(strict=True)`, not silently passed (`docs/DECISION_LOG.md` §31, 2026-09-10 17:50 UTC) | No |
 | 15 | PA-03 | Real 4-count progress reporting, replacing the single "N/34" headline | **Done, shipped, live-validated** — `status` now prints a `progress:` line (8 ever sealed, 8 integrity-valid, 7 current-code reproducible, 4 independently accepted stale-excluded, real portfolio numbers); `reproducible_candidates()` placed in `components/readme/bundle/` not `core/candidates.py` — the appendix's own literal location would invert the documented one-directional `core/` boundary (`docs/DECISION_LOG.md` §31, 2026-09-10 18:45 UTC) | No |
 | 16 | PA-04 | Restructure `state.yaml`'s embedded arrival-list prose into `project/arrival-list.yaml` | Not started — appendix's own premise does not hold: `state.yaml`'s copy is stale (frozen at item 26 since 2026-09-07; real items exist past 49 per git log), `docs/RESEARCH_AND_GUIDELINES.md` section 27.9 holds a divergent, itself-archived second copy; real reconciliation work, not a mechanical schema copy (`docs/DECISION_LOG.md` §31, 2026-09-10 19:15 UTC) | No |
-| 17 | E | Investigate: does a non-adopting `present` run wrongly invalidate an already-sealed-good bundle? | Not started — investigation only | No |
-| 18 | I | Investigate: is `SYMBOL_MAX_DEPTH`'s fixed threshold under-serving deeply-qualified (Java) naming? | Not started — investigation only | No |
+| 17 | E | Investigate: does a non-adopting `present` run wrongly invalidate an already-sealed-good bundle? | **Done, investigated** — real, intended, documented behavior since G2-W01 (`docs/STATE_MACHINE.md` §9), not a wrong-condition bug; live-reproduced against a synthetic candidate. Real gap found: `--facts-only` is the only mutation-free mode and covers only S1-S2, no safe way to exercise S3-S10 against an already-sealed repository — a `--dry-run` flag is a real future taskcard, not implemented here (`docs/DECISION_LOG.md` §31, 2026-09-10 19:35 UTC) | No |
+| 18 | I | Investigate: is `SYMBOL_MAX_DEPTH`'s fixed threshold under-serving deeply-qualified (Java) naming? | **Done, investigated — real defect confirmed**, not "measured, not a problem": Java admits only 3 bare package-path fragments (0.06%/0.01%), zero real classes/methods; rendered README has 1 degenerate hub vs. Rust's 13. Root cause: admission is blind to `symbol_kind`, conflating qualification depth with nesting depth. Recommended fix (not implemented): `symbol_kind`-aware admission, not a flat number (`docs/DECISION_LOG.md` §31, 2026-09-10 19:55 UTC) | No |
 | 19 | J2 | Give `bounded_records()` a real per-kind cap for `link_target`/`example` (today only `public_symbol` is actually capped) — closes the gap J1's own new `xfail(strict=True)` tests confirmed is still open | Not started — new (found by J1), small, mechanical | No |
 | 20 | K | Scope — not yet fix — `undocumented_types()`'s batch-count-explosion risk (new finding from J1: no cap constant exists, no taskcard owned it) | Not started — investigation only, new (found by J1) | No |
 | — | **RC-03** | Citation-completeness gate: hard (blocking) vs. soft (advisory) — both options now designed | Presented, not executed | **Yes — present both options, wait** |
@@ -469,9 +469,19 @@ without that decision.
 
 A plain, rejection-ending `present` run was observed mutating an already-sealed-good bundle's
 `manifest.json` (`READY_FOR_PROPOSAL` → `INVALIDATED`) with nothing adopted — traced to `cli.py:536`'s
-unconditional call into `seal.py`'s `invalidate_bundle()`. Reproduce against a disposable, throwaway
-candidate only (never a real portfolio entry) before designing any fix — the right answer differs
-depending on whether this is universal current behavior or a missing reconnaissance-mode flag.
+~~unconditional call into `seal.py`'s `invalidate_bundle()`~~.
+
+**Correction (row 17's own investigation, 2026-09-10 19:35 UTC — the "unconditional" framing above
+was wrong, struck through, not silently edited):** the call is gated by `seal.py`'s `invalidates()`,
+narrowly scoped to factual/safety/protected-content checks, deliberate since `G2-W01` — this is
+working as designed, not a latent bug. The real, previously-unnamed gap: `--facts-only` is the only
+mutation-free `present` mode, covering only stages S1-S2 — no safe reconnaissance mode exists for
+stages S3-S10 against an already-sealed repository, so any deeper live check still risks a real,
+intended invalidation if it hits a genuine factual/safety failure. **Recommended future taskcard**
+(not designed here, not this taskcard's own scope): a `--dry-run` flag skipping the final
+`invalidate_bundle`/`seal_candidate` writes, so deeper reconnaissance can happen without that risk.
+**Status**: investigated, closed, 2026-09-10 19:35 UTC — no fix needed for the originally-suspected
+bug (it doesn't exist as described); the real gap is a missing feature, tracked for a future pass.
 
 ---
 
@@ -547,6 +557,17 @@ prose (PA-04's own "no content loss" rule needs a home for these); a `lands_with
 items that land together, so batching isn't lost by flattening. Drift-guard test mirrors
 `tests/test_queue_agreement.py`'s byte-identity pattern → new `tests/test_arrival_list_agreement.py`.
 Update `docs/REPOSITORY_LAYOUT.md`'s `project/` section in the same commit.
+
+**Real blocker found during row 16's own investigation (2026-09-10 19:15 UTC) — this plan assumed a
+single source to copy from; that assumption is wrong.** `state.yaml`'s own arrival-list prose is
+stale, frozen since 2026-09-07 (stops around item 26); `docs/RESEARCH_AND_GUIDELINES.md` §27.9 holds
+a *separate*, also-stale copy extending to at least item 31, and some items have already landed
+elsewhere without either copy being updated (e.g. item 28, `d707693`). Restructuring into
+`project/arrival-list.yaml` therefore isn't the mechanical schema-copy this taskcard describes — it
+needs real reconciliation first (which items are landed/stale/superseded across two divergent
+narrative-prose sources), genuinely owner-adjacent archaeology, not a Phase 0 mechanical task.
+**Status**: investigated, not implemented, 2026-09-10 19:15 UTC — deferred, same discipline as G and
+F Tier 1. Do not restructure from either copy alone without first reconciling them.
 
 ---
 
