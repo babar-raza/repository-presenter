@@ -129,7 +129,7 @@ This table is the forest view: what exists, its state, and the order to run it i
 | 4 | A | RC-06: duplicate API-reference content | **Done, shipped, live-validated** | — |
 | 5 | B | Mis-hubbed API symbol | **Done, shipped** | — |
 | 6 | 3D-Java re-attempt | Confirm RC-06 alone resolves 3D-Java's earlier BC-10 rejection | **Done, confirmed** — live re-run: `verdict ACCEPT, findings 0`, clean first attempt (`docs/DECISION_LOG.md` §31, 2026-09-10 12:18 UTC). Not adopted (Phase 1's own act); the live transaction is ready for Phase 1 to pick up | No |
-| 7 | Email-Python F07 | Diagnose (not yet fix) why Development/Testing content is missing post-RC-06 | Not started — investigation only | No |
+| 7 | Email-Python F07 | Diagnose (not yet fix) why Development/Testing content is missing post-RC-06 | **Done, diagnosed** — real cause: an authoring-stage content-compression choice (the model's own recorded omission reason), not an extraction or placement gap; not RC-06-related, pre-existing (`docs/DECISION_LOG.md` §31, 2026-09-10 12:23 UTC). Fix design deferred to whoever admits it | No |
 | 8 | C | Give C++'s example verifier Rust's honest `NOT_VERIFIED` relabeling | Not started | No |
 | 9 | F (Tiers 0, 4) | Same relabeling for Java/.NET + a non-blocking example-coverage visibility signal | Not started | No |
 | 10 | D | Read-only alternate-toolchain investigation for Cells-Cpp's real build failure | Not started | No |
