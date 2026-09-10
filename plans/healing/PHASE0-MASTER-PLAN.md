@@ -141,6 +141,8 @@ This table is the forest view: what exists, its state, and the order to run it i
 | 16 | PA-04 | Restructure `state.yaml`'s embedded arrival-list prose into `project/arrival-list.yaml` | Not started | No |
 | 17 | E | Investigate: does a non-adopting `present` run wrongly invalidate an already-sealed-good bundle? | Not started — investigation only | No |
 | 18 | I | Investigate: is `SYMBOL_MAX_DEPTH`'s fixed threshold under-serving deeply-qualified (Java) naming? | Not started — investigation only | No |
+| 19 | J2 | Give `bounded_records()` a real per-kind cap for `link_target`/`example` (today only `public_symbol` is actually capped) — closes the gap J1's own new `xfail(strict=True)` tests confirmed is still open | Not started — new (found by J1), small, mechanical | No |
+| 20 | K | Scope — not yet fix — `undocumented_types()`'s batch-count-explosion risk (new finding from J1: no cap constant exists, no taskcard owned it) | Not started — investigation only, new (found by J1) | No |
 | — | **RC-03** | Citation-completeness gate: hard (blocking) vs. soft (advisory) — both options now designed | Presented, not executed | **Yes — present both options, wait** |
 | — | **PA-05** | README-contract version flip (`-draft` → `v1`) | Prep work only; flip itself waits | **Yes — flip is cohort-gated, needs owner signal** |
 
@@ -150,6 +152,9 @@ This table is the forest view: what exists, its state, and the order to run it i
 14-16 (process items, fully parallelizable across disjoint files via independent subagents) → 17-18
 (low-urgency investigations, pick up whenever). RC-03 and PA-05 get surfaced to the owner in parallel
 with this sequence, not blocking it — neither is a dependency of anything else in Phase 0.
+**19-20 (added post-J1, 2026-09-10)**: both small and cheap — slot in whenever convenient, no need to
+interrupt the 6-13 run for them; J2 in particular is a natural pairing with G/G1a (same bug class) if
+sequencing them adjacently is more efficient than strict table order.
 
 ---
 
@@ -315,6 +320,43 @@ bounded call sites; design the test per-kind, not just "routes through `bounded_
 
 This closes "item 35" — a real, previously-named `docs/DECISION_LOG.md` audit item (2026-09-06) that
 shipped only its timeout half, never its token/packet-size half.
+
+---
+
+### Taskcard J2 (new, found by J1) — give `bounded_records()` a real per-kind cap
+
+**Root cause**: `bounded_records()` (`core/facts.py`) only checks `fact.kind == "public_symbol"` for its
+cap logic — `link_target`/`example` pass through with zero numeric limit even after H routes their
+enum construction through it for code-path consistency. J1's own new tests proved this directly: the
+`link_fact_id`/example-ID enum boundedness tests are honest `xfail(strict=True)`, not passes. Currently
+low real risk (portfolio max `link_target` 41, `example` 14) — but structurally identical to H's own
+bug class, and the whole reason this pass exists is to close that class, not just its first instance.
+
+**Fix**: extend `bounded_records()` with a per-kind cap (mirroring `SYMBOL_CAP`'s own shape — e.g.
+`LINK_CAP`/`EXAMPLE_CAP` constants, or a `kind -> cap` mapping parameter), calibrated from real
+portfolio data per `project/loop-prompt.md` §3's own numeric-threshold rule (set from at least three
+sealed compositions at the observed minimum less one rejection's worth, restated when the data moves,
+commit says which compositions it rests on — never fitted to one sample).
+
+**Acceptance**: J1's own 2 `xfail(strict=True)` tests for these two sites flip to genuine passes (the
+`strict=True` marker means an unexpected pass already fails CI until the marker is removed — that
+removal, done deliberately once the cap is real, is the acceptance signal, not a new test).
+
+---
+
+### Taskcard K (new, found by J1) — scope `undocumented_types()`'s batch-count-explosion risk
+
+**Not a fix — investigation/scoping only**, matching Taskcard I's own "measured, not assumed" pattern.
+J1's own new test proved no cap constant exists for `authoring.py::undocumented_types()`/
+`_type_batches()`'s batch count today — a different risk shape than every other Phase 0 finding
+(unbounded *call count*, not unbounded *token size* per call). Currently low real risk (portfolio max
+195 undocumented types, ≈5 batches at `_TYPE_BATCH = 40`).
+
+**Now (runbook)**: check whether real growth trends make this a genuine near-term risk (a candidate
+approaching, say, 10x the current max) or whether it's comfortably bounded by realistic portfolio
+size — decide from real data, not from the shape alone. If a real risk is confirmed, design a cap the
+same way J2 does (data-calibrated, not guessed). If not, close this explicitly as "measured, not a
+problem" per Taskcard I's own precedent, rather than leaving it open indefinitely.
 
 ---
 
