@@ -186,7 +186,13 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     two attempts at the identical, unmodified planning packet.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
-    verified = sorted(fact.id for fact in facts.by_kind("example") if fact.polarity == "SUPPORTED")
+    # H: every enum below names the fact IDs a plan may choose, so it must never grow larger
+    # than the packet the model actually sees - bounded_records() is that same bound
+    # (planning_packet's own "facts" field, above). Built directly from facts.by_kind() instead,
+    # symbol_fact_id's enum grew unbounded with the repository's own symbol count: confirmed on
+    # aspose-pdf-foss/Aspose.PDF-FOSS-for-Java (24,830 symbols, ~460,256 estimated enum tokens,
+    # a real HTTP 400) since c575035 first added this field's exclusion logic without a cap.
+    verified = sorted(record["id"] for record in bounded_records(facts, {"example"}))
     properties = schema["properties"]
     deviations = properties.get("deviations", {}).get("items", {}).get("properties", {})
     if "section_id" in deviations:
@@ -195,19 +201,16 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     link_properties = properties.get("links", {}).get("items", {}).get("properties", {})
     if "link_fact_id" in link_properties:
         assignable = sorted(
-            fact.id
-            for fact in facts.by_kind("link_target")
-            if fact.polarity == "SUPPORTED" and fact.id not in _SHELL_OWNED_LINKS
+            record["id"]
+            for record in bounded_records(facts, {"link_target"})
+            if record["id"] not in _SHELL_OWNED_LINKS
         )
         link_properties["link_fact_id"] = {"type": "string", "enum": assignable}
     hub_properties = properties.get("api_hubs", {}).get("items", {}).get("properties", {})
     if "symbol_fact_id" in hub_properties:
         mis_hubbed = _mis_hubbed_symbol_ids(facts)
-        hubbable = sorted(
-            fact.id
-            for fact in facts.by_kind("public_symbol")
-            if fact.polarity == "SUPPORTED" and fact.id not in mis_hubbed
-        )
+        visible_symbol_ids = {record["id"] for record in bounded_records(facts, {"public_symbol"})}
+        hubbable = sorted(visible_symbol_ids - mis_hubbed)
         hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
     if not verified:
         return schema

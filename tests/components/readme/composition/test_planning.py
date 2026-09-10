@@ -835,3 +835,19 @@ def test_a_hub_naming_a_module_with_an_available_class_sibling_cannot_be_written
         for error in validator.iter_errors(plan)
         if error.json_path == "$.api_hubs[0].symbol_fact_id"
     ] == [f"'public_symbol:widget.mapi_message' is not one of {symbol_fact_id['enum']!r}"]
+
+
+def test_the_symbol_and_link_enums_stay_bounded_like_the_packet_the_model_actually_sees() -> None:
+    """H: symbol_fact_id/link_fact_id used to be built directly from facts.by_kind(), unbounded -
+    confirmed breaking on aspose-pdf-foss/Aspose.PDF-FOSS-for-Java's 24,830 symbols with a real
+    HTTP 400. Both now route through bounded_records(), the same function planning_packet() uses
+    for the packet itself, so the enum can never list an ID the model's own packet never showed -
+    proven here with a deeply-qualified symbol bounded_records() already excludes by depth
+    (SYMBOL_MAX_DEPTH), not a hand-picked count."""
+    deep = _fact("public_symbol:widget.a.b.c.deep", "public_symbol", "widget.a.b.c.deep")
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, deep))
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, facts)
+    symbol_fact_id = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]
+    assert "public_symbol:widget.a.b.c.deep" not in symbol_fact_id["enum"]
+    assert "public_symbol:widget.scene" in symbol_fact_id["enum"]

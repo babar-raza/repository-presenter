@@ -124,7 +124,7 @@ This table is the forest view: what exists, its state, and the order to run it i
 | # | ID | What it closes | Status | Owner-gated? |
 |---|---|---|---|---|
 | 1 | **EVAL-01** | Stage-reopening bug: a `shell`/`renderer` version bump reopens `COMPOSING`, reuses stale `RECONCILING` output — future coverage fixes silently won't re-exercise on resealed candidates | **Done, shipped, pilot-proven** (`docs/DECISION_LOG.md` §31, 2026-09-10 10:50 UTC) | No |
-| 2 | **H** | Urgent live regression: `c575035`'s unbounded schema-enum breaks `presentation_planning` on the portfolio's largest candidates (PDF-Java confirmed failing now) | Not started — **urgent** | No |
+| 2 | **H** | Urgent live regression: `c575035`'s unbounded schema-enum breaks `presentation_planning` on the portfolio's largest candidates (PDF-Java confirmed failing now) | **Done, shipped, live-validated** (`docs/DECISION_LOG.md` §31, 2026-09-10 11:19 UTC) | No |
 | 3 | **J1** | Structural boundedness test that would have caught H (and G1a) before shipping — ship alongside H | Not started | No |
 | 4 | A | RC-06: duplicate API-reference content | **Done, shipped, live-validated** | — |
 | 5 | B | Mis-hubbed API symbol | **Done, shipped** | — |
