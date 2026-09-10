@@ -54,6 +54,9 @@ from repository_presenter.components.readme.composition.policy import (
     policy_packet,
 )
 from repository_presenter.components.readme.composition.renderer import RENDERER_VERSION
+from repository_presenter.components.readme.evidence.facts.inherited import (
+    INHERITED_UNITS_VERSION,
+)
 from repository_presenter.components.readme.extractors.surface.extractor import EXTRACTOR_VERSION
 from repository_presenter.components.readme.review.independent.review import REVIEWER_LOGIC_VERSION
 from repository_presenter.components.readme.validation.registry import (
@@ -175,15 +178,16 @@ def _presenter_site_manifest_hash() -> str:
 
 def environment_dependencies() -> dict[str, Any]:
     """What answered this run's extraction, never a claim the repository itself makes (27.2
-    RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor
-    version, and repository-presenter's own resolved package set (never the target's - see
-    ``_presenter_site_manifest_hash``). A change in any reopens EXTRACTING, the same stage a
-    source or fact change would - a fact SUPPORTED under one environment is not trusted
-    unchanged under a different one."""
+    RC7): the Python version the venv was cloned from, the OS, this codebase's own extractor and
+    inherited-unit-inventory versions, and repository-presenter's own resolved package set (never
+    the target's - see ``_presenter_site_manifest_hash``). A change in any reopens EXTRACTING,
+    the same stage a source or fact change would - a fact SUPPORTED under one environment is not
+    trusted unchanged under a different one."""
     return {
         "python_version": platform.python_version(),
         "os": platform.system(),
         "extractor_version": EXTRACTOR_VERSION,
+        "inherited_units_version": INHERITED_UNITS_VERSION,
         "presenter_site_manifest": _presenter_site_manifest_hash(),
     }
 

@@ -16,6 +16,17 @@ This is a diagnostic sweep, not a fix - see docs/RESEARCH_AND_GUIDELINES.md for 
 general fix is not available without either a live re-dispositioning call or risking silent data
 loss on a legitimately preserved module-level paragraph.
 
+RC-06 (plans/healing/production-consistency-reassessment.md) fixes the actual root cause
+upstream, at extraction time (evidence/facts/inherited.py splits a member-reference list into one
+unit per bullet before reconciliation ever sees it as one module-cited blob) - it does not change
+this script's own logic. The `.list` suffix check below still matches a split unit's ID
+(`NNN.SSS.list`), so this sweep remains a useful regression check after RC-06 ships: a candidate
+that still shows a module/package-only-cited suspect after re-sealing means either reconciliation
+disposed a split, single-class unit just as coarsely as it used to dispose the whole blob (a real
+regression worth investigating), or the candidate's list never matched RC-06's conservative
+shape-detection rule in the first place (an accepted, documented non-goal - see
+inherited.py's own module docstring and tests/.../test_inherited.py's near-miss fixtures).
+
 Usage: python tools/reviewer/audit_preserved_api_lists.py
 """
 
@@ -35,7 +46,9 @@ def audit_one(manifest_dir: Path) -> list[str]:
     if not dispositions_path.exists() or not facts_path.exists():
         return [f"missing dispositions.json or facts.json in {manifest_dir}"]
     dispositions = json.loads(dispositions_path.read_text(encoding="utf-8"))
-    facts = {f["id"]: f for f in json.loads(facts_path.read_text(encoding="utf-8"))["facts"]}
+    facts = {
+        f["id"]: f for f in json.loads(facts_path.read_text(encoding="utf-8"))["facts"]
+    }
     findings: list[str] = []
     for entry in dispositions.get("dispositions", []):
         if entry.get("destination_section") != "api_reference":
@@ -52,7 +65,9 @@ def audit_one(manifest_dir: Path) -> list[str]:
             if fid in facts
         }
         if kinds and kinds.issubset({"module", "package"}):
-            findings.append(f"{unit_id}: cites only {sorted(kinds)} ({_MODULE_LEVEL_ONLY_SUSPECT})")
+            findings.append(
+                f"{unit_id}: cites only {sorted(kinds)} ({_MODULE_LEVEL_ONLY_SUSPECT})"
+            )
     return findings
 
 
@@ -69,7 +84,9 @@ def main() -> None:
                 print(f"          {finding}")
         else:
             print(f"clean   {label}")
-    print(f"\n{len(manifest_dirs)} manifest directories checked, {total} suspect unit(s) found")
+    print(
+        f"\n{len(manifest_dirs)} manifest directories checked, {total} suspect unit(s) found"
+    )
 
 
 if __name__ == "__main__":

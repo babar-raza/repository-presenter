@@ -28,6 +28,7 @@ SEALED: dict[str, Any] = {
         "python_version": "3.13.2",
         "os": "Windows",
         "extractor_version": "1",
+        "inherited_units_version": "1",
         "presenter_site_manifest": "e" * 64,
     },
     "facts": {"identity:repository": "1" * 64, "format:output.glb": "2" * 64},
@@ -82,6 +83,10 @@ def test_each_dependency_class_names_the_state_it_reopens() -> None:
         # like a changed revision would, never silently trusted as still SUPPORTED.
         "environment__python_version": ("environment.python_version", "EXTRACTING"),
         "environment__extractor_version": ("environment.extractor_version", "EXTRACTING"),
+        "environment__inherited_units_version": (
+            "environment.inherited_units_version",
+            "EXTRACTING",
+        ),
         "facts__format:output.glb": ("facts", "EXTRACTING"),
         "prompts__repository_investigation__sha256": (
             "prompts.repository_investigation",
