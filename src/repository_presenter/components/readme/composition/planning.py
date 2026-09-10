@@ -468,6 +468,26 @@ def plan_checks(
         errors.append(f"api_hubs exceed the ceiling of {policy.api_hubs_max}")
     if any(hub not in symbols for hub in hub_ids):
         errors.append("api_hubs must each be a supported public_symbol fact")
+    # A hub one path segment off its own class (a module fact named `mapi_message` picked
+    # instead of the sibling class fact `MapiMessage`, differing only by casing/underscore)
+    # passes the check above - it IS a supported public_symbol - but api_reference_hub_methods
+    # (placement.py) matches methods by exact parent-path equality against the hub's own value,
+    # so this near-miss renders a Detailed Member Reference heading with zero method bullets.
+    # Measured 2026-09-10 on the real, currently-sealed aspose-email-foss/Aspose.Email-FOSS-for-
+    # Python plan: three hubs (mapi_message, cfb, msg) are module-kind facts this way.
+    by_id = {fact.id: fact for fact in facts.by_kind("public_symbol")}
+    wrong_kind = sorted(
+        hub
+        for hub in hub_ids
+        if hub in by_id
+        and (kind := (by_id[hub].attributes or {}).get("symbol_kind"))
+        and kind not in ("class", "enum")
+    )
+    if wrong_kind:
+        errors.append(
+            "api_hubs must each name a class or enum symbol, never a module/package one: "
+            f"{wrong_kind}"
+        )
     if ("api_reference" in included) != bool(hubs):
         errors.append("api_hubs are given exactly when api_reference is included")
 

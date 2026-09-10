@@ -266,6 +266,54 @@ def test_a_repeated_hub_and_an_over_ceiling_aspose_link_are_trimmed_not_rejected
     ]
 
 
+def test_a_hub_naming_a_module_instead_of_its_sibling_class_is_rejected() -> None:
+    """Measured 2026-09-10 on the real, currently-sealed aspose-email-foss/Aspose.Email-FOSS-
+    for-Python plan: three hubs (mapi_message, cfb, msg) picked the MODULE-kind public_symbol
+    fact instead of the sibling CLASS-kind fact one path segment deeper, differing only by an
+    underscore/casing - api_reference_hub_methods (placement.py) matches methods by exact
+    parent-path equality against the hub's own value, so this near-miss renders a Detailed
+    Member Reference heading with zero method bullets. The existing "supported public_symbol
+    fact" check above does not catch this - a module fact IS a supported public_symbol fact."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "public_symbol:widget.mapi_message",
+                "public_symbol",
+                "widget.mapi_message",
+                (Evidence("x"),),
+                attributes={"symbol_kind": "module"},
+            ),
+            Fact(
+                "public_symbol:widget.mapimessage",
+                "public_symbol",
+                "widget.MapiMessage",
+                (Evidence("x"),),
+                attributes={"symbol_kind": "class"},
+            ),
+        ),
+    )
+    plan = _plan(
+        api_hubs=[
+            {"symbol_fact_id": "public_symbol:widget.mapi_message", "fact_ids": ["example:001"]}
+        ]
+    )
+    errors = plan_checks(plan, facts)
+    assert (
+        "api_hubs must each name a class or enum symbol, never a module/package one: "
+        "['public_symbol:widget.mapi_message']"
+    ) in errors
+
+    corrected = _plan(
+        api_hubs=[
+            {"symbol_fact_id": "public_symbol:widget.mapimessage", "fact_ids": ["example:001"]}
+        ]
+    )
+    assert plan_checks(corrected, facts) == []
+
+
 def test_a_preserved_units_own_aspose_link_reserves_headroom_in_the_plans_trim() -> None:
     """G4-W17 arrival item 32. Measured 2026-09-06 on aspose-3d-foss/Aspose.3D-FOSS-for-Java: a
     VERIFIED_MOVE unit renders its own Aspose link verbatim - reconciliation's decision, not the
