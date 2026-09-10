@@ -52,9 +52,15 @@ _DIAGNOSTIC = re.compile(
 # example_003-007, all opening on a binding (`sheet`, `workbook`, `PageSetup`, and the enum/type
 # names only their local scope would resolve) their README establishes in an earlier, un-
 # inherited section (Taskcard C; rust_examples.py's unbound_values() is the same check for
-# Rust's own E0425 - measured live 2026-09-10, the real repository's current source).
+# Rust's own E0425 - measured live 2026-09-10, the real repository's current source). GCC's own
+# quote style in a diagnostic follows the build's locale: this machine's GCC quotes with plain
+# ASCII apostrophes, the hosted Ubuntu CI runner's own GCC quotes with Unicode curly quotes
+# (U+2018 LEFT SINGLE QUOTATION MARK / U+2019 RIGHT SINGLE QUOTATION MARK) - confirmed from the
+# real hosted stderr (2026-09-10, this taskcard's own hosted-CI-red incident), not guessed; both
+# quote characters are accepted on either side.
 _UNBOUND_IDENTIFIER = re.compile(
-    r"'([^']+)' (?:was not declared in this scope|has not been declared)"
+    "[\u2018']([^\u2018\u2019']+)[\u2019'] "
+    r"(?:was not declared in this scope|has not been declared)"
 )
 # The lane's toolchains are never on PATH (loop-prompt §1.3): a name is resolved by `which`, then
 # by the absolute path the machine-local registry the lane's receipt records.

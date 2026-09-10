@@ -157,6 +157,20 @@ def test_only_unbound_identifiers_make_a_fence_an_excerpt_rather_than_a_falsehoo
     assert cpp_examples.unbound_identifiers(lines) == ["sheet", "CellArea", "workbook"]
 
 
+def test_unicode_curly_quotes_are_matched_the_same_as_ascii_ones() -> None:
+    """GCC's own diagnostic quote style follows the build's locale, not the compiler's own
+    identity - a real, previously-red hosted-CI incident (2026-09-10): this machine's own GCC
+    quotes with plain ASCII apostrophes, but the hosted Ubuntu CI runner's GCC quoted the exact
+    same diagnostic with Unicode curly quotes (U+2018/U+2019), which the first two fix attempts
+    for Taskcard C did not account for since they were never checked against the real hosted
+    output. Real captured hosted stderr, not synthesized: `gh api .../jobs/102908743096/logs`."""
+    hosted = [
+        "example_001.cpp:3:5: error: \u2018sheet\u2019 was not declared in this scope",
+        "example_001.cpp:4:5: error: \u2018Missing\u2019 has not been declared",
+    ]
+    assert cpp_examples.unbound_identifiers(hosted) == ["sheet", "Missing"]
+
+
 def test_a_fence_that_names_something_the_library_lacks_is_not_an_excerpt() -> None:
     """A real type mismatch is a real defect, and must not be excused as missing context -
     Aspose.Cells-FOSS-for-Cpp's own example:002."""
