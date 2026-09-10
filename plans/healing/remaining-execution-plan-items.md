@@ -31,6 +31,7 @@ written) are tracked separately in `plans/healing/ci-staleness-followup.md` — 
 | AUD-005 / G3-W02 | Acceptance contract version is a never-incremented `-draft` placeholder; blocked on cohort-sequencing timing | PA-05 | `prior-audit-remnants.md` |
 | R2 | Specific previously-swallowed findings on 5 named candidates must be explicitly re-checked at their next re-seal, not assumed fixed by the general mechanism fixes alone | R2-CHECKLIST | `EXECUTION-PLAN.md` |
 | OPS-G4 | Two C++/Rust Cells candidates fail BC-02 (`install_command` UNRESOLVED) on re-seal despite a real example genuinely compiling; C++ additionally shows likely cross-snippet extraction context loss (undiagnosed, new as of 2026-09-10) | OPS-04 | `remaining-execution-plan-items.md` (this file) |
+| OPS-G5 | RC-06's extraction split grows a candidate's `inherited_unit` count; on the portfolio's two largest-surface candidates this pushed `source_reconciliation`/`presentation_planning` over a request/response size ceiling (new, 2026-09-10) | OPS-05 | `remaining-execution-plan-items.md` (this file) |
 
 Every row maps to exactly one taskcard; none is orphaned. Two rows (OPS-01, OPS-02) are marked
 superseded/resolved below rather than re-executed, with the reasoning for each stated explicitly —
@@ -388,6 +389,16 @@ not silently dropped.
   here as a fully-specified starting point for investigation, not investigated itself. Explicitly
   NOT the same root cause as OPS-03/RC-06's content-duplication pattern - this is a different check
   (`BC-02`, not `BC-10`) with a different failure shape.
+  - **Scope broadened, 2026-09-10 (RC-06's live-validation sweep)**: the cross-snippet-context-loss
+    hypothesis this taskcard names below for C++ is now confirmed on a *third* ecosystem too -
+    `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` shows 6 of 9 examples failing identically (same
+    exact error, byte-for-byte identical in both the currently-sealed bundle's own `examples.json`
+    and a fresh re-run) with `error CS0246: The type or namespace name 'Workbook' could not be
+    found` - the same "later fragment of a multi-block tutorial assumes an earlier, unseen
+    declaration" shape already found for C++, not a regression from RC-06 (confirmed identical in
+    both runs). Rust's own divergence (`not_verified` vs `failed`) remains a *separate* nuance per
+    this taskcard's own existing runbook item 3 - do not conflate the two; .NET's shape matches
+    C++'s `failed` classification, not Rust's `not_verified` one.
 - **Gap linkage:** OPS-G4
 - **Role:** Senior engineer. Investigation-first; no fix without a confirmed root cause and a
   portfolio-wide safety check, matching this project's own established discipline (see
@@ -456,6 +467,75 @@ not silently dropped.
      cause.
   4. Only once the actual cause is confirmed: propose a fix, then verify it against every C++/Rust
      candidate in the portfolio before shipping, per this project's own established discipline.
+
+### OPS-05 — RC-06's unit-count growth pushes large-surface candidates over a size ceiling (new, undiagnosed)
+
+- **Status:** Not Started — found 2026-09-10 during RC-06's own required live-validation sweep
+  (4 real candidates re-run: `plans/healing/production-consistency-reassessment.md`'s RC-06
+  taskcard). Recorded here as a fully-specified starting point for investigation, not investigated
+  itself. Explicitly NOT a content-correctness defect - both failures below are size/budget limits,
+  not wrong output.
+- **Gap linkage:** OPS-G5
+- **Role:** Senior engineer. Investigation-first; the truncation error message itself says "never
+  retry" - a fix requires understanding the actual tradeoff (raise a token/size ceiling, or bound
+  the affected job's own input/output differently, e.g. batching), not a same-turn bump.
+- **Scope (only this):**
+  - **What was observed, candidate 1**: `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Rust`
+    (record step, 2026-09-10) failed with `source_reconciliation: output truncated at the
+    manifest's max_output_tokens (32000); raise the budget or bound the output, never retry`.
+    Measured directly: this candidate's `inherited_unit` fact count grew from 81 (sealed) to 91
+    (fresh, RC-06 applied) - `.list` units specifically from 12 to 22. `prompts/source_reconciliation.yaml`'s
+    own comment documents the ceiling's design precedent: raised from 16000 to 32000 on 2026-09-06
+    after `aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET`'s 231-unit case truncated at 16000, measured at
+    "about 69 tokens per record" there. This candidate truncated at only 91 units, implying roughly
+    351 tokens/unit if the whole budget was consumed by unit records alone - about 5x the earlier
+    measurement - suggesting either unusually verbose per-unit reconciliation output specific to
+    this candidate's content, or some other factor inflating the output; not diagnosed further.
+    This candidate also carries the portfolio's second-largest `public_symbol` surface (2084 facts).
+  - **What was observed, candidate 2**: `present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-Java`
+    (record step, 2026-09-10) failed differently - `presentation_planning: gateway answered HTTP
+    400` (a request-level failure, not the output-truncation message above; likely the packet's own
+    *input* size, not `source_reconciliation`'s output ceiling). Measured directly: this candidate's
+    `inherited_unit` count grew from 136 (sealed) to 150 (fresh) - `.list` units from 12 to 26 - and
+    it carries the portfolio's **largest** `public_symbol` surface by a wide margin (24,830 facts,
+    next largest is Rust's 2,084). Not yet confirmed whether the HTTP 400 is specifically caused by
+    RC-06's added units, the pre-existing enormous symbol surface, or their combination - a
+    same-shape reproduction without RC-06 (e.g. against the sealed bundle's own inputs) has not been
+    run to isolate this.
+  - Neither candidate's directory was touched (both `git status` clean) - no bundle written, no
+    partial state left behind, no real work lost.
+  - **Allowed paths (investigation phase):** none yet - starts with reading how
+    `prompts/source_reconciliation.yaml`'s packet is built (per-unit token cost) and whether
+    `presentation_planning`'s own packet size correlates with the HTTP 400 (check the gateway's
+    actual rejection reason if logged, not assumed to be size).
+  - **Forbidden:** raising `max_output_tokens` (or any other budget) without first understanding
+    why this candidate's own output is unusually large relative to the 2026-09-06 precedent;
+    narrowing RC-06's own split rule to avoid triggering this (RC-06's split correctness is already
+    live-validated and out of this taskcard's scope - this is about the downstream jobs' own size
+    handling, not the split itself).
+- **Acceptance checks (customize):** N/A at this stage - this taskcard is Not Started.
+- **Deliverables:** a root-cause writeup (matching the rigor of
+  `docs/RECONCILIATION_COVERAGE_ASSESSMENT.md`) before any fix is proposed - specifically: is this
+  two independent problems (an output ceiling and an input ceiling) or one shared cause; is it
+  specific to RC-06's unit growth or would these two candidates have been at risk regardless given
+  their already-large surfaces; what the real tradeoffs are for each candidate fix option (raise a
+  ceiling vs. bound/batch the affected job's own input or output).
+- **Hard rules:** never retry blindly (the error message's own instruction); never force a seal
+  past this kind of failure; verify any proposed fix against both candidates (and ideally the whole
+  portfolio's largest-surface candidates) before shipping, matching this project's own established
+  discipline.
+- **Now (runbook):**
+  1. Read `prompts/source_reconciliation.yaml`'s and `prompts/presentation_planning.yaml`'s packet
+     construction to understand exactly what scales with `inherited_unit`/`public_symbol` count for
+     each job.
+  2. For Cells Rust: determine whether this candidate's own per-unit reconciliation output is
+     genuinely more verbose than the 2026-09-06 precedent's measurement, or whether something else
+     changed since then that also affects other candidates.
+  3. For PDF Java: confirm directly whether the HTTP 400 is a request-size rejection (check the
+     gateway's actual response body/reason if available) versus an unrelated transient failure -
+     do not assume without checking.
+  4. Only once the actual cause is confirmed for both: propose a fix, then verify it against the
+     whole portfolio's largest-surface candidates before shipping.
 
 ### PA-03 — Report sealed / reproducible / accepted as distinct counts, not one headline
 
