@@ -374,18 +374,35 @@ RC-06 touched it.
 `unit_id`'s enum plus `minItems`/`maxItems` built from raw fact counts, no bounding, predating
 `c575035` by weeks. Worse in one respect: `minItems`/`maxItems` *require* exact record counts, so this
 inflates required input and output simultaneously — and RC-06 itself grows `inherited_unit` counts
-going forward. Fold this fix into G's own batching redesign (correctly-batched design naturally bounds
-each batch's own enum); if G's timeline slips, ship this bounding-only fix standalone first — it
-doesn't need to wait for the larger redesign.
+going forward.
+
+**Correction (found during row 11's own design investigation, 2026-09-10 16:05 UTC — this plan's
+original text below was wrong, kept struck through for the record, not silently edited):**
+~~Fold this fix into G's own batching redesign (correctly-batched design naturally bounds each batch's
+own enum); if G's timeline slips, ship this bounding-only fix standalone first — it doesn't need to
+wait for the larger redesign.~~ **G1a is not independently shippable.** `unit_id`'s
+`minItems == maxItems == len(units)` is a *coverage requirement* — the schema forces the model to
+emit exactly one disposition record per unit, guaranteeing every unit gets a verdict. This is
+structurally different from H's `symbol_fact_id`, a free-choice enum safe to cap because the model
+was only ever picking one option from it. Capping `unit_id`'s enum without also reducing
+`minItems`/`maxItems` to match would create an unsatisfiable schema (the model required to emit
+records for units it can't even see); reducing them to match would silently drop coverage for the
+uncapped units — exactly the outcome this whole pass exists to prevent. G1a's bounding fix is
+therefore genuinely gated on G's own batching redesign, not a parallel quick win.
 
 **Fix direction**: batch `source_reconciliation` the way `section_authoring` already proves works
 (`repair/rounds.py:210-233` — one `run_job()` call per section task, not one monolithic call) — a
 real, already-proven "too big for one call → split by natural unit" precedent, not a new pattern.
-Batch boundary candidate: the source document's own heading groups, via `InheritedUnit.section`
-(already computed, currently discarded — the same signal Taskcard F's Tier 1 needs, worth threading
-through once for both). Open questions to resolve during implementation, not guessed at here: does
-batching lose cross-batch context (e.g. the same symbol cited by two units in different batches)?
-What's the real cost/latency tradeoff of more, smaller calls?
+Batch boundary candidate: the source document's own heading groups, via `InheritedUnit.section`.
+**Real prerequisite, found during the same investigation, not in this plan's original text**:
+`InheritedUnit.section` is currently only folded into free-text evidence detail — it is not a
+structured `Fact` attribute. A batching design keyed on it needs that added first (a small, additive,
+low-risk change on its own, but a real step, not assumed free). Open questions to resolve during
+implementation, not guessed at here: does batching lose cross-batch context (e.g. the same symbol
+cited by two units in different batches)? What's the real cost/latency tradeoff of more, smaller
+calls? **Status**: investigated, not implemented, as of 2026-09-10 16:05 UTC — correctly deferred to
+its own dedicated, unhurried pass rather than rushed at the tail of a long iteration; row 11 stays
+Not Started. Rows 12+ do not depend on it and can proceed first.
 
 **Portfolio risk re-ranking**: Email-Python is the next most exposed candidate (largest relative
 RC-06 growth + second-highest symbol density), not the raw-growth leaders. Slides-Python is a latent,
