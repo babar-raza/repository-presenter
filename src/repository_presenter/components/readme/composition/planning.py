@@ -473,20 +473,35 @@ def plan_checks(
     # passes the check above - it IS a supported public_symbol - but api_reference_hub_methods
     # (placement.py) matches methods by exact parent-path equality against the hub's own value,
     # so this near-miss renders a Detailed Member Reference heading with zero method bullets.
-    # Measured 2026-09-10 on the real, currently-sealed aspose-email-foss/Aspose.Email-FOSS-for-
-    # Python plan: three hubs (mapi_message, cfb, msg) are module-kind facts this way.
+    # Deliberately narrow: only a hub with an actual, same-named class/enum SIBLING is flagged,
+    # never every module/package-kind hub outright - live-validated 2026-09-10 against the real
+    # aspose-email-foss/Aspose.Email-FOSS-for-Python candidate that `cfb` and `msg` are genuinely
+    # whole-module concepts with no single class to substitute (no sibling fact exists at all);
+    # a blanket rule rejected every attempt outright with nothing for the model to correct to,
+    # which a first version of this fix did and a live present run caught immediately.
     by_id = {fact.id: fact for fact in facts.by_kind("public_symbol")}
-    wrong_kind = sorted(
+
+    def _simple_name(value: str) -> str:
+        return value.rsplit(".", 1)[-1].lower().replace("_", "")
+
+    class_enum_names = {
+        _simple_name(fact.value)
+        for fact in facts.by_kind("public_symbol")
+        if fact.polarity == "SUPPORTED"
+        and (fact.attributes or {}).get("symbol_kind") in ("class", "enum")
+    }
+    mis_hubbed = sorted(
         hub
         for hub in hub_ids
         if hub in by_id
         and (kind := (by_id[hub].attributes or {}).get("symbol_kind"))
         and kind not in ("class", "enum")
+        and _simple_name(by_id[hub].value) in class_enum_names
     )
-    if wrong_kind:
+    if mis_hubbed:
         errors.append(
-            "api_hubs must each name a class or enum symbol, never a module/package one: "
-            f"{wrong_kind}"
+            "api_hubs name a module/package fact with a same-named class or enum sibling "
+            f"available instead: {mis_hubbed}"
         )
     if ("api_reference" in included) != bool(hubs):
         errors.append("api_hubs are given exactly when api_reference is included")
