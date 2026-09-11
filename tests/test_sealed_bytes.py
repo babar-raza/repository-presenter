@@ -109,23 +109,44 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # the candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up, since
 # validation/review were judged against the old bytes; that re-seal is separate follow-up work, not
 # this fix's own scope. `strict=True` for the same reason as the entry above.
+# Each record carries the debt's reason AND the reference owning its repayment (a work item,
+# taskcard, arrival item, or dated DECISION_LOG section 31 entry) - tests/test_debt_ledger.py
+# (PHASE1/F7) enforces both, so no entry can defer a re-seal to nobody again.
 KNOWN_BLOCKED_STALE = {
-    "aspose-email-foss__Aspose.Email-FOSS-for-Python": (
-        "genuine BC-10 rejection (F07, development_testing content gap) - unrelated to the "
-        "original RC-06-targeted duplication, which is confirmed fixed; see comment above"
-    ),
-    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": (
-        "G4-W17 item 44's command_block_tokens landing correctly wraps Aspose.Cells.Cpp.FOSS in "
-        "backticks in one authored sentence (real identifier, spelled in a SUPPORTED command "
-        "block); needs a real re-seal, not a code fix - see comment above"
-    ),
+    "aspose-email-foss__Aspose.Email-FOSS-for-Python": {
+        "reason": (
+            "genuine BC-10 rejection (F07, development_testing content gap) - unrelated to the "
+            "original RC-06-targeted duplication, which is confirmed fixed; see comment above"
+        ),
+        "ref": (
+            "PHASE0/EMAIL-PYTHON-F07 - the F07 content-gap record: diagnosed as an "
+            "authoring-stage content-compression choice, docs/DECISION_LOG.md section 31 "
+            "2026-09-10 12:23 UTC; re-seal queued in the sprint plan's re-run wave"
+        ),
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": {
+        "reason": (
+            "G4-W17 item 44's command_block_tokens landing correctly wraps Aspose.Cells.Cpp.FOSS "
+            "in backticks in one authored sentence (real identifier, spelled in a SUPPORTED "
+            "command block); needs a real re-seal, not a code fix - see comment above"
+        ),
+        "ref": (
+            "G4-W17 arrival item 44 (the rendering change); re-seal policy "
+            "docs/DECISION_LOG.md section 31 2026-09-11 11:19 +05:00 - CURRENT keeps counting, "
+            "one honest re-seal attempt Sunday only if it passes BC-02"
+        ),
+    },
 }
 
 
 def _bundle_param(bundle: Path) -> Any:
     name = bundle.parent.name
-    reason = KNOWN_BLOCKED_STALE.get(name)
-    marks = [pytest.mark.xfail(reason=reason, strict=True)] if reason else []
+    record = KNOWN_BLOCKED_STALE.get(name)
+    marks = (
+        [pytest.mark.xfail(reason=f"{record['reason']} [{record['ref']}]", strict=True)]
+        if record
+        else []
+    )
     return pytest.param(bundle, marks=marks, id=name)
 
 
