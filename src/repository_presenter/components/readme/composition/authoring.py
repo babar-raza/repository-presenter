@@ -137,6 +137,24 @@ _FORBIDDEN = (
 # rejected an otherwise-clean limitation twice. A unit is one paragraph (no "\n" above), so
 # "only at line start" is exactly "only at the start of the string".
 _ANCHORED_ONLY = frozenset({"- ", "* "})
+
+
+def _bare_angle_bracket(raw_text: str) -> bool:
+    """Whether ``raw_text`` carries a ``<`` outside any code span - real HTML in running prose,
+    never a protected command's own placeholder.
+
+    G4-W17 arrival item 46: a shell or path token can legitimately carry a bare angle bracket as
+    a placeholder (``go run ./_examples/<name>``), and BC-08 demands such a command survive
+    verbatim - but the forbidden-marker check ran against the text *after* code spans were
+    already stripped for identifier judging, so the bracket read as an HTML tag opener whether or
+    not the unit wrote it inside backticks, the same convention a citable identifier already
+    uses. Checked here against the raw, unstripped text: a ``<`` written inside a code span is a
+    protected command's own syntax, not markup; one written in running prose - never inside a
+    span - still is.
+    """
+    return "<" in _CODE_SPAN.sub("", raw_text)
+
+
 _OBJECTIVES: dict[str, tuple[str, str]] = {
     "opening": (
         "Two to four sentences: what the product does, the problems it solves, who uses it.",
@@ -1109,14 +1127,18 @@ def unit_checks(
         slot = unit.get("slot", "?")
         if unit.get("section") != task.section_id:
             errors.append(f"unit {slot}: section must be {task.section_id}")
-        text = str(unit.get("text", ""))
+        raw_text = str(unit.get("text", ""))
+        text = raw_text
         if "`" in text and "```" not in text:
             # The renderer owns every code span: a span the job wrote is dropped in place and
             # the identifier it wrapped is judged like any other token.
             text = text.replace("`", "")
             unit["text"] = text
         for marker, meaning in _FORBIDDEN:
-            matched = text.startswith(marker) if marker in _ANCHORED_ONLY else marker in text
+            if marker == "<":
+                matched = _bare_angle_bracket(raw_text)
+            else:
+                matched = text.startswith(marker) if marker in _ANCHORED_ONLY else marker in text
             if matched:
                 errors.append(f"unit {slot}: text contains {meaning} ({marker.strip()!r})")
                 break

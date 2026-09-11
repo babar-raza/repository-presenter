@@ -332,6 +332,48 @@ def test_a_hyphen_or_asterisk_mid_sentence_is_prose_not_a_markdown_list() -> Non
     ]
 
 
+def test_a_protected_commands_own_placeholder_bracket_is_not_html() -> None:
+    """G4-W17 arrival item 46. A shell or path token can legitimately carry a bare angle bracket
+    as a placeholder (`go run ./_examples/<name>`), and BC-08 demands such a command survive
+    verbatim - but the forbidden-marker check read the bracket as an HTML tag opener whether or
+    not the unit wrote it inside backticks (checked against the text *after* code spans were
+    already stripped for identifier judging), so no unit could ever preserve it. A code-span-
+    wrapped placeholder now stays writable; the same bracket in running prose, never inside a
+    span, is still real HTML and stays forbidden.
+    """
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:aspose.threed.scene"}),
+        ("capability:1",),
+    )
+    protected = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Run `go run ./_examples/<name>` to try Scene interactively.",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(protected, task, FACTS, NAME) == []
+    # Mutation: the identical bracket in running prose, never inside a code span, is real HTML.
+    bare = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Scene objects render as <div> in some viewers.",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(bare, task, FACTS, NAME) == ["unit capability:1: text contains HTML ('<')"]
+
+
 def test_a_proper_noun_the_source_spells_in_prose_is_not_an_unsupported_identifier() -> None:
     """A format or another product is a word here, an identifier only where code lives.
 
