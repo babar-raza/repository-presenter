@@ -1,0 +1,76 @@
+# Out-of-band liveness dead-man (PHASE1/F2, 2026-09-11).
+#
+# Why this exists: every supervision mechanism in this repository ran inside one chat session —
+# watcher and watched died together on 2026-09-06 19:31 and nothing noticed for 4.5 days (PRs #29
+# and #30 sat green and unmerged for 3 d 18 h). This workflow is the one supervisor that survives
+# session death, machine reboot, and sleep. It DETECTS and fails loudly; it repairs nothing —
+# recovery is a new supervisor session running tools/reviewer/procedure.md section 0.
+#
+# Read-only by design: no write permission, no repo mutation, ever.
+name: Liveness
+
+on:
+  schedule:
+    - cron: "13,43 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  liveness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open PRs older than 30 minutes (label-independent)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Merged lane PRs land ~3 minutes after CI turns green (measured norm, 27 of 29);
+          # 30 minutes open is two orders of magnitude past it. Label 'hold' exempts a PR the
+          # owner deliberately parks. PRs #29/#30 carried no lane label — never filter by label.
+          now=$(date -u +%s)
+          stale=0
+          gh pr list --state open --limit 50 --json number,createdAt,labels,headRefName \
+            --jq '.[] | [.number, .createdAt, ([.labels[].name] | join(",")), .headRefName] | @tsv' |
+          while IFS=$'\t' read -r num created labels branch; do
+            age_min=$(( (now - $(date -u -d "$created" +%s)) / 60 ))
+            case ",$labels," in *,hold,*) continue ;; esac
+            if [ "$age_min" -gt 30 ]; then
+              echo "::error::open PR #$num ($branch) is ${age_min} min old with no 'hold' label — a dead agent's PR; adopt or close it (loop-prompt section 1.1)"
+              echo 1 > /tmp/stale_flag
+            fi
+          done
+          test ! -f /tmp/stale_flag
+
+      - name: Remote branches ahead of main and untouched for 12+ hours
+        run: |
+          now=$(date -u +%s)
+          fail=0
+          for ref in $(git for-each-ref refs/remotes/origin --format '%(refname:short)'); do
+            case "$ref" in origin/main|origin/HEAD) continue ;; esac
+            ahead=$(git rev-list --count origin/main.."$ref" 2>/dev/null || echo 0)
+            [ "$ahead" -gt 0 ] || continue
+            tip_age_h=$(( (now - $(git log -1 --format=%ct "$ref")) / 3600 ))
+            if [ "$tip_age_h" -ge 12 ]; then
+              echo "::error::branch $ref is $ahead commit(s) ahead of main and untouched for ${tip_age_h}h — stranded work; inspect, adopt or delete"
+              fail=1
+            fi
+          done
+          exit $fail
+
+      - name: Main inactivity while a sprint is active
+        run: |
+          # plans/sprint/ACTIVE exists only during a declared sprint (created by the sprint plan,
+          # removed at closeout) — outside one, quiet main is normal and this check passes.
+          test -f plans/sprint/ACTIVE || { echo "no active sprint; inactivity check skipped"; exit 0; }
+          age_h=$(( ( $(date -u +%s) - $(git log -1 --format=%ct origin/main) ) / 3600 ))
+          if [ "$age_h" -ge 4 ]; then
+            echo "::error::main has been inactive ${age_h}h during an active sprint — executor and supervisor may both be down; run tools/reviewer/procedure.md section 0"
+            exit 1
+          fi
+          echo "main last moved ${age_h}h ago — within the active-sprint threshold"
