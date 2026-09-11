@@ -17,6 +17,7 @@ from repository_presenter.components.readme.composition.placement import (
 from repository_presenter.components.readme.composition.renderer import (
     RenderContext,
     anchor,
+    api_reference_names,
     line_counts,
     render_patch,
     render_readme,
@@ -1343,6 +1344,56 @@ def test_two_verified_types_sharing_a_name_keep_distinct_table_rows() -> None:
     assert "| `ColladaLoadOptions.ColladaLoadOptions` | Load options. |" in readme
     assert readme.count("| `ColladaLoadOptions` |") == 0
     assert "| `Scene` |" in readme  # an unshared name keeps its final segment
+
+
+def test_a_hub_sharing_its_name_is_headed_by_the_name_the_shared_function_gives() -> None:
+    """G4-W17 arrival item 58 (lane F PROPOSAL F8). The Detailed Member Reference heads a hub's
+    group with its table name (README_CONTRACT.md row 14), and that name comes from
+    api_reference_names - the one function BC-07 reads too - so the heading the renderer emits
+    and the heading the validator admits cannot drift apart again. They did, on exactly the
+    disambiguated forms: 34 of Aspose.PDF for .NET's 899 verified types and 2 of Aspose.3D for
+    .NET's 293 share a final segment, and every such hub heading failed BC-07 unrepairably."""
+
+    def symbol(value: str, kind: str, docstring: str) -> Fact:
+        return Fact(
+            f"public_symbol:{value.lower()}",
+            "public_symbol",
+            value,
+            (Evidence("aspose/threed/property.py", f"line 1; {kind}; public by name"),),
+            attributes={"symbol_kind": kind, "docstring": docstring},
+        )
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            symbol("aspose.threed.Property", "class", "A named property on a scene object."),
+            symbol("aspose.threed.formats.gltf.Property", "class", "A glTF extension property."),
+            symbol("aspose.threed.Property.GetValue", "method", "The property's value."),
+        ),
+    )
+    plan = {
+        **PLAN,
+        "api_hubs": [
+            {"symbol_fact_id": "public_symbol:aspose.threed.property", "fact_ids": ["example:001"]}
+        ],
+    }
+    readme = render_readme(ENTRY, facts, plan, UNITS, DISPOSITIONS)
+    names = api_reference_names(facts)
+    # Two verified types share `Property`: each takes the shortest dotted suffix that tells them
+    # apart; an unshared type keeps its final segment; a member is never a table row, so it is
+    # its final segment whatever the types around it are called.
+    assert names["aspose.threed.Property"] == "threed.Property"
+    assert names["aspose.threed.formats.gltf.Property"] == "gltf.Property"
+    assert names["aspose.threed.Scene"] == "Scene"
+    assert names["aspose.threed.Property.GetValue"] == "GetValue"
+    lines = readme.splitlines()
+    assert f"### {names['aspose.threed.Property']}" in lines
+    assert "### Property" not in lines and "### aspose.threed.Property" not in lines
+    assert "| `threed.Property` | A named property on a scene object. |" in lines
+    assert "| `gltf.Property` | A glTF extension property. |" in lines
+    assert "- `GetValue`: The property's value." in lines
 
 
 def test_prose_raises_a_known_abbreviation_to_its_canonical_form() -> None:

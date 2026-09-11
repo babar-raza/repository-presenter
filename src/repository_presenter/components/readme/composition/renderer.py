@@ -53,7 +53,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 
 # The template component version dependencies.json records. 19: facts render in canonical (ID)
 # order, the order the bundle stores them in (G4-W17 arrival items 48/61).
-RENDERER_VERSION = "19"
+RENDERER_VERSION = "20"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -449,6 +449,23 @@ def _table_names(values: list[str]) -> dict[str, str]:
     return names
 
 
+def api_reference_names(facts: FactsDocument) -> dict[str, str]:
+    """The name every SUPPORTED public symbol takes in the API Reference, by fact value: a class
+    or enum its table name (``_table_names`` - the final segment, or the shortest dotted suffix
+    that tells two same-named verified types apart), any other symbol its final segment.
+
+    One function for both readers of that name: the renderer emits ``### <name>`` over a hub
+    type, and BC-07 judges the heading it finds. Two independent models drifted on exactly the
+    disambiguated forms - the renderer wrote ``### ThreeD.Property`` as README_CONTRACT.md row 14
+    requires and the validator, re-deriving bare last segments, failed it unrepairably (G4-W17
+    arrival item 58, lane F PROPOSAL F8; measured 2026-09-11 on 34 of Aspose.PDF for .NET's 899
+    verified types and 2 of Aspose.3D for .NET's 293)."""
+    symbols = [f for f in facts.by_kind("public_symbol") if f.polarity == "SUPPORTED"]
+    types = [f for f in symbols if (f.attributes or {}).get("symbol_kind") in {"class", "enum"}]
+    names = _table_names([f.value for f in types])
+    return {f.value: names.get(f.value, f.value.rsplit(".", 1)[-1]) for f in symbols}
+
+
 def _api_reference(context: RenderContext) -> list[str]:
     """README_CONTRACT.md section 2 row 14: a visible intro with the verified public type
     count, then one details block holding the Core API table over every verified public type,
@@ -461,7 +478,7 @@ def _api_reference(context: RenderContext) -> list[str]:
     classes = sorted(by_kind.get("class", []), key=lambda f: f.value)
     enums = sorted(by_kind.get("enum", []), key=lambda f: f.value)
     count = len(classes) + len(enums)
-    names = _table_names([f.value for f in (*classes, *enums)])
+    names = api_reference_names(context.facts)
     lines = [context.unit(sid, "intro"), "", f"The verified public surface has {count} types."]
     lines += ["", "<details>", f"<summary>{API_SURFACE_SUMMARY}</summary>", ""]
     lines += ["### Core API", "", "| Class | Description |", "| --- | --- |"]

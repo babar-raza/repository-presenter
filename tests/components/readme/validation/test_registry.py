@@ -15,13 +15,17 @@ from repository_presenter.components.readme.composition.authoring import (
     slot_fact_sets,
 )
 from repository_presenter.components.readme.composition.components.shell import SEMANTIC_SHELL
-from repository_presenter.components.readme.composition.renderer import render_readme
+from repository_presenter.components.readme.composition.renderer import (
+    api_reference_names,
+    render_readme,
+)
 from repository_presenter.components.readme.validation.registry import (
     BLOCKING_CHECKS,
     Candidate,
     _check_examples,
     _check_install,
     _check_links,
+    _check_structure,
     _fences,
     blocking_failures,
     summarize_validation,
@@ -905,6 +909,66 @@ def test_row_fourteen_refuses_two_facts_at_one_canonical_location(tmp_path: Path
         "verified public type aspose.threed.Camera is recorded 2 times; one fact per canonical "
         "defining location"
     ) in _failed(document, "BC-07")["details"]
+
+
+def test_a_hub_heading_the_renderer_disambiguates_is_a_shell_heading_for_check_seven() -> None:
+    """G4-W17 arrival item 58 (lane F PROPOSAL F8). README_CONTRACT.md row 14 heads a Detailed
+    Member Reference group with the hub type's table name, and the renderer gives a type that
+    shares its final segment with another verified type the shortest dotted suffix that tells
+    them apart (`### ThreeD.Property`). BC-07 re-derived bare last segments instead and failed
+    that heading unrepairably - measured 2026-09-11 on 34 of Aspose.PDF for .NET's 899 verified
+    types and 2 of Aspose.3D for .NET's 293. Both readers now take the name from one function."""
+
+    def symbol(value: str, docstring: str) -> Fact:
+        return Fact(
+            f"public_symbol:{value.lower()}",
+            "public_symbol",
+            value,
+            (Evidence("aspose/threed/property.py", "line 1; class; public by name"),),
+            attributes={"symbol_kind": "class", "docstring": docstring},
+        )
+
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *FACTS.facts,
+            symbol("aspose.threed.Property", "A named property on a scene object."),
+            symbol("aspose.threed.formats.gltf.Property", "A glTF extension property."),
+        ),
+    )
+    plan = copy.deepcopy(PLAN)
+    plan["api_hubs"] = [
+        {"symbol_fact_id": "public_symbol:aspose.threed.property", "fact_ids": ["example:001"]}
+    ]
+    units = copy.deepcopy(UNITS)
+    units["units"] = [
+        *(u for u in units["units"] if u["slot"] != "hub:public_symbol:aspose.threed.scene"),
+        _unit(
+            "api_reference",
+            "hub:public_symbol:aspose.threed.property",
+            "Property carries one named value.",
+        ),
+    ]
+    candidate = _candidate(facts=facts, plan=plan, units=units)
+    # The fixture is the measured shape: the renderer wrote the disambiguated heading, and it is
+    # the very name api_reference_names gives the hub - one function, not two models.
+    heading = f"### {api_reference_names(facts)['aspose.threed.Property']}"
+    assert heading == "### threed.Property" and heading in candidate.readme.splitlines()
+
+    def heading_failures(readme: str) -> list[str]:
+        judged = _candidate(readme=readme, facts=facts, plan=plan, units=units)
+        return [f.detail for f in _check_structure(judged) if "shell heading" in f.detail]
+
+    assert heading_failures(candidate.readme) == []
+    # Mutation: the bare segment the old model accepted is not a name the renderer ever gives an
+    # ambiguous type, so it is judged exactly like any other heading the shell does not define.
+    bare = candidate.readme.replace(heading, "### Property")
+    assert heading_failures(bare) == ["heading '### Property' is not a shell heading in title case"]
+    invented = candidate.readme.replace(heading, "### Made Up Topic")
+    assert heading_failures(invented) == [
+        "heading '### Made Up Topic' is not a shell heading in title case"
+    ]
 
 
 def _install_candidate(fact: Fact, readme: str) -> Candidate:

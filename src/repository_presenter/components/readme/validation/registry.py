@@ -46,7 +46,10 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
-from repository_presenter.components.readme.composition.renderer import line_counts
+from repository_presenter.components.readme.composition.renderer import (
+    api_reference_names,
+    line_counts,
+)
 from repository_presenter.components.readme.evidence.facts.links import (
     check_anchor,
     check_relative,
@@ -166,7 +169,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-07",
-        "2",
+        # "3" (G4-W17 arrival item 58, a meaning change per the increment rule): a level-three
+        # API Reference heading is judged against the name the renderer itself gives the type
+        # (api_reference_names), so a disambiguated `### ThreeD.Property` passes and a bare
+        # `### Property` the renderer never emits for an ambiguous type no longer does.
+        "3",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -852,12 +859,14 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
             failures.append(Failure("COMPOSING", f"example heading {task!r} is reused"))
         if _EXAMPLE_N.fullmatch(task):
             failures.append(Failure("COMPOSING", f"example heading {task!r} names no task"))
-    # The Detailed Member Reference groups members under the hub types' own names (row 14).
-    topics = {
-        fact.value.rsplit(".", 1)[-1]
-        for fact in candidate.facts.by_kind("public_symbol")
-        if fact.polarity == "SUPPORTED"
-    }
+    # The Detailed Member Reference groups members under the hub types' own names (row 14) - the
+    # names the renderer itself gives them, read from its one function rather than re-derived
+    # here as bare last segments: a type sharing its final segment with another verified type is
+    # headed by the shortest dotted suffix that tells them apart (`### ThreeD.Property`), and a
+    # second model of the same name rejected that heading unrepairably (G4-W17 arrival item 58,
+    # lane F PROPOSAL F8; measured 2026-09-11 on 34 of Aspose.PDF for .NET's 899 verified types
+    # and 2 of Aspose.3D for .NET's 293).
+    topics = set(api_reference_names(candidate.facts).values())
     api_lines = set(_section_texts(candidate.readme).get("api_reference", "").splitlines())
     for line in outside:
         if line.startswith("#") and not line.startswith("# "):
