@@ -502,10 +502,36 @@ def _quoted_chrome(finding: Mapping[str, Any]) -> str | None:
 
 
 _VERIFIED_NAME_LENGTH = 3
+_BACKTICK_SPAN = re.compile(r"`([^`\n]*)`")
+
+
+def _references_symbol(quote: str, fact: Fact) -> bool:
+    """Whether the finding's own raw quote actually references ``fact``, not merely contains its
+    bare suffix as an ordinary English word.
+
+    G4-W17 arrival item 45: the previous check matched a SUPPORTED ``public_symbol``'s bare
+    suffix case-insensitively against the *normalized* quote, which strips backticks entirely, so
+    whether the occurrence was even in a code span was never checked. Measured live on the sealed
+    Aspose.Cells-FOSS-for-Rust candidate (2,084 symbols): common short identifiers that are also
+    ordinary English or legitimate Rust idioms - ``new``, ``from``, ``fmt``, ``cells`` - matched
+    two of that seal's seven review findings by coincidental lowercase word overlap alone,
+    folding them out before BC-10 could weigh them. A real reference is backticked, spelled in
+    its own qualified dotted (or ``::``) form, or spelled in its own exact non-lowercase case
+    (``ExportToCSV``, not ``exporttocsv``) - none of which an ordinary English sentence does by
+    coincidence, unlike a bare lowercase word.
+    """
+    suffix = fact.value.rsplit(".", 1)[-1].rsplit("::", 1)[-1]
+    bare = re.compile(rf"\b{re.escape(suffix)}\b", re.IGNORECASE)
+    for span in _BACKTICK_SPAN.finditer(quote):
+        if bare.search(span.group(1)):
+            return True
+    if re.search(rf"\b{re.escape(fact.value)}\b", quote):
+        return True
+    return not suffix.islower() and bool(re.search(rf"\b{re.escape(suffix)}\b", quote))
 
 
 def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> Fact | None:
-    """A SUPPORTED public_symbol fact whose own bare name the quote contains as a whole word.
+    """A SUPPORTED public_symbol fact the quote actually references (see ``_references_symbol``).
 
     Scoped to ``public_symbol`` alone, never every fact kind: a dotted suffix is only meaningful
     for a qualified identifier value (``package.Type.Method``) - the same rsplit an ``example``'s
@@ -515,14 +541,14 @@ def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
     names the member by its bare name (the convention item 22's ``symbol_names`` already
     established), not the fully qualified value.
     """
-    quoted = _normalized(str(finding.get("quote", "")))
-    if not quoted:
+    quote = str(finding.get("quote", ""))
+    if not quote.strip():
         return None
     for fact in by_id.values():
         if fact.kind != "public_symbol" or fact.polarity != "SUPPORTED":
             continue
-        suffix = fact.value.rsplit(".", 1)[-1].lower()
-        if len(suffix) >= _VERIFIED_NAME_LENGTH and re.search(rf"\b{re.escape(suffix)}\b", quoted):
+        suffix = fact.value.rsplit(".", 1)[-1].rsplit("::", 1)[-1]
+        if len(suffix) >= _VERIFIED_NAME_LENGTH and _references_symbol(quote, fact):
             return fact
     return None
 

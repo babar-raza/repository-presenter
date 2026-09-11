@@ -929,6 +929,46 @@ def test_a_presentation_finding_against_verified_surface_is_the_reviewers_defect
     assert scope_defect(factual, CANDIDATE, by_id) is None
 
 
+def test_a_presentation_findings_quote_must_actually_reference_the_symbol() -> None:
+    """G4-W17 arrival item 45, urgent - a soundness gap in P16's own exemption above, already
+    shipped. Measured live on the sealed Aspose.Cells-FOSS-for-Rust candidate (2,084 symbols):
+    common short identifiers that are also ordinary English or legitimate Rust idioms - new,
+    from, fmt, cells - matched two of that seal's seven review findings by coincidental
+    lowercase word overlap alone, via a bare case-insensitive match against the *normalized*
+    quote, which strips backticks entirely so code-span-ness was never even checked - folding
+    real findings out before BC-10 could weigh them. A real reference is backticked, spelled in
+    its own qualified/`::` form, or spelled in its own non-lowercase case; ordinary prose
+    containing the same short token by coincidence is none of those."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("public_symbol:workbook.new", "public_symbol", "Workbook::new", (Evidence("x"),)),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    # The collision, reproduced: ordinary prose that happens to contain "new" as an English
+    # word - no backticks, no qualified form, no distinguishing case - is not a reference.
+    coincidental = {
+        **_finding("F10", "key_capabilities", "S6", "Create a new workbook and add a sheet."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(coincidental, CANDIDATE, by_id) is None
+    # A real reference, backticked: the exemption still fires as P16 intended.
+    backticked = {
+        **_finding("F11", "key_capabilities", "S6", "Calling `new` twice leaks a handle."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(backticked, CANDIDATE, by_id) is not None
+    # A real reference, qualified/`::` form, no backticks needed.
+    qualified = {
+        **_finding("F12", "key_capabilities", "S6", "Workbook::new should validate its path."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(qualified, CANDIDATE, by_id) is not None
+
+
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:
     """Asking for an example that did not execute asks the contract to break its own check 3.
 
