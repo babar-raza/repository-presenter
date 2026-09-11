@@ -56,7 +56,10 @@ from repository_presenter.components.readme.investigation.dossier import (
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
     DISPOSITIONS_FILENAME,
+    merge_dispositions,
     reconcile_checks,
+    reconciliation_batch_facts,
+    reconciliation_batches,
     reconciliation_packet,
     reconciliation_schema,
     write_dispositions,
@@ -137,7 +140,11 @@ class Round:
     """The accepted outputs of one composition round and the judgement over them."""
 
     investigation: JobResult
-    reconciled: JobResult
+    # PHASE0/G: one JobResult per source_reconciliation batch, keyed like `authored` (batch_id ->
+    # its own call) - `dispositions` below is the merged, flat document every downstream reader
+    # already expects, the same authored/units split this dataclass already uses.
+    reconciled: dict[str, JobResult]
+    dispositions: dict[str, Any]
     planned: JobResult
     authored: dict[str, JobResult]
     tasks: list[SectionTask]
@@ -183,24 +190,41 @@ def run_round(tx: TransactionInputs) -> Round:
         investigation.output, tx.directory / INVESTIGATION_FILENAME
     )
     loaded = prompts["source_reconciliation"]
-    reconciled = run_job(
-        loaded,
-        reconciliation_packet(entry, facts, investigation.output, loaded.manifest),
-        checks=functools.partial(reconcile_checks, facts=facts),
-        call_schema=reconciliation_schema(loaded, facts),
-        **common,
-    )
-    digests["dispositions"] = write_dispositions(
-        reconciled.output, tx.directory / DISPOSITIONS_FILENAME
-    )
+    # PHASE0/G: one run_job() call per batch, the same shape section_authoring's own loop below
+    # already proves (composition/authoring.py's _type_batches()) - a repository whose inherited
+    # units exceed one call's own output budget (measured, not hypothetical: Cells-Rust genuinely
+    # truncates at 91 units, docs/DECISION_LOG.md) gets several bounded calls instead of one
+    # unbounded one. reconcile_checks judges each batch's own dispositions independently (per-
+    # entry, no cross-entry logic - checked directly, not assumed), so a per-batch check is exactly
+    # as strict as the old whole-document check was.
+    reconciled: dict[str, JobResult] = {}
+    for batch_id, batch_units in reconciliation_batches(facts):
+        # Real bug, found live against Cells-Rust (docs/DECISION_LOG.md): core/llm/binding.py's
+        # binding_errors recomputes "every inherited unit expected" from whatever FactsDocument
+        # is passed as the job's own facts= - the whole repository's, unless narrowed here - so
+        # every batch's own call needs its own batch-scoped view, not just a batch-scoped
+        # packet/schema, or every batch but the last is rejected for "missing" units it was never
+        # asked to cover.
+        batch_facts = reconciliation_batch_facts(facts, batch_units)
+        reconciled[batch_id] = run_job(
+            loaded,
+            reconciliation_packet(
+                entry, batch_facts, investigation.output, loaded.manifest, batch_units
+            ),
+            checks=functools.partial(reconcile_checks, facts=batch_facts),
+            call_schema=reconciliation_schema(loaded, batch_units),
+            **{**common, "facts": batch_facts},
+        )
+    dispositions = merge_dispositions([result.output for result in reconciled.values()])
+    digests["dispositions"] = write_dispositions(dispositions, tx.directory / DISPOSITIONS_FILENAME)
     loaded = prompts["presentation_planning"]
     planned = run_job(
         loaded,
-        planning_packet(entry, facts, investigation.output, reconciled.output, loaded.manifest),
+        planning_packet(entry, facts, investigation.output, dispositions, loaded.manifest),
         checks=functools.partial(
             plan_checks,
             facts=facts,
-            dispositions=reconciled.output,
+            dispositions=dispositions,
             ecosystem=entry.ecosystem,
         ),
         call_schema=planning_schema(loaded, facts),
@@ -209,7 +233,7 @@ def run_round(tx: TransactionInputs) -> Round:
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)
     loaded = prompts["section_authoring"]
     name = product_name(entry)
-    tasks = authoring_tasks(entry, facts, investigation.output, reconciled.output, planned.output)
+    tasks = authoring_tasks(entry, facts, investigation.output, dispositions, planned.output)
     authored: dict[str, JobResult] = {}
     for task in tasks:
         call_schema = authoring_schema(loaded, task)
@@ -232,7 +256,7 @@ def run_round(tx: TransactionInputs) -> Round:
             **common,
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
-    readme = render_readme(entry, facts, planned.output, units, reconciled.output)
+    readme = render_readme(entry, facts, planned.output, units, dispositions)
     coherent = run_job(
         loaded,
         coherence_packet(entry, readme, units, tasks, facts),
@@ -241,7 +265,7 @@ def run_round(tx: TransactionInputs) -> Round:
     )
     units, revised = apply_coherence(units, coherent.output)
     if revised:
-        readme = render_readme(entry, facts, planned.output, units, reconciled.output)
+        readme = render_readme(entry, facts, planned.output, units, dispositions)
     digests["units"] = write_content_units(units, tx.directory / CONTENT_UNITS_FILENAME)
     digests["readme"] = write_text(readme, tx.directory / README_FILENAME)
     digests["patch"] = write_text(render_patch(tx.original, readme), tx.directory / PATCH_FILENAME)
@@ -253,7 +277,7 @@ def run_round(tx: TransactionInputs) -> Round:
             facts,
             planned.output,
             units,
-            reconciled.output,
+            dispositions,
             readme,
             tx.original_bytes,
             tx.source_revision,
@@ -268,6 +292,7 @@ def run_round(tx: TransactionInputs) -> Round:
     current = Round(
         investigation,
         reconciled,
+        dispositions,
         planned,
         authored,
         tasks,
@@ -284,7 +309,7 @@ def run_round(tx: TransactionInputs) -> Round:
     # prompt and identity, and writes its verdict into check 10.
     loaded = prompts["independent_review"]
     packet = review_packet(
-        entry, facts, tx.original, readme, planned.output, reconciled.output, validation
+        entry, facts, tx.original, readme, planned.output, dispositions, validation
     )
     checks = functools.partial(review_checks, candidate_readme=readme, facts=facts)
     reviewed = run_job(loaded, packet, checks=checks, **common)
@@ -297,7 +322,7 @@ def run_round(tx: TransactionInputs) -> Round:
         candidate_readme=readme,
         facts=facts,
         original_readme=tx.original,
-        rendered=renderer_sentences(entry, facts, planned.output, current.units, reconciled.output),
+        rendered=renderer_sentences(entry, facts, planned.output, current.units, dispositions),
     )
     review = document()
     # A prose judgment on a required row is read a second time under a different seed before it
@@ -347,7 +372,7 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
         placed = placed_texts(
             placements(
                 current.planned.output,
-                current.reconciled.output,
+                current.dispositions,
                 tx.facts,
                 tx.entry.ecosystem,
             )
@@ -360,27 +385,58 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
 
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
-) -> tuple[JobResult, Any, frozenset[str] | None, Mapping[str, frozenset[str]] | None]:
-    """The causal stage's accepted result, its own checks, and the fact set it is judged against.
+) -> tuple[
+    JobResult, Any, frozenset[str] | None, Mapping[str, frozenset[str]] | None, FactsDocument
+]:
+    """The causal stage's accepted result, its own checks, the fact set it is judged against, and
+    the fact set its own binding check (``core/llm/binding.py``) must be judged against.
 
     Only an authored section has a fact set narrower than the corpus; the upstream stages are
-    judged against all of it, so they carry None.
+    judged against all of it, so they carry None. The two fact-set values agree everywhere except
+    S4 (see below) - a real, found-live divergence, not a hypothetical one.
     """
     if defect.stage == "S3":
-        return current.investigation, None, None, None
+        return current.investigation, None, None, None, facts
     if defect.stage == "S4":
-        return current.reconciled, functools.partial(reconcile_checks, facts=facts), None, None
+        # PHASE0/G: an S4 defect names no batch - `_check_dispositions` (validation/registry.py)
+        # constructs every RECONCILING-stage Failure with no structured section/unit identifier,
+        # the same real, pre-existing gap `_stage_target`'s own S6 branch below already has for a
+        # batched section_authoring task (its `next(... section_id == defect.section_id)` can
+        # only ever resolve to a section's *main* task, never one of its batches either) -
+        # checked directly against the shipped code, not assumed. Not a new regression this
+        # taskcard introduces: the first batch, sorted by key, matching the same
+        # first-match-only imprecision section_authoring's own precedent already ships with.
+        # Repair's own repeated-failure discipline (round_defects, run_transaction) still catches
+        # and reports a repair that targeted the wrong batch - it is never silently accepted.
+        # dict insertion order, not sorted(keys) - "reconciliation#10" would sort before
+        # "reconciliation#2" lexicographically; current.reconciled is built in batch order.
+        first_batch_id = next(iter(current.reconciled))
+        batch_units = dict(reconciliation_batches(facts))[first_batch_id]
+        batch_facts = reconciliation_batch_facts(facts, batch_units)
+        # Real bug, found live against Cells-Rust: repair_checks's own binding_errors call
+        # (repair/targeted.py) needs the SAME batch-scoped facts reconciliation_batch_facts()
+        # already fixed this for at the original call site (rounds.py's run_round loop) - a
+        # repair revising one batch's ~40 units must not be judged against all 91 units' worth
+        # of "expected" coverage either, the identical shape of the same underlying gap.
+        return (
+            current.reconciled[first_batch_id],
+            functools.partial(reconcile_checks, facts=batch_facts),
+            None,
+            None,
+            batch_facts,
+        )
     if defect.stage == "S5":
         return (
             current.planned,
             functools.partial(
                 plan_checks,
                 facts=facts,
-                dispositions=current.reconciled.output,
+                dispositions=current.dispositions,
                 ecosystem=ecosystem,
             ),
             None,
             None,
+            facts,
         )
     task = next(task for task in current.tasks if task.section_id == defect.section_id)
     return (
@@ -388,6 +444,7 @@ def _stage_target(
         functools.partial(unit_checks, task=task, facts=facts, name=name),
         task.accepted_ids,
         task.slot_facts,
+        facts,
     )
 
 
@@ -409,7 +466,7 @@ def repair_defect(
     assert defect.stage is not None
     job = STAGE_JOBS[defect.stage]
     causal = tx.prompts[job]
-    target, stage_checks, allowed, slot_facts = _stage_target(
+    target, stage_checks, allowed, slot_facts, stage_facts = _stage_target(
         current, defect, tx.facts, product_name(tx.entry), tx.entry.ecosystem
     )
     contract = causal.manifest.output.schema_
@@ -437,7 +494,10 @@ def repair_defect(
                 defect=defect,
                 output_contract=contract,
                 binding=causal.manifest.output.binding,
-                facts=tx.facts,
+                # PHASE0/G: the causal stage's OWN binding check (unit_ids for S4) must be judged
+                # against the same fact set that stage's own call was - stage_facts, not tx.facts
+                # unconditionally; they agree everywhere except S4's batch scoping.
+                facts=stage_facts,
                 stage_checks=stage_checks,
                 slots=probe,
             ),

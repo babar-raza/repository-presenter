@@ -676,8 +676,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     )
     assert dispositions_line.startswith(
         f"dispositions: {facts_dir}/dispositions.json (4 units: OMIT_UNSUPPORTED 1, "
-        "SUPERSEDE_REDUNDANT 2, VERIFIED_PRESERVE 1; provider calls 1, "
-        "model qwen3-next; digest "
+        "SUPERSEDE_REDUNDANT 2, VERIFIED_PRESERVE 1; provider calls 1; digest "
     )
     written_dispositions = json.loads(
         (project_with_registry / facts_dir / "dispositions.json").read_text("utf-8")
@@ -905,8 +904,12 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     second = capsys.readouterr().out
     assert digests(first) == digests(second)
     assert "evaluation: " in first and "no sealed bundle" in first and "NONE; 0 changes" in second
-    assert first.count("provider calls 1, model qwen3-next") == 5
-    assert second.count("provider calls 0, model stored output reused") == 5
+    # PHASE0/G: the dispositions line no longer names a single model (reconciliation can be
+    # more than one batch's own call now) - 4 of the previous 5 per-model lines remain
+    # (investigation, plan, coherence, review); dispositions reports its own call count only,
+    # the same way the units line (authoring, also multi-call) already does.
+    assert first.count("provider calls 1, model qwen3-next") == 4
+    assert second.count("provider calls 0, model stored output reused") == 4
     assert len(gateway_ready.requests) == 12
     assert "provider calls 7; digest" in first and "provider calls 0; digest" in second
     assert (

@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
 from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.reconciliation.dispositions import (
     code_units_by_polarity,
     normalize,
     placement_errors,
+    reconciliation_batches,
     reconciliation_schema,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -428,7 +428,8 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     # inherited units: inherited_unit:037.code_block". The code knows the units exactly
     # (RESEARCH_AND_GUIDELINES.md section 27.5 D1, cause RC1 in 27.2).
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
-    schema = reconciliation_schema(loaded, FACTS)
+    batch = list(FACTS.by_kind("inherited_unit"))
+    schema = reconciliation_schema(loaded, batch)
     units = [fact.id for fact in FACTS.by_kind("inherited_unit")]
     dispositions = schema["properties"]["dispositions"]
     assert dispositions["minItems"] == dispositions["maxItems"] == len(units)
@@ -469,22 +470,26 @@ def _inherited_units_facts(count: int) -> FactsDocument:
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "J1/G1a: reconciliation_schema()'s dispositions.minItems/maxItems/unit_id enum are "
-        "built directly from every inherited_unit fact, no cap - c575035's own bug class, "
-        "predating it, currently dormant only because no candidate's inherited_unit count is "
-        "large yet. The real fix is Taskcard G's batching redesign (or G1a's standalone bound "
-        "if G slips); not implemented here, only proven still open."
-    ),
-)
-def test_the_schema_size_grows_sub_linearly_not_proportionally() -> None:
-    """J1: the structural test that would have caught c575035's bug class before it reached a
-    real candidate, applied to reconciliation_schema()'s own uncapped dispositions binding."""
+def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_total() -> None:
+    """PHASE0/G: the real fix for J1/G1a's own finding ('dispositions.minItems/maxItems/unit_id
+    enum are built directly from every inherited_unit fact, no cap') is that reconciliation_schema()
+    can no longer even be called against the repository's own full unit set - batch_units is
+    required, and every real caller (rounds.py) gets it from reconciliation_batches(), which
+    itself bounds each batch to _RECONCILIATION_BATCH units regardless of the repository's own
+    total (test_dispositions.py's own test_reconciliation_batches_bounds_each_batchs_own_size
+    proves that half directly). What this test proves is the two functions compose correctly:
+    every batch reconciliation_batches() produces gets a schema whose own minItems/maxItems/enum
+    is sized to exactly that batch, in both a 200-unit and a 2000-unit repository - the schema
+    itself never grows past _RECONCILIATION_BATCH regardless of total repository size, closing
+    c575035's own bug class for real rather than moving the marker."""
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
-    base = reconciliation_schema(loaded, _inherited_units_facts(200))
-    tenx = reconciliation_schema(loaded, _inherited_units_facts(2000))
-    assert tenx["properties"]["dispositions"]["maxItems"] < (
-        10 * base["properties"]["dispositions"]["maxItems"]
-    )
+    for total in (200, 2000):
+        batches = reconciliation_batches(_inherited_units_facts(total))
+        for _, batch_units in batches:
+            schema = reconciliation_schema(loaded, batch_units)
+            dispositions = schema["properties"]["dispositions"]
+            assert dispositions["maxItems"] == dispositions["minItems"] == len(batch_units)
+            assert dispositions["maxItems"] <= 40
+            assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
+                fact.id for fact in batch_units
+            ]

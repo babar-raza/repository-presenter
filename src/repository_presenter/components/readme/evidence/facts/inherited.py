@@ -279,6 +279,13 @@ def inherited_unit_facts(
                 "inherited_unit",
                 unit.source,
                 (Evidence(readme_path, where),),
+                # PHASE0/G's own prerequisite: .section was previously folded only into the
+                # evidence detail string above ("; under {unit.section}") - a consumer that needs
+                # it structured (reconciliation batching, grouping by heading) had no field to
+                # read. Empty string is never a valid attributes value (core/facts.py's own
+                # Fact.__post_init__), matching the same `if unit.section:` guard already used
+                # for the evidence string two lines above.
+                attributes={"section": unit.section} if unit.section else None,
             )
         )
     return facts

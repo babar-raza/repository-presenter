@@ -5,19 +5,21 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from repository_presenter.components.readme.reconciliation.dispositions import (
     contradicted_code_units,
+    merge_dispositions,
     normalize,
     placement_errors,
     reconcile_checks,
+    reconciliation_batch_facts,
+    reconciliation_batches,
     reconciliation_packet,
     rendering_fact_ids,
     summarize,
     write_dispositions,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.binding import binding_errors
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT
@@ -84,7 +86,8 @@ def _entry(
 
 
 def test_the_packet_carries_every_unit_the_polar_facts_and_the_shell() -> None:
-    packet = reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST)
+    batch = list(FACTS.by_kind("inherited_unit"))
+    packet = reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST, batch)
     assert packet["repository"] == ENTRY.repository
     assert [unit["id"] for unit in packet["inherited_units"]] == [
         "inherited_unit:001.heading",
@@ -104,7 +107,18 @@ def test_the_packet_carries_every_unit_the_polar_facts_and_the_shell() -> None:
     assert "inherited_unit:001.heading" not in by_id
     assert packet["investigation"] == {"product_summary": {}}
     assert [section["id"] for section in packet["sections"]][:2] == ["identity", "badges"]
-    assert reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST) == packet
+    assert reconciliation_packet(ENTRY, FACTS, {"product_summary": {}}, MANIFEST, batch) == packet
+
+
+def test_a_batch_packet_carries_only_its_own_units_not_every_inherited_unit() -> None:
+    """PHASE0/G: batch_units scopes the packet to one reconciliation call's own units - the other
+    units in the document (here, the first two) never enter this batch's own packet at all."""
+    batch = list(FACTS.by_kind("inherited_unit"))[2:]
+    packet = reconciliation_packet(ENTRY, FACTS, {}, MANIFEST, batch)
+    assert [unit["id"] for unit in packet["inherited_units"]] == [
+        "inherited_unit:003.code_block",
+        "inherited_unit:004.code_block",
+    ]
 
 
 def _inherited_units_facts(count: int) -> FactsDocument:
@@ -120,21 +134,106 @@ def _inherited_units_facts(count: int) -> FactsDocument:
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "J1/G1a: reconciliation_packet()'s own 'inherited_units' field lists every "
-        "inherited_unit fact directly, no cap - unlike the packet's 'facts' field, which "
-        "already routes through bounded_records(). The real fix is Taskcard G's batching "
-        "redesign; not implemented here, only proven still open."
-    ),
-)
-def test_the_packets_inherited_units_field_grows_sub_linearly_not_proportionally() -> None:
-    """J1: the structural test that would have caught c575035's bug class before it reached a
-    real candidate, applied to reconciliation_packet()'s own uncapped inherited_units field."""
-    base = reconciliation_packet(ENTRY, _inherited_units_facts(200), {}, MANIFEST)
-    tenx = reconciliation_packet(ENTRY, _inherited_units_facts(2000), {}, MANIFEST)
-    assert len(tenx["inherited_units"]) < 10 * len(base["inherited_units"])
+def test_reconciliation_batches_bounds_each_batchs_own_size_not_the_batch_count() -> None:
+    """PHASE0/G: the real fix for J1/G1a's own finding ('reconciliation_packet()'s inherited_units
+    field lists every inherited_unit fact directly, no cap') is not a cap on the total - every
+    unit still needs a disposition - it is a cap on each individual call's own batch size. A
+    10x larger repository gets roughly 10x more batches, each still bounded to
+    _RECONCILIATION_BATCH units - proven directly against reconciliation_batches() rather than
+    against reconciliation_packet()/reconciliation_schema() (the previous xfail's own target),
+    since those two now require an explicit, already-bounded batch and can no longer even be
+    called in a way that would grow unboundedly - the growth question has moved to the
+    function that decides how many batches there are, which this test now covers instead."""
+    base = reconciliation_batches(_inherited_units_facts(200))
+    tenx = reconciliation_batches(_inherited_units_facts(2000))
+    assert all(len(units) <= 40 for _, units in base)
+    assert all(len(units) <= 40 for _, units in tenx)
+    # Total coverage is preserved exactly - batching never drops a unit.
+    assert sum(len(units) for _, units in base) == 200
+    assert sum(len(units) for _, units in tenx) == 2000
+    # Batch *count* correctly grows in proportion to total units (every unit still needs its own
+    # disposition somewhere - unlike SYMBOL_CAP/LINK_CAP/EXAMPLE_CAP, there is no "drop the
+    # rest" option here) - what stays bounded is each batch's own size, asserted above.
+    assert len(base) == 5 and len(tenx) == 50
+
+
+def test_reconciliation_batches_covers_every_unit_exactly_once_in_document_order() -> None:
+    facts = _inherited_units_facts(85)
+    batches = reconciliation_batches(facts)
+    assert [batch_id for batch_id, _ in batches] == [
+        "reconciliation#1",
+        "reconciliation#2",
+        "reconciliation#3",
+    ]
+    all_ids = [fact.id for _, units in batches for fact in units]
+    assert all_ids == [fact.id for fact in facts.by_kind("inherited_unit")]
+    assert len(all_ids) == len(set(all_ids)) == 85
+
+
+def test_reconciliation_batch_facts_narrows_inherited_units_only() -> None:
+    facts = _inherited_units_facts(85)
+    batches = reconciliation_batches(facts)
+    _, batch_units = batches[1]  # the middle batch: units 40-79 (0-indexed 40:80)
+    batch_facts = reconciliation_batch_facts(facts, batch_units)
+    assert [fact.id for fact in batch_facts.by_kind("inherited_unit")] == [
+        fact.id for fact in batch_units
+    ]
+    assert len(batch_facts.by_kind("inherited_unit")) == 40
+    # repository/source_revision/schema_version travel through unchanged - only the one kind
+    # this exists to narrow is touched.
+    assert batch_facts.repository == facts.repository
+    assert batch_facts.source_revision == facts.source_revision
+    assert batch_facts.schema_version == facts.schema_version
+
+
+def test_a_batchs_own_dispositions_satisfy_binding_errors_against_its_own_batch_facts() -> None:
+    """PHASE0/G: the real bug found live against Cells-Rust, reproduced here without a live call.
+
+    core/llm/binding.py's binding_errors recomputes "every inherited unit expected" from
+    whatever FactsDocument it is given - before reconciliation_batch_facts() existed, every
+    batch's own call was judged against the WHOLE repository's inherited_unit facts, so any
+    batch but the last was always rejected for "missing" units outside its own 40. A batch's own
+    dispositions (covering only its own units) must satisfy binding_errors when judged against
+    that SAME batch's own scoped facts - not the whole document."""
+    facts = _inherited_units_facts(85)
+    batches = reconciliation_batches(facts)
+    for _, batch_units in batches:
+        batch_facts = reconciliation_batch_facts(facts, batch_units)
+        payload = {
+            "dispositions": [_entry(fact.id, "OMIT_UNSUPPORTED", None) for fact in batch_units]
+        }
+        assert binding_errors(payload, batch_facts, "unit_ids") == []
+
+
+def test_a_batchs_own_dispositions_do_not_satisfy_binding_errors_against_the_whole_document() -> (
+    None
+):
+    """The inverse of the test above: proves the bug would still be caught if
+    reconciliation_batch_facts() were ever accidentally skipped at a real call site - a batch's
+    own dispositions alone can never satisfy the unscoped, whole-document expectation."""
+    facts = _inherited_units_facts(85)
+    _, first_batch_units = reconciliation_batches(facts)[0]
+    payload = {
+        "dispositions": [_entry(fact.id, "OMIT_UNSUPPORTED", None) for fact in first_batch_units]
+    }
+    errors = binding_errors(payload, facts, "unit_ids")
+    assert errors and "no disposition for inherited units" in errors[0]
+
+
+def test_merge_dispositions_concatenates_every_batchs_output_in_batch_order() -> None:
+    outputs = [
+        {"dispositions": [_entry("inherited_unit:001.heading", "VERIFIED_PRESERVE", "license")]},
+        {"dispositions": [_entry("inherited_unit:040.paragraph", "OMIT_UNSUPPORTED", None)]},
+    ]
+    merged = merge_dispositions(outputs)
+    assert [entry["unit_id"] for entry in merged["dispositions"]] == [
+        "inherited_unit:001.heading",
+        "inherited_unit:040.paragraph",
+    ]
+
+
+def test_merge_dispositions_of_no_batches_is_an_empty_list() -> None:
+    assert merge_dispositions([]) == {"dispositions": []}
 
 
 def test_placements_into_deterministic_sections_fold_into_supersessions() -> None:

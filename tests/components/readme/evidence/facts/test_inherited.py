@@ -130,6 +130,11 @@ def test_facts_are_stable_ordinal_ids_with_located_evidence() -> None:
     assert code.evidence[0].detail == (
         "lines 10-12; code_block; under Aspose.3D FOSS for Python > Installation"
     )
+    # PHASE0/G's own prerequisite: .section is now structured too, not only free text above -
+    # the same value, available to a consumer (reconciliation batching) without parsing prose.
+    assert code.attributes == {"section": "Aspose.3D FOSS for Python > Installation"}
+    heading = next(f for f in facts if f.id == "inherited_unit:001.heading")
+    assert heading.attributes is None  # the document's own H1 has no ancestor section
     assert inherited_unit_facts("README.md", README.encode("utf-8")) == facts
 
     document = FactsDocument("o/Aspose.X-FOSS-for-Go", "a" * 40, tuple(facts))

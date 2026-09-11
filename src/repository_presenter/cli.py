@@ -618,11 +618,15 @@ def _print_round(root: Path, transaction: Path, final: Round) -> None:
         f"limitations {len(output.get('limitations', []))}; "
         f"{served(final.investigation)}; digest {final.digests['investigation']})"
     )
-    counts = summarize(final.reconciled.output)
+    counts = summarize(final.dispositions)
     tally = ", ".join(f"{name} {count}" for name, count in sorted(counts.items()))
+    # PHASE0/G: one run_job() call per reconciliation batch now, not one - reported the same
+    # multi-call way authoring's own line below already does (a per-call "model served" no
+    # longer names one thing once there can be more than one batch).
+    reconciliation_calls = sum(result.provider_calls for result in final.reconciled.values())
     print(
         f"dispositions: {where(DISPOSITIONS_FILENAME)} ({sum(counts.values())} units: {tally}; "
-        f"{served(final.reconciled)}; digest {final.digests['dispositions']})"
+        f"provider calls {reconciliation_calls}; digest {final.digests['dispositions']})"
     )
     print(
         f"plan: {where(PLAN_FILENAME)} ({summarize_plan(final.planned.output)}; "

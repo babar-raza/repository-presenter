@@ -19,6 +19,7 @@ import hashlib
 import json
 import re
 from collections import Counter
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +40,7 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
-from repository_presenter.core.facts import FactsDocument, bounded_records
+from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -83,18 +84,95 @@ RENDERING_FACT_KINDS: dict[str, tuple[str, ...]] = {
 _UNIT_REFERENCE = re.compile(r"unit (inherited_unit:[0-9]+\.[a-z_]+)")
 
 
-def reconciliation_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
-    """The reconciliation schema specialised for this README: exactly its inherited units.
+_RECONCILIATION_BATCH = 40
+# PHASE0/G: units per source_reconciliation call - the same "too big for one call, split by
+# natural unit, never reorder" shape section_authoring's own _type_batches() already proves
+# (composition/authoring.py's own _TYPE_BATCH, same value). Calibrated against the real,
+# currently-failing case: aspose-cells-foss/Aspose.Cells-FOSS-for-Rust genuinely truncates its
+# single-call reconciliation output at max_output_tokens=32000 once RC-06 grows it to 91 units
+# (measured ~351 tokens/unit of output - the fix is output-side, not input-side: the packet
+# itself was never close to a size limit, its own required *reply* was). 40 units/batch keeps a
+# batch's own worst-case output (40 x 351 =~ 14,040 tokens) comfortably under budget with real
+# headroom, not a guess (docs/DECISION_LOG.md records the full measurement this rests on).
 
-    Every inherited unit needs one disposition and no other unit exists, which the code knows
-    exactly, so the schema says so rather than letting the job invent a unit and be rejected for
-    it (RESEARCH_AND_GUIDELINES.md section 27.5 D1; cause RC1 in 27.2). The canary's job paired
-    the right ordinals with the wrong type suffixes - inherited_unit:037.paragraph where the unit
-    is inherited_unit:037.code_block - and lost a whole transaction to it. The destination and
-    the rationale stay the job's.
+
+def reconciliation_batches(facts: FactsDocument) -> list[tuple[str, list[Fact]]]:
+    """Every inherited unit, split into fixed-size batches in document (ordinal) order - one
+    ``(batch_id, units)`` pair per ``source_reconciliation`` call this round makes.
+
+    Ordinal order, not grouped by ``.section``: a batch boundary may occasionally fall inside one
+    heading's own units, but preserves the document's own unit ordering exactly, which
+    ``merge_dispositions()`` and every downstream reader already assume - grouping by section
+    first would need to interleave document order back in afterward for no real benefit, since
+    ``reconcile_checks`` (below) judges each disposition independently of its neighbours anyway.
+    """
+    units = list(facts.by_kind("inherited_unit"))
+    return [
+        (
+            f"reconciliation#{index // _RECONCILIATION_BATCH + 1}",
+            units[index : index + _RECONCILIATION_BATCH],
+        )
+        for index in range(0, len(units), _RECONCILIATION_BATCH)
+    ]
+
+
+def reconciliation_batch_facts(facts: FactsDocument, batch_units: Sequence[Fact]) -> FactsDocument:
+    """``facts``, with its own ``inherited_unit`` facts narrowed to exactly ``batch_units``.
+
+    Real bug this closes, found live against Cells-Rust (not assumed): ``core/llm/binding.py``'s
+    ``binding_errors`` recomputes its own "every inherited unit expected" set directly from
+    ``facts.by_kind("inherited_unit")`` - the whole ``FactsDocument`` passed as the job's own
+    ``facts=`` argument - independent of whatever the packet or schema for one particular call
+    were scoped to. Passing the same, unscoped ``facts`` for every batch's own call made
+    ``binding_errors`` demand full 91-unit coverage from each individual ~40-unit batch reply,
+    rejecting every batch but the last on "no disposition for inherited units: ...". A batch's own
+    call must see - and be judged against - only its own units; every other fact kind is
+    untouched, so ``bounded_records()`` and every other check reading this document still see the
+    real, whole repository.
+    """
+    keep = frozenset(fact.id for fact in batch_units)
+    return FactsDocument(
+        facts.repository,
+        facts.source_revision,
+        tuple(fact for fact in facts.facts if fact.kind != "inherited_unit" or fact.id in keep),
+        facts.schema_version,
+    )
+
+
+def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """Every batch's own accepted dispositions, concatenated in batch order into one flat
+    document - the reconciliation sibling of ``composition/authoring.py``'s ``merge_units()``.
+
+    Simpler than ``merge_units()``: a disposition is never rendered in shell order the way an
+    authored unit is, so nothing here needs re-sorting by section - batch order already is
+    document order (``reconciliation_batches()``'s own contract), and every downstream reader
+    (placement, planning, validation, review) already reads ``dispositions`` as one flat list
+    keyed by ``unit_id``, never by position.
+    """
+    dispositions: list[dict[str, Any]] = []
+    for output in outputs:
+        dispositions.extend(output.get("dispositions", []))
+    return {"dispositions": dispositions}
+
+
+def reconciliation_schema(manifest: LoadedManifest, batch_units: Sequence[Fact]) -> dict[str, Any]:
+    """The reconciliation schema specialised for one batch: exactly its own inherited units.
+
+    Every inherited unit in this batch needs one disposition and no other unit is in this batch,
+    which the code knows exactly, so the schema says so rather than letting the job invent a unit
+    and be rejected for it (RESEARCH_AND_GUIDELINES.md section 27.5 D1; cause RC1 in 27.2). The
+    canary's job paired the right ordinals with the wrong type suffixes -
+    inherited_unit:037.paragraph where the unit is inherited_unit:037.code_block - and lost a
+    whole transaction to it. The destination and the rationale stay the job's.
+
+    PHASE0/G: scoped to ``batch_units`` (one ``reconciliation_batches()`` entry), not every
+    inherited unit in the repository - the same per-batch shape ``authoring_schema()`` already
+    uses (``minItems``/``maxItems``/enum sized to one ``SectionTask``'s own slots, not the whole
+    plan). No unbounded fallback: every caller, production or test, must pass a real batch,
+    mirroring ``authoring_schema()``'s own signature exactly (no "give me everything" mode).
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
-    units = [fact.id for fact in facts.by_kind("inherited_unit")]
+    units = [fact.id for fact in batch_units]
     if not units:
         return schema
     dispositions = schema["properties"]["dispositions"]
@@ -109,10 +187,14 @@ def reconciliation_packet(
     facts: FactsDocument,
     investigation: dict[str, Any],
     manifest: PromptManifest,
+    batch_units: Sequence[Fact],
 ) -> dict[str, Any]:
+    """PHASE0/G: ``inherited_units`` is exactly ``batch_units`` - one batch's own units, not
+    every inherited unit in the repository. ``facts`` (bounded, non-``inherited_unit`` kinds) is
+    unchanged: shared context every batch needs, already capped by ``bounded_records()``."""
     units = [
         {"id": fact.id, "type": fact.id.rsplit(".", 1)[-1], "text": fact.value}
-        for fact in facts.by_kind("inherited_unit")
+        for fact in batch_units
     ]
     kinds = [kind for kind in manifest.packet.fact_kinds if kind != "inherited_unit"]
     return {
