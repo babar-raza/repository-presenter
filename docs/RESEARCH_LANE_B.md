@@ -791,3 +791,46 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   on its own merits when the cause is one shared commit landed six hours earlier and already being
   reverted-forward by the primary. Reversal: the supervisor re-spawns this item when the S4 fix
   lands; both repositories re-run from their current facts.
+- **2026-09-11 13:45 (`date` checked) · G4-W13-RERUN2 · FINDING (infrastructure, not this lane's
+  code, and already on `main`) · the repository-level git identity was overwritten with the test
+  fixtures' `Test <test@example.com>`, and two commits already merged to `origin/main` carry it.**
+  Observed, not inferred. While this run's own commit was being pushed, `git log` in this worktree
+  showed HEAD at a commit named `placeholder` over five named `seed` and one named `initial`, whose
+  whole tree is `LICENSE` plus `README.md` - the shape `tests/support.py::init_git_repository`
+  builds, which writes `README.md` as `# test\n`. This lane's own commit was intact one step down
+  the reflog and was recovered from there. Three facts worth recording beyond the recovery. (a) The
+  damage is not confined to this worktree or this session: `git config --local` in the *shared*
+  `.git/config` (one file, common to the primary checkout and every lane worktree) read
+  `user.name=Test` / `user.email=test@example.com`, and `origin/main` already carries `b712790`
+  authored `Test <test@example.com>` (13:10) and `18e26e5` authored `Babar Raza
+  <test@example.com>` (13:19) - neither this lane's, both landed before this run's first commit.
+  This lane's own first two commit objects were authored `Test <test@example.com>` for the same
+  reason and were re-authored by `--reset-author` before the PR; the local override is now unset,
+  so the identity falls through to the correct global one. (b) The standing hazard is that the git
+  fixtures are unfenced. `init_git_repository` runs `git config user.email test@example.com` and
+  `git config user.name Test` with no `--file`, no `GIT_CONFIG_GLOBAL`, and no `GIT_DIR`; it relies
+  entirely on `cwd` having landed inside a directory `git init` just created. `commit_all` relies on
+  `cwd` alone in the same way, and `core/git_safety/git.py::run_git` adds only
+  `GIT_TERMINAL_PROMPT`/`GCM_INTERACTIVE` and three `-c` determinism flags - no
+  `GIT_CEILING_DIRECTORIES`, no `GIT_DIR`, no `GIT_CONFIG_*` fence. So any such call whose `cwd`
+  does not land inside a fixture repository operates on whatever repository git discovers by
+  walking up from the process working directory, which under pytest is the checkout itself, and a
+  `git config` there writes the shared file rather than a disposable one. (c) **What this lane
+  could not reproduce, stated as plainly as what it could:** a full `pytest -n auto` run in this
+  worktree, immediately after the recovery, did *not* reproduce any of it - 1006 passed, 10 xfailed
+  in 141.50s, and `HEAD`, the branch ref and `git config --local user.name`/`user.email` were all
+  byte-identical before and after (`e2fc2c5…` / `e2fc2c5…` / unset / unset), with a clean
+  `git status`. So the plain suite is not the trigger and this entry does not claim it is; the
+  fixtures being unfenced is a real defect independently of what tripped it, and the most probable
+  trigger given the timing is two sessions' suites interleaving in one shared git directory - lanes
+  E and F opened at 13:10 (`b712790`), the same minute the first mis-authored commit landed. Naming
+  the exact race would need an instrumented concurrent run, which is outside this run's box and
+  outside this lane's owned paths. PROPOSAL, for whoever owns `tests/`: fence every fixture call -
+  `GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM` pointed at a temp file, `GIT_CEILING_DIRECTORIES` at the
+  fixture root, and `git -C <path>` with an explicit `GIT_DIR` - so that a fixture can never resolve
+  to the real checkout even when `cwd` is wrong. Worth doing ahead of the arrival queue: a wrong
+  author is silent, is already in merged history, and no check in the suite looks at it. Alternative
+  rejected: this lane editing `tests/support.py` - not an owned path, and a shared-code fix from a
+  lane is exactly what section 28.12 forbids. Evidence: the reflog of this branch; `git log
+  --format='%an <%ae>' origin/main`; the before/after triple above. Reversal: none; a measurement
+  plus a recovery.
