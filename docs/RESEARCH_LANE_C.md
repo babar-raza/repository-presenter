@@ -1032,3 +1032,120 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   6 current-code reproducible, 0 independently accepted*), `candidates/` holds no directory for
   either repository run here, and `project/state.yaml` was not opened. Cells Java is
   `BLOCKED_VALIDATION` on **PROPOSAL Z**; Slides Java is `BLOCKED_COMPOSING` on **PROPOSAL X**.
+
+## Ninth re-run — 2026-09-11 21:22 +05:00, `23a8905` (G4-W12-RERUN9)
+
+Both repositories composed **fresh**: no held call store was read, copied or verified (the spawn
+message and `docs/DECISION_LOG.md` 17:05 both caution that a preserved store can be silently
+overwritten by later diagnostic calls). `runs/` started empty in `C:\w\c129`; environment hash
+`f4406f1b…` confirmed against the primary's before any candidate work. Evidence:
+`evidence/build/lanes/lane-c/G4-W12-RERUN9.json`.
+
+- **Nothing sealed, and for the first time both repositories failed the same gate and only that
+  gate.** BC-01 through BC-09 `PASS` on both; BC-10 `FAIL` on both; BC-11 `PENDING` on both. Cells
+  Java: 22 provider calls, 51 ledger rows, README 240 visible of 451, review `REJECT_PRESENTATION`
+  with 1 blocking finding and 5 advisories, rounds 3. Slides Java: 22 provider calls, 39 ledger
+  rows, README 223 visible of 538, `REJECT_PRESENTATION` with 1 blocking finding and 6 advisories,
+  rounds 2. **PROPOSAL V stays closed**: 0 `cache_stale` rows in either ledger.
+- **The fold stack works, and item 62 was not reached.** Five of Cells Java's six findings folded as
+  reviewer-scope defects (F01/F02/F04/F06 on the absence rule, F03 on the rendered-sentence rule);
+  six of Slides Java's seven folded. No finding in either draw quoted a deterministic table row, so
+  the new factuality branch of `renderer_owned_defect` (G4-W17 arrival item 62, this lane's
+  PROPOSAL Z) was never entered: **it is landed and unit-tested, and neither confirmed nor refuted
+  on a live draw here.** Arrival item 64 (`846eaaf`) landed on the primary after this worktree was
+  cut; per the Reviewer's mid-run instruction it was not rebased in, because both compositions were
+  already running.
+- **Cells Java: `DISPOSITION BLOCKED_COMPOSING`, and the blocking finding is *correct*.** F05,
+  `presentation`/`quick_start`, quotes *"Load an existing workbook with options and inspect load
+  diagnostics:"* and says Quick Start duplicates that example under Additional Examples. **It does.**
+  Measured on this run's own artifacts with zero provider calls: the sentence renders at README
+  line 112 (the authored unit `quick_start/lead_in:2`, with its code block) **and again at line
+  190**, at the tail of Additional Examples, followed by a blank line and `## API Reference` — a
+  colon-terminated sentence promising an example that is not there. Two shared-code defects put it
+  there, and both are the same mistake: a section-scoped lookup of something that is document-wide.
+- **PROPOSAL 2026-09-11 AA · `placements()` measures a placed unit's overlap against its
+  *destination* section only, so a preserved lead-in whose example the plan renders in a different
+  section is placed — orphaned from its own code block, which is renderer-owned.** File:
+  `src/repository_presenter/components/readme/composition/placement.py`, `placements()`, at
+  `covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts, plan)`.
+  **Measured, zero provider calls:** `inherited_unit:020.paragraph` is `VERIFIED_PRESERVE`d into
+  `additional_examples` citing `example:002`; `planned_fact_ids(plan, "additional_examples")` is
+  `['example:003']` so the overlap is empty and the outcome is `placed`, while
+  `planned_fact_ids(plan, "quick_start")` is `['example:001', 'example:002']` — the union over every
+  included section gives overlap `['example:002']` and the outcome `overlap`. Its companion
+  `inherited_unit:021.code_block` is dropped as `owned_elsewhere` (`renders_verbatim` is `True` for
+  the paragraph and `False` for the code block), which is what leaves the lead-in orphaned.
+  `content_units.json` had already declined both units by name — *"belongs to a different section
+  and is not cited by any slot in this objective"* — so only the placement path resurrects the
+  paragraph. **It is a class, and it has already shipped:** replaying `placements()` over all ten
+  sealed bundles, exactly **one** placement changes under the union rule —
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-.NET` at `941814fd`,
+  `inherited_unit:018.paragraph`, *"Load a workbook with recovery diagnostics:"*, citing
+  `example:002` — and that bundle's **sealed** `README.md` line 155 is that sentence followed by a
+  blank line and *"More runnable snippets adapted from the sample projects … are collected below."*
+  The identical orphaned lead-in, in a second ecosystem, in a counted candidate. Nine of the ten
+  bundles are byte-unaffected; the tenth changes because it carries the defect. Fix: union
+  `planned_fact_ids | renderer_fact_ids` over every *included* section — an example the document
+  renders is rendered exactly once, so a preserved unit citing it duplicates it wherever it sits.
+  Alternative rejected: placing the companion code block too, which prints the same example twice in
+  full and contradicts `renders_verbatim`'s contract. Second alternative rejected: a renderer-side
+  guard dropping a placed paragraph that ends in `:` with no code block after it — it hides the
+  symptom and would delete legitimately preserved sentences. Mutation test: a `VERIFIED_PRESERVE`
+  unit citing an example the plan renders in another section must not be placed; a placed unit
+  citing a fact no included section renders must still be placed (`inherited_unit:045`, `047` and
+  `048` of this run are the live control — all three stay `placed` under the union). Reversal:
+  restore the destination-only set. Not this lane's to write — `composition/` is shared.
+- **PROPOSAL 2026-09-11 AB · the RC-04 misroute check reads the placed texts of the finding's own
+  `section_id`, so a finding about a placed unit rendered in a different section burns its one
+  repair attempt at S6.** File:
+  `src/repository_presenter/components/readme/repair/targeted.py`, `review_defects()`, at
+  `placed_here = placed.get(section, [])`. **Measured, zero provider calls:** this round's
+  `placed_texts()` is `{'additional_examples': 1, 'development_testing': 3}`; F05's quote is in
+  `additional_examples`' placed text and absent from `quick_start`'s (which has none), so
+  `review_defects` returns `stage='S6'`, `misrouted=False`. Looking the quote up across every
+  section's placed texts returns `misrouted=True` and `stage='S4'`. **The control is in the same
+  run:** Slides Java's F06 quotes a placed text of its *own* section, is already `misrouted=True`
+  today, and the union leaves it untouched — the widening is additive. What the misroute cost:
+  routed to S6/`quick_start`, `targeted_repair` returned a change with `path` `units`, `before` the
+  finding's own `text` field verbatim and `after` `""` — a string that occurs **nowhere** in
+  `content_units.json` and nowhere in `README.md`, so it never was document text — and the attempt
+  was still recorded `repaired`; the finding re-raised and the run stopped at rounds 3. Fix: scan
+  every section's placed texts. RC-04 already learned not to trust the reviewer's `causal_stage`;
+  its `section_id` deserves the same treatment, because the property that matters — *section
+  authoring never wrote this text and cannot revise it* — belongs to the text, not to the label.
+  Alternative rejected: trusting the reviewer's `section_id`, which is the very signal RC-04 exists
+  because it cannot be trusted. Attached observation, not a third proposal: a repair change whose
+  `before` occurs in no unit and in no rendered byte was recorded `repaired` — the same shape as
+  this lane's PROPOSALs N and Z, and a deterministic check could refuse it. Mutation test: a finding
+  whose quote is a placed text of a section other than its own `section_id` must be recorded
+  misrouted and routed to S4; one whose quote is a placed text of its own section keeps today's
+  answer. Reversal: restore the per-section lookup. Not this lane's to write — `repair/` is shared.
+- **Slides Java: BC-06 `PASS` for the first time ever — PROPOSAL X did not materialise, and that is
+  luck, not a fix.** Both anchor-bearing units still exist and are still `VERIFIED_PRESERVE`d into
+  `scope_limitations`, but this draw's S4 wrote `fact_ids` `['inherited_unit:014.paragraph',
+  'inherited_unit:015.paragraph']` on `014`'s record, and the plan's `scope_limitations` covers
+  `inherited_unit:015.paragraph` — so `placements()` returns `overlap` for **both** units, neither
+  renders, `#building-from-source` occurs **0 times** in the candidate, and BC-06 passes. The latent
+  defect X names — nothing before BC-06 compares a preserved unit's intra-document anchors against
+  the headings the candidate will render — is untouched, and the next draw that cites `014` alone
+  reproduces it. **PROPOSAL X stands as recorded, and is no longer this repository's observed
+  blocker.**
+- **Slides Java: `DISPOSITION BLOCKED_VALIDATION` at BC-10 on F06,
+  `presentation`/`development_testing`.** It quotes *"JDK 21 or later and Maven 3.9 or later are
+  required; the build refuses to start otherwise."* and says the section *"omits the specific note
+  about the `-Dgpg.skip=true` flag"*. It was correctly misrouted to S4, S4 re-composed and still
+  omitted the note, the finding re-raised, rounds 2. Recorded as a **measurement, not a proposal:**
+  the finding asserts an omission while its own `absent` list is empty and it cites no fact, so
+  `absence_defect` has nothing to evaluate and it blocks on second-reader corroboration alone —
+  the shape G4-W17 arrival item 39 settled for `factuality`, here under `presentation`. Left to the
+  owner as a possible extension of item 39 rather than asserted as this lane's proposal, because
+  the note it names may genuinely be one S4 should have preserved.
+- **Java cohort, state after this run.** 2 of 4 landed — PDF (`099e70a8`) and 3D (`e308de58`).
+  `repository-presenter status` reads **9/34** before and after (*9 ever sealed, 9 integrity-valid,
+  7 current-code reproducible, 0 independently accepted*), `candidates/` holds no directory for
+  either repository run here, and `project/state.yaml` was not opened. Cells Java is
+  `BLOCKED_COMPOSING` on **PROPOSAL AA** (AA alone is sufficient: with the lead-in unplaced the
+  duplication F05 names does not exist; **AB** is the independent routing half). Slides Java is
+  `BLOCKED_VALIDATION` on BC-10 alone. No third composition was attempted for Cells Java
+  (loop-prompt.md §5): it has now been rejected by BC-10 three times running, so the mechanism was
+  changed instead — this run found the deterministic cause rather than drawing again.
