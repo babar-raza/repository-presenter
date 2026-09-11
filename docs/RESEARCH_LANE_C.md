@@ -1149,3 +1149,90 @@ overwritten by later diagnostic calls). `runs/` started empty in `C:\w\c129`; en
   `BLOCKED_VALIDATION` on BC-10 alone. No third composition was attempted for Cells Java
   (loop-prompt.md §5): it has now been rejected by BC-10 three times running, so the mechanism was
   changed instead — this run found the deterministic cause rather than drawing again.
+- **2026-09-11 22:57 +05:00 · G4-W12-RERUN11 · `aspose-cells-foss/Aspose.Cells-FOSS-for-Java`
+  is SEALED and no-op proven at the tenth attempt — all 11 blocking checks `PASS`, review
+  `ACCEPT`, and a fresh process reproduced every artifact byte for byte with zero provider
+  calls.** Bundle
+  `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Java/779c9640ee38ed9e80c53e8db1e850f6be24372f`,
+  state `READY_FOR_PROPOSAL`, 14 files, 21 provider calls to seal, `README.md` 227 visible lines of
+  438 (sha256 `26c3639a…`). `validation.json` reads pass 11, fail 0, pending 0: BC-01 to BC-10 at
+  S9/S10, and BC-11 *"Fresh-process rerun is byte-identical with zero provider calls"* `PASS` at
+  S12, detail *"judged by the fresh-process replay: every artifact byte-identical, zero provider
+  calls"*. The review returned `verdict_as_returned` `REJECT_PRESENTATION` and the fold stack
+  reduced it to `ACCEPT` with **0** blocking findings and 13 advisories (`second_reader.read` 2,
+  7 corroborated IDs); one repair round revised `F01`/S6/`opening`. The whole ledger is 47 rows —
+  17 success, 29 `cache_reuse`, 1 `response_invalid`, **0 `cache_stale`** — so PROPOSAL V stays
+  closed on a third repository-run. This is lane C's third seal and the portfolio's **10/34**.
+  Nothing was forced: the second run's only moving bytes were `calls.jsonl`, `manifest.json`'s
+  state, `probes.json`'s re-observation and BC-11's own verdict; `README.md`, `facts.json`,
+  `plan.json`, `dispositions.json`, `content_units.json`, `review.json`, `investigation.json`,
+  `examples.json`, `dependencies.json` and `repairs.json` are byte-identical across the two
+  processes.
+- **2026-09-11 · G4-W12-RERUN11 · arrival item 65 (PROPOSAL AA) was NOT exercised by this draw,
+  and the seal is not evidence that it works.** The run's headline is a seal, so the honest half
+  matters more: measured with zero provider calls by replaying the sealed bundle's own `plan.json`
+  and `dispositions.json` through the production `placements()`, once with `rendered_example_ids`
+  returning `{}` (the pre-item-65 coverage) and once as shipped, **0 of 2 outcomes change**. Both
+  placements are `.code_block` units (`inherited_unit:019` → `quick_start`,
+  `inherited_unit:024` → `additional_examples`), `owned_elsewhere` either way. The reason is the
+  draw, not the fix: this S4 returned `VERIFIED_PRESERVE` **2** where the ninth re-run's returned
+  8, and `inherited_unit:020.paragraph` — the lead-in whose placement produced F05 — was not
+  preserved at all, so no lead-in ever reached `placements()`. What *is* true: *"Load an existing
+  workbook"* occurs **0** times in the sealed README and BC-10 raised no blocking finding. The
+  duplication class did not recur because this draw did not produce it. **PROPOSAL AA stands
+  landed and unit-tested on `main`, and still owes its live confirmation** to the next draw that
+  preserves a lead-in paragraph citing an example the plan renders elsewhere. PROPOSAL AB (the
+  routing half) is untouched on `main` and unexercised here for the same reason.
+- **PROPOSAL 2026-09-11 AC · the planner may pick a module or namespace as an API Reference hub,
+  and the renderer heads it with its bare final path segment over an empty member list — so
+  `#### Detailed Member Reference` can render nothing but headings and blurbs.** File:
+  `src/repository_presenter/components/readme/composition/planning.py` (what is admitted into
+  `api_hubs`), with the rendered consequence in `renderer.py::_api_reference` and
+  `api_reference_names`. **Measured, zero provider calls, on this run's own sealed bundle:**
+  `plan.json`'s three `api_hubs` are `public_symbol:org`, `public_symbol:org.aspose` and
+  `public_symbol:org.aspose.cells_foss` — all three `symbol_kind` `module`, not one a type;
+  `api_reference_names` gives a non-class symbol *"its final segment"*, so README lines 396–404 read
+  `### org`, `### aspose`, `### cells_foss` — three bare segments of one package, the
+  split-identifier shape loop-prompt §6 rule 8 names; and `api_reference_hub_methods` returns **0**
+  owned members for each, so the group is heading + blurb ×3 and no members, the mechanically
+  generated filler the same rule names. The group heading is also a level *deeper* than its own
+  children (`#### Detailed Member Reference` over `### org`). **It is a class, and it has already
+  shipped:** replayed over all 11 bundle directories on disk, **86** planned hubs, **33** non-type
+  and **35** rendering zero members, in **9** of the 11. Whole-group cases — Cells-Java 3/3,
+  3D-Java 1/1 (`com.aspose.threed`), PDF-Java 1/1 (`org.aspose.pdf`) — have an entirely empty
+  Detailed Member Reference; partial — Cells-Go 8/12, 3D-Python 7/10, Email-Python 4/12,
+  Slides-Python 3/12, Cells-Cpp 2/5. Clean: Cells-.NET 0/12 and Cells-Rust 0/12, the live controls.
+  **The contract is explicit**: `README_CONTRACT.md` row 14 asks for *"`### <Topic>` groups listing
+  the hub **types**' verified members as nested bullets"* and its planning row asks *"which
+  **types** are the entry-point hubs"* — a module is not a type and owns no members, so these plans
+  sit outside the contract's own wording. Fix: admit only a type symbol (`class`, `enum`, `struct`,
+  `interface`, `trait`) or, for an ecosystem with no types, a symbol `api_reference_hub_methods`
+  gives at least one member, and drop a memberless hub before the group is emitted. Alternative
+  rejected: filtering only at render time — the plan would still record hubs the document never
+  shows, and the plan is what the review and the coverage ledger read. Second alternative rejected:
+  rendering a module's contained types as its members — the Core API table already covers every
+  verified type exactly once (row 14). Mutation test: a plan whose hubs name a memberless module
+  must render no group for it; a plan of hub types with members must render today's bytes
+  (Cells-.NET and Cells-Rust). Cost: rendered bytes move for 9 bundle directories, so it is a
+  `RENDERER_VERSION` bump and the same re-seal question item 65's 21:52 +05:00 ruling answered.
+  Reversal: readmit every symbol kind. Not this lane's to write — `composition/` is shared.
+- **2026-09-11 · G4-W12-RERUN11 · `origin/main` moved to `3e9b81f` (arrival item 59) mid-run, and
+  the official entry point protected the proven bundle exactly as the ESM says.** Rebased onto it
+  and re-run a third time: S5's request digest moved with the call schema — item 59's own
+  DECISION_LOG entry predicted this in writing — so the planner made a fresh call and drew a
+  different plan (hubs 1, README 226 visible of 429, review `ACCEPT` with 14 advisories). The run
+  did **not** overwrite the seal. It recorded *"valid update available (presentation) … the proven
+  candidate stays valid and the update waits in the transaction"*, and a `diff -r` against a copy
+  taken before the rebase shows the only bundle delta is the new `update` block in
+  `manifest.json`. `repository-presenter status` reads **10/34** from the rebased tree, and
+  `project/state.yaml`'s `progress.current_candidates` was set 9 → 10 by that fresh count
+  (loop-prompt-lane §0's named exception), never by increment.
+- **Java cohort, state after this run.** 3 of 4 landed — PDF (`099e70a8`), 3D (`e308de58`) and now
+  Cells (`779c9640`). `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` was **not run** (out of
+  scope for this run by the spawn message: its BC-10 `F06` blocker is separate and item 65 does not
+  touch it), so its RERUN9 disposition `BLOCKED_VALIDATION` stands unchanged. The 13 advisories on
+  the sealed Cells-Java candidate are deferred repair work, not accepted work (§23): round-2 `F07`
+  claims Quick Start *"omits the second example (loading with diagnostics)"* while the plan renders
+  `example:001` **and** `example:002` there, and both rounds' `F03` claim the API Reference omits or
+  truncates the public type table the document carries in full inside `<details>` — the absence
+  rule's own shape, folded, recorded, not dismissed.

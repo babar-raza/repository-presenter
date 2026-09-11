@@ -1,0 +1,145 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 3,
+      "job": "independent_review",
+      "response_sha256s": [
+        "2b3a9eb27e0747ecb63b7cb49c1c8dc37fa6e8a95414c987e9f2eacfbad95ea1",
+        "d40c00e94b549e6842c0fbdb5f1574edb485d085ae19b164fa6413903c48623f",
+        "f274e38b1e352175d63d8e636e58baf38409e3870b45d5011a03588496cee089"
+      ]
+    },
+    {
+      "distinct_responses": 12,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "238a52c76b57f8adcf78958142caa4a6eef68e32ca1a7f758fa81b9f32cc114b",
+        "3742d96c04dc1dce44087377edfdfbb9d8f3dd88708e9e7643f94cdfb9beeaa2",
+        "4a5a97bdfe9e1abe9e2e63b422be784929463b7c6de8a426370513326998a644",
+        "4c70ed3fb9b09659522928aa77245b7b5183e55dcc4cdbd4b81c7a82387f35ef",
+        "69be99390a4000c1932c3be3f642b880c2bb4c2f62c2ee881be3fcfb1cb467a5",
+        "6c87840ea421a01497a437a8d58e0e0ba643187668e4f7924dcc4352ae69534d",
+        "72b4e09a13a9c033c47b69a752a4a70390c2f7eb86471c2300ceed0df7a5141a",
+        "96199fef0044727e37945ebf8c821ec6d1a9754d8701c81d2e2550797273c130",
+        "b74ac02087207088dd094e3f9c0d59d79d41649131ad7ea863c942dd5588e204",
+        "b90a3250feb9118d479b4902b53586eb9482a7bdd61b6d5a603b5f2306c690e5",
+        "c75746ad247e11c3576c6f3f29eff3c2f5ee8f4651b5fbb5d4a1540d1c233859",
+        "f8380d863ad096ad932464c11f62a8546bf6212670d7e9a5949cce5189eddd08"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "be66de410a804cbd1ece6b1e4025648502b4f1df39dd612eefb3311136967cf7",
+        "cd6cd96acae7528fafeb15f5e5d81b715a50fe7aa43aeee8befa411706a5fca4"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 13,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 26848,
+      "sha256": "26c3639a37d350526e564c74d99fae84ae8d62cc508d5631c73ba04cd65374e2"
+    },
+    "README.patch": {
+      "bytes": 42973,
+      "sha256": "aaffc1241251ce0dc68c70e12c89df73ef5b9d86feae7d0c9b0e89b36ec22de5"
+    },
+    "calls.jsonl": {
+      "bytes": 45285,
+      "sha256": "a49adcaaba4bd42aa80567841995a149804fc9916506bdd4dcc7e165db8fb99b"
+    },
+    "content_units.json": {
+      "bytes": 11905,
+      "sha256": "c4bf4624da172e2ce140425e72b3d3bb25042c349fd7b8424550e13f292d3af8"
+    },
+    "dependencies.json": {
+      "bytes": 400005,
+      "sha256": "15260c07ddd75875cfe62a821287db379c5d9d84d8bbdd72c8c0a6f51f2bfd7c"
+    },
+    "dispositions.json": {
+      "bytes": 17320,
+      "sha256": "bbc73f9f424d19ff085904b319ac240600734ee989d1f1f65e33fd35dcc9eff0"
+    },
+    "examples.json": {
+      "bytes": 906,
+      "sha256": "2da2831212fabc27dade9070c8f2fe2886a2b255c2c09f15820259e30be1e8b7"
+    },
+    "facts.json": {
+      "bytes": 1704474,
+      "sha256": "d5811d51ac15416fe40b5b006834131aa29863b2e58d3929c94251de3d1a71ea"
+    },
+    "investigation.json": {
+      "bytes": 5806,
+      "sha256": "f456dbc342d38c6ace7dafeb2a408383a75c2ec080937424b970d3602b0be59f"
+    },
+    "plan.json": {
+      "bytes": 6358,
+      "sha256": "b093d128588ab4748b2b5758321c8bbd56246d99b1f33512b8ddf6b6a3864530"
+    },
+    "probes.json": {
+      "bytes": 2922,
+      "sha256": "e334453bf92e09962f85d9c629a78f3e3e7e5231ddc4c33ec2dc61048d8c99d2"
+    },
+    "repairs.json": {
+      "bytes": 1663,
+      "sha256": "a3c639e188df00b532c986ed9e38981c8bc4689dbc270e90679b27327a20a197"
+    },
+    "review.json": {
+      "bytes": 15551,
+      "sha256": "3aa210fb93940994568e4c37901d6954bf530089b24bfc3a0b0b0c4ed6bc29e5"
+    },
+    "validation.json": {
+      "bytes": 9947,
+      "sha256": "63d74e90ec034164c2f96c8772ce198973e9fb6dddf836444abd98114e36db6f"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-11T17:49:22Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+  "schema_version": 1,
+  "sealed_at": "2026-09-11T17:49:22Z",
+  "state": "READY_FOR_PROPOSAL",
+  "update": {
+    "available": true,
+    "changed": [
+      "README.md",
+      "README.patch",
+      "content_units.json",
+      "plan.json",
+      "review.json",
+      "validation.json"
+    ],
+    "classification": "presentation",
+    "earliest_affected_stage": "NONE",
+    "files": {
+      "README.md": "51a447392b2062b9d6ce2f7543a5c0c8651d537a689a2a465eb10202a42aba3e",
+      "README.patch": "c5ddcd0ff8982383dc926da824c2449d91ab9278e71358d63c383f961e11f070",
+      "content_units.json": "155b5252383b4e6ab54ce2f91eb72315863ee87093a6e20fb43b2b917e69aafa",
+      "dependencies.json": "15260c07ddd75875cfe62a821287db379c5d9d84d8bbdd72c8c0a6f51f2bfd7c",
+      "dispositions.json": "bbc73f9f424d19ff085904b319ac240600734ee989d1f1f65e33fd35dcc9eff0",
+      "examples.json": "2da2831212fabc27dade9070c8f2fe2886a2b255c2c09f15820259e30be1e8b7",
+      "facts.json": "d5811d51ac15416fe40b5b006834131aa29863b2e58d3929c94251de3d1a71ea",
+      "investigation.json": "f456dbc342d38c6ace7dafeb2a408383a75c2ec080937424b970d3602b0be59f",
+      "plan.json": "4ab60a1ca13d2d909ce9ccddfe41f4af9849aeb848946c59a7e443b216f51b81",
+      "repairs.json": "a3c639e188df00b532c986ed9e38981c8bc4689dbc270e90679b27327a20a197",
+      "review.json": "8002b1c9c5e4bca8a2709929da19a283c44b931dea5f16f4addc4f1874d03f78",
+      "validation.json": "79fa3f8b89a0037613f49396f8bca4ac4934ac95cb1ed1e5145e0a9556ab29d8"
+    },
+    "recorded_at": "2026-09-11T17:56:34Z",
+    "transaction": "779c9640ee38ed9e80c53e8db1e850f6be24372f"
+  }
+}
