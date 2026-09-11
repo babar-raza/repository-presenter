@@ -1534,3 +1534,159 @@ says this repository would seal once P23 lands — only that the stage it now di
 manifest's seed rather than on the call store rest on something this gateway did not honour today.
 One pair of observations is a measurement, not a rule; recorded here because G2-W23/G5-W03's cold
 determinism work will want it.
+## 2026-09-11 15:45 — G4-W15-RERUN3, Aspose.Cells for Go, sprint wave W-GO
+
+`origin/main` at `08307b9`, branch `lane-d/G4-W15-RERUN3`, worktree `C:\w\d16`. Receipt:
+`evidence/build/lanes/lane-d/G4-W15-RERUN3.json`. Scope: `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`
+at `9f0a4033b59e9127afec7662ec9079b500af8032` only — Aspose.PDF for Go still waits on item 47.
+Toolchain `go1.26.4 windows/amd64` at `C:\Program Files\Go\bin\go.EXE`,
+`shutil.which("go")`. Environment hash `f4406f1b04d8…`, matching the primary and every sealed bundle.
+
+### PROPOSAL P23's resume predicate was met and its class is closed, measured
+
+`352fd35` replaced item 40's regex with an enum of the packet's own IDs, and S4 did exactly what
+P23 said it would. Both batches succeeded on attempt 1, in one round, with no retry:
+
+| S4 batch | enum values | prompt tokens | completion tokens | latency | finish |
+| --- | --- | --- | --- | --- | --- |
+| `reconciliation#1` (40 of 66 units) | 139 | 16,310 | **3,718** | 71,258 ms | success, attempt 1 |
+| `reconciliation#2` (26 of 66 units) | 125 | 13,912 | **2,701** | 54,775 ms | success, attempt 1 |
+
+Against the same repository at the same source revision four hours earlier: 32,000 completion
+tokens, `finish_reason length`, 552,882 ms, twice. 66 units, 66 dispositions, zero degenerate IDs.
+
+### The size control for lane E PROPOSAL E3
+
+E3 asks whether the enum is safe at scale, because Taskcard H's confirmed HTTP 400 came from an
+unbounded enum at the sibling `planning_schema()` site. This run is the small end of that question
+and it answers cleanly: **no HTTP 400, at any stage, in either full run** — every one of the
+48 provider calls answered HTTP 200, and the five `response_invalid` re-asks were all content
+rejections at S5/S6/S7, none at S4 and none naming a schema or a request size. The citable set measured
+on the production path (`reconciliation_batch_facts`, the facts `run_round` actually passes) is
+**139 values / 3,604 characters of IDs** for batch 1 and **125 values / 3,178 characters** for
+batch 2. P23's replay reported 123 for the same site; the difference is that the replay counted the
+packet's own records while the production schema also carries the batch's own 40 units and the
+investigation's cited IDs. Either number is the small end. Nothing here speaks to 689 or 3,812
+values — a clean run at 139 and a 400 at 689 would localise the failure to enum size; a clean run
+at both would retire E3's worry. This lane supplies only the first half.
+
+### BC-10 PASSES — `BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE` is closed
+
+The candidate reached S10 for the first time since 2026-09-06 and the independent review returned
+**ACCEPT**, `identity_separate: true`, `second_reader.read: 2`. BC-01 to BC-10 all PASS. The class
+this repository was blocked on — a review demanding deletion of `workbook.exporttocsv` member
+detail that `README_CONTRACT` requires in the collapsed reference — did not recur, and neither did
+the sibling-slot Quick Start lead-in that blocked in October's runs.
+
+The three unlocks under test (items 28 fold-not-reject, 29 lead-in slot binding, 45 sound
+symbol-reference folds) were exercised here for the first time: the review returned a usable
+verdict on every call, 15 findings folded to advisory in the first run and 8 in the second, and one
+blocking finding (F04, `api_reference`, `COMPOSING`) was routed to S6 and repaired. What this run
+shows is that the combination works on this repository; it does not separate which of the three is
+individually load-bearing, and nothing here claims it does.
+
+Composition: 231 facts (109 public symbols, 66 inherited units), a 16-of-18-section plan, 42 units
+across 8 sections, README.md at 236 visible lines of 515, 10 example candidates with 8 executed.
+Two repairs, both successful — BC-08 `quick_start` and F04 `api_reference`, three rounds.
+
+### PROPOSAL P24 — the enum rejects the IDs `normalize()` itself writes, so no S4 reply can ever be reused
+
+**File.** `components/readme/reconciliation/dispositions.py`, `citable_fact_ids()` against
+`normalize()`; landed by `352fd35` this morning.
+
+**Defect.** `normalize()` folds a placement into a deterministic section by rewriting the entry:
+`entry["fact_ids"] = sorted(cited | set(rendering_fact_ids(destination, facts)))`. For `identity`
+and `navigation` that set contains `identity:revision`. `citable_fact_ids()` is built from
+`_packet_fact_records()` → `bounded_records()`, which skips `_EXCLUDED_FROM_PACKETS` — and
+`identity:revision` is in it **by design**: `core/facts.py` line 179, whose own comment says the
+exclusion exists "so its own bundled call cache reuses across a revision bump that changes no fact
+a job would ever reason about". What is stored is the *normalised* output, and `core/llm/jobs.py`
+re-judges a stored output against the *current* schema before reuse. The enum refuses
+`identity:revision`, `_parse` returns `None`, and the store records `cache_stale` /
+`OutputRejected` — every round, every process, forever. The exclusion that exists to make the cache
+reuse is what now guarantees it never can.
+
+**Measured.** Batch 1's request digest is `c4132101affc` in every round of both runs — byte-identical
+packet and schema, so nothing about the request moved:
+
+| `calls.jsonl` | disposition | completion tokens |
+| --- | --- | --- |
+| round 1 | `provider_call` | 3,718 |
+| round 2 | `cache_stale` (`OutputRejected`) then `provider_call` | — / 3,266 |
+| round 3 | `cache_stale` then `provider_call` | — / 3,390 |
+| run 2, fresh process | `cache_stale` then `provider_call` | — / 4,350 |
+
+Batch 2 (`a3ce39d30513`) reuses cleanly every time; it places nothing into a deterministic section.
+Re-judging the stored batch-1 reply offline reproduces exactly three rejections, all of one shape:
+`$.dispositions[0].fact_ids[4]: 'identity:revision' is not one of [...]`. Of the 41 IDs
+`normalize()` can add for this repository's deterministic sections, exactly one — `identity:revision`
+— is outside the enum.
+
+**Fix, proven offline, no provider call.** Widen `citable_fact_ids()` to admit what code writes as
+well as what the packet shows: the union of `rendering_fact_ids()` over the deterministic sections,
+the UNRESOLVED/CONTRADICTED code-unit IDs, the SUPPORTED `install_command` and `build_test_asset`
+IDs, and `BANNER_FACT_ID`/`HOMEPAGE_FACT_ID`/`ENTERPRISE_FACT_ID`. Replaying `_parse` on the stored
+reply with the enum widened from 139 to 140 values: **accepted, zero rejections**. This widens
+nothing the model can invent — every added ID is one deterministic code would have written into the
+entry anyway, and `binding_errors` still rejects an ID naming no fact.
+
+**Rejected alternatives.** Re-judging a stored output against the schema it was *stored* under
+would defeat the re-judge-before-reuse design (a corrected check must take effect without a call).
+Making `normalize()` stop adding `identity:revision` would drop the citation that proves the
+supersession. Reverting `352fd35` would reopen the decode runaway this same run just proved closed.
+
+**Consequence, and it is the whole portfolio's.** BC-11 — a fresh-process rerun, byte-identical,
+zero provider calls — is unreachable while this holds: the rerun must make the S4 call, this
+gateway does not return the same answer twice, and the dispositions moved (`VERIFIED_MOVE` 9 → 2,
+`OMIT_UNSUPPORTED` 7 → 14, `VERIFIED_PRESERVE` 18 → 22, `SUPERSEDE_REDUNDANT` 25 → 23), taking
+README.md from 236 visible lines to 223. The bundle re-sealed and its own proof was withdrawn.
+`identity:revision` is a fact every repository has, `_EXCLUDED_FROM_PACKETS` is universal, and
+`normalize()`'s deterministic fold is universal, so this is not a Go finding: any repository whose
+reconciler places one inherited unit into `identity` or `navigation` cannot pass BC-11 today. The
+same shape reaches wherever `rendering_fact_ids()` (every SUPPORTED fact of the section's kinds,
+unbounded) exceeds `bounded_records()`'s `LINK_CAP`, `EXAMPLE_CAP` or `SYMBOL_CAP`.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at
+`9f0a4033b59e9127afec7662ec9079b500af8032`; four `cache_stale` records, three of them S4 batch 1.
+
+### The disposition this re-run leaves
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at `9f0a4033b59e9127afec7662ec9079b500af8032`,
+`BLOCKED_SHARED_CODE`, failure class `S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM`. Supersedes
+`S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY`, closed by `352fd35`, and
+`BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE`, closed here and measured. The bundle is on disk at
+state `ACCEPTED` with BC-01 to BC-10 PASS, BC-11 `PENDING` and `no_op_proof: null` — an honest
+record of ten checks, not a candidate: `repository-presenter status` counts it in "9 ever sealed"
+and not in the 8/34. No seal was forced. Resume predicate: PROPOSAL P24 landed on `main`, then
+rerun `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch; that
+re-run needs only BC-11, every other check having passed here. `sealed_by_lane` stays 1 and
+`dispositions_by_lane` stays 2.
+
+**What is not claimed.** BC-11 has never passed for this repository. Items 28, 29 and 45 are not
+individually attributed. The 400 lane E fears at 689 and 3,812 values is neither reproduced nor
+refuted by a clean run at 139.
+
+**Three observations, none of them a rule.**
+
+1. `section_authoring` also recorded one `cache_stale` / `OutputRejected` (request `87818bc7766a`),
+   and that stored reply's units carry `identity:revision` in `fact_ids` while `authoring_schema()`
+   pins the same field to an enum of its own. The same shape, at a second stage — not separately
+   diagnosed here, and P24 is written about S4 only.
+2. A `cache_stale` records `error_class: OutputRejected` in the ledger and writes no rejection file,
+   where a fresh reply's rejection is kept beside the store as `<digest>.rejected-N.json`. The
+   reason a stored reply went stale can only be recovered by replaying `_parse` offline, which is
+   how this proposal was written. Cheap to fix, and it would have saved this diagnosis an hour.
+3. `manifest.json`'s `call_variance` records six distinct `independent_review` responses to the same
+   request, and one `targeted_repair` wrote back byte-identical prose (`before` == `after` in
+   `repairs.json`, attempt `c12127d401b3`, finding F04) and was still counted a repair —
+   corroborating lane C's item 34 in a second ecosystem.
+
+**One environment measurement.** `loop-prompt-lane.md` §1.3's recipe — `requirements-lock.txt` plus
+`uv==0.12.9`, then `pip install --no-deps -e .` — does **not** reproduce the reference environment
+hash. It yields `fdd69f7da18f…` against the primary's `f4406f1b04d8…`, because the lock carries
+neither `pytest-xdist` (which `pytest -n auto` needs) nor `execnet`, and a fresh `venv` ships
+`pip==26.2.1` where the primary holds `pip==24.3.1`. Adding `pip==24.3.1`, `execnet==2.1.2`,
+`pytest-xdist==3.8.0` and `uv==0.12.9` reproduces `f4406f1b04d8…` exactly. Four distributions, not
+the five lane F measured for the bare-extras install, and in the other direction: too few, not too
+many. Recorded rather than fixed — `requirements-lock.txt` and the loop prompt are both outside
+this lane's owned paths.
