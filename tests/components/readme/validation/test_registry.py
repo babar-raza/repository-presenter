@@ -544,6 +544,42 @@ def test_a_hyphenated_package_name_in_prose_is_not_a_protected_command(tmp_path:
     )
 
 
+def test_an_anchor_to_a_heading_the_candidate_dropped_names_the_section_it_renders_in(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 47 (lane D PROPOSAL P20, Aspose.PDF for Go). `_check_links` built its
+    anchor failure with no section, so `repair/targeted.py::validation_defects` recorded it
+    unrepairable ("no failing check names an LLM-owned section") - the shape item 23 fixed for
+    BC-08, one check over. Measured 2026-09-08: a VERIFIED_PRESERVE unit copied verbatim carried
+    "[Encryption and Signing](#encryption-and-signing)" into a candidate whose plan renders no
+    such heading. The failure now names the shell section the link renders in, read off its own
+    line - whichever section that is; the router decides what is revisable - and an anchor that
+    resolves is no failure at all."""
+    readme = _candidate().readme
+    sentence = "Encryption is covered in [Encryption and Signing](#encryption-and-signing) below."
+    for heading, section in (
+        ("## Scope and Limitations", "scope_limitations"),
+        ("## API Reference", "api_reference"),
+    ):
+        placed = readme.replace(f"{heading}\n\n", f"{heading}\n\n{sentence}\n\n")
+        assert placed != readme
+        links = _failed(validate_candidate(_candidate(placed), tmp_path, ()), "BC-06")
+        assert links["causal_stage"] == "COMPOSING"
+        assert links["failures"] == [
+            {
+                "section_id": section,
+                "causal_stage": "COMPOSING",
+                "detail": "#encryption-and-signing: no heading #encryption-and-signing",
+            }
+        ], section
+    resolving = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nInstall first, then see [Quick Start](#quick-start).\n\n",
+    )
+    assert resolving != readme
+    assert _verdicts(validate_candidate(_candidate(resolving), tmp_path, ()))["BC-06"] == "PASS"
+
+
 def test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring(
     tmp_path: Path,
 ) -> None:

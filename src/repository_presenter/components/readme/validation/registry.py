@@ -161,7 +161,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-06",
-        "1",
+        # "2" (G4-W17 arrival item 47, a meaning change per the increment rule): an anchor to a
+        # heading the candidate does not render fails naming the shell section the link renders
+        # in, so the repair loop can route it; "1" recorded every such failure unrepairable.
+        "2",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name",
         ("documentation_resources", "enterprise_relationship", "badges"),
@@ -374,10 +377,12 @@ def _prose(lines: Sequence[str]) -> str:
     return _URL.sub(" ", text)
 
 
-def _section_texts(readme: str) -> dict[str, str]:
-    """The text under each headed shell section, keyed by section id."""
+def _section_lines(readme: str) -> list[str | None]:
+    """The headed shell section each line of the README falls under, by line index: None for
+    a line before the first shell heading, under a heading the shell does not name, or the
+    ``## `` heading line itself; a fence's lines stay with their section."""
     by_heading = {section.heading: section.id for section in SEMANTIC_SHELL if section.heading}
-    texts: dict[str, list[str]] = {}
+    sections: list[str | None] = []
     current: str | None = None
     inside = False
     for line in readme.splitlines():
@@ -388,9 +393,18 @@ def _section_texts(readme: str) -> dict[str, str]:
             inside = False
         if not inside and line.startswith("## "):
             current = by_heading.get(line[3:].strip())
+            sections.append(None)
             continue
-        if current is not None:
-            texts.setdefault(current, []).append(line)
+        sections.append(current)
+    return sections
+
+
+def _section_texts(readme: str) -> dict[str, str]:
+    """The text under each headed shell section, keyed by section id."""
+    texts: dict[str, list[str]] = {}
+    for line, section in zip(readme.splitlines(), _section_lines(readme), strict=True):
+        if section is not None:
+            texts.setdefault(section, []).append(line)
     return {section: "\n".join(lines) for section, lines in texts.items()}
 
 
@@ -695,11 +709,18 @@ def _check_links(candidate: Candidate) -> list[Failure]:
         if fact.id.startswith("link_target:product.") and fact.polarity == "SUPPORTED"
     }
     aspose = 0
+    # G4-W17 arrival item 47 (lane D PROPOSAL P20, Aspose.PDF for Go, measured 2026-09-08). An
+    # anchor to a heading the candidate does not render failed with no section, so
+    # repair/targeted.py::validation_defects recorded it unrepairable - item 23's shape, one
+    # check over. The section is the one the link renders in, read off the link's own line,
+    # whichever section that is: the router decides what is revisable, never this check.
+    sections = _section_lines(candidate.readme)
     for target in extract_links(candidate.readme):
         if target.kind == "anchor":
             result = check_anchor(target.href, slugs)
             if result.outcome != "RESOLVED":
-                failures.append(Failure("COMPOSING", f"{target.href}: {result.detail}"))
+                section = sections[target.line - 1] if 0 < target.line <= len(sections) else None
+                failures.append(Failure("COMPOSING", f"{target.href}: {result.detail}", section))
         elif target.kind == "relative":
             result = check_relative(target.href, candidate.tree_paths)
             if result.outcome != "RESOLVED":
