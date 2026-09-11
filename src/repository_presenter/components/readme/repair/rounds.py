@@ -230,7 +230,7 @@ def run_round(tx: TransactionInputs) -> Round:
             dispositions=dispositions,
             ecosystem=entry.ecosystem,
         ),
-        call_schema=planning_schema(loaded, facts),
+        call_schema=planning_schema(loaded, facts, investigation.output, dispositions),
         **common,
     )
     digests["plan"] = write_plan(planned.output, tx.directory / PLAN_FILENAME)

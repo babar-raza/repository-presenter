@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.components.readme.composition import planning
 from repository_presenter.components.readme.composition.components.shell import section_ids
 from repository_presenter.components.readme.composition.planning import (
+    citable_fact_ids,
     plan_checks,
     planning_packet,
     planning_schema,
@@ -21,7 +22,13 @@ from repository_presenter.components.readme.composition.planning import (
     write_plan,
 )
 from repository_presenter.components.readme.composition.policy import PlanningPolicy
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import (
+    FACT_KINDS,
+    Evidence,
+    Fact,
+    FactsDocument,
+    bounded_records,
+)
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
 from support import REPO_ROOT
@@ -232,6 +239,133 @@ def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view()
     assert entries[0]["fact_ids"] == ["example:003"]
 
 
+_FACT_ID_ARRAYS = (
+    ("core_capabilities", "fact_ids"),
+    ("core_capabilities", "shared_fact_ids"),
+    ("api_hubs", "fact_ids"),
+    ("material_limitations", "fact_ids"),
+    ("deviations", "fact_ids"),
+)
+
+
+def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_decode() -> None:
+    """G4-W17 arrival item 59 (lane F PROPOSAL F10). Aspose.3D and Aspose.Email for .NET have no
+    ``format`` fact, and their planners wrote ``format:msg``-shaped IDs into ``fact_ids`` - well
+    formed, naming nothing - which the binding rejected only after the call was spent (one wasted
+    S5 attempt on 3D; the whole Email run, the retry budget being two). The five fact-ID arrays
+    now carry the packet's own citable IDs as one ``$defs`` enum, so the reply cannot be written."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    citable = [
+        "build_test_asset:tests",
+        "example:001",
+        "example:002",
+        "format:output.stl",
+        "identity:repository",
+        "inherited_unit:001.paragraph",
+        "link_target:001",
+        "link_target:002",
+        "public_symbol:widget.scene",
+    ]  # every SUPPORTED fact; never the UNRESOLVED format or the CONTRADICTED example and link
+    assert citable_fact_ids(FACTS, {}, {}, MANIFEST) == citable
+    assert schema["$defs"] == {"citable_fact_id": {"type": "string", "enum": citable}}
+    for array, field in _FACT_ID_ARRAYS:
+        pinned = schema["properties"][array]["items"]["properties"][field]
+        assert pinned["items"] == {"$ref": "#/$defs/citable_fact_id"}
+        assert pinned["maxItems"] == len(citable)
+        # The manifest's own schema is untouched: the specialisation is per call.
+        original = loaded.manifest.output.schema_["properties"][array]["items"]["properties"]
+        assert original[field]["items"] == {"type": "string"}
+    assert "$defs" not in loaded.manifest.output.schema_
+    validator = Draft202012Validator(schema)
+
+    def refused(plan: dict[str, Any]) -> list[tuple[str, str]]:
+        return sorted(
+            (error.json_path, str(error.validator))
+            for error in validator.iter_errors(plan)
+            if "fact_ids" in error.json_path
+        )
+
+    assert refused(_plan()) == []
+    capability = {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]}
+    assert refused(_plan(core_capabilities=[{**capability, "fact_ids": ["format:msg"]}])) == [
+        ("$.core_capabilities[0].fact_ids[0]", "enum")
+    ]
+    assert refused(
+        _plan(core_capabilities=[{**capability, "shared_fact_ids": ["format:msg"]}])
+    ) == [("$.core_capabilities[0].shared_fact_ids[0]", "enum")]
+    hub = {"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": ["format:msg"]}
+    assert refused(_plan(api_hubs=[hub])) == [("$.api_hubs[0].fact_ids[0]", "enum")]
+    limitation = {"fact_ids": ["format:msg"], "unit_ids": []}
+    assert refused(_plan(material_limitations=[limitation])) == [
+        ("$.material_limitations[0].fact_ids[0]", "enum")
+    ]
+    deviation = {"section_id": "opening", "text": "t", "fact_ids": ["format:msg"]}
+    assert refused(_plan(deviations=[deviation])) == [("$.deviations[0].fact_ids[0]", "enum")]
+    # The bound: a citation list longer than the citable set can only be repeating itself.
+    repeated = {**capability, "fact_ids": ["example:001"] * (len(citable) + 1)}
+    assert refused(_plan(core_capabilities=[repeated])) == [
+        ("$.core_capabilities[0].fact_ids", "maxItems")
+    ]
+    # Nothing citable pins every array empty, as S4 does, with no enum left to reference.
+    empty = planning_schema(loaded, FactsDocument(ENTRY.repository, "a" * 40, ()), {}, {})
+    assert "$defs" not in empty
+    for array, field in _FACT_ID_ARRAYS:
+        assert empty["properties"][array]["items"]["properties"][field] == {
+            "type": "array",
+            "maxItems": 0,
+        }
+
+
+def test_the_planner_may_cite_what_its_packet_shows_and_nothing_it_does_not() -> None:
+    """Aspose.Slides for Python's accepted plan cites public_symbol:slides_foss.charts.axis.title,
+    a SUPPORTED symbol deeper than bounded_records admits, which its packet shows only inside the
+    accepted investigation (replayed 2026-09-11 over the nine sealed bundles: the one citation
+    outside the packet's own facts). The investigation and disposition pools admit exactly what
+    they show; nothing admits an UNRESOLVED fact, an ID naming no fact, a disposition's
+    CONTRADICTED citation, or identity:revision, which no packet ever shows."""
+    via_investigation = _fact(
+        "public_symbol:widget.charts.axis.title.style",
+        "public_symbol",
+        "widget.charts.axis.title.Style",
+    )
+    via_disposition = _fact(
+        "public_symbol:widget.charts.axis.title.font",
+        "public_symbol",
+        "widget.charts.axis.title.Font",
+    )
+    unresolved = _fact("format:input.msg", "format", ".msg", "UNRESOLVED")
+    revision = _fact("identity:revision", "identity", "a" * 40)
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, via_investigation, via_disposition, unresolved, revision),
+    )
+    # The case is real: neither deep symbol is in the packet's own facts.
+    shown = {record["id"] for record in bounded_records(facts, FACT_KINDS)}
+    assert via_investigation.id not in shown and via_disposition.id not in shown
+    investigation = {
+        "product_summary": {"fact_ids": [via_investigation.id, unresolved.id, "format:msg"]}
+    }
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:001.paragraph",
+                "disposition": "VERIFIED_MOVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": [via_disposition.id, "link_target:003"],
+                "rationale": "r",
+            }
+        ]
+    }
+    citable = set(citable_fact_ids(facts, investigation, dispositions, MANIFEST))
+    assert {via_investigation.id, via_disposition.id} <= citable
+    assert not {unresolved.id, "format:msg", "link_target:003", revision.id} & citable
+    # Each pool is load-bearing: drop it and its citation is no longer writable.
+    assert via_investigation.id not in citable_fact_ids(facts, {}, dispositions, MANIFEST)
+    assert via_disposition.id not in citable_fact_ids(facts, investigation, {}, MANIFEST)
+
+
 def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_there() -> None:
     """G4-W17 arrival item 42, the same rejected reply: aspose-note-foss/Aspose.Note-FOSS-for-
     Python's first attempt put public_symbol:aspose.note.saveformat into
@@ -239,7 +373,7 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
     an enum the same way the example, link, and hub IDs already do; with no verified format in a
     direction the list is pinned empty rather than given an empty enum."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, FACTS)
+    schema = planning_schema(loaded, FACTS, {}, {})
     glance_variants = schema["properties"]["at_a_glance"]["oneOf"]
     variants = [v for v in glance_variants if v.get("type") == "object"]
     assert len(variants) == 1
@@ -585,7 +719,7 @@ def test_every_backstop_field_name_names_a_real_planning_schema_property() -> No
     (a table row naming a field the schema does not have would apply its append to a key the
     schema-validated output never checks, so a typo would never be caught any other way)."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, FACTS)
+    schema = planning_schema(loaded, FACTS, {}, {})
     field_names = {field for field, _, _ in planning._BACKSTOPS}
     assert field_names and field_names <= set(schema["properties"])
 
@@ -823,7 +957,7 @@ def test_the_verified_examples_travel_as_an_enum_so_a_valid_reply_cannot_name_an
     # naming a CONTRADICTED example, which no packet wording prevents. The code emits the
     # allowed IDs, so the rejection family cannot be produced by a schema-valid reply.
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, FACTS)
+    schema = planning_schema(loaded, FACTS, {}, {})
     properties = schema["properties"]
     assert properties["quick_start_example_id"]["enum"] == ["example:001", "example:002"]
     assert properties["additional_example_ids"]["items"]["enum"] == ["example:001", "example:002"]
@@ -849,7 +983,7 @@ def test_a_deviation_may_only_name_a_shell_section() -> None:
     # The canary's planner was rejected for "deviation names an unknown section 'links'", which
     # the code can state outright (RESEARCH_AND_GUIDELINES.md section 27.5 D1).
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, FACTS)
+    schema = planning_schema(loaded, FACTS, {}, {})
     section_id = schema["properties"]["deviations"]["items"]["properties"]["section_id"]
     assert section_id["enum"] == list(section_ids())
     assert "links" not in section_id["enum"] and "opening" in section_id["enum"]
@@ -881,7 +1015,7 @@ def test_a_link_target_the_shell_already_renders_cannot_be_written_at_all() -> N
         ),
     )
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, facts)
+    schema = planning_schema(loaded, facts, {}, {})
     link_fact_id = schema["properties"]["links"]["items"]["properties"]["link_fact_id"]
     assert link_fact_id["enum"] == ["link_target:001", "link_target:002"]
     assert "link_target:product.enterprise" not in link_fact_id["enum"]
@@ -945,7 +1079,7 @@ def test_a_hub_naming_a_module_with_an_available_class_sibling_cannot_be_written
     available is excluded.
     """
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, MIS_HUB_FACTS)
+    schema = planning_schema(loaded, MIS_HUB_FACTS, {}, {})
     symbol_fact_id = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]
     assert "public_symbol:widget.mapi_message" not in symbol_fact_id["enum"]
     expected_present = {
@@ -978,7 +1112,7 @@ def test_the_symbol_and_link_enums_stay_bounded_like_the_packet_the_model_actual
     deep = _fact("public_symbol:widget.a.b.c.deep", "public_symbol", "widget.a.b.c.deep")
     facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, deep))
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    schema = planning_schema(loaded, facts)
+    schema = planning_schema(loaded, facts, {}, {})
     symbol_fact_id = schema["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]
     assert "public_symbol:widget.a.b.c.deep" not in symbol_fact_id["enum"]
     assert "public_symbol:widget.scene" in symbol_fact_id["enum"]
@@ -1022,8 +1156,8 @@ def test_the_symbol_enum_size_grows_sub_linearly_not_proportionally() -> None:
     10x, asserting the enum's own size does not grow the full 10x once SYMBOL_CAP (6000) is
     crossed. This is the case H's own fix genuinely closes."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    base = planning_schema(loaded, _shallow_symbols_facts(1000))
-    tenx = planning_schema(loaded, _shallow_symbols_facts(10000))
+    base = planning_schema(loaded, _shallow_symbols_facts(1000), {}, {})
+    tenx = planning_schema(loaded, _shallow_symbols_facts(10000), {}, {})
     base_enum = base["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]["enum"]
     tenx_enum = tenx["properties"]["api_hubs"]["items"]["properties"]["symbol_fact_id"]["enum"]
     assert len(base_enum) == 1000
@@ -1034,8 +1168,8 @@ def test_the_link_enum_size_grows_sub_linearly_not_proportionally() -> None:
     """PHASE0/J2: bounded_records()'s own LINK_CAP now bounds link_target the same way SYMBOL_CAP
     already bounds public_symbol - was xfail(strict=True) (J1) until this landed."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    base = planning_schema(loaded, _links_facts(200))
-    tenx = planning_schema(loaded, _links_facts(2000))
+    base = planning_schema(loaded, _links_facts(200), {}, {})
+    tenx = planning_schema(loaded, _links_facts(2000), {}, {})
     base_enum = base["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
     tenx_enum = tenx["properties"]["links"]["items"]["properties"]["link_fact_id"]["enum"]
     assert len(tenx_enum) < 10 * len(base_enum)
@@ -1045,8 +1179,8 @@ def test_the_example_enum_size_grows_sub_linearly_not_proportionally() -> None:
     """PHASE0/J2: bounded_records()'s own EXAMPLE_CAP now bounds example the same way - was
     xfail(strict=True) (J1) until this landed."""
     loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
-    base = planning_schema(loaded, _examples_facts(200))
-    tenx = planning_schema(loaded, _examples_facts(2000))
+    base = planning_schema(loaded, _examples_facts(200), {}, {})
+    tenx = planning_schema(loaded, _examples_facts(2000), {}, {})
     assert len(tenx["properties"]["quick_start_example_id"]["enum"]) < (
         10 * len(base["properties"]["quick_start_example_id"]["enum"])
     )

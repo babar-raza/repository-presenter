@@ -15,7 +15,7 @@ import copy
 import hashlib
 import json
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +46,7 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
 )
+from repository_presenter.core.llm.binding import collect_ids
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -255,7 +256,83 @@ def _decision(section: Section, holds: bool | None) -> dict[str, Any]:
     }
 
 
-def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str, Any]:
+# The fact-ID arrays a plan writes, as (plan property, item property) paths into the schema.
+_FACT_ID_ARRAYS = (
+    ("core_capabilities", "fact_ids"),
+    ("core_capabilities", "shared_fact_ids"),
+    ("api_hubs", "fact_ids"),
+    ("material_limitations", "fact_ids"),
+    ("deviations", "fact_ids"),
+)
+
+
+def citable_fact_ids(
+    facts: FactsDocument,
+    investigation: Mapping[str, Any],
+    dispositions: Mapping[str, Any],
+    manifest: PromptManifest,
+) -> list[str]:
+    """Every fact ID a plan may write, sorted: the packet's own ``facts`` records, the example
+    and format IDs it lists, the fact IDs its shown dispositions carry, and the SUPPORTED IDs
+    the accepted investigation cites - each an ID the planner can see in its packet, none it
+    cannot (RESEARCH_AND_GUIDELINES.md section 27.2 RC1; the plan's binding admits SUPPORTED
+    facts only). S4's ``reconciliation_schema`` already has this shape
+    (``dispositions.citable_fact_ids``); this is the same enum one stage later.
+
+    G4-W17 arrival item 59 (lane F PROPOSAL F10): the four ``fact_ids`` arrays and
+    ``shared_fact_ids`` were typed ``{"type": "string"}`` with no enum, so a planner facing a
+    repository with zero ``format`` facts wrote ``format:msg``, ``format:eml``, ``format:cfb`` -
+    well-formed IDs naming no fact, rejected by the binding only after the call was spent: one
+    wasted S5 attempt on Aspose.3D for .NET, the whole run on Aspose.Email for .NET (the retry
+    budget is two). A kind-prefix pattern would have admitted them (``format`` is a real kind);
+    only the packet's own IDs refuse them. Replayed 2026-09-11 over the nine sealed bundles:
+    every accepted plan's citations lie inside this set, and Aspose.Slides for Python's
+    ``public_symbol:slides_foss.charts.axis.title`` only through the investigation pool, which
+    is why that pool is here.
+    """
+    supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
+    kinds = manifest.packet.fact_kinds or FACT_KINDS
+    shown = {record["id"] for record in bounded_records(facts, kinds)}
+    shown.update(_examples_summary(facts)["verified_ids"])
+    shown.update(r["id"] for records in _verified_formats(facts).values() for r in records)
+    shown.update(
+        fact_id
+        for entry in _selectable_dispositions(dict(dispositions), facts)["dispositions"]
+        for fact_id in entry.get("fact_ids", [])
+    )
+    cited = {fact_id for fact_id in collect_ids(investigation).fact_ids if fact_id in supported}
+    return sorted(shown | cited)
+
+
+def _pin_fact_id_arrays(schema: dict[str, Any], citable: list[str]) -> None:
+    """Pin every fact-ID array a plan writes to ``citable``: one ``$defs`` enum referenced from
+    each array, never a copy per array. The set is the packet's own size - 2,217 IDs and 98 KB
+    on Aspose.Cells for Rust, 1,816 and 96 KB on Aspose.Slides for Python (measured 2026-09-11
+    over the sealed bundles) - so five copies would multiply the call schema, which is rendered
+    into the prompt as well as sent as ``response_format``, fivefold; ``$defs``/``$ref`` is the
+    shape ``repository_investigation``'s own schema already decodes through. ``maxItems`` is the
+    set's size, the bound a duplicate-free citation list cannot exceed. With nothing citable an
+    array is pinned empty, as S4 does."""
+    if citable:
+        schema.setdefault("$defs", {})["citable_fact_id"] = {"type": "string", "enum": citable}
+    for property_name, field in _FACT_ID_ARRAYS:
+        items = schema["properties"].get(property_name, {}).get("items", {})
+        item_properties = items.get("properties", {})
+        if field not in item_properties:
+            continue
+        if citable:
+            item_properties[field]["items"] = {"$ref": "#/$defs/citable_fact_id"}
+            item_properties[field]["maxItems"] = len(citable)
+        else:
+            item_properties[field] = {"type": "array", "maxItems": 0}
+
+
+def planning_schema(
+    manifest: LoadedManifest,
+    facts: FactsDocument,
+    investigation: Mapping[str, Any],
+    dispositions: Mapping[str, Any],
+) -> dict[str, Any]:
     """The planning schema specialised for this repository: the example selections carry the
     verified example IDs as an enum, so a schema-valid plan cannot name a contradicted or
     unresolved example (RESEARCH_AND_GUIDELINES.md section 27.5 D1; the canary was rejected
@@ -281,6 +358,12 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     attempt wrote a ``public_symbol`` into ``output_format_ids``); with no verified format in a
     direction the list is pinned empty (``maxItems`` 0) rather than given an empty enum, which
     no value could satisfy while the plan must still carry the key.
+
+    Every fact-ID array a plan writes (``core_capabilities``' ``fact_ids`` and
+    ``shared_fact_ids``, and the ``fact_ids`` of ``api_hubs``, ``material_limitations`` and
+    ``deviations``) is pinned to ``citable_fact_ids`` - the IDs this packet shows - through one
+    ``$defs`` enum (``_pin_fact_id_arrays``; G4-W17 arrival item 59), so an ID naming no fact is
+    refused at decode rather than by the binding after the call is spent.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     # H: every enum below names the fact IDs a plan may choose, so it must never grow larger
@@ -324,6 +407,9 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
                 if format_ids
                 else {"type": "array", "maxItems": 0}
             )
+    _pin_fact_id_arrays(
+        schema, citable_fact_ids(facts, investigation, dispositions, manifest.manifest)
+    )
     if not verified:
         return schema
     properties["quick_start_example_id"]["enum"] = verified
