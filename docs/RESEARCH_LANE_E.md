@@ -677,3 +677,181 @@ validation `pass 10, fail 0`, review `ACCEPT` with zero findings and two corrobo
 the repository's own recorded blocker is genuinely closed. It is still not a candidate this project
 can count, because the bundle it sealed cannot be re-rendered from the facts it sealed, and the
 suite says so. That gap is E7's, not the candidate's.
+
+## 2026-09-11 12:30 UTC (`date` checked) — LANE-E-01, run 3, sprint wave W-PY1
+
+Branch `lane-e/LANE-E-01-R3`, worktree `C:\w\e03`, off `origin/main` at `22c2e45`. Receipt:
+`evidence/build/lanes/lane-e/LANE-E-01.json`. Scope, as the supervisor set it: re-attempt
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Python` alone and test whether arrival item 61 closed E7 —
+verify it, do not assume it, and do not force a seal if the cause turns out to be something else.
+The environment was confirmed before any candidate work and matched on the first attempt this time
+(`presenter_site_manifest f4406f1b04d8…`), because `54417f9` landed the exact recipe two lanes had
+to reconstruct; no rebuild was needed.
+
+**Result in one line: E7 is closed, the no-op property is restored, and Cells for Python still does
+not seal — for a third, different, shared-code cause, which is E8 below.**
+
+### E7 is CLOSED by arrival item 61, verified two independent ways
+
+Item 61 (`22c2e45`) makes `FactsDocument.canonical()` the one fact order both sides use:
+`to_json` writes it and `render_readme` now reads `facts.canonical()`. That is exactly the two lines
+E7 named, so E7 needed no Python-specific change and lane E proposes none.
+
+**Verification 1, offline, zero provider calls, whole portfolio.** Every one of the nine sealed
+bundles on disk was rendered twice from its own committed artifacts — once from `facts.json` in the
+order it is stored, once from the same facts shuffled under a fixed seed — and `render_readme`
+returned identical bytes for all nine. Before item 61 that was false by construction; E7's whole
+mechanism was that the two orders could differ. Seven of the nine also still equal their own sealed
+README; the two that do not are `tests/test_sealed_bytes.py`'s two declared `strict` xfails
+(Email-Python F07, Cells-C++ item 44's pending re-seal), neither of which is about fact order.
+
+**Verification 2, live.** The run below composed a complete candidate through S9 with `BC-01`
+through `BC-09` all `PASS`, and nothing in it reordered. This is weaker evidence than verification 1
+and is not offered as the proof: because no bundle sealed, `tests/test_sealed_bytes.py` was never
+exercised against a *new* Cells-Python bundle. The class-level proof is verification 1, and it is
+stronger than one repository's seal would have been — it holds the renderer to nine documents across
+six ecosystems rather than one.
+
+**What this means for the lane's own record.** E7 is closed and needs no further work. It was the
+blocker that made lane E claim no seal in run 2, and it is gone.
+
+### E5 is NOT what broke Cells' no-op, and this run refutes that attribution with zero provider calls
+
+Run 2 recorded that Cells for Python's immediate rerun diverged at S4 and attributed it to E5 —
+`seed_call_store` cannot seed a batched job. **That attribution was wrong, and this entry corrects
+it as its own record rather than as a clause inside E5** (§31: a correction to a standing fact gets
+its own entry, or every reader of the corrected record misses it).
+
+This run's immediate rerun, same process-fresh invocation, same revision, was a **true no-op**:
+
+| | run 1 (live) | immediate rerun |
+| --- | --- | --- |
+| README digest | `8411d049d6e3dfef…` | `8411d049d6e3dfef…` (identical) |
+| facts / dispositions / plan / units / validation / review digests | — | all identical |
+| provider calls | 17 `success` | **0 `success`, 16 `cache_reuse`** |
+| `source_reconciliation` | 2 live calls (batched) | **2 `cache_reuse`, 0 live** |
+
+Both of S4's batched calls were served from the local `CallStore` with no live call. So a batched S4
+replays byte-identically today. The real cause of run 2's divergence was arrival item 60 — `run_job`
+re-judged a *stored* reply under `call_schema`, forced `cache_stale`, and made a fresh S4 call —
+landed in the same commit `22c2e45`. Lane B measured that mechanism on other repositories and run 2's
+own entry already noted the two "compound"; what run 2 got wrong was which of them was actually
+firing on Cells.
+
+**E5's own claim is untouched and still unproven either way.** E5 is about seeding from a *sealed
+bundle*'s committed artifacts on a machine with no prior run; there is no sealed Cells bundle on
+disk, so nothing here exercised `seed_call_store` at all. E5 should be read as a fresh-clone /
+hosted-runner claim only, and it is no longer Cells for Python's resume predicate.
+
+### E8 `PROPOSAL` — item 39's guard is scoped to one criterion, so the identical false finding still blocks under the other
+
+**Decision.** Shared code
+(`src/repository_presenter/components/readme/review/independent/review.py:730`), so lane E writes no
+fix. This is now Cells for Python's only blocker: `BC-01`…`BC-09` all `PASS`, `BC-10` `FAIL`,
+`BC-11` `PENDING`.
+
+**The defect.** Finding `F07`, `criterion: presentation`, `section_id: scope_limitations`,
+`fact_ids: []`, `absent: []`, text *"The Scope and Limitations section omits the crucial
+clarification about Standard encryption not being supported for reading, which is explicitly stated
+in the original README"*, quote *"Password-protected workbooks are supported only with Agile
+encryption (ECMA-376 Part 2, Section 4); Standard encryption (Section 3) is not supported for
+reading."*
+
+That sentence is present, verbatim, at line 542 of the candidate README — inside
+`## Scope and Limitations` (lines 537–544), the exact section the finding names — and
+`review.json`'s `readme_sha256` equals the digest of those very bytes
+(`8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f`). The original README states it
+at lines 374–375. **The candidate does not omit it. The finding is false on its own terms**, and
+`second_reader.read: 2` corroborated it, so this is the prompt's shape, not one seed's slip.
+
+`scope_defect` already holds the principle that settles this, in its own docstring: *"An absence the
+candidate disproves is judged first, whatever the criterion … no reading of its criterion changes
+that."* Arrival item 39 made exactly this shape a reviewer defect — *"its own quote WAS the sentence
+it called missing, empty `fact_ids`, empty `absent`, byte-identical on re-ask, repair recorded it
+repaired and it re-raised identically"*, measured on Aspose.Cells for **Java**. Cells for **Python**
+has produced the identical shape, one criterion over, and item 39's guard does not reach it, because
+line 730 reads `if finding.get("criterion") == "factuality"`.
+
+**Measured, by running the module against the real finding** (`scope_defect`, the real README, the
+real facts, the real `claim_evidence`):
+
+| the same finding, one field changed | `scope_defect` verdict |
+| --- | --- |
+| as the reviewer returned it (`presentation`, `absent: []`) | `None` — **it blocks** |
+| identical, claim stated in `absent[]` | *"the finding claims the candidate does not contain '…', which the candidate contains"* |
+| identical, relabelled `criterion: factuality` | *"a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text"* |
+
+So a candidate that passes nine of ten blocking checks is held back solely by which of two labels the
+reviewer chose and whether it filled one field — not by anything about the candidate. That is
+precisely the label dependence item 37 set out to remove.
+
+**And the repair round cannot rescue it.** `repairs.json` records `outcome: "repaired"` for an
+attempt whose single change has `before` byte-equal to `after` — nothing changed, because there was
+nothing to change — and `rounds.py:522` records `"repaired"` unconditionally on any schema-valid
+revision. The identical finding then re-raised, and `run_transaction`'s re-raise rule
+(`rounds.py:595-606`, correctly: a re-raised defect never demotes) broke the loop. Two rounds, one
+wasted `targeted_repair` call, `REJECT_PRESENTATION`.
+
+**The fix is the primary's to choose, and lane E does not choose it.** The narrow one matching item
+39's precedent is to judge this shape before the criterion switch rather than inside it. The bare
+rule "a presentation finding whose quote is present may not stand" is **not** safe and lane E
+explicitly does not propose it — a legitimate presentation finding quotes present text it wants
+rewritten, and dismissing those would weaken a real check. The discriminator that separates the two
+is that this finding alleges a *gap* while stating none: `absent` empty, `fact_ids` empty, and its
+own quote already in the section it names, which one `targeted_repair` attempt then left byte-
+identical. Whether that is expressed in `scope_defect` (label-independent, item 37's principle),
+in `rounds.py` (a revision identical to its input did not repair anything), or in
+`prompts/independent_review.yaml` (an omission claim must populate `absent` — item 39's own message
+notes lines 141-157 already ask for this and that item 39 chose to enforce it in code rather than
+trust compliance) is a design call that belongs with whoever owns all three.
+
+**Evidence.** `review.py:730` and `scope_defect`'s docstring; `rounds.py:522`, `595-606`;
+`review.json` (`verdict REJECT_PRESENTATION`, findings 1, advisory 6, `readme_sha256` as above,
+`second_reader.read 2`); `repairs.json` attempt `96818ce46bf1833cdaa6279c` (`before == after`,
+`re_raised: ["F07"]`); `validation.json` (`pass 9, fail 1, pending 1`); candidate README line 542;
+original README lines 374-375; the three-row table above, produced by calling `scope_defect`
+directly. Commit `3784b06` is item 39's landing.
+
+**Reversal path.** If the owner rules that a presentation finding is a prose judgment call that no
+deterministic check may dismiss (§26), then Cells for Python's disposition class is permanent for
+this composition and the repository needs a different composition, not a reviewer change — and item
+39 should be re-read in that light too, since it made the same call for factuality.
+
+### Aspose.Cells for Python, measured
+
+`26c3bd1633e84b91c0f6fad1fd353662fd61fb54`, the same revision run 2 composed.
+
+| stage | outcome |
+| --- | --- |
+| examples | 6 candidates, **6 executed, 0 failed** |
+| facts | 1,092 records (`public_symbol` 987, `inherited_unit` 47, `link_target` 29); digest `062f5f09…` |
+| S3 `repository_investigation` | 1 call, capabilities 8, workflows 6, limitations 3 |
+| S4 `source_reconciliation` | **passed, 2 calls**, 47 units (`SUPERSEDE_REDUNDANT` 26, `VERIFIED_PRESERVE` 11, `VERIFIED_REWRITE` 5, `NON_CONTENT` 4, `DEFER_UNRESOLVED` 1) |
+| S5 `presentation_planning` | accepted attempt 1; sections 16/18, hubs 10 |
+| S6 `section_authoring` | 40 units across 8 sections, 10 calls; coherence 0 of 40 revised |
+| render | 192 visible lines of 551; digest `8411d049…` |
+| S9 validation | **pass 9, fail 1 (BC-10), pending 1 (BC-11)** — `BC-01`…`BC-09` all `PASS` |
+| S10 `independent_review` | `REJECT_PRESENTATION`, findings 1 (`F07`), advisory 6, `second_reader.read` 2 |
+| repair | 1 recorded "repaired" with `before == after`, re-raised; rounds 2 |
+| bundle | **none sealed** |
+
+The composition is not the one run 2 produced — S4 is non-deterministic and returned different
+dispositions (551 rendered lines against run 2's 651) — so run 2's `ACCEPT` and this run's
+`REJECT_PRESENTATION` are two draws, not a regression. Lane E did not re-draw. Re-running until a
+composition happens to escape a false finding is selecting for a seal, which is forcing one; the
+finding is demonstrably false and belongs in code, not in a better roll.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | NOT_SEALED | `FALSE_OMISSION_FINDING_BLOCKS_UNDER_THE_UNGUARDED_CRITERION` (E8, S10/BC-10) | E8 lands on `main`: the "alleges a gap, states none, quotes text the named section contains" shape is a reviewer defect whatever the criterion; then re-run `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Python`. E7 and the no-op are no longer predicates — both are closed. |
+
+`LANE-E-01` stays `IN_PROGRESS`. **No seal is claimed and the counted unit does not move:
+`repository-presenter status` reads 8/34 before and after, and this PR adds no `candidates/`
+directory.** `project/state.yaml` was not opened: this PR seals nothing, so §0's narrow exception
+does not apply.
+
+The three repositories of this item now stand at: PDF for Python on E4, Page for Python on E6, Cells
+for Python on E8. E7 and E3 are closed, E5 is re-scoped to the fresh-clone case and blocks nobody in
+this lane. Every remaining predicate is still shared code the primary owns.
