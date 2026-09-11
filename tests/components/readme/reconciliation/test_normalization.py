@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import re
+import json
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -430,7 +430,7 @@ def test_the_schema_names_exactly_this_readmes_inherited_units() -> None:
     # (RESEARCH_AND_GUIDELINES.md section 27.5 D1, cause RC1 in 27.2).
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
     batch = list(FACTS.by_kind("inherited_unit"))
-    schema = reconciliation_schema(loaded, batch)
+    schema = reconciliation_schema(loaded, batch, FACTS, {})
     units = [fact.id for fact in FACTS.by_kind("inherited_unit")]
     dispositions = schema["properties"]["dispositions"]
     assert dispositions["minItems"] == dispositions["maxItems"] == len(units)
@@ -485,72 +485,135 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
     c575035's own bug class for real rather than moving the marker."""
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
     for total in (200, 2000):
-        batches = reconciliation_batches(_inherited_units_facts(total))
+        facts = _inherited_units_facts(total)
+        batches = reconciliation_batches(facts)
         for _, batch_units in batches:
-            schema = reconciliation_schema(loaded, batch_units)
+            schema = reconciliation_schema(loaded, batch_units, facts, {})
             dispositions = schema["properties"]["dispositions"]
             assert dispositions["maxItems"] == dispositions["minItems"] == len(batch_units)
             assert dispositions["maxItems"] <= 40
             assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
                 fact.id for fact in batch_units
             ]
+            # S4-REGRESSION: the citable set is bounded by the same batch - here nothing but
+            # this batch's own units is citable, so the fact_ids enum never grows with the
+            # repository's total either.
+            citable = dispositions["items"]["properties"]["fact_ids"]["items"]["enum"]
+            assert citable == sorted(fact.id for fact in batch_units)
 
 
-def test_the_schema_refuses_a_fact_ids_entry_that_is_not_shaped_like_a_fact_id() -> None:
-    """G4-W17 arrival item 40. `fact_ids` was typed as bare strings, so a job with no fact at the
-    granularity it needed filled the slot with the nearest token in its context and lost the whole
-    transaction. Measured 2026-09-07: Aspose.PDF for Python was rejected twice on "unknown fact ID
-    product_summary:fact_ids; unknown fact ID audience:fact_ids; unknown fact ID
-    problems_solved:fact_ids; unknown fact ID capabilities:fact_ids" - this schema's own field name
-    paired with the packet's investigation keys - and the first pass's Aspose.Note wrote the
-    disposition value OMIT_UNSUPPORTED there. The pattern refuses each at decode time; it narrows
-    nothing a real citation may say, and an ID that matches it but names no fact is still rejected
-    by the binding guard."""
+def _cite(*fact_ids: str) -> dict[str, Any]:
+    return {
+        "dispositions": [
+            {
+                "unit_id": fact.id,
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "identity",
+                "fact_ids": list(fact_ids) if index == 0 else [],
+                "rationale": "r",
+            }
+            for index, fact in enumerate(FACTS.by_kind("inherited_unit"))
+        ]
+    }
+
+
+def test_fact_ids_travel_as_an_enum_so_a_bare_kind_prefix_cannot_be_written() -> None:
+    """S4-REGRESSION (Reviewer P0, 2026-09-11; lane D PROPOSAL P23 and lane C PROPOSAL S, both
+    measured live). G4-W17 arrival item 40 (e2a1a83) pinned `fact_ids` items by the pattern
+    `^(<kinds>):` on an array with no maxItems - fixing a real defect (Aspose.PDF for Python cited
+    the packet's own investigation keys, "product_summary:fact_ids", twice; the first pass's
+    Aspose.Note wrote the disposition value OMIT_UNSUPPORTED there). Under strict json_schema
+    decoding the bare kind prefix "public_symbol:" satisfies that pattern, and the decoder emitted
+    it until the 32,000-token budget was gone - 1,047 times in one array on Aspose.Cells for Go,
+    finish_reason length on both runs, identically on Aspose.Cells and Slides for Java; S4 runs
+    for every repository, so nothing anywhere could seal. The IDs a disposition may cite are known
+    here exactly, so they travel as an enum - the treatment unit_id already had, and the one field
+    every runaway reply still got right. Lane D replayed the identical request with this one
+    change: finish_reason stop, 3,560 tokens, 40 of 40 dispositions."""
     loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
-    batch = list(FACTS.by_kind("inherited_unit"))
-    schema = reconciliation_schema(loaded, batch)
+    # A method-kind symbol is outside DECLARED_SYMBOL_KINDS, so the packet's own facts list never
+    # shows it - yet the investigation cites it, and the prompt lets the job copy an ID from the
+    # investigation's own fact_ids arrays, so it is citable. An ID the investigation cites that
+    # names no fact at all is not.
+    method = Fact(
+        "public_symbol:widget.scene.save",
+        "public_symbol",
+        "widget.Scene.save",
+        (Evidence("x"),),
+        attributes={"symbol_kind": "method"},
+    )
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, method))
+    investigation = {
+        "capabilities": [
+            {
+                "title": "Save",
+                "text": "Saves.",
+                "fact_ids": ["public_symbol:widget.scene.save", "format:output.glb", "format:x"],
+            }
+        ]
+    }
+    batch = list(facts.by_kind("inherited_unit"))
+    schema = reconciliation_schema(loaded, batch, facts, investigation)
     items = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]
-    assert set(re.findall(r"[a-z_]+", items["pattern"])) == set(loaded.manifest.packet.fact_kinds)
+    # Exactly what the packet shows: its SUPPORTED and CONTRADICTED facts (example:001 is
+    # UNRESOLVED and absent - normalize() adds it by code where a rule calls for it), the
+    # investigation's cited known facts, and this batch's own units.
+    assert items == {
+        "type": "string",
+        "enum": [
+            "format:output.glb",
+            "identity:repository",
+            "inherited_unit:002.paragraph",
+            "inherited_unit:003.code_block",
+            "inherited_unit:005.code_block",
+            "inherited_unit:006.code_block",
+            "link_target:001",
+            "public_symbol:widget.scene.save",
+        ],
+    }
+    assert "pattern" not in items
     # The manifest itself is untouched: the specialisation is per call, never a shared mutation.
     assert loaded.manifest.output.schema_["properties"]["dispositions"]["items"]["properties"][
         "fact_ids"
     ] == {"type": "array", "items": {"type": "string"}}
 
-    def cite(*fact_ids: str) -> dict[str, Any]:
-        return {
-            "dispositions": [
-                {
-                    "unit_id": fact.id,
-                    "disposition": "SUPERSEDE_REDUNDANT",
-                    "destination_section": "identity",
-                    "fact_ids": list(fact_ids) if index == 0 else [],
-                    "rationale": "r",
-                }
-                for index, fact in enumerate(FACTS.by_kind("inherited_unit"))
-            ]
-        }
-
     validator = Draft202012Validator(schema)
     for refused in (
-        "product_summary:fact_ids",
-        "audience:fact_ids",
-        "problems_solved:fact_ids",
-        "capabilities:fact_ids",
+        "public_symbol:",  # the runaway's own token: a bare kind prefix
+        "link_target:",
+        "product_summary:fact_ids",  # item 40's own case stays refused
         "OMIT_UNSUPPORTED",
         "installation",
+        "public_symbol:aspose.page.common",  # well-shaped, names no fact the packet shows
+        "example:001",  # a real fact, UNRESOLVED, so never shown to the job
+        "format:x",  # cited by the investigation but naming no fact
     ):
-        assert [error.json_path for error in validator.iter_errors(cite(refused))] == [
+        assert [error.json_path for error in validator.iter_errors(_cite(refused))] == [
             "$.dispositions[0].fact_ids[0]"
         ], refused
-    # Every real citation the packet can carry still validates, an inherited unit included.
-    assert (
-        list(
-            validator.iter_errors(
-                cite("identity:repository", "example:001", "inherited_unit:002.paragraph")
-            )
-        )
-        == []
+    # The measured runaway shape - the same prefix over and over - is refused at every position,
+    # so a decoder honouring this schema can never start down that path.
+    runaway = _cite(*(["public_symbol:"] * 5))
+    assert [error.json_path for error in validator.iter_errors(runaway)] == [
+        f"$.dispositions[0].fact_ids[{i}]" for i in range(5)
+    ]
+    # Every real citation the packet can carry still validates, an inherited unit and an
+    # investigation-cited symbol included.
+    cited = _cite(
+        "identity:repository",
+        "format:output.glb",
+        "inherited_unit:002.paragraph",
+        "public_symbol:widget.scene.save",
     )
-    # A well-shaped ID naming no fact is the binding guard's job, not the schema's: it passes
-    # here exactly as before, so nothing this pattern does can hide an invented citation.
-    assert list(validator.iter_errors(cite("public_symbol:aspose.page.common"))) == []
+    assert list(validator.iter_errors(cited)) == []
+
+
+def test_a_batch_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_enum() -> None:
+    """An empty enum is not a valid JSON Schema shape to hand a decoder; with nothing citable the
+    array is pinned to zero length instead (the guard unit_id's own `if not units` already has)."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    empty = FactsDocument(FACTS.repository, FACTS.source_revision, ())
+    schema = reconciliation_schema(loaded, [], empty, {})
+    fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
+    assert fact_ids == {"type": "array", "maxItems": 0}
+    assert "pattern" not in json.dumps(schema)

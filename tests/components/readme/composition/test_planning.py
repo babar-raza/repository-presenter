@@ -156,6 +156,128 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     }
 
 
+# G4-W17 arrival items 41+42, red-first: these three tests were written against the measured
+# second-pass rejections before the fix, then parked as strict xfails when the Reviewer's P0
+# S4-REGRESSION (2026-09-11 08:2x UTC) outranked the landing mid-card. Strict, so the moment the
+# packet/prompt fix lands they fail loudly until the marker comes off - the fix's own mutation
+# tests, not deferred-to-nobody debt (plans/sprint/loop-status.jsonl card 41+42, phase blocked).
+PARKED_41_42 = pytest.mark.xfail(
+    strict=True,
+    reason="G4-W17 arrival item 41 / arrival item 42 parked behind S4-REGRESSION; unmark on landing",  # noqa: E501
+)
+
+
+@PARKED_41_42
+def test_the_packet_states_example_polarity_and_the_formats_a_title_may_name() -> None:
+    """G4-W17 arrival items 41 and 42 (G3-W04 second pass, measured 2026-09-07). The packet said
+    which examples exist only by listing the SUPPORTED ones, so a numbering gap was the only
+    trace of a failed example, and it never said which format names a title may spell:
+    aspose-note-foss/Aspose.Note-FOSS-for-Python's plan titled a capability "Export pages to
+    PDF" twice, following the investigation's own capability title, while format:output.pdf is
+    UNRESOLVED. Both now travel explicitly - polarity as counts (an uncitable ID is never shown,
+    section 27.2 RC1), formats as the verified facts by direction - and both reach the model: a
+    packet field the template never renders is invisible to the job."""
+    packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"d": 2}, MANIFEST)
+    assert packet["examples"] == {
+        "verified_ids": ["example:001", "example:002"],
+        "withheld": {"CONTRADICTED": 1, "UNRESOLVED": 0},
+    }
+    assert packet["formats"] == {
+        "input": [],  # format:input.obj is UNRESOLVED
+        "output": [{"id": "format:output.stl", "value": ".stl"}],
+    }
+    rendered = json.dumps(packet)
+    assert "example:003" not in rendered and "format:input.obj" not in rendered
+    assert {"examples", "formats"} <= MANIFEST.placeholders()
+
+
+@PARKED_41_42
+def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view() -> None:
+    """G4-W17 arrival item 41. Measured 2026-09-07 on aspose-html-foss/Aspose.HTML-FOSS-for-
+    Python's second pass (calls 5e361ea38b24.rejected-1 and -2): both rejected plans kept
+    quick_start_example_id on a SUPPORTED example - the enum held - and cited the CONTRADICTED
+    example:006 in a deviation's fact_ids after reading it in a reconciliation rationale, "...
+    contradicted by the example:006 CONTRADICTED fact". The polarity label standing right beside
+    the ID did not stop the citation at temperature zero, twice, so the ID is not shown at all
+    (section 27.2 RC1) - the rule _selectable_dispositions already applied to fact_ids, now
+    applied to the one free-text field a disposition carries. The stored dispositions are
+    untouched; only the planner's view is bounded."""
+    entries = [
+        {
+            "unit_id": "inherited_unit:001.paragraph",
+            "disposition": "OMIT_UNSUPPORTED",
+            "destination_section": None,
+            "fact_ids": ["example:003"],
+            "rationale": (
+                "The JavaScript block is contradicted by the example:003 CONTRADICTED fact; "
+                "example:002 still runs and example:0031 is another unit's own ID."
+            ),
+        },
+        {
+            "unit_id": "inherited_unit:002.paragraph",
+            "disposition": "DEFER",
+            "destination_section": None,
+            "fact_ids": [],
+            "rationale": "Waits on link_target:003 (dead) and format:input.obj (unverified).",
+        },
+    ]
+    packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"dispositions": entries}, MANIFEST)
+    shown = packet["dispositions"]["dispositions"]
+    assert shown[0]["rationale"] == (
+        "The JavaScript block is contradicted by the [CONTRADICTED example, not citable] "
+        "CONTRADICTED fact; example:002 still runs and example:0031 is another unit's own ID."
+    )
+    assert shown[0]["fact_ids"] == []
+    assert shown[1]["rationale"] == (
+        "Waits on [CONTRADICTED link_target, not citable] (dead) and "
+        "[UNRESOLVED format, not citable] (unverified)."
+    )
+    assert "example:003" not in json.dumps(packet)
+    assert entries[0]["rationale"].count("example:003") == 1
+    assert entries[0]["fact_ids"] == ["example:003"]
+
+
+@PARKED_41_42
+def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_there() -> None:
+    """G4-W17 arrival item 42, the same rejected reply: aspose-note-foss/Aspose.Note-FOSS-for-
+    Python's first attempt put public_symbol:aspose.note.saveformat into
+    at_a_glance.output_format_ids. The verified format IDs are a short list, so they travel as
+    an enum the same way the example, link, and hub IDs already do; with no verified format in a
+    direction the list is pinned empty rather than given an empty enum."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS)
+    glance_variants = schema["properties"]["at_a_glance"]["oneOf"]
+    variants = [v for v in glance_variants if v.get("type") == "object"]
+    assert len(variants) == 1
+    glance = variants[0]["properties"]
+    assert glance["output_format_ids"] == {
+        "type": "array",
+        "items": {"type": "string", "enum": ["format:output.stl"]},
+    }
+    assert glance["input_format_ids"] == {"type": "array", "maxItems": 0}
+    # The manifest's own schema is untouched: the specialisation is per call.
+    original = loaded.manifest.output.schema_["properties"]["at_a_glance"]["oneOf"][1]
+    assert "enum" not in original["properties"]["output_format_ids"]["items"]
+
+    validator = Draft202012Validator(schema)
+    glance_errors = [
+        e for e in validator.iter_errors(_plan()) if e.json_path.startswith("$.at_a_glance")
+    ]
+    assert glance_errors == []
+    wrong = _plan(
+        at_a_glance={
+            "input_format_ids": [],
+            "output_format_ids": ["public_symbol:widget.scene"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        }
+    )
+    errors = [e for e in validator.iter_errors(wrong) if e.json_path == "$.at_a_glance"]
+    assert len(errors) == 1
+    assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in [
+        c.message for c in errors[0].context
+    ]
+
+
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
     assert plan_checks(_plan(), FACTS) == []
     assert summarize_plan(_plan()) == (

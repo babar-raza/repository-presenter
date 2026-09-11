@@ -19,7 +19,7 @@ import hashlib
 import json
 import re
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +46,7 @@ from repository_presenter.core.facts import (
     FactsDocument,
     bounded_records,
 )
+from repository_presenter.core.llm.binding import collect_ids
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -160,8 +161,39 @@ def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
     return {"dispositions": dispositions}
 
 
-def reconciliation_schema(manifest: LoadedManifest, batch_units: Sequence[Fact]) -> dict[str, Any]:
-    """The reconciliation schema specialised for one batch: its units, and the shape of an ID.
+def _packet_fact_records(facts: FactsDocument, manifest: PromptManifest) -> list[dict[str, str]]:
+    """The fact records the reconciliation packet shows - one function, so the packet and the
+    schema's citable set can never drift apart (the planning schema's own lesson, taskcard H)."""
+    kinds = [kind for kind in manifest.packet.fact_kinds if kind != "inherited_unit"]
+    return bounded_records(
+        facts, kinds, ("SUPPORTED", "CONTRADICTED"), symbol_kinds=DECLARED_SYMBOL_KINDS
+    )
+
+
+def citable_fact_ids(
+    facts: FactsDocument,
+    manifest: PromptManifest,
+    batch_units: Sequence[Fact],
+    investigation: Mapping[str, Any],
+) -> list[str]:
+    """Every ID a disposition in this batch may cite, sorted: the packet's own fact records, the
+    facts the accepted investigation cites (the prompt lets the job copy those one by one, and
+    the investigation travels in the packet, so each is an ID the job can actually see), and this
+    batch's own inherited units. Nothing the packet never showed is in it (section 27.2 RC1), so
+    an UNRESOLVED fact is absent - ``normalize`` adds one by code where a rule calls for it."""
+    known = {fact.id for fact in facts.facts}
+    shown = {record["id"] for record in _packet_fact_records(facts, manifest)}
+    cited = {fact_id for fact_id in collect_ids(investigation).fact_ids if fact_id in known}
+    return sorted(shown | cited | {fact.id for fact in batch_units})
+
+
+def reconciliation_schema(
+    manifest: LoadedManifest,
+    batch_units: Sequence[Fact],
+    facts: FactsDocument,
+    investigation: Mapping[str, Any],
+) -> dict[str, Any]:
+    """The reconciliation schema specialised for one batch: its units, and the IDs it may cite.
 
     Every inherited unit in this batch needs one disposition and no other unit is in this batch,
     which the code knows exactly, so the schema says so rather than letting the job invent a unit
@@ -176,26 +208,31 @@ def reconciliation_schema(manifest: LoadedManifest, batch_units: Sequence[Fact])
     plan). No unbounded fallback: every caller, production or test, must pass a real batch,
     mirroring ``authoring_schema()``'s own signature exactly (no "give me everything" mode).
 
-    ``fact_ids`` gets the same treatment for the same reason (ported from PR #29/G4-W17 arrival
-    item 40, stranded unmerged for 4 days - landed here 2026-09-11 as part of PHASE0/G, adapted
-    to this schema's own per-batch shape). A fact ID is ``<kind>:<slug>`` and the packet's kinds
-    are known here exactly, so the schema says so; the array was typed as bare strings, and a job
-    with no fact at the granularity it needed filled the slot with the nearest token in its
-    context instead. Measured 2026-09-07: Aspose.PDF for Python was rejected twice on "unknown
-    fact ID product_summary:fact_ids; ... audience:fact_ids" - the packet's own investigation keys
-    paired with this schema's own field name. None of those begins with a packet fact kind, so
-    the pattern refuses them at decode time rather than after the whole transaction is spent. It
-    narrows nothing a real citation may say: every ID the packet carries matches it, and an ID
-    that matches the pattern but names no fact is rejected by the binding guard exactly as before.
+    ``fact_ids`` gets the same treatment as ``unit_id``, for the same reason, and it has to be an
+    enum. G4-W17 arrival item 40 (e2a1a83) pinned each entry by the pattern ``^(<kinds>):`` on an
+    array with no ``maxItems`` - a real fix for a real defect (Aspose.PDF for Python cited the
+    packet's own investigation keys, "product_summary:fact_ids", twice). Under strict json_schema
+    decoding the bare kind prefix ``"public_symbol:"`` satisfies that pattern, and the decoder
+    emitted it until the 32,000-token budget was gone: 1,047 times in one array on Aspose.Cells
+    for Go, ``finish_reason length`` on both runs, and identically on Aspose.Cells and Slides for
+    Java - S4 runs for every repository, so no candidate anywhere could seal (S4-REGRESSION,
+    2026-09-11; lane D PROPOSAL P23, lane C PROPOSAL S, both measured live). The samples that did
+    complete were rejected anyway, every ``fact_ids`` entry a prefix naming no fact. The IDs a
+    disposition may cite are known here exactly (``citable_fact_ids``), so the schema lists them;
+    lane D replayed the identical request with that one change: ``finish_reason stop``, 3,560
+    tokens, 40 of 40 dispositions. A ``unit_id`` came back well-formed in every runaway reply -
+    the one field that already had the enum.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     dispositions = schema["properties"]["dispositions"]
-    kinds = sorted(manifest.manifest.packet.fact_kinds)
-    if kinds:
+    citable = citable_fact_ids(facts, manifest.manifest, batch_units, investigation)
+    if citable:
         dispositions["items"]["properties"]["fact_ids"]["items"] = {
             "type": "string",
-            "pattern": "^(" + "|".join(kinds) + "):",
+            "enum": citable,
         }
+    else:
+        dispositions["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     units = [fact.id for fact in batch_units]
     if not units:
         return schema
@@ -228,13 +265,10 @@ def reconciliation_packet(
         {"id": fact.id, "type": fact.id.rsplit(".", 1)[-1], "text": fact.value}
         for fact in batch_units
     ]
-    kinds = [kind for kind in manifest.packet.fact_kinds if kind != "inherited_unit"]
     return {
         "repository": entry.repository,
         "inherited_units": units,
-        "facts": bounded_records(
-            facts, kinds, ("SUPPORTED", "CONTRADICTED"), symbol_kinds=DECLARED_SYMBOL_KINDS
-        ),
+        "facts": _packet_fact_records(facts, manifest),
         "investigation": investigation,
         "sections": shell_packet(),
     }

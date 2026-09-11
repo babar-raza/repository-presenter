@@ -213,7 +213,9 @@ def run_round(tx: TransactionInputs) -> Round:
                 entry, batch_facts, investigation.output, loaded.manifest, batch_units
             ),
             checks=functools.partial(reconcile_checks, facts=batch_facts),
-            call_schema=reconciliation_schema(loaded, batch_units),
+            call_schema=reconciliation_schema(
+                loaded, batch_units, batch_facts, investigation.output
+            ),
             **{**common, "facts": batch_facts},
         )
     dispositions = merge_dispositions([result.output for result in reconciled.values()])
