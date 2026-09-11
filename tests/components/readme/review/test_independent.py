@@ -264,7 +264,11 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
     assert scope_defect(contradicted, CANDIDATE, by_id) is None
     assert scope_defect(unsupported, CANDIDATE, by_id) is None
     assert scope_defect(completeness, CANDIDATE, by_id) is None
-    assert scope_defect(nothing_cited, CANDIDATE, by_id) is None  # cites nothing, by definition
+    # G4-W17 arrival item 39: naming neither a fact_id nor an absent claim used to stand
+    # unconditionally ("cites nothing, by definition"); it is now the reviewer's own defect,
+    # since nothing about it is checkable either - see test_a_factuality_finding_naming_no_
+    # fact_and_no_absence_is_the_reviewers_defect for the full case.
+    assert scope_defect(nothing_cited, CANDIDATE, by_id) is not None
     # The answer is a pure function of the finding, the facts and the rule: it lifts by itself
     # when the facts change, because nothing was written into the finding to undo.
     refuting = {
@@ -1151,6 +1155,36 @@ def test_a_factuality_finding_against_a_units_own_prose_is_never_exempted() -> N
         "fact_ids": [],
     }
     assert scope_defect(short, CANDIDATE, by_id) is None
+
+
+def test_a_factuality_finding_naming_no_fact_and_no_absence_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 39. `factuality_defect` stood unconditionally whenever a finding
+    cited no product fact_ids, on the reasoning that "no fact supports this claim" cites
+    nothing to check - true when the finding names its omission through `absent` instead, which
+    `absence_defect` already judges before `factuality_defect` is ever reached. But a factuality
+    finding naming NEITHER cites nothing for any deterministic check in `scope_defect` to measure
+    it against, so it passed every one of them by construction and could block a candidate on an
+    assertion nothing could ever disprove or fix. Measured 2026-09-07, Aspose.Cells for Java,
+    finding F07: its own quote WAS the sentence it called missing, empty `fact_ids`, empty
+    `absent` - byte-identical on re-ask, repair recorded it repaired and it re-raised identically.
+    """
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    ungrounded = {
+        **_finding("F07", "key_capabilities", "S6", "It writes `.glb` files."),
+        "fact_ids": [],
+        "absent": [],
+    }
+    assert scope_defect(ungrounded, CANDIDATE, by_id) == (
+        "a factuality finding names neither a product fact_id to contradict the quote nor an "
+        "absent claim of missing text: nothing in evidence supports judging it"
+    )
+    # Mutation control: naming either one still routes to its own existing check, not this new
+    # one - the fix must not swallow a real, checkable finding either way.
+    with_fact_id = {**ungrounded, "fact_ids": ["format:input.obj"]}
+    assert scope_defect(with_fact_id, CANDIDATE, by_id) is None  # UNRESOLVED, not CONTRADICTED
+    with_absent = {**ungrounded, "absent": ["It writes `.glb` files."]}
+    assert scope_defect(with_absent, CANDIDATE, by_id) is not None  # absence_defect's own route:
+    # the candidate contains exactly what the finding claims is missing.
 
 
 def test_a_synthetic_oversized_review_is_bounded_by_its_own_schema() -> None:

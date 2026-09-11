@@ -229,10 +229,29 @@ def factuality_defect(
     A factuality finding cites a product fact that contradicts the quote or should have
     supported it; inherited README units are maintainer text, not evidence. A quote containing
     the literal value of a cited SUPPORTED fact is supported by definition.
+
+    G4-W17 arrival item 39: a finding naming no product fact_ids used to stand unconditionally
+    here, on the reasoning that "no fact supports this claim" cites nothing to check by
+    construction - true when the finding names its omission through ``absent`` instead (that
+    shape is ``absence_defect``'s to judge, called before this in ``scope_defect``, never this
+    function's). But a factuality finding naming NEITHER cites nothing for any deterministic
+    check anywhere in ``scope_defect`` to measure, so it passed every one of them by construction
+    and could block a candidate on an assertion nothing could ever disprove or fix. Measured
+    2026-09-07, Aspose.Cells for Java, finding F07: its own quote WAS the sentence it called
+    missing, empty ``fact_ids``, empty ``absent`` - byte-identical on re-ask, repair recorded it
+    repaired and it re-raised identically, because there was never anything about it a repair
+    could change. The prompt already asks for one or the other
+    (prompts/independent_review.yaml lines 141-157); this enforces it deterministically rather
+    than trusting compliance.
     """
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     if not cited:
-        return None  # "no fact supports this claim" cites nothing, by definition
+        if not _claimed_absent(finding):
+            return (
+                "a factuality finding names neither a product fact_id to contradict the quote "
+                "nor an absent claim of missing text: nothing in evidence supports judging it"
+            )
+        return None  # named as an absence instead; absence_defect already judges that shape
     product = [fact for fact in cited if fact.kind != "inherited_unit"]
     if not product:
         return (
