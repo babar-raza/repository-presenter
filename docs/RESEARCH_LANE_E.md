@@ -196,3 +196,484 @@ _C, _D)"*. That list is now short by this file, and lane F's when it writes one.
 already covers both paths, and `evidence/build/lanes/<lane>/` is already generic, so nothing was
 created outside what the layout names — but the parenthetical is stale. Not edited here:
 `REPOSITORY_LAYOUT.md` is not a lane-owned path.
+
+## 2026-09-11 09:49 UTC (`date` checked) — LANE-E-01 resumed, run 2, sprint wave W-PY1
+
+Branch `lane-e/LANE-E-01-R2` (single-use; `lane-e/LANE-E-01` merged), worktree `C:\w\e02`, off
+`origin/main` at `2b9d191`. Receipt: `evidence/build/lanes/lane-e/LANE-E-01.json`. The resume
+predicate recorded by run 1 was satisfied: the S4 `fact_ids` fix landed as `352fd35`.
+
+### E3 is refuted by measurement: the unbounded enum did **not** trip a 400 at 689 values
+
+Run 1 proposed E3 — the landed enum is unbounded and had been validated at 123 values only, while
+Taskcard H (`DECISION_LOG.md` 2026-09-10) is a confirmed HTTP 400 from an unbounded enum at the
+sibling `planning_schema` site on a large-surface repository. This run is the live test E3 asked
+for, and **E3 does not materialise.**
+
+- The enum carried **689 values / 34,409 characters** of JSON array, measured offline from this
+  run's own `facts.json` before the call, through `_packet_fact_records()` — the same function
+  `reconciliation_schema()` uses. Identical to run 1's count at the same revision `bc527450`.
+- **All three S4 `source_reconciliation` calls returned HTTP 200 on attempt 1**: 92,219 ms /
+  54,929 prompt / 4,726 completion; 54,924 ms / 57,746 / 2,975; 58,583 ms / 54,240 / 3,113. No
+  `finish_reason: length`, no rejection, no retry. Against the pre-fix runaway of 32,000 completion
+  tokens per call, completion fell by roughly 85-90%.
+- **The output is correct, not merely well-formed**: 115 dispositions for 115 `inherited_unit`
+  facts, citing **118 distinct fact IDs, of which zero are bare kind prefixes** — the exact defect
+  `352fd35` was landed against.
+
+So the size bound E3 asked for is **not** needed at 689, and lane E withdraws the recommendation to
+gate the class on it. What remains true from E3 is narrower and worth keeping: the largest surface
+in the portfolio is not 689 — lane C measured PDF for Java at 1,240 `public_symbol` records alone —
+so 689 is now the highest *confirmed-good* value, not a proof for every repository. A 400 at some
+larger size would still be answered Taskcard H's way (tighten `bounded_records`' own cap for this
+packet), never by widening the schema back to a `pattern`.
+
+**Reversal path.** One HTTP 400 naming the schema or request size at a larger enum reopens E3 with
+that repository's measured value; this entry records only that 689 is proven safe.
+
+### E4 `PROPOSAL` — BC-07's canonical-abbreviation judge drops the section, so its own repair can never run
+
+**Decision.** Lane E writes no code. `src/repository_presenter/components/readme/validation/registry.py`
+lines 874-883 are shared code and the defect is the primary's to land. PDF for Python takes a
+disposition naming this proposal as its resume predicate, not a forced seal.
+
+**The defect.** The judge builds its failure without the one field that routes it:
+
+```python
+for word in sorted(set(_LOWER_WORD.findall(prose))):
+    if word in lower_forms:
+        failures.append(
+            Failure(
+                "COMPOSING", f"abbreviation {word!r} is not in its canonical form {word.upper()}"
+            )
+        )
+```
+
+`Failure.section` is documented in the same file (`registry.py:200-211`) as *"the shell section the
+failure is about, set by the judge that knows it… a field rather than a prefix parsed back out of
+`detail` because routing a defect to its causal stage must not depend on prose"*. This judge never
+sets it. `COMPOSING` maps to `S6`, which `repair/targeted.py:192-200` treats as repairable **only**
+when some failure names an LLM-owned section; with `section_id: None` it rewrites the stage to
+`None` and records `"no failing check names an LLM-owned section"`. The check is therefore
+structurally unrepairable — not because the content resists revision, but because the judge withheld
+the routing field. That is a permanent unrepairable finding blocking a candidate, which
+`project/loop-prompt.md` §6 rule 5 prohibits outright.
+
+**That the section is knowable is proven by this run's own README.** The offending word is `pdf`,
+inside the bare repository slug `aspose-pdf-foss-for-python` (`_LOWER_WORD`'s lookbehind `(?<![.\w])`
+stops at the hyphen, so a hyphenated slug spells an abbreviation in lowercase). `_section_texts()` —
+already called four times in the same function, ten lines above — places it exactly:
+
+- `installation`: `` `aspose-pdf-foss-for-python` is not yet published on PyPI… `` — backticked,
+  stripped by `_SPAN`, does not fire.
+- `additional_examples`: `The following workflows demonstrate converting, rendering, extracting,
+  merging, and protecting PDF documents using aspose-pdf-foss-for-python.` — bare, fires.
+
+One section is LLM-owned and one occurrence is the whole failure. The same run repaired **BC-08** on
+attempt 1 (`development_testing`, two changes, `outcome: repaired`) precisely because its judge did
+set `section`. Same round, same repairer, same candidate: the only difference is the missing field.
+
+**The content defect underneath is real too, and is not the blocker.** An identifier written as bare
+prose rather than a code span is a genuine S6 presentation defect, and BC-07 is right to refuse it.
+Nothing here asks for the check to be weakened or for the abbreviation rule to be relaxed. The
+proposal is one field: give the failure the section `_section_texts()` already knows, so the repair
+the pipeline is designed to attempt actually gets attempted.
+
+**Alternative rejected.** Widening `_LOWER_WORD`'s lookbehind to `(?<![-.\w])` so a hyphenated slug
+never fires. It suppresses the symptom, leaves the same routing hole for every other abbreviation,
+and would have silently admitted a README that spells an identifier as prose. §27.10's rule against
+fitting a shape to one sample applies: one repository's slug is not the class.
+
+**Evidence.** `runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/bc527450…/validation.json`
+(BC-07 `FAIL`, `causal_stage: COMPOSING`, `failures[0].section_id: null`); `repairs.json`
+(`e2f68cfcd311…`: BC-07, `outcome: unrepairable`, `reason: "no failing check names an LLM-owned
+section"`, `changes: []`; `1c50ad993488…`: BC-08, `outcome: repaired`, `section_id:
+development_testing`); `registry.py:200-211, 874-883`; `repair/targeted.py:192-200`.
+
+**Reversal path.** If the owner rules that BC-07's structure failures are deliberately unroutable —
+that structure is the renderer's and never the author's — then the abbreviation sub-check is in the
+wrong check, and the reversal is to move it to an S6-judged check rather than to add the field.
+Either way the candidate stops being permanently blocked.
+
+### What this run measured end to end
+
+`aspose-pdf-foss/Aspose-PDF-FOSS-for-Python` at `bc52745063841d454053d4e7780c0e4ed1f05ed5`, the same
+revision run 1 pinned, so run 1's facts findings carry over unchanged (1,583 records; examples 13
+candidates, 8 executed, 5 failed). The pipeline ran to completion for the first time in this lane:
+
+| stage | outcome |
+| --- | --- |
+| S3 `repository_investigation` | reused run 1's stored output, 0 provider calls |
+| S4 `source_reconciliation` | **passed**, 3 calls, 115 dispositions |
+| S5 `presentation_planning` | 16/18 sections, 2 calls (1 `response_invalid`, accepted on attempt 2) |
+| S6 `section_authoring` | 75 units across 8 sections |
+| coherence | 0 of 75 units revised |
+| render | 206 visible lines of 751 |
+| S9 validation | **pass 8, fail 1 (BC-07), pending 2** |
+| repair | BC-08 repaired; BC-07 unrepairable; 2 rounds |
+| seal | **not sealed** |
+
+The first-pass and second-pass classes for this repository are both closed at this revision:
+`QUICK_START_WITHOUT_EXECUTED_EXAMPLE` (8 examples execute) and
+`RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID` (zero bare prefixes cited). The repository now
+fails at a **new, later, and genuinely different** class, recorded as its disposition.
+
+### What this run does not claim
+
+- PDF for Python is **not sealed**; `repository-presenter status` reads **8/34** before and after,
+  and `project/state.yaml` was not opened (§0's narrow exception applies only to a seal).
+- The BC-07 content defect was not judged for severity beyond the check's own verdict; no
+  independent review (S10/BC-10) ran, because the candidate never reached it.
+- Nothing is claimed about whether attaching the section would in fact repair this candidate — only
+  that the repair is currently never attempted. That is the proposal's whole subject.
+
+### The lane venv had to be rebuilt before any of the above counted
+
+A `Reviewer:` message reached this run before the first candidate call: verify the worktree venv's
+`presenter_site_manifest` hash against the primary's. It did not match. Lane F had already recorded
+the cause and the fix (`docs/RESEARCH_LANE_F.md` F3); this run reproduced both, independently.
+
+`project/loop-prompt-lane.md` §1.3's literal `pip install -e .[dev]` resolved **five** distributions
+past `requirements-lock.txt` — `anyio 4.15.1` (lock 4.14.2), `ast-serialize 0.11.1` (0.8.0),
+`openai 3.13.0` (3.7.0), `ruff 0.16.7` (0.16.5), `types-PyYAML …20260906` (…20260815) — and produced
+`613b742b997a5a87…` against the primary's and all eight sealed bundles'
+`f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411`. Rebuilt as F3 prescribes
+(`pip install --no-deps -r requirements-lock.txt`, then `--no-deps -e .`, then `--no-deps
+uv==0.12.9`) the hash is **`f4406f1b…`, identical**, and the two distribution sets are now equal at
+50 entries with no diff. Every measurement above was taken after the rebuild.
+
+This is a second independent reproduction of F3 on a second lane, which makes it a property of the
+lane prompt rather than of one worktree: **§1.3's install line is wrong for any lane that intends to
+seal.** Lane E cannot fix it — `project/loop-prompt-lane.md` is not a lane-owned path — so it is
+recorded here for the owner alongside lane F's entry.
+
+### Aspose.Cells for Python **sealed** — and its no-op proof then failed, for a cause in shared code
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Python` at `26c3bd1633e84b91c0f6fad1fd353662fd61fb54`.
+The first-pass class `CORROBORATED_PRESENTATION_JUDGMENT` (S10/BC-10) — the one that had never been
+re-run in the G3 second-pass box — **is closed**. The 28/33/37/39/45 fold stack plus F6 acceptance
+corroboration did what the item hoped.
+
+| stage | outcome |
+| --- | --- |
+| examples | 6 candidates, **6 executed, 0 failed** |
+| facts | 1,092 records (`public_symbol` 987, `inherited_unit` 47, `link_target` 29) |
+| S4 `source_reconciliation` | 47 units, 2 calls |
+| S9 validation | **pass 10, fail 0**, pending 1 |
+| S10 `independent_review` | **verdict ACCEPT**, findings 0, advisory 22 |
+| repair | 0 repaired, 0 unrepairable; 1 round |
+| bundle | `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Python/26c3bd16…`, state `ACCEPTED`, 13 files, 18 provider calls |
+
+`second_reader.read` is **2** (`corroborated: 3c3b7985b1f0977c7f120bba, 5a7b3d4f0db5c30bca2069e8`),
+so PHASE1/F6's `>= 2` holds, and the bundle's `dependencies.json` carries
+`presenter_site_manifest: f4406f1b04d81ecdf2ea…` — the same environment class as the primary and the
+other eight bundles (see the venv entry below; this is why that rebuild had to come first).
+
+**The immediate rerun in a fresh process was not a no-op, and the candidate it produced was
+rejected.** Same revision, `evaluation: earliest affected stage NONE; 0 changes` — nothing about the
+repository moved — yet:
+
+| | first run | rerun |
+| --- | --- | --- |
+| S4 dispositions | `OMIT_UNSUPPORTED 2, SUPERSEDE_REDUNDANT 16, VERIFIED_PRESERVE 24, …` | `SUPERSEDE_REDUNDANT 25, VERIFIED_MOVE 14, VERIFIED_REWRITE 3, …` |
+| README digest | `d196088242173118…` | `671e525aee56dcfc…` |
+| visible lines | 192 of 651 | 192 of 646 |
+| S9 validation | pass 10, fail 0 | pass 9, **fail 1** (BC-10) |
+| S10 review | **ACCEPT** | **REJECT_PRESENTATION**, findings 1 |
+
+So Cells for Python composed and was accepted, but it is **not no-op-proven**. While the bundle was
+on disk `repository-presenter status` read `9 ever sealed, 9 integrity-valid` with `current-code
+reproducible` still **6** and the headline still **8/34**.
+
+**And then the full local CI-equivalent refused the bundle outright, so it is not landed at all.**
+`tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes` — an existing
+blocking check, not one this lane invented — fails for it. That is E7 below, and it is the reason
+this PR carries no `candidates/` directory. The bundle was removed from the tree and
+`repository-presenter status` is back to **8/34, 8 ever sealed**. Lane E therefore claims **no
+seal**: an accepted composition that CI refuses is a disposition, not a seal, and forcing it in
+would have landed a red `main`.
+
+### E5 `PROPOSAL` — `seed_call_store` cannot seed a batched job, so no multi-batch repository can ever prove its no-op
+
+**Decision.** Shared code (`src/repository_presenter/components/readme/bundle/seal.py:452-509`),
+so lane E writes no fix. Cells for Python's disposition names this proposal as its resume predicate
+for the no-op proof; the seal itself stands.
+
+**The defect.** `seed_call_store` seeds a job only when its sealed `calls.jsonl` holds exactly one
+successful attempt:
+
+```python
+for job, filename in _SEEDABLE_JOBS.items():
+    attempts = successes.get(job, [])
+    artifact = bundle / filename
+    if len(attempts) != 1 or not artifact.is_file():
+        continue
+```
+
+`_SEEDABLE_JOBS` maps `source_reconciliation` to `dispositions.json`. But S4 is **batched by
+design** — `reconciliation_batches()` splits the inherited units and `run_round` makes one call per
+batch, all in the same round, and `merge_dispositions()` merges them into the single
+`dispositions.json` the bundle seals. N batches therefore produce N successful attempts as the
+*normal* shape, not as evidence of anything wrong.
+
+The docstring's stated reason for the `!= 1` rule is a different case entirely: *"a repository whose
+composition reopened this stage through a repair round left two or more successful attempts under
+the same job name, each against a different packet, and only the last one's output matches what the
+sealed artifact holds"*. That reasoning is sound for a **re-ask**, where only the last attempt is
+genuine. It is simply false for a **batch**, where every attempt is genuine and the artifact is
+their merge. The rule cannot tell the two apart, so it treats the normal case as the pathological
+one.
+
+**Measured consequence, this run.** Cells' sealed ledger holds
+`{repository_investigation: 1, source_reconciliation: 2, presentation_planning: 1,
+section_authoring: 11, independent_review: 2}` successful attempts. The rerun printed
+`seeded from sealed bundle: presentation_planning, repository_investigation` — S4 absent — and then
+`dispositions: … provider calls 1`. A live call to a non-deterministic model returned different
+dispositions; that changed the planning packet, so even the *seeded* `presentation_planning` key
+missed (`plan: … provider calls 1`); and the divergence carried through authoring to a
+`REJECT_PRESENTATION`. One unseeded call at S4 is sufficient to lose the whole no-op property.
+
+**This is not specific to Cells.** Any repository whose reconciliation needs more than one batch is
+affected. This run measured PDF for Python at **3** S4 calls and Cells at **2**; only a
+single-batch repository can seed S4 today. That is consistent with `status` reporting `6
+current-code reproducible` against `9 ever sealed` — the gap is not attributed here, but the
+mechanism is now measured and would produce exactly that shape.
+
+**Alternative rejected.** Relaxing the rule to "seed from the last successful attempt". It restores
+the exact lie the docstring guards against for genuine re-asks, and it is still wrong for batches,
+where no single attempt's output equals the merged artifact. The honest fix keys each batch's own
+`logical_call_id` to that batch's own output — which means the bundle must carry per-batch
+reconciliation outputs, not only their merge. That is a bundle-format change and squarely the
+primary's to design.
+
+**Evidence.** `seal.py:452-509`; Cells' sealed `calls.jsonl` (counts above); the two run logs'
+`seeded from sealed bundle` and `provider calls` lines; `reconciliation_batches` /
+`merge_dispositions` in `reconciliation/dispositions.py`; `status` before `8 ever sealed / 6
+reproducible` and after `9 ever sealed / 6 reproducible`.
+
+**Reversal path.** If the owner rules that S4 is not meant to be seedable at all, the reversal is to
+remove `source_reconciliation` from `_SEEDABLE_JOBS` and restate loop-prompt §3's "byte-identical
+with zero provider calls" to the number of batch calls a no-op legitimately costs — the property
+being proven then changes, and should change explicitly rather than by silent failure.
+
+**A second, different no-op mechanism was reported the same day, and E5 does not subsume it.**
+`40f2e9d`'s portfolio-wide proposal reads: *"no candidate sealed since `352fd35` can pass a no-op
+proof — `run_job` re-judges a stored S4 reply against the decoder's enum while `normalize` writes
+IDs the packet never showed."* That is a distinct failure from E5's: E5 says a batched S4 is never
+*seeded*, so a live call is made; lane B's says that even a **stored** reply is re-judged and
+refused. Both were measured, on different repositories, and they compound — a job that cleared E5
+by having exactly one batch would still meet lane B's. Lane E does not claim lane B's mechanism and
+has not measured it; whoever fixes the no-op proof should read the two entries together, because
+fixing either alone will not restore it.
+
+### E7 `PROPOSAL` — the seal sorts facts by ID, the renderer does not sort at all, so a sealed README can be unrenderable from its own sealed facts
+
+**Decision.** Shared code (`src/repository_presenter/core/facts.py:136` and
+`src/repository_presenter/components/readme/composition/renderer.py:263`), so lane E writes no fix.
+This is the blocker that stopped Cells for Python being landed, and it outranks E5: E5 costs the
+no-op proof, E7 costs the commit.
+
+**The defect, in two lines that disagree.** The seal writes facts in ID order:
+
+```python
+"facts": [asdict(fact) for fact in sorted(self.facts, key=lambda f: f.id)],
+```
+
+The renderer emits the dependency bullets in whatever order the document hands it, with no sort:
+
+```python
+lines.extend(f"- `{fact.value}`" for fact in required)
+```
+
+The live pipeline renders from the in-memory `FactsDocument`, which is in **extraction** order.
+The replay renders from `facts.json`, which is in **ID** order. Wherever those two orders differ
+for any two facts in the same rendered list, the sealed bytes cannot be reproduced from the sealed
+facts — by construction, on the first try, with nothing else wrong.
+
+**Measured.** `tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes
+[aspose-cells-foss__Aspose.Cells-FOSS-for-Python]` failed in the full local CI-equivalent. The
+complete diff between the sealed README and the replayed render is two lines, transposed:
+
+```
+@@ -93,6 +93,6 @@
+ ### Required Package Dependencies
+
++- `olefile>=0.46`
+ - `pycryptodome>=3.15.0`
+-- `olefile>=0.46`
+```
+
+The sealed `facts.json` holds `dependency:olefile-0.46` before `dependency:pycryptodome-3.15.0`
+(ID order); the sealed README lists `pycryptodome` first (the order `pyproject.toml` declares them).
+Nothing else in 36,933 bytes differs.
+
+**It is not hash randomisation, and that was tested rather than assumed.** Re-rendering under
+`PYTHONHASHSEED` 0, 1, 2, 3 and 42 gives `olefile` then `pycryptodome` every time. The renderer is
+deterministic; it is *order-preserving*, and the order it was given at seal time is not the order
+the seal preserved. Nor did the later rejected rerun corrupt the bundle: every one of its 14 files
+carries the same 15:36:42-43 seal timestamp.
+
+**Scope.** Data-dependent, which is why eight bundles pass this test and the ninth does not: it
+bites only when extraction order and ID order disagree within one rendered list. Any repository
+whose manifest declares dependencies in non-alphabetical order is a candidate for it, and the
+dependency bullets are only the list this run happened to hit — the same asymmetry applies to every
+unsorted `lines.extend(... for fact in ...)` in the renderer.
+
+**Alternative rejected.** Sorting the dependency bullets in the renderer. It fixes this list and
+leaves the general asymmetry, and it silently changes the presentation order of every existing
+candidate — a manifest's own declaration order is arguably the better reading order anyway. The
+narrower fix is to make the seal preserve the document order the render actually consumed, so that
+replay and render see the same sequence; whichever direction the owner picks, the two sites must be
+made to agree deliberately rather than by coincidence.
+
+**Evidence.** `core/facts.py:136`; `composition/renderer.py:248-263`; the CI run's `pytest` step
+(`1 failed, 1012 passed, 13 xfailed in 427.92s`) and its named parametrisation; the unified diff
+above; the five-seed determinism check; the bundle's uniform file timestamps.
+
+**Reversal path.** If the owner rules that `test_sealed_bytes` is too strict — that a sealed bundle
+need only be semantically, not byte-, reproducible — then the check is what changes, and this entry
+becomes an argument for that ruling rather than for a code fix. It should not simply be left as is:
+today it silently converts an accepted candidate into an unlandable one.
+
+**Independent corroboration, and the precedent for the fix (`40f2e9d`, landed while this run was
+composing).** Lane B hit the identical class on the same day, from the other side of the codebase:
+*"test_sealed_bytes caught this lane's own defect: declared_dependencies sorted by the manifest's
+spelling while fact IDs are slugged, so the sealed README listed Python3 before googletest and a
+re-render listed them the other way"* — the same test, the same section, the same two-line
+transposition, and the same "manifest order versus ID order" cause. Lane B could fix it directly
+because the offending order was produced by **its own C++ plugin**, which it owns, and it did so
+with a mutation test.
+
+That is the precedent, and it sharpens this proposal rather than duplicating it. The Python
+cohort's instance has the same shape — the extractor emits `dependency:pycryptodome-3.15.0` before
+`dependency:olefile-0.46` because `pyproject.toml` declares them that way, while the IDs sort the
+other way — but the Python extractor is **shared and mature**, so lane E may not edit it (this
+lane's opening paragraph). Hence a proposal rather than a commit. The owner therefore has a
+measured choice the two lanes have now framed together: fix each producer's order one ecosystem at
+a time, as `40f2e9d` did for C++, or make the two shared sites (`core/facts.py:136` and
+`renderer.py:263`) agree once so no future plugin can reintroduce it. Lane E has no standing to
+pick between them and records the evidence for both.
+
+### Aspose.Page for Python: a clone timeout that was contention, not size
+
+The first attempt never reached a provider call: `clone of … failed after 3 attempts: transient
+clone failure: git clone --depth 1 --no-tags … timed out after 600.0s`. Root cause investigated
+before any retry, per loop-prompt §5's prohibition on a third equivalent attempt.
+
+The repository is genuinely huge — `gh api` reports **418,348 KB (≈409 MB)** against PDF for
+Python's 5,523 KB and Cells for Python's 1,389 KB, i.e. 75× and 300× — so "too big for the budget"
+was the obvious hypothesis. **It is wrong.** The identical command, run alone and timed, completed
+in **316 s** (`RC=0`, 1.1 GB on disk, 2,430 files), comfortably inside
+`CLONE_TIMEOUT_SECONDS = 600.0` (`core/git_safety/clone.py:30`). The three failures happened while
+five other lane workers and this lane's own PDF run were competing for the same link, in the window
+that ended with the account-wide session-limit reset.
+
+So the tool's classification was right: this was a transient failure, correctly retried. Lane E
+records **no proposal to raise the timeout** — the evidence does not support one, and §27.10's rule
+against fitting a threshold to one sample cuts against changing a constant on the strength of a
+contended window. What is worth the owner's attention is cheaper and different: three attempts at
+600 s each spend **30 minutes** before reporting, and a timeout is the one "transient" marker whose
+retry cost is the full budget every time. That is an observation, not a proposal; lane E has one
+measurement and will not build a rule from it (`MEMORY`: never a rule from one observation).
+
+### E6 `PROPOSAL` — the S4 `fact_ids` fix was not applied to its four sibling sites at S5, and that is Page for Python's live blocker
+
+**Decision.** Shared code (`prompts/presentation_planning.yaml` and
+`src/repository_presenter/components/readme/composition/planning.py::planning_schema`), so lane E
+writes no fix. Page for Python takes a disposition naming this proposal as its resume predicate.
+
+**The defect.** `352fd35` fixed `reconciliation_schema`'s `fact_ids` by pinning it to an enum of the
+packet's own IDs. The **identical field name, in the identical role, at the sibling S5 site, was not
+fixed** — at four places. Every `fact_ids` in the planning manifest's schema is a bare string array,
+and `planning_schema()` rewrites none of them:
+
+| field | schema as shipped |
+| --- | --- |
+| `core_capabilities.items.fact_ids` | `{"type": "array", "minItems": 1, "items": {"type": "string"}}` |
+| `api_hubs.items.fact_ids` | `{"type": "array", "minItems": 1, "items": {"type": "string"}}` |
+| `material_limitations.items.fact_ids` | `{"type": "array", "items": {"type": "string"}}` |
+| `deviations.items.fact_ids` | `{"type": "array", "minItems": 1, "items": {"type": "string"}}` |
+
+The contrast is inside one object: `planning_schema()` *does* replace `api_hubs.items.symbol_fact_id`
+with `{"type": "string", "enum": hubbable}` (`planning.py:212-214`), and leaves `fact_ids` — its
+immediate sibling in the same `items.properties` — accepting any string at all.
+
+**Measured, this run.** Page for Python was rejected twice at S5 and the run ended:
+`presentation_planning: output rejected twice; last rejection: unknown fact ID
+public_symbol:aspose.page.xps.renderer`. The invented ID sits at exactly
+`api_hubs[2].fact_ids[5]` in the rejected payload
+(`calls/910e76cb940e.rejected-2.json`). `aspose.page.xps.renderer` is a plausible namespace the
+model composed, not a fact it was shown — the same invention the G3 second pass recorded for this
+repository as `RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST` with
+`public_symbol:aspose.page.common`.
+
+**So Page's recorded class did not survive item 40 — it moved.** The class was never an S4-only
+class; it was a `fact_ids`-shaped hole that existed at both stages. Item 40 and `352fd35` closed the
+S4 half, and this run proves the S4 half is closed for this very repository (3 `source_reconciliation`
+calls, all HTTP 200 on attempt 1, no rejection). The S5 half is untouched and now blocks alone.
+The lane file's expectation that "item 40 other half (symbol_kinds bounding) cites it by name" is
+therefore not sufficient for Page: `symbol_fact_id` bounding is already in place and is not what
+failed.
+
+**The fix has a working model to copy.** `citable_fact_ids()` already computes the exact set a
+disposition may cite, from `bounded_records()`, and `planning_schema()` already uses
+`bounded_records()` for its other enums under Taskcard H's cap. The same list applied to these four
+fields makes the invention impossible to emit rather than detected afterwards by `binding_errors`.
+
+**On the size objection.** This run answers it with three live measurements rather than a guess: an
+enum of the packet's own citable IDs held at **689 values / 34,409 characters** (PDF), **360 /
+17,119** (Page) and **252 / 12,590** (Cells), across **8 S4 calls in total, every one HTTP 200 on
+attempt 1**. Taskcard H's confirmed 400 was at ~24,830 symbols with no `bounded_records` cap at all;
+these are the capped sizes, and they are two orders of magnitude smaller.
+
+**Alternative rejected.** Leaving the four fields free and relying on the existing `binding_errors`
+rejection plus a prompt sentence. That is exactly what is in place now, and it is what the G3 second
+pass already tried to fix by prompt wording; it costs two full S5 calls and a dead run per
+repository, and `RESEARCH_AND_GUIDELINES.md` §27.5 D1's whole point is that the schema should make
+the mistake unrepresentable rather than ask the model to notice it.
+
+**Evidence.** `prompts/presentation_planning.yaml` (`output.schema.properties.*.fact_ids`, four
+sites, quoted above); `planning.py:189-220`; Page's run log
+(`presentation_planning: output rejected twice`); `calls/910e76cb940e.rejected-1.json` and
+`.rejected-2.json`; `calls.jsonl` (`presentation_planning: 2 success, 2 response_invalid`;
+`source_reconciliation: 3 success`).
+
+**Reversal path.** If a bounded enum at these four sites trips an HTTP 400 on a larger-surface
+repository, the answer is Taskcard H's — tighten `bounded_records`' cap for this packet — never a
+return to a free string array.
+
+### Aspose.Page for Python, measured
+
+Second attempt, after the clone cause was settled. Clone succeeded; the repository is at
+`ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e` (**2,430 tree entries**, matching the timed probe).
+
+- **Examples: 8 candidates, 6 executed, 2 failed.**
+- **Facts: 735 records** (`public_symbol` 570, `inherited_unit` 104, `link_target` 31, `example` 8,
+  `identity` 5, `format` 5, `dependency` 4, `package` 3, `license` 2, and one each of
+  `build_test_asset`, `import_path`, `install_command`). The G3 second pass measured 728 records
+  with the same 570 `public_symbol`.
+- **S3** accepted on attempt 1. **S4 passed: 3 calls, all HTTP 200 on attempt 1** — the recorded
+  blocker for this repository is closed at S4.
+- **S5 rejected twice**, run ended. No candidate rendered, no bundle sealed.
+
+### Dispositions written this run
+
+Each is a real rejection with its failure class and resume predicate — none is a forced seal.
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-pdf-foss/Aspose-PDF-FOSS-for-Python` | NOT_SEALED | `ABBREVIATION_FAILURE_IS_UNROUTABLE_SO_REPAIR_NEVER_RUNS` (BC-07, S9/COMPOSING) | E4 lands: BC-07's canonical-abbreviation judge sets `Failure.section`; re-run `present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python` |
+| `aspose-page-foss/Aspose.Page-FOSS-for-Python` | NOT_SEALED | `PLANNING_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST` (S5, `api_hubs[].fact_ids`) | E6 lands: the four `fact_ids` sites in the planning schema take an enum of the packet's own citable IDs; re-run `present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python` |
+| `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | NOT_LANDED (composed and accepted) | `SEALED_BYTES_DO_NOT_RENDER_FROM_THE_SEALED_FACTS` (E7, blocking) and `SEALED_BUNDLE_CANNOT_REPLAY_A_BATCHED_S4` (E5, the no-op) | E7 lands first — the seal and the renderer agree on fact order, so `test_sealed_bytes` passes — then E5 for the no-op proof. The composition itself needs nothing: validation 10/0, review ACCEPT, `second_reader.read` 2. |
+
+`LANE-E-01` stays `IN_PROGRESS`. **No seal is claimed and the counted unit does not move: 8/34
+before and after.** All three repositories are accounted for with a real failure class and a resume
+predicate, every one of which is a shared-code proposal for the primary; none can advance from
+inside this lane.
+
+The honest summary of Cells is worth stating plainly, because it is the run's most easily
+overstated result: the pipeline produced an accepted candidate for it — 6 of 6 examples executed,
+validation `pass 10, fail 0`, review `ACCEPT` with zero findings and two corroborating reads — and
+the repository's own recorded blocker is genuinely closed. It is still not a candidate this project
+can count, because the bundle it sealed cannot be re-rendered from the facts it sealed, and the
+suite says so. That gap is E7's, not the candidate's.
