@@ -1,0 +1,318 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "dependency:none",
+      "reason": "The POM declares Apache POI and JUnit Jupiter as dependencies; the claim of no external dependencies is contradicted by evidence.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:010.list",
+      "reason": "inherited_unit:010.list is a meta-unit summarizing multiple capabilities and is not cited by any capability slot",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "inherited_unit:041.list",
+      "reason": "One limitation unit already cites this fact; remaining items in the list are covered by other units or are not standalone scope statements.",
+      "section": "scope_limitations"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:java_release",
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Cells FOSS for Java provides a free, open-source Java library for creating, reading, and manipulating Excel files without requiring Microsoft Excel. It supports common spreadsheet operations such as setting cell values, applying formatting, defining data validation rules, and handling conditional formatting, as demonstrated in the provided examples. Developers use it to generate reports, process spreadsheets, and integrate Excel functionality into Java applications. The library runs on Java 17."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and modify Excel workbooks using the Workbook class, which manages a collection of worksheets where each worksheet holds a Cells collection for reading and writing values of string, numeric, boolean, date/time, and formula types."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Apply comprehensive cell styling including font weight, custom number formats, borders, fill, alignment, and protection flags through the Style object obtained from Cell.getStyle() and applied with Cell.setStyle()."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Enforce data entry rules with Validation scoped to CellArea ranges and apply visual conditional formatting using FormatCondition with cell value comparisons and custom styles."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Embed and manipulate drawing objects such as images and 38 preset AutoShapeType geometries using PictureCollection and ShapeCollection, both supporting two-cell anchor positioning and format detection for JPEG, PNG, GIF, and BMP."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Control print layout and page setup through PageSetup, freeze rows and/or columns by coordinate or cell name, and manage workbook and worksheet protection with separate passwords for structure, windows, and revisions."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Load damaged workbooks using LoadOptions with strict-mode disabled and repair toggles, then inspect LoadDiagnostics to retrieve detailed repair messages and preservation notes for unsupported package parts."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Apply auto filters with color, dynamic, top-10, and custom filter types plus sort conditions, and create 18 of the 25 ChartType values programmatically while preserving the remaining 7 ChartEx types from loaded files."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a new workbook, populate cells with data and formatting, and save the file as an Excel workbook."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Load a potentially corrupted workbook with repair options enabled, inspect any issues found, and save a repaired version with updated document properties."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create data validation rules and apply conditional formatting to highlight values within a specified range in a spreadsheet."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Add validation and conditional formatting to highlight values between 1 and 100."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Cells FOSS for Java exposes the Workbook class as its primary entry point for creating and manipulating spreadsheet documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org",
+      "text": "The org namespace serves as the root package for all Aspose.Cells FOSS for Java classes and interfaces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose",
+      "text": "The org.aspose package provides base types and shared utilities used across Aspose product families for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose.cells_foss",
+      "text": "The org.aspose.cells_foss package contains the core spreadsheet processing classes including Workbook."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "provides Java documentation for Aspose.Cells FOSS covering workbook creation, cell operations, styling, and data validation."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "offers Java knowledge base articles, frequently asked questions, and troubleshooting guidance for Aspose.Cells FOSS."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "delivers the complete, browsable reference for all 183 public types in Aspose.Cells FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:025"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:025",
+      "text": "outlines repository conventions to follow when modifying supported behavior in Aspose.Cells FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "describes how releases are built and published to Maven Central for Aspose.Cells FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:027",
+      "text": "allows reporting bugs or submitting feature requests for Aspose.Cells FOSS for Java on GitHub."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:041.list",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Cells FOSS for Java provides read and write access to Excel workbooks in the .xlsx format for Java 17 and later, supporting core spreadsheet operations through the org.aspose:aspose-cells-foss package at version 26.7.0."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Saving is currently limited to .xlsx."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "ChartEx types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot be created programmatically; charts of these types loaded from an existing workbook are preserved verbatim across load and save."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Formulas are stored and round-tripped, but the library is not a full spreadsheet calculation engine."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "A handful of public XML-mapper classes are unimplemented skeleton code carried over from an early scaffold — their own class-level Javadoc discloses this, and the library's real save/load path never calls them."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:docs",
+        "identity:revision",
+        "identity:repository",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the project using the CI workflows in .github/workflows/ and the documentation in docs/ with Java 17 and the package org.aspose:aspose-cells-foss version 26.7.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot table support, and enhanced Excel format compatibility."
+    }
+  ]
+}

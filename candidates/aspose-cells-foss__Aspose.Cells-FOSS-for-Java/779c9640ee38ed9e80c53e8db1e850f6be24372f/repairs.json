@@ -1,0 +1,25 @@
+{
+  "attempts": {
+    "d5fff1f9af77a2d293af3630": {
+      "changes": [
+        {
+          "after": "Aspose.Cells FOSS for Java provides a free, open-source Java library for creating, reading, and manipulating Excel files without requiring Microsoft Excel. It supports common spreadsheet operations such as setting cell values, applying formatting, defining data validation rules, and handling conditional formatting, as demonstrated in the provided examples. Developers use it to generate reports, process spreadsheets, and integrate Excel functionality into Java applications. The library runs on Java 17.",
+          "before": "Aspose.Cells FOSS for Java provides a free, open-source Java library for creating, reading, and manipulating Excel files without requiring Microsoft Excel. It supports common spreadsheet operations such as setting cell values, applying formatting, defining data validation rules, and handling conditional formatting, as demonstrated in the provided examples. Developers use it to generate reports, process spreadsheets, and integrate Excel functionality into Java applications. The library runs on Java 17 and has no external dependencies.",
+          "fact_ids": [],
+          "id": "R01",
+          "path": "units[0].text"
+        }
+      ],
+      "label": "F01",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "6b1061e6ce164bdc3e093aa54a8b19aaa399a580d8e75f2dfd4b252fcb89aac7",
+      "section_id": "opening",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "4d42e9e7be423772ed1a78dad46404650ea23da274d45412b2611264305da319",
+  "schema_version": 1
+}
