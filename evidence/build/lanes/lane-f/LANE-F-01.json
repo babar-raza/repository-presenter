@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "lane": "lane-f",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-F-01",
+  "work_item_status": "IN_PROGRESS",
+  "recorded_at": "2026-09-11T13:26:00+05:00",
+  "control_revision": "18e26e5",
+  "control_revision_note": "The single-use branch lane-f/LANE-F-01 was cut from origin/main at 692f57c8162cded00380761c33b74b1024cbcaae (PHASE1/F7) and every measurement below was taken against that tree; it was then rebased onto 18e26e5, which adds only project/lanes/lane-e.yaml, project/lanes/lane-f.yaml and two plans/sprint/*.jsonl lines (git diff --stat 692f57c 18e26e5 - no src/ or prompts/ change), so the measurements hold unchanged at the recorded revision. b712790 is what created this lane's own cursor, which is why the cut point did not have it. Run 1 of the item; halted at S4 (RECONCILING) by a binding reviewer instruction (loop-prompt.md section 5) before any seal, because arrival item 40's fact_ids pattern in reconciliation/dispositions.py blocks that stage for every repository. No candidate sealed, no disposition written, no G4 manifest row amended. The lane worked from C:\\w\\f01 per loop-prompt-lane.md section 1.1.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\f01",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Built from requirements-lock.txt plus uv==0.12.9 and verified byte-equal to the primary venv's and to all 8 sealed bundles' value before any candidate work. A literal `pip install -e .[dev]` per loop-prompt-lane.md section 1.3 produced 613b742b997a5a87... instead (five distributions resolved past their lock pins) - see RESEARCH_LANE_F.md F3."
+  },
+  "toolchains": [
+    {
+      "name": "dotnet",
+      "resolved_path": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "version": "10.0.204",
+      "resolution": "machine SDK, already on PATH; no provisioning needed"
+    }
+  ],
+  "gateway_preflight": {
+    "command": "repository-presenter preflight",
+    "gateway": "llm.professionalize.com reachable",
+    "models": 7,
+    "prompts": "6 manifests routed to qwen3-next",
+    "catalog_digest": "663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b",
+    "note": "The lane worktree has no runs/ directory of its own, so the first facts-only attempt exited with 'no recorded model catalog'. Recording the catalog is a per-worktree prerequisite, not a failure."
+  },
+  "preflight": {
+    "command": "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-.NET --facts-only",
+    "provider_calls": 0,
+    "repositories": 1,
+    "processable": 1,
+    "report": [
+      {
+        "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        "source_revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+        "source_revision_note": "The same revision the 2026-09-06 seal used and f8e3bf0 un-sealed; the G4 manifest row reads SEALED_THEN_UNSEALED.",
+        "processable": true,
+        "facts": 3931,
+        "supported": 3930,
+        "unresolved": 0,
+        "contradicted": 1,
+        "required_rows_without_evidence": [],
+        "facts_digest": "bdb5ae9087bcabe7d083fdcff99eba805f303d31962c88cfbcac6e5833cbc37a",
+        "source_digest": "917c306831a06b53b148a6134798b5e4f9c0dd3cfdfe6001e8b8754afb450424",
+        "source_shape": "3 files, 314 tree entries, readme README.md",
+        "fact_kinds": {
+          "build_test_asset": 1,
+          "dependency": 1,
+          "example": 7,
+          "identity": 5,
+          "inherited_unit": 70,
+          "install_command": 1,
+          "license": 2,
+          "link_target": 29,
+          "package": 3,
+          "public_symbol": 3812
+        },
+        "package": "Aspose.3D.FOSS 26.1.0, target framework netcoreapp3.1",
+        "install_command": "install_command:dotnet = 'dotnet add package Aspose.3D.FOSS', SUPPORTED",
+        "registry": "nuget:Aspose.3D.FOSS SUPPORTED via nuget-flatcontainer-api - the package IS published, so this repository needs no EcosystemSpec.source_install path; RESEARCH_AND_GUIDELINES.md section 28.11's census row 'NuGet not found' (2026-09-05) is stale for it",
+        "links": "12 link probes, all RESOLVED",
+        "examples": "7 candidates; 6 EXECUTED, 1 FAILED",
+        "examples_note": "The 2026-09-06 row recorded 'executed 5, failed 2'; one formerly-failing example now executes. The remaining CONTRADICTED fact is example:003 - Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken' - a genuine upstream compile error in one README fence, isolated to that example per loop-prompt.md rule 16."
+      }
+    ]
+  },
+  "investigation": {
+    "job": "repository_investigation",
+    "stage": "INVESTIGATING (S3)",
+    "outcome": "success",
+    "logical_call_id": "25dcd982b086a274",
+    "provider_calls": 1,
+    "receipt": {
+      "capabilities": 8,
+      "workflows": 6,
+      "limitations": 6,
+      "problems_solved": 3,
+      "uncertainties": 3
+    },
+    "fact_citations": {
+      "cited": 26,
+      "unknown": 0
+    },
+    "fabrication_check": {
+      "subject": "the PlyReader/PlyWriter paragraph that caused the 2026-09-06 un-seal",
+      "public_symbol:aspose.threed.formats.plyreader": "ABSENT from all 3931 facts",
+      "public_symbol:aspose.threed.formats.plywriter": "ABSENT from all 3931 facts",
+      "any_fact_id_containing_plyreader_or_plywriter": [],
+      "nearest_real_symbol": "public_symbol:aspose.threed.formats.plyformat",
+      "this_run_s3_receipt": "names PlyFormat only; Ply(Reader|Writer) appears nowhere in it",
+      "conclusion": "The 2026-09-06 review paragraph was a fabrication against the fact set, confirmed by absence rather than by the reviewer's wording. This run's S3 output did not reproduce it."
+    }
+  },
+  "halt": {
+    "reason": "Binding reviewer instruction (loop-prompt.md section 5, 'Reviewer messages'), 2026-09-11: stop before spending another provider call - S4 (RECONCILING) is blocked for every repository, so a .NET run cannot reach a seal.",
+    "stage_reached": "INVESTIGATING (S3) complete; halted before the S4 source_reconciliation call",
+    "provider_calls_this_run": 1,
+    "candidates_sealed": 0,
+    "dispositions_written": 0,
+    "dispositions_note": "Deliberately none. A failure class recorded against a repository while the stage in front of it is known broken would name S4's defect as that repository's own history - see RESEARCH_LANE_F.md F4."
+  },
+  "proposals": [
+    {
+      "id": "F2",
+      "file": "src/repository_presenter/components/readme/reconciliation/dispositions.py",
+      "lines": "195-198 (reconciliation_schema)",
+      "defect": "The fact_ids item pattern '^(<kind>|...):' is prefix-only, so the bare string 'public_symbol:' (kind prefix, empty slug) satisfies it and names no fact; and fact_ids carries no maxItems while its items carry no maxLength, so constrained decoding over the unbounded array has no terminator - the runaway to the 32000-token cap. Separately, `pattern` is the one keyword RESEARCH_AND_GUIDELINES.md section 27.0 D1 rules out by name for strict json_schema.",
+      "proposed_shape": "Give fact_ids the treatment unit_id already gets four lines below in the same function: an enum of the packet's own fact IDs, plus a maxItems. Refuses 'public_symbol:' at decode time, bounds the array, drops the prohibited keyword.",
+      "owner": "the primary (shared code; reconciliation/ is not a lane-F path)",
+      "corroborates": "lanes C and D measured the same class independently this hour (852047a, 3bc7999; landed as PRs #32 and #33); the primary is landing a fix",
+      "status": "SUPERSEDED IN PRACTICE - observed 2026-09-11 08:53 UTC: the primary checkout's local HEAD reads 352fd35 'fix(reconciliation): fact_ids decode from an enum of the packet's own IDs, never a bare kind prefix (PHASE1/S4-REGRESSION)', the enum shape this proposal names; not yet on origin/main (1a8fbae). This record stands as the third independent measurement, not as work the primary still owes.",
+      "repositories_blocked": [
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+        "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+        "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET"
+      ]
+    }
+  ],
+  "not_run_this_iteration": [
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+      "reason": "Not reached; its unlock (arrival item 28 fold-not-reject plus PA-02 section-scoped quote_located) is a review-stage predicate that cannot be observed through a broken S4. Its existing G4 manifest disposition (BLOCKED_REVIEW) stands unamended."
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+      "reason": "Not reached; its unlock (SYMBOL_CAP 150 -> 6000, item 27, plus presentation_planning v10's verbatim-copy instruction) is a planning-stage predicate downstream of S4. Existing disposition (BLOCKED_PLANNING) stands unamended."
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
+      "reason": "Not reached; its unlock is EcosystemSpec.source_install (core/ecosystems.py, arrival item 10) on a CONCLUSIVE CONTRADICTED BC-02, evaluated at EXTRACTING but only provable by a run that reaches a seal. Existing disposition (BLOCKED_VALIDATION BC-02) stands unamended."
+    },
+    {
+      "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+      "reason": "Explicitly out of this item's scope - LANE-F-02, gated on arrival item 54 (quick_start conditional on bool(verified_examples))."
+    }
+  ],
+  "recovery": {
+    "what": "The lane's first `git push` ran .githooks/pre-push -> scripts/ci_check.sh, and the suite's throwaway-repository fixtures committed onto this lane's own branch instead of their tmp_path: git exports GIT_DIR into every hook environment, GIT_DIR outranks cwd and -C, and core/git_safety/git.py::run_git forwards os.environ wholesale. Six fixture commits (seed/initial/placeholder, author `Test <test@example.com>`, 08:35:31-08:37:32 UTC) walked refs/heads/lane-f/LANE-F-01 off 1f74766 down to a two-file tree; `git ls-files` reported 2 tracked files where there are 465.",
+    "symptom": "8 failures in tests/test_version_bump_discipline.py, all '<path> is not tracked at HEAD' - the corruption's symptom, not a real red. They pass on the restored tree.",
+    "known_defect": "Not new: .githooks/pre-push already carries lane D's 2026-09-11 diagnosis and scrubs GIT_DIR and friends, naming the durable fix as run_git refusing to forward them. Lane F branched at 692f57c, where that hook was still at b9ba2be (2026-09-09), and core.hooksPath is an absolute path into the primary checkout - so the hook text that runs is the primary's working copy at push time, not the branch's. Second measured occurrence, third lane.",
+    "recovered_by": "git reset --hard 1f747663048ebfad5d652ed4c681a43b22d92b68 - 465 tracked files restored, clean status, commit tree byte-identical, nothing re-created by hand.",
+    "consequence_kept": "The same mechanism had set user.name Test / user.email test@example.com on this checkout before the lane's own commit (the worktree's first reflog entry, 08:10:48, is already `Test <test@example.com>`), so that commit was mis-authored and was re-authored to the repository's identity. Content unchanged."
+  },
+  "measurement": {
+    "candidates_current": "8/34 (repository-presenter status, this worktree, before and after this run - unchanged)",
+    "provider_calls": 1,
+    "full_suite_runs": 1,
+    "canary_runs": 0
+  },
+  "next_work_item": "LANE-F-01 run 2: re-attempt 3D-.NET first, with this record as its pre-S4 baseline, once the S4 fact_ids fix is on main."
+}
