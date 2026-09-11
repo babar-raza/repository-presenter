@@ -9,10 +9,18 @@ import pytest
 
 from repository_presenter.components.readme.extractors.surface.registry import (
     REGISTRY_TYPES,
+    TRANSIENT_STATUSES,
     RegistryObservation,
     observe,
     registry_type,
 )
+from repository_presenter.core.retry import RETRY_POLICIES
+
+_POLICY = RETRY_POLICIES["package_registry"]
+
+
+def _no_sleep(_seconds: float) -> None:
+    """The policy's backoff, skipped: a test measures the replays, never waits on them."""
 
 
 class _Response:
@@ -27,6 +35,22 @@ class _Response:
 
     def json(self) -> dict[str, Any]:
         return self._payload
+
+
+def _answers(*first: int | None, then: Any) -> tuple[list[str], Any]:
+    """A fetch that gives ``first`` in order - a status, or None for a connection failure the
+    way the vendored ``default_fetch`` reports one - and ``then`` to every later call."""
+    queue: list[int | None] = list(first)
+    calls: list[str] = []
+
+    def fetch(url: str, **kwargs: Any) -> Any:
+        calls.append(url)
+        if queue:
+            answer = queue.pop(0)
+            return None if answer is None else _Response(answer)
+        return then
+
+    return calls, fetch
 
 
 def test_every_ecosystem_the_portfolio_uses_names_its_registry() -> None:
@@ -124,10 +148,103 @@ def test_a_registry_that_answers_nothing_useful_stays_inconclusive_or_unpublishe
     def fetch(url: str, **kwargs: Any) -> _Response:
         return _Response(status)
 
-    reading = observe("net", "Aspose.Widget", fetch=fetch)
+    reading = observe("net", "Aspose.Widget", fetch=fetch, sleep=_no_sleep)
     assert reading.published is not True
     if status == 500:
         assert not reading.conclusive
+
+
+@pytest.mark.parametrize(
+    "transient",
+    [None, *sorted(TRANSIENT_STATUSES)],
+    ids=lambda answer: "no-response" if answer is None else f"http-{answer}",
+)
+def test_a_transient_registry_answer_is_asked_again_and_the_recovered_reading_stands(
+    transient: int | None,
+) -> None:
+    """G4-W17 arrival item 57 (lane F's PROPOSAL F9). `observe()` probed once, while
+    `RETRY_POLICIES["package_registry"]` existed and only `python_registry.py` used it - every
+    other ecosystem got one shot. Measured 2026-09-11: 5 of 10 NuGet reads in one lane run came
+    back unreadable, each `install_command:dotnet` UNRESOLVED -> BC-02 FAIL at EXTRACTING,
+    recorded unrepairable, for a package three direct requests proved published (1
+    ConnectTimeout, 2 x HTTP 200). One transient answer must cost one replay, not the seal."""
+    calls, fetch = _answers(transient, then=_Response(200, {"versions": ["1.0.0"]}))
+    sleeps: list[float] = []
+
+    reading = observe("net", "Aspose.Widget", fetch=fetch, sleep=sleeps.append)
+
+    assert reading.conclusive and reading.published is True, reading
+    assert len(sleeps) == 1, "one transient answer is exactly one replay"
+    assert 0 <= sleeps[0] <= _POLICY.maximum_seconds
+    # The replay asks the same URL again - the read that failed, not a different one.
+    assert len(calls) >= 2 and calls[1] == calls[0]
+
+
+@pytest.mark.parametrize("transient", [None, 503], ids=["no-response", "http-503"])
+def test_a_registry_that_stays_down_is_given_up_after_the_policy_attempts_and_stays_unread(
+    transient: int | None,
+) -> None:
+    """Negative control for the retry: bounded, and never a false negative. A registry that
+    answers transiently on every attempt is asked exactly `max_attempts` times, then the reading
+    is the same inconclusive one a single failed read always gave - "we could not check" is
+    still not "we checked and it is false" (section 29.6 E5) - and no exception reaches the
+    facts stage."""
+    calls, fetch = _answers(then=None if transient is None else _Response(transient))
+    sleeps: list[float] = []
+
+    reading = observe("net", "Aspose.Widget", fetch=fetch, sleep=sleeps.append)
+
+    assert len(calls) == _POLICY.max_attempts, calls
+    assert len(sleeps) == _POLICY.max_attempts - 1
+    assert reading.published is None and reading.ambiguous and not reading.conclusive
+    assert reading.summary == "package registry: nuget could not be read"
+    assert reading.method == "nuget-flatcontainer-api", "the adapter's own reading, unchanged"
+
+
+@pytest.mark.parametrize(
+    ("status", "conclusive"),
+    [(404, True), (403, False), (401, False)],
+    ids=["404-not-published", "403-ambiguous", "401-ambiguous"],
+)
+def test_a_registry_that_answered_is_never_asked_again(status: int, conclusive: bool) -> None:
+    """Negative control for the classification: a 404 is the registry's answer (not published)
+    and a 403 or 401 is the adapter's own ambiguous reading; neither is transient, so neither
+    is replayed - the retry never turns "distribution not found" into three requests."""
+    calls, fetch = _answers(then=_Response(status))
+    sleeps: list[float] = []
+
+    reading = observe("net", "Aspose.Widget", fetch=fetch, sleep=sleeps.append)
+
+    assert len(calls) == 1 and sleeps == []
+    assert reading.conclusive is conclusive
+    if conclusive:
+        assert reading.published is False
+
+
+@pytest.mark.parametrize(
+    ("ecosystem", "name"),
+    [
+        ("net", "Aspose.Widget"),
+        ("java", "org.aspose:aspose-widget-foss"),
+        ("typescript", "@asposefoss/widget"),
+        ("go", "github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-Go"),
+        ("rust", "aspose-widget-foss"),
+    ],
+)
+def test_every_registry_the_facade_serves_is_asked_again_after_one_transient_answer(
+    ecosystem: str, name: str
+) -> None:
+    """The retry lives in the façade, not in one adapter: NuGet was where lane F measured it,
+    but Maven, npm, the Go proxy and crates.io reach the network through the same single call,
+    and item 57 names every one of them."""
+    calls, fetch = _answers(None, then=_Response(200, {"versions": ["1.0.0"]}))
+    sleeps: list[float] = []
+
+    reading = observe(ecosystem, name, fetch=fetch, sleep=sleeps.append)
+
+    assert reading.registry == REGISTRY_TYPES[ecosystem]
+    assert reading.conclusive and reading.published is True, (ecosystem, reading)
+    assert len(sleeps) == 1 and len(calls) >= 2
 
 
 def test_the_reading_summarises_itself_in_the_vocabulary_a_check_expects() -> None:

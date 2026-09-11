@@ -19,13 +19,13 @@ from typing import Any
 
 import httpx
 
+from repository_presenter.components.readme.extractors.surface.registry import TRANSIENT_STATUSES
 from repository_presenter.core.probes import ProbeRecord
 from repository_presenter.core.retry import RetryableOperationError, run_with_retry
 
 PYPI_PROJECT_URL = "https://pypi.org/pypi/{name}/json"
 REQUEST_TIMEOUT_SECONDS = 15.0
 USER_AGENT = "repository-presenter (+https://github.com/babar-raza/repository-presenter)"
-_TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
 
 
 @dataclass(frozen=True)
@@ -106,7 +106,7 @@ def observe_pypi(
             response = fetch(url)
         except httpx.TransportError as exc:
             raise RetryableOperationError(f"{type(exc).__name__}: {exc}") from exc
-        if response.status_code in _TRANSIENT_STATUSES:
+        if response.status_code in TRANSIENT_STATUSES:
             retry_after = response.headers.get("Retry-After")
             raise RetryableOperationError(
                 f"HTTP {response.status_code}",
