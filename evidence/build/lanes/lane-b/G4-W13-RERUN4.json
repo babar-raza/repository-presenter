@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN4",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-11T21:30:00+05:00",
+  "control_revision": "846eaaf",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN4 was cut from origin/main at 23a8905 in a fresh short-path worktree at C:\\w\\b04 (nothing carried over from C:\\w\\b03), and rebased mid-run onto 846eaaf on the reviewer's instruction once arrival item 64 landed. Both revisions were drawn against, and the two draws are reported separately below because the rebase changed exactly one prompt the run had already reached.",
+  "time_box": {
+    "declared": "Sprint W-CPP fourth attempt, on ground the arrival items cleared: 2d4875d (item 63, this lane's own finding LANE-B-R3-F2) and, from the mid-run rebase, 846eaaf (item 64, LANE-B-R3-F3)",
+    "started": "2026-09-11T20:59 +05:00 (`date` checked)",
+    "closed": "2026-09-11T21:30 +05:00 (`date` checked)",
+    "closed_by": "Its own evidence. The draw failed closed at BC-08 in COMPOSING and never reached S10, so there was nothing left inside the box that a provider call could settle without re-rolling the composition, which the W-card forbids."
+  },
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe)",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e .",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411 - confirmed before the first provider call, and re-confirmed unchanged after the rebase",
+    "reviewer_logic_version": "4 on the first draw (23a8905), 5 after the rebase (846eaaf)",
+    "targeted_repair_prompt_version": "8 on the first draw, 9 after the rebase - 846eaaf's own change",
+    "worktree": "C:\\w\\b04 - a short root, because the harness worktree path crosses Windows' 260-character limit",
+    "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt; g++ 16.2.0 and ninja 1.13.2 resolved from it by cpp_examples.py and prepended to the subprocess PATH only"
+  },
+  "what_this_run_tested": "Whether aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp can seal now that 2d4875d (arrival item 63) folds a presentation finding whose quote holds the literal value of a SUPPORTED fact it itself cites, and - after the mid-run rebase - 846eaaf (arrival item 64) narrows a partly refuted absence finding to its remainder before the repair sees it. Both were the lane's own PROPOSALs from run 3, and both were the named cause of draw 3's BC-10 rejection.",
+  "answered": {
+    "items_63_and_64": "NOT EXERCISED. The question the run was sent to answer is unanswered, and that is the run's headline. The transaction failed closed at BC-08 (Protected content preserved) in COMPOSING, two stages before the independent review. The call ledger records ZERO S10 rows across both draws; validation.json carries BC-10 PENDING, not a verdict. Neither guard was reached, so this run neither corroborates nor disputes them on this repository.",
+    "bc_10_verdict_literally": "There is no review verdict to report. BC-10 is PENDING because independent_review never ran. This is reported as PENDING rather than as any form of rejection or acceptance.",
+    "bc_02_and_bc_01_bc_09": "BC-01 through BC-07 and BC-09 all PASS, BC-08 FAIL, BC-10 and BC-11 PENDING - 8 PASS, 1 FAIL, 2 PENDING, and no repair round moved that count. BC-02 (install_command:cmake) passes for the third consecutive draw.",
+    "reproducibility": "The transaction is now fully reproducible from its own call store. The second draw re-ran the whole pipeline across a code rebase that bumped REVIEWER_LOGIC_VERSION 4 -> 5 and the targeted_repair prompt 8 -> 9, and produced byte-identical source (d2b6a656...), facts (bd8f4a98...), README (5fa7f2ee...) and validation (e6c39d54...) digests, at a cost of exactly one provider call. Zero cache_stale of any kind across 96 ledger rows, corroborating run 3's closure of the lane's headline PROPOSAL on a second, independent transaction."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R4-F1",
+      "class": "PROPOSAL",
+      "owner": "primary loop",
+      "file": "src/repository_presenter/components/readme/repair/targeted.py (validation_defects, lines 204-212)",
+      "title": "A blocking check that fails in two LLM-owned sections is repaired in only the first of them: validation_defects collapses the failure set to named[0], so the second section is never attempted and the one-attempt rule then closes the transaction",
+      "detail": "BC-08 failed with three failures this draw: inherited_unit:026.paragraph and inherited_unit:028.paragraph (both VERIFIED_REWRITE) in section additional_examples, and inherited_unit:111.code_block (CORRECT_WITH_EVIDENCE) in section development_testing - each of them 'keeps the command cmake --build build but the candidate does not render it'. validation_defects builds ONE Defect per failing check and sets its section to `named[0] if named else None`, so the whole check is routed to additional_examples and repair_packet hands the model that section's stage_output alone. No revision of additional_examples can make development_testing render anything, so that third failure is structurally unrepairable in the round; the next validation then sees the equivalent failure standing and the transaction fails closed. Replayed mechanically through the production function on this run's own artifacts: llm_sections is the 9 authored sections including development_testing, validation_defects returns exactly 1 defect, section_id 'additional_examples', carrying all three failures in its record but able to revise only one section's output. Fix: one repairable defect per failing (check, LLM-owned section) pair, so each named section gets its own attempt under its own fingerprint, rather than one defect whose record names sections it cannot reach. Mutation test: this validation.json and these 9 sections - red (one defect, development_testing never attempted) before, green (two defects, one per named section) after. Alternative rejected: widening the single repair packet to carry every named section's output, which asks one reply to revise several stages' artifacts at once and loses repair_checks' per-section binding - the RC1 failure family the packet's narrowing was written to stop.",
+      "evidence": "validation.json BC-08 failures (three, across additional_examples and development_testing); repairs.json - a single attempt, section_id additional_examples, on both draws; offline replay of validation_defects over this run's validation.json and content_units.json."
+    },
+    {
+      "id": "LANE-B-R4-F2",
+      "class": "PROPOSAL",
+      "owner": "primary loop",
+      "file": "src/repository_presenter/components/readme/repair/targeted.py (repair_packet, line 376)",
+      "title": "A BC-08 protected-content repair is asked to restore text whose only SUPPORTED fact is an inherited_unit - the one kind repair_packet strips out of the facts it may cite",
+      "detail": "BC-08's entire subject is a protected inherited_unit's own text. repair_packet builds its fact records as `kinds = [kind for kind in FACT_KINDS if kind != 'inherited_unit']`, so the packet for a BC-08 repair contains every kind EXCEPT the one the defect is about. Measured on this repository: exactly four facts carry the string 'cmake --build build' and all four are inherited_unit (018.code_block SUPERSEDE_REDUNDANT, 026.paragraph, 028.paragraph, 111.code_block); install_command:cmake's own value stops at 'git clone ... && cd ... && cmake -S . -B build', the configure step, which is exactly what the candidate does render (README line 67). The repair is therefore asked to add a command for which no citable SUPPORTED fact is in its packet, while BC-04 requires every content unit to cite existing SUPPORTED facts. The model's answer was the same both times: it returned the targeted unit unchanged (before == after, 'Encrypt a document using AES-256 with user and owner passwords.'), outcome 'repaired', BC-08 re-raised. That is a no-op measured twice under two different prompts and two different request hashes - a533743c under targeted_repair 8 and 85353fed under targeted_repair 9, each a live call - so it is a property of the packet, not a draw. Fix: include the defect's own protected inherited_unit records in a BC-08 repair packet, since they are SUPPORTED facts the candidate is required to preserve, and the exclusion exists to stop a repair citing the corpus it was not authoring, not to hide the evidence the defect names. Mutation test: this defect and these facts - red (packet holds no fact carrying 'cmake --build build') before, green (the three named inherited_unit records present) after. Alternative rejected: letting BC-08 accept a paraphrase without a citation, which weakens a blocking check and is prohibited.",
+      "evidence": "facts.json - the four facts containing 'cmake --build build', all kind inherited_unit; install_command:cmake's value; repairs.json attempts a533743c (prompt 8) and 85353fed (prompt 9), both before == after; calls.jsonl S11 targeted_repair rows, 2 of them, both live."
+    },
+    {
+      "id": "LANE-B-R4-F3",
+      "class": "measurement",
+      "title": "A prompt-version bump isolated to one call: the same transaction replayed across a rebase produced byte-identical bytes for one provider call",
+      "detail": "The first draw ran on 23a8905 (REVIEWER_LOGIC_VERSION 4, targeted_repair prompt 8): 49 ledger rows, 26 provider calls, 23 cache reuses, 1 response_invalid, 52,980 completion tokens. The reviewer's mid-run message then reported arrival item 64 landed at 846eaaf, and the worktree was rebased onto it. The identical `present` invocation on the rebased tree produced 47 further rows of which 46 were cache_reuse and exactly ONE was a live call - the targeted_repair under prompt 9, 1,469 completion tokens - because the prompt change moved that one request's hash and nothing else's. Every artifact digest was unchanged: source d2b6a656..., facts bd8f4a98..., dispositions db09fe4a..., plan e035dee1..., content_units 33c62e26..., README 5fa7f2ee..., validation e6c39d54.... Two things follow. First, the call store's reuse is exact and prompt-addressed, not approximate: 96 rows across two draws with zero cache_stale, on a second transaction independent of run 3's. Second, the repair no-op of finding F2 is reproducible across a prompt revision, which is what makes it a packet property rather than one unlucky reply.",
+      "evidence": "calls.jsonl rows 1-49 and 50-96; both runs' stdout digests; prompts/targeted_repair.yaml version 8 at 23a8905 and 9 at 846eaaf."
+    },
+    {
+      "id": "LANE-B-R4-F4",
+      "class": "measurement",
+      "title": "Four draws of one repository at one revision: the deterministic checks still agree on everything except the one the composition decides, and the blocking check has now moved three times",
+      "detail": "Same repository, same revision 888700a, byte-identical extraction across all four draws (1,846 facts, 1,651 public symbols, 11 examples - 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED). Draw 1: 10 PASS, 0 FAIL, review folded to ACCEPT, sealed, then withdrawn over this lane's own dependency-ordering defect. Draw 2: BC-01..BC-09 PASS, BC-10 FAIL (F05, F06). Draw 3: BC-01..BC-09 PASS after one BC-08 repair, BC-10 FAIL (F06, F10). Draw 4, this run: BC-08 FAIL, BC-10 never judged. BC-08 was raised in draws 3 and 4 alike and repaired in draw 3 only; the difference is not in the facts, the checks or the code but in which units the S6 composition happened to place the protected command in - 285 units this draw against 287, VERIFIED_PRESERVE 45 against 27, OMIT_UNSUPPORTED 12 against 29. The honest reading is that this candidate's blocker is not one defect but a sequence of them, each drawn: BC-02, then BC-10 twice, now BC-08. Recorded so the next draw is judged against four data points rather than the last one.",
+      "evidence": "validation.json of draws 1-4 (draws 1-2 in G4-W13-RERUN2.json, draw 3 in G4-W13-RERUN3.json); dispositions.json and content_units.json unit counts of draws 3 and 4."
+    },
+    {
+      "id": "LANE-B-R4-F5",
+      "class": "decision",
+      "title": "PDF C++ is not drawn a fifth time in this box, and the candidate is not forced",
+      "detail": "The transaction is byte-reproducible from its call store, so a re-run cannot change the outcome; the only way to a different draw is to clear the store and re-roll the composition. Draw 3's own decision entry already ruled that re-rolling until a check says yes is what the W-card's stop-don't-force forbids, and it forbids it more firmly now that reuse has made a re-roll cheap. The two causes are named mechanically above and both are shared code this lane may not edit. Nothing here weakens BC-08: the check is right - the candidate genuinely omits a build command three protected inherited units keep, and the upstream README carries it, so it is a real gap under loop-prompt rule 8, not a false positive. Alternative rejected: deleting runs/transactions/.../calls and drawing again, which would spend ~26 live calls on a coin flip whose odds are 1 of 2 by the four-draw record above.",
+      "evidence": "This run's validation.json (BC-08 FAIL, BC-10 PENDING), reported literally; the byte-identical second draw."
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "disposition": "BLOCKED_COMPOSING (BC-08)",
+      "disposition_change": "moved, not restated: draws 2 and 3 were BLOCKED_REVIEW (BC-10) and this draw never reached review at all. sealed_by_lane stays 0.",
+      "facts": "1,846 records (public_symbol 1,651, inherited_unit 124, link_target 40, example 11, identity 5, package 4, build_test_asset 3, dependency 3, license 2, import_path 1, install_command 1, third_party_notices 1); digest bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb; required contract rows without evidence: none",
+      "examples": "11 candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED",
+      "stages": "S3 8 capabilities, 5 workflows, 4 limitations. S4 124 units (VERIFIED_PRESERVE 45, SUPERSEDE_REDUNDANT 37, VERIFIED_MOVE 18, OMIT_UNSUPPORTED 12, VERIFIED_REWRITE 7, DEFER_UNRESOLVED 2, NON_CONTENT 2, CORRECT_WITH_EVIDENCE 1). S5 18 of 18 sections, 8 capabilities, 12 hubs, examples 1+2, 7 links, 1 limitation. S6 285 units across 9 sections; coherence revised 0 of 285. README 180 visible lines of 583.",
+      "validation": "8 PASS / 1 FAIL / 2 PENDING, unchanged after the repair round. BC-01..BC-07 and BC-09 PASS; BC-08 FAIL at COMPOSING on three failures; BC-10 PENDING (never judged); BC-11 PENDING.",
+      "review": "NOT REACHED. Zero S10 rows in the ledger; there is no review.json and no verdict. BC-10 is reported as PENDING.",
+      "repair": "1 attempt (BC-08, S6, additional_examples), outcome 'repaired' with the targeted unit returned unchanged, BC-08 re-raised; 0 unrepairable; rounds 2. Repeated across the rebase under targeted_repair prompt 9 with the same no-op.",
+      "provider_calls": "27 completed calls and 1 output rejection across both draws (26 + 1), 69 cache reuses, 0 cache_stale, 54,449 completion tokens",
+      "resume_predicate": "Re-run once either PROPOSAL LANE-B-R4-F1 (one repairable defect per failing check-and-section pair) or LANE-B-R4-F2 (a BC-08 packet carries the inherited_unit records the defect names) lands. Until one of them does, BC-08 is a coin flip on where the composition places a protected command, and the arrival items 63 and 64 that this draw was sent to exercise remain untested on this repository - a fifth draw would most likely settle BC-08 by luck rather than settle the review question at all."
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+      "disposition": "BLOCKED_PLANNING (S5)",
+      "disposition_change": "restated, no run, no provider call - outside this run's named scope and its predicate is still unmet",
+      "why_not_run": "The run request named PDF C++ only. Its predicate was checked anyway and is still unmet at 846eaaf: composition/planning.py still appends an error on placement.outcome == 'excluded' where reconciliation/dispositions.py::normalize defers, and evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl now holds 15 rows (36, 22, 32, 33, 23, 55, 39, 40, 44, 45, 46, 60, 61, 62, 63) and none of them is 25.",
+      "resume_predicate": "Arrival item (25) lands; then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp."
+    }
+  ],
+  "provider_calls": {
+    "total_completed": 27,
+    "output_rejections": 1,
+    "cache_reuse": 69,
+    "cache_stale": 0,
+    "by_stage": "S3 4, S4 16, S5 6, S6 68, S11 2, S10 0",
+    "completion_tokens": 54449,
+    "note": "Split by draw: draw A on 23a8905 spent 26 live calls and 52,980 completion tokens; draw B on 846eaaf spent exactly 1 live call and 1,469 tokens, the targeted_repair whose prompt the rebase changed."
+  },
+  "progress": {
+    "sealed_by_lane": 0,
+    "candidates_after_run": "9/34 - unchanged; nothing sealed and nothing unsealed",
+    "dispositions_by_lane": 7
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this run, so the suite is a control on the evidence, lane-file and log edits only.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "235 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest": "exit 0 with -n auto; 1,040 collected, 14 xfailed, no failures - the -q reporter emits no trailing summary line in this environment, so the exit code and the 100% progress line are the record",
+    "runs_this_iteration": "1 full pytest run for 1 commit, exit 0"
+  }
+}
