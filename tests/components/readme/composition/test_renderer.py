@@ -595,6 +595,48 @@ def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> 
     assert "- [Dependencies](#dependencies)" in readme.splitlines()
 
 
+def test_a_candidate_renders_in_id_order_whatever_order_extraction_built() -> None:
+    """G4-W17 arrival items 48 and 61 (lane C PROPOSAL Y, measured with zero provider calls):
+    Aspose.Cells for Java rendered its two development dependencies in pom.xml order, the bundle
+    stores facts in ID order, and re-rendering the sealed bundle from its own artifacts transposed
+    exactly those two lines - a candidate that could never re-render to its own bytes. The
+    renderer now reads the facts in canonical (ID) order, the order to_json writes, so the live
+    render and the render from facts.json are one document. Extraction order is preserved on the
+    document itself: job packets read it as built, and a sealed candidate's request hashes stay."""
+    zeta = Fact(
+        "dependency:development.dev.zeta-1.0.0",
+        "dependency",
+        "zeta>=1.0.0",
+        (Evidence("setup.py", "extra 'dev' declared"),),
+    )
+    alpha = Fact(
+        "dependency:development.dev.alpha-1.0.0",
+        "dependency",
+        "alpha>=1.0.0",
+        (Evidence("setup.py", "extra 'dev' declared"),),
+    )
+    declared_order = FactsDocument(ENTRY.repository, "a" * 40, (*FACTS.facts, zeta, alpha))
+    id_order = declared_order.canonical()
+    assert [f.id for f in declared_order.facts][-2:] == [zeta.id, alpha.id]  # as extracted
+    assert id_order.facts != declared_order.facts
+    assert [f.id for f in id_order.facts] == sorted(f.id for f in declared_order.facts)
+    plan = {
+        **PLAN,
+        "sections": [
+            {**entry, "include": True} if entry["section_id"] == "dependencies" else entry
+            for entry in PLAN["sections"]
+        ],
+    }
+    live = render_readme(ENTRY, declared_order, plan, UNITS, DISPOSITIONS)
+    from_bundle = render_readme(ENTRY, id_order, plan, UNITS, DISPOSITIONS)
+    assert live == from_bundle
+    section = live.split("### Development Dependencies\n\n", 1)[1].split("\n\n", 1)[0]
+    assert section.splitlines() == [
+        "- `alpha>=1.0.0` (extra `dev`)",
+        "- `zeta>=1.0.0` (extra `dev`)",
+    ]
+
+
 def test_the_runtime_floor_is_the_ecosystems_own_and_not_pythons() -> None:
     """Section 29.6 E4. Measured 2026-09-06: the row read `package:python_requires` by name, so
     a .NET candidate never told a reader which framework it needs - the fact is

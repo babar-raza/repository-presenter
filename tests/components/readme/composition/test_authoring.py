@@ -19,6 +19,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     canonical_abbreviations,
     capability_titles,
+    citable,
     command_block_tokens,
     forbidden_text_pattern,
     identifier_allowed,
@@ -41,7 +42,7 @@ from repository_presenter.components.readme.composition.authoring import (
     verified_members,
     write_content_units,
 )
-from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.facts import Evidence, Fact, FactsDocument, bounded_records
 from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
@@ -87,6 +88,30 @@ FACTS = FactsDocument(
         _fact("inherited_unit:055.paragraph", "inherited_unit", "A limitation."),
     ),
 )
+
+
+def test_a_units_neutral_identity_facts_come_from_the_document_not_the_packet() -> None:
+    """Reviewer addendum to G4-W17 arrival item 60 (lane D's observation 1): section_authoring
+    recorded a cache_stale whose stored units cite identity:revision while authoring_schema pins
+    fact_ids to an enum - the same shape as the S4 defect, if the enum were built through
+    bounded_records(), which excludes that ID so the call cache survives a revision bump. It is
+    not: section_selections reads the neutral identity and package facts from the document
+    itself, so citable() admits identity:revision for every slot, and a stored unit citing it
+    re-parses clean here. Pinned so the two paths cannot be unified onto the packet view later;
+    that authoring cache_stale therefore has another cause and its own diagnosis."""
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*FACTS.facts, _fact("identity:revision", "identity", "b" * 40)),
+    )
+    ids, slots = section_selections("development_testing", {}, {}, {}, facts)
+    assert "identity:revision" in ids
+    task = SectionTask("development_testing", {}, frozenset(ids), slots)
+    assert "identity:revision" in citable(task, "summary")
+    # The packet view still excludes it by design - the enum follows the document, not the packet.
+    assert "identity:revision" not in {r["id"] for r in bounded_records(facts, ["identity"])}
+
+
 PLAN: dict[str, Any] = {
     "sections": [
         {"section_id": s, "include": s not in {"enterprise_relationship"}, "reason": "r"}

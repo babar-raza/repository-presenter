@@ -15,6 +15,7 @@ from repository_presenter.core.candidates import (
     StaleCandidate,
     count_current_candidates,
     examples_verification_summary,
+    independently_accepted_candidates,
     integrity_valid_candidates,
     iter_sealed_bundles,
     stale_candidates,
@@ -232,6 +233,28 @@ def test_stale_candidates_reports_every_dependency_behind_current(tmp_path: Path
             ("components.renderer 17 -> 18", "validators.BC-03 1 -> 2"),
         )
     ]
+
+
+def test_the_independently_accepted_count_is_a_set_difference_over_the_counted_bundles(
+    tmp_path: Path,
+) -> None:
+    """Measured 2026-09-11 (G4-W17 arrival items 60+61 landing): RENDERER_VERSION 18 -> 19 marked
+    every bundle stale, including a ninth at ACCEPTED (BC-11 pending, uncounted), and `status`
+    printed "-1 independently accepted" - the 8 counted minus the 9 stale. The count is the
+    counted set minus the stale set, so an uncounted stale bundle cannot drive it below zero."""
+    counted = write_bundle(tmp_path, "a__repo", "rev1", "READY_FOR_PROPOSAL")
+    _write_dependencies(counted, components={"renderer": "19"}, validators={})
+    uncounted = write_bundle(tmp_path, "b__repo", "rev1", "ACCEPTED")
+    _write_dependencies(uncounted, components={"renderer": "18"}, validators={})
+    stale = stale_candidates(tmp_path, {"renderer": "19"}, {}, "3")
+    assert [entry.repository_dir for entry in stale] == ["b__repo"]
+    assert count_current_candidates(tmp_path) == 1
+    assert independently_accepted_candidates(tmp_path, stale) == 1  # never 1 - 1, never -1
+    # A counted bundle that is itself stale is excluded, and only it.
+    _write_dependencies(counted, components={"renderer": "18"}, validators={})
+    stale = stale_candidates(tmp_path, {"renderer": "19"}, {}, "3")
+    assert [entry.repository_dir for entry in stale] == ["a__repo", "b__repo"]
+    assert independently_accepted_candidates(tmp_path, stale) == 0
 
 
 def test_stale_candidates_ignores_a_dependency_the_running_code_has_never_heard_of(

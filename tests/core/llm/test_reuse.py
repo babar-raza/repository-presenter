@@ -191,6 +191,165 @@ def test_a_new_revision_with_unchanged_facts_reuses_every_call(
     assert len(gateway.requests) == 1
 
 
+RECONCILIATION = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+S4_ENTRY = RegistryEntry.model_validate(
+    {
+        "repository": "org/Aspose.Widget-FOSS-for-Python",
+        "family": "widget",
+        "platform": "python",
+        "ecosystem": "python",
+        "mode": "dry_run",
+        "policy_profile": "widget",
+        "active": True,
+        "provider_identity": {"provider": "github", "repository_id": 1, "node_id": "R_1"},
+    }
+)
+S4_FACTS = FactsDocument(
+    "org/Aspose.Widget-FOSS-for-Python",
+    "a" * 40,
+    (
+        Fact(
+            "identity:repository",
+            "identity",
+            "org/Aspose.Widget-FOSS-for-Python",
+            (Evidence("data/registry.json"),),
+        ),
+        Fact("identity:revision", "identity", "a" * 40, (Evidence("git"),)),
+        Fact("package:name", "package", "widget", (Evidence("setup.py"),)),
+        Fact("inherited_unit:001.heading", "inherited_unit", "# Widget", (Evidence("README.md"),)),
+    ),
+)
+
+
+def _s4_call() -> tuple[dict[str, Any], dict[str, Any], Any]:
+    """The real S4 packet, call schema, and checks for S4_FACTS' one inherited unit."""
+    import functools
+
+    from repository_presenter.components.readme.reconciliation.dispositions import (
+        reconcile_checks,
+        reconciliation_packet,
+        reconciliation_schema,
+    )
+
+    batch = list(S4_FACTS.by_kind("inherited_unit"))
+    packet = reconciliation_packet(S4_ENTRY, S4_FACTS, {}, RECONCILIATION.manifest, batch)
+    schema = reconciliation_schema(RECONCILIATION, batch, S4_FACTS, {})
+    return packet, schema, functools.partial(reconcile_checks, facts=S4_FACTS)
+
+
+def _s4_run(store: CallStore, ledger: Ledger) -> Any:
+    packet, schema, checks = _s4_call()
+    return run_job(
+        RECONCILIATION,
+        packet,
+        config=CONFIG,
+        facts=S4_FACTS,
+        ledger=ledger,
+        store=store,
+        context=CONTEXT,
+        checks=checks,
+        call_schema=schema,
+    )
+
+
+def test_a_stored_folded_reply_is_reused_without_the_decoder_schema(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 60 (lane C PROPOSAL V, lane D PROPOSAL P24, lane B on PDF-Cpp and
+    Email-Cpp; four repositories at ACCEPTED with BC-11 unreachable). The call schema constrains
+    what a decoder may emit - S4's fact_ids enum lists the packet's own IDs - but what the store
+    holds is the folded output: normalize() writes identity:revision (no packet ever shows it) into
+    every supersession by identity or navigation, and an UNRESOLVED example behind a deferred
+    block. Re-judging the stored reply under the decoder schema rejected what the live path had
+    accepted: cache_stale, a fresh call, a different document - on request digests the same
+    sealing run had itself stored. The reuse path re-judges under the manifest's base schema, the
+    binding, and the checks, never the decoder constraint; the digest still carries the call
+    schema, so a changed schema still misses the store and calls afresh."""
+    from repository_presenter.core.llm.jobs import request_hash
+
+    gateway = _Gateway(monkeypatch)  # no response: any provider call here is the defect
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    store = CallStore(tmp_path / "calls")
+    packet, schema, _checks = _s4_call()
+    enum = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+    assert "identity:revision" not in enum and "identity:repository" in enum
+    folded = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:001.heading",
+                "disposition": "SUPERSEDE_REDUNDANT",
+                "destination_section": "identity",
+                "fact_ids": ["identity:repository", "identity:revision", "package:name"],
+                "rationale": "the shell renders the title",
+            }
+        ]
+    }
+    digest = request_hash(RECONCILIATION, packet, schema)
+    store.put(digest, "source_reconciliation", "qwen3-next", folded)
+
+    reused = _s4_run(store, ledger)
+    assert (reused.provider_calls, reused.cache_reused) == (0, True)
+    assert reused.request_sha256 == digest
+    assert reused.output == folded
+    assert store.get(digest) == folded
+    assert [(r.disposition, r.outcome) for r in ledger.records()] == [
+        ("cache_reuse", "cache_reuse")
+    ]
+    assert gateway.requests == []
+
+
+def test_a_stored_reply_the_base_schema_or_binding_rejects_is_still_replaced(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The reuse path drops only the decoder constraint: the manifest's own schema, the binding,
+    and the checks still re-judge a stored reply, so a corrected rule takes effect without a
+    call and a stored reply they reject is replaced exactly as before."""
+    from repository_presenter.core.llm.jobs import request_hash
+
+    fresh = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:001.heading",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "identity",
+                "fact_ids": ["identity:repository"],
+                "rationale": "kept",
+            }
+        ]
+    }
+    gateway = _Gateway(monkeypatch, _completion(fresh))
+    ledger = Ledger(tmp_path / "calls.jsonl")
+    store = CallStore(tmp_path / "calls")
+    packet, schema, _checks = _s4_call()
+    digest = request_hash(RECONCILIATION, packet, schema)
+    # Cites a fact that does not exist: the base schema admits the string, the binding does not.
+    store.put(
+        digest,
+        "source_reconciliation",
+        "qwen3-next",
+        {
+            "dispositions": [
+                {
+                    "unit_id": "inherited_unit:001.heading",
+                    "disposition": "SUPERSEDE_REDUNDANT",
+                    "destination_section": "identity",
+                    "fact_ids": ["identity:nope"],
+                    "rationale": "r",
+                }
+            ]
+        },
+    )
+    replaced = _s4_run(store, ledger)
+    assert (replaced.provider_calls, replaced.cache_reused) == (1, False)
+    assert [(r.disposition, r.outcome) for r in ledger.records()] == [
+        ("cache_stale", "cache_stale"),
+        ("provider_call", "success"),
+    ]
+    # The fresh call went out under the decoder constraint, enum and all.
+    sent = gateway.requests[0]["response_format"]["json_schema"]["schema"]
+    assert sent["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+
+
 def test_a_stored_output_the_rules_reject_is_replaced_by_a_new_call(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

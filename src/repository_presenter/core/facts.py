@@ -128,12 +128,32 @@ class FactsDocument:
     def by_kind(self, kind: FactKind) -> tuple[Fact, ...]:
         return tuple(fact for fact in self.facts if fact.kind == kind)
 
+    def canonical(self) -> FactsDocument:
+        """The same document with its facts in ID order: the one order a bundle stores
+        (``to_json``) and the renderer reads, so a candidate renders the same bytes live and
+        again from its own ``facts.json``.
+
+        G4-W17 arrival items 48 and 61. Extractors emit facts in whatever order their source
+        declares them - Cargo.toml order on Aspose.Cells for Rust, pom.xml order on Aspose.Cells
+        for Java, whose two development dependencies transposed on re-render (lane C PROPOSAL Y,
+        measured with zero provider calls) - and nothing stated the invariant the sealed-bytes
+        control silently relied on. This is that statement. Job packets deliberately keep the
+        order extraction built: ``bounded_records`` reads ``self.facts`` as given, so a sealed
+        candidate's request hashes never move because of this.
+        """
+        return FactsDocument(
+            self.repository,
+            self.source_revision,
+            tuple(sorted(self.facts, key=lambda fact: fact.id)),
+            self.schema_version,
+        )
+
     def to_json(self) -> str:
         payload = {
             "schema_version": self.schema_version,
             "repository": self.repository,
             "source_revision": self.source_revision,
-            "facts": [asdict(fact) for fact in sorted(self.facts, key=lambda f: f.id)],
+            "facts": [asdict(fact) for fact in self.canonical().facts],
         }
         return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 

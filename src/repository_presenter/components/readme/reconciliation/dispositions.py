@@ -176,11 +176,20 @@ def citable_fact_ids(
     batch_units: Sequence[Fact],
     investigation: Mapping[str, Any],
 ) -> list[str]:
-    """Every ID a disposition in this batch may cite, sorted: the packet's own fact records, the
+    """Every ID the job may *write* in this batch, sorted: the packet's own fact records, the
     facts the accepted investigation cites (the prompt lets the job copy those one by one, and
     the investigation travels in the packet, so each is an ID the job can actually see), and this
     batch's own inherited units. Nothing the packet never showed is in it (section 27.2 RC1), so
-    an UNRESOLVED fact is absent - ``normalize`` adds one by code where a rule calls for it."""
+    an UNRESOLVED fact is absent - ``normalize`` adds one by code where a rule calls for it.
+
+    This is a decoder constraint, not the stored output's shape: ``normalize`` writes IDs no
+    packet shows (``identity:revision`` from ``rendering_fact_ids``, an UNRESOLVED example behind
+    a deferred block), and the store holds the folded output, so the reuse path re-judges a
+    stored reply under the manifest's base schema, the binding, and the checks - never under this
+    enum (G4-W17 arrival item 60; ``core/llm/jobs.py::run_job``). Widening the enum instead would
+    change every S4 request digest (the call schema is part of the payload) and reopen on the
+    next fold-written ID.
+    """
     known = {fact.id for fact in facts.facts}
     shown = {record["id"] for record in _packet_fact_records(facts, manifest)}
     cited = {fact_id for fact_id in collect_ids(investigation).fact_ids if fact_id in known}

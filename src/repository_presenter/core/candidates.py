@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -169,10 +169,29 @@ def count_current_candidates(root: Path) -> int:
     ``CURRENT`` that names a revision without a valid, self-consistent bundle is corrupt evidence
     and is an error.
     """
+    return len(current_counted_repository_dirs(root))
+
+
+def independently_accepted_candidates(root: Path, stale: Iterable[StaleCandidate]) -> int:
+    """PA-03's fourth count: the counted candidates that are not stale.
+
+    A set difference over the counted set, never a subtraction of two differently scoped counts:
+    ``stale_candidates`` reports every CURRENT bundle behind the running code whatever its state,
+    while only ``COUNTED_STATES`` count. Measured 2026-09-11 (G4-W17 arrival items 60+61
+    landing): ``RENDERER_VERSION`` 18 -> 19 marked every bundle stale, the ninth of them an
+    ACCEPTED bundle with BC-11 pending, and ``status`` printed "-1 independently accepted" - the
+    8 counted minus 9 stale.
+    """
+    return len(current_counted_repository_dirs(root) - {entry.repository_dir for entry in stale})
+
+
+def current_counted_repository_dirs(root: Path) -> set[str]:
+    """The repository directories whose ``CURRENT`` bundle is sealed in a counted state - the
+    set ``count_current_candidates`` counts, under that function's own raising contract."""
     candidates = root / CANDIDATES_DIRNAME
     if not candidates.is_dir():
-        return 0
-    counted = 0
+        return set()
+    counted: set[str] = set()
     for repository_dir in sorted(p for p in candidates.iterdir() if p.is_dir()):
         current = repository_dir / CURRENT_FILENAME
         if not current.is_file():
@@ -198,7 +217,7 @@ def count_current_candidates(root: Path) -> int:
                 f"{manifest.get('repository')!r} does not match its directory"
             )
         if manifest.get("state") in COUNTED_STATES:
-            counted += 1
+            counted.add(repository_dir.name)
     return counted
 
 

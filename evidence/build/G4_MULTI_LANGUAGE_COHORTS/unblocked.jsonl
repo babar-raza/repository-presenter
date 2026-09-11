@@ -9,3 +9,5 @@
 {"item": 44, "landed_at": "2026-09-11T02:14:00Z", "unlocks": [["lane-c", "Aspose.Cells-FOSS-for-Java"]]}
 {"item": 45, "landed_at": "2026-09-11T03:33:00Z", "unlocks": [["lane-d", "Aspose.Cells-FOSS-for-Rust"], ["lane-c", "Aspose.Slides-FOSS-for-Java"]]}
 {"item": 46, "landed_at": "2026-09-11T08:51:00Z", "unlocks": [["lane-d", "Aspose-PDF-FOSS-for-Go"]]}
+{"item": 60, "landed_at": "2026-09-11T16:23:17+05:00", "unlocks": [["lane-c", "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"], ["lane-d", "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"]]}
+{"item": 61, "landed_at": "2026-09-11T16:23:17+05:00", "unlocks": [["lane-c", "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"]]}

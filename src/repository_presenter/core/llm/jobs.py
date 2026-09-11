@@ -400,7 +400,8 @@ def run_job(
 
     ``checks`` are the job's own rules beyond schema and binding; they may normalise the output
     in place before judging it, and their errors are quoted back in the one re-ask exactly like
-    the others. What the checks accept is what is stored.
+    the others. What the checks accept is what is stored - the folded output, which is why a
+    stored output is re-judged without ``call_schema`` (below).
     """
     job = manifest.manifest.prompt_id
     messages = render_messages(manifest, packet, call_schema)
@@ -410,8 +411,17 @@ def run_job(
     if stored is not None:
         # A stored output is re-judged under the current rules before reuse (normalised in
         # place like a fresh reply), so a corrected check takes effect without a call and a
-        # stored output the rules no longer accept is replaced, never reused.
-        output, _rejection = _parse(manifest, json.dumps(stored), facts, checks, call_schema)
+        # stored output the rules no longer accept is replaced, never reused. Those rules are the
+        # manifest's own schema, the binding, and the checks - never ``call_schema``, which
+        # constrains what a decoder may emit and has already done its work: what the store holds
+        # is the folded output, and a fold writes IDs the decoder was never allowed
+        # (``identity:revision`` into every S4 supersession, an UNRESOLVED example behind a
+        # deferred block). Re-judging under the decoder constraint rejected what the live path
+        # had accepted, on request digests the same sealing run had itself stored - cache_stale,
+        # a fresh call, a different document, BC-11 unreachable on four repositories (G4-W17
+        # arrival item 60: lane C PROPOSAL V, lane D P24, lane B on PDF-Cpp and Email-Cpp). The
+        # digest above still carries ``call_schema``, so a changed schema still misses the store.
+        output, _rejection = _parse(manifest, json.dumps(stored), facts, checks, None)
         now = _now()
         reuse = CallRecord(
             call_id=_call_id(request_sha256, 0, "cache_reuse", now),

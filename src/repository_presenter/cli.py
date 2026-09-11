@@ -86,6 +86,7 @@ from repository_presenter.core.candidates import (
     BundleError,
     count_current_candidates,
     examples_verification_summary,
+    independently_accepted_candidates,
     integrity_valid_candidates,
     iter_sealed_bundles,
     stale_candidates,
@@ -296,7 +297,7 @@ def run_status(root_argument: Path | None, *, stale: bool = False) -> int:
     historical = len({bundle.repository_dir for bundle in iter_sealed_bundles(root)})
     integrity_valid = integrity_valid_candidates(root)
     reproducible = reproducible_candidates(root)
-    accepted = on_disk - len(found)
+    accepted = independently_accepted_candidates(root, found)
     print(
         f"progress: {historical} ever sealed, {integrity_valid} integrity-valid, "
         f"{reproducible} current-code reproducible, {accepted} independently accepted "

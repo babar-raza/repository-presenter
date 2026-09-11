@@ -51,7 +51,9 @@ from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
-RENDERER_VERSION = "18"  # the template component version dependencies.json records
+# The template component version dependencies.json records. 19: facts render in canonical (ID)
+# order, the order the bundle stores them in (G4-W17 arrival items 48/61).
+RENDERER_VERSION = "19"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -829,8 +831,14 @@ def render_readme(
     units: dict[str, Any],
     dispositions: dict[str, Any],
 ) -> str:
-    """The complete README as one string with LF endings and a single trailing newline."""
-    context = RenderContext(entry, facts, plan, units, dispositions)
+    """The complete README as one string with LF endings and a single trailing newline.
+
+    The facts are read in canonical (ID) order - ``FactsDocument.canonical``, the order the
+    bundle stores them in - so the bytes a candidate seals are the bytes its own artifacts
+    render (G4-W17 arrival items 48/61: Aspose.Cells for Java rendered its two development
+    dependencies in pom.xml order and could not re-render to its own sealed README).
+    """
+    context = RenderContext(entry, facts.canonical(), plan, units, dispositions)
     blocks: list[str] = []
     for section in context.included:
         body = _section_body(context, section)

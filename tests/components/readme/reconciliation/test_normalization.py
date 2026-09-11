@@ -608,6 +608,47 @@ def test_fact_ids_travel_as_an_enum_so_a_bare_kind_prefix_cannot_be_written() ->
     assert list(validator.iter_errors(cited)) == []
 
 
+def test_the_folded_output_legitimately_exceeds_the_decoder_enum() -> None:
+    """G4-W17 arrival item 60 (lane C PROPOSAL V, lane D PROPOSAL P24, lane B on PDF-Cpp and
+    Email-Cpp). The enum is a constraint on what a decoder may emit; normalize() then writes IDs
+    no packet ever showed - identity:revision from rendering_fact_ids() (excluded from every
+    packet by design, cited by 10 of 10 sealed dispositions.json) and an UNRESOLVED example behind
+    a deferred code block - and the store holds that folded output. Pinned here as the invariant
+    the reuse path rests on: a stored reply must not be re-judged under this enum
+    (core/llm/jobs.py::run_job, tests/core/llm/test_reuse.py), and the enum is not widened to
+    chase it - the call schema is part of every request digest, so widening it would miss every
+    stored S4 reply, and the next fold-written ID would reopen the gap."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*FACTS.facts, _fact("identity:revision", "identity", "b" * 40)),
+    )
+    batch = list(facts.by_kind("inherited_unit"))
+    schema = reconciliation_schema(loaded, batch, facts, {})
+    enum = set(
+        schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]["enum"]
+    )
+    reply = {
+        "dispositions": [
+            _entry("inherited_unit:002.paragraph", "VERIFIED_MOVE", "identity"),
+            _entry("inherited_unit:003.code_block", "VERIFIED_PRESERVE", "quick_start"),
+            _entry("inherited_unit:005.code_block", "VERIFIED_PRESERVE", "at_a_glance"),
+            _entry("inherited_unit:006.code_block", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    validator = Draft202012Validator(schema)
+    assert list(validator.iter_errors(reply)) == []  # the raw reply, as the decoder emitted it
+    normalize(reply, facts)
+    written = {i for entry in reply["dispositions"] for i in entry["fact_ids"]}
+    assert {"identity:revision", "example:001"} <= written
+    assert not written <= enum  # the folded output is what the store holds
+    assert [error.json_path for error in validator.iter_errors(reply)] == [
+        "$.dispositions[0].fact_ids[1]",
+        "$.dispositions[1].fact_ids[0]",
+    ]
+
+
 def test_a_batch_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_enum() -> None:
     """An empty enum is not a valid JSON Schema shape to hand a decoder; with nothing citable the
     array is pinned to zero length instead (the guard unit_id's own `if not units` already has)."""
