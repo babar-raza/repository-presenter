@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12-RERUN9",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (two repositories); one new blocker class measured on two repositories including a sealed one; nothing sealed",
+  "recorded_at": "2026-09-11T21:22:19+05:00",
+  "control_revision": "23a8905",
+  "control_revision_note": "origin/main at the start of this re-run, which carries 2d4875d - G4-W17 arrival items 62 (this lane's PROPOSAL Z) and 63. REVIEWER_LOGIC_VERSION 4. Arrival item 64 (846eaaf, REVIEWER_LOGIC_VERSION 5) landed on the primary after this worktree was cut; the Reviewer's mid-run message said to rebase only if no provider call had yet been made, and both compositions were already running, so this run stands at 23a8905.",
+  "trigger": "Sprint W-JAVA: re-attempt aspose-cells-foss/Aspose.Cells-FOSS-for-Java, then aspose-slides-foss/Aspose.Slides-FOSS-for-Java, on the item-62 fix. No held call store was reused (docs/DECISION_LOG.md 2026-09-11 17:05): both repositories were composed fresh.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2",
+    "worktree": "C:\\w\\c129 - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "venv_build": "loop-prompt-lane section 1.3: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, pip install --no-deps -e .",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_check": "Confirmed BEFORE any candidate work; identical to the primary's and to every sealed bundle's.",
+    "preflight": "runs/preflight/catalog.json, digest 663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b; 7 models, 6 prompt manifests routed to qwen3-next.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11); mvn resolved and not needed - every declared dependency of both POMs is test scope.",
+    "call_store_seeded_from": "nothing - no sealed bundle exists for either revision and no held store was copied in. Both runs composed live."
+  },
+  "headline": "Neither repository sealed, and for the first time the two share one newly identified cause. Both cleared BC-01 through BC-09 and both were rejected by BC-10 alone. Aspose.Cells for Java's blocking finding is CORRECT: the candidate really does carry a duplicated, orphaned lead-in sentence, and its cause is two section-scoped lookups in shared code (PROPOSALs AA and AB). The same defect is measured in an ALREADY SEALED bundle - Aspose.Cells for .NET, README line 155 - so it is a class with shipped content damage, not one draw. Aspose.Slides for Java cleared BC-06 for the first time ever: PROPOSAL X did not materialise this draw.",
+  "proposal_AA": {
+    "title": "placements() computes a placed unit's overlap only against its DESTINATION section, so a preserved lead-in whose example the plan renders in another section is placed - orphaned from its own code block, which is renderer-owned.",
+    "file": "src/repository_presenter/components/readme/composition/placement.py, placements(): covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts, plan)",
+    "repository_and_finding": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java, F05 presentation/quick_start, the run's single blocking finding. The finding is right.",
+    "measured_zero_provider_calls": {
+      "the_unit": "inherited_unit:020.paragraph, value 'Load an existing workbook with options and inspect load diagnostics:', VERIFIED_PRESERVE -> additional_examples, citing example:002.",
+      "the_scoping": "planned_fact_ids(plan,'additional_examples') = ['example:003']; planned_fact_ids(plan,'quick_start') = ['example:001','example:002']. example:002 is the plan's second_quick_start_example_id, so the overlap test against the destination alone returns [] and the outcome is 'placed'. Against the union over every included section the overlap is ['example:002'] and the outcome is 'overlap'.",
+      "the_orphaning": "renders_verbatim('inherited_unit:020.paragraph', ...) is True but renders_verbatim('inherited_unit:021.code_block', ...) is False - the renderer owns java code blocks - so the companion code block is dropped as 'owned_elsewhere' while its lead-in is placed.",
+      "the_rendered_consequence": "The sentence renders TWICE in the candidate: line 112, written by the authored unit quick_start/lead_in:2 with its code block, and line 190, at the tail of Additional Examples, followed immediately by a blank line and '## API Reference' - a colon-terminated sentence promising an example that is not there.",
+      "authoring_had_already_declined_it": "content_units.json's omitted list names inherited_unit:020.paragraph and inherited_unit:021.code_block, both with reason 'belongs to a different section and is not cited by any slot in this objective'. Only the placement path resurrects the paragraph.",
+      "it_is_a_class_and_it_has_already_shipped": "Replaying placements() over every sealed bundle on disk, exactly ONE placement changes under the union rule: aspose-cells-foss/Aspose.Cells-FOSS-for-.NET at 941814fd, inherited_unit:018.paragraph, 'Load a workbook with recovery diagnostics:' citing example:002. Its sealed README.md line 155 is that sentence, followed by a blank line and 'More runnable snippets adapted from the sample projects ... are collected below.' - the identical orphaned lead-in, in a second ecosystem, in a candidate that is already sealed and counted.",
+      "the_fix_is_close_to_byte_neutral": "Across all ten sealed bundles (java, net, python, typescript, cpp, go, rust) the union rule changes exactly that one placement and no other; 9 of 10 bundles are untouched, and the tenth changes because it carries the defect."
+    },
+    "fix": "Compute covered as the union of planned_fact_ids(plan, section) | renderer_fact_ids(section, facts, plan) over every INCLUDED section, not the destination alone: an example the document renders anywhere is rendered exactly once, so a preserved unit citing it duplicates it wherever the unit sits.",
+    "alternative_rejected": "Placing the companion code block too, so the lead-in is no longer orphaned. That re-introduces the duplication BC the renderer owns code blocks for (the same example would then be printed twice in full) and contradicts renders_verbatim's own contract.",
+    "second_alternative_rejected": "A renderer-side guard that drops a placed paragraph ending in ':' when no code block follows it. It hides the symptom and would silently delete a legitimately preserved sentence that happens to end in a colon.",
+    "mutation_test": "A VERIFIED_PRESERVE unit citing an example fact the plan renders in a different section must not be placed; a placed unit citing a fact no included section renders must still be placed (inherited_unit:045/047/048 of this run are the control - all three stay 'placed' under the union).",
+    "reversal": "Restore the destination-only covered set.",
+    "not_this_lane_to_write": "composition/ is shared."
+  },
+  "proposal_AB": {
+    "title": "The RC-04 misroute check reads the placed texts of the finding's OWN section_id, so a finding about a placed unit rendered in a different section than the reviewer labelled is routed to S6 and burns its one repair attempt.",
+    "file": "src/repository_presenter/components/readme/repair/targeted.py, review_defects(): placed_here = placed.get(section, []) then `if quote and any(quote in text for text in placed_here)`.",
+    "repository_and_finding": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java, F05, section_id quick_start, causal_stage S6.",
+    "measured_zero_provider_calls": {
+      "the_lookup": "placed_texts() for this round is {'additional_examples': 1, 'development_testing': 3}. F05's quote is present in additional_examples' placed text and absent from quick_start's (which has none), so review_defects returns stage='S6', misrouted=False. Looking the quote up across every section's placed texts instead returns misrouted=True and stage='S4'.",
+      "the_control_in_the_same_run": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java's F06 quotes a placed text in its OWN section (development_testing), so it is already misrouted=True -> S4 today, and the union leaves it exactly as it is. The widening is additive.",
+      "what_the_misroute_cost": "Routed to S6/quick_start, targeted_repair returned a change with path 'units', before = the finding's own text field verbatim and after = ''. That before string occurs nowhere in content_units.json and nowhere in README.md - it never was document text - yet the attempt was recorded outcome 'repaired', misrouted false. The finding re-raised, the run stopped at rounds 3 and BC-10 FAIL."
+    },
+    "fix": "Scan every section's placed texts for the quote, not just the labelled section's. RC-04 already learned not to trust the reviewer's causal_stage; its section_id deserves the same treatment, because the property that matters - 'section_authoring never wrote this text and cannot revise it' - is a property of the text, not of the label.",
+    "alternative_rejected": "Trusting the reviewer to label the section the quoted text actually renders in. That is precisely the signal RC-04 was written because it cannot be trusted.",
+    "secondary_observation": "Independently of the routing, a repair change whose `before` occurs in no unit and in no rendered byte was recorded 'repaired'. A deterministic check could refuse it (the same shape as this lane's PROPOSAL N and Z: the round is spent, the document is unchanged, the finding re-raises). Recorded as an observation attached to this proposal rather than a third proposal.",
+    "mutation_test": "A finding whose quote is a placed text of a section other than its own section_id must be recorded misrouted and routed to S4; a finding whose quote is a placed text of its own section must keep today's answer.",
+    "reversal": "Restore the per-section lookup.",
+    "not_this_lane_to_write": "repair/ is shared."
+  },
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION BLOCKED_COMPOSING at S10 (BC-10), on a finding that is correct",
+      "previous_outcome": "Eighth re-run: BLOCKED_VALIDATION on PROPOSAL Z (now landed as arrival item 62).",
+      "provider_calls": 22,
+      "cache_reuse_rows": 29,
+      "cache_stale_rows": 0,
+      "ledger_rows": 51,
+      "elapsed": "8 m 14 s",
+      "stages": {
+        "S1": "3 files, 364 tree entries, digest 4db4dc9761520439fed0f22dd1891ff05a5fe789154417e9b8b06d3a55d77626",
+        "S2": "3 example candidates, 3 executed",
+        "S3": "capabilities 6, workflows 3, limitations 3",
+        "S4": "50 units - OMIT_UNSUPPORTED 12, SUPERSEDE_REDUNDANT 25, VERIFIED_MOVE 1, VERIFIED_PRESERVE 8, VERIFIED_REWRITE 4; digest 0eb5b4e1c7deaad5f22a94362638effc0793619869b0887b12e86b6b77d04d9e",
+        "S5": "17 of 18 sections, capabilities 6, hubs 3, examples 1+1, links 7, limitations 1",
+        "S6": "27 units across 9 sections; coherence 0 of 27 revised",
+        "S8": "README.md 240 visible lines of 451; digest cf4dbb07b666b91c4a353d73965ce8f83887816576232e94fffd0875ae5bbd2e",
+        "S9": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS, BC-10 FAIL, BC-11 PENDING",
+        "S10": "review REJECT_PRESENTATION, 1 blocking finding, 5 advisories, second_reader read 2 with 6 corroborated IDs",
+        "S11": "2 repaired (F05, F07, both routed to S6 quick_start), 0 unrepairable, rounds 3"
+      },
+      "blocking_finding": {
+        "id": "F05",
+        "criterion": "presentation",
+        "section_id": "quick_start",
+        "causal_stage": "S6",
+        "quote": "Load an existing workbook with options and inspect load diagnostics:",
+        "text": "The Quick Start section duplicates the 'Load an existing workbook' example under Additional Examples, creating redundancy and confusion about the minimal quick start path.",
+        "verdict_on_the_finding": "CORRECT. The sentence really is rendered twice (README lines 112 and 190) and the second occurrence really is orphaned. See PROPOSAL AA."
+      },
+      "fold_stack_worked": "5 of the 6 findings raised were folded as reviewer-scope defects and recorded advisory: F01, F02, F04 and F06 by the absence rule ('the finding claims the candidate does not contain X, which the candidate contains') and F03 by the rendered-sentence rule. Only F05 stood - and it stood because it is true.",
+      "item_62_not_exercised": "No finding this draw quoted a deterministic table row, so the new factuality branch of renderer_owned_defect was never reached. Item 62 is landed and its unit tests are green in the full suite; it is neither confirmed nor refuted on a live draw here.",
+      "new_disposition": "BLOCKED_COMPOSING at S10 (the cause is at S4/S8, not at the review)",
+      "new_resume_predicate": "PROPOSAL AA (sufficient on its own: with the lead-in not placed, the duplication the finding names does not exist). PROPOSAL AB is the independent routing half and would let the repair reach S4 even while AA is open."
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+      "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+      "outcome": "DISPOSITION BLOCKED_VALIDATION at S10 (BC-10). BC-06 PASSES for the first time.",
+      "previous_outcome": "Seventh and eighth re-runs: BLOCKED_COMPOSING at S9 on BC-06, '#building-from-source: no heading #building-from-source' (PROPOSAL X).",
+      "provider_calls": 22,
+      "cache_reuse_rows": 17,
+      "cache_stale_rows": 0,
+      "ledger_rows": 39,
+      "elapsed": "10 m 30 s",
+      "stages": {
+        "S1": "3 files, 442 tree entries, digest de144dc2a7759ab5914ac8f1a6dd57c1fec3131639d16c7ba7087839180281a3",
+        "S2": "8 example candidates, 5 executed, 3 not_verified",
+        "S3": "capabilities 6, workflows 6, limitations 6",
+        "S4": "85 units - DEFER_UNRESOLVED 2, OMIT_UNSUPPORTED 33, SUPERSEDE_REDUNDANT 25, VERIFIED_MOVE 2, VERIFIED_PRESERVE 23; digest 11e82107f67e563b22a34b6543cd579ccaa4d8ada253d63b0894c552c8d34999",
+        "S5": "17 of 18 sections, capabilities 6, hubs 3, examples 1+4, links 4, limitations 6",
+        "S6": "27 units across 9 sections; coherence 0 of 27 revised",
+        "S8": "README.md 223 visible lines of 538; digest c8c6db3c6a1020878b5f4a26dd2ad40e862c57ac028f55ffde604bf82e26627c",
+        "S9": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS (BC-06 among them), BC-10 FAIL, BC-11 PENDING",
+        "S10": "review REJECT_PRESENTATION, 1 blocking finding, 6 advisories, second_reader read 2 with 5 corroborated IDs",
+        "S11": "1 repaired (F06, correctly misrouted to S4), 1 re-raised, rounds 2"
+      },
+      "proposal_X_did_not_materialise": {
+        "claim": "PROPOSAL X is NOT closed and NOT refuted - it simply did not occur in this draw, and the reason is measurable.",
+        "measured": "Both anchor-bearing units still exist and are still VERIFIED_PRESERVE'd into scope_limitations: inherited_unit:014.paragraph (…[build from source](#building-from-source) rather than depending on `26.7.0`.) and inherited_unit:015.paragraph. This draw's S4 wrote fact_ids ['inherited_unit:014.paragraph','inherited_unit:015.paragraph'] on 014's record, and the plan's scope_limitations covers inherited_unit:015.paragraph, so placements() returns outcome 'overlap' for BOTH units and neither is rendered. '#building-from-source' occurs 0 times in the candidate and BC-06 PASSES.",
+        "reading": "The suppression is luck, not a fix: it depends on which unit IDs one S4 sample happened to cite. The latent defect X names - nothing before BC-06 compares a preserved unit's intra-document anchors against the headings the candidate will render - is untouched, and the very next draw that cites 014 alone reproduces it."
+      },
+      "blocking_finding": {
+        "id": "F06",
+        "criterion": "presentation",
+        "section_id": "development_testing",
+        "causal_stage": "S6",
+        "quote": "JDK 21 or later and Maven 3.9 or later are required; the build refuses to start otherwise.",
+        "text": "The development and testing section duplicates the build command and test suite description from the original, but omits the specific note about the `-Dgpg.skip=true` flag being required to skip signing.",
+        "fact_ids": [],
+        "absent": [],
+        "routing": "Correctly recorded misrouted -> S4 by the RC-04 rule (the quote is a placed text of its own section). S4 re-composed and still omitted the note; the finding re-raised and the run stopped at rounds 2."
+      },
+      "measurement_not_a_proposal": "F06 asserts an omission in its text while its own `absent` list is empty and it cites no fact, so absence_defect has nothing to evaluate and no deterministic refutation can reach it; it blocks on second-reader corroboration alone. That is the shape G4-W17 arrival item 39 already settled for the factuality criterion ('a finding naming no fact and no absence is the reviewer's own defect'), here under the presentation criterion. Recorded for the owner as a possible extension of item 39 rather than asserted as this lane's proposal, because the omission it names may well be a real one S4 should have preserved.",
+      "new_disposition": "BLOCKED_VALIDATION at S10",
+      "new_resume_predicate": "BC-10 alone. PROPOSAL X remains recorded as a latent defect for this repository but is no longer the observed blocker; items 33, 37 and 45 were reached this run only insofar as BC-10 ran - BC-10's single blocking finding is F06 above."
+    }
+  ],
+  "proposal_V_still_closed": {
+    "claim": "PROPOSAL V stays closed at 23a8905 on two fresh compositions.",
+    "measured": "0 cache_stale rows in either ledger: Cells 22 provider_call + 29 cache_reuse over 51 rows, Slides 22 provider_call + 17 cache_reuse over 39 rows. Every reuse was clean."
+  },
+  "no_held_store_used": {
+    "instruction": "The spawn message and docs/DECISION_LOG.md (2026-09-11 17:05) both warned that a preserved store can be silently overwritten by later diagnostic calls against the same revision.",
+    "action": "C:/w/c128-held was not read, not copied and not verified; both repositories were composed live in a worktree whose runs/ directory started empty. Every number in this record comes from a composition this run made."
+  },
+  "seal_discipline": {
+    "sealed": 0,
+    "reason": "Neither repository passed BC-10, so no bundle was written and no no-op proof was attempted. Nothing was forced and no shared path was widened (loop-prompt-lane section 2: a shared-code failure class is a PROPOSAL plus a disposition, never a patch around it).",
+    "third_attempt_not_made": "loop-prompt.md section 5. Aspose.Cells for Java has now been rejected by BC-10 on three consecutive compositions; this run identified the deterministic cause instead of drawing a fourth."
+  },
+  "state_yaml_touched": {
+    "field": null,
+    "reason": "Nothing became a current reviewable no-op-proven candidate this run. repository-presenter status reads 9/34 before and after ('9 ever sealed, 9 integrity-valid, 7 current-code reproducible, 0 independently accepted'), candidates/ holds no directory for either repository run here, and progress.current_candidates was not opened."
+  },
+  "local_ci_equivalent": {
+    "ruff check .": "All checks passed!",
+    "ruff format --check .": "235 files already formatted",
+    "mypy src": "Success: no issues found in 126 source files",
+    "pytest -n auto": "exit 0, green; 13 xfailed, 0 failures and 0 errors. One full run for this commit, 113.7 s.",
+    "proposal_U_watch": "git rev-parse HEAD recorded before and after the full-suite run: 23a890562ae2efdb4fc661181ee4abd0a8c091dd both times. b63b949 holds."
+  },
+  "not_touched_this_run": [
+    "aspose-3d-foss/Aspose.3D-FOSS-for-Java - sealed (e308de58), not re-run",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - sealed (099e70a8), not re-run"
+  ],
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 3,
+    "sealed_and_landed_by_lane": 2,
+    "no_op_proven_by_lane": 2,
+    "dispositions_by_lane": 4,
+    "candidates_on_disk": 9,
+    "candidates_counted": 9,
+    "java_cohort": "2 of 4 landed - PDF (099e70a8) and 3D (e308de58). Cells Java is BLOCKED_COMPOSING on PROPOSAL AA; Slides Java is BLOCKED_VALIDATION on BC-10 with PROPOSAL X recorded as latent."
+  }
+}
