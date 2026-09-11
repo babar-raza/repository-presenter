@@ -1,0 +1,3 @@
+PHASE1 sprint active since 2026-09-11 (see plans/sprint/PHASE1-SPRINT-PLAN.md). While this file
+exists, .github/workflows/liveness.yml treats main-branch inactivity beyond its threshold as an
+alarm. Removed by taskcard Z1 at closeout.
