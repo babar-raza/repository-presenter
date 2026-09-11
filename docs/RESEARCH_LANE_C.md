@@ -598,3 +598,128 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   Cells Java is dispositioned `BLOCKED_AUTHORING` with resume predicate **PROPOSAL R and item 39 /
   PROPOSAL Q together** — R to leave S6 at all, Q for BC-10; naming either alone would be a resume
   predicate that cannot seal. Slides Java was **not run** and is unchanged on item 33 / PROPOSAL L.
+
+## Sixth re-run, Cells Java then Slides Java (2026-09-11 12:52, after items 39 and 44 landed)
+
+- **2026-09-11 12:52 (`date` checked) · G4-W12 sixth re-run · both halves of Cells Java's resume
+  predicate are closed and neither is reached: a new deterministic blocker stands at S4, two stages
+  before the earlier one, and Slides Java hits the identical blocker.** Measured on `origin/main` at
+  `1fb995d`. Outcome: `DISPOSITION BLOCKED_RECONCILIATION` for both repositories. Evidence:
+  `evidence/build/lanes/lane-c/G4-W12-RERUN6.json`. Cells Java (`779c9640`): S1–S3 clean (3 files,
+  364 tree entries, 3 of 3 examples executed, 2,829 facts, investigation accepted first attempt),
+  then `source_reconciliation` batch `reconciliation#1` — 40 of its 50 inherited units — returns
+  `finish_reason: length` at `max_output_tokens=32000` (prompt 25,166 tokens, completion 32,000,
+  550,721 ms) and the transaction ends. Slides Java (`a03b119a`) reproduces it exactly: 85 units,
+  batches 40/40/5, batch 1 prompt 25,247 tokens, completion 32,000, 567,467 ms, same message.
+- **Items 44 and 39 are both CLOSED, measured deterministically with zero provider calls.** Item 44
+  (PROPOSAL R): `command_block_tokens` extracts `index.html` and `javadoc:javadoc` from the SUPPORTED
+  carrier `inherited_unit:047.code_block`; `index.html` is in the allowed set and
+  `identifier_allowed` returns `True`. The fifth re-run's own twice-rejected sentence — *…generate
+  API documentation with mvn javadoc:javadoc which outputs to docs/apidocs/index.html* — yields
+  exactly the two tokens above and **no token the guard now refuses**. Item 39 (PROPOSAL Q): the
+  three blocking findings recorded verbatim in `G4-W12-RERUN4.json`, replayed through `1fb995d`'s own
+  guards against this run's facts, are all reviewer-scope defects now — F01 and F03 by
+  `renderer_owned_defect` (item 37, already closed), F07 by `factuality_defect` returning *a
+  factuality finding names neither a product fact_id to contradict the quote nor an absent claim of
+  missing text*. Neither was exercised in place: the run stops five stages before the first of them
+  acts, so this measures the rules' reach over recorded findings, not a fresh review.
+- **PROPOSAL 2026-09-11 S · `fact_ids` is bounded neither in element content nor in count, so the
+  decoder can satisfy it with strings that name no fact and a sampled reply has an unbounded sink to
+  run into.** Files:
+  `src/repository_presenter/components/readme/reconciliation/dispositions.py::reconciliation_schema`
+  (the `fact_ids.items` pattern, added by G4-W17 arrival item 40) and
+  `prompts/source_reconciliation.yaml` (`output.schema…properties.fact_ids`, an array with no
+  `maxItems`). Defect: the pattern `^(build_test_asset|…|third_party_notices):` constrains the
+  prefix and nothing after it, so under strict guided decoding the cheapest legal string is the bare
+  kind prefix; and the array has no upper bound, so nothing but `max_output_tokens` limits how many
+  of them a reply may contain. Repositories and finding: Cells Java and Slides Java, both at S4,
+  both at batch 1 of 40 units. **Measured by rebuilding Cells Java's own batch-1 request from its
+  transaction through the same functions `run_round` calls and sending it — nothing written into the
+  transaction, no tracked file edited:** at `max_tokens=32000` with an identical prompt token count
+  of 25,166, one sample returns `finish_reason: stop` after **2,770** completion tokens and a
+  complete 40-record reply — so 32,000 is a property of one sample, not of the request, and
+  `jobs.py`'s *a re-ask under the same budget cannot help* is false for this job. That completed
+  reply is rejected anyway: **all 27** of its `fact_ids` strings are bare `<kind>:` prefixes
+  (`identity:`, `package:`, `link_target:`, `license:`, `example:`, `public_symbol:`,
+  `install_command:`, `dependency:`) and `binding_errors` raises 8 *unknown fact ID* errors against
+  it; a second sample at `max_tokens=8000` also completed, with 67 of 107 strings bare. Fix,
+  **live-validated in the same way, with the schema mutated in memory only**: append `.+` to the
+  pattern and give the array `maxItems`. That sample returned `finish_reason: stop`, 3,921 completion
+  tokens, 40 records, **133 fact IDs and zero bare prefixes**, `binding_errors` down from 8 to 1 —
+  the one remaining being a real citation of `inherited_unit:041.list`, a unit in batch 2, which is
+  the ordinary shape the single permitted re-ask exists for — and `reconcile_checks` clean.
+  `maxItems` rests on the fact_ids distribution of all nine sealed bundles on disk: mean 3.25 entries
+  per record, maximum **72** in one record, maximum 2,792 characters of IDs in one record; 72 is the
+  observed portfolio maximum, not a value fitted to this repository. Alternative rejected: lowering
+  `_RECONCILIATION_BATCH` from 40 — the same 40-unit batch completes in 2,770 tokens on a fresh
+  sample, so the batch is not what overflowed; shrinking it would lower the frequency of the failure
+  without touching its cause and would cost an extra call per repository for nothing. Second
+  alternative rejected: raising `max_output_tokens` above 32,000 — it moves the ceiling without
+  bounding the only unbounded array in the reply, and the class returns at the next widening. Mutation
+  test: a `fact_ids` entry of exactly `"<kind>:"` must be refused at decode time, an array longer than
+  the cap must be refused, and a real ID must still pass. Reversal: drop `.+` and `maxItems`.
+- **What this run does not claim.** The 32,000-token body itself was never read — the pipeline
+  discards it (PROPOSAL T) — so *what* the runaway sample spent its tokens on is inferred from the
+  three sampled replies above, not read from the failing one. The packet did also grow under item 40:
+  measured across every sealed bundle plus this transaction, the S4 packet's citable `public_symbol`
+  records go from 3 to 190 for Cells Java (9,788 → 41,625 characters), 5 to 248 for Slides Java, 3 to
+  1,240 for the already-sealed PDF Java (11,419 → 222,612), while **shrinking** Cells-Rust's from
+  2,084 to 219 — and Cells-Rust is the one repository `_RECONCILIATION_BATCH = 40` was calibrated and
+  live-validated against (`docs/DECISION_LOG.md`, PHASE0/G, before item 40 landed). That is a real,
+  measured calibration gap worth recording, but it is not offered as the cause: the replay shows the
+  request completes comfortably, so the growth alone does not explain the ceiling.
+- **PROPOSAL 2026-09-11 T · a `TruncatedOutput` discards the body every other rejection keeps.**
+  File: `src/repository_presenter/core/llm/jobs.py` (the `finish_reason == "length"` branch). Defect:
+  the `OutputRejected` path immediately below it calls
+  `store.reject(request_sha256, ask, job, reply.content, rejection)` and keeps the rejected text; the
+  truncation path records a ledger row and raises `JobError` without storing anything, so the one
+  rejection class whose body is the whole diagnosis is the only one that throws it away. Evidence:
+  Cells Java and Slides Java each produced 32,000 completion tokens at S4 this run and retained none
+  of them; `calls/` holds only the accepted investigation call and the `TruncatedOutput` ledger row
+  carries null token counts. The cause could only be measured by replaying the request by hand
+  outside the pipeline, which this run did and should not have had to. Fix: call `store.reject` on
+  the truncation path too. Reversal: drop the call. Blocks nothing by itself; it is what makes the
+  next occurrence measurable instead of replayable-only.
+- **PROPOSAL 2026-09-11 U · a test fixture's "disposable local repository" can silently be the
+  repository the suite is running in, and it commits into it.** File:
+  `tests/support.py::init_git_repository` and `::commit_all`. Defect: `init_git_repository` runs
+  `git init` in `path` and asserts only on the exit status; when git resolves a *different*
+  repository for that path, `git init` is a no-op re-init that still exits 0 (it prints
+  `warning: re-init: ignored --initial-branch=main`), and the `git add .` / `git commit` that follow
+  land on the surrounding repository's own HEAD while their asserts pass. Nothing in either helper
+  checks that the directory it just initialised is the repository it then commits to. Observed twice
+  in this run, in this worktree: during two full-suite runs, eight commits authored
+  `Test <test@example.com>` with subjects `initial`, `seed` (x6) and `placeholder` were chained
+  straight onto this lane's own commit `852047a`, moving `lane-c/G4-W12-RERUN6` to a fixture tree —
+  `b96920b` deletes every tracked file of this repository, `8160636` carries `setup.py` and
+  `aspose/example/__init__.py`, `6b97c65` carries the `README.md`/`LICENSE` pair
+  `tests/test_cli.py::readme_only_upstream` (line 537) copies and commits under exactly that
+  `placeholder` message. The branch was recovered with `git reset --hard 852047a`; nothing was lost
+  and nothing was pushed in that state. **Mechanism proved in a controlled two-repository
+  experiment, no test involved**: with `GIT_DIR` pointing at an outer repository, `git init -q -b
+  main` inside a fresh directory returns 0 with that re-init warning, and the following
+  `git add . && git commit` writes a commit on the *outer* repository's HEAD whose diff deletes the
+  outer tree and adds the fixture's file — the exact shape of `b96920b`. What is **not** established
+  here: which test, or which earlier test's leftover state, puts the suite into that condition.
+  Running the three modules that call `commit_all` directly, and `tests/test_cli.py` whole, does not
+  reproduce it; only a full-suite run did, and no `GIT_DIR`, `GIT_WORK_TREE` or `os.chdir` appears
+  anywhere in `src/`, `tests/` or `scripts/`. The consequence is real either way and is not confined
+  to a lane: `.githooks/pre-push` runs `scripts/ci_check.sh`, which runs the suite, so a push is the
+  most likely moment for it to happen. It also made this run's own pre-push check red on its own
+  account — the eight `tests/test_version_bump_discipline.py` failures of the serial run are all
+  downstream of a hijacked `HEAD`, since that test reads `HEAD~1..HEAD` and the working tree against
+  it. Fix: assert in `init_git_repository` that `git rev-parse --absolute-git-dir` under `path`
+  resolves inside `path`, and re-assert it in `commit_all` before either commits — a guard, not a
+  redesign; and scrub `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE` and `GIT_PREFIX` from the
+  environment in `core/git_safety/git.py::run_git`, whose own docstring already promises the ambient
+  configuration never leaks in. Mutation test: with `GIT_DIR` set to another repository,
+  `init_git_repository(tmp)` must fail loudly rather than commit into it. Reversal: drop both
+  guards. Raised as a lane PROPOSAL because `tests/` and `core/git_safety/` are not this lane's to
+  edit.
+- **Java cohort, state after this run.** 2 of 4 sealed — PDF (`099e70a8`) and 3D (`e308de58`);
+  `repository-presenter status` reads **8/34**, unchanged before and after, `candidates/` holds no
+  directory for either repository run here, and `project/state.yaml` was not opened. Cells Java and
+  Slides Java are both dispositioned `BLOCKED_RECONCILIATION` with resume predicate **PROPOSAL S** —
+  the first blocker this cohort has ever shared, and the reason it is recorded as a class rather than
+  as one repository's accident. Slides Java's older blocker (item 33 / PROPOSAL L) was not reached
+  and is neither confirmed nor refuted.
