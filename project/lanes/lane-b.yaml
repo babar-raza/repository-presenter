@@ -127,7 +127,31 @@ progress:
     are the ones its repair instruction names (the reviewer faulted the candidate for omitting the sentence
     the previous repair round had just inserted at BC-08''s demand). Six findings and both dispositions
     are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN3.json, which is the live
-    source. repository-presenter status after the run: 8/34, unchanged.'
+    source. repository-presenter status after the run: 8/34, unchanged. RE-RUN 4 2026-09-11 21:30 against
+    origin/main at 23a8905 and then, after a mid-run rebase on the reviewer''s instruction, 846eaaf (branch
+    lane-b/G4-W13-RERUN4, fresh worktree C:\w\b04): the run''s own question is unanswered and that is
+    its finding. PDF C++ failed closed at BC-08 (Protected content preserved) with causal stage COMPOSING
+    - 8 PASS, 1 FAIL, 2 PENDING, unchanged by the repair round - two stages before the independent review,
+    so arrival items 63 and 64, both of them this lane''s own run-3 PROPOSALs and the whole reason for
+    the draw, were NEVER EXERCISED. The ledger holds zero S10 rows, there is no review.json, and BC-10
+    is PENDING rather than any kind of verdict. Nothing sealed, sealed_by_lane stays 0, and the disposition
+    MOVES from BLOCKED_REVIEW (BC-10) to BLOCKED_COMPOSING (BC-08) rather than being restated. Two shared-code
+    PROPOSALs, both mechanically replayed through the production functions on this run''s own artifacts:
+    validation_defects builds one Defect per failing check and routes it to named[0], so BC-08''s third
+    failure in development_testing was never attempted while two in additional_examples were; and repair_packet
+    excludes the inherited_unit kind that BC-08''s defect is entirely about - all four facts carrying
+    `cmake --build build` are inherited_unit, while install_command:cmake stops at `cmake -S . -B build`,
+    which is exactly what the candidate renders - so the repair had no citable fact for the command and
+    returned its unit unchanged twice, under targeted_repair prompt 8 and again under prompt 9, on two
+    different request hashes and two live calls. Beside them, a clean control: the rebase bumped REVIEWER_LOGIC_VERSION
+    4 to 5 and the repair prompt 8 to 9, and the identical re-invocation cost exactly ONE provider call
+    out of 47 ledger rows while every artifact digest stayed byte-identical - 96 rows and zero cache_stale
+    across two draws, corroborating run 3''s closure of the lane''s headline PROPOSAL on an independent
+    transaction. BC-08 is not weakened and not disputed: the candidate genuinely omits a build command
+    three protected inherited units keep and the upstream README carries. No fifth draw: the transaction
+    is byte-reproducible, so only clearing the call store could change it, and that is the re-roll the
+    W-card forbids. Six findings and both dispositions are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN4.json,
+    which is the live source. repository-presenter status after the run: 9/34, unchanged.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -256,4 +280,25 @@ items:
     BLOCKED_PLANNING (S5): clears when arrival item (25) lands; then re-run it. The no-op-proof blocker
     behind both, run 2''s finding LANE-B-R2-F2, is CLOSED by 22c2e45 and measured closed here.'
   run_2026_09_11_r3: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN3.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W13-RERUN4
+  status: ACCEPTED
+  accepted_at: '2026-09-11T21:30:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN4.json
+  purpose: 'Sprint W-CPP, fourth attempt: re-run aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that both
+    of the lane''s own run-3 PROPOSALs have landed - 2d4875d (arrival item 63, LANE-B-R3-F2, a presentation
+    finding whose quote holds the literal value of a SUPPORTED fact it cites) and, from a mid-run rebase
+    on the reviewer''s instruction, 846eaaf (arrival item 64, LANE-B-R3-F3, a partly refuted absence finding
+    narrowed to its remainder before the repair sees it). A fresh draw on changed shared code, not a retry
+    of draws 2 or 3. Never force a seal, never weaken a check, and report the review verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn and has its verdict, reported literally
+    (BC-08 FAIL at COMPOSING; BC-10 PENDING because the review never ran). What remains open is shared
+    code the lane may not land. (a) aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp, BLOCKED_COMPOSING (BC-08):
+    re-run when either PROPOSAL LANE-B-R4-F1 (validation_defects routes a multi-section check to named[0],
+    so the second failing section is never attempted) or LANE-B-R4-F2 (repair_packet strips the inherited_unit
+    kind that BC-08''s own defect is about, so the repair has no citable fact for the command it is asked
+    to restore) lands. Arrival items 63 and 64 stay UNTESTED on this repository - the draw failed closed
+    two stages before the review that would have exercised them. (b) aspose-email-foss/Aspose.Email-FOSS-for-Cpp,
+    BLOCKED_PLANNING (S5): unchanged, clears when arrival item (25) lands, which it has not at 846eaaf.'
+  run_2026_09_11_r4: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN4.json, which
     is the live source for this run rather than a copy.
