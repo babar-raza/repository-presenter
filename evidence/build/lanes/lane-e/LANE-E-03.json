@@ -1,0 +1,149 @@
+{
+ "schema_version": 1,
+ "lane": "lane-e",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-E-03",
+ "work_item_status": "IN_PROGRESS",
+ "recorded_at": "2026-09-11T18:47:58+00:00",
+ "control_revision": "643b44e",
+ "control_revision_note": "LANE-E-03 run 1, branch lane-e/LANE-E-03, worktree C:\\w\\e05. Created off origin/main at f26a57f (the ledger commit that closed arrival item 43) and rebased onto 643b44e (lane C's Cells-Java seal) before the commit. Scope: one repository, aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python - the third of LANE-E-02's purpose, which that run could not attempt because its gate was still shut. Lane E owns no platform module (project/lanes/lane-e.yaml purpose), so every defect below is a PROPOSAL for the primary, never an edit in this lane. No candidate sealed; this PR adds no candidates/ directory and project/state.yaml was not opened, so the lane prompt's narrow current_candidates exception does not apply.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\e05",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt, verified before any candidate work. Built by project/loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e . Fourth independent confirmation of 54417f9's recipe after lanes D, F and lane E's own LANE-E-02."
+ },
+ "toolchains": [
+  {
+   "tool": "python",
+   "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then loop-prompt-lane.md 1.3",
+   "path": "C:\\w\\e05\\.venv\\Scripts\\python.exe",
+   "version": "3.13.2"
+  },
+  {
+   "tool": "git",
+   "resolved_by": "PATH",
+   "used_for": "the read-only clone under runs/clones"
+  }
+ ],
+ "gateway": {
+  "command": "repository-presenter preflight",
+  "host": "llm.professionalize.com",
+  "models": 7,
+  "prompt_manifests": 6,
+  "route": "qwen3-next",
+  "catalog_digest": "0dc7f649a004c6fecc0927806fedd61865b2e149f935103a61cb4b548cd357d4"
+ },
+ "gate_check_before_starting": {
+  "question": "LANE-E-02's run checked this item's gate and found it shut: arrival item 43 had not landed, unblocked.jsonl had no line 43, and BC-07's heading rule was last touched by 9661e49 (2026-09-03). The spawn instruction for this run states the blocker is now closed by item 58's fix in e947573. Checked before spending a provider call, not assumed.",
+  "verdict": "OPEN. The gate has genuinely opened since LANE-E-02.",
+  "evidence": [
+   "evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl line 23 now reads {\"item\": 43, \"landed_at\": \"2026-09-11T18:02:33Z\", \"unlocks\": [[\"lane-e\", \"aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python\"]]} - the line LANE-E-02 recorded as absent.",
+   "validation/registry.py:869 no longer derives bare last segments: topics = set(api_reference_names(candidate.facts).values()), landed by e947573 (arrival item 58, lane F PROPOSAL F8), with RENDERER_VERSION 19 -> 20 and BC-07 Check 2 -> 3.",
+   "f26a57f records the subsumption of item 43 by item 58 in the ledger, with no code change of its own."
+  ],
+  "independent_offline_confirmation_zero_provider_calls": {
+   "method": "api_reference_names() called directly on this repository's own facts.json from the facts-only preflight",
+   "api_reference_names_total": 70,
+   "dotted_names": 50,
+   "renderers_Renderer_present": true,
+   "why_it_matters": "'renderers.Renderer' is the exact heading whose rejection was the recorded second-pass class. It is now a member of topics, so registry.py:877's exemption fires and BC-07 cannot raise it."
+  }
+ },
+ "repository": {
+  "name": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "outcome": "NOT_SEALED",
+  "previous_failure_class": "API_REFERENCE_HEADING_JUDGED_AS_PROSE (BC-07, S9)",
+  "previous_failure_class_status": "CLOSED - BC-07 returned PASS in this run's S9",
+  "failure_class": "CORROBORATED_DUPLICATION_FINDING_WHOSE_ESCALATION_NEVER_FIRES",
+  "stage": "S10 independent_review / BC-10",
+  "stages_reached": "S1 through S10 and two repair rounds; the first pass stopped at S6 and the second pass at S9, so this run advanced the repository a full stage further than it has ever reached",
+  "measured": {
+   "source": "3 files, 136 tree entries, readme README.md, digest 0ce1e023a0fef7f7cf9aede590fa12820bf107276953afb36df651cdccd888ef",
+   "examples": "6 candidates, 6 executed, 0 failed",
+   "facts": "178 records (public_symbol 70, inherited_unit 59, link_target 27, example 6, identity 5, package 4, build_test_asset 2, license 2, dependency 1, import_path 1, install_command 1); digest 77deed930e8dc4b10e805cef1dd60df7207dc0d3c01b46e0c74e1fd2ae191531",
+   "preflight": "178 facts, 177 supported, 1 unresolved, 0 contradicted; required rows without evidence: none",
+   "investigation": "4 capabilities, 4 workflows, 3 limitations; accepted on attempt 1",
+   "dispositions": "59 units: SUPERSEDE_REDUNDANT 33, VERIFIED_PRESERVE 10, VERIFIED_REWRITE 8, VERIFIED_MOVE 4, NON_CONTENT 2, OMIT_UNSUPPORTED 1, DEFER_UNRESOLVED 1",
+   "plan": "sections 16/18, capabilities 4, hubs 8, examples 1+5, links 6, limitations 1; digest 5dbc8f0cdcfcbcde2c58e77d9dae122b2e2487186eb232618b67f031431485a6",
+   "units": "80 units across 8 sections; coherence revised 0 of 80",
+   "readme": "130 visible lines of 281; digest 08d8f1d5b24a2d9bb896cf828c0f5702145fb526419d2b4774d4e1c2beaece13",
+   "validation": "pass 9, fail 0, pending 2 at S9 (BC-10 and BC-11 pending); after S10, pass 9 fail 1 pending 1 - the single failure is BC-10. Digest d810c4502cbd2028ae032361befe9f54e89dd4fb063848c187864a1feb4ddd9a",
+   "review": "verdict REJECT_PRESENTATION, findings 11, advisory 5, preserve 0; digest c2274d84dd894a77e6a8fa75789cf9fbd8810dbf7690afd0ec2985cb24fe4838",
+   "second_reader": "read 2, corroborated 012d630ea87dd4b2ed3b6aaa - PHASE1/F6's >= 2 holds, so the blocking findings are a corroborated presentation judgment and not one reader's",
+   "repair": "0 repaired, 1 unrepairable, 11 re-raised; rounds 2",
+   "provider_calls": "19 recorded in calls.jsonl for round 1; round 2 made 0 - every stage reports 'provider calls 0, model stored output reused'"
+  },
+  "the_findings_are_correct": {
+   "claim": "All eleven blocking findings say one thing: the Detailed Member Reference's module subsections (### renderers, ### options, ### exceptions) and helper-function subsections (### code128, ### code39, ### qr) restate what the Core API table already lists.",
+   "read_against_the_bytes": "True. The renderers subsection's prose is 'provides PdfRenderer, PngRenderer, SvgRenderer, and Renderer base classes'; all four are already rows of the Core API table twelve lines above, each with its own description.",
+   "contrast_with_E8": "This is the opposite of PROPOSAL E8 (Cells for Python): there the reviewer alleged an omission whose text sat inside the named section and the finding was the reviewer's own defect. Here the finding is corroborated by the second reader AND true against the rendered bytes. Lane E therefore proposes nothing about the reviewer."
+  },
+  "resume_predicate": "PROPOSAL E13 lands, then re-run present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python. The previous class API_REFERENCE_HEADING_JUDGED_AS_PROSE (BC-07) is closed and does not return."
+ },
+ "proposals": [
+  {
+   "id": "E13",
+   "for": "the primary, through G4-W17",
+   "title": "The plan-level escalation reads only the LAST repair attempt's slot set, so a repair that proved the fix is a planning decision is recorded unrepairable",
+   "files": [
+    "src/repository_presenter/components/readme/repair/targeted.py:85 (SlotSetProbe.returned), :88-89 (conflicts), :424-436 (repair_checks sets returned)",
+    "src/repository_presenter/components/readme/repair/rounds.py:518 (reads probe.conflicts after JobError), :521 (records unrepairable)"
+   ],
+   "defect": "SlotSetProbe.returned is one mutable field that every attempt overwrites, and conflicts compares only that one value. rounds.py:518 reads it after run_job has raised JobError - i.e. after BOTH attempts - so it sees only what the SECOND reply left behind. A first attempt that proved the fix belongs to planning is erased by a second attempt that does not.",
+   "measured_on_this_repository": {
+    "attempt_1": {
+     "file": "calls/75d2d9337e31.rejected-1.json",
+     "units_returned": 6,
+     "slots_dropped": [
+      "hub:public_symbol:aspose_barcode_foss.renderers",
+      "hub:public_symbol:aspose_barcode_foss.options",
+      "hub:public_symbol:aspose_barcode_foss.exceptions"
+     ],
+     "rejection_count": 1,
+     "sole_rejection": "revised_output: the plan owns this section's slot set (...); a revision filling ... would add, drop, or re-choose a slot, which is a planning decision, not an authoring one",
+     "probe_conflicts": true,
+     "note": "Schema, binding and stage checks all passed. The model dropped exactly the three subsections the finding names and nothing else. This is the escalation's documented trigger, met exactly."
+    },
+    "attempt_2": {
+     "file": "calls/75d2d9337e31.rejected-2.json",
+     "units_returned": 9,
+     "slots_dropped": [],
+     "rejection": "revised_output.units[6].text: '' should be non-empty; units[7]; units[8]",
+     "probe_conflicts": false,
+     "note": "Told by attempt 1's rejection that dropping a slot is a planning decision, the model complied by keeping all nine slots and emptying the three texts. minLength refused that, JobError was raised, and the probe now held the non-conflicting set."
+    },
+    "consequence": "rounds.py:518 read conflicts=False and fell through to rounds.py:521, repairs.record(..., 'unrepairable'). escalate_to_plan() never ran. repairs.json records outcome 'unrepairable', reason 'targeted_repair: output rejected twice; last rejection: revised_output.units[6].text: '' should be non-empty; ...', which names only the second attempt and leaves no trace that the first proved a planning decision.",
+    "replay_through_the_production_class_zero_provider_calls": [
+     "attempt 1: units  6  dropped [...exceptions, ...options, ...renderers]  conflicts=True",
+     "attempt 2: units  9  dropped []                                        conflicts=False",
+     "state the escalation reads at rounds.py:518 (after attempt 2): False"
+    ]
+   },
+   "why_the_existing_test_misses_it": "tests/components/readme/repair/test_targeted.py:509 constructs a FRESH SlotSetProbe inside its own loop for each of kept/dropped/added, so it never exercises one probe across two attempts - the only shape production ever uses. The property under test is right; the fixture cannot see the defect. A mutation test belongs at the rounds.py level: two replies through one probe, conflict first, no conflict second, and escalate_to_plan must still run.",
+   "governance": "project/loop-prompt.md section 6 rule 5 - never leave a permanent unrepairable finding blocking a candidate. Same shape as PROPOSAL E4: the routing information existed and the record withheld it. RESEARCH_AND_GUIDELINES.md section 27.2's 2026-09-05 decision built this escalation for exactly this case.",
+   "lane_e_recommends": "Latch the conflict: make the probe remember that a conflict was EVER observed rather than only what the last reply returned, read by rounds.py:518 exactly as it is today. One field, one comparison.",
+   "lane_e_explicitly_does_not_propose": [
+    "relaxing the minLength on unit text - an empty unit is not a deletion and should stay refused",
+    "letting S6 change the plan's slot set - the guard is right and is the whole point of section 27.2",
+    "a new blocking check for hub/table duplication - rule 14 wants a sealed defect, a mutation test and a subsumption review first, and the choice of module is the primary's"
+   ],
+   "reversal_path": "Revert the latch; the probe returns to last-reply semantics and this repository returns to unrepairable."
+  }
+ ],
+ "why_no_re_draw": "Round 2 of this same run WAS the re-draw and is the measurement: every stage replayed from the call store with 0 provider calls ('model stored output reused') and the identical 11 findings re-raised - 'repair: 0 repaired, 1 unrepairable recorded advisory, 11 re-raised after repair; the equivalent failure stands; rounds 2'. A fresh present in a new process is keyed by the same request hashes and replays the same plan. Re-running until a composition happens to draw a plan without those three module hubs is selecting for a seal, not earning one (project/loop-prompt.md section 5's prohibition on a third equivalent attempt, and the lane's own standing note in project/lanes/lane-e.yaml).",
+ "no_seal_and_the_counted_unit_does_not_move": {
+  "status_before": "10/34 current reviewable no-op-proven, on the tree rebased onto 643b44e",
+  "status_after": "10/34 - this PR adds no candidates/ directory",
+  "note": "The 10 is the portfolio-wide count and includes lane C's Cells-Java seal that landed in 643b44e while this run was composing. Lane E has still sealed nothing. No no-op proof was attempted because no bundle was produced; a no-op proof requires a seal, and no seal was possible or forced."
+ },
+ "checks": {
+  "ruff_check": "pass",
+  "ruff_format_check": "pass",
+  "mypy_src": "pass",
+  "pytest_n_auto": "pass",
+  "note": "Documentation-and-record-only change; the full local CI-equivalent was run once before the commit, on this exact tree apart from this note."
+ }
+}
