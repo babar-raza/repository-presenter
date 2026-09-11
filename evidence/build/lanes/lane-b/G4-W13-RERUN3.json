@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN3",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-11T17:50:00+05:00",
+  "control_revision": "22c2e45",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN3 is cut from origin/main at 22c2e45 (fix(llm,renderer): a stored reply is re-judged without the decoder schema; facts render in ID order), in a fresh short-path worktree at C:\\w\\b03. Nothing was carried over from the run-2 worktree C:\\w\\b02: no call store, no clone, no bundle. Every reuse recorded below was written by this run's own process.",
+  "time_box": {
+    "declared": "Sprint W-CPP third attempt, on ground the arrival items cleared: 22c2e45 (item 60) is the lane's own headline PROPOSAL from run 2, credited by name in its commit body",
+    "started": "2026-09-11T17:05 +05:00",
+    "closed": "2026-09-11T17:50 +05:00",
+    "closed_by": "Its own evidence: PDF C++ reached a verdict and Email C++'s resume predicate is measurably unmet. A third BC-10 re-roll is forbidden (loop-prompt section 5; the sprint W-card's stop-don't-force), so there was nothing left inside the box to spend a provider call on."
+  },
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe)",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . - the recipe 54417f9 put in the lane prompt after run 2's measurement",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411 - confirmed before the first provider call, identical to the primary and to every sealed bundle",
+    "worktree": "C:\\w\\b03 - a short root, because the harness worktree path crosses Windows' 260-character limit",
+    "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+    "path_policy": "Nothing is on the user or system PATH; g++ 16.2.0 and ninja 1.13.2 are resolved from the registry and prepended to the subprocess PATH only."
+  },
+  "what_this_run_tested": "(a) whether 22c2e45 actually removes the cache_stale class this lane diagnosed in run 2 - measured at S3, S4, S5 and S6 inside a live transaction; (b) whether aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp can seal on ground where its run-2 blocker (BC-10) has the reviewer-side guards of 3784b06, a8ac6d4 and dd7dc73 in front of it and the fact ordering of 40f2e9d + item 61 behind it; (c) whether arrival item (25), Email C++'s sole resume predicate, has landed.",
+  "answered": {
+    "item_60_cache_stale": "ANSWERED, affirmatively and in production. 79 ledger rows: 44 cache_reuse, 33 completed provider calls, 2 output rejections, and ZERO cache_stale. The reuse breaks down S6 32, S4 8, S3 2, S5 2. S4 is the class run 2 measured as permanently stale on this exact repository (2 of its 4 stored batches), and all 8 S4 reuses this run were accepted. The lane's own headline PROPOSAL is therefore closed by measurement, on the repository that produced it.",
+    "item_61_and_40f2e9d": "NOT EXERCISED AGAINST A SEAL. RENDERER_VERSION is 19 and the lane's own cpp.py ordering fix is on main, but nothing sealed this run, so no sealed bytes and no second no-op rerun could be compared. The claim that PDF C++'s dependency ordering is now doubly correct stays unproven by this run and is not asserted.",
+    "item_25": "NOT LANDED, verified two ways at 22c2e45. (1) composition/planning.py:385 still reads errors.append(...) on placement.outcome == 'excluded'; the deferral reconciliation/dispositions.py::normalize already performs three files away is still not mirrored there. (2) evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl now holds 13 rows (36, 22, 32, 33, 23, 55, 39, 40, 44, 45, 46, 60, 61) and none of them is 25.",
+    "items_39_45_46_guards": "LANDED AND FIRING. Of the 15 findings the final review raised on PDF C++, 13 folded to advisory as reviewer scope defects - four on a8ac6d4's symbol-reference rule, three on renderer-owned sections, two on contract-required headings, three on a CONTRADICTED example, one on an absence the candidate contains. Two survived and blocked. The guards are not the reason this candidate did not seal; they are the reason only two findings had to be judged."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R3-F1",
+      "class": "measurement",
+      "title": "22c2e45 removes the cache_stale class end to end: 44 reuses, 0 stale, 8 of them at S4 on the repository that diagnosed it",
+      "detail": "Run 2 measured PDF C++'s stored S4 replies as permanently unreusable: normalize() writes fact IDs (identity:revision, example:007..011) that the decoder's call_schema enum never showed the model, so run_job's cache-reuse branch re-judged them invalid, recorded cache_stale and made a fresh live call. 22c2e45 re-judges a stored output under the manifest's own schema instead. This run's ledger records 44 cache_reuse events and no cache_stale of any kind, including 8 at S4 across the repair loop's three recompositions. The reuse is what made three repair rounds affordable at all: 33 provider calls carried a pipeline that re-ran S3 through S6 four times.",
+      "evidence": "runs/transactions/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e/calls.jsonl - dispositions Counter({'cache_reuse': 44, 'provider_call': 35}), outcomes Counter({'cache_reuse': 44, 'success': 33, 'response_invalid': 2})."
+    },
+    {
+      "id": "LANE-B-R3-F2",
+      "class": "PROPOSAL",
+      "owner": "primary loop",
+      "file": "src/repository_presenter/components/readme/review/independent/review.py",
+      "title": "A presentation finding that calls a claim unsupported while citing a SUPPORTED fact whose value is verbatim in its own quote is the reviewer's own defect - and this one made the repair stage delete a true, fact-backed sentence",
+      "detail": "The first review of this draw blocked on F08: criterion 'presentation', section quick_start, quote 'using Aspose_PDF_FOSS version 1.0.0.', fact_ids ['example:001', 'package:version'], text 'The candidate adds \\u2018version 1.0.0\\u2019 to the Quick Start description but the facts do not support a versioned claim', repair 'Remove \\u2018version 1.0.0\\u2019'. facts.json records package:name = 'Aspose_PDF_FOSS' and package:version = '1.0.0', both SUPPORTED; the S3 investigation's own product_summary cites package:version as its evidence. The finding therefore names, as its own evidence, the fact that verifies the sentence it calls unverified. No guard caught it: factuality_defect judges criterion 'factuality' only, absence_defect needs an 'absent' list (this one is empty), and a8ac6d4's _quoted_verified_fact folds a quote that references a SUPPORTED public_symbol - package facts are a different kind. The repair round obeyed: repairs.json attempt 65d25781 rewrote the unit from '...at 150 DPI using Aspose_PDF_FOSS version 1.0.0.' to '...using Aspose_PDF_FOSS.'. A true, fact-backed detail was removed from a public candidate because a finding said the opposite of its own citation. Fix, mirroring a8ac6d4 one kind wider: a presentation/factuality finding whose quote contains the literal value of a SUPPORTED fact it cites is a reviewer scope defect. Mutation test: this finding and these facts - red (blocks, repair fires) before, green (advisory) after. Alternative rejected: widening _quoted_verified_fact to every fact kind by suffix match, which would refold quotes by coincidental word overlap - the collision a8ac6d4 was written to stop.",
+      "evidence": "review.json (first read of draw 3, findings[0] = F08); facts.json package:version; repairs.json attempt 65d25781acc333146baa1261 changes R01."
+    },
+    {
+      "id": "LANE-B-R3-F3",
+      "class": "PROPOSAL",
+      "owner": "primary loop",
+      "file": "src/repository_presenter/components/readme/review/independent/review.py (absence_defect, with repair/targeted.py as the consumer)",
+      "title": "A finding whose refuted claims are the ones its repair instruction names is unactionable: the reviewer faulted the candidate for omitting the exact sentence the previous repair round had just inserted at BC-08's demand",
+      "detail": "Order of events inside this one transaction, from the ledger and repairs.json. (1) BC-08 FAILED: inherited_unit:019.paragraph is VERIFIED_PRESERVE and keeps the command 'cmake --preset windows-msvc-debug', but the candidate did not render it. (2) targeted_repair attempt 1c50ad99 repaired exactly that, appending 'The build instructions include the command cmake --preset windows-msvc-debug.' to the development_testing unit. (3) The final review then raised F10 on section development_testing, text 'The development and testing section omits the CMake preset instructions and the test suite coverage details', repair 'Restore the CMake preset instructions and the test suite coverage details' - and its quote is that repaired sentence, character for character. Replayed offline through the production functions: of F10's five 'absent' claims, three ('cmake --preset windows-msvc-debug', '976 test files', 'foundation primitives') are located in its own section slice and two ('src/public/', 'src/internal/') are genuinely absent and present in the evidence. absence_defect therefore returns None - correctly, under the 2026-09-07 rule that one unrefuted claim leaves a real remainder - and the whole finding blocks. The defect is not that rule; it is that the finding's prose, quote and repair instruction all name the refuted claims while the remainder is two strings none of them mentions, so the repair round is handed an instruction whose work is already done and the equivalent failure re-raises. Fix: narrow rather than dismiss. Record the refuted claims on the finding and hand targeted_repair only the surviving ones, so the repair asks for 'src/public/' and 'src/internal/' or the finding carries no actionable claim at all. Mutation test: this finding, this candidate - red (repair told to restore text already present) before, green (repair sees only the two surviving claims) after. Alternative rejected: reverting to whole-finding dismissal, which the 2026-09-07 external review already proved loses real gaps.",
+      "evidence": "review.json findings F10; repairs.json attempt 1c50ad9934884512ae25c61b; validation.json BC-08 failure detail; offline replay of absence_defect/scope_defect over the run's own artifacts."
+    },
+    {
+      "id": "LANE-B-R3-F4",
+      "class": "measurement",
+      "title": "Three draws of one repository at one revision: every deterministic check agrees, the reviewer's blocking set does not repeat once",
+      "detail": "Same repository, same revision 888700a, same facts (1,846 records, 1,651 public symbols, 11 examples - 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED - byte-identical extraction across all three draws). Draw 1 (2026-09-11): 10 PASS, 0 FAIL, review folded to ACCEPT with second_reader.read = 2, sealed. Draw 2: BC-01..BC-09 PASS, BC-10 FAIL on F05 (a self-quoting finding) and F06 (a 12-vs-11 example miscount). Draw 3, this run: BC-01..BC-09 PASS - BC-08 after one repair - BC-11 PENDING, BC-10 FAIL on F06 (a corroborated prose judgment that quick_start carries no build instructions) and F10 (the repair-then-fault loop above). No blocking finding recurs between draws 2 and 3; the S4 disposition split moved again as well (this draw SUPERSEDE_REDUNDANT 50, OMIT_UNSUPPORTED 29, VERIFIED_PRESERVE 27, VERIFIED_MOVE 8, DEFER_UNRESOLVED 5, VERIFIED_REWRITE 3, NON_CONTENT 2, against draw 2's MOVE 39 / SUPERSEDE 47 / OMIT 5 / PRESERVE 16 / REWRITE 9). The deterministic half of the pipeline is reproducible across three draws; BC-10 is the one check whose outcome is drawn rather than computed.",
+      "evidence": "validation.json and review.json of draws 1-3 (draws 1-2 in G4-W13-RERUN2.json's run_2_2026_09_11 block); dispositions.json of each."
+    },
+    {
+      "id": "LANE-B-R3-F5",
+      "class": "corroboration, not re-proposed",
+      "title": "Arrival item (42) on a second C++ repository: S5 attempt 1 cited six format facts this repository does not have",
+      "detail": "PDF C++'s presentation_planning attempt 1 was rejected by the binding with 'unknown fact ID format:pdf; format:png; format:jpeg; format:bmp; format:tiff; format:text'. The repository has no fact of kind 'format' at any polarity, and planning.py's at_a_glance rule reads input_format_ids/output_format_ids against facts whose IDs start 'format:input.'/'format:output.'. Attempt 2 was accepted and the run continued, so this is not PDF C++'s blocker. Run 2 recorded the identical class on Email C++ (format:msg, format:eml, format:cfb) and lane E on Python Note. Recorded rather than re-filed: item (42) is queued and a queued item is not re-proposed.",
+      "evidence": "calls.jsonl, S5 presentation_planning attempt 1 rejection list."
+    },
+    {
+      "id": "LANE-B-R3-F6",
+      "class": "decision",
+      "title": "PDF C++ is not drawn a fourth time",
+      "detail": "Draw 2 and draw 3 are two genuine BC-10 rejections of the same candidate. loop-prompt section 5 prohibits a third equivalent attempt, and the sprint's W-card rule says a real rejection earns a disposition and a move on. Everything that could change the outcome is shared code this lane may not edit (the two PROPOSALs above), so the honest close is a restated disposition with a sharper resume predicate, not another 33 provider calls. Alternative rejected: a fourth draw - the packet is cached, so it would re-roll only the review, which is re-rolling until the reviewer says yes.",
+      "evidence": "This run's review.json verdict REJECT_PRESENTATION, reported literally."
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "disposition": "BLOCKED_REVIEW (BC-10)",
+      "disposition_change": "restated, unchanged in class from 2026-09-11 16:04",
+      "facts": "1,846 records (public_symbol 1,651, inherited_unit 124, link_target 40, example 11, identity 5, package 4, build_test_asset 3, dependency 3, license 2, import_path 1, install_command 1, third_party_notices 1); 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none",
+      "examples": "11 candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED",
+      "stages": "S3 accepted first attempt (8 capabilities, 6 workflows, 4 limitations). S4 four batches, all accepted first attempt, 124 of 124 units. S5 rejected once on unknown format: fact IDs, accepted on attempt 2: 18 of 18 sections, 8 capabilities, 12 hubs, examples 1+2, 9 links. S6 287 units across 9 sections, one section rejected once and accepted on attempt 2; coherence revised 0 of 287. README 197 visible lines of 594.",
+      "validation": "First pass 8 PASS / 1 FAIL (BC-08) / 2 PENDING; after two repair rounds 9 PASS / 1 FAIL / 1 PENDING - BC-01 through BC-09 PASS, BC-11 PENDING, BC-10 FAIL.",
+      "review": "verdict REJECT_PRESENTATION (as returned: REJECT_PRESENTATION), 2 blocking findings, 13 advisory, second_reader.read = 2 with 10 corroborated classes. Blocking: F06 (quick_start, a prose judgment corroborated by the second read, that the section names no project structure or build command) and F10 (development_testing, the repair-then-fault loop of finding LANE-B-R3-F3). repairs.json: 2 repaired (BC-08 development_testing, F08 quick_start), 0 unrepairable, 3 rounds.",
+      "provider_calls": "33 completed calls, 2 output rejections, 44 cache reuses, 0 cache_stale, 68,128 completion tokens",
+      "resume_predicate": "Re-run once either PROPOSAL LANE-B-R3-F2 or LANE-B-R3-F3 lands - F2 alone would have left this draw's first review with no blocking finding, and F3 would have stopped the repair loop from manufacturing F10 - or once the primary rules the candidate sealable on BC-01..BC-09 plus a corroborated second read. Do not re-draw it before one of those: draws 2 and 3 are already two genuine BC-10 rejections."
+    },
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+      "disposition": "BLOCKED_PLANNING (S5)",
+      "disposition_change": "restated, unchanged in class from 2026-09-11 16:04; no provider call was spent on it this run",
+      "facts": "357 records (public_symbol 225, inherited_unit 80, link_target 32, example 4, identity 5, package 4, build_test_asset 2, license 2, dependency 1, import_path 1, install_command 1); 355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none - reproduced today by a facts-only preflight with zero provider calls",
+      "examples": "4 candidates: 2 EXECUTED, 2 FAILED",
+      "why_not_run": "Its sole resume predicate - arrival item (25) lands - is measurably unmet at 22c2e45 (see answered.item_25). Running it would have bought a third rejection of a stage known to be broken for it, at provider cost, and the loop-prompt forbids treating a known-blocked stage as a fresh verdict.",
+      "predicate_measured_today": "Replayed offline through the production functions on today's facts: the repository has exactly 2 SUPPORTED examples (example:001, example:002); section_conditions(facts, DEFAULT_POLICY)['additional_examples'] is True, which is the value reconciliation computes 'absent' from at S4; plan_checks then recomputes it as bool(set(verified_examples) - starts), which is True with zero or one quick start and False with two. The plan takes both, the section flips included -> excluded between S4 and S5, and line 385 appends an error for every unit S4 placed there instead of deferring it.",
+      "resume_predicate": "Arrival item (25) lands (three lines in composition/planning.py, mirroring the fold reconciliation/dispositions.py::normalize already applies); then re-run present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp."
+    }
+  ],
+  "provider_calls": {
+    "total_completed": 33,
+    "output_rejections": 2,
+    "cache_reuse": 44,
+    "cache_stale": 0,
+    "by_stage": "S3 1, S4 4, S5 3 (one rejected), S6 21 (one rejected), S10 4, S11 2",
+    "completion_tokens": 68128,
+    "note": "Email C++ cost zero provider calls this run; its preflight is facts-only by construction."
+  },
+  "progress": {
+    "sealed_by_lane": 0,
+    "candidates_after_run": "8/34 - unchanged; nothing sealed and nothing unsealed",
+    "dispositions_by_lane": 7
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this run, so the suite is a control on the evidence, lane-file and log edits only.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "235 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest": "exit 0 over 1,036 collected tests with -n auto; the -q reporter emitted no trailing summary line in this environment, so the exit code and the 100% progress line are the record",
+    "runs_this_iteration": "3 full pytest runs for 1 commit, all exit 0: the first two were repeated only because the reporter's summary line could not be captured, which is a tooling cost, not a red run"
+  }
+}

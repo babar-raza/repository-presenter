@@ -111,7 +111,23 @@ progress:
     past requirements-lock.txt and gave presenter_site_manifest 613b742b against the primary''s f4406f1b;
     the venv was rebuilt from the lock plus uv==0.12.9 and confirmed at f4406f1b before any candidate
     work. Five findings, four PROPOSALs and both dispositions are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN2.json''s
-    run_2_2026_09_11 block. repository-presenter status after the run: 8/34, unchanged.'
+    run_2_2026_09_11 block. repository-presenter status after the run: 8/34, unchanged. RE-RUN 3 2026-09-11
+    17:50 against origin/main at 22c2e45 (branch lane-b/G4-W13-RERUN3, fresh worktree C:\w\b03, nothing
+    carried over from run 2): the lane''s own headline PROPOSAL is closed by measurement - PDF C++''s
+    ledger records 44 cache_reuse events and ZERO cache_stale, 8 of them at S4, the class run 2 measured
+    as permanently stale on this exact repository. PDF C++ was drawn once and did not seal: BC-01 through
+    BC-09 all PASS (BC-08 after one repair round), BC-11 PENDING, BC-10 FAIL on REJECT_PRESENTATION with
+    2 blocking findings of 15 raised - the other 13 folded as reviewer scope defects - so the disposition
+    is restated, not added to, and sealed_by_lane stays 0. Email C++ was NOT drawn: arrival item (25)
+    is still not landed (planning.py:385 unchanged; unblocked.jsonl holds 13 rows and none is 25) and
+    its S5 flip was re-measured mechanically from today''s facts with zero provider calls. Both blocking
+    findings are shared-code classes the lane may not edit, filed as two PROPOSALs: a presentation finding
+    that calls a claim unsupported while citing the SUPPORTED fact whose value is verbatim in its own
+    quote (it made targeted_repair delete a true, fact-backed sentence), and a finding whose refuted claims
+    are the ones its repair instruction names (the reviewer faulted the candidate for omitting the sentence
+    the previous repair round had just inserted at BC-08''s demand). Six findings and both dispositions
+    are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN3.json, which is the live
+    source. repository-presenter status after the run: 8/34, unchanged.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -220,3 +236,24 @@ items:
   accepted_at: '2026-09-11T16:04:00+05:00'
   run_2026_09_11_r2: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN2.json's run_2_2026_09_11
     block, which is the live source for this run rather than a copy.
+- id: G4-W13-RERUN3
+  status: ACCEPTED
+  accepted_at: '2026-09-11T17:50:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN3.json
+  purpose: 'Sprint W-CPP, third attempt on cleared ground: re-run aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
+    now that 22c2e45 has landed the lane''s own headline PROPOSAL (run_job re-judges a stored reply without
+    call_schema) and the reviewer-side guards 3784b06/a8ac6d4/dd7dc73 stand in front of BC-10; then aspose-email-foss/Aspose.Email-FOSS-for-Cpp
+    only if its sole resume predicate, arrival item (25), has actually landed. Treated as a new draw, not
+    a retry of either prior one. Never force a seal, never weaken a check, never re-roll a genuine BC-10
+    rejection into a third equivalent attempt.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn once and has its verdict, reported literally
+    (REJECT_PRESENTATION), and Email C++''s predicate was measured unmet so it was not drawn. What remains
+    open is shared code the lane may not land. (a) aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp, BLOCKED_REVIEW
+    (BC-10): re-run when either PROPOSAL LANE-B-R3-F2 (a finding citing a SUPPORTED fact whose value is
+    in its own quote is a reviewer scope defect) or LANE-B-R3-F3 (narrow a finding to its unrefuted claims
+    before repair sees it) lands, or the primary rules it sealable on BC-01..BC-09 plus a corroborated
+    second read. Not before: draws 2 and 3 are two genuine BC-10 rejections. (b) aspose-email-foss/Aspose.Email-FOSS-for-Cpp,
+    BLOCKED_PLANNING (S5): clears when arrival item (25) lands; then re-run it. The no-op-proof blocker
+    behind both, run 2''s finding LANE-B-R2-F2, is CLOSED by 22c2e45 and measured closed here.'
+  run_2026_09_11_r3: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN3.json, which
+    is the live source for this run rather than a copy.
