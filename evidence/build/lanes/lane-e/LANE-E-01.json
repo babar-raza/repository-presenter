@@ -4,45 +4,28 @@
   "gate": "G4_MULTI_LANGUAGE_COHORTS",
   "work_item": "LANE-E-01",
   "work_item_status": "IN_PROGRESS",
-  "recorded_at": "2026-09-11T09:49:08+00:00",
-  "control_revision": "2b9d191",
-  "control_revision_note": "Run 2 of LANE-E-01, on branch lane-e/LANE-E-01-R2 off origin/main at 2b9d191. Run 1's resume predicate was satisfied by 352fd35 (the S4 fact_ids enum). Run 1's own record is superseded by this file; its findings are preserved in docs/RESEARCH_LANE_E.md. Lane E owns no platform module: every defect below is a PROPOSAL for the primary, never an edit in this lane.",
+  "recorded_at": "2026-09-11T12:30:00+00:00",
+  "control_revision": "22c2e45",
+  "control_revision_note": "Run 3 of LANE-E-01, on branch lane-e/LANE-E-01-R3 off origin/main at 22c2e45 (arrival items 60+61). Scope set by the supervisor: re-attempt aspose-cells-foss/Aspose.Cells-FOSS-for-Python alone and verify - not assume - that item 61 closed PROPOSAL E7. Supersedes run 2's record; runs 1 and 2 are preserved in docs/RESEARCH_LANE_E.md. Lane E owns no platform module: every defect below is a PROPOSAL for the primary, never an edit in this lane.",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "python": "3.13.2 (.venv from C:\\Python313)",
-    "worktree": "C:\\w\\e02",
+    "worktree": "C:\\w\\e03",
     "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
-    "presenter_site_manifest_note": "Matches the primary and all previously sealed bundles. Reached only after rebuilding the venv; see environment_correction below. The Cells bundle this run composed carried this value in its dependencies.json, so the environment class was correct even though the bundle is not landed (E7).",
-    "environment_correction": {
-      "trigger": "Reviewer message received before any candidate work: verify the worktree venv's presenter_site_manifest against the primary's f4406f1b... before sealing anything.",
-      "observed_before": "613b742b997a5a872c351ee71552a83e76435b1e78e1ecbf9d9893d0bc87d47f",
-      "cause": "project/loop-prompt-lane.md section 1.3's literal `pip install -e .[dev]` resolves newer versions than requirements-lock.txt pins.",
-      "drifted_distributions": [
-        "anyio 4.15.1 (lock 4.14.2)",
-        "ast-serialize 0.11.1 (lock 0.8.0)",
-        "openai 3.13.0 (lock 3.7.0)",
-        "ruff 0.16.7 (lock 0.16.5)",
-        "types-PyYAML 6.0.12.20260906 (lock 6.0.12.20260815)"
-      ],
-      "also_missing": "uv==0.12.9 (present in the primary, not a project dependency and not in the lock)",
-      "remedy": "docs/RESEARCH_LANE_F.md F3's recipe: pip install --no-deps -r requirements-lock.txt; pip install --no-deps -e .; pip install --no-deps uv==0.12.9",
-      "observed_after": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
-      "verified": "importlib.metadata distribution lists for the lane venv and the primary venv are now identical at 50 entries, diff empty.",
-      "note": "Second independent reproduction of lane F's F3, on a second lane. The lane prompt is not a lane-owned path, so this is recorded, not fixed."
-    }
+    "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt this run - no rebuild was needed, because 54417f9 landed the exact recipe (pip==24.3.1, requirements-lock.txt, execnet, pytest-xdist, uv, then pip install --no-deps -e .) that lanes D, E and F each had to reconstruct. Verified before any candidate work, per the reviewer's standing instruction.",
+    "prior_run_correction_now_fixed_upstream": "Run 2 recorded the lane prompt's literal `pip install -e .[dev]` drifting five distributions to 613b742b...; that prompt text is now corrected on main."
   },
   "toolchains": [
     {
       "tool": "python",
-      "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then requirements-lock.txt per RESEARCH_LANE_F.md F3",
-      "path": "C:\\w\\e02\\.venv\\Scripts\\python.exe",
-      "version": "3.13.2",
-      "note": "The Python cohort's target toolchain is the same interpreter family the tool runs on; example verification builds its own workspace-local venvs under runs/verify/<key>."
+      "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then project/loop-prompt-lane.md section 1.3's corrected recipe",
+      "path": "C:\\w\\e03\\.venv\\Scripts\\python.exe",
+      "version": "3.13.2"
     },
     {
       "tool": "git",
       "resolved_by": "PATH",
-      "used_for": "the timed clone probe recorded under aspose-page-foss below"
+      "used_for": "the repository clone at runs/clones"
     }
   ],
   "gateway": {
@@ -53,322 +36,134 @@
     "route": "qwen3-next",
     "catalog_digest": "663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b"
   },
-  "e3_live_test": {
-    "question": "Run 1's PROPOSAL E3: the fact_ids enum landed by 352fd35 is unbounded in size, and Taskcard H (DECISION_LOG 2026-09-10) is a confirmed HTTP 400 from an unbounded enum at the sibling planning_schema site. Does a large enum trip a 400 live?",
-    "verdict": "REFUTED - E3 does not materialise at any size this lane could reach",
-    "instruction_followed": "The stop-on-400 instruction was never triggered: no S4 call returned HTTP 400, so no repository was stopped for it and nothing was retried.",
-    "measurements": [
-      {
-        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
-        "citable_records": 689,
-        "enum_characters_json_array": 34409,
-        "s4_calls": 3,
-        "all_http_200_attempt_1": true,
-        "completion_tokens": [
-          4726,
-          2975,
-          3113
-        ],
-        "prompt_tokens": [
-          54929,
-          57746,
-          54240
-        ],
-        "latency_ms": [
-          92219,
-          54924,
-          58583
-        ]
-      },
-      {
-        "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
-        "citable_records": 360,
-        "enum_characters_json_array": 17119,
-        "s4_calls": 3,
-        "all_http_200_attempt_1": true
-      },
-      {
-        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
-        "citable_records": 252,
-        "enum_characters_json_array": 12590,
-        "s4_calls": 2,
-        "all_http_200_attempt_1": true
-      }
+  "e7_verification": {
+    "question": "The supervisor's assigned test: did arrival item 61 (22c2e45, FactsDocument.canonical(); RENDERER_VERSION 18->19) actually resolve PROPOSAL E7 - the transposed dependency bullets that made a sealed Cells-Python README unrenderable from its own sealed facts - or was the real cause something specific to the Python extractor?",
+    "verdict": "CLOSED BY ITEM 61. The cause was the shared renderer/facts fact ordering exactly as E7 named it. No Python-specific change was needed and lane E proposes none.",
+    "verification_1_offline_whole_portfolio": {
+      "method": "Rendered each of the nine sealed bundles on disk twice from its own committed artifacts via render_readme - once from facts.json in stored order, once from the same facts shuffled under a fixed seed (random.Random(7)) - with zero provider calls, no clone and no toolchain.",
+      "result": "Identical bytes for all nine. render_readme is now provably independent of the order facts arrive in, which is the entire mechanism E7 described.",
+      "also_observed": "Seven of the nine additionally still equal their own sealed README. The two that do not are tests/test_sealed_bytes.py's two declared strict xfails (aspose-email-foss Python F07; aspose-cells-foss C++ item 44's pending re-seal) - neither is about fact order.",
+      "why_this_is_the_proof": "Stronger than one repository's seal: it holds the renderer to nine documents across six ecosystems, and it is the property E7 said was violated by construction."
+    },
+    "verification_2_live": {
+      "method": "A full present run on aspose-cells-foss/Aspose.Cells-FOSS-for-Python at 26c3bd16.",
+      "result": "Composed through S9 with BC-01 through BC-09 all PASS; nothing reordered.",
+      "explicitly_not_claimed": "tests/test_sealed_bytes.py was NOT exercised against a new Cells-Python bundle, because no bundle sealed (see e8_proposal). Verification 1 is the proof offered; this is corroboration only."
+    }
+  },
+  "no_op_replay_proof": {
+    "question": "The supervisor's second assigned test: confirm test_sealed_bytes-equivalent stability - a second no-op rerun byte-identical to the first - before calling anything sealed.",
+    "verdict": "THE REPLAY IS A TRUE NO-OP. Byte-identical at every stage with zero live provider calls, batched S4 included.",
+    "readme_digest_run_1": "8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f",
+    "readme_digest_rerun": "8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f",
+    "identical_digests": [
+      "facts 062f5f094cbb935cc07780d5e4b7fefd132f3286345d5da1a8ddc4e891d4d9e2",
+      "dispositions 1376161713b01fb2f903d364b5a22c62eb491701d82bfa89339a2ef9dfee2c8b",
+      "plan d7ff112715fbc65bfd8c147686726c2765e8d3334564f934dc266e663c7890d2",
+      "content_units fc421e3f1cd6955664ba3fd51044299f17a81a204c17863b67c9732edf23b123",
+      "validation ba51f406d58f92f36ffdf698b55a896c3b256efab06c4ce2b5474a2effe2a89f",
+      "review 95fbd0757de6739cd9d84122d216eeff3892a6bf6a722d9ee5fda98888a0897b"
     ],
-    "totals": "8 S4 calls across 3 repositories, every one HTTP 200 on attempt 1, zero rejections, zero retries",
-    "correctness_not_just_wellformedness": "PDF: 115 dispositions for 115 inherited_unit facts, citing 118 distinct fact IDs, of which ZERO are bare kind prefixes - the exact defect 352fd35 was landed against. Pre-fix behaviour was 32,000 completion tokens of bare prefixes per call; completion fell roughly 85-90%.",
-    "what_remains_true_from_e3": "689 is the highest confirmed-good size, not a proof for every repository: lane C measured PDF for Java at 1,240 public_symbol records alone. A 400 at a larger size would still be answered Taskcard H's way (tighten bounded_records' cap for this packet), never by widening the schema back to a pattern.",
-    "recommendation_withdrawn": "Lane E withdraws run 1's recommendation to gate the class on a size bound. No size bound is needed at the sizes measured."
+    "ledger": {
+      "run_1_live_successes": 17,
+      "run_1_breakdown": "repository_investigation 1, source_reconciliation 2 (batched), presentation_planning 1, section_authoring 10, independent_review 2, targeted_repair 1",
+      "rerun_live_successes": 0,
+      "rerun_cache_reuse": 16,
+      "rerun_source_reconciliation": "2 cache_reuse, 0 live - both batched S4 calls served from the local CallStore"
+    },
+    "corrects_proposal_e5": {
+      "what_run_2_recorded": "Cells for Python's rerun was not a no-op because seed_call_store cannot seed a batched job (E5), so S4 re-called live and the divergence carried to REJECT_PRESENTATION.",
+      "what_this_run_measured": "That attribution was wrong. A batched S4 replays byte-identically today with zero live calls. The real cause was arrival item 60 - run_job re-judged a STORED reply under call_schema, forced cache_stale and made a fresh S4 call - landed in the same commit 22c2e45 that carried item 61.",
+      "what_remains_of_e5": "E5's own claim is untouched and still unproven either way: it is about seeding from a SEALED bundle's committed artifacts on a machine with no prior run, and no sealed Cells bundle exists on disk, so seed_call_store was never exercised here. E5 should be read as a fresh-clone / hosted-runner claim only. It is no longer Cells for Python's resume predicate."
+    }
+  },
+  "e8_proposal": {
+    "title": "Item 39's guard is scoped to one criterion, so the identical false finding still blocks under the other",
+    "owner": "the primary - shared code, src/repository_presenter/components/readme/review/independent/review.py:730",
+    "status": "PROPOSAL - lane E writes no fix",
+    "blocking_for": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python; its only remaining blocker (BC-01..BC-09 PASS, BC-10 FAIL, BC-11 PENDING)",
+    "the_finding": {
+      "id": "F07",
+      "criterion": "presentation",
+      "causal_stage": "S6",
+      "section_id": "scope_limitations",
+      "fact_ids": [],
+      "absent": [],
+      "text": "The Scope and Limitations section omits the crucial clarification about Standard encryption not being supported for reading, which is explicitly stated in the original README.",
+      "quote": "Password-protected workbooks are supported only with Agile encryption (ECMA-376 Part 2, Section 4); Standard encryption (Section 3) is not supported for reading."
+    },
+    "why_it_is_false": {
+      "candidate_readme_line": 542,
+      "section_bounds": "lines 537-544, '## Scope and Limitations' - the exact section the finding names",
+      "review_readme_sha256": "8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f",
+      "disk_readme_sha256": "8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f",
+      "original_readme_lines": "374-375 state the same limitation, so the candidate preserved it rather than omitting it",
+      "second_reader_read": 2,
+      "note": "The reviewer hashed the exact bytes that contain the sentence it calls missing. Two independent reads corroborated the finding, so this is the prompt's shape rather than one seed's slip."
+    },
+    "measured_against_the_module": {
+      "method": "scope_defect called directly with the real finding, the real README, the real facts and the real claim_evidence; then the same finding with one field changed.",
+      "as_returned": "None - it blocks",
+      "with_the_same_claim_in_absent": "the finding claims the candidate does not contain '...', which the candidate contains",
+      "with_criterion_factuality": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text",
+      "conclusion": "A candidate that passes nine of ten blocking checks is held back solely by which of two labels the reviewer chose and whether it filled one field - precisely the label dependence arrival item 37 set out to remove, and precisely the shape arrival item 39 (3784b06) already made a reviewer defect for the other criterion, on Aspose.Cells for JAVA's F07."
+    },
+    "repair_cannot_rescue_it": {
+      "attempt": "96818ce46bf1833cdaa6279c",
+      "changes": "one change, R01, units[2].text, with `before` byte-equal to `after` - nothing changed, because there was nothing to change",
+      "recorded_outcome": "repaired (rounds.py:522 records 'repaired' unconditionally on any schema-valid revision)",
+      "re_raised": ["F07"],
+      "terminal": "rounds.py:595-606 correctly refuses to demote a re-raised defect, so the loop broke: 2 rounds, one wasted targeted_repair call, REJECT_PRESENTATION"
+    },
+    "fix_is_the_primarys_to_choose": "Lane E does not choose it. The bare rule 'a presentation finding whose quote is present may not stand' is NOT safe and is explicitly not proposed - a legitimate presentation finding quotes present text it wants rewritten, and dismissing those would weaken a real check. The discriminator is that this finding alleges a gap while stating none: absent empty, fact_ids empty, and its own quote already inside the section it names, which one targeted_repair attempt then left byte-identical. Whether that belongs in scope_defect (label-independent, item 37's principle), in rounds.py (a revision identical to its input did not repair anything), or in prompts/independent_review.yaml (an omission claim must populate absent) is a design call for whoever owns all three.",
+    "reversal_path": "If the owner rules that a presentation finding is a prose judgment call no deterministic check may dismiss (section 26), then this composition's class is permanent and the repository needs a different composition, not a reviewer change - and item 39 should be re-read in that light too, since it made the same call for factuality."
   },
   "runs": [
-    {
-      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
-      "source_revision": "bc52745063841d454053d4e7780c0e4ed1f05ed5",
-      "command": "repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
-      "outcome": "NOT_SEALED",
-      "failure_class": "ABBREVIATION_FAILURE_IS_UNROUTABLE_SO_REPAIR_NEVER_RUNS",
-      "stage": "S9 validation, BC-07, causal_stage COMPOSING",
-      "disposition_written": true,
-      "resume_predicate": "PROPOSAL E4 lands on main: BC-07's canonical-abbreviation judge sets Failure.section from _section_texts(), so targeted_repair can route it. Then re-run present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.",
-      "reached": "full pipeline through S9 validation and 2 repair rounds; no seal",
-      "classes_closed_at_this_revision": [
-        "QUICK_START_WITHOUT_EXECUTED_EXAMPLE (first pass) - 13 example candidates, 8 executed",
-        "RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID (G3 second pass) - S4 passed, zero bare kind prefixes cited"
-      ],
-      "examples": {
-        "candidates": 13,
-        "executed": 8,
-        "failed": 5
-      },
-      "facts": {
-        "records": 1583,
-        "note": "same revision as run 1; identical digest 8b6d0d15..."
-      },
-      "stages": {
-        "S3_repository_investigation": "0 provider calls, run 1's stored output reused",
-        "S4_source_reconciliation": "PASSED - 3 calls, 115 dispositions (DEFER_UNRESOLVED 1, NON_CONTENT 5, OMIT_UNSUPPORTED 17, SUPERSEDE_REDUNDANT 49, VERIFIED_MOVE 2, VERIFIED_PRESERVE 40, VERIFIED_REWRITE 1)",
-        "S5_presentation_planning": "sections 16/18; 2 calls, 1 response_invalid, accepted attempt 2",
-        "S6_section_authoring": "75 units across 8 sections",
-        "coherence": "0 of 75 units revised",
-        "render": "206 visible lines of 751",
-        "S9_validation": "pass 8, fail 1 (BC-07), pending 2",
-        "repair": "BC-08 repaired (development_testing); BC-07 unrepairable; rounds 2",
-        "seal": "not sealed"
-      },
-      "bc07_detail": {
-        "message": "abbreviation 'pdf' is not in its canonical form PDF",
-        "offending_text": "The following workflows demonstrate converting, rendering, extracting, merging, and protecting PDF documents using aspose-pdf-foss-for-python.",
-        "offending_section": "additional_examples",
-        "contrast": "The identical slug in the installation section is backticked (`aspose-pdf-foss-for-python`), stripped by _SPAN, and does not fire.",
-        "why_unrepairable": "validation.json records failures[0].section_id: null; repair/targeted.py:192-200 rewrites stage to None with reason 'no failing check names an LLM-owned section'. repairs.json attempt e2f68cfcd311...: outcome unrepairable, changes [].",
-        "control_in_the_same_run": "repairs.json attempt 1c50ad993488...: BC-08, section_id development_testing, outcome repaired, 2 changes. Same round, same repairer, same candidate - the only difference is the section field."
-      }
-    },
-    {
-      "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
-      "source_revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
-      "command": "repository-presenter present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python",
-      "outcome": "NOT_SEALED",
-      "failure_class": "PLANNING_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST",
-      "stage": "S5 presentation_planning, api_hubs[].fact_ids",
-      "disposition_written": true,
-      "resume_predicate": "PROPOSAL E6 lands on main: the four fact_ids sites in the planning schema take an enum of the packet's own citable IDs, as 352fd35 did at S4. Then re-run present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python.",
-      "attempts": [
-        {
-          "attempt": 1,
-          "outcome": "CLONE_FAILED",
-          "provider_calls": 0,
-          "error": "clone of https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git failed after 3 attempts: transient clone failure: git clone --depth 1 --no-tags ... timed out after 600.0s",
-          "root_cause_investigated_before_retry": {
-            "hypothesis": "the repository is too large for CLONE_TIMEOUT_SECONDS = 600.0 (core/git_safety/clone.py:30)",
-            "repository_size_kb": 418348,
-            "size_comparison": "PDF for Python 5,523 KB; Cells for Python 1,389 KB - i.e. 75x and 300x",
-            "timed_probe": "the identical command run alone completed in 316 s, RC=0, 1.1 GB on disk, 2,430 files",
-            "verdict": "hypothesis REFUTED - 316 s is comfortably inside the 600 s budget. The three failures were contention: five other lane workers plus this lane's own PDF run on the same link, in the window that ended with the account-wide session-limit reset.",
-            "proposal": "none. Lane E proposes no change to CLONE_TIMEOUT_SECONDS; the evidence does not support one.",
-            "observation_only": "three attempts at 600 s each spend 30 minutes before reporting, and a timeout is the one transient marker whose retry costs the full budget every time. One measurement; no rule built from it."
-          }
-        },
-        {
-          "attempt": 2,
-          "outcome": "RAN, rejected at S5",
-          "clone": "succeeded; 2,430 tree entries, matching the timed probe",
-          "examples": {
-            "candidates": 8,
-            "executed": 6,
-            "failed": 2
-          },
-          "facts": {
-            "records": 735,
-            "public_symbol": 570,
-            "inherited_unit": 104,
-            "link_target": 31,
-            "second_pass_comparison": "728 records with the same 570 public_symbol"
-          },
-          "calls": {
-            "repository_investigation": "1 success",
-            "source_reconciliation": "3 success",
-            "presentation_planning": "2 success, 2 response_invalid"
-          },
-          "s4_verdict": "PASSED - the repository's recorded S4 blocker is closed",
-          "s5_rejection": "presentation_planning: output rejected twice; last rejection: unknown fact ID public_symbol:aspose.page.xps.renderer, at api_hubs[2].fact_ids[5] in calls/910e76cb940e.rejected-2.json"
-        }
-      ]
-    },
     {
       "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
       "source_revision": "26c3bd1633e84b91c0f6fad1fd353662fd61fb54",
       "command": "repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
-      "outcome": "NOT_LANDED",
-      "bundle": "not committed; removed from the tree before the commit",
-      "bundle_state": "ACCEPTED",
-      "bundle_files": 13,
-      "provider_calls": 18,
-      "no_op_proven": false,
+      "outcome": "NOT_SEALED",
+      "failure_class": "FALSE_OMISSION_FINDING_BLOCKS_UNDER_THE_UNGUARDED_CRITERION",
+      "stage": "S10 independent_review / BC-10, causal_stage COMPOSING",
       "disposition_written": true,
-      "failure_class_for_the_no_op_only": "SEALED_BUNDLE_CANNOT_REPLAY_A_BATCHED_S4",
-      "resume_predicate": "PROPOSAL E7 lands on main first (the seal's fact ordering and the renderer's agree, so tests/test_sealed_bytes.py passes for this bundle), then PROPOSAL E5 for the no-op proof. The composition needs nothing: validation pass 10 fail 0, review ACCEPT, second_reader.read 2.",
-      "classes_closed": [
-        "CORROBORATED_PRESENTATION_JUDGMENT (first pass, S10/BC-10) - the class that had never been re-run in the G3 second-pass box. Review verdict ACCEPT, findings 0."
+      "resume_predicate": "PROPOSAL E8 lands on main: the 'alleges a gap, states none, quotes text the named section contains' shape is a reviewer defect whatever the criterion. Then re-run present for this repository. E7 and the no-op proof are NO LONGER predicates - both are closed and measured above.",
+      "classes_closed_at_this_revision": [
+        "CORROBORATED_PRESENTATION_JUDGMENT was the first-pass class and S4 is no longer where this repository stops; S4 passed on attempt 1 with 2 batched calls",
+        "SEALED_BYTES_DO_NOT_RENDER_FROM_THE_SEALED_FACTS (E7) - closed by item 61",
+        "SEALED_BUNDLE_CANNOT_REPLAY_A_BATCHED_S4 as the cause of Cells' non-no-op - refuted; the replay is byte-identical with zero live calls"
       ],
-      "examples": {
-        "candidates": 6,
-        "executed": 6,
-        "failed": 0
-      },
-      "facts": {
-        "records": 1092,
-        "public_symbol": 987,
-        "inherited_unit": 47,
-        "link_target": 29
-      },
+      "examples": {"candidates": 6, "executed": 6, "failed": 0},
+      "facts": {"records": 1092, "public_symbol": 987, "inherited_unit": 47, "link_target": 29, "digest": "062f5f094cbb935cc07780d5e4b7fefd132f3286345d5da1a8ddc4e891d4d9e2"},
       "stages": {
-        "S4_source_reconciliation": "47 units, 2 calls",
-        "S5_presentation_planning": "sections 16/18",
-        "S6_section_authoring": "42 units across 8 sections",
-        "coherence": "0 of 42 units revised",
-        "render": "192 visible lines of 651",
-        "S9_validation": "pass 10, fail 0, pending 1",
-        "S10_independent_review": "verdict ACCEPT, findings 0, advisory 22",
-        "repair": "0 repaired, 0 unrepairable; rounds 1"
+        "S3_repository_investigation": "1 call; capabilities 8, workflows 6, limitations 3",
+        "S4_source_reconciliation": "PASSED - 2 calls (batched), 47 units: SUPERSEDE_REDUNDANT 26, VERIFIED_PRESERVE 11, VERIFIED_REWRITE 5, NON_CONTENT 4, DEFER_UNRESOLVED 1",
+        "S5_presentation_planning": "accepted attempt 1; sections 16/18, capabilities 8, hubs 10, examples 1+4, links 6, limitations 1",
+        "S6_section_authoring": "40 units across 8 sections, 10 calls",
+        "coherence": "0 of 40 units revised",
+        "render": "192 visible lines of 551; digest 8411d049d6e3dfef05cfe304ebdf14d653903ab33be6da04c1619d720cb5f84f",
+        "S9_validation": "pass 9, fail 1 (BC-10), pending 1 (BC-11); BC-01 through BC-09 all PASS",
+        "S10_independent_review": "REJECT_PRESENTATION, findings 1 (F07), advisory 6, preserve 0, second_reader.read 2",
+        "repair": "1 recorded 'repaired' with before == after, re-raised; rounds 2",
+        "seal": "not sealed"
       },
-      "phase1_f6": {
-        "requirement": "an ACCEPT requires second_reader.read >= 2",
-        "observed": 2,
-        "corroborated": [
-          "3c3b7985b1f0977c7f120bba",
-          "5a7b3d4f0db5c30bca2069e8"
-        ],
-        "met": true
-      },
-      "no_op_rerun": {
-        "command": "repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Python (fresh process, immediately after the seal)",
-        "expected": "byte-identical, zero provider calls",
-        "observed": "NOT a no-op; the rerun composed a different candidate and rejected it",
-        "evaluation_line": "earliest affected stage NONE; 0 changes - nothing about the repository moved",
-        "seeded": [
-          "presentation_planning",
-          "repository_investigation"
-        ],
-        "not_seeded": "source_reconciliation",
-        "divergence": {
-          "s4_dispositions_first_run": "DEFER_UNRESOLVED 1, NON_CONTENT 4, OMIT_UNSUPPORTED 2, SUPERSEDE_REDUNDANT 16, VERIFIED_PRESERVE 24",
-          "s4_dispositions_rerun": "DEFER_UNRESOLVED 1, NON_CONTENT 4, SUPERSEDE_REDUNDANT 25, VERIFIED_MOVE 14, VERIFIED_REWRITE 3",
-          "readme_digest_first_run": "d19608824217311d83ab3b6460b9f9d338bf35b2599f63011158d41e959e0ef0",
-          "readme_digest_rerun": "671e525aee56dcfcbec8b2fc533654cad71564166b64abc08a3e5b23448da998",
-          "visible_lines": "192 of 651 -> 192 of 646",
-          "validation": "pass 10 fail 0 -> pass 9 fail 1 (BC-10)",
-          "review": "ACCEPT -> REJECT_PRESENTATION, findings 1"
-        },
-        "sealed_bundle_intact_after_the_rerun": "review.json verdict ACCEPT, second_reader.read 2, manifest state ACCEPTED, validation 10 pass 0 fail, dependencies.json presenter_site_manifest f4406f1b..."
-      },
-      "outcome_note": "The pipeline composed an accepted candidate and sealed a bundle on disk, but the full local CI-equivalent refused it and the bundle is NOT part of this PR. An accepted composition the suite refuses is a disposition, not a seal.",
-      "failure_class": "SEALED_BYTES_DO_NOT_RENDER_FROM_THE_SEALED_FACTS",
-      "failure_class_secondary": "SEALED_BUNDLE_CANNOT_REPLAY_A_BATCHED_S4",
-      "blocking_check": {
-        "test": "tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes[aspose-cells-foss__Aspose.Cells-FOSS-for-Python]",
-        "pre_existing": true,
-        "result": "FAILED in the full local CI-equivalent (1 failed, 1012 passed, 13 xfailed, 427.92s)",
-        "complete_diff": "two transposed lines under '### Required Package Dependencies': the sealed README lists pycryptodome>=3.15.0 then olefile>=0.46; the replay renders olefile>=0.46 then pycryptodome>=3.15.0. Nothing else in 36,933 bytes differs.",
-        "not_hash_randomisation": "re-rendered under PYTHONHASHSEED 0, 1, 2, 3 and 42: olefile then pycryptodome every time",
-        "bundle_not_corrupted_by_the_later_rerun": "all 14 bundle files carry the same 15:36:42-43 seal timestamp"
-      }
+      "not_a_regression_against_run_2": "S4 is non-deterministic and returned different dispositions from run 2's, so the rendered document differs (551 lines here against run 2's 651). Run 2's ACCEPT and this run's REJECT_PRESENTATION are two draws of the same composition, not a regression.",
+      "why_no_re_draw": "Re-running until a composition happens to escape a demonstrably false finding is selecting for a seal, which is forcing one. The finding belongs in code, not in a better roll."
     }
   ],
-  "proposals": [
-    {
-      "id": "E4",
-      "title": "BC-07's canonical-abbreviation judge drops the section, so its own repair can never run",
-      "file": "src/repository_presenter/components/readme/validation/registry.py:874-883",
-      "shared_code": true,
-      "defect": "The judge constructs Failure(\"COMPOSING\", ...) without the `section` field that Failure's own docstring (registry.py:200-211) calls the field that routes it. COMPOSING maps to S6, which repair/targeted.py:192-200 treats as repairable only when some failure names an LLM-owned section; with section_id None it rewrites the stage to None and records 'no failing check names an LLM-owned section'. The check is structurally unrepairable - a permanent unrepairable finding blocking a candidate, which loop-prompt.md section 6 rule 5 prohibits.",
-      "section_is_knowable": "_section_texts() - already called four times in the same function ten lines above - places the offending word in additional_examples, an LLM-owned section.",
-      "control": "BC-08 in the same run, same repairer, same candidate, repaired on attempt 1 because its judge did set section.",
-      "failing_repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
-      "alternative_rejected": "Widening _LOWER_WORD's lookbehind to (?<![-.\\w]) so a hyphenated slug never fires: suppresses the symptom, leaves the routing hole for every other abbreviation, and would silently admit a README that spells an identifier as prose.",
-      "not_asked_for": "No weakening of BC-07. The content defect underneath - an identifier written as bare prose rather than a code span - is real and the check is right to refuse it.",
-      "reversal": "If BC-07's structure failures are deliberately unroutable, the abbreviation sub-check is in the wrong check and should move to an S6-judged check instead."
-    },
-    {
-      "id": "E5",
-      "title": "seed_call_store cannot seed a batched job, so no multi-batch repository can ever prove its no-op",
-      "file": "src/repository_presenter/components/readme/bundle/seal.py:452-509",
-      "shared_code": true,
-      "defect": "seed_call_store seeds a job only when its sealed calls.jsonl holds exactly one successful attempt (`if len(attempts) != 1 ... continue`). _SEEDABLE_JOBS maps source_reconciliation to dispositions.json, but S4 is batched by design: reconciliation_batches() splits the inherited units, one call per batch, and merge_dispositions() merges them into the single artifact. N batches produce N successful attempts as the normal shape. The docstring's stated reason - a repair round re-asking the same job, where only the last attempt is genuine - is sound for a re-ask and false for a batch, and the rule cannot tell them apart.",
-      "measured_consequence": "Cells' sealed ledger holds source_reconciliation: 2 successful attempts, so S4 was not seeded; the rerun made a live call, a non-deterministic model returned different dispositions, that changed the planning packet so even the seeded presentation_planning key missed, and the divergence carried through to REJECT_PRESENTATION.",
-      "scope": "Any repository whose reconciliation needs more than one batch. Measured this run: PDF 3 batches, Page 3, Cells 2. Only a single-batch repository can seed S4 today.",
-      "failing_repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
-      "alternative_rejected": "Seeding from the last successful attempt: restores the exact lie the docstring guards against for genuine re-asks, and is still wrong for batches, where no single attempt's output equals the merged artifact. The honest fix keys each batch's own logical_call_id to that batch's own output, which means the bundle must carry per-batch reconciliation outputs - a bundle-format change, and the primary's to design.",
-      "reversal": "If S4 is not meant to be seedable, remove it from _SEEDABLE_JOBS and restate loop-prompt section 3's 'byte-identical with zero provider calls' to the number of batch calls a no-op legitimately costs - explicitly, rather than by silent failure.",
-      "a_second_distinct_mechanism": "40f2e9d's portfolio-wide proposal reports that no candidate sealed since 352fd35 can pass a no-op proof because run_job re-judges a stored S4 reply against the decoder's enum while normalize writes IDs the packet never showed. That is NOT E5: E5 is about a batched S4 never being seeded so a live call is made; lane B's is about a stored reply being re-judged and refused. They compound - a single-batch job that cleared E5 would still meet lane B's. Lane E does not claim lane B's mechanism and has not measured it; the two entries should be read together."
-    },
-    {
-      "id": "E6",
-      "title": "The S4 fact_ids fix was not applied to its four sibling sites at S5, and that is Page for Python's live blocker",
-      "file": "prompts/presentation_planning.yaml (output.schema) and src/repository_presenter/components/readme/composition/planning.py:189-220",
-      "shared_code": true,
-      "defect": "352fd35 fixed reconciliation_schema's fact_ids by pinning it to an enum of the packet's own IDs. The identical field name, in the identical role, at the sibling S5 site, was not fixed - at four places: core_capabilities.items.fact_ids, api_hubs.items.fact_ids, material_limitations.items.fact_ids and deviations.items.fact_ids are each a bare {type: array, items: {type: string}}, and planning_schema() rewrites none of them. Inside one object, planning_schema() does replace api_hubs.items.symbol_fact_id with an enum and leaves its immediate sibling fact_ids accepting any string.",
-      "failing_repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
-      "finding": "rejected twice at S5 on 'unknown fact ID public_symbol:aspose.page.xps.renderer', found at exactly api_hubs[2].fact_ids[5] in calls/910e76cb940e.rejected-2.json. The same invention the G3 second pass recorded for this repository as public_symbol:aspose.page.common.",
-      "consequence_for_the_lane_file": "Page's recorded class did not survive item 40 - it moved from S4 to S5. It was never an S4-only class but a fact_ids-shaped hole at both stages. The lane file's expectation that 'item 40 other half (symbol_kinds bounding) cites it by name' is not sufficient: symbol_fact_id bounding is already in place and is not what failed.",
-      "fix_has_a_working_model": "citable_fact_ids() already computes the exact citable set from bounded_records(), and planning_schema() already uses bounded_records() for its other enums under Taskcard H's cap.",
-      "size_objection_answered": "Three live measurements this run: 689/34,409 (PDF), 360/17,119 (Page), 252/12,590 (Cells) across 8 S4 calls, every one HTTP 200 on attempt 1. Taskcard H's confirmed 400 was at ~24,830 symbols with no bounded_records cap at all.",
-      "alternative_rejected": "Leaving the four fields free and relying on binding_errors plus a prompt sentence. That is what is in place now and what the G3 second pass already tried to fix by prompt wording; it costs two full S5 calls and a dead run per repository. Section 27.5 D1's point is that the schema should make the mistake unrepresentable.",
-      "reversal": "If a bounded enum at these four sites trips a 400 on a larger-surface repository, the answer is Taskcard H's - tighten bounded_records' cap for this packet - never a return to a free string array."
-    },
-    {
-      "id": "E7",
-      "title": "The seal sorts facts by ID, the renderer does not sort at all, so a sealed README can be unrenderable from its own sealed facts",
-      "file": "src/repository_presenter/core/facts.py:136 and src/repository_presenter/components/readme/composition/renderer.py:263",
-      "shared_code": true,
-      "defect": "FactsDocument.to_json writes `sorted(self.facts, key=lambda f: f.id)`, while the renderer emits dependency bullets with `lines.extend(f\"- `{fact.value}`\" for fact in required)` and no sort. The live pipeline renders from the in-memory document in EXTRACTION order; the replay renders from facts.json in ID order. Wherever the two disagree for any two facts in one rendered list, the sealed bytes cannot be reproduced from the sealed facts - by construction, on the first try.",
-      "failing_repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
-      "severity": "Outranks E5: E5 costs the no-op proof, E7 costs the commit. This is why the run lands no candidate.",
-      "scope": "Data-dependent - eight bundles pass this test and the ninth does not. It bites when a manifest declares dependencies in non-alphabetical order, and the dependency bullets are only the list this run happened to hit; the same asymmetry applies to every unsorted lines.extend(... for fact in ...) in the renderer.",
-      "alternative_rejected": "Sorting the dependency bullets in the renderer: fixes this one list, leaves the general asymmetry, and silently changes the presentation order of every existing candidate - a manifest's own declaration order is arguably the better reading order. The narrower fix is to make the seal preserve the order the render consumed.",
-      "reversal": "If test_sealed_bytes is too strict - a sealed bundle need only be semantically, not byte-, reproducible - then the check is what changes. It should not be left as is: today it silently converts an accepted candidate into an unlandable one.",
-      "independent_corroboration": "40f2e9d (lane B, G4-W13-RERUN2, landed the same day) hit the identical class from the other side: test_sealed_bytes caught declared_dependencies sorted by the manifest spelling while fact IDs are slugged, so the sealed README listed Python3 before googletest and a re-render listed them the other way. Same test, same section, same two-line transposition, same manifest-order-versus-ID-order cause.",
-      "precedent_for_the_fix": "Lane B fixed it in its OWN C++ plugin, with a mutation test, because it owned the producer. Lane E cannot do the same: the Python extractor is shared and mature, so this stays a proposal. The owner has a measured choice the two lanes now frame together - fix each producer one ecosystem at a time as 40f2e9d did, or make the two shared sites (core/facts.py:136 and renderer.py:263) agree once so no future plugin can reintroduce it. Lane E has no standing to pick and records the evidence for both."
-    }
-  ],
+  "counted_unit": {
+    "before": "8/34 current reviewable no-op-proven",
+    "after": "8/34 current reviewable no-op-proven",
+    "candidates_directory_added_by_this_pr": false,
+    "state_yaml_touched": false,
+    "state_yaml_note": "This PR seals nothing, so project/loop-prompt-lane.md section 0's narrow current_candidates exception does not apply and state.yaml was not opened."
+  },
   "checks": {
-    "command": "bash scripts/ci_check.sh (the five CI steps)",
-    "runs_this_iteration": 2,
-    "first_run": {
-      "lint": "success",
-      "format": "failure - ruff formats Python fences inside docs/RESEARCH_LANE_E.md",
-      "typecheck": "success",
-      "pytest": "failure - 1 failed, 1012 passed, 13 xfailed in 427.92s; the failure is test_sealed_bytes for the Cells bundle (PROPOSAL E7)",
-      "entrypoint": "success",
-      "acted_on": "the doc snippet was reformatted; the Cells bundle was removed from the tree rather than landed red, and E7 was written"
-    },
-    "second_run": {
-      "lint": "success",
-      "format": "success",
-      "typecheck": "success",
-      "pytest": "success - 1007 passed, 13 xfailed in 416.93s",
-      "entrypoint": "success - repository-presenter 0.1.0; candidates 8/34; 8 ever sealed, 8 integrity-valid, 6 current-code reproducible",
-      "all": "All checks passed!"
-    },
-    "note": "This lane changed no src/ or tests/ code. Both failures were caused by artifacts this run added, and both were resolved by removing or correcting those artifacts, never by weakening a check."
-  },
-  "progress": {
-    "status_before": "8/34 current reviewable no-op-proven; 8 ever sealed, 8 integrity-valid, 6 current-code reproducible",
-    "status_with_the_bundle_on_disk": "8/34; 9 ever sealed, 9 integrity-valid, 6 current-code reproducible",
-    "status_after": "8/34 current reviewable no-op-proven; 8 ever sealed, 8 integrity-valid, 6 current-code reproducible",
-    "sealed_by_lane": 0,
-    "dispositions_by_lane": 3,
-    "headline_rose": false,
-    "headline_note": "No candidate is landed by this PR. The Cells composition was accepted end-to-end but its bundle is refused by tests/test_sealed_bytes.py (E7), so it was removed rather than landed red. Lane E claims no seal.",
-    "state_yaml_opened": false,
-    "state_yaml_note": "loop-prompt-lane.md section 0's narrow exception applies only when a PR seals a candidate. This PR seals none, so state.yaml stays untouched."
-  },
-  "not_claimed": [
-    "No seal and no rise in the counted progress unit. repository-presenter status reads 8/34 before and after, and this PR adds no candidates/ directory.",
-    "The Cells composition was accepted (validation 10/0, review ACCEPT, F6 met) but that is not a landed candidate and is not presented as one.",
-    "Nothing is claimed about whether attaching the section would in fact repair PDF's BC-07 - only that the repair is currently never attempted.",
-    "No claim that CLONE_TIMEOUT_SECONDS needs changing; the timed probe refutes the size hypothesis.",
-    "E4, E5, E6 and E7 are proposals, not fixes. Lane E edited no shared code and owns no platform module."
-  ],
-  "resume": "LANE-E-01 stays IN_PROGRESS. All three repositories are accounted for with a real failure class: PDF on E4, Page on E6, Cells on E7 then E5. Every resume predicate is a shared-code proposal for the primary and none can be advanced from inside this lane. E7 is the highest leverage of the four: until it lands, no Python candidate this lane composes can be committed at all, however clean its review. LANE-E-02 remains BLOCKED_BY_GATE on arrival items 41/42/43."
+    "ruff_check": "All checks passed!",
+    "ruff_format_check": "235 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest_n_auto": "exit code 0, no failures, 16 xfail marks (the declared strict xfails)",
+    "full_suite_runs_this_iteration": 1,
+    "note": "No src/ or tests/ file was changed by this PR - it carries documentation, this receipt and the lane cursor only."
+  }
 }
