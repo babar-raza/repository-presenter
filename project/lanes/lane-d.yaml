@@ -298,3 +298,6 @@ items:
     BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE only in the sense that the run no longer reaches
     the stage that raised it. sealed_by_lane stays 1 and dispositions_by_lane stays 2. BC-01 to
     BC-11 were never judged and none is claimed. See docs/RESEARCH_LANE_D.md.'
+- id: G4-W15-RERUN3
+  status: PENDING
+  purpose: 'Sprint W-GO, after the S4 fact_ids enum landed (352fd35): re-run aspose-cells-foss/Aspose.Cells-FOSS-for-Go, whose BLOCKED_SHARED_CODE / S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY disposition names exactly this fix as its resume predicate. This is also the control for lane E PROPOSAL E3: its citable set is the 123 values the enum was validated at, so a clean S4 here with a 400 elsewhere localises the failure to enum size, not to the fix. Aspose-PDF-FOSS-for-Go still waits on item 47. Evidence evidence/build/lanes/lane-d/G4-W15-RERUN3.json.'
