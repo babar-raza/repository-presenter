@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12-RERUN8",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run (two repositories); PROPOSALs V and Y closed live; nothing sealed",
+  "recorded_at": "2026-09-11T17:33:11+05:00",
+  "control_revision": "22c2e45",
+  "control_revision_note": "origin/main at the start of this re-run. The unlock under test is 22c2e45 itself - G4-W17 arrival items 60 and 61, which are this lane's PROPOSAL V (a stored reply is re-judged without call_schema) and PROPOSAL Y (FactsDocument.canonical is the one order the bundle stores and the renderer reads; RENDERER_VERSION 18 -> 19). Both unblock rows name aspose-cells-foss/Aspose.Cells-FOSS-for-Java in evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl.",
+  "trigger": "Sprint W-JAVA: re-seal aspose-cells-foss/Aspose.Cells-FOSS-for-Java, then attempt aspose-slides-foss/Aspose.Slides-FOSS-for-Java, reusing the seventh re-run's preserved transaction call store at C:\\w\\c127-held.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2",
+    "worktree": "C:\\w\\c128 - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "venv_build": "loop-prompt-lane section 1.3 as amended by 54417f9: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, pip install --no-deps -e . (50 distributions).",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_check": "Confirmed BEFORE any candidate work. The amended recipe reproduces it first time, which closes this lane's own seventh-re-run finding about the recipe.",
+    "preflight": "runs/preflight/catalog.json, digest 663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b; 7 models, 6 prompt manifests routed to qwen3-next.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11); mvn resolved and not needed - every declared dependency of both POMs is test scope.",
+    "call_store_seeded_from": "C:\\w\\c127-held\\transactions - copied verbatim into runs/transactions/ before the first run, both repositories, 116 files."
+  },
+  "headline": "PROPOSAL V and PROPOSAL Y are both CLOSED, measured live on both repositories. Nothing sealed: BC-10, now the only non-deterministic gate left on Aspose.Cells for Java, rejected two different documents for two different reasons, and the shortcut store could not restore the seventh re-run's ACCEPT because the reply that seal was built from no longer exists.",
+  "proposal_V_closed": {
+    "claim": "CLOSED. 22c2e45 makes every stored reply reuse cleanly; there is not one cache_stale row anywhere in this run.",
+    "measured": "58 cache_reuse rows and 0 cache_stale rows across four invocations - Cells Java 13 + 16 + 15, Slides Java 14. Scoped to this run's own rows: the five cache_stale rows the two copied ledgers carry are all the seventh re-run's, every one finished before 12:17Z and none after. Under 352fd35 the same S4 batch-1 request took cache_stale on every single reuse (three times in the seventh re-run's own ledger for Cells, twice for Slides).",
+    "no_op_proof": {
+      "method": "repository-presenter present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Java, then its immediate fresh-process rerun, diffing the two runs' complete stdout.",
+      "result": "ZERO provider calls on the rerun (16 of 16 ledger rows cache_reuse) and a byte-identical document: the whole diff of the two runs' output is two phrases, 'provider calls 1' -> 'provider calls 0, model stored output reused', at coherence and at review. Every artifact digest is identical, including README.md 63f14cf4f11fb42983c0532aaaf5975585c82dc303f96947ffe03dc44b2457b2, validation.json 647451d64f7f5e8abfb80a97ee397209c5eca5f2e24acf6c9dea02c576ea894e and review.json 2a00a413c399c47b58c1af7b19c83b32155636b21190fac84cb6c17211e87e6e.",
+      "reading": "This is exactly the proof BC-11 asks for, obtained end to end through S11 on a document that simply does not pass BC-10. The reproducibility defect is gone; the candidate is held by a different gate."
+    },
+    "cost_of_item_61": "Exactly one fresh provider call per repository, once. The coherence pass is one section_authoring call that 'sees the rendered document' (composition/coherence.py line 3), so RENDERER_VERSION 19's canonical fact order moves its request digest a single time - Cells 54,649 ms, Slides 89,756 ms - and it reuses with 0 calls from the next run on."
+  },
+  "proposal_Y_closed": {
+    "claim": "CLOSED. The renderer now takes FactsDocument.canonical(), so the rendered order is the order the seal writes.",
+    "measured": "Aspose.Cells for Java's Development Dependencies render `org.apache.poi:poi-ooxml 5.3.0` before `org.junit.jupiter:junit-jupiter 5.10.2` - fact-ID order, matching facts.json - in both documents composed this run (replayed README lines 79-80, fresh README lines 75-76). The seventh re-run's sealed README had them the other way round, in pom.xml declaration order (lines 57 and 65), which is what made tests/test_sealed_bytes.py red for that bundle.",
+    "not_re_provable_here": "The sealed-bytes control could not be re-exercised on this repository, because nothing sealed. It is proven for the rendering path and unproven for a bundle until the next Cells Java seal."
+  },
+  "proposal_U_closed": {
+    "claim": "CLOSED by b63b949 (fix(git-safety): run_git never forwards GIT_DIR and the fixture never trusts a re-init).",
+    "measured": "git rev-parse HEAD recorded before and after every full-suite run in this worktree - 22c2e453139a602400cdb89c103d8564d1b1e71c every time. The seventh re-run's fixture hijack did not recur."
+  },
+  "cohort": [
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+      "revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+      "outcome": "DISPOSITION BLOCKED_VALIDATION at S10 (BC-10), twice, on two different findings",
+      "previous_outcome": "Seventh re-run: SEALED at ACCEPTED with BC-11 PENDING; the bundle was not committed (PROPOSALs V and Y).",
+      "runs": [
+        {
+          "id": "A - replay of the preserved call store",
+          "provider_calls": 3,
+          "provider_calls_detail": "one section_authoring (the coherence pass, 54,649 ms) and two independent_review - the first read and the post-repair re-read",
+          "cache_reuse_rows": 13,
+          "cache_stale_rows": 0,
+          "stages": {
+            "S1": "3 files, 364 tree entries, digest 4db4dc9761520439fed0f22dd1891ff05a5fe789154417e9b8b06d3a55d77626",
+            "S2": "3 example candidates, 3 executed",
+            "S3": "reused, 0 calls; capabilities 8, workflows 3, limitations 4",
+            "S4": "reused, 0 calls, both batches; 50 units - DEFER_UNRESOLVED 1, NON_CONTENT 2, OMIT_UNSUPPORTED 9, SUPERSEDE_REDUNDANT 17, VERIFIED_MOVE 1, VERIFIED_PRESERVE 19, VERIFIED_REWRITE 1; digest c6333c26a13811d1da64bc8808ee20d42c704a2ba96abf368ef1cbabb7c870f5",
+            "S5": "reused, 0 calls; 17 of 18 sections, links 7; digest 0b6da1f18819996005fc197df64a6a34039f184113d4581b64ae833f97960d33",
+            "S6": "30 units across 9 sections, 9 authoring jobs reused; the coherence pass made the run's one authoring call; digest 256bab53d309946bea0312991f54582b1fe9b02a1c246af6b87590ec3c75a7b3",
+            "S8": "README.md 243 visible lines of 466; digest 63f14cf4f11fb42983c0532aaaf5975585c82dc303f96947ffe03dc44b2457b2",
+            "S9": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS, BC-10 FAIL, BC-11 PENDING",
+            "S10": "review REJECT_PRESENTATION, 1 blocking finding, 7 advisories, second_reader read 2 with 7 corroborated IDs",
+            "S11": "3 repaired (F07 quick_start, F08 additional_examples, F08 development_testing), 2 re-raised, rounds 1"
+          },
+          "blocking_finding": {
+            "id": "F06",
+            "criterion": "presentation",
+            "section_id": "development_testing",
+            "text": "The Development and Testing section duplicates the Maven command examples and adds redundant phrasing, which is less clear than the original README's concise command list."
+          }
+        },
+        {
+          "id": "B - immediate fresh-process rerun of A",
+          "provider_calls": 0,
+          "cache_reuse_rows": 16,
+          "cache_stale_rows": 0,
+          "result": "Byte-identical to A at every artifact. See proposal_V_closed.no_op_proof."
+        },
+        {
+          "id": "C - fresh full composition (transaction call store discarded; the equivalent of present --fresh)",
+          "provider_calls": 18,
+          "cache_reuse_rows": 15,
+          "cache_stale_rows": 0,
+          "rounds": 2,
+          "stages": {
+            "S3": "capabilities 6, workflows 3, limitations 3",
+            "S4": "50 units - OMIT_UNSUPPORTED 3, SUPERSEDE_REDUNDANT 21, VERIFIED_MOVE 1, VERIFIED_PRESERVE 17, VERIFIED_REWRITE 8; digest f5fd8aeb942a53259192c345cd604fda89babb6065a9aa34ca3d5d126fb66e08",
+            "S5": "17 of 18 sections, capabilities 6, hubs 1, examples 1+1, links 7, limitations 1; digest 4c8a469251fe1d2ecad38301b8d1a6aaa8ae2c11a8e198659a130c045d032f61",
+            "S6": "25 units across 9 sections; digest 63a9c0d44dc4c253308856cb68ab7c9e18fea801b5eb603ac8dc99f8beb9dc92",
+            "S8": "README.md 238 visible lines of 441; digest 9a1163c8e3c7e82cf7bc09c8ca2d2f98d58952d0183ee22729cebd0cbf969bd4",
+            "S9": "BC-01 through BC-09 PASS on the first composition (pass 9, pending 2); final pass 9, fail 1 (BC-10), pending 1",
+            "S10": "review REJECT_FACTUAL, 1 blocking finding, 6 advisories, second_reader read 1, corroborated []",
+            "S11": "1 repaired (F05 api_reference), 1 re-raised, rounds 2"
+          },
+          "blocking_finding": {
+            "id": "F05",
+            "criterion": "factuality",
+            "section_id": "api_reference",
+            "quote": "cells_foss.DiagnosticSeverity | Represents the severity level of a diagnostic message. ... core.DiagnosticSeverity | Represents the severity of a diagnostic entry.",
+            "text": "The candidate lists `cells_foss.DiagnosticSeverity` and `core.DiagnosticSeverity` as separate enum entries but the facts show they are internal and distinct from the public API enum.",
+            "fact_ids": ["public_symbol:org.aspose.cells_foss"],
+            "absent": ["DiagnosticSeverity-core", "DiagnosticSeverity"]
+          }
+        }
+      ],
+      "third_attempt_not_made": "loop-prompt.md section 5: two equivalent failed attempts prohibit a third. Both runs A and C died at BC-10 after their repair rounds, so no further composition was attempted and the mechanism was changed instead - the measurements below, and PROPOSAL Z.",
+      "new_disposition": "BLOCKED_VALIDATION at S10",
+      "new_resume_predicate": "PROPOSAL Z (docs/RESEARCH_LANE_C.md). BC-01 through BC-09 pass on every document this repository has ever composed, and BC-11 is now provably reproducible; BC-10 is the whole of what stands between it and a seal."
+    },
+    {
+      "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+      "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+      "outcome": "DISPOSITION BLOCKED_COMPOSING - unchanged, and now confirmed at 22c2e45",
+      "provider_calls": 1,
+      "cache_reuse_rows": 14,
+      "cache_stale_rows": 0,
+      "stages": {
+        "S1": "3 files, 442 tree entries, digest de144dc2a7759ab5914ac8f1a6dd57c1fec3131639d16c7ba7087839180281a3",
+        "S2": "8 example candidates, 5 executed, 3 not_verified",
+        "S3": "reused, 0 calls; capabilities 8, workflows 6, limitations 6",
+        "S4": "reused, 0 calls, all three batches - the batch that took cache_stale under 352fd35 reuses cleanly; 85 units - DEFER_UNRESOLVED 1, OMIT_UNSUPPORTED 21, SUPERSEDE_REDUNDANT 22, VERIFIED_MOVE 10, VERIFIED_PRESERVE 30, VERIFIED_REWRITE 1; digest 6aa86f7af41e9e444c99406b459200e848f14a8af5f56412c87d51afdb65cc8f",
+        "S5": "reused, 0 calls; 17 of 18 sections, capabilities 8, hubs 5, examples 1+4, links 15, limitations 6; digest e01f603d812f4cd9051e6d7b923e0ecbcdbcfe060dad62a9ee4166deb7be5166",
+        "S6": "34 units across 9 sections; the coherence pass made the run's one call; digest 0221693d60e936116fc39997a5cba76adb830838508cc10b984dc809a41bd6dc",
+        "S8": "README.md 230 visible lines of 553; digest 151e55bc86375189d62ca1e0f3cd83ae9f8de9dde121769eec33d8cd9d75a652",
+        "S9": "pass 8, fail 1, pending 2 - BC-06 FAIL at COMPOSING, '#building-from-source: no heading #building-from-source'; BC-10 and BC-11 never judged",
+        "S11": "2 repaired (F04 scope_limitations, F08 additional_examples), 1 unrepairable recorded advisory, rounds 1"
+      },
+      "reading": "The identical blocker, at the identical stage, on a deterministically reproduced pipeline. PROPOSAL X is neither closed nor superseded by 22c2e45 and remains this repository's single recorded resume predicate; items 33, 37 and 45 are not reached for the fourth re-run running, so PROPOSAL L is again neither confirmed nor refuted."
+    }
+  ],
+  "proposal_Z_measurement": {
+    "claim": "PROPOSAL Z: a factuality finding may quote a deterministic table row that no content unit wrote, and no refutation covers it - the 'the quote names a SUPPORTED fact BC-04 already verifies' exemption is gated to criterion == presentation.",
+    "file": "src/repository_presenter/components/readme/review/independent/review.py, renderer_owned_defect (the line `verified = _quoted_verified_fact(finding, by_id) if presentation else None`).",
+    "repository_and_finding": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java, F05 factuality/api_reference, run C.",
+    "measured_zero_provider_calls": {
+      "the_two_quoted_cells_are_facts": "org.aspose.cells_foss.DiagnosticSeverity is public_symbol:org.aspose.cells_foss.diagnosticseverity, polarity SUPPORTED, confidence 1.0, evidence src/main/java/org/aspose/cells_foss/DiagnosticSeverity.java line 6 'enum; public by declaration', attributes.docstring 'Represents the severity level of a diagnostic message.' org.aspose.cells_foss.core.DiagnosticSeverity is public_symbol:org.aspose.cells_foss.core.diagnosticseverity, polarity SUPPORTED, confidence 1.0, evidence src/main/java/org/aspose/cells_foss/core/DiagnosticSeverity.java line 6, attributes.docstring 'Represents the severity of a diagnostic entry.' They are two distinct public enums in two distinct files; neither package carries an internal or impl segment, so neither is excluded by the Java spec (platforms/java.py::surface_facts, section 29.9). README lines 363 and 383 render each name and its own docstring verbatim.",
+      "the_claim_is_refuted_by_the_facts": "The finding says 'the facts show they are internal and distinct from the public API enum'. The facts show both are public_symbol facts declared public. Its absent list names 'DiagnosticSeverity-core' (0 occurrences in the candidate, not a fact ID) and 'DiagnosticSeverity' (not a fact ID).",
+      "no_unit_wrote_the_quoted_text": "content_units.json holds 25 units; api_reference has exactly two, slots 'intro' and 'hub:public_symbol:org.aspose.cells_foss'. Neither docstring appears anywhere in it: 'severity level of a diagnostic message' and 'severity of a diagnostic entry' are both absent from the whole file.",
+      "the_repair_proved_it": "repairs.json attempt 2e839150456afaa024c3a134 routed F05 to units[1].text of api_reference and the re-ask returned the text byte-identically - before and after are the same 157 characters - because the sentence the finding quotes is not in that unit. It was recorded outcome 'repaired', the finding re-raised, and the run stopped at rounds 2.",
+      "every_refutation_returns_none": "Replayed through this revision's own functions on this run's own artifacts, with zero provider calls: absence_defect None, excluded_evidence_defect None, rendered_defect None, renderer_owned_defect None, factuality_defect None. api_reference is not in _DETERMINISTIC_SECTIONS (at_a_glance, badges, banner, dependencies, identity, installation, license, navigation, third_party_notices), and _quoted_verified_fact is reached only when the criterion is presentation.",
+      "the_existing_matcher_already_resolves_it": "Called directly on F05, with zero provider calls, _quoted_verified_fact(finding, by_id) returns public_symbol:org.aspose.cells_foss.core.diagnosticseverity - polarity SUPPORTED, value org.aspose.cells_foss.core.DiagnosticSeverity, attributes.docstring 'Represents the severity of a diagnostic entry.', and that docstring appears in no content unit. No new matching logic is needed: the only thing between that answer and a refutation is the `if presentation` gate."
+    },
+    "fix": "Give renderer_owned_defect the content units and reach _quoted_verified_fact for a factuality finding as well, but ONLY when no content unit carries the quoted text - a deterministic test against content_units.json.",
+    "why_the_gate_cannot_simply_be_removed": "The presentation gate is deliberate and right as far as it goes. The function's own docstring justifies it with 'ExportToCSV writes JSON, not CSV' - a real factuality defect in a unit's own prose that merely happens to name a verified symbol - and that must keep blocking. What the criterion does not distinguish is where the quoted text lives: the ExportToCSV case quotes a sentence a content unit wrote and can rewrite, F05 quotes a table row no content unit wrote and none can. That, not the criterion, is the discriminator.",
+    "alternative_rejected": "Adding `core` to the Java spec's package exclusions so the second enum never becomes a fact. It is public by declaration, loop-prompt.md rule 8 requires the complete verified surface inside the collapsed reference, and trimming a true fact to satisfy a reviewer is weakening a check.",
+    "second_alternative_rejected": "Leaving it to targeted_repair. Measured above: the repair has nothing to revise and returns the unit byte-identically, the same shape as this lane's PROPOSAL N.",
+    "mutation_test": "A factuality finding quoting a deterministic table row whose cells are a SUPPORTED fact's value and its own docstring, and which no content unit carries, must not block BC-10; a factuality finding against a unit's own prose that merely names a verified symbol must still block.",
+    "reversal": "Drop the criterion widening."
+  },
+  "held_store_measurement": {
+    "claim": "The 'preserve the transaction store and re-seal cheaply' shortcut cannot restore a seal whose stored reply has since been overwritten, and PROPOSAL V is what overwrote this one.",
+    "mechanism": "core/llm/jobs.py::CallStore.put writes calls/<request_sha256[:12]>.json unconditionally - one body per request digest, last write wins. The ledger keeps every attempt's row; only the last attempt's body survives.",
+    "measured_on_the_preserved_ledger": {
+      "sealing_call": "row 1, 2026-09-11T09:36:51Z, source_reconciliation batch 1, provider_call success, request ff701248a1f0, response 1aaaedf70f14, 3,325 completion tokens - the reply the seventh re-run's ACCEPT and its seal were built from",
+      "overwrites": [
+        "row 20 cache_stale 09:41:21 -> row 21 provider_call success 09:42:42, same request ff701248a1f0, response 710e3526c1b1, 3,212 tokens",
+        "row 39 cache_stale 09:48:00 -> row 40 provider_call success 09:49:18, response 2b298eca3d98, 3,845 tokens",
+        "row 59 cache_stale 09:52:47 -> row 60 provider_call success 09:54:01, response 1cdd5314fb51, 3,640 tokens"
+      ],
+      "cause_of_every_overwrite": "PROPOSAL V. Each cache_stale is the defect 22c2e45 fixed; without it none of those three calls would have been made and the store would still hold 1aaaedf70f14.",
+      "consequence": "Replaying the preserved store on 22c2e45 reproduces row 60's sample, not row 1's: 50 dispositions of a different mix (VERIFIED_PRESERVE 19 against the seal's 11, SUPERSEDE_REDUNDANT 17 against 26), a 466-line README instead of 452, and BC-10 REJECT_PRESENTATION instead of ACCEPT with 0 blocking findings.",
+      "seeding_does_not_cover_it": "bundle/seal.py::seed_call_store seeds only repository_investigation, source_reconciliation and presentation_planning, and only when the sealed ledger holds exactly one successful attempt for that job - which a repository that went through repair rounds never does."
+    },
+    "disposition": "Recorded as a measurement rather than a proposal: last-write-wins is defensible for a store whose whole purpose is to hold the reply the current rules accept, and the overwrite is only reachable through a defect like V. What is worth the owner's attention is the operational conclusion - a preserved store guarantees a cheap deterministic replay, never the previous verdict."
+  },
+  "review_non_determinism_measurement": {
+    "claim": "BC-10 is now the only non-deterministic gate left on Aspose.Cells for Java, and it has returned a different verdict on each of the three documents composed for it.",
+    "observed": [
+      "seventh re-run, README 241 visible of 452: ACCEPT, 0 blocking findings, 11 presentation advisories, second_reader read 2",
+      "run A, README 243 visible of 466: REJECT_PRESENTATION, 1 blocking finding (F06), 7 advisories, second_reader read 2",
+      "run C, README 238 visible of 441: REJECT_FACTUAL, 1 blocking finding (F05), 6 advisories, second_reader read 1"
+    ],
+    "deterministic_gates": "BC-01 through BC-09 PASS on all three documents. BC-11 is proven reproducible on run A by run B.",
+    "identical_bytes_both_verdicts": "F06's subject is byte-identical in the document the same reviewer prompt ACCEPTed: 'Build and test the project using Maven with JDK 17 or higher; run the test suite with mvn test, compile with mvn compile, package with mvn clean package, and generate API documentation with mvn `javadoc:javadoc`.' is line 446 of run A's README and line 436 of the seventh re-run's sealed README. One sample called it redundant against the renderer's own command blocks below it; the other did not raise it at all.",
+    "reading": "Recorded as a measurement, not as a proposal. It is the owner's to decide whether a stochastic single-sample gate in front of every seal is acceptable; this lane's job was to say that it is now the only thing in the way, and that the repository's own deterministic evidence is clean."
+  },
+  "state_yaml_touched": {
+    "field": null,
+    "reason": "Nothing became a current reviewable no-op-proven candidate this run. repository-presenter status reads 8/34 before and after ('9 ever sealed, 9 integrity-valid, 6 current-code reproducible, 0 independently accepted'), candidates/ holds no directory for either repository run here, and progress.current_candidates was therefore not opened."
+  },
+  "not_touched_this_run": [
+    "aspose-3d-foss/Aspose.3D-FOSS-for-Java - sealed (e308de58), not re-run",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - sealed (099e70a8), not re-run"
+  ],
+  "local_ci_equivalent": {
+    "ruff check .": "All checks passed!",
+    "ruff format --check .": "235 files already formatted",
+    "mypy src": "Success: no issues found in 126 source files",
+    "pytest -n auto": "exit 0, green on every run this iteration - 0 F and 0 E across the progress line, 13 xfailed. Three full runs, none of them a red-run retry: one before the doc edits, one because that run's exit code had been read through a pipe and was the pipe's rather than pytest's, and the pre-commit run of the committed tree.",
+    "proposal_U_watch": "git rev-parse HEAD recorded before and after every full-suite run: 22c2e453139a602400cdb89c103d8564d1b1e71c every time. b63b949 holds."
+  },
+  "lane_progress_after_this_run": {
+    "sealed_by_lane": 3,
+    "sealed_and_landed_by_lane": 2,
+    "no_op_proven_by_lane": 2,
+    "dispositions_by_lane": 4,
+    "candidates_on_disk": 8,
+    "candidates_counted": 8,
+    "java_cohort": "2 of 4 landed - PDF (099e70a8) and 3D (e308de58). Cells Java is BLOCKED_VALIDATION on PROPOSAL Z; Slides Java is BLOCKED_COMPOSING on PROPOSAL X."
+  }
+}
