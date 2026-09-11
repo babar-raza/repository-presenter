@@ -884,3 +884,151 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   `pytest -n auto`. Installing `pytest-xdist==3.8.0` and `execnet==2.1.2` (and leaving the venv's own
   `pip==24.3.1` alone) reproduces `f4406f1b…` exactly. Recorded as a measurement for the owner, not a
   lane edit: `requirements-lock.txt` and the loop prompts are not this lane's to change.
+
+## Eighth re-run, Cells Java then Slides Java (2026-09-11 17:41, after items 60 and 61 landed at `22c2e45`)
+
+- **2026-09-11 17:41 (`date` checked) · G4-W12 eighth re-run · PROPOSAL V and PROPOSAL Y are both
+  CLOSED, proven live on both repositories — and nothing sealed, because the shortcut that was meant
+  to make the re-seal cheap could not restore the verdict it was meant to restore.** Worktree
+  `C:\w\c128` off `origin/main` at `22c2e45`, which is items 60 and 61 themselves. Environment hash
+  `f4406f1b…` confirmed before any candidate work, and the amended §1.3 recipe (`54417f9`)
+  reproduces it first time, which closes this lane's own seventh-re-run finding about the recipe.
+  Evidence `evidence/build/lanes/lane-c/G4-W12-RERUN8.json`.
+- **PROPOSAL V is CLOSED, and the proof is the whole of what BC-11 asks for.** Not one `cache_stale`
+  row exists among this run's own ledger rows: **58 `cache_reuse` rows and 0 `cache_stale` rows**
+  across four invocations (Cells Java 13 + 16 + 15, Slides Java 14) — the five `cache_stale` rows
+  the two copied ledgers carry are all the seventh re-run's, every one before `12:17Z`, and none
+  after. Under `352fd35` the same S4 batch-1
+  request took `cache_stale` on *every* reuse. The decisive measurement is the immediate
+  fresh-process rerun of the first Cells Java run: **zero provider calls — 16 of 16 ledger rows
+  `cache_reuse` — and a byte-identical document.** The entire diff of the two runs' stdout is two
+  phrases, `provider calls 1` → `provider calls 0, model stored output reused`, at coherence and at
+  review; every artifact digest matches, including `README.md` `63f14cf4…`, `validation.json`
+  `647451d6…` and `review.json` `2a00a413…`. That is BC-11, obtained end to end through S11 on a
+  document that simply does not pass BC-10. **The reproducibility defect is gone; this repository is
+  now held by a different gate.**
+- **PROPOSAL Y is CLOSED.** `render_readme` takes `facts.canonical()`, so the rendered order is the
+  order the seal writes: Cells Java's *Development Dependencies* now render
+  `` `org.apache.poi:poi-ooxml 5.3.0` `` before `` `org.junit.jupiter:junit-jupiter 5.10.2` `` —
+  fact-ID order, matching `facts.json` — in both documents composed this run (replayed README lines
+  79–80, fresh README lines 75–76), against the seventh re-run's sealed README, which had them in
+  `pom.xml` declaration order. Proven for the rendering path; unproven for a *bundle* until the next
+  Cells Java seal, because nothing sealed and `tests/test_sealed_bytes.py` has no bundle of this
+  repository to exercise.
+- **Item 61 costs exactly one fresh provider call per repository, once.** The coherence pass is one
+  `section_authoring` call that "sees the rendered document"
+  (`composition/coherence.py` line 3), so `RENDERER_VERSION` 19's canonical fact order moves its
+  request digest a single time — Cells 54,649 ms, Slides 89,756 ms — and it reuses with 0 calls from
+  the next run on. Measured, not inferred: the Cells rerun's coherence row is `cache_reuse`.
+- **PROPOSAL U is CLOSED by `b63b949`.** `git rev-parse HEAD` recorded before and after both
+  full-suite runs in this worktree: `22c2e45…` every time. The seventh re-run's fixture hijack did
+  not recur.
+- **The preserved call store cannot restore a seal, and PROPOSAL V is what destroyed this one.**
+  `core/llm/jobs.py::CallStore.put` writes `calls/<request_sha256[:12]>.json` unconditionally — one
+  body per request digest, last write wins; the ledger keeps every attempt's row, only the last
+  attempt's body survives. **Measured on the preserved ledger itself, zero provider calls:** row 1,
+  `09:36:51Z`, `source_reconciliation` batch 1, request `ff701248a1f0`, response `1aaaedf70f14`,
+  3,325 completion tokens — the reply the seventh re-run's `ACCEPT` and its seal were built from.
+  Rows 20/21, 39/40 and 59/60 are three `cache_stale` → `provider_call` cycles under the *identical*
+  request digest, the last at `09:54:01Z` with response `1cdd5314fb51`. Every one of those three
+  re-calls happened only because of PROPOSAL V. So replaying the preserved store on `22c2e45`
+  reproduces row 60's sample, not row 1's: 50 dispositions of a different mix (`VERIFIED_PRESERVE`
+  19 against the seal's 11, `SUPERSEDE_REDUNDANT` 17 against 26), a 466-line README instead of 452,
+  and **BC-10 `REJECT_PRESENTATION` instead of `ACCEPT` with 0 blocking findings**.
+  `bundle/seal.py::seed_call_store` does not cover the gap either: it seeds three jobs only, and
+  only where the sealed ledger holds exactly one successful attempt for that job — which a
+  repository that went through repair rounds never does. Recorded as a **measurement, not a
+  proposal**: last-write-wins is defensible for a store whose purpose is to hold the reply the
+  current rules accept, and the overwrite is only reachable through a defect like V. The operational
+  conclusion is what matters to the sprint — **a preserved store guarantees a cheap deterministic
+  replay, never the previous verdict.**
+- **Cells Java: `DISPOSITION BLOCKED_VALIDATION` at S10, after two attempts and no third.** Run A
+  replayed the preserved store (3 provider calls — the coherence pass and two reviewer reads, one
+  before and one after repair) and stopped at BC-10 `REJECT_PRESENTATION` on F06,
+  `presentation`/`development_testing`. Run B was its no-op proof. Run C discarded the store and
+  composed fresh (18 provider calls, 2 rounds, the equivalent of `present --fresh`) and stopped at
+  BC-10 `REJECT_FACTUAL` on F05, `factuality`/`api_reference`. **BC-01 through BC-09 PASS on both
+  documents, as they did on the seventh re-run's**, so no third composition was attempted
+  (loop-prompt §5) and the mechanism was changed instead — the two entries below.
+- **BC-10 is now the only non-deterministic gate left on this repository, and it has returned a
+  different verdict on each of the three documents ever composed for it.** README 241 visible of 452
+  → `ACCEPT`, 0 blocking, 11 advisories, `second_reader.read` 2; 243 of 466 → `REJECT_PRESENTATION`,
+  1 blocking, 7 advisories, read 2; 238 of 441 → `REJECT_FACTUAL`, 1 blocking, 6 advisories, read 1.
+  **F06's subject is byte-identical in the document the same prompt accepted:** *"Build and test the
+  project using Maven with JDK 17 or higher; run the test suite with mvn test, compile with mvn
+  compile, package with mvn clean package, and generate API documentation with mvn
+  `javadoc:javadoc`."* is line 446 of run A's README and line 436 of the seventh re-run's **sealed**
+  README. One sample called it redundant against the renderer's own command blocks below it; the
+  other did not raise it at all. Recorded as a measurement, not a proposal: whether a stochastic
+  single-sample gate in front of every seal is acceptable is the owner's to decide. This lane's
+  finding is narrower and checkable — it is now the *only* thing in the way, and this repository's
+  deterministic evidence is clean.
+- **PROPOSAL 2026-09-11 Z · a `factuality` finding may quote a deterministic table row that no
+  content unit wrote, and no refutation covers it — the "the quote names a SUPPORTED fact BC-04
+  already verifies" exemption is gated to `criterion == "presentation"`.** File:
+  `src/repository_presenter/components/readme/review/independent/review.py`,
+  `renderer_owned_defect`, at `verified = _quoted_verified_fact(finding, by_id) if presentation else
+  None`. Repository and finding: Cells Java, F05, `factuality`/`api_reference`, quoting
+  *`cells_foss.DiagnosticSeverity` | Represents the severity level of a diagnostic message. …
+  `core.DiagnosticSeverity` | Represents the severity of a diagnostic entry.* and claiming *"the
+  facts show they are internal and distinct from the public API enum"*. **Measured on this run's own
+  artifacts, zero provider calls:** (a) both cells are facts —
+  `public_symbol:org.aspose.cells_foss.diagnosticseverity` and
+  `public_symbol:org.aspose.cells_foss.core.diagnosticseverity`, both `SUPPORTED`, confidence 1.0,
+  evidenced at `src/main/java/org/aspose/cells_foss/DiagnosticSeverity.java` line 6 and
+  `…/cells_foss/core/DiagnosticSeverity.java` line 6, *"enum; public by declaration"*, and README
+  lines 363 and 383 render each name with that fact's own `docstring` attribute verbatim; neither
+  package carries an `internal` or `impl` segment, so neither is excluded by the Java spec
+  (`platforms/java.py::surface_facts`, §29.9). (b) The finding's own `absent` list names
+  `DiagnosticSeverity-core`, which occurs **0 times** in the candidate and is not a fact ID, and
+  `DiagnosticSeverity`, which is not a fact ID either. (c) **No unit wrote the quoted text**:
+  `content_units.json` holds 25 units, `api_reference` has exactly two — slots `intro` and
+  `hub:public_symbol:org.aspose.cells_foss` — and neither docstring appears anywhere in the file.
+  (d) **The repair proved it**: attempt `2e839150456afaa024c3a134` routed F05 to
+  `units[1].text` and the re-ask returned the same 157 characters byte for byte, because the
+  sentence is not in that unit; it was recorded `repaired`, the finding re-raised, and the run
+  stopped at `rounds 2` — the same shape as this lane's PROPOSAL N. (e) **Every refutation returns
+  `None`** when replayed through this revision's own functions: `absence_defect`,
+  `excluded_evidence_defect`, `rendered_defect`, `renderer_owned_defect`, `factuality_defect`.
+  `api_reference` is not in `_DETERMINISTIC_SECTIONS` (`at_a_glance`, `badges`, `banner`,
+  `dependencies`, `identity`, `installation`, `license`, `navigation`, `third_party_notices`), and
+  `_quoted_verified_fact` is reached only for a `presentation` criterion. (f) **No new matching
+  logic is needed — the existing matcher already resolves this quote; measured, zero provider
+  calls:**
+  called directly on F05, `_quoted_verified_fact(finding, by_id)` returns
+  `public_symbol:org.aspose.cells_foss.core.diagnosticseverity`, polarity `SUPPORTED`, value
+  `org.aspose.cells_foss.core.DiagnosticSeverity`, docstring *"Represents the severity of a
+  diagnostic entry."*, and that docstring appears in no content unit. The only thing standing
+  between that answer and a refutation is `if presentation`. **The gate is deliberate and it is
+  right as far as it goes**, and the fix must not simply remove it: the function's own docstring
+  justifies it with *"`ExportToCSV` writes JSON, not CSV"* — a real factuality defect in a unit's
+  own prose that merely happens to name a verified symbol — and that must keep blocking. What the
+  criterion does not distinguish is **where the quoted text lives**. The `ExportToCSV` case quotes a
+  sentence a content unit wrote and can rewrite; F05 quotes a table row no content unit wrote and
+  none can. Fix: give `renderer_owned_defect` the content units and reach `_quoted_verified_fact`
+  for a factuality finding as well, **but only when no content unit carries the quoted text** — a
+  deterministic test against `content_units.json`, which is exactly measurement (c) above and is
+  the discriminator the criterion was standing in for. Alternative rejected: adding `core` to the Java spec's package exclusions so the second enum never
+  becomes a fact — it is public by declaration, loop-prompt.md rule 8 requires the complete verified
+  surface inside the collapsed reference, and trimming a true fact to satisfy a reviewer is
+  weakening a check. Second alternative rejected: leaving it to `targeted_repair`, which is measured
+  above returning the unit byte-identically. Mutation test: a factuality finding quoting a
+  deterministic table row whose cells are a SUPPORTED fact's value and its own docstring, and which
+  no content unit carries, must not block BC-10; a factuality finding against a unit's own prose
+  that merely names a verified symbol must still block. Reversal: drop the criterion widening. Not
+  this lane's to write — `review/` is shared.
+- **Slides Java: `DISPOSITION BLOCKED_COMPOSING`, unchanged, and now confirmed at `22c2e45`.** One
+  provider call (the coherence pass); 14 of 15 ledger rows `cache_reuse`, **including all three S4
+  batches**, the first of which took `cache_stale` under `352fd35`. 85 dispositions in the same mix
+  as the seventh re-run (`VERIFIED_PRESERVE` 30, `SUPERSEDE_REDUNDANT` 22, `OMIT_UNSUPPORTED` 21,
+  `VERIFIED_MOVE` 10, `VERIFIED_REWRITE` 1, `DEFER_UNRESOLVED` 1), 17 of 18 sections, 34 units,
+  README 230 visible lines of 553 (`151e55bc…`), validation **pass 8, fail 1, pending 2** — BC-06
+  `FAIL` at `COMPOSING`, `#building-from-source: no heading #building-from-source`, the identical
+  blocker at the identical stage. **PROPOSAL X is neither closed nor superseded by `22c2e45`** and
+  remains this repository's single recorded resume predicate; items 33, 37 and 45 are not reached
+  for the fourth re-run running, so PROPOSAL L is again neither confirmed nor refuted.
+- **Java cohort, state after this run.** 2 of 4 landed — PDF (`099e70a8`) and 3D (`e308de58`).
+  `repository-presenter status` reads **8/34** before and after (*9 ever sealed, 9 integrity-valid,
+  6 current-code reproducible, 0 independently accepted*), `candidates/` holds no directory for
+  either repository run here, and `project/state.yaml` was not opened. Cells Java is
+  `BLOCKED_VALIDATION` on **PROPOSAL Z**; Slides Java is `BLOCKED_COMPOSING` on **PROPOSAL X**.
