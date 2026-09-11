@@ -47,8 +47,16 @@ Read `project/loop-prompt.md` §0, §3, §5, §6 and §8 in full and follow them
 2. Prerequisites on `main`: G4-W10 and G4-W09 are accepted (they are, since 04:33 on 2026-09-06);
    your lane file may name more per item. A run whose next item's prerequisites are not met ends with
    a report — never poll.
-3. `.venv` in your worktree if missing: `C:\Python313\python.exe -m venv .venv` then
-   `.venv\Scripts\pip install -e .[dev]`. Toolchains are machine-local and never on PATH:
+3. `.venv` in your worktree if missing: `C:\Python313\python.exe -m venv .venv`, then install from
+   **`requirements-lock.txt`** (plus `uv==0.12.9`) and only then `pip install --no-deps -e .` — never
+   a bare `pip install -e .[dev]`, which resolves past the lock. **Confirm the environment before any
+   candidate work**: `python -c "from repository_presenter.components.readme.bundle.seal import
+   _presenter_site_manifest_hash as h; print(h())"` must print the same value the primary and every
+   sealed bundle carry (`f4406f1b…` on 2026-09-11). That hash is in the `environment` dependency
+   class, so a bundle sealed under a different one reopens `EXTRACTING` the moment another worker
+   evaluates it — it is not reproducible, which is the whole point of a seal. Measured 2026-09-11 by
+   lane F (PHASE1): the bare extras install resolved five distributions past the lock and produced
+   `613b742b…`; a seal made under it would have been born stale. Toolchains are machine-local and never on PATH:
    `C:\tools\rp-toolchains\TOOLCHAIN_PATHS.txt` and the `toolchains` block of `project/lanes/lane-b.yaml`
    (g++/gcc/ninja/mingw32-make; rustup/cargo under `C:\tools\rp-toolchains\rustup`; tsc in the npm
    profile at `C:\tools\rp-toolchains\npm`; node, `npx.cmd`, `mvn.cmd`, `go`, `dotnet`). Resolve every
