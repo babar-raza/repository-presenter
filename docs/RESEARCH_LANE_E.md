@@ -1060,3 +1060,144 @@ time and states the fix more precisely — "align BC-07's heading model to the r
 43 and 58 look like one card, not two. No provider call was spent on BarCode: running it would
 have bought a re-measurement of a class already recorded twice and a third instance of a heading
 the renderer itself generates.
+
+## 2026-09-11 18:47 UTC (`date` checked) — LANE-E-03, sprint wave W-PY2, BarCode for Python
+
+Branch `lane-e/LANE-E-03`, worktree `C:\w\e05`, off `origin/main` at `f26a57f`, rebased onto
+`643b44e` before the commit. Receipt: `evidence/build/lanes/lane-e/LANE-E-03.json`. Scope: one
+repository, `aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python`, the third of LANE-E-02's
+purpose, whose gate was still shut when that run checked it (entry E11 above).
+
+The lane venv matched `f4406f1b04d81ecdf2ea…` on the first attempt — fourth independent
+confirmation of `54417f9`'s recipe. Catalog digest `0dc7f649a004c6fe…`, route `qwen3-next`.
+
+### The gate is open and arrival item 43 is closed — confirmed by running the repository, not by reading the ledger
+
+E11 recorded that BarCode's blocker had *not* landed and that the lane was right not to spend a
+provider call on it. It has landed since, and this run confirms the closure three ways:
+
+- **Offline, before any provider call.** `api_reference_names()` on this repository's own 178-fact
+  document returns 70 names, 50 of them dotted, and `renderers.Renderer` — the exact heading whose
+  rejection was the recorded class `API_REFERENCE_HEADING_JUDGED_AS_PROSE` — is one of them. Under
+  `registry.py:869` that value is in `topics`, so the heading is exempt.
+- **In the run.** S9 validation returned **pass 9, fail 0, pending 2** with **BC-07 PASS**. The
+  second pass's record for this repository (`evidence/build/G3_PYTHON_COHORT/manifest.json`,
+  `second_pass.report[5]`) was `BC-07 failed at COMPOSING … no repair could act on it`.
+- **The repository advanced a full stage further than it ever has.** First pass stopped at S6, the
+  second pass at S9; this run reached S10 and the repair rounds.
+
+So item 58's `e947573` does what `f26a57f`'s ledger line claims, and the claim is now corroborated
+on the live repository rather than on a stored plan.
+
+### It still did not seal, for a new and different cause
+
+| stage | outcome |
+| --- | --- |
+| examples | 6 candidates, **6 executed, 0 failed** |
+| facts | 178 records (`public_symbol` 70, `inherited_unit` 59, `link_target` 27); 177 SUPPORTED, 1 UNRESOLVED, 0 CONTRADICTED; no required row without evidence |
+| S3 investigation | 4 capabilities, 4 workflows, 3 limitations; **attempt 1** |
+| S4 dispositions | 59 units; `SUPERSEDE_REDUNDANT` 33, `VERIFIED_PRESERVE` 10, `VERIFIED_REWRITE` 8, `VERIFIED_MOVE` 4, `OMIT_UNSUPPORTED` 1, `NON_CONTENT` 2, `DEFER_UNRESOLVED` 1 |
+| S5 plan | 16 of 18 sections, 4 capabilities, **8 hubs**, 1+5 examples, 6 links, 1 limitation |
+| S6 units | 80 units across 8 sections; coherence revised 0 of 80 |
+| readme | 130 visible lines of 281 |
+| S9 validation | **pass 9, fail 0, pending 2** (BC-07 among the passes) |
+| S10 review | **REJECT_PRESENTATION**, findings 11, advisory 5 |
+| repair | 0 repaired, 1 unrepairable, **11 re-raised**; rounds 2 |
+| bundle | **none** — `candidates/` is untouched by this PR |
+
+`second_reader.read` is **2** (`corroborated: 012d630ea87dd4b2ed3b6aaa`), so PHASE1/F6's `>= 2`
+holds and the blocking findings are a **corroborated** presentation judgment, not one reader's.
+This is the opposite of E8: there the reviewer was wrong and item 39's guard was mis-scoped; here
+**the reviewer is right**. All eleven findings say one thing — the Detailed Member Reference's
+module subsections (`### renderers`, `### options`, `### exceptions`) and helper-function
+subsections (`### code128`, `### code39`, `### qr`) restate what the Core API table already lists.
+Read against the rendered bytes, that is true: the `renderers` subsection's prose is "provides
+`PdfRenderer`, `PngRenderer`, `SvgRenderer`, and `Renderer` base classes", and all four are
+already rows of the table twelve lines above, each with its own description. Each finding carries
+`section_id: api_reference`, `causal_stage: S6`, and the repair instruction "Remove the module
+subsections and keep only the class and enumeration tables."
+
+### E13 `PROPOSAL` — the plan-level escalation reads only the *last* attempt's slot set, so the repair that proved it was a planning decision is recorded unrepairable
+
+**Decision.** Lane E writes no code. `repair/targeted.py` and `repair/rounds.py` are shared code
+and this is the primary's to land. BarCode for Python takes a disposition naming this proposal as
+its resume predicate, not a forced seal and not a re-draw.
+
+**The defect, measured.** §27.2's 2026-09-05 decision built exactly the machinery this finding
+needs: when a repair's own reply would add, drop or re-choose one of the plan's slots, that is a
+planning decision, and `escalate_to_plan()` routes it to S5. The machinery fired on attempt 1 and
+was erased by attempt 2.
+
+`repair_checks` (`targeted.py:424-436`) stores each reply's slot set in one mutable field,
+`SlotSetProbe.returned` (`targeted.py:85`), and `conflicts` compares only that one value
+(`targeted.py:88-89`). `rounds.py:518` reads `probe.conflicts` **after `run_job` has raised
+`JobError`**, i.e. after both attempts, so it sees only what the *second* reply left behind.
+
+The two recorded replies of this run, `calls/75d2d9337e31.rejected-{1,2}.json`:
+
+| attempt | units returned | slots dropped | sole rejection | `probe.conflicts` |
+| --- | --- | --- | --- | --- |
+| 1 | 6 | `…renderers`, `…options`, `…exceptions` | "the plan owns this section's slot set … a planning decision, not an authoring one" | **True** |
+| 2 | 9 | none | `units[6].text: '' should be non-empty` (and `[7]`, `[8]`) | **False** |
+
+Attempt 1 did the right thing and nothing else: it dropped exactly the three subsections the
+finding names, and its rejection list has **length 1** — the slot-set guard alone. Schema, binding
+and stage checks all passed. The guard's own message told the model its fix belonged to planning;
+the model complied on attempt 2 by keeping all nine slots and emptying the three texts; `minLength`
+refused that; `JobError` was raised; and `rounds.py:518` then read `conflicts=False` and fell
+through to `rounds.py:521`, `repairs.record(..., "unrepairable")`. Replayed through the production
+class with zero provider calls, from the transaction's own rejected-call files:
+
+```
+attempt 1: units  6  dropped [...exceptions, ...options, ...renderers]  conflicts=True
+attempt 2: units  9  dropped []                                        conflicts=False
+state the escalation reads at rounds.py:518 (after attempt 2): False
+```
+
+So a correctly routed, correctly understood, actionable finding whose fix the code already knows
+how to route became a permanent unrepairable finding — `project/loop-prompt.md` §6 rule 5's exact
+prohibition, and the same shape as E4: the routing information existed and the record withheld it.
+
+**Why the existing test does not catch it.** `tests/…/repair/test_targeted.py:509` constructs a
+**fresh `SlotSetProbe` inside its own loop** for each of `kept`/`dropped`/`added`, so it never
+exercises one probe across two attempts — which is the only shape production ever uses. The
+property under test is right; the fixture cannot see the defect.
+
+**What lane E proposes, and what it does not.** The minimal change is to make the probe remember
+that a conflict was *ever* observed rather than only what the last reply returned — one latched
+boolean, read by `rounds.py:518` as it is today. Lane E does **not** propose relaxing the
+`minLength` on unit text (an empty unit is not a deletion and should stay refused), does **not**
+propose letting S6 change the slot set (the guard is right), and does **not** propose a new
+blocking check for hub/table duplication — rule 14 wants a sealed defect, a mutation test and a
+subsumption review first, and the choice of module is the primary's.
+
+**Reversal path.** Revert the latch; the probe returns to last-reply semantics and this repository
+returns to `unrepairable`.
+
+### Why no re-draw was attempted
+
+Round 2 of this same run *was* the re-draw, and it is the measurement: every stage replayed from
+the call store with **0 provider calls, "model stored output reused"**, and the identical 11
+findings re-raised — `repair: … 11 re-raised after repair; the equivalent failure stands; rounds 2`.
+A fresh `present` in a new process is keyed by the same request hashes and would replay the same
+plan, so re-running until a composition happens to draw a plan without those three module hubs is
+selecting for a seal, not earning one (the lane's own standing note in `project/lanes/lane-e.yaml`,
+and `project/loop-prompt.md` §5's prohibition on a third equivalent attempt).
+
+### Disposition written this run
+
+`aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python` at `06eca5c01e13ed6d59a640f1cf330c1c5a57d151`
+— **NOT_SEALED**, stage S10/BC-10, class
+`CORROBORATED_DUPLICATION_FINDING_WHOSE_ESCALATION_NEVER_FIRES`. Resume predicate: PROPOSAL E13
+lands, then re-run `present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python`. The
+previous class `API_REFERENCE_HEADING_JUDGED_AS_PROSE` (BC-07) is **closed** and does not return.
+
+### What this run does not claim
+
+It does not claim the escalation would have sealed this candidate — S5 was never reached, so what
+a re-planned API Reference would look like is unmeasured. It claims only that attempt 1 met the
+escalation's documented trigger and the escalation did not run. It does not claim the eleven
+findings are a reviewer defect; they are corroborated and, read against the bytes, correct. It does
+not claim anything about `project/state.yaml`, which was not opened: this PR seals nothing, so the
+lane prompt's narrow `current_candidates` exception does not apply. `repository-presenter status`
+reads **10/34** on the rebased tree both before and after this PR.
