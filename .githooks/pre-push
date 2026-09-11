@@ -23,6 +23,19 @@ case "$remote_url" in
     ;;
 esac
 
+# Git exports GIT_DIR (and friends) into every hook's environment, and GIT_DIR outranks both cwd
+# and -C. The suite's fixtures build throwaway repositories through
+# core/git_safety/git.py::run_git, which forwards os.environ wholesale - so under this hook every
+# fixture's git command operated on THIS repository instead of its tmp directory. Measured
+# 2026-09-11 by lane D (PHASE1, docs/RESEARCH_LANE_D.md): fixture commits landed on two live lane
+# branches, `git config user.name Test` overwrote this checkout's identity (two commits reached
+# main mis-authored), and the suite reported 43 failed / 14 errors under the hook while the same
+# scripts/ci_check.sh run by hand was green - a CI gate reporting on the wrong repository.
+# Scrubbing them here closes the hook path immediately; the durable fix is run_git refusing to
+# forward them, since the CLI clones and verifies snapshots through that same wrapper.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY \
+      GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_NAMESPACE GIT_PREFIX
+
 echo "pre-push: running scripts/ci_check.sh before pushing to $remote_name ($remote_url)"
 if ! bash scripts/ci_check.sh; then
   echo
