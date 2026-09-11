@@ -65,12 +65,13 @@
   {
    "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
    "revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
-   "outcome": "SEALED",
+   "outcome": "SEALED_THEN_UNSEALED",
+   "reversal": "un-sealed 2026-09-06 11:38 by f8e3bf0, 53 minutes after this row was written: the source_install change rotated the review request and independent_review stably regenerated a fabricated PlyReader/PlyWriter paragraph (DECISION_LOG 922-940); the bundle was deleted rather than left stale. Amended 2026-09-11 (PHASE1/F3) - a commit that invalidates an accepted item's evidence amends that evidence in the same breath; this row stood wrong for five days because no rule said so.",
    "facts": 3931,
    "public_symbols": 3812,
    "examples": "7 candidates; executed 5, failed 2",
-   "review": "verdict ACCEPT, findings 0, advisory 5",
-   "no_op_proof": "two runs, both zero provider calls and both after -p:WarningLevel=0, byte-identical examples.json"
+   "review": "verdict ACCEPT, findings 0, advisory 5 (at seal time; see reversal)",
+   "no_op_proof": "two runs, both zero provider calls and both after -p:WarningLevel=0, byte-identical examples.json (at seal time; see reversal)"
   },
   {
    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
@@ -120,9 +121,10 @@
  "next_work_item": "G4-W17 (shared-code fixes the lanes propose), per its own purpose text ('Runs BEFORE G3-W04') and the reviewer's explicit instruction; G3-W03 remains queued behind it, unpromoted.",
  "measurement": {
   "repositories_in_scope": 6,
-  "sealed": 2,
-  "no_op_proven": 2,
+  "sealed": 1,
+  "no_op_proven": 1,
   "dispositions": 4,
-  "candidates_current": "4/34 (repository-presenter status)"
+  "sealed_then_unsealed": 1,
+  "candidates_current": "counts live in repository-presenter status, derived from candidates/ on disk; the 4/34 snapshot this field once froze went stale the same week (amended 2026-09-11, PHASE1/F3)"
  }
 }

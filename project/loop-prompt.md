@@ -54,6 +54,12 @@ files, never from memory of a previous iteration.
    and if a failure appears, reproduce it on a clean tree with the diff stashed out before blaming
    it on the recovered work — only then land it (with a commit crediting the recovery) or discard
    it with a one-line §31 note naming what was lost and why. Never silently absorb either outcome.
+   The same discipline covers work a dead session pushed but never merged: a green, unreviewed PR
+   is a recovery, not scenery — adopt it or close it with the §31 note, this iteration (PHASE1/F3;
+   PRs #29/#30 sat 3 d 18 h because no step owned them). So: `gh pr list --state open` with NO
+   label filter — any open PR older than ~30 minutes without a `hold` label is stranded work; and
+   `git worktree list` — a worktree from a session that is gone is flagged in your report, its
+   branch inspected, never deleted blind.
    Then `gh run list --limit 3`: if the latest *completed* hosted
    CI run for `main` is red (conclusion `failure`), that is this iteration's work (§5). A run whose
    conclusion is `cancelled` was superseded by a later push on the same ref under the workflow's
@@ -213,7 +219,9 @@ files, never from memory of a previous iteration.
   (3) the item's predicates; (4) measured evidence over anticipation; (5) what keeps candidates
   moving; (6) reversibility; (7) minimal scope — split, never widen. Record each non-trivial
   decision as a `PROVISIONAL` §31 entry (date, item, decision, alternative rejected, evidence,
-  reversal path) and continue in the same iteration; the owner reviews asynchronously and may
+  reversal path; an entry that reverses or supersedes an earlier one names it — `REVERSES
+  <date/title>` — and a correction to a standing fact gets its own entry, never a clause inside an
+  unrelated one, or every reader of the corrected record misses it) and continue in the same iteration; the owner reviews asynchronously and may
   reverse through §27.9 or `state.yaml`. **Run `date` (or read the timestamp of the commit you are
   about to make) immediately before writing any §31 entry's date and time — never estimate elapsed
   time or continue an earlier sequence by guessing an offset**; a wrong timestamp is a fabricated

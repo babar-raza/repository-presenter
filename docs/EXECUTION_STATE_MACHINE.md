@@ -107,7 +107,7 @@ stateDiagram-v2
     G1_FirstValidCandidate --> G2_StabilityUnderChange: 1/34 accepted and no-op proven
     G2_StabilityUnderChange --> G3_PythonCohort: invalidation proven, D1 D2 D5 D6 on the canary
     G3_PythonCohort --> G4_MultiLanguageCohorts: Python cohort sealed, contract v1 frozen
-    G4_MultiLanguageCohorts --> G5_RerunDurabilityAndHosted: 31/31 local, census recorded
+    G4_MultiLanguageCohorts --> G5_RerunDurabilityAndHosted: every enabled entry local, census recorded
     G5_RerunDurabilityAndHosted --> G6_ProposalProof: fresh-state proofs, hosted run equal
     G6_ProposalProof --> G7_ProductionAndOperation: disposable PR lifecycle proven
 ```
@@ -328,8 +328,8 @@ contract freezes against thirteen sealed products rather than one (§28.5).
 
 ## G4 — Multi-Language Cohorts, Local
 
-Goal: 31/31 READMEs and 34/34 dispositions on this machine through one shared surface extractor
-and six thin ecosystem plugins, before any hosted machinery (§28.5, RC-B).
+Goal: a README for every enabled registry entry (`data/registry.json`, derived) and 34/34
+dispositions through one shared surface extractor and six thin plugins, before hosted machinery.
 
 | Ecosystem | Mandatory truth |
 |---|---|
@@ -357,13 +357,13 @@ and six thin ecosystem plugins, before any hosted machinery (§28.5, RC-B).
 
 ### Exit predicates
 
-- `status` prints 31 sealed candidates and 34 dispositions; every verifier has a negative control;
-  every cohort report and the census are in the gate manifest; parity is recorded per repository.
+- `status` prints every enabled entry sealed (derived from `data/registry.json`) and 34 dispositions;
+  every verifier has a negative control; cohort reports and census in the gate manifest; parity recorded per repository.
 
 ## G5 — Rerun Durability and Hosted Operation
 
-Goal: the 31 candidates stay byte-stable across reruns, revisions, and machines, then the read-only
-transaction runs autonomously on GitHub-hosted runners (§27.5 D3, D4, D7).
+Goal: the sealed candidates stay byte-stable across reruns, revisions, and machines, then the
+read-only transaction runs autonomously on GitHub-hosted runners (§27.5 D3, D4, D7).
 
 ### Work
 

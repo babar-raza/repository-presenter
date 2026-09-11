@@ -88,8 +88,11 @@ never widen your paths. At the box: seal what passes, dispositions for the rest,
 After `ruff check .`, `ruff format --check .`, `mypy src`, `pytest -n auto` pass once (one full run per
 commit; a red run → the focused test → one more full run): commit on `<lane>/<ITEM>` with subject
 `<type>(<scope>): <what> (G4_MULTI_LANGUAGE_COHORTS/<ITEM>)`, the trailer for your model, body ≤120
-words. `git push -u origin <lane>/<ITEM>`; `gh pr create --base main --label <lane> --fill`; wait with
-`gh pr checks <n> --watch`. **If `gh pr checks` reports no checks at all** (not pending, literally
+words. `git push -u origin <lane>/<ITEM>`; `gh pr create --base main --label <lane> --fill`; then
+confirm with `gh pr view <n> --json labels,headRefName` that the PR really carries your lane label
+and the `<lane>/<ITEM>` branch — an unlabeled PR on an unconventional branch is invisible to lane
+supervision and ages into stranded work if your session dies (PRs #29/#30, 3 d 18 h; PHASE1/F3);
+wait with `gh pr checks <n> --watch`. **If `gh pr checks` reports no checks at all** (not pending, literally
 none, for several minutes), the PR is `mergeable: CONFLICTING` against a moved `main` — GitHub never
 dispatches the workflow for an unmergeable merge ref, and this reads exactly like a slow queue.
 `gh pr view <n> --json mergeable,mergeStateStatus` to confirm; if conflicting, `git fetch origin && git

@@ -33,6 +33,31 @@ writing a new one that duplicates it. This directory is versioned and outlives t
 scratchpad script vanishes with it (2026-09-05/06, before this directory existed, is the standing
 example of what that cost).
 
+## 0. Startup checklist (every fresh supervisor session, before anything else — PHASE1/F3)
+
+Self-liveness first: the 2026-09-06→09-11 dark period happened because a supervisor's death looks
+exactly like a quiet loop, and every one of its mechanisms died with it. A new session verifies its
+own instruments before trusting anything they report:
+
+1. **Identify the live executor session** (`ListAgents`; transcript mtimes under the project's
+   `.claude/projects/` directory corroborate) and write its transcript's absolute path to
+   `tools/reviewer/.local/executor_transcript.txt` — one line. Every monitor and
+   `reviewer_check.py` resolve through it (transcript_path.py). No live executor is itself a
+   finding: re-arm one before proceeding (§2's re-arm line).
+2. **Re-arm the three monitors** under the Monitor tool: `stop_monitor.py`, `timestamp_monitor.py`,
+   `unblock_monitor.py`. Each prints `WATCHING <file>` at startup — a `TRANSCRIPT_WARNING` there
+   means step 1 was skipped or wrong; fix before continuing.
+3. **Check the dead-man**: `gh run list --workflow liveness.yml --limit 3` — the last scheduled run
+   green, and recent (≤40 min). A red run is a finding to act on now; no runs at all means the
+   schedule is off (workflow file missing or disabled) — restore it.
+4. **Reconcile lanes**: `reviewer_state.json` `lanes.*.live_run` against reality (a recorded agent
+   id whose session is gone → record the death, inspect its branch/PR/worktree per §2c).
+5. **Sweep for stranded work**: `gh pr list --state open --json number,createdAt,labels` (no label
+   filter; anything >30 min without `hold` is adopted or closed this wake) and `git worktree list`
+   (orphans inspected, then pruned).
+6. **Then §1** — run the check with `--record`; act on every flag per §2. Only after a clean §0 is
+   any quiet report believable.
+
 ## 1. Run the check (one Bash)
 
 `<repo>/.venv/Scripts/python.exe -X utf8 reviewer_check.py --record`

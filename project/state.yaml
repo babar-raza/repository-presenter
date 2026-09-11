@@ -34,7 +34,7 @@ active_work_item:
   status: IN_PROGRESS
   purpose: "Shared-code fixes the lanes propose, landed in arrival order (owner, 2026-09-06 08:00; RESEARCH section 28.12 Lanes). This field used to embed the full arrival list; that copy went stale (frozen at item 26 while the real list, reviewer-maintained, had grown to at least item 49) and was replaced 2026-09-11 with this pointer, per loop-prompt.md its own single-source rule: docs/RESEARCH_AND_GUIDELINES.md, id: G4-W17 (section 29) is the live arrival list, never this field. Land item (0) first, then in arrival order; each landing needs a mutation test; runs before G3-W04 and stays active while any lane has an open item; two consecutive zero-delta 90-minute boxes freezes new intake to items two or more lanes corroborate (RESEARCH section 28.12, 30.8)."
   prerequisites:
-  - G4-W11 is accepted - two of six .NET repositories sealed and no-op proven, four dispositioned with failure class and resume predicate (evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json).
+  - G4-W11 is accepted (evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json is the record; per-repository outcomes live there and as bundles under candidates/ - counts are never restated in this field. The manifest's own 3D-.NET row was amended 2026-09-11 for the f8e3bf0 un-seal, PHASE1/F3).
   - Lanes B, C and D have recorded PROPOSAL entries in their own logs (docs/RESEARCH_LANE_B.md, _C, _D); the arrival list above is the reviewer-maintained landing order.
   - Runs before G3-W04 (owner, 2026-09-06 09:00) and stays active while any lane has an open item.
   - Time box 90 minutes per landing pass (owner, 2026-09-06 10:45, RESEARCH section 28.12); at each box, run repository-presenter status and report the sealed-candidate delta; two consecutive zero-delta boxes freezes new PROPOSAL intake to items with two or more corroborating lanes.
@@ -137,7 +137,8 @@ target_portfolio_baseline:
   observed_at: "2026-09-01"
   registry_entries: 34
   registry_entries_verified_at_revision: a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815
-  registry_modes: {full: 2, dry_run: 29, disabled: 3}
+  # registry mode counts are derived from data/registry.json, never restated here - the copy that
+  # sat on this line froze at {dry_run: 29, disabled: 3} while item 31 flipped PDF-TS (PHASE1/F3)
   standard_shell: 25
   bespoke: 7
   insufficient_evidence: 2

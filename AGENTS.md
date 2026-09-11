@@ -1,8 +1,6 @@
 # Repository Presenter Agent Governance
 
-This file governs coding agents building Repository Presenter. Keep governance small: detailed
-product, runtime, research, and implementation requirements belong in their authoritative project
-documents, not here.
+This file governs coding agents building Repository Presenter; keep governance small — detailed requirements belong in the authoritative project documents, not here.
 
 ## Mission
 
@@ -22,8 +20,7 @@ Read in this order at the start of every session:
 2. The current gate in `docs/EXECUTION_STATE_MACHINE.md`.
 3. Relevant behavior in `docs/STATE_MACHINE.md`, and `docs/README_CONTRACT.md` whenever the work
    item touches facts, composition, validation, or review.
-4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`, and `docs/DECISION_LOG.md` for decisions
-   made since (its own §31, split out 2026-09-08).
+4. Relevant context in `docs/RESEARCH_AND_GUIDELINES.md`; `docs/DECISION_LOG.md` (§31) for decisions since.
 5. `plans/idea.md` — the human product authority, for the outcome standard and standing
    constraints; never a cursor or task list.
 6. Only reuse-source files (legacy or aspose.org) named by the active reuse-manifest record.
@@ -40,7 +37,9 @@ Authority by subject:
   blocking checks. `docs/REPOSITORY_LAYOUT.md` owns where a file lives.
 - `project/state.yaml` owns current implementation status.
 - `migration/reuse-manifest.yaml` owns reuse-source code disposition (legacy and aspose.org).
-- Accepted schemas and tests own implemented interfaces.
+- `docs/SUPERVISION.md` owns session supervision: supervisor, lane agents, monitors, liveness.
+- Accepted schemas and tests own implemented interfaces; `schemas/` changes only through a named
+  work item (§31 proposal, owner admission), landed with its code and tests.
 
 Never create a competing plan, roadmap, mission graph, task graph, or status authority.
 
@@ -145,12 +144,10 @@ deterministic gate result, or directly mutates a repository.
 - Never log, commit, cache, or persist credentials or unredacted secret-bearing values.
 - Work clones are push-disabled and verified before analysis.
 - Initial publication is pull-request-only; never push directly to a target default branch.
-- This control repository may be pushed to its own `origin` after `scripts/ci_check.sh` (full
-  local CI-equivalent) passes, per `publication.control_repository` in `project/state.yaml`:
-  directly to `main` while unprotected, by branch and PR with auto-merge once protected. Never
-  force, never a product repo. Run `git config core.hooksPath .githooks` once per clone so this
-  is enforced automatically, not left to memory - `git push --no-verify` bypasses it only with a
-  specific, understood reason CI is expected to be red.
+- This control repository may be pushed to its own `origin` after `scripts/ci_check.sh` passes, per
+  `publication.control_repository` in `project/state.yaml`: directly to `main` while unprotected, by
+  branch and PR once protected; never force, never a product repo. `git config core.hooksPath
+  .githooks` once per clone enforces this; `--no-verify` only with a specific, understood reason.
 - Candidate acceptance never implies publication authorization.
 - Recheck upstream revision immediately before an effect; reconcile uncertain remote effects before
   retrying.
@@ -189,9 +186,8 @@ creating evidence alone is not delivery.
 
 Classify blockers:
 
-- `BLOCKED_EXTERNAL`: missing credential/permission, provider outage, external infrastructure, or
-  a factual decision only an authorized owner can make. Record the exact resume predicate and
-  continue other safe work.
+- `BLOCKED_EXTERNAL`: missing credential/permission, provider outage, external infrastructure, or a
+  factual decision only an authorized owner can make. Record the resume predicate; continue safe work.
 - `FAILED_INTERNAL`: code, wiring, schema, prompt, validation, or state defect. Diagnose, repair,
   verify, and resume. It is never acceptable completion.
 
