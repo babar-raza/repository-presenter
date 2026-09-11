@@ -25,7 +25,17 @@ toolchains:
 progress:
   sealed_by_lane: 1
   dispositions_by_lane: 2
-  status_line_observed: '2026-09-07 12:26, from this lane branch off origin/main at 869fcc7:
+  status_line_observed: '2026-09-11 13:05, from this lane branch rebased onto origin/main at
+    f00e143: candidates 8/34 current reviewable no-op-proven - unchanged, G4-W15-RERUN2 sealed
+    nothing. 8 ever sealed, 8 integrity-valid, 6 current-code reproducible, 0 independently
+    accepted (stale-excluded). The same command at 1fb995d, minutes earlier and before the rebase,
+    printed 4 independently accepted rather than 0; F6 (d6d9891) landed in between and that drop is
+    its own disclosed side effect (PHASE1-SPRINT-PLAN.md section 7, F6 row), not this run''s doing.
+    The observed number is recorded rather than the earlier one. Aspose.Cells for Go did not reach
+    a single check: S4 source_reconciliation truncates deterministically on a shared-code defect
+    that landed this morning (PROPOSAL P23), so the three unlocks this wave was sent to test were
+    never exercised.'
+  status_line_observed_2026_09_07: '2026-09-07 12:26, from this lane branch off origin/main at 869fcc7:
     candidates 8/34 current reviewable no-op-proven, up from 7 - Aspose.Cells FOSS for Rust is lane
     D''s first seal and the lane''s first candidate to be judged on all eleven checks (BC-01 to
     BC-11 all PASS, no-op proven in a fresh process with zero provider calls). The cursor in
@@ -257,5 +267,34 @@ items:
   - LANE-B-00 accepted (toolchains; rustup under C:/tools/rp-toolchains/rustup)
   purpose: 'Rust spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/rust.py only for a field it lacks), pub surface and re-exports through the shared extractor, the legacy example_verifiers/rust.py pulled with a small cut (cargo check --locked, then the example as a cargo example, disposable CARGO_HOME), registry facts through the vendored RegistryProbe (crates.io with the mandatory named User-Agent), a negative control; then the one Rust repository. If rustup is absent the verifier base provisions it workspace-locally with a pinned toolchain (rustup-init -y --profile minimal --no-modify-path, RUSTUP_HOME and CARGO_HOME under runs/toolchains/, cargo called by absolute path, the version recorded in the receipt), never system-wide; BLOCKED_EXTERNAL only if provisioning itself fails. Time box 2 hours from promotion (section 28.12). Acceptance: cohort report; zero-call proof; status prints 31 sealed candidates and 34 dispositions; hosted CI green.'
 - id: G4-W15-RERUN2
-  status: PENDING
+  status: ACCEPTED
+  accepted_at: '2026-09-11T13:05:00+05:00'
+  receipt: evidence/build/lanes/lane-d/G4-W15-RERUN2.json
   purpose: 'Sprint W-GO (plans/sprint/PHASE1-SPRINT-PLAN.md section 11): re-run aspose-cells-foss/Aspose.Cells-FOSS-for-Go (unlocks under test: items 28, 29, 45 - fold-not-reject, lead-in slot binding, sound symbol-reference folds; last class BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE). Aspose-PDF-FOSS-for-Go waits on item 47 (46 landed dd7dc73), not this run. Evidence evidence/build/lanes/lane-d/G4-W15-RERUN2.json.'
+  outcome: 'Accepted at the box with a disposition and one proposal; no seal, and the three unlocks
+    under test were never exercised. The transaction died at S4 source_reconciliation, six stages
+    before the independent review, so items 28, 29 and 45 are neither confirmed nor refuted and
+    nothing claims they are; P16''s own fix (item 33, 70a1d8e) is on main and untested here.
+    Everything before S4 was healthy and identical to the 2026-09-06 run at the same source
+    revision 9f0a4033 - 231 facts, 109 public symbols, 66 inherited units, 10 example candidates
+    with 8 executed, repository_investigation clean on attempt 1. PROPOSAL P23: G4-W17 arrival item
+    40 (e2a1a83, landed 06:50 this morning) pins reconciliation_schema()''s fact_ids items with a
+    regex, ^(build_test_asset|...|public_symbol|...):, on an array with no maxItems; the request is
+    sent with strict json_schema so the gateway decodes under that grammar, "public_symbol:" - the
+    bare kind prefix - satisfies it, and the decoder emits it until the budget is gone. Batch 1 (40
+    of 66 units) returned exactly 32000 completion tokens in both runs, 552,882 ms and 571,757 ms,
+    on a 15,271-token prompt whose required answer is about 2,800 tokens by the manifest''s own
+    recorded 69-tokens-per-record figure. Replaying the request and keeping the reply: 1,104
+    fact_ids entries are a bare kind prefix (1,047 of them "public_symbol:" in one array), 0 carry
+    anything after the colon, and the only 7 well-formed IDs anywhere are unit_ids - the one field
+    the same function pins with an enum. Batch size and item 40''s DECLARED_SYMBOL_KINDS binding
+    were both suspected and measured out (the packet is 83 records with the binding, 162 without -
+    smaller, not larger). The fix is proven, not proposed blind: pinning fact_ids to an enum of the
+    packet''s own 123 IDs gives finish_reason stop, 3,560 completion tokens, 0 degenerate IDs and
+    all 40 dispositions, with maxItems making no measurable difference. Not a Go or a lane finding -
+    the pattern contains public_symbol for every ecosystem and S4 runs for every repository; this
+    lane was simply the first live S4 call after item 40 landed. The disposition becomes
+    BLOCKED_SHARED_CODE / S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY, superseding
+    BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE only in the sense that the run no longer reaches
+    the stage that raised it. sealed_by_lane stays 1 and dispositions_by_lane stays 2. BC-01 to
+    BC-11 were never judged and none is claimed. See docs/RESEARCH_LANE_D.md.'
