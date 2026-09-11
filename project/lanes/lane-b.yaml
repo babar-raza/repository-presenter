@@ -1,7 +1,10 @@
 schema_version: 1
 lane: lane-b
 branch: lane-b
-purpose: 'Parallel lane for the small ecosystem cohorts (owner decision 2026-09-06 01:20, RESEARCH 28.12 Lane B): TypeScript then C++ (Go and Rust moved to lane D on 2026-09-06 08:00) - after G4-W10 and G4-W09 are accepted on main. Each item''s text was moved here verbatim from section 27.9 and has this single source; the primary loop never runs these IDs.'
+purpose: 'Parallel lane for the small ecosystem cohorts (owner decision 2026-09-06 01:20, RESEARCH 28.12
+  Lane B): TypeScript then C++ (Go and Rust moved to lane D on 2026-09-06 08:00) - after G4-W10 and G4-W09
+  are accepted on main. Each item''s text was moved here verbatim from section 27.9 and has this single
+  source; the primary loop never runs these IDs.'
 prerequisites_on_main:
 - G4-W10
 - G4-W09
@@ -33,12 +36,91 @@ repositories:
 progress:
   sealed_by_lane: 0
   dispositions_by_lane: 7
-  note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts and 6664 public symbols read from the four repositories with no provider call, 794 internal-header symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their own code. No required contract row is without evidence for any of the four, and none sealed: Email and PDF are refused by the S4 source_reconciliation job (as lane B''s TypeScript run was - `installation` renders nothing without a SUPPORTED install command, which no unpublished package can have), and Cells and Slides reach S6 section_authoring and are refused there, one by a false positive on a hyphen in prose and one by a planned limitation whose only vocabulary is internal. Every refusal is in shared code. Earlier, G4-W14 closed its box the same way with 1629 facts, 1387 public symbols and 11 of 12 examples type-checked. Seven dispositions and ten PROPOSALs are in docs/RESEARCH_LANE_B.md, evidence/build/lanes/lane-b/G4-W14.json and .../G4-W13.json. RE-RUN 2026-09-06 14:29 against origin/main at 4e1157f (branch lane-b/rerun-cpp; no src/ or tests/ change): all four C++ dispositions moved and none sealed, so sealed_by_lane stays 0 and the four are restated rather than added to. Three of the four now render a complete README and reach validation where none previously reached rendering at all - PDF 184 visible lines of 685, Cells 143 of 691, Slides 202 of 629 - and they converge on one check: BC-02, `install_command:cmake is UNRESOLVED: package registry: none could not be read` (Slides also BC-08). Email alone still dies earlier, at S5 presentation_planning. Neither G4-W17 item named in the re-run request cleared anything: item 0''s _source_build_fact admits only a CONTRADICTED install fact while C++''s is UNRESOLVED (there is no cpp registry to contradict it) and CPP.source_install is empty by documented intent, and item 1 was declined as a prompt change with only a mutation test. What actually cleared the S4 refusals is 7ea433e (G4-W11, 07:47), which reached the lane in the 09:59 merge - after the runs that produced the dispositions. Items 20 and 21 are still unlanded; neither failure recurred on this draw, both remain latent, and neither is re-proposed. Three new PROPOSALs, all in shared code, are in docs/RESEARCH_LANE_B.md and .../G4-W13.json''s rerun_2026_09_06 block. repository-presenter status after the re-run: 3/34, unchanged. RE-RUN 2026-09-06 19:28 against origin/main at 2b88ea4 (branch lane-b/rerun-typescript): both active TypeScript dispositions moved and neither sealed, so sealed_by_lane stays 0 and the two are restated rather than added to. Unlike the C++ re-run this one carries code - two defects in the lane''s own TypeScript files, each with a mutation test - so each repository ran twice, once on 2b88ea4 unchanged and once with the fix. Aspose.Cells now reaches validation with BC-02 as its only blocking failure (8 PASS, 1 FAIL, 2 PENDING; 179 visible lines of 434), the closest any lane B repository has come to sealing; Aspose.3D reaches it with BC-02 and BC-06 (7 PASS, 2 FAIL; 190 visible lines of 765) where it previously reached no rendering at all. Of the two G4-W17 items named in the re-run request, item 2 cleared Cells'' MAX_PATH death (the rejected-reply file now writes at 155 characters, and 261 - 12 = 249 shows the shortened hash alone clears it from the original root) and item 1 cleared nothing - it was declined as a test-only commit, and what actually cleared 3D''s S4 refusal is d583d07 (G4-W11, 08:39), fourteen minutes after G4-W14 was accepted. Item 0 opens for TypeScript where it could not for C++ and still admits nothing, because TYPESCRIPT declares no source_install and the lane declines to invent one: measured here, Aspose.Cells has 3 of 3 examples EXECUTED while `npx tsc --noEmit` exits 2 on its own sources and its manifest has no build script, so item 0''s own evidence sentence would be false for it. The lane''s fixes: a re-export binds a name and a module (41 duplicate public symbols removed across the two, which is what BC-07 refused), and a top-level function is the one symbol the facade returns unqualified (8 exported helpers of Aspose.Cells recovered). Three new PROPOSALs, all in shared code, plus one latent class not re-proposed, are in docs/RESEARCH_LANE_B.md and .../G4-W14.json''s rerun_2026_09_06_typescript block. repository-presenter status after the re-run: 4/34, unchanged.'
+  note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
+    and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
+    symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
+    own code. No required contract row is without evidence for any of the four, and none sealed: Email
+    and PDF are refused by the S4 source_reconciliation job (as lane B''s TypeScript run was - `installation`
+    renders nothing without a SUPPORTED install command, which no unpublished package can have), and Cells
+    and Slides reach S6 section_authoring and are refused there, one by a false positive on a hyphen in
+    prose and one by a planned limitation whose only vocabulary is internal. Every refusal is in shared
+    code. Earlier, G4-W14 closed its box the same way with 1629 facts, 1387 public symbols and 11 of 12
+    examples type-checked. Seven dispositions and ten PROPOSALs are in docs/RESEARCH_LANE_B.md, evidence/build/lanes/lane-b/G4-W14.json
+    and .../G4-W13.json. RE-RUN 2026-09-06 14:29 against origin/main at 4e1157f (branch lane-b/rerun-cpp;
+    no src/ or tests/ change): all four C++ dispositions moved and none sealed, so sealed_by_lane stays
+    0 and the four are restated rather than added to. Three of the four now render a complete README and
+    reach validation where none previously reached rendering at all - PDF 184 visible lines of 685, Cells
+    143 of 691, Slides 202 of 629 - and they converge on one check: BC-02, `install_command:cmake is UNRESOLVED:
+    package registry: none could not be read` (Slides also BC-08). Email alone still dies earlier, at
+    S5 presentation_planning. Neither G4-W17 item named in the re-run request cleared anything: item 0''s
+    _source_build_fact admits only a CONTRADICTED install fact while C++''s is UNRESOLVED (there is no
+    cpp registry to contradict it) and CPP.source_install is empty by documented intent, and item 1 was
+    declined as a prompt change with only a mutation test. What actually cleared the S4 refusals is 7ea433e
+    (G4-W11, 07:47), which reached the lane in the 09:59 merge - after the runs that produced the dispositions.
+    Items 20 and 21 are still unlanded; neither failure recurred on this draw, both remain latent, and
+    neither is re-proposed. Three new PROPOSALs, all in shared code, are in docs/RESEARCH_LANE_B.md and
+    .../G4-W13.json''s rerun_2026_09_06 block. repository-presenter status after the re-run: 3/34, unchanged.
+    RE-RUN 2026-09-06 19:28 against origin/main at 2b88ea4 (branch lane-b/rerun-typescript): both active
+    TypeScript dispositions moved and neither sealed, so sealed_by_lane stays 0 and the two are restated
+    rather than added to. Unlike the C++ re-run this one carries code - two defects in the lane''s own
+    TypeScript files, each with a mutation test - so each repository ran twice, once on 2b88ea4 unchanged
+    and once with the fix. Aspose.Cells now reaches validation with BC-02 as its only blocking failure
+    (8 PASS, 1 FAIL, 2 PENDING; 179 visible lines of 434), the closest any lane B repository has come
+    to sealing; Aspose.3D reaches it with BC-02 and BC-06 (7 PASS, 2 FAIL; 190 visible lines of 765) where
+    it previously reached no rendering at all. Of the two G4-W17 items named in the re-run request, item
+    2 cleared Cells'' MAX_PATH death (the rejected-reply file now writes at 155 characters, and 261 -
+    12 = 249 shows the shortened hash alone clears it from the original root) and item 1 cleared nothing
+    - it was declined as a test-only commit, and what actually cleared 3D''s S4 refusal is d583d07 (G4-W11,
+    08:39), fourteen minutes after G4-W14 was accepted. Item 0 opens for TypeScript where it could not
+    for C++ and still admits nothing, because TYPESCRIPT declares no source_install and the lane declines
+    to invent one: measured here, Aspose.Cells has 3 of 3 examples EXECUTED while `npx tsc --noEmit` exits
+    2 on its own sources and its manifest has no build script, so item 0''s own evidence sentence would
+    be false for it. The lane''s fixes: a re-export binds a name and a module (41 duplicate public symbols
+    removed across the two, which is what BC-07 refused), and a top-level function is the one symbol the
+    facade returns unqualified (8 exported helpers of Aspose.Cells recovered). Three new PROPOSALs, all
+    in shared code, plus one latent class not re-proposed, are in docs/RESEARCH_LANE_B.md and .../G4-W14.json''s
+    rerun_2026_09_06_typescript block. repository-presenter status after the re-run: 4/34, unchanged.
+    RE-RUN 2 2026-09-11 16:04 against origin/main at 08307b9 (branch lane-b/G4-W13-RERUN2-R2): 352fd35''s
+    fact_ids enum cleared the S4 blocker at both surface sizes - Email C++ dispositioned 80 of 80 units
+    across two batches, both accepted first attempt, with zero bare kind prefixes where the 13:23 run
+    on the identical packet produced 15 of 40 and then 12 of 40; PDF C++ dispositioned 124 of 124 across
+    four, twice. Both repositories ran end to end for the first time and neither sealed, so sealed_by_lane
+    stays 0 and the two are restated rather than added to. PDF C++ moves from BLOCKED_VALIDATION (BC-02)
+    to BLOCKED_REVIEW (BC-10): BC-02 now PASSES on both draws, which settles the sprint plan''s ''PDF-Cpp
+    (24; TB-01 risk)'' at the check itself rather than from receipts. It reached a full seal on draw 1
+    (10 PASS, 0 FAIL, ACCEPT with second_reader.read = 2 - PHASE1/F6''s guard on its first real candidate)
+    and that bundle could not be landed: test_sealed_bytes caught a defect in this lane''s OWN file, declared_dependencies
+    sorting by the manifest''s spelling while fact IDs are slugged, so the sealed README listed Python3
+    before googletest and a re-render from its own facts.json listed them the other way. Fixed in one
+    line with a mutation test; the honest re-seal then drew REJECT_PRESENTATION on two findings one repair
+    round could not clear, and was stopped rather than re-rolled (W-card stop-don''t-force). Two draws
+    differing only in the order of two dependency facts agree on every deterministic check and disagree
+    only on the review verdict. Email C++ takes a real disposition this time, BLOCKED_PLANNING (S5): arrival
+    item (25) has NOT landed - plan_checks still appends an error where normalize already defers, and
+    unblocked.jsonl has no item-25 row - and with exactly 2 SUPPORTED examples both taken as quick starts
+    the additional_examples condition flips between S4 and S5, failing 3 placed units closed. Headline
+    PROPOSAL, portfolio-wide: no candidate sealed since 352fd35 can pass a no-op proof, because run_job
+    re-judges a stored S4 reply against the decoder''s enum while normalize writes fact IDs by code that
+    the packet never showed (identity:revision; example:007..011) - 2 of PDF''s 4 stored batches and 1
+    of Email''s 2 are permanently cache_stale, and the re-call that follows returned 32,000 tokens where
+    the identical request had returned 6,352. Lane E''s PROPOSAL E3 measured and not materialising at
+    this size: ten live S4 calls, zero HTTP 400; the enum is 122 values for Email (357 facts) and 361
+    for PDF (1846 facts, 1651 symbols - bounded_records caps the surface at 256 records), 2.9x lane D''s
+    validated 123, with PDF-Python''s 689 still the cheapest next point. Environment hazard caught before
+    the first provider call: the prompt''s former bare `pip install -e .[dev]` resolved five distributions
+    past requirements-lock.txt and gave presenter_site_manifest 613b742b against the primary''s f4406f1b;
+    the venv was rebuilt from the lock plus uv==0.12.9 and confirmed at f4406f1b before any candidate
+    work. Five findings, four PROPOSALs and both dispositions are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN2.json''s
+    run_2_2026_09_11 block. repository-presenter status after the run: 8/34, unchanged.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
-  note: Every tool is called by the absolute path the registry records; nothing is on the user or system PATH, and a cohort item never installs inside its time box (RESEARCH 28.12 point 6). Resolve a machine tool with shutil.which(name) or shutil.which(name + ".cmd") - npx and npm exist only as .CMD shims here.
-  cpp: g++ 16.2.0, gcc 16.2.0, ninja 1.13.2, mingw32-make 4.4.1, cmake 4.4.1 (C++20 probe configured, built and ran)
+  note: Every tool is called by the absolute path the registry records; nothing is on the user or system
+    PATH, and a cohort item never installs inside its time box (RESEARCH 28.12 point 6). Resolve a machine
+    tool with shutil.which(name) or shutil.which(name + ".cmd") - npx and npm exist only as .CMD shims
+    here.
+  cpp: g++ 16.2.0, gcc 16.2.0, ninja 1.13.2, mingw32-make 4.4.1, cmake 4.4.1 (C++20 probe configured,
+    built and ran)
   rust: rustup 1.29.1, cargo 1.98.1, rustc 1.98.1 (stable-x86_64-pc-windows-msvc) under C:/tools/rp-toolchains/rustup
   typescript: node v24.13.1, npx 11.8.0, npm 11.8.0, tsc 5.9.3 in the disposable npm profile at C:/tools/rp-toolchains/npm
   go: go1.26.4 windows/amd64
@@ -48,7 +130,15 @@ items:
   accepted_at: '2026-09-06T00:16:44+05:00'
   evidence: evidence/build/lanes/lane-b/LANE-B-00.json
   prerequisites: []
-  purpose: 'Toolchains for the lane, never on PATH and never system-wide (loop-prompt section 1.5; OWNER-06): verify the workspace-local GCC and Ninja recorded in C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt (cmake -G Ninja configures and builds a C++20 probe with them); provision rustup with a pinned stable toolchain under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME and CARGO_HOME there; cargo called by absolute path; version recorded), and confirm node, npx.cmd and go with their versions. Acceptance: g++ --version, ninja --version, cargo --version, node --version, go version all print from the recorded absolute paths; a trivial cargo new crate passes cargo check under the disposable CARGO_HOME; evidence/build/lanes/lane-b/LANE-B-00.json records every path and version; RESEARCH_LANE_B.md has the entry.'
+  purpose: 'Toolchains for the lane, never on PATH and never system-wide (loop-prompt section 1.5; OWNER-06):
+    verify the workspace-local GCC and Ninja recorded in C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt (cmake
+    -G Ninja configures and builds a C++20 probe with them); provision rustup with a pinned stable toolchain
+    under C:/tools/rp-toolchains/rustup (rustup-init -y --profile minimal --no-modify-path with RUSTUP_HOME
+    and CARGO_HOME there; cargo called by absolute path; version recorded), and confirm node, npx.cmd
+    and go with their versions. Acceptance: g++ --version, ninja --version, cargo --version, node --version,
+    go version all print from the recorded absolute paths; a trivial cargo new crate passes cargo check
+    under the disposable CARGO_HOME; evidence/build/lanes/lane-b/LANE-B-00.json records every path and
+    version; RESEARCH_LANE_B.md has the entry.'
 - id: G4-W14
   status: ACCEPTED
   accepted_at: '2026-09-06T08:25:00+05:00'
@@ -56,7 +146,14 @@ items:
   prerequisites:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted
-  purpose: 'TypeScript spec and cohort: identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; the legacy ecosystems/typescript.py only for exports and ESM/CJS shape if the vendored reader lacks them), surface through the shared extractor''s barrel-resolving TypeScript adapter, a fresh verifier (tsc --noEmit via the resolved npx.cmd with a disposable npm profile), registry facts through the vendored RegistryProbe, a negative control; then the two active TypeScript repositories as a cohort (PDF-TS is disabled). Parity per repository; tsc --declaration corroboration (E6) only if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+  purpose: 'TypeScript spec and cohort: identity, floor and the dependency snapshot from the vendored
+    ManifestReader (section 29.12; the legacy ecosystems/typescript.py only for exports and ESM/CJS shape
+    if the vendored reader lacks them), surface through the shared extractor''s barrel-resolving TypeScript
+    adapter, a fresh verifier (tsc --noEmit via the resolved npx.cmd with a disposable npm profile), registry
+    facts through the vendored RegistryProbe, a negative control; then the two active TypeScript repositories
+    as a cohort (PDF-TS is disabled). Parity per repository; tsc --declaration corroboration (E6) only
+    if parity fails. Time box 2 hours from promotion (section 28.12); at the box, seal what passes, dispositions
+    for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
 - id: G4-W13
   status: ACCEPTED
   accepted_at: '2026-09-06T10:35:00+05:00'
@@ -65,11 +162,61 @@ items:
   - G4-W10 and G4-W09 accepted on main
   - LANE-B-00 accepted
   - OWNER-06 resolved (a C++ compiler the verifier can call; the workspace-local GCC counts)
-  prerequisite_notes: 'OWNER-06 is SATISFIED on main (81a10ac) and LANE-B-00 reproduced its resume predicate independently: cmake -G Ninja reconfigured, rebuilt and ran a C++20 probe with the recorded g++ 16.2.0 and ninja 1.13.2, the binary printing cxx202002 (evidence/build/lanes/lane-b/LANE-B-00.json). This item now waits only on G4-W10 and G4-W09.'
-  purpose: 'C++ spec and cohort (consumes OWNER-06, the C++ compiler; BLOCKED_EXTERNAL while it is OPEN, and the loop takes the next item): identity, floor and the dependency snapshot from the vendored ManifestReader (section 29.12; CMakeLists and FetchContent; the legacy ecosystems/cpp.py only for a field it lacks), header surface through the shared extractor with internal-visibility handling, the legacy example_verifiers/cpp.py pulled with a small cut (cmake configure and build, syntax-only compile of the example with the compiler OWNER-06 records - GCC 16.2 and Ninja under C:/tools/rp-toolchains per TOOLCHAIN_PATHS.txt, their bin directories prepended to the subprocess PATH only, MSVC if it is ever installed; Slides C++ carries a conanfile - FetchContent fallback or a disposition), registry facts through the vendored RegistryProbe where a manifest names a package (aspose.org notes cells/cpp ships NuGet), otherwise install_command stays UNRESOLVED and Installation renders the source-build fallback, a negative control; then the four C++ repositories as a cohort. Parity per repository. Time box 3 hours from promotion (section 28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report; zero-call proofs; hosted CI green.'
+  prerequisite_notes: 'OWNER-06 is SATISFIED on main (81a10ac) and LANE-B-00 reproduced its resume predicate
+    independently: cmake -G Ninja reconfigured, rebuilt and ran a C++20 probe with the recorded g++ 16.2.0
+    and ninja 1.13.2, the binary printing cxx202002 (evidence/build/lanes/lane-b/LANE-B-00.json). This
+    item now waits only on G4-W10 and G4-W09.'
+  purpose: 'C++ spec and cohort (consumes OWNER-06, the C++ compiler; BLOCKED_EXTERNAL while it is OPEN,
+    and the loop takes the next item): identity, floor and the dependency snapshot from the vendored ManifestReader
+    (section 29.12; CMakeLists and FetchContent; the legacy ecosystems/cpp.py only for a field it lacks),
+    header surface through the shared extractor with internal-visibility handling, the legacy example_verifiers/cpp.py
+    pulled with a small cut (cmake configure and build, syntax-only compile of the example with the compiler
+    OWNER-06 records - GCC 16.2 and Ninja under C:/tools/rp-toolchains per TOOLCHAIN_PATHS.txt, their
+    bin directories prepended to the subprocess PATH only, MSVC if it is ever installed; Slides C++ carries
+    a conanfile - FetchContent fallback or a disposition), registry facts through the vendored RegistryProbe
+    where a manifest names a package (aspose.org notes cells/cpp ships NuGet), otherwise install_command
+    stays UNRESOLVED and Installation renders the source-build fallback, a negative control; then the
+    four C++ repositories as a cohort. Parity per repository. Time box 3 hours from promotion (section
+    28.12); at the box, seal what passes, dispositions for the rest, accept. Acceptance: cohort report;
+    zero-call proofs; hosted CI green.'
 - id: G4-W13-RERUN2
-  status: IN_PROGRESS
+  status: ACCEPTED
   evidence: evidence/build/lanes/lane-b/G4-W13-RERUN2.json
-  purpose: 'Sprint W-CPP (plans/sprint/PHASE1-SPRINT-PLAN.md section 11, Friday): re-run aspose-email-foss/Aspose.Email-FOSS-for-Cpp (S5 BLOCKED_PLANNING; unlocks under test: items 25, 32, 40) and aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp (BC-02; item 24 landed; TB-01 build_verified honesty applies - a BC-02 fail on a genuine no-build is a disposition, never a weakened check). Slides-Cpp waits on item 26. Evidence evidence/build/lanes/lane-b/G4-W13-RERUN2.json.'
-  resume_predicate: 'The S4 fix for arrival item 40''s fact_ids pattern lands on main (the primary is landing it; lanes B, C and D corroborate it independently - 852047a, 3bc7999, and this lane''s G4-W13-RERUN2.json finding LANE-B-RERUN2-F1). Then re-run both repositories from their current facts. The build question is already settled and does not need re-measuring: both libraries genuinely build with the recorded GCC 16.2.0 and install_command:cmake is honestly SUPPORTED for each, so BC-02 is no longer PDF C++''s blocker (finding LANE-B-RERUN2-F2). Email C++''s own S5 block still needs item 25, which has not landed.'
-  run_2026_09_11: 'Box opened 13:05 +05:00 and was closed at 13:23 on the reviewer''s instruction, not its own clock: the pipeline is blocked at S4 portfolio-wide, so no C++ run could reach a seal. Nothing sealed, sealed_by_lane stays 0, and NO disposition was written - a stage known to be broken portfolio-wide does not earn a per-repository verdict, so the four standing C++ dispositions of 2026-09-06 are left exactly as they are. Four provider calls total: Email spent one accepted S3 investigation and two rejected S4 attempts; PDF was stopped after one accepted S3 investigation and never reached S4. Two findings recorded instead, both in docs/RESEARCH_LANE_B.md and the evidence file. (1) Arrival item 40''s fact_ids pattern anchors the kind prefix and never requires a local part, so the bare prefix is legal at decode time and unknown at binding time - proven mechanically against the production schema builder, and measured on Email C++ as 15 of 40 disposition records over 8 kinds on the first attempt and 12 of 40 over 7 on the second. Lane B adds two things to lanes C and D: the model''s own rationale names the correct fact ID in the same record it fills with the bare prefix, and the failure is not confined to a large surface (Email''s packet is 357 facts, the lane''s smallest C++ repository), so raising or batching the token cap alone would leave this draw failing. (2) TB-01 ground truth, the question the sprint plan flagged as PDF-Cpp''s risk: both libraries'' own CMake builds succeeded with the recorded g++ 16.2.0, so build_verified is earned rather than defaulted and install_command:cmake is honestly SUPPORTED for both - PDF 1846 facts / 1651 public symbols / 11 examples (4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED), Email 357 facts / 225 public symbols / 4 examples (2 EXECUTED, 2 FAILED), no required contract row without evidence for either, and Email''s preflight now reads 0 unresolved where 2026-09-06 had install_command UNRESOLVED. The contrast that makes it a measurement rather than a restatement: Cells C++, TB-01''s own worked example, is the repository whose build genuinely fails with this same compiler. No lane-owned code changed this run; both failure classes are in shared code the lane may not edit. repository-presenter status: 8/34, unchanged.'
+  purpose: 'Sprint W-CPP (plans/sprint/PHASE1-SPRINT-PLAN.md section 11, Friday): re-run aspose-email-foss/Aspose.Email-FOSS-for-Cpp
+    (S5 BLOCKED_PLANNING; unlocks under test: items 25, 32, 40) and aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
+    (BC-02; item 24 landed; TB-01 build_verified honesty applies - a BC-02 fail on a genuine no-build
+    is a disposition, never a weakened check). Slides-Cpp waits on item 26. Evidence evidence/build/lanes/lane-b/G4-W13-RERUN2.json.'
+  resume_predicate: 'CLOSED for this item: both repositories were re-run from their current facts and
+    each has its own verdict. What remains open is two shared-code PROPOSALs the lane may not land, each
+    with its own predicate. (a) aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp, BLOCKED_REVIEW (BC-10): re-run
+    once the reviewer-side guard for a self-quoting or unsupported-repair finding lands, or the primary
+    rules it sealable on BC-01..BC-09 plus a corroborated second read. (b) aspose-email-foss/Aspose.Email-FOSS-for-Cpp,
+    BLOCKED_PLANNING (S5): clears when arrival item (25) lands; then re-run it. Behind BOTH, and behind
+    every other lane''s candidates: finding LANE-B-R2-F2 must land before any draw of anything can pass
+    a no-op proof and raise N/34.'
+  run_2026_09_11: 'Box opened 13:05 +05:00 and was closed at 13:23 on the reviewer''s instruction, not
+    its own clock: the pipeline is blocked at S4 portfolio-wide, so no C++ run could reach a seal. Nothing
+    sealed, sealed_by_lane stays 0, and NO disposition was written - a stage known to be broken portfolio-wide
+    does not earn a per-repository verdict, so the four standing C++ dispositions of 2026-09-06 are left
+    exactly as they are. Four provider calls total: Email spent one accepted S3 investigation and two
+    rejected S4 attempts; PDF was stopped after one accepted S3 investigation and never reached S4. Two
+    findings recorded instead, both in docs/RESEARCH_LANE_B.md and the evidence file. (1) Arrival item
+    40''s fact_ids pattern anchors the kind prefix and never requires a local part, so the bare prefix
+    is legal at decode time and unknown at binding time - proven mechanically against the production schema
+    builder, and measured on Email C++ as 15 of 40 disposition records over 8 kinds on the first attempt
+    and 12 of 40 over 7 on the second. Lane B adds two things to lanes C and D: the model''s own rationale
+    names the correct fact ID in the same record it fills with the bare prefix, and the failure is not
+    confined to a large surface (Email''s packet is 357 facts, the lane''s smallest C++ repository), so
+    raising or batching the token cap alone would leave this draw failing. (2) TB-01 ground truth, the
+    question the sprint plan flagged as PDF-Cpp''s risk: both libraries'' own CMake builds succeeded with
+    the recorded g++ 16.2.0, so build_verified is earned rather than defaulted and install_command:cmake
+    is honestly SUPPORTED for both - PDF 1846 facts / 1651 public symbols / 11 examples (4 EXECUTED, 2
+    FAILED, 5 NOT_VERIFIED), Email 357 facts / 225 public symbols / 4 examples (2 EXECUTED, 2 FAILED),
+    no required contract row without evidence for either, and Email''s preflight now reads 0 unresolved
+    where 2026-09-06 had install_command UNRESOLVED. The contrast that makes it a measurement rather than
+    a restatement: Cells C++, TB-01''s own worked example, is the repository whose build genuinely fails
+    with this same compiler. No lane-owned code changed this run; both failure classes are in shared code
+    the lane may not edit. repository-presenter status: 8/34, unchanged.'
+  accepted_at: '2026-09-11T16:04:00+05:00'
+  run_2026_09_11_r2: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN2.json's run_2_2026_09_11
+    block, which is the live source for this run rather than a copy.

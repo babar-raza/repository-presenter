@@ -834,3 +834,236 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   lane is exactly what section 28.12 forbids. Evidence: the reflog of this branch; `git log
   --format='%an <%ae>' origin/main`; the before/after triple above. Reversal: none; a measurement
   plus a recovery.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · the S4 fix works, both C++ repositories ran
+  end to end for the first time, and neither sealed - one on a shared-code defect and one on the
+  review verdict alone.** Measured against `origin/main` at `08307b9` from a fresh worktree at
+  `C:\w\b02`. `352fd35`'s enum of the packet's own fact IDs closed the blocker this lane's own
+  run-1 finding recommended closing, and closed it at both surface sizes: Email C++ dispositioned
+  **80 of 80** units across two batches, both accepted first attempt, with **zero** bare kind
+  prefixes where the 13:23 run on the identical packet produced 15 of 40 on attempt 1 and 12 of 40
+  on attempt 2; PDF C++ dispositioned **124 of 124** across four. Neither repository was refused at
+  S4 again in any of the three compositions run this session. Alternative rejected: none. Evidence:
+  `dispositions.json` for each; the per-batch call records. Reversal: none; a measurement.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · TB-01 and arrival item (24) are settled in
+  production, not just in receipts: BC-02 PASSES for `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` on
+  both independent draws.** Run 1's finding LANE-B-RERUN2-F2 predicted this from `examples.json`
+  alone; it is now observed twice at the check itself. Draw 1: 10 PASS, 0 FAIL, 1 PENDING. Draw 2:
+  BC-01 through BC-09 all PASS - BC-02 among them - with BC-10 the only failure. So the sprint
+  plan's "PDF-Cpp (24; TB-01 risk)" is answered: the risk did not materialise, the honesty rule was
+  not bent, and the install command is SUPPORTED because the library's own CMake build genuinely
+  succeeded with the recorded `g++` 16.2.0. Evidence: both runs' `validation.json`. Reversal: none.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · a defect in this lane's own file, found by
+  the suite on the candidate's first seal: a plugin's fact emission order must be the order its own
+  IDs sort in, or the sealed candidate cannot re-render its own bytes.** PDF C++ sealed on draw 1
+  (state `ACCEPTED`, 30 provider calls, 174 visible lines of 599) and
+  `tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes` immediately failed
+  on it, with a twelve-line diff whose whole content is two swapped list items: Development
+  Dependencies read `Python3` then `googletest` in the sealed README and `googletest` then
+  `Python3` when re-rendered from the bundle's own `facts.json`. Cause, read from the code and
+  confirmed by the bytes: `cpp.declared_dependencies` returned `sorted(found.items())`, keyed on the
+  name the manifest spells, while `fact_id` lower-cases every part (`slug`) and
+  `FactsDocument.to_json` writes the document sorted by ID - so `"Python3" < "googletest"` ('P' is
+  ASCII 80, 'g' is 103) but `dependency:development.googletest < dependency:development.python3`.
+  The live render saw emission order and the re-render saw ID order. `renderer._dependencies` takes
+  `dependency` facts in document order by design and partitions them into required, optional and
+  development, keeping document order inside each, so making that order canonical is the plugin's
+  job. Fixed here in one line - `sorted(found.items(), key=lambda item: (slug(item[0]), item[0]))` -
+  with a mutation test, `test_dependency_facts_are_emitted_in_the_order_their_own_ids_sort_in`,
+  which pins the property that actually matters (every partition is already in ID order, since the
+  global list interleaves the `dependency:<name>` and `dependency:development.<name>` namespaces)
+  and which the old sort fails: reverted deliberately, red at the partition assertion; restored,
+  green. Alternative rejected: adding the bundle to `test_sealed_bytes.py`'s `KNOWN_BLOCKED_STALE`.
+  That file is not an owned path, and its two existing entries are bundles sealed *before* a
+  deliberate rendering change - a brand-new seal that never rendered its own bytes is a defect to
+  fix, not debt to record, and recording it would be weakening a check to protect a seal. The draw-1
+  bundle was therefore removed rather than landed: its stored README does not match its own facts
+  under any code, a bare re-render would leave validation and review judged against bytes that no
+  longer exist (`test_sealed_bytes`'s own comment for Cells C++ makes exactly this point), and a
+  real re-seal was the only honest route. Reversal: restore the raw-name sort; the candidate must
+  then be re-sealed again. **PROPOSAL (primary loop, `core/facts.py` or
+  `composition/renderer.py`):** every plugin is one case-sensitive name pair away from this, and
+  nothing catches it until a candidate has already been sealed and paid for - 30 provider calls
+  here. Either `FactsDocument` canonicalises its own order at construction the way `to_json` does at
+  write time, or `_dependencies` sorts each partition by fact ID before rendering. Lane B fixed its
+  own file because section 2 requires that of a class exposed in its own paths; the general guard is
+  shared code and worth more than the one plugin.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · what the re-seal then measured, and it is
+  the most important number this run produced: two draws of the same repository, differing only in
+  the order of two dependency facts, agree on every deterministic check and disagree on the review
+  verdict.** Draw 1: S4 124 units (VERIFIED_MOVE 45, SUPERSEDE_REDUNDANT 44, VERIFIED_PRESERVE 15,
+  OMIT_UNSUPPORTED 11, DEFER_UNRESOLVED 5, NON_CONTENT 3, VERIFIED_REWRITE 1); plan 18/18 sections,
+  12 hubs, examples 1+3, 5 links; 287 authored units; coherence revised 1; 174 visible lines of 599;
+  validation 10 PASS / 0 FAIL / 1 PENDING; `independent_review` returned `REJECT_PRESENTATION`,
+  PHASE1/F6's second reader corroborated 5 findings at seed+2, the verdict folded to `ACCEPT` with
+  `second_reader.read = 2`, and the candidate sealed. Draw 2, with the one-line ordering fix and
+  nothing else changed: S4 124 units but a materially different split (VERIFIED_REWRITE **9**,
+  VERIFIED_MOVE 39, SUPERSEDE_REDUNDANT 47, OMIT_UNSUPPORTED 5, VERIFIED_PRESERVE 16); plan 18/18
+  sections, 12 hubs, examples 1+**2**, **7** links; 285 authored units; coherence revised 0; 196
+  visible lines of 588; BC-01 through BC-09 **all PASS**, BC-11 PENDING, and **BC-10 FAIL** -
+  `REJECT_PRESENTATION`, 2 findings, one `targeted_repair` round which repaired F04 and re-raised an
+  equivalent failure, `second_reader.read` with 10 corroborated findings. So the deterministic half
+  of the pipeline is stable across the perturbation and the reviewer is not. Worth recording about
+  the two findings themselves, because it bears on whether they are code-caused (loop-prompt
+  section 5): F05 quotes the candidate's own sentence, "The second example reads and updates the
+  document's title and author metadata...", and then faults the candidate for "incorrectly
+  labelling the second example as" that same sentence - the quote and the complaint are the same
+  text. F06 demands the candidate state "12 runnable examples", which is not a fact of this
+  repository at any polarity: `facts.json` records **11** example candidates, 4 EXECUTED. Writing
+  either repair as asked would put an unsupported claim in a public candidate, which rule 12
+  forbids. Alternative rejected: a third composition. The packet is now cached, so a third run would
+  re-roll only the batches the `cache_stale` defect forces live - which is precisely re-rolling
+  until the reviewer says yes, and both the sprint plan's W-card rule ("real rejection ->
+  disposition + move on (stop-don't-force)") and loop-prompt section 5 forbid it. Reversal: none;
+  this is a measurement, and the disposition below is what it supports.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · PROPOSAL (primary loop, PORTFOLIO-WIDE,
+  `core/llm/jobs.py::run_job` with `reconciliation/dispositions.py::citable_fact_ids` and
+  `normalize`): the S4 enum makes every stored reply `normalize` touched permanently unreusable, so
+  no candidate sealed since `352fd35` can pass a no-op proof.** `run_job` re-judges a stored output
+  against the **same** `call_schema` before reusing it; for S4 that schema's `fact_ids` is the enum
+  `citable_fact_ids()` builds, which is co-extensive with what the *model* may cite. But what is
+  stored is the output the checks **accepted** - post-`normalize` - and `normalize` writes fact IDs
+  by code that the packet never showed: `entry["fact_ids"] = sorted(cited | set(ids))` over
+  `ids = rendering_fact_ids(destination, facts)`. Those code-written IDs sit outside the enum, the
+  stored reply is schema-invalid on re-judge, `run_job` records `cache_stale`, and it makes a fresh
+  live call - which is not zero provider calls, however deterministic the product is. Measured
+  offline with zero provider calls by re-running `_parse` over each stored S4 record: PDF C++ batch
+  1 REJECTED (3 of 40 entries cite `identity:revision`, which `bounded_records` excludes by name)
+  and batch 2 REJECTED (5 of 40 cite `example:007`..`example:011`, 6 of 11 example facts shown),
+  batches 3 and 4 reusable; Email C++ batch 1 REJECTED on `identity:revision` in 3 of 40, batch 2
+  reusable. The same class at a 122-value enum as at a 361-value one, so it is not size-dependent.
+  Observed live twice: the draw-1 no-op rerun recorded `repository_investigation` `cache_reuse`,
+  then `source_reconciliation` `cache_stale` on request `fbf29a9da6e3` - **the same
+  `request_sha256` the sealing run stored under**, so the key matched byte for byte and only the
+  re-judgement refused it - then a live re-call of that identical request, rejected at `output
+  truncated at the manifest's max_output_tokens (32000)`; and the draw-2 repair round hit
+  `cache_stale` on two more batches while every `section_authoring` call around it reused cleanly.
+  Fix, smallest first: re-judge a stored output against the **manifest's** own schema
+  (`call_schema=None`) in the cache-reuse branch - the enum exists to constrain the decoder, not to
+  re-adjudicate an output the checks already accepted and normalised, and `binding_errors` still
+  refuses any ID naming no fact. Alternative: widen `citable_fact_ids` to admit every ID `normalize`
+  may write, at the cost of showing the model IDs the packet did not, which is the RC1 risk its own
+  docstring set out to avoid. Either needs a mutation test on a stored, normalised S4 reply: red
+  before (`cache_stale`), green after (`cache_reuse`, zero provider calls). Alternative rejected:
+  re-running until a draw happens to store only in-enum IDs - a lottery, not a fix, because
+  `normalize` writes `identity:revision` whenever a unit folds into a section whose rendering facts
+  include it, which is most repositories. Reversal: revert the fix; nothing else moves.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · second defect the same rerun exposed: the
+  32,000-token S4 runaway is not closed in general, it is now provider-nondeterministic on an
+  unchanged request.** The identical request `fbf29a9da6e3` returned **6,352** completion tokens on
+  its first draw and **32,000** on its second. The enum bounds what the decoder may emit *per entry*
+  and `maxItems` pins only the `dispositions` array to the batch size; neither bounds how long a
+  rationale the decoder writes. So `S4-REGRESSION` is closed for its bare-prefix cause and open as a
+  class. Recorded rather than proposed as separate work, because the fix above removes the re-call
+  that exposed it. Worth noting for whoever picks it up: arrival item (56) - store a truncated
+  reply's body - would have made this readable without a hand replay; here the body is gone, which
+  is exactly the gap item 56 names.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · MEASUREMENT for lane E's PROPOSAL E3: the
+  landed enum does not trip the gateway at 361 values, and E3 is not thereby closed.** Ten live S4
+  calls across two repositories and three compositions, zero HTTP 400 of any kind. Measured offline
+  before the first call, from `facts.json` through the production functions: Email C++ 357 facts ->
+  82 packet fact records -> enum **122** values, 3,356 enum characters, 5,649-character schema,
+  34,024-character packet, 80 units in 2 batches - essentially lane D's own validated 123, and the
+  small-surface control E3 asked for. PDF C++ 1,846 facts (1,651 public symbols) -> 321 packet fact
+  records -> enum **361** values, 13,730 enum characters, 16,732-character schema, 69,980-character
+  packet, 124 units in 4 batches - 2.9x lane D's point. Why 361 and not 1,651: `bounded_records()`
+  already caps the packet per kind, so the surface reaches the enum as 256 `public_symbol` records
+  and 6 of 11 `example` records. The enum is therefore bounded today by construction, exactly as E3
+  read the code to say; what was open was how large the bound gets and whether that size is safe,
+  and 3x is now measured safe. What this does **not** close: PDF for Python at 689 and PDF for
+  Java's far larger surface are still unmeasured, and one transient `http_error` did occur at S4
+  (draw 1, batch 4, retried once and accepted with 375 completion tokens), so a size-related refusal
+  is still distinguishable from noise only by its body - which item (56) would preserve. Lane E's own
+  PDF-Python run remains the cheapest next point. Alternative rejected: reporting E3 refuted on two
+  data points, which is what section 27.10 follow-up 3 prohibits. Reversal: none; a measurement.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · PROPOSAL (primary loop,
+  `composition/planning.py::plan_checks`): arrival item (25) has **not** landed, and it is now the
+  only thing between Email C++ and rendering.** The re-run request's premise was that item 25's
+  class had landed; the code is the authority and says otherwise. `plan_checks` still reads
+  `errors.append(...)` on `placement.outcome == "excluded"`;
+  `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` holds five rows (36, 22, 32, 33, 23)
+  and none is 25; and no commit in `planning.py`'s history carries the change. The sharper statement
+  this draw permits: `reconciliation/dispositions.py::normalize` **already has the exact fold**,
+  three files away - on `disposition in PLACING and destination in absent` it sets
+  `DEFER_UNRESOLVED` with `destination_section: None`, under a comment saying no re-ask can honour a
+  placement no plan may include - and it computes `absent` from `section_conditions(facts, policy)`,
+  where `additional_examples` is `len(SUPPORTED examples) >= 2`. `plan_checks` then **overwrites
+  that same key**, `conditions["additional_examples"] = bool(set(verified_examples) - starts)`,
+  because the plan's quick starts consume examples, and appends an error instead of applying the
+  identical fold. Measured: Email C++ has exactly 2 SUPPORTED examples (`example:001`, `:002`;
+  `:003` and `:004` are CONTRADICTED on real diagnostics in their own code), the plan took both as
+  `quick_start` and `second_quick_start`, the section flipped included -> excluded between S4 and
+  S5, and 3 of the 7 units S4 placed there - `inherited_unit:028.paragraph`, `:030.paragraph`,
+  `:032.paragraph` - became errors where the 2026-09-06 draw produced 1. The other 4 are a
+  `code_block` and headings `renders_verbatim` already excludes. The planner did not make the
+  placement, cannot withdraw it, and the rejection text ("place the unit in an included section or
+  defer it") names no action the planner owns. Fix: defer on `outcome == "excluded"`, three lines,
+  mirroring a branch already written and commented. Alternative rejected: making reconciliation
+  conservative about `additional_examples`, which would lose real content for repositories whose
+  plans leave an example over. Reversal: revert; Email C++ returns to this disposition.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · corroboration, not re-proposed: arrival item
+  (42) on a third ecosystem.** Email C++'s S5 attempt 1 was rejected with `unknown fact ID
+  format:msg; unknown fact ID format:eml; unknown fact ID format:cfb`. The repository has no
+  `format` fact of any kind, so the planned capability titles named three formats with no verified
+  fact behind them - item (42)'s class verbatim, previously measured on Python Note only. It
+  recovered on attempt 2 and is not this repository's blocker, so it is recorded rather than
+  re-filed, per the standing instruction that a queued item is not re-proposed. `352fd35` parked
+  items 41 and 42 as strict xfails; this is a second ecosystem's evidence for 42 whenever they are
+  unparked.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · the lane venv is built from
+  `requirements-lock.txt`, not from the lane prompt's former literal `pip install -e .[dev]`, and
+  the difference would have silently poisoned every seal this run produced.** Caught before the
+  first provider call, on the reviewer's instruction and independently of lane F's own measurement.
+  The bare extras install resolved **five** distributions past the lock - `anyio` 4.15.1 for 4.14.2,
+  `ast_serialize` 0.11.1 for 0.8.0, `openai` 3.13.0 for 3.7.0, `ruff` 0.16.7 for 0.16.5,
+  `types-PyYAML` 20260906 for 20260815 - and omitted `uv` entirely, giving 49 distributions and
+  `_presenter_site_manifest_hash()` = `613b742b...`. The primary checkout and all 8 sealed bundles
+  read `f4406f1b...` over 50. That value is in the *environment* dependency class, so a bundle
+  sealed under `613b742b` reopens `EXTRACTING` the moment any other worker evaluates it and is
+  reproducible by nobody. Rebuilt as `pip install -r requirements-lock.txt`, then `uv==0.12.9`, then
+  `pip install -e . --no-deps`; `f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411`
+  confirmed before any candidate work and re-confirmed after the rebase. Alternative rejected:
+  sealing first and re-sealing later - the bundle's own `dependencies.json` would have carried the
+  wrong hash into merged history. Evidence: the two hashes and the five-line `diff` of the
+  distribution lists. Reversal: none; `08307b9` has since fixed the lane prompt's own text.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · DISPOSITION (revised) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_REVIEW (BC-10)`.** Was
+  `BLOCKED_VALIDATION (BC-02)`; BC-02 now passes on both draws and is no longer this candidate's
+  blocker, which is the question the sprint plan's "PDF-Cpp (24; TB-01 risk)" asked. 1,521 tree
+  entries, 1,846 facts (1,651 public symbols, 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED),
+  required contract rows without evidence: none; 11 examples - 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED
+  on the incomplete-type defect in `facades/facade.hpp` recorded 2026-09-06. S3 accepted first
+  attempt; S4 all four batches accepted, 124 of 124 units; S5 accepted, 18 of 18 sections; S6 wrote
+  285 units across 9 sections; 196 visible lines of 588. Validation: **BC-01 through BC-09 PASS**,
+  BC-11 PENDING, **BC-10 FAIL** on `REJECT_PRESENTATION` with the two findings analysed above, one
+  `targeted_repair` round, equivalent failure re-raised. The candidate sealed on the immediately
+  preceding draw with 10 PASS and a folded `ACCEPT`, so the cause is review nondeterminism, not
+  anything about this repository or its facts - a deliberate stop rather than a forced seal, per the
+  W-card rule. Resume predicate: a re-run once either the reviewer-side guard for a
+  self-quoting/unsupported-repair finding lands (the class the recent `3784b06` and `a8ac6d4`
+  commits are already chasing) or the primary decides this candidate is sealable on the strength of
+  BC-01..BC-09 plus a corroborated second read; behind that, the `cache_stale` PROPOSAL above must
+  land before *any* draw of it can pass a no-op proof and count toward N/34.
+
+- **2026-09-11 16:04 (`date` checked) · G4-W13-RERUN2 · DISPOSITION (restated) ·
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93` - `BLOCKED_PLANNING` (S5).** Unchanged
+  in class from 2026-09-06 14:29, widened in blast radius from 1 unit to 3, and this time earned
+  against working upstream stages rather than recorded in the shadow of a portfolio-wide outage: 75
+  tree entries, 357 facts (225 public symbols, 355 SUPPORTED, **0 UNRESOLVED**, 2 CONTRADICTED), no
+  required contract row without evidence, 4 examples of which 2 are EXECUTED and 2 FAILED, S3
+  accepted first attempt, **S4 both batches accepted first attempt** with 80 of 80 units and no bare
+  prefix. S5 rejected twice - attempt 1 on item (42)'s unverified formats, attempt 2 on the three
+  excluded-section placements - and the transaction failed closed. Nothing else stands in the way;
+  its `install_command:cmake` is SUPPORTED. Resume predicate: arrival item (25) lands (the
+  `plan_checks` deferral above); then re-run `present --repo
+  aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.

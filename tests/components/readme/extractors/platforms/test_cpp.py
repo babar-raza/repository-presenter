@@ -187,6 +187,46 @@ def test_a_dependency_is_required_only_on_the_library_public_link_interface(
     assert "dependency:none" not in facts
 
 
+def test_dependency_facts_are_emitted_in_the_order_their_own_ids_sort_in(tmp_path: Path) -> None:
+    """A plugin's emission order is what the renderer lists, and `facts.json` is written sorted by
+    fact ID - so the two must agree or a sealed candidate cannot re-render its own bytes.
+
+    Measured 2026-09-11 on `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`, which declares `Python3` and
+    `googletest` and sealed with Python3 listed first while a re-render from its own `facts.json`
+    listed googletest first (`tests/test_sealed_bytes.py`). Raw-name order puts `Python3` first
+    ('P' before 'g' in ASCII); slug order puts `googletest` first, which is what the document is
+    canonicalised to. This test pins slug order, so the old sort fails it.
+    """
+    manifest = _repository(
+        tmp_path,
+        LIBRARY.replace(
+            "FetchContent_Declare(googletest URL https://example.invalid/gtest.tar.gz)",
+            "FetchContent_Declare(googletest URL https://example.invalid/gtest.tar.gz)\n"
+            "find_package(Python3 COMPONENTS Interpreter QUIET)",
+        ),
+    )
+    emitted = [
+        fact.id
+        for fact in cpp.PLUGIN.manifest_facts(tmp_path, manifest, [])
+        if fact.kind == "dependency"
+    ]
+    # The renderer partitions `dependency` facts into required, optional and development and keeps
+    # document order inside each; `facts.json` is stored in global ID order. So the property that
+    # makes a bundle re-render its own bytes is that every partition is already in ID order.
+    for prefix in ("dependency:development.", "dependency:optional."):
+        partition = [fact_id for fact_id in emitted if fact_id.startswith(prefix)]
+        assert partition == sorted(partition), prefix
+    required = [
+        fact_id
+        for fact_id in emitted
+        if not fact_id.startswith(("dependency:development.", "dependency:optional."))
+    ]
+    assert required == sorted(required)
+    assert emitted.index("dependency:development.googletest") < emitted.index(
+        "dependency:development.python3"
+    )
+
+
 def test_a_library_that_links_nothing_publicly_reports_a_verified_zero(tmp_path: Path) -> None:
     """Contract section 2 row 9: the marker cites the clause that proves the zero."""
     manifest = _repository(
