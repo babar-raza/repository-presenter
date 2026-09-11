@@ -242,14 +242,26 @@ def declared_dependencies(text: str) -> list[tuple[str, str]]:
     """Every dependency the manifest declares, as ``(name, how it was declared)``.
 
     `FetchContent_Declare` and `find_package` are the two ways a CMake project names something it
-    did not write. Sorted and de-duplicated by name, because a project commonly does both - a
+    did not write. De-duplicated by name, because a project commonly does both - a
     `find_package(... QUIET)` first and a fetch when that finds nothing.
+
+    Ordered by the *slug* the fact will carry, not by the name the manifest spells. `fact_id`
+    lower-cases every part, and `FactsDocument.to_json` writes the whole document sorted by ID, so
+    a plugin that emits in raw-name order publishes one order to the renderer and a different one
+    to its own `facts.json` the moment case reorders two names. Measured 2026-09-11 on
+    `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`, whose root manifest declares `Python3` and
+    `googletest`: `"Python3" < "googletest"` (ASCII 'P' before 'g') while
+    `"dependency:development.googletest" < "dependency:development.python3"`, so the sealed README
+    listed Python3 first and a re-render from the bundle's own facts.json listed googletest first -
+    `tests/test_sealed_bytes.py` caught it on the candidate's first seal. The renderer takes
+    `dependency` facts in document order by design; making that order the canonical one is the
+    plugin's job, not the renderer's.
     """
     found: dict[str, str] = {}
     for pattern, how in ((_FIND_PACKAGE, "find_package"), (_FETCH_CONTENT, "FetchContent_Declare")):
         for match in pattern.finditer(text):
             found.setdefault(match.group(1), how)
-    return sorted(found.items())
+    return sorted(found.items(), key=lambda item: (slug(item[0]), item[0]))
 
 
 def _dependency_facts(text: str, where: str) -> list[Fact]:
