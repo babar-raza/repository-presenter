@@ -1067,3 +1067,156 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   its `install_command:cmake` is SUPPORTED. Resume predicate: arrival item (25) lands (the
   `plan_checks` deferral above); then re-run `present --repo
   aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · the lane's own headline PROPOSAL is closed
+  by measurement: `22c2e45` removes the `cache_stale` class, and it removes it on the repository
+  that diagnosed it.** Measured against `origin/main` at `22c2e45` from a fresh worktree at
+  `C:\w\b03` with nothing carried over from run 2 - no call store, no clone, no bundle, so every
+  reuse below was written by this run's own process. `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`'s
+  ledger holds **79 rows: 44 `cache_reuse`, 33 completed provider calls, 2 output rejections, and
+  zero `cache_stale` of any kind** - S6 32, S4 8, S3 2, S5 2. S4 is exactly the class run 2 measured
+  as permanently unreusable here (2 of 4 stored batches, `identity:revision` and
+  `example:007`..`:011` written by `normalize` outside the decoder's enum); all 8 S4 reuses were
+  accepted this run. The reuse is also what made the run affordable: 33 calls carried a pipeline
+  that re-ran S3 through S6 four times across three repair rounds. What this does **not** prove: a
+  no-op proof still needs a sealed bundle to re-open, and this run sealed nothing, so
+  `RENDERER_VERSION` 19 and this lane's own `40f2e9d` ordering fix remain untested against sealed
+  bytes - the re-run request's expectation that PDF C++'s dependency order is "doubly correct" is
+  not asserted here, because no sealed README exists to compare. Alternative rejected: none.
+  Evidence: `calls.jsonl`, dispositions `Counter({'cache_reuse': 44, 'provider_call': 35})`.
+  Reversal: none; a measurement.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · PROPOSAL (primary loop,
+  `review/independent/review.py`): a presentation finding that calls a claim unsupported while
+  citing a SUPPORTED fact whose value stands verbatim in its own quote is the reviewer's own
+  defect - and this one made the repair stage delete a true, fact-backed sentence from the
+  candidate.** The draw's first review blocked on one finding, F08: criterion `presentation`,
+  section `quick_start`, quote `using Aspose_PDF_FOSS version 1.0.0.`, `fact_ids`
+  `['example:001', 'package:version']`, text "the facts do not support a versioned claim", repair
+  "Remove 'version 1.0.0'". `facts.json` records `package:name` = `Aspose_PDF_FOSS` and
+  `package:version` = `1.0.0`, both **SUPPORTED**, and the S3 investigation's own `product_summary`
+  cites `package:version` as its evidence. The finding names, as its own evidence, the fact that
+  verifies the sentence it calls unverified. Nothing folded it: `factuality_defect` judges
+  criterion `factuality` only, `absence_defect` needs an `absent` list and F08's is empty, and
+  `a8ac6d4`'s `_quoted_verified_fact` folds a quote referencing a SUPPORTED **`public_symbol`** -
+  `package` is a different kind. `targeted_repair` then obeyed it: `repairs.json` attempt
+  `65d25781` rewrote the unit from "...at 150 DPI using Aspose_PDF_FOSS version 1.0.0." to
+  "...using Aspose_PDF_FOSS.". A verified detail left a public candidate because a finding
+  contradicted its own citation. Fix, mirroring `a8ac6d4` exactly one kind wider: a finding whose
+  quote contains the literal value of a SUPPORTED fact it itself cites is a reviewer scope defect.
+  Mutation test: this finding against these facts - red (blocks, repair fires) before, green
+  (advisory) after. Alternative rejected: widening `_quoted_verified_fact` to match every fact kind
+  by suffix, which reintroduces the coincidental-word-overlap collision `a8ac6d4` was written to
+  stop. Reversal: revert; the finding blocks again.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · PROPOSAL (primary loop, `absence_defect` in
+  `review/independent/review.py`, with `repair/targeted.py` as the consumer): a finding whose
+  *refuted* claims are the ones its repair instruction names is unactionable, and here the reviewer
+  faulted the candidate for omitting the exact sentence the previous repair round had just inserted
+  at BC-08's demand.** The order inside one transaction, from the ledger and `repairs.json`: (1)
+  BC-08 **FAIL** - `inherited_unit:019.paragraph` is VERIFIED_PRESERVE and keeps the command
+  `cmake --preset windows-msvc-debug`, which the candidate did not render; (2) `targeted_repair`
+  attempt `1c50ad99` appended "The build instructions include the command cmake --preset
+  windows-msvc-debug." to the `development_testing` unit; (3) the final review raised F10 on that
+  same section - "omits the CMake preset instructions and the test suite coverage details", repair
+  "Restore the CMake preset instructions..." - and **its quote is that repaired sentence, character
+  for character**. Replayed offline through the production functions: of F10's five `absent`
+  claims, three (`cmake --preset windows-msvc-debug`, `976 test files`, `foundation primitives`)
+  are located in its own section slice and two (`src/public/`, `src/internal/`) are genuinely
+  absent and present in the evidence, so `absence_defect` returns `None` and the finding blocks -
+  correctly, under the 2026-09-07 rule that one unrefuted claim leaves a real remainder. The defect
+  is not that rule. It is that the finding's prose, quote and repair instruction all name the
+  refuted claims while the remainder is two strings none of them mentions, so a repair round is
+  handed work already done and the equivalent failure re-raises. Fix: narrow rather than dismiss -
+  record the refuted claims on the finding and hand `targeted_repair` only the survivors, so the
+  repair asks for `src/public/` and `src/internal/` or the finding carries no actionable claim at
+  all. Mutation test: this finding and this candidate - red (repair told to restore text that is
+  present) before, green after. Alternative rejected: whole-finding dismissal, which the 2026-09-07
+  external review already proved loses real gaps. Reversal: revert; F10 blocks again.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · three draws of one repository at one
+  revision: every deterministic check agrees, and the reviewer's blocking set does not repeat
+  once.** Same repository, same revision `888700a`, byte-identical extraction all three times
+  (1,846 facts, 1,651 public symbols, 11 examples - 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED). Draw 1:
+  10 PASS, 0 FAIL, review folded to `ACCEPT` with `second_reader.read` 2, sealed. Draw 2:
+  BC-01..BC-09 PASS, BC-10 FAIL on F05 (self-quoting) and F06 (a 12-vs-11 example miscount). Draw
+  3, this run: BC-01..BC-09 PASS (BC-08 after one repair), BC-11 PENDING, BC-10 FAIL on F06 (a
+  prose judgment, corroborated by the second read, that `quick_start` names no project structure or
+  build command) and F10 (the repair-then-fault loop above). **No blocking finding recurs between
+  draws 2 and 3.** The S4 split moved again too - this draw SUPERSEDE_REDUNDANT 50,
+  OMIT_UNSUPPORTED 29, VERIFIED_PRESERVE 27, VERIFIED_MOVE 8, DEFER_UNRESOLVED 5, VERIFIED_REWRITE
+  3, NON_CONTENT 2, against draw 2's MOVE 39 / SUPERSEDE 47 / OMIT 5 / PRESERVE 16 / REWRITE 9 -
+  while the checks that read the result agree. Worth recording beside it: the fold stack is working
+  hard, not idle. Of 15 findings in the final review, **13 folded to advisory as reviewer scope
+  defects** (four on `a8ac6d4`'s symbol rule, three on renderer-owned sections, two on
+  contract-required headings, three on a CONTRADICTED example, one on an absence the candidate
+  contains); the guards are not why this candidate did not seal, they are why only two findings had
+  to be judged. Alternative rejected: reading draw 3 as evidence the reviewer is simply strict - it
+  cannot be, since draw 1 accepted the same document class outright. Reversal: none; a measurement.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · DECISION · PDF C++ is not drawn a fourth
+  time.** Draws 2 and 3 are two genuine BC-10 rejections of the same candidate, and loop-prompt
+  section 5 prohibits a third equivalent attempt; the sprint's W-card rule says a real rejection
+  earns a disposition and a move on. Everything that could change the outcome is shared code this
+  lane may not edit - the two PROPOSALs above. Alternative rejected: a fourth draw. The packet is
+  cached and reuse now works, so a fourth draw would re-roll only the review, which is re-rolling
+  until the reviewer says yes - the exact thing the W-card forbids, and cheaper to do now than ever
+  before, which is why the rule matters more, not less. Evidence: this run's `review.json`,
+  verdict `REJECT_PRESENTATION`, reported literally. Reversal: the resume predicate in the
+  disposition below.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · corroboration, not re-proposed: arrival
+  item (42) on a second C++ repository.** PDF C++'s `presentation_planning` attempt 1 was refused
+  by the binding with `unknown fact ID format:pdf; format:png; format:jpeg; format:bmp;
+  format:tiff; format:text`. The repository has no fact of kind `format` at any polarity, and
+  `planning.py` reads `at_a_glance`'s `input_format_ids`/`output_format_ids` against IDs starting
+  `format:input.`/`format:output.`. Attempt 2 was accepted, so this is not PDF C++'s blocker. Run 2
+  recorded the identical class on Email C++ (`format:msg`, `:eml`, `:cfb`) and lane E on Python
+  Note; this is the third repository. Recorded rather than re-filed: item (42) is queued and a
+  queued item is not re-proposed. Reversal: none.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · arrival item (25) is still not landed,
+  re-verified two ways, so Email C++ was not run at all.** (1) `composition/planning.py:385` still
+  reads `errors.append(...)` on `placement.outcome == "excluded"`. (2)
+  `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` now holds thirteen rows - 36, 22, 32,
+  33, 23, 55, 39, 40, 44, 45, 46, 60, 61 - and none is 25. Measured today on the repository's own
+  freshly extracted facts (`facts-only` preflight, zero provider calls, 357 records, 355 SUPPORTED,
+  0 UNRESOLVED, 2 CONTRADICTED, no required contract row without evidence) and replayed through the
+  production functions: exactly 2 SUPPORTED examples (`example:001`, `example:002`);
+  `section_conditions(facts, DEFAULT_POLICY)["additional_examples"]` is `True`, which is the value
+  reconciliation computes `absent` from at S4; `plan_checks`'s own
+  `bool(set(verified_examples) - starts)` is `True` with zero or one quick start and **`False` with
+  two**, which is what the plan takes. The flip is still mechanical, not a draw. Alternative
+  rejected: running it anyway to "see" - a stage known to be broken for this repository does not
+  earn a fresh verdict, and it would have cost provider calls to restate a disposition already
+  earned against working upstream stages on 2026-09-11 16:04. Evidence: the two checks above and
+  the offline replay. Reversal: item (25) lands; then re-run it.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · DISPOSITION (restated) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_REVIEW (BC-10)`.** Unchanged in
+  class from 2026-09-11 16:04 and earned a second time on cleared ground: the S4 blocker is gone,
+  the cache blocker is gone, BC-01 through BC-09 all PASS. 1,846 facts (1,651 public symbols, 1,839
+  SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED), no required contract row without evidence, 11 examples
+  (4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED). S3 accepted first attempt; S4 all four batches accepted
+  first attempt, 124 of 124 units; S5 refused once on `format:` IDs and accepted on attempt 2, 18
+  of 18 sections, 12 hubs, examples 1+2, 9 links; S6 287 units across 9 sections, coherence revised
+  0 of 287; **197 visible lines of 594**. First validation 8 PASS / 1 FAIL (BC-08) / 2 PENDING;
+  after two repair rounds 9 PASS / 1 FAIL / 1 PENDING. Review: **`REJECT_PRESENTATION`**, 2
+  blocking findings, 13 advisory, `second_reader.read` 2 with 10 corroborated classes; `repairs.json`
+  2 repaired, 0 unrepairable, 3 rounds. 33 provider calls, 44 cache reuses, 0 `cache_stale`, 68,128
+  completion tokens. Resume predicate: re-run once **either** PROPOSAL above lands - the first alone
+  would have left this draw's first review with no blocking finding, the second would have stopped
+  the repair loop from manufacturing F10 - or once the primary rules the candidate sealable on
+  BC-01..BC-09 plus a corroborated second read. Not before: draws 2 and 3 are already two genuine
+  BC-10 rejections.
+
+- **2026-09-11 17:50 (`date` checked) · G4-W13-RERUN3 · DISPOSITION (restated, no run) ·
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93` - `BLOCKED_PLANNING` (S5).** Unchanged
+  from 2026-09-11 16:04; its sole resume predicate, arrival item (25), is measurably unmet at
+  `22c2e45` (entry above), so no provider call was spent on it. Today's facts-only preflight
+  reproduces the repository exactly as run 2 recorded it: 75 tree entries, 357 facts (225 public
+  symbols, 355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED), 4 examples of which 2 EXECUTED and 2
+  FAILED, no required contract row without evidence, `install_command:cmake` SUPPORTED. Resume
+  predicate: arrival item (25) lands (three lines in `composition/planning.py`, mirroring the fold
+  `reconciliation/dispositions.py::normalize` already applies); then re-run `present --repo
+  aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.
