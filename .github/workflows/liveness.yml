@@ -13,6 +13,16 @@ on:
   schedule:
     - cron: "13,43 * * * *"
   workflow_dispatch:
+  # Measured 2026-09-11 (PHASE1): the schedule trigger went silent for 3h54m under sustained
+  # push-triggered Actions load (dozens of CI matrix + mirror runs/hour) despite being 'active'
+  # and never modified - GitHub documents that scheduled runs can be silently deprioritized
+  # during high load on the same repo. Chaining off CI's own completion piggybacks on exactly
+  # the traffic that was starving the cron trigger, instead of competing with it; schedule: stays
+  # as the fallback for genuine silence (no CI traffic at all), which is the scenario a dead-man
+  # most needs to catch.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 permissions:
   contents: read
