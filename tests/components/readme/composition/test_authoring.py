@@ -19,6 +19,7 @@ from repository_presenter.components.readme.composition.authoring import (
     authoring_tasks,
     canonical_abbreviations,
     capability_titles,
+    command_block_tokens,
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
@@ -762,6 +763,113 @@ def test_names_an_executed_example_uses_are_accepted_identifiers() -> None:
     allowed = allowed_identifiers(facts, "Aspose.Widget FOSS for Python")
     assert "io.BytesIO" in allowed and "scene.save" in allowed
     assert "io.StringIO" not in allowed  # a failed example proves nothing
+
+
+CELLS_JAVA = "aspose-cells-foss/Aspose.Cells-FOSS-for-Java"
+CELLS_JAVA_NAME = "Aspose.Cells FOSS for Java"
+# The real Maven block of Aspose.Cells for Java's own README, verbatim (lane C, 2026-09-07).
+MAVEN_BLOCK = (
+    "```bash\nmvn compile\nmvn clean package\n"
+    "mvn javadoc:javadoc   # generates docs/apidocs/index.html\n```"
+)
+CELLS_JAVA_FACTS = FactsDocument(
+    CELLS_JAVA,
+    "c" * 40,
+    (
+        _fact("identity:repository", "identity", CELLS_JAVA),
+        _fact("build_test_asset:pom", "build_test_asset", "pom.xml"),
+        _fact("inherited_unit:047.code_block", "inherited_unit", MAVEN_BLOCK),
+        # A source-language fence is where a product claim lives, not a maintainer's command.
+        _fact(
+            "inherited_unit:048.code_block",
+            "inherited_unit",
+            "```java\nWorkbook book = new Workbook();\nbook.saveAsPdf();\n```",
+        ),
+        # An inherited unit's running prose licenses no identifier either.
+        _fact(
+            "inherited_unit:049.paragraph",
+            "inherited_unit",
+            "The removed helper was called scene.legacy_save.",
+        ),
+        _fact(
+            "inherited_unit:050.code_block",
+            "inherited_unit",
+            "```bash\nmvn site   # writes target/report.html\n```",
+            "CONTRADICTED",
+        ),
+    ),
+)
+
+
+def test_an_identifier_a_command_block_spells_is_citable() -> None:
+    """G4-W17 arrival item 44, docs/RESEARCH_LANE_C.md PROPOSAL R. Aspose.Cells for Java's S6
+    ``development_testing``/``summary`` was rejected twice on ``index.html``: the token is spelled
+    verbatim inside ``inherited_unit:047.code_block``, a SUPPORTED fact the unit cites and a real
+    Maven build block of the repository's own README, but ``allowed_identifiers`` added that whole
+    multi-line value as one opaque string and extracted ``identifier_tokens`` for kind ``example``
+    alone, so the token itself never matched and the true sentence was unwritable.
+
+    A block of commands states paths, tools and output files, never a product claim, so its
+    identifiers are as spellable as an executed example's. The mutations hold the line the fix must
+    not cross: a token no fact spells, a symbol only a source-language fence spells, a name only an
+    inherited unit's prose spells, and anything a CONTRADICTED fact carries all stay out.
+    """
+    # "javadoc:javadoc" (a Maven plugin-goal phase, mvn's own colon-separated shape) is also
+    # spelled here and also matches _COORDINATE (81e3197, landed independently the same day as
+    # this fix and never combined with it before now) - a real second identifier, not a defect.
+    assert command_block_tokens(MAVEN_BLOCK) == {"index.html", "javadoc:javadoc"}
+    allowed = allowed_identifiers(CELLS_JAVA_FACTS, CELLS_JAVA_NAME)
+    assert "index.html" in allowed
+    assert identifier_allowed("index.html", allowed, verified_members(CELLS_JAVA_FACTS))
+
+    # Mutation: a token spelled in no fact at all is still not an identifier.
+    assert "output.html" not in allowed
+    # Mutation: a stale symbol an upstream source fence spells is not thereby citable.
+    assert (
+        "book.saveAsPdf" not in allowed
+        and command_block_tokens("```java\nbook.saveAsPdf();\n```") == set()
+    )
+    # Mutation: an inherited unit's running prose licenses no identifier.
+    assert "scene.legacy_save" not in allowed and "legacy_save" not in allowed
+    # Mutation: the polarity gate still holds - a CONTRADICTED fact proves nothing.
+    assert "report.html" not in allowed
+
+
+def test_the_unit_that_names_a_command_blocks_output_path_passes_the_guard() -> None:
+    """The same case at the guard: the sentence lane C measured is accepted, and the same sentence
+    naming a path no fact spells is still rejected."""
+    task = SectionTask(
+        "development_testing",
+        {},
+        frozenset({"inherited_unit:047.code_block", "build_test_asset:pom"}),
+        ("summary",),
+        slot_facts={
+            "summary": frozenset({"inherited_unit:047.code_block", "build_test_asset:pom"})
+        },
+        slot_titles={},
+    )
+
+    def _output(path: str) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "development_testing",
+                    "slot": "summary",
+                    "text": "Build and test from the repository's own pom.xml, and generate the "
+                    f"API documentation with mvn javadoc:javadoc, which writes {path}.",
+                    "fact_ids": ["inherited_unit:047.code_block", "build_test_asset:pom"],
+                }
+            ],
+            "omitted": [],
+        }
+
+    assert (
+        unit_checks(_output("docs/apidocs/index.html"), task, CELLS_JAVA_FACTS, CELLS_JAVA_NAME)
+        == []
+    )
+    assert unit_checks(
+        _output("docs/apidocs/output.html"), task, CELLS_JAVA_FACTS, CELLS_JAVA_NAME
+    ) == ["unit summary: identifiers that are not accepted fact values: output.html"]
 
 
 def test_the_hosting_site_a_verified_link_names_is_a_proper_noun_too() -> None:

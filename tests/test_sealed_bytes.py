@@ -96,11 +96,29 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # release tagging convention ... present in the original" - not yet investigated, not RC-06's
 # scope, needs its own taskcard. `strict=True` so an accidental future fix shows as XPASS (a
 # failure) instead of silently staying invisible under an outdated xfail.
+# G4-W17 arrival item 44 (docs/DECISION_LOG.md, 2026-09-11) is a renderer-affecting fix:
+# allowed_identifiers() now also extracts identifiers from a
+# SUPPORTED fact's own shell-command fence (command_block_tokens), not from an executed example
+# alone. Aspose.Cells for C++'s sealed bundle already carries "nuget install
+# Aspose.Cells.Cpp.FOSS" in a real, SUPPORTED inherited_unit code block (the package's own
+# upstream README), so the package name is now a recognized identifier and one authored limitation
+# sentence - "...published on NuGet as Aspose.Cells.Cpp.FOSS and requires..." - wraps it in
+# backticks, matching how the upstream README's own inherited prose already spells the identical
+# name elsewhere in this same candidate. One line changed (diff checked directly, not assumed);
+# no other content moved. A real, deliberate, correct rendering-behavior change, not a regression -
+# the candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up, since
+# validation/review were judged against the old bytes; that re-seal is separate follow-up work, not
+# this fix's own scope. `strict=True` for the same reason as the entry above.
 KNOWN_BLOCKED_STALE = {
     "aspose-email-foss__Aspose.Email-FOSS-for-Python": (
         "genuine BC-10 rejection (F07, development_testing content gap) - unrelated to the "
         "original RC-06-targeted duplication, which is confirmed fixed; see comment above"
-    )
+    ),
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Cpp": (
+        "G4-W17 item 44's command_block_tokens landing correctly wraps Aspose.Cells.Cpp.FOSS in "
+        "backticks in one authored sentence (real identifier, spelled in a SUPPORTED command "
+        "block); needs a real re-seal, not a code fix - see comment above"
+    ),
 }
 
 
