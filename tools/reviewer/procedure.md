@@ -100,6 +100,29 @@ the lane rebases per its prompt §4) — `docs/RESEARCH_LANE_B.md` entries
 primary, or decline in §31. If the account's usage cap is hit, lane B pauses first (do not re-spawn
 until the primary is running again). Lane B's sealed bundles count in `status` once merged.
 
+## 2c. Monitor events — one action per event class (referenced by stop_monitor.py since 2026-09-06; written PHASE1/F1)
+
+- `WATCHING <file> | TRANSCRIPT_WARNING …` — the monitor resolved a dead or wrong transcript. Fix
+  before trusting anything else: identify the live executor session, write its transcript path to
+  `tools/reviewer/.local/executor_transcript.txt`, restart the monitors (§0).
+- `LOOP_STOPPED` — read the last report; if the stop was not §7-legal (definition of done, or every
+  path blocked/prohibited), re-arm: SendMessage `Reviewer: your stop at <ts> does not meet §7's
+  stop conditions — continue.` + the re-arm line.
+- `LOOP_CAPPED` — note the reset time; re-arm at first wake after it; PushNotification the owner;
+  lane B pauses first (§2b).
+- `LOOP_SILENT` — the §2 ladder's stalled row: re-arm at once with the missed-wakeup message.
+- `LOOP_RESUMED` — no action; confirm the next status line looks like real work, not a restart loop.
+- `UNBLOCKED item(N) … re-run: <lane:repo>` — §2b re-spawn: verify the disposition is still open
+  (one minute), then spawn that lane's re-run if no run is live.
+- `LEDGER_GAP item(N)` — the executor landed an arrival item without appending its
+  `unblocked.jsonl` line: message it to append (one line, `{"item": N, "landed_at": …,
+  "unlocks": [[lane, repo], …]}` from the item's own bracket citation), and read the item's
+  citation yourself for any lane re-spawn that should not wait.
+- Fabricated-timestamp / accept-shaped events (timestamp_monitor) — the §2 ladder's §31 and
+  accept-in-part rows; read the entry/commit in full before any confirmation.
+- After EVERY event: also run a quick `reviewer_check.py` pass — react to the event AND re-check
+  globally (the 2026-09-06 watch-field lesson).
+
 ## 3. Forward look (active item is the gate's last, or the gate changed)
 
 Next gate's ESM section and first §27.9 item: exit predicates satisfiable? Toolchains present for the

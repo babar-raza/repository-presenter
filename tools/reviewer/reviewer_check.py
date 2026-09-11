@@ -31,12 +31,12 @@ from pathlib import Path
 
 import yaml
 
+from transcript_path import resolution_report, resolve_transcript
+
 REPO = Path(__file__).resolve().parents[2]  # tools/reviewer/this_file.py -> repo root
-TRANSCRIPT = Path(os.environ.get(
-    "REVIEWER_LOOP_TRANSCRIPT",
-    r"C:\Users\prora\.claude\projects\d--Users-prora-OneDrive-Documents-GitHub-repository-presenter"
-    r"\4705e217-53a5-4974-aa24-559ae9abbd05.jsonl",
-))
+# PHASE1/F1: resolved, never hard-coded — the baked-in session path went dead on 2026-09-10 and
+# every consumer silently monitored a file the executor no longer wrote.
+TRANSCRIPT = resolve_transcript()
 STATE = Path(os.environ.get("REVIEWER_STATE_PATH", str(Path(__file__).parent / ".local" / "reviewer_state.json")))
 LOOP_SUBJECT = re.compile(r"\((G\d_[A-Z_]+)/(G\d-W\d+)\)\s*$")
 GROWTH_IDENT = re.compile(
@@ -454,8 +454,10 @@ def repo_checks(state: dict, since_iso: str) -> tuple[list[str], dict]:
             ev.append(mf.relative_to(REPO).as_posix())
     out.append(flag(f"evidence manifests with deferral language (accept-in-part signal): {ev}") if ev else ok("no deferral language in evidence manifests"))
 
-    # section 31
-    body = research[research.find("## 31"):]
+    # section 31 — lives in docs/DECISION_LOG.md since the 2026-09-08 split; RESEARCH keeps only a
+    # stub whose "## 31" heading made this scan report a confident zero (PHASE1/F1). The whole log
+    # is section 31, so scan the full file rather than slicing on a heading that can move again.
+    body = (REPO / "docs/DECISION_LOG.md").read_text(encoding="utf-8")
     starts = [m.start() for m in re.finditer(r"^- \*\*2026", body, re.M)]
     metrics["s31_total"] = len(starts)
     reviewed = state.get("reviewed_entries", 0)
@@ -516,7 +518,7 @@ def ci_state() -> str:
 
 # ----------------------------------------------------------------------------- behaviour, quality, deadline
 
-DEADLINE = dt.datetime.fromisoformat("2026-09-07T00:00:00+05:00")  # owner, 2026-09-05: "before Monday"
+DEADLINE = dt.datetime.fromisoformat("2026-09-15T08:00:00+05:00")  # owner, 2026-09-11: PHASE1 sprint "before Monday" (plans/sprint/PHASE1-SPRINT-PLAN.md)
 CANDIDATE_ITEMS = {"G3-W01", "G3-W04", "G4-W11", "G4-W12", "G4-W13", "G4-W14", "G4-W15", "G4-W16"}
 LOOP_ALLOWED_PREFIXES = ("src/", "tests/", "prompts/", "candidates/", "evidence/", "runs/", "docs/README_CONTRACT.md",
                          "docs/RESEARCH_AND_GUIDELINES.md", "project/state.yaml", "pyproject.toml", "uv.lock", "docs/STATE_MACHINE.md",
@@ -696,6 +698,32 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
                             out.append(flag(f"{name} PR #{p['number']} ({sha}) touched non-lane paths: {bad[:4]}"))
         except Exception as exc:
             out.append(info(f"lane check skipped for {lane_path.name}: {exc.__class__.__name__}: {exc}"))
+    # --- open PRs by AGE, label-independent (PHASE1/F1: PRs #29/#30 carried no lane label, and no
+    # code anywhere computed a PR's age — 3 d 18 h stranded, invisible to the label-scoped query
+    # above even when the reviewer was alive; merged lane PRs normally land ~3 min after CI green)
+    try:
+        allprs = json.loads(subprocess.run(
+            ["gh", "pr", "list", "--state", "open", "--limit", "30", "--json", "number,createdAt,labels,headRefName"],
+            cwd=REPO, capture_output=True, text=True, encoding="utf-8", timeout=60).stdout or "[]")
+        aged = 0
+        for p in allprs:
+            pr_labels = {lb.get("name", "") for lb in p.get("labels", [])}
+            age_min = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(p["createdAt"].replace("Z", "+00:00"))).total_seconds() / 60
+            if age_min > 30 and "hold" not in pr_labels:
+                aged += 1
+                out.append(flag(f"open PR #{p['number']} ({p['headRefName'][:30]}) is {age_min:.0f} min old with no 'hold' label — adopt or close it this wake (loop-prompt §1.1 pushed-but-unmerged)"))
+        if not aged:
+            out.append(ok(f"no open PR older than 30 min ({len(allprs)} open)"))
+    except Exception as exc:
+        out.append(info(f"open-PR age check skipped: {exc.__class__.__name__}"))
+    wt_raw = git("worktree", "list", "--porcelain")
+    wt_blocks = [b for b in wt_raw.strip().split("\n\n") if b.strip()]
+    prunable_wt = [b.splitlines()[0].split(" ", 1)[1] for b in wt_blocks if "prunable" in b]
+    leftover_wt = [b.splitlines()[0].split(" ", 1)[1] for b in wt_blocks if ".claude" in b.splitlines()[0]]
+    if prunable_wt or leftover_wt:
+        out.append(flag(f"worktrees needing attention — prunable: {prunable_wt}; .claude leftovers: {leftover_wt} — a dead lane leaves its worktree behind; inspect for unlanded work, then `git worktree prune`"))
+    else:
+        out.append(ok("no stale worktrees"))
     # --- deadline
     hours_left = (DEADLINE - now).total_seconds() / 3600
     q = [x["id"] for x in sy.get("next_ready_items") or []]
@@ -755,25 +783,28 @@ def main() -> int:
             lines.append(ok(f"reviewer cadence: last wake {gap_min:.0f} min ago"))
     else:
         lines.append(info("no prior wake recorded (first run, or state file reset)"))
+    tr_note = resolution_report(TRANSCRIPT)
+    if tr_note and tr_note.startswith("TRANSCRIPT_WARNING"):
+        lines.append(flag(tr_note))
+    elif tr_note:
+        lines.append(info(tr_note))
+    else:
+        lines.append(ok(f"transcript: {TRANSCRIPT.name} (fresh)"))
+    # PHASE1/F1: the old check here compared unblock_monitor's hand table against one prose phrasing
+    # ("after (N)... re-spawn") the arrival list stopped using — it printed a confident OK while the
+    # table was 16 items behind. The table is retired; the check is now structure vs structure: every
+    # item the section-31 prose says landed must have an unblocked.jsonl ledger record (the executor
+    # appends one per landing — a gap means the ledger discipline broke, procedure section 2c).
     try:
-        um_path = Path(__file__).with_name("unblock_monitor.py")
-        um_src = um_path.read_text(encoding="utf-8")
-        table_m = re.search(r"ITEM_UNLOCKS[^=]*=\s*\{(.*?)\n\}", um_src, re.S)
-        table_keys = {int(k) for k in re.findall(r"^\s*(\d+):", table_m.group(1), re.M)} if table_m else set()
-        research_txt = (REPO / "docs/RESEARCH_AND_GUIDELINES.md").read_text(encoding="utf-8")
-        w17_i = research_txt.find("- id: G4-W17")
-        w17_j = research_txt.find("\n- id:", w17_i + 10)
-        w17_text = research_txt[w17_i:w17_j] if w17_i >= 0 else ""
-        # Every item number RESEARCH's own text says a re-run depends on ("after (N)... re-spawn/
-        # re-run") should have a table entry; a gap here is exactly the item-1/2/12 shape.
-        trigger_items = {int(n) for n in re.findall(r"after \(?(\d+)\)?[^.]{0,60}(?:re-spawn|re-run)", w17_text, re.I)}
-        missing = sorted(trigger_items - table_keys)
-        if missing:
-            lines.append(flag(f"unblock_monitor.py's ITEM_UNLOCKS is missing item(s) {missing} that RESEARCH's own G4-W17 text names as a re-spawn trigger — add them now"))
+        from unblock_monitor import landed_items
+        landed = landed_items()
+        no_ledger = sorted(item for item, unlocks in landed.items() if unlocks is None)
+        if no_ledger:
+            lines.append(flag(f"arrival item(s) {no_ledger} read as landed in section 31 but have no unblocked.jsonl record — ask the executor to append them (unlock targets are in each item's own bracket citation)"))
         else:
-            lines.append(ok(f"unblock_monitor.py's table covers every re-spawn trigger RESEARCH names ({len(table_keys)} entries)"))
+            lines.append(ok(f"unblock ledger covers every landed arrival item the log names ({len(landed)} landed)"))
     except Exception as exc:
-        lines.append(info(f"self-check of unblock_monitor's table skipped: {exc.__class__.__name__}"))
+        lines.append(info(f"ledger self-check skipped: {exc.__class__.__name__}: {exc}"))
 
     # 1 liveness
     lines.append("## 1 Liveness")

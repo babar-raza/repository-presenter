@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 import re
 import subprocess
 import sys
@@ -19,12 +18,11 @@ from pathlib import Path
 
 # Owner/reviewer tooling (docs/REPOSITORY_LAYOUT.md) — never imported by src/repository_presenter,
 # never touched by the loop or a lane.
+# PHASE1/F1: transcript resolved, never hard-coded (see transcript_path.py's incident note).
+from transcript_path import resolution_report, resolve_transcript
+
 REPO = Path(__file__).resolve().parents[2]
-TRANSCRIPT = Path(os.environ.get(
-    "REVIEWER_LOOP_TRANSCRIPT",
-    r"C:\Users\prora\.claude\projects\d--Users-prora-OneDrive-Documents-GitHub-repository-presenter"
-    r"\4705e217-53a5-4974-aa24-559ae9abbd05.jsonl",
-))
+TRANSCRIPT = resolve_transcript()
 STAMP = re.compile(r"\*\*(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2})")
 
 
@@ -36,6 +34,8 @@ def tail_lines(n_bytes: int = 400_000) -> list[str]:
 
 
 def main() -> None:
+    startup = resolution_report(TRANSCRIPT)
+    print(f"WATCHING {TRANSCRIPT.name}" + (f" | {startup}" if startup else ""), flush=True)
     seen_stamps: set[str] = set()
     seen_accepts: set[str] = set()
     while True:

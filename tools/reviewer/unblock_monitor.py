@@ -1,22 +1,24 @@
 """Mechanized lane-unblock detector (runs under the Monitor tool; owner/reviewer tooling).
 
-Root cause this exists to remove: on 2026-09-06, G4-W17 arrival item (0) landed at 12:30 and item
-(1) (subsuming item 15) at 12:37 — both known, in advance, to make specific lane dispositions
-re-runnable — and neither lane was re-spawned until a human noticed by hand at 13:42, over an hour
-later. The trigger "when item N lands, re-run lane X's disposition Y" lived only in the reviewer's
-prose memory and the reviewer's own cron did not fire reliably across an idle gap. This script makes
-the trigger mechanical: it parses which arrival items have landed from RESEARCH_AND_GUIDELINES.md's
-section 31 (self-contained; needs no cooperation from the loop), checks a maintained table of which
-landed items each known disposition needs, and emits one line the instant a disposition becomes
-newly re-runnable — an event, not a scheduled poll, so it does not depend on cron cadence at all.
+Root cause this exists to remove: on 2026-09-06, G4-W17 arrival items landed that were known, in
+advance, to make specific lane dispositions re-runnable — and no lane was re-spawned until a human
+noticed by hand over an hour later. The trigger "when item N lands, re-run lane X" must be
+mechanical, an event rather than a scheduled poll.
 
-Durable upgrade this stands in for (not yet built, needs loop-prompt cooperation): when the loop
-lands a G4-W17 arrival item, it appends a line to
-evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl naming exactly what it unblocks (it already
-has this knowledge — the item's own bracket citation names the lane and repository). That removes
-the ITEM_UNLOCKS table below, which is honest, bounded curation, not full automation, and needs a
-manual entry for every new G4-W17 item. Until that lands, this script's fallback (regex over section
-31 text) is the safety net; keep both once the ledger exists.
+PHASE1/F1 (2026-09-11) retired the hand-maintained ITEM_UNLOCKS table this module used to carry.
+The table froze at item 33 while the arrival list reached 49, and the audit that was meant to catch
+that compared the table against one prose phrasing the list had abandoned — a confident false OK.
+Its own docstring had already named the durable design: the structured ledger at
+evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl, one JSON object per landing,
+`{"item": int, "landed_at": iso, "unlocks": [[lane, repository], ...]}`, appended by the executor
+in the landing commit. That ledger is now the single source of unlock targets. The section-31
+prose regex remains only as a landed-detector safety net: an item it sees landed that has no
+ledger record is REPORTED as a ledger gap — never silently dropped (the old code's
+`continue`-before-`reported.add` re-dropped such items every 60 s forever).
+
+Section 31 itself moved to docs/DECISION_LOG.md on 2026-09-08; the old code kept reading the stub
+left in RESEARCH_AND_GUIDELINES.md and its regex half went permanently blind. The whole decision
+log is section 31, so the scan takes the full committed file — no heading slice to go stale.
 """
 from __future__ import annotations
 
@@ -28,65 +30,15 @@ import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-RESEARCH = REPO / "docs" / "RESEARCH_AND_GUIDELINES.md"
+DECISION_LOG = "docs/DECISION_LOG.md"
 LEDGER = REPO / "evidence" / "build" / "G4_MULTI_LANGUAGE_COHORTS" / "unblocked.jsonl"
 
-# item number -> [(lane file stem, repository substring), ...] it is known (2026-09-06) to unblock.
-# Maintain this by hand as new arrival items are proposed and landed — see the durable-upgrade note
-# above for why this is curation, not automation, and how to remove the need for it.
-ITEM_UNLOCKS: dict[int, list[tuple[str, str]]] = {
-    0: [
-        ("lane-b", "Aspose.Cells-FOSS-for-Cpp"), ("lane-b", "Aspose.Email-FOSS-for-Cpp"),
-        ("lane-b", "Aspose.PDF-FOSS-for-Cpp"), ("lane-b", "Aspose.Slides-FOSS-for-Cpp"),
-        ("lane-d", "Aspose.Cells-FOSS-for-Rust"),
-    ],
-    1: [
-        ("lane-b", "Aspose.Email-FOSS-for-Cpp"),
-        ("lane-b", "Aspose.3D-FOSS-for-TypeScript"),  # item 1's ORIGINAL subject, missed here for 6h
-    ],
-    2: [("lane-b", "Aspose.Cells-FOSS-for-TypeScript")],  # the MAX_PATH fix item 1's own text names
-    5: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],  # Verify-the-install, Rust's `use` syntax
-    8: [("lane-d", "Aspose.Cells-FOSS-for-Go"), ("lane-d", "Aspose-PDF-FOSS-for-Go")],  # missed ~4h
-    9: [("lane-d", "Aspose.Cells-FOSS-for-Go"), ("lane-d", "Aspose-PDF-FOSS-for-Go")],
-    11: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],
-    12: [("lane-c", "Java")],  # all four Java repositories
-    22: [("lane-d", "Aspose.Cells-FOSS-for-Rust")],  # narration guard, not yet landed
-    20: [("lane-b", "Aspose.Cells-FOSS-for-Cpp")],
-    21: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
-    24: [
-        ("lane-b", "Aspose.PDF-FOSS-for-Cpp"), ("lane-b", "Aspose.Cells-FOSS-for-Cpp"),
-        ("lane-b", "Aspose.Email-FOSS-for-Cpp"), ("lane-b", "Aspose.Slides-FOSS-for-Cpp"),
-    ],
-    25: [("lane-b", "Aspose.Email-FOSS-for-Cpp")],
-    26: [("lane-b", "Aspose.Slides-FOSS-for-Cpp")],
-    # 27 landed 21:27 (SYMBOL_CAP 150->6000); confirmed re-spawn target below, added by hand since
-    # this table update and the re-spawn happened in the same reviewer turn, not from this signal.
-    27: [("lane-d", "Aspose-PDF-FOSS-for-Go")],
-    # 28-30 (lane D's own PROPOSALs) and 32-35 not yet landed as of this table update - add their
-    # targets here the moment §31 records them landed, not reactively after noticing a gap.
-    28: [("lane-d", "Aspose.Cells-FOSS-for-Go")],  # BC-10 whole-review-rejection fold, not reject
-    32: [("lane-c", "Java")],  # 3D Java's link-ceiling-over-preserved-units blocker
-    33: [("lane-c", "Java")],  # Slides Java's renderer-mandated BC-10 shape
-    # 31 (PDF-TypeScript registry flip) has no lane target: this repository was never assigned to a
-    # lane (registry mode was `disabled`, disposition-only); the primary itself runs the pipeline on
-    # it directly, not a lane re-spawn - intentionally absent from this table, not a missed entry.
-}
-
-# Matches "item N landed", "item N declined ...; closed with a mutation test" (item 1's actual shape
-# on 2026-09-06: the literal proposal was declined but its underlying defect was fixed under a
-# different mechanism), and a comma/and-separated list of any length ("items 8, 9 and 12 landed
-# together" — the exact phrasing that hid item 12 from this monitor for over four hours on
-# 2026-09-06, silently costing lane C its whole re-run window; fixed once found). Free text is
-# inherently fuzzy here; this errs toward over-notifying (a false positive costs one wasted check)
-# rather than under-notifying (a false negative costs another silent multi-hour gap).
-#
-# The "G4-W17 arrival item(s)" prefix requirement (dropped 2026-09-06 21:48) was itself an instance
-# of the exact defect class this docstring already warns about: fitted to early phrasing, silently
-# blind to later drift. A restart at 21:47 replayed only items 0-20 as "landed" - items 21 through
-# 35, all landed or confirmed the same evening, were invisible because §31 had moved to plainer
-# phrasing ("item 24 ... live-verified", "item 31 ... flipped", "item 27 ... both landed") with no
-# "G4-W17 arrival item" prefix at all. The prefix is now optional and the verb list wider; a bare
-# "item N" is enough, on the same over-notify-rather-than-miss philosophy as the list-length fix.
+# Matches "item N landed", "item N ... live-verified", and comma/and-separated lists of any length
+# ("items 8, 9 and 12 landed together" — the exact phrasing that hid item 12 for over four hours on
+# 2026-09-06). Free text is inherently fuzzy; this errs toward over-notifying (a false positive
+# costs one wasted check) rather than under-notifying (a false negative costs a silent multi-hour
+# gap). Prefix optional and verb list wide, per the 2026-09-06 21:48 lesson: a check fitted to one
+# phrasing goes silently blind when the phrasing drifts.
 LANDED_CLAUSE_RE = re.compile(
     r"(?:G4-W17 arrival )?item[s]?\s*((?:\(?\d+\)?[\s,]*(?:and)?[\s,]*)+)"
     r"[^.\n]{0,100}?\b(?:land(?:ed|s)|live-verified|flipped|raised|both\s+landed|"
@@ -96,17 +48,14 @@ LANDED_CLAUSE_RE = re.compile(
 NUMBER_RE = re.compile(r"\d+")
 
 
-def _committed_research_text() -> str | None:
-    """The last COMMITTED content of RESEARCH_AND_GUIDELINES.md (`git show HEAD:...`), not whatever
-    is currently on disk. Added 2026-09-06 22:50 after this monitor read a draft, uncommitted §31
-    entry straight off the shared working tree and reported item 22 "landed" while the primary was
-    still mid-writing that entry and validation/registry.py was still dirty - a real false positive,
-    caught only because a second, commit-only signal (the mechanical shared-code file-diff monitor)
-    correctly stayed silent. Reading the working tree directly is exactly the same class of mistake
-    as trusting a claim before its evidence lands: the prose exists, but nothing is true yet."""
+def _committed_text(rel_path: str) -> str | None:
+    """The last COMMITTED content (`git show HEAD:<path>`), not whatever is on disk. Added
+    2026-09-06 22:50 after this monitor read a draft, uncommitted section-31 entry straight off the
+    shared working tree and reported an item "landed" mid-write. A claim is not a signal until it
+    is committed."""
     try:
         result = subprocess.run(
-            ["git", "show", "HEAD:docs/RESEARCH_AND_GUIDELINES.md"],
+            ["git", "show", f"HEAD:{rel_path}"],
             cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
         )
     except Exception:
@@ -114,22 +63,16 @@ def _committed_research_text() -> str | None:
     return result.stdout if result.returncode == 0 else None
 
 
-def landed_items() -> set[int]:
-    """Union of two independent signals, neither trusted alone (2026-09-06 21:50, after this
-    regex-only version went blind on items 21-31 the same evening): the regex over section 31's
-    prose AS LAST COMMITTED (never the live working tree - see `_committed_research_text`), and the
-    structured ledger at LEDGER - one JSON object per line, `{"item": int, ...}` - that the primary
-    is asked (Reviewer message, same day) to append to the moment it lands a G4-W17 arrival item.
-    The ledger is the durable signal this module's own original docstring called for and never had;
-    until the primary actually writes it, this function silently falls back to regex-only, exactly
-    as before."""
-    found: set[int] = set()
-    text = _committed_research_text()
+def landed_items() -> dict[int, list[tuple[str, str]] | None]:
+    """Item number -> its unlock targets from the ledger, or None when only the prose regex saw it
+    land (a ledger gap to report, not to drop). Two independent signals, neither trusted alone:
+    the ledger is authoritative for targets; the regex is the safety net for detection."""
+    found: dict[int, list[tuple[str, str]] | None] = {}
+    text = _committed_text(DECISION_LOG)
     if text is not None:
-        body = text[text.find("## 31"):]
-        for m in LANDED_CLAUSE_RE.finditer(body):
+        for m in LANDED_CLAUSE_RE.finditer(text):
             for num in NUMBER_RE.findall(m.group(1)):
-                found.add(int(num))
+                found.setdefault(int(num), None)
     if LEDGER.exists():
         for line in LEDGER.read_text(encoding="utf-8", errors="replace").splitlines():
             line = line.strip()
@@ -137,27 +80,37 @@ def landed_items() -> set[int]:
                 continue
             try:
                 record = json.loads(line)
-                found.add(int(record["item"]))
+                item = int(record["item"])
+                unlocks = [tuple(u) for u in record.get("unlocks") or []]
+                found[item] = unlocks
             except Exception:
                 continue  # one malformed line never blocks every other line's signal
     return found
 
 
 def main() -> None:
-    """Emit one line per (landed item, its known unlocks) the first time each item is seen landed.
-    Deliberately does NOT try to confirm the disposition is still open — that requires reading free
-    prose reliably, which is fragile (see the module docstring); a human or the reviewer's next wake
-    confirms in under a minute. The point is that the notification arrives at all, immediately."""
+    """Emit one line per landed item the first time it is seen: its ledger unlock targets when the
+    ledger has them, an explicit ledger-gap line when it does not. Deliberately does NOT try to
+    confirm a disposition is still open — a human or the reviewer's next wake confirms in under a
+    minute. The point is that the notification arrives at all, immediately."""
     reported: set[int] = set()
     while True:
         try:
-            for item in sorted(landed_items() - reported):
-                unlocks = ITEM_UNLOCKS.get(item)
-                if not unlocks:
+            for item, unlocks in sorted((landed_items()).items()):
+                if item in reported:
                     continue
                 reported.add(item)
-                targets = ", ".join(f"{lane}:{repo}" for lane, repo in unlocks)
-                print(f"UNBLOCKED item({item}) landed -> check and re-run: {targets}", flush=True)
+                if unlocks:
+                    targets = ", ".join(f"{lane}:{repo}" for lane, repo in unlocks)
+                    print(f"UNBLOCKED item({item}) landed -> check and re-run: {targets}", flush=True)
+                elif unlocks is None:
+                    print(
+                        f"LEDGER_GAP item({item}) reads as landed in section 31 but has no "
+                        f"unblocked.jsonl record — check its bracket citation for lane targets and "
+                        f"ask the executor to append the ledger line (procedure 2c)",
+                        flush=True,
+                    )
+                # unlocks == [] is a landed item that unblocks nothing: recorded, no event needed.
         except Exception as exc:
             print(f"MONITOR_ERROR {exc.__class__.__name__}: {exc}", file=sys.stderr, flush=True)
         time.sleep(60)

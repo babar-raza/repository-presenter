@@ -12,19 +12,17 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import os
 import re
 import sys
 import time
-from pathlib import Path
 
 # Owner/reviewer tooling (docs/REPOSITORY_LAYOUT.md) — supervises the loop from outside; never
 # imported by src/repository_presenter, never touched by the loop or a lane.
-TRANSCRIPT = Path(os.environ.get(
-    "REVIEWER_LOOP_TRANSCRIPT",
-    r"C:\Users\prora\.claude\projects\d--Users-prora-OneDrive-Documents-GitHub-repository-presenter"
-    r"\4705e217-53a5-4974-aa24-559ae9abbd05.jsonl",
-))
+# PHASE1/F1: the transcript is resolved, never hard-coded — a dead session's path baked in here is
+# how every monitor went blind on 2026-09-11 (watched 4705e217 while the executor ran elsewhere).
+from transcript_path import resolution_report, resolve_transcript
+
+TRANSCRIPT = resolve_transcript()
 TAIL_BYTES = 3_000_000
 LIMIT = re.compile(r"session limit|hit your (session|usage) limit|usage limit|resets \d", re.I)
 
@@ -59,6 +57,8 @@ def tail_state() -> dict:
 
 
 def main() -> None:
+    startup = resolution_report(TRANSCRIPT)
+    print(f"WATCHING {TRANSCRIPT.name}" + (f" | {startup}" if startup else ""), flush=True)
     reported: set[str] = set()
     alerted = False
     while True:
