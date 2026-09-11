@@ -665,7 +665,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         (project_with_registry / facts_dir / "investigation.json").read_text("utf-8")
     )
     assert written_investigation == LOCAL_INVESTIGATION
-    assert len(gateway_ready.requests) == 12
+    assert len(gateway_ready.requests) == 13
     request = gateway_ready.requests[0]
     assert request["model"] == "qwen3-next"
     assert request["response_format"]["type"] == "json_schema"
@@ -700,6 +700,8 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "source_reconciliation",
         "presentation_planning",
         *(["section_authoring"] * 8),
+        # The accept is corroborated by a second read under a different seed (PHASE1/F6).
+        "independent_review",
         "independent_review",
     ]
     shell_packet = json.loads(
@@ -713,7 +715,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         in gateway_ready.requests[1]["messages"][1]["content"]
     )
     ledger = (project_with_registry / facts_dir / "calls.jsonl").read_text("utf-8").splitlines()
-    assert len(ledger) == 12 and all('"disposition":"provider_call"' in line for line in ledger)
+    assert len(ledger) == 13 and all('"disposition":"provider_call"' in line for line in ledger)
     assert "coherence: 0 of 10 units revised; provider calls 1, model qwen3-next" in captured.out
     assert LIVE_KEY not in "".join(ledger)
     units_line = next(line for line in captured.out.splitlines() if line.startswith("units: "))
@@ -812,13 +814,13 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
     assert code == EXIT_OK and captured.err == ""
     bundle_dir = f"candidates/aspose-3d-foss__Aspose.3D-FOSS-for-Python/{revision}"
     assert (
-        f"bundle: {bundle_dir} (state ACCEPTED, 13 files, provider calls 12; sealed; "
+        f"bundle: {bundle_dir} (state ACCEPTED, 13 files, provider calls 13; sealed; "
         "the no-op proof needs a rerun in a fresh process)"
     ) in captured.out
     bundle = project_with_registry / bundle_dir
     manifest = json.loads((bundle / "manifest.json").read_text("utf-8"))
     assert manifest["state"] == "ACCEPTED" and manifest["no_op_proof"] is None
-    assert manifest["revision"] == revision and manifest["provider_calls"] == 12
+    assert manifest["revision"] == revision and manifest["provider_calls"] == 13
     assert sorted(manifest["files"]) == sorted(
         [
             "README.md",
@@ -855,7 +857,7 @@ def test_present_admits_clones_and_captures_the_source_snapshot(
         "shell": "5",
         "renderer": "18",
         "normalisation": "2",
-        "reviewer_logic": "2",
+        "reviewer_logic": "3",
     }
     assert "install_command:pip" in dependencies["facts"]
     assert local_canary["calls"] == [
@@ -910,16 +912,17 @@ def test_present_rerun_on_the_same_revision_is_byte_identical_with_zero_calls(
     # the same way the units line (authoring, also multi-call) already does.
     assert first.count("provider calls 1, model qwen3-next") == 4
     assert second.count("provider calls 0, model stored output reused") == 4
-    assert len(gateway_ready.requests) == 12
+    # 13, not 12: the accept's corroborating second read is one more first-run call (PHASE1/F6).
+    assert len(gateway_ready.requests) == 13
     assert "provider calls 7; digest" in first and "provider calls 0; digest" in second
     assert (
         "coherence: 0 of 10 units revised; provider calls 0, model stored output reused" in second
     )
     transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
-    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 12 + [
+    assert [json.loads(line)["disposition"] for line in ledger] == ["provider_call"] * 13 + [
         "cache_reuse"
-    ] * 12
+    ] * 13
 
 
 def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
@@ -966,8 +969,14 @@ def test_present_from_an_empty_runs_directory_reuses_a_sealed_bundle(
     made = gateway_ready.requests[before:]
     names = [request["response_format"]["json_schema"]["name"] for request in made]
     # The batch task and coherence (out of scope here, see the docstring) plus the unseeded
-    # review - three real calls, not the fourteen-plus a fully cold run would cost.
-    assert names == ["section_authoring", "section_authoring", "independent_review"]
+    # review and its corroborating second read (PHASE1/F6) - four real calls, not the
+    # fourteen-plus a fully cold run would cost.
+    assert names == [
+        "section_authoring",
+        "section_authoring",
+        "independent_review",
+        "independent_review",
+    ]
 
 
 def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
@@ -997,10 +1006,10 @@ def test_present_fresh_skips_seeding_even_against_a_warm_local_transaction(
     assert not any(line.startswith("seeded from sealed bundle:") for line in lines)
     assert "fresh: call store not seeded from the sealed bundle; every job calls live" in lines
     made = gateway_ready.requests[before:]
-    # The seeded case costs exactly 3 real calls (the sibling test's own documented count);
+    # The seeded case costs exactly 4 real calls (the sibling test's own documented count);
     # --fresh, against the identical revision and an already-warm local transaction, must cost
     # strictly more - proof neither the sealed bundle nor the leftover local cache answered.
-    assert len(made) > 3
+    assert len(made) > 4
 
 
 OPENING_QUOTE = "Developers using Python use it to write GLB from code."
@@ -1089,7 +1098,13 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 2"
     ) in captured.out
     names = [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests]
-    assert names[12:] == ["targeted_repair", "section_authoring", "independent_review"]
+    # Round 1's rejection earns no second read; round 2's accept is corroborated (PHASE1/F6).
+    assert names[12:] == [
+        "targeted_repair",
+        "section_authoring",
+        "independent_review",
+        "independent_review",
+    ]
     repair_request = gateway_ready.requests[12]["messages"][1]["content"]
     assert "Causal stage: S6" in repair_request and OPENING_QUOTE in repair_request
     assert '"equivalent_findings"' in repair_request and '"F02"' in repair_request
@@ -1137,19 +1152,20 @@ def test_present_repairs_a_rejected_candidate_once_and_re_reviews(
     bundle_validation = json.loads((bundle / "validation.json").read_text("utf-8"))
     assert bundle_validation["summary"] == {"pass": 11, "fail": 0, "pending": 0}
     assert (bundle / "README.md").read_bytes() == (transaction / "README.md").read_bytes()
-    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 15
+    assert "provider calls 1" not in rerun and len(gateway_ready.requests) == 16
     # repairs.json is the transaction's history: the rerun reports it and attempts nothing.
     assert (
         "repair: 1 repaired (F01+F02 S6 opening), 0 unrepairable recorded advisory; rounds 1"
     ) in rerun
     ledger = (transaction / "calls.jsonl").read_text("utf-8").splitlines()
     # Round one and the repair call the provider; round two reuses every unchanged stage and
-    # calls only coherence and the review; the rerun reuses everything.
+    # calls only coherence, the review, and the accept's corroborating second read (PHASE1/F6);
+    # the rerun reuses everything, the second read included.
     dispositions = [json.loads(line)["disposition"] for line in ledger]
     assert dispositions[:12] == ["provider_call"] * 12
     assert dispositions[13:23] == ["cache_reuse"] * 10
-    assert dispositions[23:25] == ["provider_call"] * 2
-    assert dispositions[25:] == ["cache_reuse"] * 12
+    assert dispositions[23:26] == ["provider_call"] * 3
+    assert dispositions[26:] == ["cache_reuse"] * 13
 
 
 def test_present_reports_a_second_equivalent_failure_instead_of_retrying(
@@ -1397,7 +1413,7 @@ def test_a_prose_judgment_one_reader_raised_is_read_again_before_it_holds_the_ca
     assert review["findings"] == []
     assert [f["id"] for f in review["advisory"]] == ["F01"]
     assert review["advisory"][0]["single_reader_advisory"] is True
-    assert review["second_reader"] == {"read": True, "corroborated": []}
+    assert review["second_reader"] == {"read": 2, "corroborated": []}
     # It cost exactly one extra call, under the same prompt: two reads with different request
     # hashes and one prompt identity, so every dependency the candidate records is unchanged.
     calls = [
@@ -1973,11 +1989,14 @@ def test_a_reviewer_rubric_change_reopens_reviewing_only(
     assert (
         "(earliest affected stage REVIEWING; 1 changes (prompts.independent_review -> REVIEWING)"
     ) in out
-    # Only the review is asked again; the plan and every authored unit are reused.
-    assert len(gateway_ready.requests) == before + 1
-    assert gateway_ready.requests[-1]["response_format"]["json_schema"]["name"] == (
-        "independent_review"
-    )
+    # Only the review is asked again - both reads, since the accept needs its corroborating
+    # second read under the revised rubric too (PHASE1/F6); the plan and every authored unit
+    # are reused.
+    assert len(gateway_ready.requests) == before + 2
+    assert [r["response_format"]["json_schema"]["name"] for r in gateway_ready.requests[-2:]] == [
+        "independent_review",
+        "independent_review",
+    ]
     _assert_presentation_update(
         out, bundle, "REVIEWING", ["dependencies.json", "review.json"], ("plan: ", "units: ")
     )

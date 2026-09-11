@@ -118,7 +118,8 @@ def test_a_prose_judgment_on_a_required_row_blocks_only_when_a_second_reader_agr
     assert alone["verdict"] == ACCEPT and alone["findings"] == []
     assert [f["id"] for f in alone["advisory"]] == ["F01", "F02"]
     assert all(f["single_reader_advisory"] for f in alone["advisory"])
-    assert alone["second_reader"] == {"read": True, "corroborated": []}
+    # `read` counts completed reads (PHASE1/F6): an empty-but-real second reading is read 2.
+    assert alone["second_reader"] == {"read": 2, "corroborated": []}
 
     # A second reader raising the same class on one of them keeps that one blocking; the other
     # is still one reader's judgment. Equivalence is the class, never the wording.
@@ -437,8 +438,13 @@ def test_the_document_splits_advisory_findings_and_records_both_identities(
 
 
 def test_check_ten_is_judged_from_the_verdict_and_the_identity() -> None:
+    # Corroborated by a second read (PHASE1/F6): two independent ACCEPTs are the accept path.
     accepted = review_document(
-        {"verdict": "ACCEPT", "findings": [], "preserve": []}, REVIEWER, AUTHORING, "d" * 64
+        {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        second={"verdict": "ACCEPT", "findings": [], "preserve": []},
     )
     judged = record_review_verdict(VALIDATION, accepted)
     assert judged["checks"][1] == {
@@ -483,12 +489,89 @@ def test_check_ten_is_judged_from_the_verdict_and_the_identity() -> None:
     ]
 
 
+def test_a_folded_accept_from_a_single_read_no_longer_passes_check_ten() -> None:
+    """PHASE1/F6: the acceptance-side guard. Eight of the nine sealed reviews returned a
+    REJECT_* verdict whose every finding folded to advisory, so the candidate sealed as ACCEPT
+    on one read - an accept was the one verdict no second reader ever corroborated, while a
+    surviving prose finding always earned a second read (the asymmetry the sprint diagnosis
+    lists as F). Check 10 now passes only an accept a second independent read backs:
+    ``second_reader.read`` counts completed reads, and a legacy boolean counts as at most one,
+    so a pre-F6 review document never satisfies the new predicate by accident."""
+    refuted = {
+        **_finding("F01", "opening", "S6", "It writes `.glb` files."),
+        "fact_ids": ["format:output.glb"],
+    }
+    folded = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    single = review_document(folded, REVIEWER, AUTHORING, "d" * 64, **common)
+    assert single["verdict"] == ACCEPT and single["findings"] == []
+    assert single["second_reader"]["read"] == 1
+    judged = record_review_verdict(VALIDATION, single)
+    assert judged["checks"][1]["verdict"] == "FAIL"
+    assert judged["checks"][1]["details"] == [
+        "ACCEPT with a single read: an accept verdict requires a corroborating second read "
+        "(second_reader.read >= 2)"
+    ]
+    assert judged["checks"][1]["causal_stage"] is None
+    # Two independent ACCEPTs accept: the corroborated document passes check 10 unchanged.
+    second = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    both = review_document(folded, REVIEWER, AUTHORING, "d" * 64, second=second, **common)
+    assert both["verdict"] == ACCEPT and both["findings"] == []
+    assert both["second_reader"]["read"] == 2
+    assert record_review_verdict(VALIDATION, both)["checks"][1]["verdict"] == "PASS"
+
+
+def test_a_disagreeing_second_read_routes_its_findings_through_the_fold_stack() -> None:
+    """PHASE1/F6: on the accept path the second read is corroboration, not a formality - its
+    findings go through the same deterministic fold stack as the first read's. A survivor
+    blocks with its causal state and the disagreement repairs normally; a refuted one is the
+    reviewer's own defect exactly as on the first read; a prose judgment only one of the two
+    readers raised stays one reader's judgment (section 27.8, made symmetric)."""
+    accept = {"verdict": "ACCEPT", "findings": [], "preserve": []}
+    common: dict[str, Any] = {"candidate_readme": CANDIDATE, "facts": FACTS}
+    # A second-read finding the stack cannot refute blocks, and the disagreement's verdict is
+    # the second read's own returned one; the first read's stays on verdict_as_returned.
+    standing = _finding("F02", "key_capabilities", "S6", "It writes `.glb` files.")
+    disagreeing = {"verdict": "REJECT_FACTUAL", "findings": [standing], "preserve": []}
+    disputed = review_document(accept, REVIEWER, AUTHORING, "d" * 64, second=disagreeing, **common)
+    assert disputed["verdict"] == "REJECT_FACTUAL"
+    assert disputed["verdict_as_returned"] == "ACCEPT"
+    assert [f["id"] for f in disputed["findings"]] == ["F02"]
+    assert disputed["findings"][0]["causal_state"] == "COMPOSING"
+    assert disputed["findings"][0]["reader"] == 2
+    assert disputed["second_reader"]["read"] == 2
+    assert record_review_verdict(VALIDATION, disputed)["checks"][1]["verdict"] == "FAIL"
+    # A refuted second-read finding folds to advisory with its reason: the two reads agree.
+    refuted = {
+        **_finding("F03", "opening", "S6", "It writes `.glb` files."),
+        "fact_ids": ["format:output.glb"],
+    }
+    agreeing = {"verdict": "REJECT_FACTUAL", "findings": [refuted], "preserve": []}
+    agreed = review_document(accept, REVIEWER, AUTHORING, "d" * 64, second=agreeing, **common)
+    assert agreed["verdict"] == ACCEPT and agreed["findings"] == []
+    assert agreed["advisory"][0]["reader"] == 2
+    assert agreed["advisory"][0]["reviewer_scope_defect"].startswith("the quote contains")
+    assert record_review_verdict(VALIDATION, agreed)["checks"][1]["verdict"] == "PASS"
+    # A prose judgment only the second reader raised is single_reader_advisory, symmetrically.
+    lone = {
+        "verdict": "REJECT_PRESENTATION",
+        "findings": [_judgment("F04", "opening")],
+        "preserve": [],
+    }
+    still = review_document(accept, REVIEWER, AUTHORING, "d" * 64, second=lone, **common)
+    assert still["verdict"] == ACCEPT and still["findings"] == []
+    assert still["advisory"][0]["single_reader_advisory"] is True
+    assert record_review_verdict(VALIDATION, still)["checks"][1]["verdict"] == "PASS"
+
+
 def test_a_required_row_admits_no_advisory_left_standing() -> None:
     # README_CONTRACT.md section 6: an advisory is deferred repair work, not accepted work, so a
     # finding nothing contradicted, against a section every candidate must have, blocks
     # (RESEARCH_AND_GUIDELINES.md section 27.5 D5). This one is advisory because S9 is not a
     # stage the repair loop can reopen, and no check refutes it: the work is real and deferred.
     standing = _finding("F01", "api_reference", "S9")
+    # The second read is given (PHASE1/F6) so check 10's judgment below isolates the deferred-
+    # advisory rule, not the separate corroboration requirement the accept path now carries.
     document = review_document(
         {"verdict": "REJECT_PRESENTATION", "findings": [standing], "preserve": []},
         REVIEWER,
@@ -496,6 +579,7 @@ def test_a_required_row_admits_no_advisory_left_standing() -> None:
         "d" * 64,
         candidate_readme=CANDIDATE,
         facts=FACTS,
+        second={"verdict": "ACCEPT", "findings": [], "preserve": []},
     )
     assert [f["id"] for f in document["advisory"]] == ["F01"]
     assert "reviewer_scope_defect" not in document["advisory"][0]
@@ -525,6 +609,7 @@ def test_a_required_row_admits_no_advisory_left_standing() -> None:
         "d" * 64,
         candidate_readme=CANDIDATE,
         facts=FACTS,
+        second={"verdict": "ACCEPT", "findings": [], "preserve": []},
     )
     # The finding is the reviewer's own defect, so it does not block as a finding - and the
     # verdict follows the blocking findings that remain, which is none.
@@ -542,6 +627,7 @@ def test_a_required_row_admits_no_advisory_left_standing() -> None:
         "d" * 64,
         candidate_readme=CANDIDATE,
         facts=FACTS,
+        second={"verdict": "ACCEPT", "findings": [], "preserve": []},
     )
     assert [f["id"] for f in optional["advisory"]] == ["F01"]
     assert deferred_on_required_rows(optional) == []

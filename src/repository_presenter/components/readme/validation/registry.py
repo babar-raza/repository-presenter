@@ -176,9 +176,13 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     Check("BC-09", "1", "No configured secret in the bundle", ("bundle",), "S9"),
     Check(
         "BC-10",
-        "3",
-        "Independent review returns ACCEPT under a reviewer identity separate from authoring, "
-        "with no unrefuted advisory left on a required row",
+        # "4" (PHASE1/F6, a meaning change per the increment rule): ACCEPT now additionally
+        # requires a corroborating second independent read (second_reader.read >= 2); the 8
+        # pre-sprint seals judged under "3" show as stale on this delta by design.
+        "4",
+        "Independent review returns ACCEPT corroborated by a second independent read, under a "
+        "reviewer identity separate from authoring, with no unrefuted advisory left on a "
+        "required row",
         ("review",),
         "S10",
     ),
@@ -1247,14 +1251,21 @@ def deferred_on_required_rows(review: Mapping[str, Any]) -> list[dict[str, Any]]
 
 
 def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> dict[str, Any]:
-    """validation.json with check 10 judged from review.json: PASS on ACCEPT under a separate
-    reviewer identity and no advisory left on a required row; otherwise FAIL, routed to the
-    earliest causal state the findings name."""
+    """validation.json with check 10 judged from review.json: PASS on ACCEPT corroborated by a
+    second independent read (``second_reader.read`` >= 2, PHASE1/F6), under a separate reviewer
+    identity, with no advisory left on a required row; otherwise FAIL, routed to the earliest
+    causal state the findings name. ``read`` counts completed reads; a legacy boolean (the
+    pre-F6 record shape) counts as at most one, so a document sealed under the single-read rule
+    never passes the corroboration requirement by accident."""
     findings = list(review.get("findings", []))
     deferred = deferred_on_required_rows(review)
     states = [f.get("causal_state") for f in findings if f.get("causal_state") in STAGE_ORDER]
+    reads = int((review.get("second_reader") or {}).get("read") or 0)
     accepted = (
-        review.get("verdict") == "ACCEPT" and bool(review.get("identity_separate")) and not deferred
+        review.get("verdict") == "ACCEPT"
+        and bool(review.get("identity_separate"))
+        and not deferred
+        and reads >= 2
     )
     if accepted:
         verdict, stage, details = "PASS", None, []
@@ -1264,6 +1275,11 @@ def record_review_verdict(document: dict[str, Any], review: dict[str, Any]) -> d
         stage = min(states, key=STAGE_ORDER.index) if states else None
         if not review.get("identity_separate"):
             details = ["the reviewer identity is not separate from authoring"]
+        elif review.get("verdict") == "ACCEPT" and reads < 2:
+            details = [
+                "ACCEPT with a single read: an accept verdict requires a corroborating "
+                "second read (second_reader.read >= 2)"
+            ]
         else:
             details = [f"{review.get('verdict')}"] + [
                 f"{f.get('id')} {f.get('section_id')} ({f.get('causal_state')}): {f.get('text')}"

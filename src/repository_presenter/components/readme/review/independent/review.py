@@ -45,7 +45,9 @@ ACCEPT = "ACCEPT"
 # PA-02's quote_located section-scoping - had nothing to bump, unlike RENDERER_VERSION/BC-03/
 # NORMALISATION_VERSION's own confirmed-missed-then-corrected bumps the same day). Starts at "2",
 # not "1": retroactively credited for PA-02's already-landed change, which predates this constant.
-REVIEWER_LOGIC_VERSION = "2"
+# "3" (PHASE1/F6): review_document's accept path made symmetric - an ACCEPT is corroborated by a
+# second independent read whose findings pass the same fold stack, a which-findings-block change.
+REVIEWER_LOGIC_VERSION = "3"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -205,8 +207,9 @@ def second_reader(manifest: LoadedManifest) -> LoadedManifest:
     """The same reviewer prompt, read again under a different seed.
 
     The prompt file and its hash are untouched, so the candidate's dependencies are unchanged and
-    this is corroboration, never a retry: the second read can only take a finding out of the
-    blocking set, never put one in.
+    this is corroboration, never a retry. On a rejection the second read can only take a finding
+    out of the blocking set; on an accept (PHASE1/F6) its findings pass the same fold stack as
+    the first read's and a survivor blocks, so an accept is corroborated, never assumed.
     """
     sampling = manifest.manifest.sampling
     seed = SECOND_READER_SEED if sampling.seed is None else sampling.seed + SECOND_READER_SEED
@@ -752,6 +755,16 @@ def review_document(
     finding of the same class; otherwise it is recorded ``single_reader_advisory`` and does not
     block (the owner's two-reader rule, section 27.8).
 
+    The accept path is symmetric (PHASE1/F6): when the first read leaves no blocking finding -
+    a returned ACCEPT, or a rejection whose every finding folded to advisory, the single-read
+    class 8 of the 9 pre-sprint seals belong to - the second read's own findings pass the same
+    fold stack, marked ``reader: 2``. A survivor blocks with its causal state and the verdict
+    becomes the second read's returned one, so the disagreement repairs through the normal
+    rounds; two reads that leave nothing blocking are two independent ACCEPTs. A prose judgment
+    only the second reader raised is one reader's judgment, exactly as in the other direction.
+    ``second_reader.read`` records the count of completed reads (1 or 2) so check 10 can require
+    a corroborated accept from the record alone.
+
     ``second`` must be ``None`` - never ``{}`` - when no usable second reading exists (the job
     failed, timed out, or was never attempted). A caller passing ``second={}`` for "no reading"
     was TB-04's own bug: an empty dict is not ``None``, so this function read it as a *completed*
@@ -795,6 +808,36 @@ def review_document(
     # A rejection rests on its blocking findings; one whose findings are all advisory has
     # nothing the loop can act on and, by section 6 of the contract, does not block.
     verdict = returned if findings or returned == ACCEPT else ACCEPT
+    if second is not None and not findings:
+        # The accept path, symmetric (PHASE1/F6): no first-read finding blocks, so the second
+        # read corroborates the accept - its findings go through the identical fold stack.
+        first_raised = {finding_class(f) for f in output.get("findings", []) if blocking(f)}
+        survivors: list[dict[str, Any]] = []
+        for finding in second.get("findings", []):
+            record = {**dict(finding), "reader": 2}
+            reason = (
+                scope_defect(finding, candidate_readme, by_id, evidence, rendered)
+                if facts is not None
+                else None
+            )
+            if reason is not None:
+                record["reviewer_scope_defect"] = reason
+            alone = prose_judgment(finding) and finding_class(finding) not in first_raised
+            if reason is None and blocking(finding) and not alone:
+                record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]
+                survivors.append(record)
+            else:
+                record["causal_state"] = None
+                if alone and reason is None:
+                    record["single_reader_advisory"] = True
+                advisory.append(record)
+        if survivors:
+            findings.extend(survivors)
+            # The first read's own verdict rule, mirrored: a disagreement's verdict is the
+            # second read's returned one (an ACCEPT that somehow carries findings keeps
+            # ACCEPT, exactly as a first-read ACCEPT with findings does today).
+            second_returned = str(second.get("verdict"))
+            verdict = second_returned if second_returned != ACCEPT else verdict
     return {
         "schema_version": 1,
         "readme_sha256": readme_digest,
@@ -803,7 +846,10 @@ def review_document(
         "findings": findings,
         "advisory": advisory,
         "second_reader": {
-            "read": second is not None,
+            # The count of completed reads: check 10 accepts only at >= 2 (PHASE1/F6). A failed
+            # second read never reaches here - the caller passes None for it (TB-04), and losing
+            # verification must never increase assurance.
+            "read": 2 if second is not None else 1,
             "corroborated": sorted(corroborated),
         },
         "preserve": list(output.get("preserve", [])),

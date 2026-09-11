@@ -79,6 +79,7 @@ from repository_presenter.components.readme.repair.targeted import (
     validation_defects,
 )
 from repository_presenter.components.readme.review.independent.review import (
+    ACCEPT,
     REVIEW_FILENAME,
     prose_judgment,
     review_checks,
@@ -325,16 +326,23 @@ def run_round(tx: TransactionInputs) -> Round:
         rendered=renderer_sentences(entry, facts, planned.output, current.units, dispositions),
     )
     review = document()
-    # A prose judgment on a required row is read a second time under a different seed before it
-    # holds the candidate unsealed (the owner's two-reader rule, section 27.8). The second read
-    # only ever removes a finding from the blocking set, so a read that cannot produce usable
-    # output corroborates nothing and must leave `review` exactly as the first reader alone
-    # produced it (never `document(second={})` - TB-04, external review D4, 2026-09-08: an empty
-    # dict is not `None`, and review_document reads it as a *completed* reading that raised no
-    # findings, silently demoting the first reader's finding and flipping REJECT_PRESENTATION to
-    # ACCEPT while recording `second_reader.read` true for a reading that never happened). Losing
-    # verification must never increase assurance.
-    if any(prose_judgment(finding) for finding in review["findings"]):
+    # Two triggers share the one corroborating read under a different seed. A prose judgment on
+    # a required row is read a second time before it holds the candidate unsealed (the owner's
+    # two-reader rule, section 27.8). And an ACCEPT - returned, or a rejection whose every
+    # finding folded to advisory, the class 8 of the 9 pre-sprint seals belong to - is read a
+    # second time before it seals the candidate (PHASE1/F6): check 10 now passes only a
+    # corroborated accept (second_reader.read >= 2), and on this path the second read's findings
+    # pass the same fold stack as the first read's, so a disagreement blocks and repairs through
+    # the normal rounds. A read that cannot produce usable output corroborates nothing and must
+    # leave `review` exactly as the first reader alone produced it (never `document(second={})` -
+    # TB-04, external review D4, 2026-09-08: an empty dict is not `None`, and review_document
+    # reads it as a *completed* reading that raised no findings, silently demoting the first
+    # reader's finding and flipping REJECT_PRESENTATION to ACCEPT while recording a reading that
+    # never happened). Losing verification must never increase assurance - which on the accept
+    # path now means the uncorroborated ACCEPT fails check 10 rather than sealing.
+    if review["verdict"] == ACCEPT or any(
+        prose_judgment(finding) for finding in review["findings"]
+    ):
         second = _second_opinion(loaded, packet, checks, common)
         if second is not None:
             review = document(second=second)
