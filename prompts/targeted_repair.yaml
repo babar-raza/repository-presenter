@@ -1,5 +1,5 @@
 prompt_id: targeted_repair
-version: "8"
+version: "9"
 stage: S11
 purpose: Fix one typed defect by revising only the outputs of the stage the finding names, once per equivalent fingerprint, without touching deterministic blocks or anything the reviewer asked to preserve.
 model_route: qwen3-next
@@ -21,7 +21,7 @@ packet:
       description: The owner/name coordinates of the repository.
     - name: defect
       type: json
-      description: The single finding being repaired, with its fingerprint, from review.json or validation.json.
+      description: The single finding being repaired, with its fingerprint, from review.json or validation.json. When it carries absent_refuted or absent_invented, those claimed-absent strings are already settled - the section contains them, or no evidence holds them - and absent lists only the strings still to restore.
     - name: causal_stage
       type: string
       description: The stage whose output may change - S3, S4, S5, or S6 - as named by the finding.
@@ -81,7 +81,10 @@ system: |
   preserve stays present with its meaning intact. The fingerprint you return is the defect's own;
   a second attempt at the same fingerprint is never made, so the repair must be complete. When the
   defect carries equivalent_findings - other findings on the same target from the same review -
-  the one revision resolves every one of them; a finding left standing is not asked again.
+  the one revision resolves every one of them; a finding left standing is not asked again. The
+  defect's absent list is the whole of what is missing: a string under absent_refuted or
+  absent_invented is already settled - present in the section, or in no evidence - and a revision
+  never adds it, whatever the finding's text or repair say.
 
   Judgment. Fix the named defect at its cause, not its symptom: a factual finding at S6 is fixed
   by re-citing or removing the unsupported statement, not by softening it; a planning finding at S5

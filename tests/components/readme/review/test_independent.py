@@ -16,6 +16,7 @@ from repository_presenter.components.readme.review.independent.review import (
     ACCEPT,
     CAUSAL_STATES,
     absence_defect,
+    absence_partition,
     claim_evidence,
     finding_class,
     prose_judgment,
@@ -775,6 +776,97 @@ def test_an_absence_that_occurs_nowhere_in_the_evidence_is_the_reviewers_own_def
     )
     assert document["verdict"] == ACCEPT and document["findings"] == []
     assert document["advisory"][0]["reviewer_scope_defect"].startswith("the finding asks for")
+
+
+def test_a_partly_refuted_absence_finding_records_the_claims_that_still_stand() -> None:
+    """G4-W17 arrival item 64 (lane B LANE-B-R3-F3). The 2026-09-07 rule is right: one unrefuted
+    claim leaves a real remainder and the finding stands. What nothing recorded was which claims
+    the candidate had already settled. Measured 2026-09-11 on Aspose.PDF for C++, draw 3: a repair
+    appended the sentence BC-08 demanded, the next review's F10 quoted that very sentence as proof
+    the section omitted it, three of its five `absent` claims sat in its own section slice and two
+    (`src/public/`, `src/internal/`) were genuinely missing - and its text, quote and repair all
+    named the settled three, so the repair round was handed work already done and the equivalent
+    failure re-raised. The record now carries the partition; `repair/targeted.py` hands the repair
+    the remainder alone (its own test). The reviewer's words are never rewritten here."""
+    candidate = (
+        "# Product\n\n## Quick Start\n\nRun the example.\n\n## Development and Testing\n\n"
+        "The build instructions include the command cmake --preset windows-msvc-debug.\n"
+        "The suite covers 976 test files and the foundation primitives.\n"
+    )
+    original = (
+        "# Old\n\nBuild with cmake --preset windows-msvc-debug; the foundation primitives live "
+        "under src/public/ and src/internal/.\n"
+    )
+    evidence = claim_evidence(original, FACTS)
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    f10 = {
+        **_finding(
+            "F10",
+            "development_testing",
+            "S6",
+            "The build instructions include the command cmake --preset windows-msvc-debug.",
+        ),
+        "criterion": "presentation",
+        "fact_ids": [],
+        "absent": [
+            "cmake --preset windows-msvc-debug",
+            "976 test files",
+            "foundation primitives",
+            "src/public/",
+            "src/internal/",
+        ],
+        "text": "The development and testing section omits the CMake preset instructions and "
+        "the test suite coverage details",
+        "repair": "Restore the CMake preset instructions and the test suite coverage details",
+    }
+    settled = ["976 test files", "cmake --preset windows-msvc-debug", "foundation primitives"]
+    assert absence_partition(f10, candidate, evidence) == (
+        settled,
+        [],
+        ["src/public/", "src/internal/"],
+    )
+    # The finding stands and blocks, exactly as before ...
+    assert scope_defect(f10, candidate, by_id, evidence) is None
+    common: dict[str, Any] = {
+        "candidate_readme": candidate,
+        "facts": FACTS,
+        "original_readme": original,
+    }
+    rejection = {"verdict": "REJECT_PRESENTATION", "findings": [f10], "preserve": []}
+    document = review_document(rejection, REVIEWER, AUTHORING, "d" * 64, **common)
+    [record] = document["findings"]
+    # ... and its record now says which claims are settled and which remain, the reviewer's own
+    # `absent` untouched beside them.
+    assert record["absent"] == f10["absent"]
+    assert record["absent_refuted"] == settled
+    assert record["absent_remaining"] == ["src/public/", "src/internal/"]
+    assert "absent_invented" not in record
+    # An invented claim beside a real one is recorded under its own key.
+    with_invented = {**rejection, "findings": [{**f10, "absent": ["src/public/", "Box(10)"]}]}
+    [record] = review_document(with_invented, REVIEWER, AUTHORING, "d" * 64, **common)["findings"]
+    assert record["absent_invented"] == ["Box(10)"]
+    assert record["absent_remaining"] == ["src/public/"] and "absent_refuted" not in record
+    # Nothing settled: nothing recorded - the finding is whole and the repair reads it as is.
+    whole = {**rejection, "findings": [{**f10, "absent": ["src/public/", "src/internal/"]}]}
+    [record] = review_document(whole, REVIEWER, AUTHORING, "d" * 64, **common)["findings"]
+    assert not {"absent_refuted", "absent_invented", "absent_remaining"} & set(record)
+    # Everything settled: absence_defect's own dismissal, as before, and no partition either.
+    dismissed = {**rejection, "findings": [{**f10, "absent": settled[:2]}]}
+    document = review_document(dismissed, REVIEWER, AUTHORING, "d" * 64, **common)
+    assert document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"].startswith("the finding claims")
+    assert "absent_remaining" not in document["advisory"][0]
+    # The second read's findings are partitioned the same way on the accept path.
+    corroborating = review_document(
+        {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        second=rejection,
+        **common,
+    )
+    [record] = corroborating["findings"]
+    assert record["reader"] == 2 and record["absent_remaining"] == ["src/public/", "src/internal/"]
 
 
 def test_a_finding_against_a_sentence_the_renderer_wrote_is_out_of_scope() -> None:

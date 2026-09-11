@@ -191,13 +191,13 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["prompts"]["independent_review"]["sha256"] == (
         PROMPTS["independent_review"].sha256
     )
-    assert document["prompts"]["targeted_repair"]["version"] == "8"
+    assert document["prompts"]["targeted_repair"]["version"] == "9"
     assert document["contract_version"] == "readme-contract-v1-draft"
     assert document["components"] == {
         "shell": "5",
         "renderer": "19",
         "normalisation": "2",
-        "reviewer_logic": "4",
+        "reviewer_logic": "5",
     }
     assert document["validators"]["BC-01"] == "1" and len(document["validators"]) == 11
     assert document["acceptance_profile_version"] is None

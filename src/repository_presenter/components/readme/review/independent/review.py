@@ -50,7 +50,10 @@ ACCEPT = "ACCEPT"
 # "4" (G4-W17 arrival items 62 and 63): two more findings fold as the reviewer's own defect - a
 # factuality finding quoting a verified symbol's rendered row that no content unit wrote, and a
 # presentation finding whose quote carries the literal value of a SUPPORTED fact it itself cites.
-REVIEWER_LOGIC_VERSION = "4"
+# "5" (G4-W17 arrival item 64): a standing absence finding records which of its claims the
+# candidate already refuted and which remain, so the repair is handed only the remainder - a
+# change to what review.json carries and what a repair round is asked to do.
+REVIEWER_LOGIC_VERSION = "5"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -391,10 +394,50 @@ def absence_defect(
     own gap survived only because it was bundled beside two false ones). Nothing here reads the
     finding's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2 RC8; docs/README_CONTRACT.md
     section 6).
+
+    A finding that stands on a remainder is narrowed, never dismissed (G4-W17 arrival item 64,
+    lane B LANE-B-R3-F3): ``review_document`` records the refuted and invented claims beside the
+    ones that remain (``absence_partition``), so the repair round is handed the remainder alone.
+    Measured 2026-09-11 on Aspose.PDF for C++: a repair had just appended the sentence BC-08
+    demanded, the next review's F10 quoted that very sentence as evidence the section omitted it,
+    three of its five ``absent`` claims sat in its own section slice and two were genuinely
+    missing - this rule correctly let it stand, but its text, quote and repair all named the
+    three settled claims, so the repair was handed work already done and the equivalent failure
+    re-raised.
     """
     claims = _claimed_absent(finding)
     if not claims:
         return None
+    present, invented, remaining = absence_partition(finding, candidate_readme, evidence)
+    if remaining:
+        return None  # at least one claim is neither refuted nor invented: a real remainder
+    parts = []
+    if present:
+        parts.append(
+            f"the finding claims the candidate does not contain {_named(present)}, "
+            "which the candidate contains"
+        )
+    if invented:
+        parts.append(
+            f"the finding asks for {_named(invented)}, which occurs in no fact value and "
+            "nowhere in the original README: there is nothing to restore"
+        )
+    return "; ".join(parts)
+
+
+def absence_partition(
+    finding: Mapping[str, Any], candidate_readme: str, evidence: str = ""
+) -> tuple[list[str], list[str], list[str]]:
+    """A finding's ``absent`` claims sorted three ways: ``present`` (the candidate's own named
+    section contains them), ``invented`` (nowhere in the evidence, so there is nothing to
+    restore), and ``remaining`` (neither - the claims that still stand, in the order claimed).
+
+    ``absence_defect`` dismisses a finding whose remainder is empty; ``review_document`` records
+    the other two lists on a standing finding so ``repair/targeted.py`` hands the repair only the
+    remainder (G4-W17 arrival item 64). Without ``evidence`` nothing is judged invented, exactly
+    as before.
+    """
+    claims = _claimed_absent(finding)
     section_id = str(finding.get("section_id") or "")
     haystack = _section_slice(section_id, candidate_readme)
     present = sorted({claim for claim in claims if quote_located(claim, haystack)})
@@ -409,20 +452,26 @@ def absence_defect(
         if evidence
         else []
     )
-    if set(claims) - set(present) - set(invented):
-        return None  # at least one claim is neither refuted nor invented: a real remainder
-    parts = []
+    settled = {*present, *invented}
+    remaining = [claim for claim in dict.fromkeys(claims) if claim not in settled]
+    return present, invented, remaining
+
+
+def _record_absence_partition(
+    record: dict[str, Any], finding: Mapping[str, Any], candidate_readme: str, evidence: str
+) -> None:
+    """On a finding that stands, record which absence claims are already settled and which
+    remain - only when both exist, so a whole finding and a dismissed one carry nothing new."""
+    if not _claimed_absent(finding):
+        return
+    present, invented, remaining = absence_partition(finding, candidate_readme, evidence)
+    if not remaining or not (present or invented):
+        return
     if present:
-        parts.append(
-            f"the finding claims the candidate does not contain {_named(present)}, "
-            "which the candidate contains"
-        )
+        record["absent_refuted"] = present
     if invented:
-        parts.append(
-            f"the finding asks for {_named(invented)}, which occurs in no fact value and "
-            "nowhere in the original README: there is nothing to restore"
-        )
-    return "; ".join(parts)
+        record["absent_invented"] = invented
+    record["absent_remaining"] = remaining
 
 
 def _named(claims: Sequence[str]) -> str:
@@ -928,6 +977,8 @@ def review_document(
         )
         if reason is not None:
             record["reviewer_scope_defect"] = reason
+        else:
+            _record_absence_partition(record, finding, candidate_readme, evidence)
         alone = (
             second is not None
             and prose_judgment(finding)
@@ -959,6 +1010,8 @@ def review_document(
             )
             if reason is not None:
                 record["reviewer_scope_defect"] = reason
+            else:
+                _record_absence_partition(record, finding, candidate_readme, evidence)
             alone = prose_judgment(finding) and finding_class(finding) not in first_raised
             if reason is None and blocking(finding) and not alone:
                 record["causal_state"] = CAUSAL_STATES[str(finding["causal_stage"])]

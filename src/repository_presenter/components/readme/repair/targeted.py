@@ -127,6 +127,14 @@ def review_defects(
     duplication, Aspose.3D for Java's F08 - each burned their one repair attempt on authoring
     revising units it had never placed and could not touch, since the model-guessed
     ``causal_stage`` was the only signal ever trusted).
+
+    A finding ``review_document`` narrowed - one whose ``absent`` claims the candidate partly
+    refuted, recorded as ``absent_refuted``/``absent_invented`` beside ``absent_remaining`` - is
+    handed to the repair with ``absent`` reduced to the remainder and the reviewer's own list
+    kept as ``absent_as_returned`` (G4-W17 arrival item 64, lane B LANE-B-R3-F3: Aspose.PDF for
+    C++'s F10 named three settled claims in its text, quote and repair instruction and two real
+    gaps nowhere, so the repair was handed work already done and the failure re-raised). The
+    fingerprint is the target and does not move.
     """
     context = f"{review.get('reviewer', {}).get('prompt_sha256', '')}|{repairer}"
     placed = placed or {}
@@ -160,6 +168,10 @@ def review_defects(
         record = dict(finding)
         if misrouted:
             record["misrouted"] = True
+        remaining = finding.get("absent_remaining")
+        if remaining is not None:
+            record["absent_as_returned"] = list(finding.get("absent", []))
+            record["absent"] = list(remaining)
         defects.append(
             Defect(
                 defect_fingerprint("review", section, stage or named, criterion, context),

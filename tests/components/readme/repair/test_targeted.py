@@ -158,6 +158,37 @@ def test_review_defects_without_a_placed_argument_behaves_exactly_as_before() ->
     assert defect.stage == "S6" and "misrouted" not in defect.record
 
 
+def test_a_partly_refuted_absence_finding_hands_repair_only_the_claims_that_stand() -> None:
+    """G4-W17 arrival item 64 (lane B LANE-B-R3-F3). `review_document` records which `absent`
+    claims the candidate already settled (`absent_refuted`/`absent_invented`) beside the ones
+    that remain; the defect the repair reads carries `absent` reduced to that remainder, with
+    the reviewer's own list kept as `absent_as_returned`. Measured 2026-09-11 on Aspose.PDF for
+    C++: F10's text, quote and repair instruction named three settled claims and its two real
+    gaps nowhere, so the repair was handed work already done and the failure re-raised."""
+    narrowed = {
+        **_finding("F10", "opening", "S6", quote="The build instructions include the command."),
+        "absent": ["cmake --preset windows-msvc-debug", "976 test files", "src/public/"],
+        "absent_refuted": ["976 test files", "cmake --preset windows-msvc-debug"],
+        "absent_remaining": ["src/public/"],
+    }
+    defect = review_defects({"findings": [narrowed]}, FACTS, LLM_SECTIONS)[0]
+    assert defect.record["absent"] == ["src/public/"]
+    assert defect.record["absent_as_returned"] == narrowed["absent"]
+    assert defect.record["absent_refuted"] == [
+        "976 test files",
+        "cmake --preset windows-msvc-debug",
+    ]
+    # The packet the repair reads carries the remainder alone as the work to do.
+    packet = repair_packet(ENTRY, defect, {"units": []}, FACTS, [], {"type": "object"})
+    assert packet["defect"]["absent"] == ["src/public/"]
+    assert packet["defect"]["absent_as_returned"] == narrowed["absent"]
+    # The fingerprint is the target and does not move with the narrowing.
+    assert defect.fingerprint == defect_fingerprint("review", "opening", "S6", "factuality", "|")
+    # A finding review_document did not narrow is untouched: no key is invented for it.
+    plain = review_defects({"findings": [_finding("F01", "opening", "S6")]}, FACTS, LLM_SECTIONS)[0]
+    assert "absent_as_returned" not in plain.record and plain.record["absent"] == []
+
+
 def test_aspose_3d_javas_real_f08_finding_is_now_routed_to_s4() -> None:
     """Reproduces the exact finding recorded against a real transaction (`runs/transactions/
     aspose-3d-foss__Aspose.3D-FOSS-for-Java/e308de58888635956cd66e5b0e2994dd42cd4356/review.json`,
