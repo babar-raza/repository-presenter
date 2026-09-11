@@ -326,6 +326,8 @@ def run_round(tx: TransactionInputs) -> Round:
         facts=facts,
         original_readme=tx.original,
         rendered=renderer_sentences(entry, facts, planned.output, current.units, dispositions),
+        # G4-W17 arrival item 62: the fold stack reads which quoted text a unit actually wrote.
+        units=current.units,
     )
     review = document()
     # Two triggers share the one corroborating read under a different seed. A prose judgment on

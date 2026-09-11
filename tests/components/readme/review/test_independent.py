@@ -26,6 +26,7 @@ from repository_presenter.components.readme.review.independent.review import (
     scope_defect,
     second_reader,
     summarize_review,
+    unit_texts,
     write_review,
 )
 from repository_presenter.components.readme.validation.registry import (
@@ -1053,6 +1054,222 @@ def test_a_presentation_findings_quote_must_actually_reference_the_symbol() -> N
         "criterion": "presentation",
     }
     assert scope_defect(qualified, CANDIDATE, by_id) is not None
+
+
+def test_a_factuality_finding_against_a_verified_row_no_unit_wrote_is_the_reviewers_defect() -> (
+    None
+):
+    """G4-W17 arrival item 62 (lane C PROPOSAL Z). The BC-04 exemption above was gated on the
+    `presentation` label, standing in for the question the label cannot answer - where the quoted
+    text lives. Measured 2026-09-11 on Aspose.Cells for Java, F05 (`factuality`, `api_reference`):
+    the quote was two verified enums' own table rows, each a SUPPORTED `public_symbol`'s name and
+    docstring the renderer prints verbatim; `content_units.json` held 25 units and none carried
+    either row; the repair re-asked the section's intro unit and got the same 157 bytes back; the
+    finding re-raised and every refutation returned None, although `_quoted_verified_fact` already
+    resolved the quote. Two independent draws reached BC-10 on exactly this shape. With the
+    round's units in hand, a quote no unit wrote is the renderer's whatever the label says; a quote
+    any unit carries - even partly - keeps its route to that unit; with no units supplied the gate
+    stays presentation-only, because "no unit carries it" is a measurement, never a default."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "public_symbol:org.aspose.cells_foss",
+                "public_symbol",
+                "org.aspose.cells_foss",
+                (Evidence("x"),),
+            ),
+            Fact(
+                "public_symbol:org.aspose.cells_foss.core.diagnosticseverity",
+                "public_symbol",
+                "org.aspose.cells_foss.core.DiagnosticSeverity",
+                (Evidence("x"),),
+                attributes={"docstring": "Represents the severity of a diagnostic entry."},
+            ),
+            Fact(
+                "public_symbol:org.aspose.cells_foss.diagnosticseverity",
+                "public_symbol",
+                "org.aspose.cells_foss.DiagnosticSeverity",
+                (Evidence("x"),),
+                attributes={"docstring": "Represents the severity level of a diagnostic message."},
+            ),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    intro = (
+        "The library exposes its core functionality through the `org.aspose.cells_foss` package."
+    )
+    candidate = (
+        "# Aspose.Cells FOSS for Java\n\nIt writes `.glb` files.\n\n## API Reference\n\n"
+        f"{intro}\n\n| Type | Summary |\n|---|---|\n"
+        "| `cells_foss.DiagnosticSeverity` | Represents the severity level of a diagnostic "
+        "message. |\n| `core.DiagnosticSeverity` | Represents the severity of a diagnostic "
+        "entry. |\n"
+    )
+    units = {
+        "schema_version": 1,
+        "units": [
+            {
+                "section": "api_reference",
+                "slot": "intro",
+                "text": intro.replace("`", ""),
+                "fact_ids": ["public_symbol:org.aspose.cells_foss"],
+            }
+        ],
+        "omitted": [],
+    }
+    row = (
+        "cells_foss.DiagnosticSeverity | Represents the severity level of a diagnostic message. "
+        "... core.DiagnosticSeverity | Represents the severity of a diagnostic entry."
+    )
+    # The real record, field for field. Its own `absent` list did not save it: one claim the
+    # section contains, one the original README happens to carry, so it is neither present nor
+    # invented - a real remainder under the 2026-09-07 rule, and absence_defect stands aside.
+    f05 = {
+        **_finding("F05", "api_reference", "S6", row),
+        "fact_ids": ["public_symbol:org.aspose.cells_foss"],
+        "absent": ["DiagnosticSeverity-core", "DiagnosticSeverity"],
+    }
+    original = "# Old\n\nSee DiagnosticSeverity-core for the enum.\n"
+    evidence = claim_evidence(original, facts)
+    assert review_checks({"findings": [f05]}, candidate, facts) == []
+    assert absence_defect(f05, candidate, evidence) is None
+    # Units unknown: exactly the pre-item-62 answer - the label gates, and the finding stands.
+    assert unit_texts(None) is None
+    assert scope_defect(f05, candidate, by_id, evidence) is None
+    # Units in hand and none carries either row: the exemption reaches the finding.
+    reason = scope_defect(f05, candidate, by_id, evidence, (), unit_texts(units))
+    assert reason == (
+        "the quote names public_symbol:org.aspose.cells_foss.core.diagnosticseverity, a SUPPORTED "
+        "fact BC-04 already verifies, and no content unit carries the quoted text: it is the "
+        "renderer's own rendering of that verified fact, which no unit wrote and no stage the loop "
+        "can reopen would rewrite"
+    )
+    # Mutation controls. A unit that wrote the quoted sentence keeps the finding - the
+    # "ExportToCSV writes JSON, not CSV" shape, a real defect in a unit's own prose that names a
+    # verified symbol - and so does a quote that is only partly a unit's sentence, the unit's
+    # prose beside the rendered row it disputes.
+    sentence = "core.DiagnosticSeverity ranks warnings above errors."
+    wrote_it = {"units": [{**units["units"][0], "text": sentence}]}
+    describes = {**f05, "quote": sentence, "absent": []}
+    assert scope_defect(describes, candidate, by_id, "", (), unit_texts(wrote_it)) is None
+    mixed = {**f05, "quote": f"{sentence} ... {row.split(' ... ')[1]}", "absent": []}
+    assert scope_defect(mixed, candidate, by_id, "", (), unit_texts(wrote_it)) is None
+    # An empty unit list is a measurement too (nothing wrote it), unlike None (unknown).
+    assert scope_defect({**f05, "absent": []}, candidate, by_id, "", (), []) == reason
+    # A factuality finding whose quote references no verified symbol keeps its own route.
+    plain = _finding("F06", "api_reference", "S6", "It writes `.glb` files.")
+    assert scope_defect(plain, candidate, by_id, "", (), []) is None
+    # The document: with the units, the rejection has nothing left to act on and BC-10 no longer
+    # holds the candidate on this required row; without them it blocks exactly as before.
+    output = {"verdict": "REJECT_FACTUAL", "findings": [f05], "preserve": []}
+    common: dict[str, Any] = {
+        "candidate_readme": candidate,
+        "facts": facts,
+        "original_readme": original,
+    }
+    document = review_document(output, REVIEWER, AUTHORING, "d" * 64, units=units, **common)
+    assert document["verdict"] == ACCEPT and document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"] == reason
+    assert deferred_on_required_rows(document) == []
+    blocked = review_document(output, REVIEWER, AUTHORING, "d" * 64, **common)
+    assert [f["id"] for f in blocked["findings"]] == ["F05"]
+
+
+def test_a_presentation_finding_contradicting_its_own_cited_fact_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 63 (lane B LANE-B-R3-F2). `factuality_defect`'s literal-value rule -
+    the prompt's own "a quote that contains the literal value of a SUPPORTED fact you cite is
+    supported by definition" - ran only for a finding labelled `factuality`. Measured 2026-09-11
+    on Aspose.PDF for C++, F08 (`presentation`, `quick_start`): quote `using Aspose_PDF_FOSS
+    version 1.0.0.`, `fact_ids` `example:001` and `package:version` (SUPPORTED, `1.0.0`), text
+    "the facts do not support a versioned claim" - and `targeted_repair` obeyed it, rewriting the
+    unit to end "...using Aspose_PDF_FOSS." A true, fact-backed detail left a public candidate
+    because the finding said the opposite of its own citation. The same repository's 2026-09-06
+    draw had already lost `1.0.0` twice the same way (repairs.json F07 and F10, each citing
+    `package:version`). Scoped to the facts the finding itself cites - never a verbatim scan of
+    every SUPPORTED value, which would refold quotes by coincidence (`dependency:none` is `none`),
+    the collision item 45 closed."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("package:name", "package", "Aspose_PDF_FOSS", (Evidence("x"),)),
+            Fact("package:version", "package", "1.0.0", (Evidence("x"),)),
+            Fact(
+                "example:001",
+                "example",
+                "#include <aspose/pdf/document.hpp>\nint main() { return 0; }",
+                (Evidence("x"),),
+            ),
+            Fact("example:009", "example", "boom()", (Evidence("x"),), polarity="CONTRADICTED"),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    f08 = {
+        **_finding("F08", "quick_start", "S6", "using Aspose_PDF_FOSS version 1.0.0."),
+        "criterion": "presentation",
+        "fact_ids": ["example:001", "package:version"],
+        "text": "The candidate adds 'version 1.0.0' to the Quick Start description but the facts "
+        "do not support a versioned claim",
+        "repair": "Remove 'version 1.0.0'",
+    }
+    reason = (
+        "the quote contains the literal value of SUPPORTED fact package:version ('1.0.0'), which "
+        "the finding itself cites as its evidence; literal fact text is supported whatever "
+        "criterion the finding files itself under"
+    )
+    assert scope_defect(f08, CANDIDATE, by_id) == reason
+    # The 2026-09-06 draw's F07: the same class with a whole sentence quoted.
+    f07 = {
+        **f08,
+        "id": "F07",
+        "quote": "The first example opens an existing PDF file, counts its pages, extracts all "
+        "text, and renders the first page to a PNG image at 150 DPI using Aspose_PDF_FOSS 1.0.0.",
+        "fact_ids": ["package:version"],
+    }
+    assert scope_defect(f07, CANDIDATE, by_id) == reason
+    # Its factuality-labelled twin still answers through factuality_defect, word for word.
+    assert scope_defect({**f08, "criterion": "factuality"}, CANDIDATE, by_id) == (
+        "the quote contains the literal value of SUPPORTED fact package:version ('1.0.0'); "
+        "literal fact text is supported"
+    )
+    # Mutation controls: the cited value must be in the quote; a cited CONTRADICTED fact is a
+    # real finding (the reviewer names a fact that disproves the quote); citing nothing is one
+    # reader's prose judgment and the two-reader rule's to answer; inherited units are not
+    # evidence; and an uncited fact whose value the quote happens to carry (package:name here)
+    # is never read - the scope is the finding's own citation, nothing wider.
+    assert (
+        scope_defect({**f08, "quote": "using Aspose_PDF_FOSS version 2.0.0."}, CANDIDATE, by_id)
+        is None
+    )
+    assert (
+        scope_defect({**f08, "fact_ids": ["package:version", "example:009"]}, CANDIDATE, by_id)
+        is None
+    )
+    assert scope_defect({**f08, "fact_ids": []}, CANDIDATE, by_id) is None
+    maintainer = {
+        **f08,
+        "quote": "Old prose. using Aspose_PDF_FOSS version 1.0.0.",
+        "fact_ids": ["inherited_unit:001.paragraph"],
+    }
+    assert scope_defect(maintainer, CANDIDATE, by_id) is None
+    assert scope_defect({**f08, "fact_ids": ["example:001"]}, CANDIDATE, by_id) is None
+    # The document: the finding folds to advisory with its reason, so no repair is ever asked to
+    # delete the sentence, and the candidate's true detail stays.
+    document = review_document(
+        {"verdict": "REJECT_PRESENTATION", "findings": [f08], "preserve": []},
+        REVIEWER,
+        AUTHORING,
+        "d" * 64,
+        candidate_readme=CANDIDATE,
+        facts=facts,
+    )
+    assert document["verdict"] == ACCEPT and document["findings"] == []
+    assert document["advisory"][0]["reviewer_scope_defect"] == reason
+    assert "single_reader_advisory" not in document["advisory"][0]
 
 
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:

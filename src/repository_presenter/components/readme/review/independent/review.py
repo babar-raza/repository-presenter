@@ -47,7 +47,10 @@ ACCEPT = "ACCEPT"
 # not "1": retroactively credited for PA-02's already-landed change, which predates this constant.
 # "3" (PHASE1/F6): review_document's accept path made symmetric - an ACCEPT is corroborated by a
 # second independent read whose findings pass the same fold stack, a which-findings-block change.
-REVIEWER_LOGIC_VERSION = "3"
+# "4" (G4-W17 arrival items 62 and 63): two more findings fold as the reviewer's own defect - a
+# factuality finding quoting a verified symbol's rendered row that no content unit wrote, and a
+# presentation finding whose quote carries the literal value of a SUPPORTED fact it itself cites.
+REVIEWER_LOGIC_VERSION = "4"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -264,15 +267,67 @@ def factuality_defect(
         )
     if any(fact.polarity == "CONTRADICTED" for fact in product):
         return None
+    literal = _cited_literal(product, quote)
+    if literal is not None:
+        return (
+            f"the quote contains the literal value of SUPPORTED fact {literal.id} "
+            f"({literal.value!r}); literal fact text is supported"
+        )
+    return None
+
+
+# A fact value shorter than this is too little text to say a quote carries it on purpose.
+_LITERAL_VALUE_LENGTH = 3
+
+
+def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
+    """The first cited SUPPORTED product fact whose literal value the quote contains, or None.
+
+    Shared by ``factuality_defect`` and ``cited_fact_defect``: the prompt's own rule - "a quote
+    that contains the literal value of a SUPPORTED fact you cite is supported by definition"
+    (prompts/independent_review.yaml) - measured the same way whichever criterion files it.
+    """
     wanted = _normalized(quote)
     for fact in product:
         value = _normalized(fact.value)
-        if fact.polarity == "SUPPORTED" and len(value) >= 3 and value in wanted:
-            return (
-                f"the quote contains the literal value of SUPPORTED fact {fact.id} "
-                f"({fact.value!r}); literal fact text is supported"
-            )
+        if fact.polarity == "SUPPORTED" and len(value) >= _LITERAL_VALUE_LENGTH and value in wanted:
+            return fact
     return None
+
+
+def cited_fact_defect(
+    finding: Mapping[str, Any], quote: str, by_id: Mapping[str, Fact]
+) -> str | None:
+    """Why a presentation finding whose own citation verifies its quote is the reviewer's defect.
+
+    G4-W17 arrival item 63 (lane B LANE-B-R3-F2, Aspose.PDF for C++). The literal-value rule
+    above ran only for a finding labelled ``factuality``, so the identical finding labelled
+    ``presentation`` had no refutation at all: F08 quoted ``using Aspose_PDF_FOSS version
+    1.0.0.``, cited ``package:version`` (SUPPORTED, value ``1.0.0``) as its own evidence, called
+    the sentence unverified, and ``targeted_repair`` obeyed - a true, fact-backed detail left a
+    public candidate because a finding said the opposite of its own citation. The same
+    repository's 2026-09-06 draw had already lost ``1.0.0`` twice the same way (its
+    ``repairs.json`` attempts F07 and F10, each citing ``package:version``), so this is a class,
+    measured three times, not one draw.
+
+    Scoped to the facts the finding itself cites, never the whole fact set: a verbatim scan of
+    every SUPPORTED value would refold quotes by coincidence (``dependency:none``'s value is
+    ``none``; a ``format``'s is a bare extension) - the collision item 45 was written to stop.
+    A cited CONTRADICTED fact leaves the finding standing, exactly as in ``factuality_defect``:
+    the reviewer then names a fact that disproves the quote, which is a real finding.
+    """
+    cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
+    product = [fact for fact in cited if fact.kind != "inherited_unit"]
+    if not product or any(fact.polarity == "CONTRADICTED" for fact in product):
+        return None
+    literal = _cited_literal(product, quote)
+    if literal is None:
+        return None
+    return (
+        f"the quote contains the literal value of SUPPORTED fact {literal.id} "
+        f"({literal.value!r}), which the finding itself cites as its evidence; literal fact "
+        "text is supported whatever criterion the finding files itself under"
+    )
 
 
 _ABSENCE_REPORTED = 3
@@ -390,7 +445,11 @@ def claim_evidence(original_readme: str, facts: FactsDocument | None) -> str:
 _RENDERER_OWNED_CRITERIA = frozenset({"presentation", "factuality"})
 
 
-def renderer_owned_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact]) -> str | None:
+def renderer_owned_defect(
+    finding: Mapping[str, Any],
+    by_id: Mapping[str, Fact],
+    unit_texts: Sequence[str] | None = None,
+) -> str | None:
     """Why a finding against content no unit wrote is the reviewer's own defect, or None.
 
     A deterministic section renders from facts under the contract's own checks (BC-02, BC-05,
@@ -444,6 +503,21 @@ def renderer_owned_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
     for text it is reading - a completeness or scope finding - reports content missing from a
     deterministic section, which is a claim about the fact set that section renders from and one
     ``S2`` can reopen.
+
+    The BC-04 exemption's factuality gate was standing in for a question the criterion cannot
+    answer: *where the quoted text lives* (G4-W17 arrival item 62, lane C PROPOSAL Z). The
+    ``ExportToCSV`` case quotes a sentence a content unit wrote and can rewrite. Measured
+    2026-09-11 on Aspose.Cells for Java, F05 - ``factuality``, ``api_reference`` - quoted two
+    verified enums' own table rows, each a SUPPORTED ``public_symbol`` fact's name and docstring
+    rendered verbatim by the renderer: ``content_units.json`` held 25 units, the section's two
+    carried neither row, the repair re-asked the intro unit and got the same 157 bytes back,
+    the finding re-raised, and every refutation here returned None - ``_quoted_verified_fact``
+    itself already resolved the quote, and only the label stood between it and the answer. So
+    when the caller supplies ``unit_texts`` (the content units' own prose) and none of them
+    carries the quote, a factuality finding reaches the same exemption: text no unit wrote is
+    the renderer's, whatever the finding calls it. A quote any unit carries, even partly, keeps
+    its route to that unit; with no units supplied the gate stays presentation-only, because
+    "no unit carries it" is a measurement, never a default.
     """
     criterion = finding.get("criterion")
     if criterion not in _RENDERER_OWNED_CRITERIA:
@@ -466,13 +540,22 @@ def renderer_owned_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
             f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-summary "
             "text; no unit wrote it and none can change it"
         )
-    verified = _quoted_verified_fact(finding, by_id) if presentation else None
-    if verified is not None:
+    unwritten = unit_texts is not None and not _carried_by_units(
+        str(finding.get("quote", "")), unit_texts
+    )
+    verified = _quoted_verified_fact(finding, by_id) if presentation or unwritten else None
+    if verified is not None and presentation:
         return (
             f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies; the "
             "candidate's own fact set is the standard of support, not the upstream README, and "
             "loop-prompt.md rule 8 requires the complete verified surface - absence from the "
             "original is never itself a presentation defect for content BC-04 already verified"
+        )
+    if verified is not None:
+        return (
+            f"the quote names {verified.id}, a SUPPORTED fact BC-04 already verifies, and no "
+            "content unit carries the quoted text: it is the renderer's own rendering of that "
+            "verified fact, which no unit wrote and no stage the loop can reopen would rewrite"
         )
     if section not in _DETERMINISTIC_SECTIONS:
         return None
@@ -542,7 +625,9 @@ def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
     (measured while landing this: an unrestricted version matched ``format:output.glb`` against
     unrelated prose that merely mentioned ``.glb`` files). A reviewer, like a unit's own prose,
     names the member by its bare name (the convention item 22's ``symbol_names`` already
-    established), not the fully qualified value.
+    established), not the fully qualified value. Still ``public_symbol`` alone after G4-W17
+    arrival item 63: a quote carrying another kind's literal value is ``cited_fact_defect``'s,
+    which reads only the facts the finding itself cites, so the coincidence above stays closed.
     """
     quote = str(finding.get("quote", ""))
     if not quote.strip():
@@ -554,6 +639,45 @@ def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
         if len(suffix) >= _VERIFIED_NAME_LENGTH and _references_symbol(quote, fact):
             return fact
     return None
+
+
+# An ellipsis fragment shorter than this is too little text to place inside a unit on purpose.
+_CARRIED_FRAGMENT_LENGTH = 12
+
+
+def _carried_by_units(quote: str, unit_texts: Sequence[str]) -> bool:
+    """Whether any content unit's own prose carries the quote, or any exact fragment of it.
+
+    Conservative by construction (G4-W17 arrival item 62): the whole quote is looked up under
+    ``quote_located``'s spelling rules against every unit's text joined, and so is each exact
+    fragment around an ellipsis - a quote that is even partly a unit's sentence (the unit's
+    prose beside a rendered row it disputes) counts as carried, so the finding keeps its route
+    to that unit. Only a quote no unit wrote any part of is uncarried.
+    """
+    haystack = "\n".join(unit_texts)
+    if not _normalized(quote) or not _normalized(haystack):
+        return False
+    if quote_located(quote, haystack):
+        return True
+    fragments = [part.strip() for part in _ELLIPSIS.split(quote) if part.strip()]
+    return len(fragments) > 1 and any(
+        len(_normalized(part)) >= _CARRIED_FRAGMENT_LENGTH and quote_located(part, haystack)
+        for part in fragments
+    )
+
+
+def unit_texts(units: Mapping[str, Any] | None) -> list[str] | None:
+    """Every content unit's own prose from a ``content_units.json``-shaped document.
+
+    ``None`` in, ``None`` out - and the two answers differ downstream: ``None`` means the units
+    are unknown and ``renderer_owned_defect``'s BC-04 exemption stays presentation-only; a list,
+    even an empty one, is a measurement of what the units carry.
+    """
+    if units is None:
+        return None
+    return [
+        str(unit.get("text", "")) for unit in units.get("units", []) if isinstance(unit, Mapping)
+    ]
 
 
 # At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,
@@ -697,6 +821,7 @@ def scope_defect(
     by_id: Mapping[str, Fact],
     evidence: str = "",
     rendered: Sequence[str] = (),
+    unit_texts: Sequence[str] | None = None,
 ) -> str | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
@@ -713,7 +838,10 @@ def scope_defect(
     is judged the same way, before the criterion is read at all: whether the finding calls the
     renderer's own text a presentation defect or a factual one, no stage the loop can reopen
     would rewrite it (G4-W17 arrival item 37). Only the criterion-specific refutations - a
-    factuality claim measured against the facts it cites - come after the switch.
+    factuality claim measured against the facts it cites, a presentation claim contradicted by
+    the finding's own citation (item 63) - come after the switch. ``unit_texts``, when the
+    caller has the content units, lets the renderer-owned rule tell a rendered row no unit wrote
+    from a unit's own sentence (item 62).
     """
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
@@ -724,11 +852,14 @@ def scope_defect(
     written = rendered_defect(finding, rendered)
     if written is not None:
         return written
-    owned = renderer_owned_defect(finding, by_id)
+    owned = renderer_owned_defect(finding, by_id, unit_texts)
     if owned is not None:
         return owned
+    quote = str(finding.get("quote", ""))
     if finding.get("criterion") == "factuality":
-        return factuality_defect(finding, str(finding.get("quote", "")), by_id)
+        return factuality_defect(finding, quote, by_id)
+    if finding.get("criterion") == PROSE_JUDGMENT:
+        return cited_fact_defect(finding, quote, by_id)
     return None
 
 
@@ -742,6 +873,7 @@ def review_document(
     original_readme: str = "",
     rendered: Sequence[str] = (),
     second: Mapping[str, Any] | None = None,
+    units: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -749,6 +881,10 @@ def review_document(
     A finding that is the reviewer's own defect is recorded advisory with the reason as a field,
     the stage the reviewer named left intact: the record says why it does not block, and nothing
     downstream has to read prose to find out (section 27.5 D5).
+
+    ``units`` is the round's own ``content_units.json`` document when the caller has it: the
+    fold stack then knows which quoted text a unit wrote and which the renderer did (G4-W17
+    arrival item 62); without it, that one rule keeps its narrower presentation-only reach.
 
     ``second`` is a second independent read of the same candidate under a different seed. When it
     is given (not ``None``), a prose judgment on a required row blocks only if that read raised a
@@ -782,10 +918,11 @@ def review_document(
     )
     by_id = {fact.id: fact for fact in facts.facts} if facts is not None else {}
     evidence = claim_evidence(original_readme, facts) if original_readme else ""
+    texts = unit_texts(units)
     for finding in output.get("findings", []):
         record = dict(finding)
         reason = (
-            scope_defect(finding, candidate_readme, by_id, evidence, rendered)
+            scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts)
             if facts is not None
             else None
         )
@@ -816,7 +953,7 @@ def review_document(
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
             reason = (
-                scope_defect(finding, candidate_readme, by_id, evidence, rendered)
+                scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts)
                 if facts is not None
                 else None
             )
