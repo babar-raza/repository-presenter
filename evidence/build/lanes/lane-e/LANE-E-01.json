@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "lane": "lane-e",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-E-01",
+  "work_item_status": "IN_PROGRESS",
+  "recorded_at": "2026-09-11T08:25:09+00:00",
+  "control_revision": "83f8380",
+  "control_revision_note": "The single-use branch lane-e/LANE-E-01 is rebased onto this revision of origin/main. The one present run of this item was made against 692f57c, before 18e26e5 and 83f8380 landed; git diff --stat over src/ and prompts/ between 692f57c and 83f8380 is empty (both are docs, cursors and channel records), so nothing between them changes what is recorded here. The S4 fix itself had not landed at 83f8380. Lane E owns no platform module: the Python extractor is shared and mature, so every defect found here is a PROPOSAL for the primary, never an edit in this lane.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\e01",
+    "presenter_site_manifest": "613b742b997a5a872c351ee71552a83e76435b1e78e1ecbf9d9893d0bc87d47f",
+    "presenter_site_manifest_note": "This lane's own fresh venv, as loop-prompt-lane.md section 1.3 requires. It differs from the f4406f1b... recorded in all eight sealed bundles' dependencies.json and from the 390cd5e8... the sprint's venv-freeze ruling measured on the primary (DECISION_LOG, 2026-09-11 11:19 +05:00). Recorded, not acted on: nothing was sealed this run, so no bundle carries this value."
+  },
+  "toolchains": [
+    {
+      "tool": "python",
+      "resolved_by": "C:\\Python313\\python.exe -m venv .venv; .venv\\Scripts\\pip install -e .[dev]",
+      "path": "C:\\w\\e01\\.venv\\Scripts\\python.exe",
+      "version": "3.13.2",
+      "note": "The Python cohort's target toolchain is the same interpreter family the tool itself runs on; example verification builds its own workspace-local venvs under runs/verify/<key>."
+    }
+  ],
+  "gateway": {
+    "command": "repository-presenter preflight",
+    "host": "llm.professionalize.com",
+    "models": 7,
+    "prompt_manifests": 6,
+    "route": "qwen3-next",
+    "catalog_digest": "663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b"
+  },
+  "supervisor_stop": {
+    "received": "mid-run, after the S3 call and during the first S4 call",
+    "instruction": "Stop before spending another provider call on a candidate: the pipeline is blocked at S4 source_reconciliation for every repository, so a Python run cannot reach a seal. Record what is already measured as lane-E findings; write no disposition against a known-broken stage, because a disposition recorded now would name a false failure class. Confirm which of PDF/Page/Cells-Python are S4-class versus later-stage. The supervisor re-spawns when the fix lands.",
+    "applied": "LANE-E-01 stays IN_PROGRESS. No disposition written for any repository; all three keep the classes evidence/build/G3_PYTHON_COHORT/manifest.json second_pass recorded. Page and Cells for Python were never launched and cost zero provider calls.",
+    "cause_measured_by": [
+      "852047a (lane C, Cells Java and Slides Java)",
+      "3bc7999 (lane D, Cells Go)"
+    ]
+  },
+  "runs": [
+    {
+      "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+      "source_revision": "bc52745063841d454053d4e7780c0e4ed1f05ed5",
+      "source_revision_note": "Moved since the G3 second pass, which ran 109e26a10e37541528afb5e3ae6b04516c1c0359 on 2026-09-07; HEAD today is 'fix(streaming): give a lazily opened document its text and its deletions'. The clone is depth-1, so the distance between the two revisions was not measured.",
+      "command": "repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+      "outcome": "STOPPED_AT_S4_NO_CALL_RECORDED",
+      "reached": "S3 repository_investigation accepted; terminated during the first S4 source_reconciliation call",
+      "disposition_written": false,
+      "disposition_withheld_because": "The reviewer's stop: S4 is broken for every repository, so any class this run produced would be the stage's defect, not this repository's. Its recorded class stays RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID from the G3 second pass.",
+      "examples": {
+        "candidates": 13,
+        "executed": 8,
+        "failed": 5,
+        "note": "The identical split the G3 second pass measured at the older revision, so the first pass's QUICK_START_WITHOUT_EXECUTED_EXAMPLE stays closed at this revision too."
+      },
+      "facts": {
+        "records": 1583,
+        "second_pass_records": 1555,
+        "by_kind": {
+          "public_symbol": 1376,
+          "inherited_unit": 115,
+          "link_target": 35,
+          "dependency": 20,
+          "example": 13,
+          "format": 9,
+          "identity": 5,
+          "package": 4,
+          "build_test_asset": 2,
+          "license": 2,
+          "import_path": 1,
+          "install_command": 1
+        },
+        "confidence_1_0": 1527,
+        "confidence_0_5": 56
+      },
+      "calls": [
+        {
+          "stage": "S3",
+          "job": "repository_investigation",
+          "attempt": 1,
+          "outcome": "success",
+          "http_status": 200,
+          "latency_ms": 50945,
+          "prompt_tokens": 34276,
+          "completion_tokens": 2273,
+          "model_served": "qwen3-next",
+          "finished_at": "2026-09-11T08:16:11.233+00:00"
+        }
+      ],
+      "s4": {
+        "call_records_written": 0,
+        "process_gone_at": "2026-09-11T08:22:49+00:00",
+        "elapsed_in_the_call_seconds": 398,
+        "exit_status": 127,
+        "stdout": "block-buffered and lost with the process",
+        "claimed": "Lane E has no measurement of the S4 failure itself. The call had not returned inside a window where lanes C and D measured theirs at 550.7 s / 567.5 s (Java) and 552.9 s / 571.8 s (Go). That is consistent with their finding and is not evidence of it."
+      }
+    },
+    {
+      "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+      "outcome": "NOT_LAUNCHED",
+      "provider_calls": 0,
+      "reason": "Second in the item's order; the stop arrived before its turn."
+    },
+    {
+      "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+      "outcome": "NOT_LAUNCHED",
+      "provider_calls": 0,
+      "reason": "Third in the item's order; the stop arrived before its turn."
+    }
+  ],
+  "s4_class_triage": {
+    "question": "Which of PDF/Page/Cells-Python are S4-class (arrival item 40's own targets) versus later-stage?",
+    "source": "evidence/build/G3_PYTHON_COHORT/manifest.json, second_pass.report; read only, no run",
+    "rows": [
+      {
+        "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+        "second_pass_outcome": "NOT_SEALED",
+        "stage": "S4 source_reconciliation",
+        "failure_class": "RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID",
+        "s4_class": true,
+        "note": "Item 40's own target; the second pass measured it rejected twice on the packet's own schema key names."
+      },
+      {
+        "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+        "second_pass_outcome": "NOT_SEALED",
+        "stage": "S4 source_reconciliation",
+        "failure_class": "RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST",
+        "s4_class": true,
+        "note": "Item 40's own target; rejected twice on 'unknown fact ID public_symbol:aspose.page.common', a namespace the job invented."
+      },
+      {
+        "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Python",
+        "second_pass_outcome": "NOT_RERUN_IN_THIS_BOX",
+        "stage": "S10 review, BC-10",
+        "failure_class": "CORROBORATED_PRESENTATION_JUDGMENT",
+        "s4_class": false,
+        "note": "Later stage, and still not runnable: every composition traverses S4, so it cannot reach BC-10 either. Its unlock under test is the 28/33/37/39/45 fold stack plus PHASE1/F6 acceptance corroboration, all untested by this lane."
+      }
+    ],
+    "conclusion": "Two of the three are exactly the repositories arrival item 40 was landed for. All three wait on the same landing."
+  },
+  "proposals": [
+    {
+      "id": "E2",
+      "title": "Arrival item 40's `pattern` was already prohibited by section 27.0 D1, and the recorded reason for the prohibition is now wrong",
+      "file": "src/repository_presenter/components/readme/reconciliation/dispositions.py::reconciliation_schema (e2a1a83)",
+      "provider_calls_spent": 0,
+      "defect": "Section 27.0 D1, from section 27.10's measured follow-up of 2026-09-04, says: never use `pattern` in a strict json_schema; use enums, minItems/maxItems, maxLength. Item 40 added exactly a `pattern` to fact_ids.items. The rule's recorded symptom (HTTP 400) no longer holds - lanes C and D both measured the gateway accepting it and enforcing it as a decoding grammar - which is strictly worse than the 400 the rule anticipated: a 400 fails in under a second, a grammar spends about nine minutes and 32,000 completion tokens per repository and surfaces as a truncation that reads like a batch-size problem.",
+      "consequence": "Lane C's proposed fix (append `.+` to the pattern, add maxItems) keeps a pattern in a strict json_schema and still allows an ID that names no fact, caught only afterwards by binding_errors. Lane D's proposed fix (pin fact_ids.items to an enum of the packet's own fact IDs) is what D1 prescribes and what unit_id in the same function already does; it makes an ID that names no fact impossible to emit.",
+      "recommendation": "The enum, with maxItems beside it as defence in depth. If the pattern form is kept, restate D1 and the section 27.9 G2-W20 purpose line in the same commit to say why a pattern is now allowed.",
+      "reversal": "Lane E proposes no edit of its own; this is a reading of a standing rule against a landed commit. Refuted by one measurement showing this gateway decodes a bounded pattern safely, in which case D1's sentence is what needs the edit."
+    },
+    {
+      "id": "E3",
+      "title": "The enum fix is right, and its size has only been validated at 123 values; PDF for Python would carry 689",
+      "file": "src/repository_presenter/components/readme/reconciliation/dispositions.py::reconciliation_packet / reconciliation_schema",
+      "provider_calls_spent": 0,
+      "measured_by": "this run's own facts.json read through reconciliation_packet(), the same function run_round calls; nothing written, no tracked file touched",
+      "defect": "DECISION_LOG 2026-09-10 11:19 UTC (Taskcard H) records a confirmed HTTP 400 at a sibling site - planning_schema()'s three unbounded enum sites on aspose-pdf-foss/Aspose.PDF-FOSS-for-Java - closed by routing them through bounded_records(). An enum for fact_ids is the right kind of constraint and is already bounded the same way, but how large the bounded list actually gets is repository-dependent and has been measured at one point only.",
+      "s4_packet_citable_records": [
+        {
+          "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+          "records": 123,
+          "source": "lane D 3bc7999 - the one value the enum replay was validated against"
+        },
+        {
+          "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+          "records": 689,
+          "id_characters": 31653,
+          "packet_characters_without_inherited_units": 115067,
+          "by_kind": {
+            "public_symbol": 601,
+            "link_target": 34,
+            "dependency": 20,
+            "example": 13,
+            "format": 7,
+            "identity": 4,
+            "package": 4,
+            "build_test_asset": 2,
+            "license": 2,
+            "import_path": 1,
+            "install_command": 1
+          },
+          "source": "this run, at bc52745063841d454053d4e7780c0e4ed1f05ed5"
+        },
+        {
+          "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Java",
+          "records": "1,240 public_symbol alone under item 40, against 3 before it",
+          "source": "lane C 852047a"
+        }
+      ],
+      "recommendation": "Land the enum, and treat the class as closed only after one live S4 call on a large-surface repository, not on the 123-value case alone. PDF for Python at 689 is the cheapest such check and is the first repository of LANE-E-01. If a large enum does trip a 400, the answer is Taskcard H's: tighten bounded_records' own cap for this packet, never widen the schema back to a pattern.",
+      "alternative_rejected": "Assuming 123 generalises - section 27.10 follow-up 3 prohibits fitting a threshold or a shape to one sample, and Taskcard H is the project's own three-day-old counter-example.",
+      "reversal": "Nothing to reverse; lane E proposes no edit. The measurement is reproducible from any fresh facts run of the same revision."
+    }
+  ],
+  "checks": {
+    "command": "bash scripts/ci_check.sh (the five CI steps, run once for this commit)",
+    "lint": "success - ruff check .",
+    "format": "success - 234 files already formatted",
+    "typecheck": "success - no issues found in 126 source files",
+    "pytest": "success - 1006 passed, 10 xfailed in 641.20s",
+    "entrypoint": "success - repository-presenter 0.1.0; status 8/34",
+    "note": "This lane changed no code, so the suite is the unchanged tree's; run to prove the docs/yaml/evidence commit does not break it."
+  },
+  "progress": {
+    "status_before": "8/34",
+    "status_after": "8/34",
+    "sealed_by_lane": 0,
+    "dispositions_by_lane": 0,
+    "state_yaml_opened": false,
+    "note": "Nothing sealed, so progress.current_candidates in project/state.yaml is untouched (loop-prompt-lane.md section 0's narrow exception does not apply)."
+  },
+  "not_claimed": [
+    "No candidate was rendered and no bundle sealed.",
+    "No check BC-01 to BC-11 was judged for any of the three repositories.",
+    "Lane E did not measure the S4 truncation and does not corroborate its cause; that measurement is lane C's and lane D's.",
+    "Neither arrival item 40 nor the 28/33/37/39/45 + F6 fold stack was confirmed or refuted by this run."
+  ],
+  "resume": "The supervisor re-spawns lane E when the S4 fix lands on main. LANE-E-01 then resumes at its first repository, aspose-pdf-foss/Aspose-PDF-FOSS-for-Python, at whatever revision the clone pins then."
+}
