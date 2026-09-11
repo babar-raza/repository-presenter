@@ -1,0 +1,149 @@
+{
+ "schema_version": 1,
+ "lane": "lane-e",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-E-02",
+ "work_item_status": "IN_PROGRESS",
+ "recorded_at": "2026-09-11T17:13:33+00:00",
+ "control_revision": "c0da8e1",
+ "control_revision_note": "LANE-E-02 run 1, branch lane-e/LANE-E-02, worktree C:\\w\\e04, off origin/main at c0da8e1 (arrival items 41+42, the gate this item waited on). Scope as the item's purpose gives it: Aspose.HTML for Python, then Aspose.Note for Python, then Aspose.BarCode for Python if the box allowed. Lane E owns no platform module (project/lanes/lane-e.yaml purpose), so every defect below is a PROPOSAL for the primary, never an edit in this lane. No candidate sealed; this PR adds no candidates/ directory and project/state.yaml was not opened, so the lane prompt's narrow current_candidates exception does not apply.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\e04",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt, verified before any candidate work. Built by project/loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e . Third independent confirmation of 54417f9's recipe after lanes D and F."
+ },
+ "toolchains": [
+  {
+   "tool": "python",
+   "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then loop-prompt-lane.md 1.3",
+   "path": "C:\\w\\e04\\.venv\\Scripts\\python.exe",
+   "version": "3.13.2"
+  },
+  {
+   "tool": "git",
+   "resolved_by": "PATH",
+   "used_for": "the read-only clones under runs/clones"
+  }
+ ],
+ "gateway": {
+  "command": "repository-presenter preflight",
+  "host": "llm.professionalize.com",
+  "models": 7,
+  "prompt_manifests": 6,
+  "route": "qwen3-next",
+  "catalog_digest": "0dc7f649a004c6fecc0927806fedd61865b2e149f935103a61cb4b548cd357d4"
+ },
+ "gate_check_before_starting": {
+  "question": "The spawn instruction asserted that all three of this item's blockers had landed: items 41+42 in c0da8e1 for HTML and Note, and item 43 for BarCode 'ALSO landed separately today (dd7dc73 pre-sprint)'. It asked for BarCode's current disposition to be checked rather than assumed. Checked.",
+  "items_41_42": {
+   "verdict": "LANDED, and both are cited by repository name in the unblock ledger",
+   "evidence": "evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl carries {\"item\": 41, \"landed_at\": \"2026-09-11T16:20:02Z\", \"unlocks\": [[\"lane-e\", \"aspose-html-foss/Aspose.HTML-FOSS-for-Python\"]]} and the matching line 42 for aspose-note-foss/Aspose.Note-FOSS-for-Python; commit c0da8e1 changes composition/planning.py and prompts/presentation_planning.yaml."
+  },
+  "item_43": {
+   "verdict": "NOT LANDED. The spawn instruction's identification is wrong.",
+   "evidence": [
+    "dd7dc73 is arrival item 46, not 43 - its own subject is 'a protected command's own placeholder bracket is not HTML' and its ledger line reads {\"item\": 46, \"landed_at\": \"2026-09-11T08:51:00Z\", \"unlocks\": [[\"lane-d\", \"Aspose-PDF-FOSS-for-Go\"]]} - a different item, a different lane.",
+    "unblocked.jsonl holds lines for items 36, 22, 32, 33, 23, 55, 39, 40, 44, 45, 46, 60, 61, 62, 63, 64, 41 and 42. There is no line for item 43.",
+    "The primary's own sprint ledger entry for the 41+42 commit says it in words: 'Unblocks lane E's W-PY2 gate for HTML-Python and Note-Python (BarCode waits on item 43)... 43 is otherwise next in the 06:25Z slot order.' (plans/sprint/loop-status.jsonl, ts 2026-09-11T16:20:02Z)",
+    "The code is unchanged: BC-07's heading rule is validation/registry.py:862-873 and git log -L 862,873 on that file returns 9661e49 (G2-W03, 2026-09-03) as its newest touch - older than every arrival item in this sprint. Its one exemption, 'if level == 3 and line in api_lines and text in topics', reads topics as fact.value.rsplit('.', 1)[-1], which for the recorded failing heading '### renderers.Renderer' holds 'Renderer', not 'renderers.Renderer'."
+   ],
+   "consequence": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python was NOT run and no provider call was spent on it. Its disposition is unchanged from the G3 second pass: API_REFERENCE_HEADING_JUDGED_AS_PROSE at S9/BC-07. Arrival item 58 (lane F PROPOSAL F8, admitted 2026-09-11) is the same defect measured a third time and states the fix more precisely - 43 and 58 look like one card, not two."
+  }
+ },
+ "runs": [
+  {
+   "repository": "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+   "source_revision": "912f0ae078b5418226a51de08539bc591547682e",
+   "source_revision_note": "The same revision the G3 second pass ran.",
+   "outcome": "NOT_SEALED",
+   "gate_item_verdict": "ITEM 41 WORKED. The recorded blocker class is closed, measured.",
+   "recorded_class_closed": {
+    "class": "PLAN_PICKS_A_CONTRADICTED_EXAMPLE_FOR_THE_QUICK_START",
+    "stage": "S5 presentation_planning",
+    "proof": "plan.json quick_start_example_id is 'example:001' and second_quick_start_example_id is 'example:002'; facts.json records example:001 SUPPORTED and example:006 CONTRADICTED, the set's only CONTRADICTED example, which the second pass's plan chose twice. presentation_planning made ONE call and succeeded on attempt 1, against two rejections in the second pass."
+   },
+   "new_failure_class": "LIMITATION_UNIT_CANNOT_NAME_THE_MEMBER_IT_LIMITS",
+   "stage": "S6 section_authoring",
+   "stage_progress": {
+    "examples": "7 candidates; executed 6, failed 1",
+    "facts": "497 records (public_symbol 338, inherited_unit 103, link_target 30, example 7, identity 5, dependency 4, package 4, build_test_asset 2, license 2, import_path 1, install_command 1); digest 243a0800dae0faaf...",
+    "calls": "33 total: repository_investigation 2 success / 1 rejected, source_reconciliation 3 success (batched, no rejection), presentation_planning 1 success attempt 1, section_authoring 20 success / 6 rejected"
+   },
+   "detail": "section_authoring was rejected twice on the scope_limitations units and the run ended. Attempt 1: 'unit limitation:3: identifiers that are not accepted fact values: HTMLImageElement.decode' and 'unit limitation:4: ... CSSRule.css_text, CSSRule.type, css_text'. Attempt 2: 'unit limitation:4: ... css_text'. The unit rejected on attempt 2 reads, verbatim from the stored call body, 'CSSOM base-rule stubs such as type and css_text are not implemented; concrete rule subclasses expose their own real properties instead.' with fact_ids ['inherited_unit:089.list'] - so it cites the very fact that spells the tokens. inherited_unit:089.list is the repository's own README limitations list and its second bullet reads 'CSSRule.type and CSSRule.css_text (the CSSOM base-rule stubs) are not implemented'. Measured by calling the real functions on the real facts: identifier_tokens() on that value returns 11 tokens including all four rejected identifiers; command_block_tokens() on the same value returns 0; allowed_identifiers() holds 1,785 tokens and contains CSSRule, HTMLImageElement, BoxNode, JSContext, ModuleRegistry, FragmentRoot, CSSStyleRule and CSSMediaRule - only the MEMBER spellings are refused. No fact can supply them: the 338 public_symbol facts are symbol_kind class 302, function 16, module 14, method 4, enum 1, unknown 1, with no css_text and no decode at any spelling. Attempt 2 even dropped the CSSRule. head and wrote bare type and css_text; css_text still tripped the guard as a snake token.",
+   "proposal": "E9",
+   "resume_predicate": "PROPOSAL E9 lands, then re-run present --repo aspose-html-foss/Aspose.HTML-FOSS-for-Python. Both the first-pass class (QUICK_START_WITHOUT_EXECUTED_EXAMPLE) and the second-pass class (PLAN_PICKS_A_CONTRADICTED_EXAMPLE_FOR_THE_QUICK_START) are closed and their closures are measured.",
+   "secondary_observation_not_a_proposal": "E10: 4 of the 6 section_authoring rejections were \"text contains HTML ('<')\" - one capability unit, one hub unit and two batches covering 32 type: units for HTMLDivElement, HTMLFormElement and their siblings. For an HTML DOM library the natural description of HTMLDivElement spells <div>. EVERY ONE recovered on the next attempt by re-writing the token inside backticks, which dd7dc73 (item 46) admits. The fold-not-reject behaviour works as designed; no change proposed."
+  },
+  {
+   "repository": "aspose-note-foss/Aspose.Note-FOSS-for-Python",
+   "source_revision": "41de2e8ab478b5aeff3663f7f7cbf83b19fdf676",
+   "source_revision_note": "The same revision the G3 second pass ran.",
+   "outcome": "NOT_SEALED",
+   "gate_item_verdict": "ITEM 42 HALF-WORKED, and this repository's gate did NOT close. The assumption that it would is refuted by measurement, not by inference.",
+   "recorded_class_not_closed": {
+    "class": "PLANNED_CAPABILITY_TITLE_NAMES_AN_UNVERIFIED_FORMAT",
+    "stage": "S5 presentation_planning",
+    "rejection_verbatim": "core_capabilities 6 is titled 'Export to PDF', which names .pdf; no fact verifies that format, so the title claims what the repository does not prove - title the capability by what is verified",
+    "attempts": 2
+   },
+   "the_half_that_worked": "The second pass recorded Note writing a public_symbol into output_format_ids; both rejected plans this run carry \"output_format_ids\": [], correctly empty. Item 42's at_a_glance enum plus maxItems 0 holds and should be kept. Measured offline before the run, _verified_formats on Note's real facts returns {\"input\": [{\"id\": \"format:input.one\", \"value\": \".one\"}], \"output\": []} - the planner was told correctly that no output format is verified, and named PDF anyway, twice, at temperature 0. Item 42 treated this as a packet-information defect; it is not one.",
+   "new_failure_class": "VERIFIED_FORMAT_UNREACHABLE_BECAUSE_ITS_EXAMPLES_LACK_A_DECLARED_EXTRA",
+   "stage": "S5 presentation_planning",
+   "stage_progress": {
+    "examples": "12 candidates; executed 9, failed 3; build_verified true for all 12",
+    "facts": "351 records (public_symbol 166, inherited_unit 113, link_target 34, example 12, dependency 7, identity 5, package 4, build_test_asset 3, format 2, license 2, import_path 1, install_command 1, third_party_notices 1); 346 SUPPORTED, 3 CONTRADICTED, 2 UNRESOLVED",
+    "calls": "10 total: repository_investigation 2 success / 1 rejected, source_reconciliation 3 success (batched, no rejection), presentation_planning 2 success / 2 rejected"
+   },
+   "detail": "The planner is not hallucinating - it is right, and the format fact is the weak link. The capability it insisted on cites public_symbol:aspose.note.saveformat, and the fact set carries five SUPPORTED public symbols evidencing PDF export: aspose.note.SaveFormat (enum), aspose.note.model.PdfSaveOptions (class), aspose.note.saving.pdf_writer (module), aspose.note.saving.pdf_writer.write_pdf (function) and aspose.note.Document.Save (method). plan_checks (planning.py:525) builds its verdict from facts.by_kind('format') alone, so 'no fact verifies that format' is true only of format-kind facts. format:output.pdf carries exactly four evidence lines and every one is a failure: README.md line 119 (example 2) and line 235 (example 10), each paired with 'examples.json | example N: FAILED; RuntimeError'. formats.py has two routes to SUPPORTED and both are shut. THE EXECUTED ROUTE: examples 2 and 10 are the only two that write a .pdf and both failed identically - 'File .../aspose/note/saving/pdf_writer.py, line 1745, in write_pdf / from reportlab.lib.utils import ImageReader / ModuleNotFoundError: No module named reportlab'. reportlab>=3.6 is a DECLARED dependency of this repository, pyproject.toml lines 29-30, [project.optional-dependencies] pdf = [\"reportlab>=3.6\"]. All 12 examples record build_verified true, so the real wheel installed and the source fallback never ran; the wheel was installed without extras, and _declared_dependencies (python_examples.py:322-333) reads project.dependencies only - project.optional-dependencies is read by neither path, and Note's base dependencies list is literally []. THE STATIC-CORROBORATION ROUTE: ran format_declarations(root, 46 py files) directly against the pinned clone and it returns 0. python_format_declarations.py is shaped for one architecture - _declarations skips every file not literally named FileFormat.py (line 128) and _registrations needs a register_plugin(...) call (line 162). Note has neither: find -name FileFormat.py is empty and grep -rn register_plugin is empty. Yet both of section 22.1's independent static sources are plainly in its source - the declaration at src/aspose/note/enums.py:6-7 (class SaveFormat(Enum): Pdf = 'pdf') and a 1,828-line, emphatically non-stub exporter at src/aspose/note/saving/pdf_writer.py.",
+   "proposal": "E12",
+   "resume_predicate": "PROPOSAL E12 (1) - the example runner installs the extras the manifest declares, or the narrower form: an example failing with ModuleNotFoundError: No module named 'X' is retried once with the declared extra providing X - then re-run present --repo aspose-note-foss/Aspose.Note-FOSS-for-Python. Item 42 is NOT this repository's resume predicate and never was; its at_a_glance half is kept. Lane E proposes no change to plan_checks: the check is correct and catching a real gap."
+  },
+  {
+   "repository": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+   "outcome": "NOT_RUN_GATE_STILL_SHUT",
+   "failure_class": "API_REFERENCE_HEADING_JUDGED_AS_PROSE (G3 second pass, unchanged)",
+   "stage": "S9 validation, BC-07",
+   "detail": "See gate_check_before_starting.item_43. Its blocker has not landed; running it would have bought a third measurement of a class already recorded twice and a third instance of a heading the renderer itself generates. Zero provider calls spent.",
+   "resume_predicate": "arrival item 43, or arrival item 58 which states the same fix more precisely (align BC-07's heading model to the renderer's own), then re-run present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python"
+  }
+ ],
+ "proposals": [
+  {
+   "id": "E9",
+   "site": "composition/authoring.py::allowed_identifiers, lines 890-900",
+   "defect": "An identifier spelled verbatim inside a SUPPORTED fact is refused unless that fact is kind example or the spelling sits in a shell-command fence, so a scope_limitations unit cannot name the member it is about. Arrival item 44 fixed the sibling half (the command fence) and command_block_tokens' own docstring records that the scoping was deliberate: 'Tokens of a fact's running prose, of a code span, and of a source-language fence stay out: an upstream README that merely mentions a symbol the surface no longer carries must not thereby license prose to spell it in a code span.' That reasoning is sound for a capability claim and lane E does not propose reversing it. What it does not cover is a limitation, whose whole content is that the member is NOT implemented and whose only honest source is the repository's own limitations list.",
+   "lane_e_proposes_no_specific_fix": true,
+   "discriminators_the_measurement_supports": [
+    "(a) scope by citation - a token spelled verbatim inside a SUPPORTED fact THIS UNIT CITES is spellable, which is stricter than item 44's fence rule since the fence rule needs no citation at all",
+    "(b) scope by section - scope_limitations units may spell a member of an already allowed symbol when the exact spelling appears in a cited SUPPORTED fact, since a negative claim cannot mis-advertise a surface"
+   ],
+   "caution": "allowed_identifiers feeds unit_checks, renderer.prose and BC-04 from one set, so fixing the guard alone would only move the rejection to BC-04 - its own docstring says so. Lane E explicitly does NOT propose 'admit every token of every SUPPORTED fact', which is the risk item 44 named.",
+   "family": "Third measurement in one family: item 44 (a token inside an inherited command fence refused at authoring) and arrival item 68, admitted hours ago in 0fecf88 (repair/targeted.py::repair_packet strips inherited_unit entirely, so repair has nothing citable), are the same mis-handling of inherited_unit - the fact kind carrying the repository's own README text - at two other sites. E9 is the authoring-time, inline-code-span site.",
+   "blocking": "aspose-html-foss/Aspose.HTML-FOSS-for-Python"
+  },
+  {
+   "id": "E12",
+   "site": "(1) extractors/platforms/python_examples.py::_declared_dependencies (lines 322-333) and the wheel install path; (2) extractors/platforms/python_format_declarations.py (lines 124-174)",
+   "defect": "(1) The example runner installs the package but never the extras its manifest declares, on either path: the wheel path requests no extras and _declared_dependencies reads project.dependencies only. Note's PDF writer needs reportlab, a declared optional dependency, so both of its .pdf examples failed and the only executable route to format:output.pdf SUPPORTED closed. (2) The Python format-declaration extractor can only see the Aspose.3D plugin architecture (a file literally named FileFormat.py, a register_plugin call), so for every Python repository not built that way a format is reachable only through an executed example - 0 declarations found for Note despite SaveFormat.Pdf and a 1,828-line non-stub pdf_writer.",
+   "lane_e_recommends": "(1) first, and in its narrow form: an example that FAILS with 'ModuleNotFoundError: No module named X' is retried once with the declared extra that provides X - the same fold-not-reject retry verify_python_examples already runs for NEEDS_INPUT, and the shape the G3 second pass's own Font predicate proposes. Installing every extra is not proposed: this manifest's others are test-pdf and dev, which no example needs. Nothing is weakened - if examples 2 and 10 execute, format:output.pdf becomes SUPPORTED by the executed route and the title check passes on its own terms.",
+   "not_proposed": "No change to plan_checks, and no relaxation of section 22.1's two-independent-source rule - Note satisfies that rule on its own source; the extractor cannot see it.",
+   "content_nuance_for_whoever_reruns": "PDF export here is behind an optional extra, so the honest capability title may need to say so, and the extra is itself a fact the candidate should carry.",
+   "blocking": "aspose-note-foss/Aspose.Note-FOSS-for-Python"
+  }
+ ],
+ "counted_unit": {
+  "before": "9/34",
+  "after": "9/34",
+  "method": "repository-presenter status, run from this worktree",
+  "note": "Unchanged by this run. No bundle reached validation, so nothing was sealed, no seal was forced, and this PR carries no candidates/ directory. No re-draw was attempted on either repository: both stopped on a deterministic shared-code cause that a re-run cannot escape, and the loop prompt prohibits a third equivalent attempt."
+ },
+ "checks": {
+  "ruff_check": "pass",
+  "ruff_format_check": "pass",
+  "mypy_src": "pass",
+  "pytest_n_auto": "pass",
+  "note": "Documentation-only change; the full local CI-equivalent was run once before commit."
+ }
+}
