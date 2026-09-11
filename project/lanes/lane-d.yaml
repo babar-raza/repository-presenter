@@ -25,7 +25,14 @@ toolchains:
 progress:
   sealed_by_lane: 1
   dispositions_by_lane: 2
-  status_line_observed: '2026-09-11 13:05, from this lane branch rebased onto origin/main at
+  status_line_observed: '2026-09-11 15:40, from this lane branch off origin/main at 08307b9:
+    candidates 8/34 current reviewable no-op-proven - unchanged. 9 ever sealed (up from 8 - the
+    Cells-Go bundle this run produced), 9 integrity-valid, 6 current-code reproducible, 0
+    independently accepted (stale-excluded). The new bundle does not count: BC-01 to BC-10 PASS but
+    its no-op proof was withdrawn, because S4''s stored reply is rejected by the very enum that
+    fixed S4 (PROPOSAL P24). G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that
+    number was written before the shared blockers were known and is still recorded rather than met.'
+  status_line_observed_2026_09_11_1305: '2026-09-11 13:05, from this lane branch rebased onto origin/main at
     f00e143: candidates 8/34 current reviewable no-op-proven - unchanged, G4-W15-RERUN2 sealed
     nothing. 8 ever sealed, 8 integrity-valid, 6 current-code reproducible, 0 independently
     accepted (stale-excluded). The same command at 1fb995d, minutes earlier and before the rebase,
@@ -299,5 +306,37 @@ items:
     the stage that raised it. sealed_by_lane stays 1 and dispositions_by_lane stays 2. BC-01 to
     BC-11 were never judged and none is claimed. See docs/RESEARCH_LANE_D.md.'
 - id: G4-W15-RERUN3
-  status: PENDING
+  status: ACCEPTED
+  accepted_at: '2026-09-11T15:45:00+05:00'
+  receipt: evidence/build/lanes/lane-d/G4-W15-RERUN3.json
   purpose: 'Sprint W-GO, after the S4 fact_ids enum landed (352fd35): re-run aspose-cells-foss/Aspose.Cells-FOSS-for-Go, whose BLOCKED_SHARED_CODE / S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY disposition names exactly this fix as its resume predicate. This is also the control for lane E PROPOSAL E3: its citable set is the 123 values the enum was validated at, so a clean S4 here with a 400 elsewhere localises the failure to enum size, not to the fix. Aspose-PDF-FOSS-for-Go still waits on item 47. Evidence evidence/build/lanes/lane-d/G4-W15-RERUN3.json.'
+  outcome: 'Accepted at the box with a disposition and one proposal; no counted seal, and two classes
+    closed. PROPOSAL P23''s resume predicate was met and its class is closed, measured: both S4
+    batches succeeded on attempt 1 in one round - batch 1 enum 139 values, 16,310 prompt / 3,718
+    completion tokens, 71,258 ms; batch 2 enum 125 values, 13,912 / 2,701, 54,775 ms - against 32,000
+    completion tokens and finish_reason length twice on the same repository at the same revision four
+    hours earlier. 66 units, 66 dispositions, zero degenerate IDs. As the size control for lane E
+    PROPOSAL E3: NO HTTP 400 at any stage in either full run, every one of the 48 provider calls
+    answering 200, at a citable set of 139 (batch 1, 3,604 characters of IDs) and 125 (batch 2) on the
+    production path - the small end of E3''s question; nothing here speaks to 689 or 3,812. The
+    candidate then reached S10 and BC-10 PASSES: the independent review returned ACCEPT,
+    identity_separate true, second_reader.read 2, 0 findings, 8 advisory, so
+    BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE is closed too. BC-01 to BC-10 all PASS over 231
+    facts, a 16-of-18-section plan, 42 units across 8 sections and README.md at 236 visible lines of
+    515; items 28, 29 and 45 were exercised for the first time (15 findings folded to advisory in run
+    1, 8 in run 2, one blocking finding routed to S6 and repaired) though this run does not separate
+    which of the three is load-bearing. It did not seal: BC-11 is unreachable. PROPOSAL P24 -
+    normalize() rewrites a deterministic-section placement''s fact_ids to include
+    rendering_fact_ids(), which carries identity:revision, while citable_fact_ids() is built from
+    bounded_records(), which excludes identity:revision from every packet BY DESIGN so the call cache
+    reuses across a revision bump. The stored output is the normalised one and jobs.py re-judges it
+    against the current schema before reuse, so 352fd35''s enum rejects it: cache_stale /
+    OutputRejected on batch 1''s byte-identical request digest c4132101affc in every round of both
+    runs, each followed by a live call. The fresh-process rerun therefore made 7 provider calls, the
+    dispositions moved and the bundle''s own no-op proof was withdrawn. Proven offline with no
+    provider call: widening the enum from 139 to 140 values turns three rejections into zero. Not a Go
+    finding - identity:revision is universal and so is the fold, so no repository can pass BC-11 while
+    this holds. The bundle is on disk at state ACCEPTED with no_op_proof null: status counts it in "9
+    ever sealed" and not in the 8/34, and no seal was forced. The disposition becomes
+    BLOCKED_SHARED_CODE / S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM; sealed_by_lane stays 1 and
+    dispositions_by_lane stays 2. See docs/RESEARCH_LANE_D.md.'

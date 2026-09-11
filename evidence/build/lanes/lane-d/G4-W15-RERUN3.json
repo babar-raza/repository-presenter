@@ -1,0 +1,151 @@
+{
+ "schema_version": 1,
+ "lane": "lane-d",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W15-RERUN3",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-11T15:45:00+05:00",
+ "control_revision": "08307b9",
+ "why": "Sprint W-GO (plans/sprint/PHASE1-SPRINT-PLAN.md section 11). Re-run aspose-cells-foss/Aspose.Cells-FOSS-for-Go after the S4 fact_ids enum landed (352fd35): its BLOCKED_SHARED_CODE / S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY disposition names exactly that fix as its resume predicate, and this is also the first real test of G4-W17 items 28, 29 and 45 here, and the size control for lane E PROPOSAL E3.",
+ "scope": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go only",
+ "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+ "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\d16",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Confirmed against the primary checkout before any candidate work. loop-prompt-lane.md section 1.3's recipe (requirements-lock.txt plus uv==0.12.9, then pip install --no-deps -e .) does NOT reproduce it: it yields fdd69f7da18f45... because the lock carries neither pytest-xdist (which `pytest -n auto` needs) nor execnet, and a fresh venv ships pip==26.2.1 where the primary holds pip==24.3.1. Adding pip==24.3.1, execnet==2.1.2, pytest-xdist==3.8.0 and uv==0.12.9 reproduces f4406f1b04d8... exactly - four distributions short of the reference set, the opposite direction from lane F's bare-extras measurement."
+ },
+ "toolchain": {
+  "tool": "go",
+  "resolved_by": "shutil.which(\"go\")",
+  "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+  "version": "go1.26.4 windows/amd64"
+ },
+ "lane_owned_changes": [],
+ "lane_owned_changes_note": "No lane-owned code changed. Every failure class this run exposed is in reconciliation/ and core/facts.py, which lane D may not patch.",
+ "resume_predicate_met": true,
+ "classes_closed": [
+  {
+   "class": "S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY",
+   "proposal": "P23",
+   "landed_as": "352fd35",
+   "measured": "Both S4 batches succeeded on attempt 1 in one round. Batch 1: enum 139 values, prompt 16,310, completion 3,718 tokens, 71,258 ms. Batch 2: enum 125 values, prompt 13,912, completion 2,701 tokens, 54,775 ms. Against 32,000 completion tokens / finish_reason length / 552,882 ms twice on the same repository at the same source revision four hours earlier. 66 units, 66 dispositions, zero degenerate IDs."
+  },
+  {
+   "class": "BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE",
+   "measured": "The independent review returned ACCEPT with identity_separate true and second_reader.read 2. BC-10 PASS. The class's own shape - a finding demanding deletion of workbook.exporttocsv member detail that README_CONTRACT requires in the collapsed reference - did not recur, nor did the sibling-slot Quick Start lead-in."
+  }
+ ],
+ "unlocks_under_test": {
+  "items": [28, 29, 45],
+  "exercised": true,
+  "reading": "Exercised here for the first time: the review returned a usable verdict on every call, 15 findings folded to advisory in run 1 and 8 in run 2, and the one blocking finding (F04, api_reference, COMPOSING) was routed to S6 and repaired. This run is evidence that the combination works on this repository; it does not separate which of the three is individually load-bearing and nothing here claims it does."
+ },
+ "control_for_lane_e_e3": {
+  "question": "E3 asks whether the fact_ids enum is safe at scale: Taskcard H was a confirmed HTTP 400 from an unbounded enum at the sibling planning_schema() site, and lanes E/F/C run 689 to 3,812-symbol surfaces.",
+  "http_400_seen": false,
+  "http_400_note": "No HTTP 400 at any stage, in either full run: every one of the 48 provider calls answered HTTP 200. 22 cache reuses and 4 cache-stale re-judges made no call. The only non-success outcomes were 5 response_invalid re-asks (presentation_planning 3, section_authoring 1, targeted_repair 1), every one an OutputRejected on content, none naming a schema or a request size, and none at S4.",
+  "citable_set_measured_on_the_production_path": {
+   "reconciliation#1": {"units": 40, "enum_values": 139, "id_characters": 3604},
+   "reconciliation#2": {"units": 26, "enum_values": 125, "id_characters": 3178}
+  },
+  "reconciliation_with_p23": "P23's replay reported 123 for the same site; the production schema also carries the batch's own units and the investigation's cited IDs, hence 139. Either number is the small end of E3's question.",
+  "what_this_does_not_settle": "A clean run at 139 says nothing about 689 or 3,812. A 400 elsewhere alongside this would localise the failure to enum size rather than to the fix; a clean run at both would retire E3's worry. This lane supplies only the small end."
+ },
+ "stage_outcomes": {
+  "S1_snapshot": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go at 9f0a4033b59e9127afec7662ec9079b500af8032, 3 files, 51 tree entries, digest 69d1ebb4af27007be597166d300edb0c6340af7002577c5da14666d3850c315b",
+  "S2_examples": "10 candidates; executed 8, failed 1, not_verified 1",
+  "S2_facts": "231 records (build_test_asset 3, dependency 1, example 10, identity 5, import_path 1, inherited_unit 66, install_command 1, license 2, link_target 31, package 2, public_symbol 109; digest 412ac7ae93964b408c3df8840ddab756511e4dfb7319ec354f679bad27648f97) - identical to the 2026-09-06 and 2026-09-11 runs at the same revision",
+  "S3_repository_investigation": "SUCCEEDED on attempt 1 (prompt 9,767, completion 1,768 tokens); capabilities 8, workflows 6, limitations 5",
+  "S4_source_reconciliation": "SUCCEEDED, both batches, attempt 1 - the stage that truncated deterministically four hours earlier. 66 units dispositioned.",
+  "S5_presentation_planning": "16 of 18 sections; one response_invalid re-ask in each of the three rounds, each succeeding on attempt 2",
+  "S6_section_authoring": "42 units across 8 sections; 10 of 11 calls clean on attempt 1",
+  "S7_targeted_repair": "2 repaired, 0 unrepairable - BC-08 quick_start and F04 api_reference; 3 rounds",
+  "S9_validation": "pass 10, fail 0, pending 1",
+  "S10_independent_review": "ACCEPT, identity_separate true, second_reader.read 2, 0 findings, 8 advisory",
+  "S12_no_op_proof": "WITHDRAWN - the fresh-process rerun made 7 provider calls because S4 batch 1 goes cache_stale on every re-judge (failure class below)"
+ },
+ "provider_calls": {"run_1": 41, "run_2": 7, "total_live": 48, "cache_reuse": 22, "cache_stale": 4},
+ "checks_passed": ["BC-01", "BC-02", "BC-03", "BC-04", "BC-05", "BC-06", "BC-07", "BC-08", "BC-09", "BC-10"],
+ "checks_pending": {"BC-11": "PENDING - judged at S12; the no-op proof was withdrawn and BC-11 has never passed for this repository. Not claimed."},
+ "sealed": false,
+ "bundle_on_disk": {
+  "path": "candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Go/9f0a4033b59e9127afec7662ec9079b500af8032",
+  "state": "ACCEPTED",
+  "no_op_proof": null,
+  "counted": false,
+  "note": "An honest record of ten passing checks, not a candidate. `repository-presenter status` counts it in \"9 ever sealed\" and not in the 8/34 current reviewable no-op-proven. No seal was forced."
+ },
+ "failure_class": {
+  "class": "S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM",
+  "stage": "S4 source_reconciliation, on the reuse path",
+  "proposal": "P24",
+  "shared_code": true,
+  "deterministic": true,
+  "evidence": {
+   "cause": "components/readme/reconciliation/dispositions.py: normalize() folds a placement into a deterministic section by rewriting entry[\"fact_ids\"] = sorted(cited | set(rendering_fact_ids(destination, facts))). For identity and navigation that set contains identity:revision. citable_fact_ids() is built from _packet_fact_records() -> bounded_records(), which skips _EXCLUDED_FROM_PACKETS - and identity:revision is in it by design (core/facts.py line 179, whose comment says the exclusion exists so the bundled call cache reuses across a revision bump). What is stored is the normalised output; core/llm/jobs.py re-judges a stored output against the current schema before reuse; the enum refuses identity:revision; _parse returns None and the store records cache_stale / OutputRejected. Every round, every process.",
+   "request_digest_is_stable": "c4132101affc in every round of both runs - the packet and schema never moved, only the re-judge rejects.",
+   "ledger": [
+    {"round": 1, "disposition": "provider_call", "completion_tokens": 3718},
+    {"round": 2, "disposition": "cache_stale (OutputRejected) then provider_call", "completion_tokens": 3266},
+    {"round": 3, "disposition": "cache_stale then provider_call", "completion_tokens": 3390},
+    {"round": "run 2, fresh process", "disposition": "cache_stale then provider_call", "completion_tokens": 4350}
+   ],
+   "batch_2_control": "a3ce39d30513 reuses cleanly every time; it places nothing into a deterministic section.",
+   "offline_reproduction": "Re-judging the stored batch-1 reply reproduces exactly 3 rejections, all of one shape: $.dispositions[N].fact_ids[4]: 'identity:revision' is not one of [...]. Of the 41 IDs normalize() can add for this repository's deterministic sections, exactly one - identity:revision - is outside the enum.",
+   "fix_proven": "Widen citable_fact_ids() to admit what code writes as well as what the packet shows: the union of rendering_fact_ids() over the deterministic sections, the UNRESOLVED/CONTRADICTED code-unit IDs, the SUPPORTED install_command and build_test_asset IDs, and BANNER_FACT_ID/HOMEPAGE_FACT_ID/ENTERPRISE_FACT_ID. Replaying _parse on the stored reply with the enum widened from 139 to 140 values: accepted, zero rejections. No provider call; nothing written.",
+   "widening_is_safe": "Every added ID is one deterministic code would have written into the entry anyway, so the model can invent nothing new; binding_errors still rejects an ID naming no fact.",
+   "rejected_alternatives": [
+    "Re-judge a stored output against the schema it was stored under - defeats the re-judge-before-reuse design, whose point is that a corrected check takes effect without a call.",
+    "Stop normalize() adding identity:revision - drops the citation that proves the supersession.",
+    "Revert 352fd35 - reopens the decode runaway this same run just proved closed."
+   ],
+   "regression": "Introduced by 352fd35 today. Under item 40's pattern ^(...|identity|...): the string identity:revision matched, and before item 40 fact_ids was {\"type\": \"string\"}; both earlier shapes re-validated the normalised output and the cache reused."
+  }
+ },
+ "portfolio_impact": "Not a Go finding. identity:revision is a fact every repository has, _EXCLUDED_FROM_PACKETS is universal, and normalize()'s deterministic fold is universal: any repository whose reconciler places one inherited unit into identity or navigation cannot pass BC-11 today. The same shape reaches wherever rendering_fact_ids() (every SUPPORTED fact of the section's kinds, unbounded) exceeds bounded_records()'s LINK_CAP, EXAMPLE_CAP or SYMBOL_CAP.",
+ "bc11_consequence": "The rerun must make the S4 call; this gateway does not return the same answer twice; the dispositions moved (VERIFIED_MOVE 9 -> 2, OMIT_UNSUPPORTED 7 -> 14, VERIFIED_PRESERVE 18 -> 22, SUPERSEDE_REDUNDANT 25 -> 23) and README.md went from 236 visible lines to 223. The bundle re-sealed and its own proof was withdrawn.",
+ "dispositions_now": [
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+   "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+   "state": "BLOCKED_SHARED_CODE",
+   "failure_class": "S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM",
+   "supersedes": "S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY (closed by 352fd35) and BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE (closed here, measured)",
+   "resume_predicate": "PROPOSAL P24 landed on main, then rerun `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch; that re-run needs only BC-11, every other check having passed here."
+  }
+ ],
+ "other_repositories_not_run": {
+  "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "G4-W17 item 47 is still open; this item's purpose excludes it.",
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust": "SEALED 2026-09-07 under G4-W16; not in this item's scope."
+ },
+ "proposals": [
+  "P24 - citable_fact_ids() omits the IDs normalize() itself writes (identity:revision, excluded from every packet by design), so the enum 352fd35 landed rejects every stored S4 reply on re-judge and BC-11 is unreachable portfolio-wide. Proven offline: 139 -> 140 enum values turns three rejections into zero."
+ ],
+ "observations_not_rules": [
+  "section_authoring also recorded one cache_stale / OutputRejected (request 87818bc7766a), and that stored reply's units carry identity:revision in fact_ids while authoring_schema() pins the same field to an enum of its own. The same shape at a second stage - not separately diagnosed, and P24 is written about S4 only.",
+  "A cache_stale records error_class OutputRejected in the ledger and writes no rejection file, where a fresh reply's rejection is kept as <digest>.rejected-N.json. The reason a stored reply went stale can only be recovered by replaying _parse offline, which is how P24 was written.",
+  "manifest.json's call_variance records six distinct independent_review responses to the same request, and one targeted_repair wrote back byte-identical prose (before == after, attempt c12127d401b3, finding F04) and was still counted a repair - corroborating lane C's item 34 in a second ecosystem."
+ ],
+ "not_claimed": [
+  "BC-11 has never passed for this repository.",
+  "Items 28, 29 and 45 are exercised but not individually attributed.",
+  "The HTTP 400 lane E fears at 689 and 3,812 enum values is neither reproduced nor refuted by a clean run at 139."
+ ],
+ "local_ci_equivalent": {
+  "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+  "result": "pass (ruff clean, 235 files formatted, mypy 126 source files, pytest exit 0 with the new bundle on disk)",
+  "runs_this_item": 1
+ },
+ "status_line_observed": "2026-09-11 15:40, from this lane branch off origin/main at 08307b9: candidates 8/34 current reviewable no-op-proven - unchanged. 9 ever sealed (up from 8: this bundle), 9 integrity-valid, 6 current-code reproducible, 0 independently accepted (stale-excluded). The bundle sealed here does not count because its no-op proof was withdrawn.",
+ "measurement": {
+  "sealed_by_lane_before": 1,
+  "sealed_by_lane_after": 1,
+  "dispositions_by_lane_before": 2,
+  "dispositions_by_lane_after": 2,
+  "candidate_count_delta": 0,
+  "checks_passing_delta": "0 of 11 judged on 2026-09-11 13:05 -> 10 of 11 PASS here"
+ }
+}

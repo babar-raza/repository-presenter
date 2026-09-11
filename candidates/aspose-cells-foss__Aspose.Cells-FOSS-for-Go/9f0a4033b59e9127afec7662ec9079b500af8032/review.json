@@ -1,0 +1,168 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "Required Package Dependencies"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Remove the 'Required Package Dependencies' subsection and integrate dependency information directly into the Dependencies section using verified phrasing.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Required Package Dependencies', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The Dependencies section introduces a new subsection 'Required Package Dependencies' that was not present in the original README, and the phrasing 'no `require` directive a consumer would install is declared' is misleading and not supported by any fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "No required third-party package dependencies; in `go.mod`, no `require` directive a consumer would install is declared.",
+      "reader": 2,
+      "repair": "Replace with: 'The library has no third-party dependencies and builds on the Go standard library alone.'",
+      "reviewer_scope_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "dependencies",
+      "text": "The claim 'no `require` directive a consumer would install is declared' contradicts the fact that the module path itself implies a require directive in the consuming project's go.mod, and this phrasing is not supported by any fact."
+    },
+    {
+      "absent": [
+        "### Required Package Dependencies",
+        "### Native and System Requirements"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Restore the original single-paragraph format for dependency information as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Native and System Requirements', '### Required Package Dependencies', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The Dependencies section's structure and ordering deviates from the original README's single paragraph format, introducing a subsection and bullet points not present in the source."
+    },
+    {
+      "absent": [
+        "Detailed Member Reference"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "#### Detailed Member Reference",
+      "reader": 2,
+      "repair": "Remove the 'Detailed Member Reference' subsection and retain only the public type inventory as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Detailed Member Reference', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section adds a 'Detailed Member Reference' subsection with member-level details not present in the original README, which only listed public types."
+    },
+    {
+      "absent": [
+        "Workbook",
+        "Worksheet",
+        "Cells",
+        "Cell",
+        "Style",
+        "DataValidation",
+        "Table",
+        "Picture"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "### Workbook",
+      "reader": 2,
+      "repair": "Remove the member-level documentation and retain only the public type inventory as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Cell', 'Cells', 'DataValidation', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section's member-level documentation for Workbook, Worksheet, Cells, Cell, Style, DataValidation, Table, Picture, StreamingReader, and CalculateFormula is new and not supported by any fact."
+    },
+    {
+      "absent": [
+        "Read and update a cell value in an existing workbook"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "### Read and update a cell value in an existing workbook",
+      "reader": 2,
+      "repair": "Remove the 'Read and update a cell value in an existing workbook' example to match the original README's Additional Examples content.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Read and update a cell value in an existing workbook', which the candidate contains",
+      "section_id": "additional_examples",
+      "text": "The Additional Examples section adds a new example 'Read and update a cell value in an existing workbook' that was not in the original README's Additional Examples section."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F07",
+      "quote": "The suite covers 12 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about the number of test files.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section adds a claim 'The suite covers 12 test files under `tests/`' that is not supported by any fact."
+    },
+    {
+      "absent": [
+        "Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible formats, targeting developers who need lightweight workbook manipulation without external dependencies.",
+      "reader": 2,
+      "repair": "Remove the new paragraph and retain only the limitations list as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section adds a new paragraph about the library's purpose that was not present in the original README's Scope and Limitations section."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "60eb7129e9b55c5c419e96fea486f63a30126f7984463bd0e018e535e9c7cecc",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "26b9bd5d92e1edc2d1e162cb",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "5a7b3d4f0db5c30bca2069e8"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "ACCEPT"
+}

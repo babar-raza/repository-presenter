@@ -1,0 +1,543 @@
+--- a/README.md
++++ b/README.md
+@@ -1,23 +1,19 @@
+ # Aspose.Cells FOSS for Go
+ 
+-[![Go Version](https://img.shields.io/badge/Go-%3E%3D1.24-blue)](https://go.dev) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Go Reference](https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg)](https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors)
++[![Go Reference](https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg)](https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors)
+ 
+ [![Aspose.Cells FOSS for Go](https://products.aspose.org/media/cells/go/banner-readme.png)](https://products.aspose.org/cells/go/)
+ 
+-Aspose.Cells FOSS for Go is a pure-Go library for creating, reading, and writing Excel workbooks —
+-ECMA-376 Office Open XML `.xlsx` spreadsheets — with no third-party dependency. It covers cell
+-data and A1-style addressing, visual formatting, a built-in formula engine, data validation,
+-structured tables, embedded pictures, CSV import and export, low-memory row streaming for large
+-files, and password-based workbook encryption.
++Aspose.Cells FOSS for Go provides a pure Go library for reading, writing, and manipulating spreadsheet files without external dependencies, supporting operations like streaming large datasets, formula calculation, data validation, table creation, and CSV import or export. Developers use it to build applications that process Excel-compatible workbooks on servers or in command-line tools, handling tasks such as generating reports, validating user input, and converting data between formats. The library exposes a consistent API for cell access, styling, and workbook management through types like `StreamingReader`, `Workbook`, `Worksheet`, `Cells`, and `Cell`, enabling efficient and maintainable spreadsheet automation in Go.
+ 
+ ## Navigation
+ 
+ - [At a Glance](#at-a-glance)
+ - [Key Capabilities](#key-capabilities)
+ - [Installation](#installation)
++- [Dependencies](#dependencies)
+ - [Quick Start](#quick-start)
+ - [Additional Examples](#additional-examples)
+-- [Project Structure](#project-structure)
+ - [API Reference](#api-reference)
+ - [Documentation & Resources](#documentation--resources)
+ - [Scope and Limitations](#scope-and-limitations)
+@@ -28,75 +24,65 @@
+ 
+ ```mermaid
+ flowchart TD
+-  subgraph StartingPoints["Starting Points"]
+-    direction LR
+-    i1["An existing XLSX workbook (including password-protected)"]
+-    i2["CSV files"]
+-  end
+   PRODUCT["Aspose.Cells FOSS for Go"]
+   subgraph Capabilities["Core Capabilities"]
+     direction LR
+     subgraph capl[" "]
+       direction TB
+-      c1["Cell read and write (A1-style references)"]
+-      c2["Font, fill, alignment, and border styling"]
+-      c3["Formulas with a built-in SUM/AVERAGE/MAX/MIN engine"]
+-      c4["Data validation, tables, and picture embedding"]
++      c1["Cell data manipulation"]
++      c2["Formula evaluation"]
++      c3["Visual styling"]
++      c4["Data validation"]
+     end
+     subgraph capr[" "]
+       direction TB
+-      c5["CSV import and export"]
+-      c6["Streaming row-by-row reading"]
+-      c7["Password protection and encryption"]
++      c5["Structured tables"]
++      c6["Picture embedding"]
++      c7["CSV import and export"]
++      c8["Password protection"]
+     end
+   end
+-  subgraph Outputs["Outputs"]
+-    direction TB
+-    o1["XLSX workbooks (including password-protected)"]
+-    o2["CSV files"]
+-  end
+-  StartingPoints --> PRODUCT --> Capabilities --> Outputs
++  PRODUCT --> Capabilities
+ ```
+ 
+ ## Key Capabilities
+ 
+-- Cell values are read and written through `Cells.Get`/`Cells.Set`, addressed by A1-style
+-  references (`"A1"`, `"B2"`) and covering `string`, `float64`, `int`, and `bool` values.
+-- Font, fill, alignment, and borders combine into a `Style` applied to any cell via
+-  `Cell.SetStyle`, with automatic deduplication of identical styles during save.
+-- Formulas are stored with `Cell.SetFormula` and evaluated by the built-in `CalculateFormula`
+-  engine, which supports `SUM`, `AVERAGE`, `MAX`, and `MIN` over single cells or A1-style ranges.
+-- Data validation rules (`DataValidation`) restrict a range to dropdown lists or whole/decimal
+-  ranges with custom error messages and error styles; structured `Table` ranges add header rows
+-  and auto-filters; `Picture` objects (PNG or JPEG) embed images. All three attach to a
+-  `Worksheet` via `AddDataValidation`, `AddTable`, and `AddPicture`.
+-- `Workbook.ExportToCSV` and `Workbook.ImportFromCSV` move data to and from CSV with a
+-  caller-supplied delimiter; export converts typed cell values to their CSV string form via
+-  `CellToString`, while import stores every field as a plain `string`.
+-- The streaming reader (`StreamingReader.ProcessRows`) handles very large files with row-by-row
+-  processing, reading directly from the source path without first building the shared
+-  `Workbook`/`Worksheet` model, so peak memory stays proportional to the width of one row
+-  rather than the whole file.
+-- `Workbook.SetPassword` and `Workbook.VerifyPassword` add ECMA-376 Agile Encryption (SHA-512
+-  key derivation, AES-256-CBC) to the save path, producing a password-protected XLSX file.
++- **Cell data manipulation.** Read and write cell values using `Cells.Get` and `Cells.Set`, then access or modify the underlying `Cell.Value` directly.
++- **Formula evaluation.** Assign formulas to cells with `Cell.SetFormula`, retrieve them with `Cell.GetFormula`, and evaluate them using `CalculateFormula`.
++- **Visual styling.** Apply visual styling to cells by constructing `Style` objects with `Font`, `Fill`, `Border`, and `Alignment` properties, then assign them via `Cell.SetStyle`.
++- **Data validation.** Enforce input rules on cell ranges by creating `DataValidation` configurations and adding them to a worksheet with `Worksheet.AddDataValidation`.
++- **Structured tables.** Convert a rectangular cell range into a structured `Table` with `Worksheet.AddTable`, enabling header rows and built-in table styles.
++- **Picture embedding.** Embed images into a worksheet by creating `Picture` instances and adding them with `Worksheet.AddPicture`.
++- **CSV import and export.** Import data from CSV files using `Workbook.ImportFromCSV` or export entire workbooks and individual worksheets via `Workbook.ExportToCSV` and `Worksheet.ToCSV`.
++- **Password protection.** Protect workbooks with a password using `Workbook.SetPassword` and verify existing protection with `Workbook.VerifyPassword`.
+ 
+ ## Installation
++
++Install the published package from pkg.go.dev (`github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26`):
+ 
+ ```bash
+ go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26
+ ```
+ 
+-The module supports Go 1.24.5 or later and has zero third-party dependencies — encryption and
+-everything else builds on the Go standard library alone. Because the package name (`cells_foss`)
+-differs from the module path's final segment (`v26`), import it with an explicit alias:
+-
+-```go
+-import cells_foss "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+-```
++Verify the install:
++
++```bash
++go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss
++```
++
++## Dependencies
++
++### Required Package Dependencies
++
++No required third-party package dependencies; in `go.mod`, no `require` directive a consumer would install is declared.
++
++### Native and System Requirements
++
++- Requires Go `1.24.5` (`go` in `go.mod`).
+ 
+ ## Quick Start
+ 
+-Create a workbook, write a couple of cells, and save it to disk:
++Create a new workbook, write values to cells A1 and B1, and save the file as `hello.xlsx`.
+ 
+ ```go
+ package main
+@@ -117,27 +103,11 @@
+ }
+ ```
+ 
+-Run `go run main.go` to produce `hello.xlsx`.
+-
+-Load an existing workbook, read and update a cell, then save the result:
+-
+-```go
+-wb, _ := cells_foss.LoadWorkbook("input.xlsx")
+-ws := wb.Worksheets[0]
+-
+-cell, _ := ws.Cells().Get("A1")
+-fmt.Println("Current value:", cell.Value)
+-
+-ws.Cells().Set("A1", "Updated value")
+-wb.Save("output.xlsx")
+-```
+-
+ ## Additional Examples
+ 
+-Runnable programs for every capability live under `examples/` in the repository. The formula
+-engine example is shown directly below; the rest are collapsed for space.
+-
+-### Formulas and the Calculation Engine
++The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import.
++
++### Compute SUM and AVERAGE formulas and evaluate them
+ 
+ ```go
+ func main() {
+@@ -195,7 +165,7 @@
+ <details>
+ <summary>View Additional Examples</summary>
+ 
+-### Data Validation
++### Apply list-type data validation to a cell range
+ 
+ ```go
+ func main() {
+@@ -226,32 +196,7 @@
+ }
+ ```
+ 
+-### Picture Embedding
+-
+-```go
+-func main() {
+-	wb := cells_foss.NewWorkbook()
+-	ws := wb.Worksheets[0]
+-
+-	ws.Cells().Set("A1", "Product Catalog")
+-
+-	// generateSmallPNG returns a minimal PNG for the example; see
+-	// examples/picture/main.go for the full helper.
+-	pic := cells_foss.NewPicture(generateSmallPNG(), "png")
+-	pic.Width = 100
+-	pic.Height = 80
+-	pic.SetAnchor(5, 1) // row 5, column B
+-
+-	if err := ws.AddPicture(pic); err != nil {
+-		fmt.Printf("Error adding picture: %v\n", err)
+-		return
+-	}
+-
+-	wb.Save("outputfiles/picture.xlsx")
+-}
+-```
+-
+-### Streaming Large Files
++### Stream rows from a large Excel file and aggregate values
+ 
+ ```go
+ func main() {
+@@ -276,7 +221,7 @@
+ }
+ ```
+ 
+-### Styling
++### Apply bold and solid-fill styles to header cells
+ 
+ ```go
+ func main() {
+@@ -307,7 +252,7 @@
+ }
+ ```
+ 
+-### Structured Tables
++### Create a structured table with a built-in style
+ 
+ ```go
+ func main() {
+@@ -330,7 +275,7 @@
+ }
+ ```
+ 
+-### CSV Import
++### Import data from a CSV file into a new worksheet
+ 
+ ```go
+ func main() {
+@@ -349,73 +294,38 @@
+ }
+ ```
+ 
++### Read and update a cell value in an existing workbook
++
++```go
++wb, _ := cells_foss.LoadWorkbook("input.xlsx")
++ws := wb.Worksheets[0]
++
++cell, _ := ws.Cells().Get("A1")
++fmt.Println("Current value:", cell.Value)
++
++ws.Cells().Set("A1", "Updated value")
++wb.Save("output.xlsx")
++```
++
+ </details>
+ 
+-## Project Structure
+-
+-The library source lives under `aspose/cells_foss/`, with runnable examples, tests, a
+-verification tool, and a usage guide alongside it at the repository root:
+-
+-```
+-├── aspose/cells_foss/        # Library source code
+-│   ├── workbook.go           #   Workbook entry point
+-│   ├── worksheet.go          #   Worksheet model
+-│   ├── cell.go / cells.go    #   Cell model and collection
+-│   ├── style.go              #   Styles (font, fill, alignment, border)
+-│   ├── formula_engine.go     #   Formula calculation engine
+-│   ├── datavalidation.go     #   Data validation
+-│   ├── table.go              #   Tables
+-│   ├── picture.go            #   Picture embedding
+-│   ├── csv_handler.go        #   CSV import/export
+-│   ├── streaming_reader.go   #   Streaming row reader
+-│   ├── crypto.go             #   Encryption (SHA-512 + AES-256-CBC)
+-│   ├── xmlloader.go          #   XML loading
+-│   ├── xmlsaver.go           #   XML saving
+-│   ├── xml_feature_loader.go #   Style/table/picture loading
+-│   ├── xml_feature_saver.go  #   Style/table/picture/validation saving
+-│   └── xml_sharedstrings_loader.go  # Shared strings
+-├── tests/                    # Integration tests (public API)
+-├── examples/                 # Runnable example programs
+-│   ├── basic/                #   Create and save
+-│   ├── load_modify_save/     #   Load → modify → save
+-│   ├── style/                #   Style application
+-│   ├── formula/              #   Formulas and calculation
+-│   ├── table/                #   Structured tables
+-│   ├── data_validation/      #   Data validation
+-│   ├── picture/              #   Picture embedding
+-│   ├── csv_export/           #   CSV export
+-│   ├── csv_import/           #   CSV import
+-│   ├── streaming/            #   Streaming large data
+-│   └── go.mod                #   Separate module for examples (see Development and Testing)
+-├── docs/                     # Documentation
+-│   └── usage.md              #   Detailed usage guide
+-├── verify/                   # Verification tool
+-│   └── check_open_xlsx.go    #   .xlsx structure validator
+-├── doc.go                    # Package-level documentation
+-├── AGENTS.md                 # AI-assisted development guide
+-├── go.mod
+-├── go.sum
+-└── README.md
+-```
+-
+ ## API Reference
+ 
+-The library's public surface is centered on `Workbook` and `Worksheet` — created with
+-`NewWorkbook`/`LoadWorkbook` and exposing a `*Cells` collection through `Worksheet.Cells()` — with
+-supporting types (`Style`, `DataValidation`, `Table`, `Picture`, `StreamingReader`) for styling,
+-validation, structured ranges, images, and low-memory row access.
++Aspose.Cells FOSS for Go provides workbook and worksheet management through the `Workbook` and `Worksheet` types, with `Workbook` created via `NewWorkbook` or `LoadWorkbook` and exposing worksheets via `Workbook.Worksheets`.
++
++The verified public surface has 14 types.
+ 
+ <details>
+-<summary>View the Supported Public API Surface</summary>
+-
+-### Cells Foss
++<summary>View the Complete Public API Surface</summary>
++
++### Core API
+ 
+ | Class | Description |
+-|---|---|
++| --- | --- |
+ | `Alignment` | Alignment controls how cell content is positioned within the cell bounds. |
+ | `Border` | Border defines which sides of a cell have a visible rule and the colour of those rules. |
+ | `Cell` | Cell represents a single cell in a worksheet grid. |
+-| `Cells` | Cells is a collection of Cell values indexed by A1-style string references (e.g. "A1", "B2", "Z100"). |
++| `Cells` | Cells is a collection of Cell values indexed by A1-style string references (e.g. |
+ | `DataValidation` | DataValidation represents a single data-validation rule applied to a range of cells on a worksheet. |
+ | `Fill` | Fill describes the background appearance of a cell. |
+ | `Font` | Font describes the typographic properties applied to cell text. |
+@@ -427,53 +337,158 @@
+ | `Workbook` | Workbook is the top-level object representing an Excel workbook. |
+ | `Worksheet` | Worksheet represents a single sheet within a workbook. |
+ 
++#### Detailed Member Reference
++
++### Workbook
++
++The `Workbook` type represents a spreadsheet file and supports creation with `NewWorkbook`, loading from a file with `LoadWorkbook`, saving to disk with `Workbook.Save`, and accessing its collection of worksheets through `Workbook.Worksheets`.
++
++- `ExportToCSV`: ExportToCSV writes the worksheet at sheetIndex to a CSV file using the given delimiter (e.g.
++- `FilePath`: Defined as `string`.
++- `ImportFromCSV`: ImportFromCSV reads a CSV file and imports its contents into a new worksheet with the given name.
++- `Modified`: Defined as `bool`.
++- `Save`: Save writes the workbook to the given file path in .xlsx format.
++- `SetPassword`: SetPassword configures an open password for the workbook.
++- `SourceXML`: Defined as `[]byte`.
++- `StylesXML`: Defined as `[]byte`.
++- `VerifyPassword`: VerifyPassword reports whether pw matches the password that was used to encrypt this workbook (as set by SetPassword, or read from an encrypted file).
++- `Worksheets`: Defined as `[]*Worksheet`.
++
++### Worksheet
++
++A `Worksheet` represents a single sheet in a workbook and provides access to its cells via `Worksheet.Cells`, its name via `Worksheet.Name`, and its zero-based position via `Worksheet.Index`.
++
++- `AddDataValidation`: AddDataValidation appends a data-validation rule to the worksheet.
++- `AddPicture`: AddPicture attaches pic to the worksheet, assigns it a unique name, and marks the workbook as modified.
++- `AddTable`: AddTable creates a new Table covering the given range, assigns it a unique auto-generated name ("Table1", "Table2", …), appends it to the worksheet, and returns it for further configuration.
++- `Cells`: Cells returns the Cells collection for this worksheet, enabling cell-level read and write operations via A1-style references.
++- `DataValidations`: Defined as `[]*DataValidation`.
++- `FromCSV`: FromCSV populates the worksheet with data from a 2D string slice.
++- `GetTable`: GetTable returns the Table with the given name, or nil when no match is found.
++- `Index`: Defined as `int`.
++- `Name`: Defined as `string`.
++- `Pictures`: Defined as `[]*Picture`.
++- `RemoveDataValidation`: RemoveDataValidation removes the first data-validation rule whose Ref exactly matches the given ref string.
++- `Tables`: Defined as `[]*Table`.
++- `ToCSV`: ToCSV converts the worksheet's cells into a 2D string slice suitable for writing with encoding/CSV.
++
++### Cells
++
++The `Cells` collection offers cell access and modification through `Cells.Get`, `Cells.Set`, and `Cells.Remove`, and provides access to all cells in the worksheet via `Cells.All`.
++
++- `All`: All returns the underlying map of all cells keyed by A1 reference.
++- `Get`: Get returns the Cell at the given A1 reference.
++- `Remove`: Remove deletes the cell at the given A1 reference.
++- `Set`: Set stores a value at the given A1 reference.
++
++### Cell
++
++A `Cell` represents an individual cell and exposes its value via `Cell.Value`, its reference via `Cell.Ref`, its formula via `Cell.Formula`, and supports setting and getting formulas and styles with `Cell.SetFormula`, `Cell.GetFormula`, `Cell.SetStyle`, and `Cell.GetStyle`.
++
++- `Formula`: Defined as `xml:"f,omitempty"`.
++- `GetFormula`: GetFormula returns the formula expression stored in this cell, or an empty string when the cell contains no formula.
++- `GetStyle`: GetStyle returns the Style currently applied to this cell, or nil when the cell has no parent Workbook or the StyleID cannot be resolved.
++- `Ref`: Defined as `xml:"r,attr"`.
++- `SetFormula`: SetFormula stores a formula expression in this cell and marks the owning Workbook as modified.
++- `SetStyle`: SetStyle assigns the given Style to this cell.
++- `StyleID`: Defined as `xml:"s,attr,omitempty"`.
++- `Value`: Defined as `xml:"v,omitempty"`.
++- `XMLName`: Defined as `xml:"c"`.
++
++### Style
++
++The `Style` type enables formatting control through properties for font, fill, alignment, and border, created via `NewStyle` or retrieved as `DefaultStyle`.
++
++- `Alignment`: Defined as `*Alignment`.
++- `Border`: Defined as `*Border`.
++- `Fill`: Defined as `*Fill`.
++- `Font`: Defined as `*Font`.
++
++### DataValidation
++
++`DataValidation` applies validation rules to a cell range via `DataValidation.Ref`, supports list, number, or date constraints using `DataValidation.Type`, `DataValidation.Formula1`, and `DataValidation.Formula2`, and configures error messaging with `DataValidation.AllowBlank`, `DataValidation.ShowErrorMessage`, `DataValidation.ErrorTitle`, `DataValidation.ErrorMessage`, and `DataValidation.ErrorStyle`.
++
++- `AllowBlank`: Defined as `bool`.
++- `ErrorMessage`: Defined as `string`.
++- `ErrorStyle`: Defined as `string`.
++- `ErrorTitle`: Defined as `string`.
++- `Formula1`: Defined as `string`.
++- `Formula2`: Defined as `string`.
++- `Ref`: Defined as `string`.
++- `ShowErrorMessage`: Defined as `bool`.
++- `Type`: Defined as `string`.
++
++### Table
++
++A `Table` represents a structured range of cells created with `NewTable`, identified by `Table.Name`, covering `Table.Range`, optionally containing a header row per `Table.HasHeaderRow`, and styled via `Table.StyleName`.
++
++- `HasHeaderRow`: Defined as `bool`.
++- `Name`: Defined as `string`.
++- `Range`: Defined as `string`.
++- `StyleName`: Defined as `string`.
++
++### Picture
++
++A `Picture` embeds an image into a worksheet, configured with data and format via `NewPicture`, positioned with `Picture.SetAnchor`, and sized using `Picture.Row`, `Picture.Col`, `Picture.RowOff`, `Picture.ColOff`, `Picture.Width`, `Picture.Height`, and `Picture.Name`.
++
++- `Col`: Defined as `int`.
++- `ColOff`: Defined as `int64`.
++- `Data`: Defined as `[]byte`.
++- `Format`: Defined as `string`.
++- `Height`: Defined as `int`.
++- `Name`: Defined as `string`.
++- `Row`: Defined as `int`.
++- `RowOff`: Defined as `int64`.
++- `SetAnchor`: SetAnchor positions the picture at the given 0-based row and column.
++- `Width`: Defined as `int`.
++
++### StreamingReader
++
++`StreamingReader` enables low-memory row processing of large workbooks using `NewStreamingReader` and iterates rows via `StreamingReader.ProcessRows` with a `RowCallback` function.
++
++- `ProcessRows`: ProcessRows opens the workbook, resolves the named sheet to its XML part, loads the shared-strings table (if present), and then streams through the sheet data one row at a time, calling callback for each row.
++
++### CalculateFormula
++
++`CalculateFormula` computes formula results for the workbook to ensure values are up to date before saving or exporting.
++
++### ImportFromCSV
++
++`Workbook.ImportFromCSV` and `Workbook.ExportToCSV` support importing and exporting data in CSV format, and a worksheet can be exported to CSV using `Worksheet.ToCSV`.
++
++### SetPassword
++
++`Workbook.SetPassword` and `Workbook.VerifyPassword` protect and verify workbook integrity with a password.
++
+ </details>
+ 
+ ## Documentation & Resources
+ 
+-- **[Getting started guide](https://docs.aspose.org/cells/go/)** — Go documentation for
+-  Aspose.Cells FOSS: loading, editing, styling, and saving spreadsheets.
+-- **[How-to guides & FAQ](https://kb.aspose.org/cells/go/)** — Go knowledge base for Aspose.Cells
+-  FOSS: how-to articles, FAQ, and troubleshooting guides.
+-- **[Full API reference](https://reference.aspose.org/cells/go/)** — the complete, browsable
+-  reference for all 14 public types (the [API reference](#api-reference) section above covers the
+-  essentials).
+-- **[AGENTS.md](AGENTS.md)** — the repository's own contribution guide for AI-assisted
+-  development, covering source-of-truth conventions and areas to avoid changing without review.
+-- Found a bug or have a feature request?
+-  [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues) on GitHub.
++- **[Getting started guide](https://docs.aspose.org/cells/go/)** — The getting started guide covers loading, editing, styling, and saving spreadsheets with Aspose.Cells FOSS for Go.
++- **[How-to guides & FAQ](https://kb.aspose.org/cells/go/)** — The how-to guides and FAQ provide practical examples, troubleshooting, and step-by-step instructions for common tasks in Aspose.Cells FOSS for Go.
++- **[Full API reference](https://reference.aspose.org/cells/go/)** — The full API reference documents all 14 public types available in the `github.com`/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26 package. It covers all 14 verified public types; the [API Reference](#api-reference) section above covers the essentials.
++- **[docs/usage.md](docs/usage.md)** — The repository's usage documentation provides a comprehensive walkthrough beyond the README, including detailed examples and best practices.
++- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues).
+ 
+ ## Scope and Limitations
+ 
+-- Cell references are A1-style strings only (`"A1"`, `"B2"`); tuple/array indices (e.g. `[0, 0]`)
+-  are not supported.
+-- `CalculateFormula` supports only `SUM`, `AVERAGE`, `MAX`, and `MIN`; any other formula returns
+-  an error rather than being evaluated.
+-- CSV import (`ImportFromCSV`/`FromCSV`) stores every field as a Go `string` — it does not infer
+-  numeric or boolean types the way `Cells().Set` does when called directly with typed values.
+-- On save, unmodified content is reused verbatim from the original XML byte-for-byte, and only
+-  content touched since load is regenerated — round-trip fidelity depends on this split, not a
+-  full re-serialization of every part.
+-- Generated XML follows ECMA-376's own element ordering; this preserves round-trip compatibility
+-  but isn't independently configurable.
+-
+-These limitations don't apply to
+-[Aspose.Cells for Go Enterprise Edition](https://products.aspose.com/cells/go-cpp/), which adds
+-the complete Excel formula function library, additional file-format coverage, and commercial
+-support.
++Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible formats, targeting developers who need lightweight workbook manipulation without external dependencies.
++
++- `Cell` references must be A1-style strings such as A1 or B2, and tuple or array indices like [0, 0] are not supported.
++- The `CalculateFormula` method supports only SUM, AVERAGE, MAX, and MIN; using any other formula raises an error instead of evaluating the expression.
++- CSV import via `ImportFromCSV` or `FromCSV` stores every field as a Go string and does not infer numeric or boolean types, unlike `Cells()`.Set when called with typed values.
++- On save, unmodified content is reused verbatim from the original XML byte-for-byte, and only content touched since load is regenerated, so round-trip fidelity depends on this split behavior rather than a full re-serialization.
++- Generated XML follows ECMA-376's element ordering to preserve round-trip compatibility, and this ordering is not independently configurable.
+ 
+ ## Development and Testing
+ 
+-Run the full test suite from the repository root:
++Build and test the repository using the Go toolchain: run the full test suite with go test ./..., run only the integration tests with go test ./tests/ -v, and execute all bundled examples by changing to the examples directory and running each subdirectory with go run ./$d.
++
++The suite covers 12 test files under `tests/`.
+ 
+ ```bash
+ go test ./...
+ ```
+-
+-<details>
+-<summary>More Test and Example Commands</summary>
+-
+-Run only the integration tests (the public API surface):
+ 
+ ```bash
+ go test ./tests/ -v
+@@ -495,13 +510,6 @@
+ Example programs under `examples/` write their output files to `examples/outputfiles/` (created
+ on first run) — avoid committing generated `.xlsx`/`.csv` files or that directory's contents.
+ 
+-For a complete usage walkthrough beyond this README, see the repository's own
+-[docs/usage.md](docs/usage.md).
+-
+-</details>
+-
+ ## License
+ 
+-This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,
+-modification, distribution, sublicensing, and commercial use, provided its copyright and
+-permission notice are retained. The software is provided without warranty.
++This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.

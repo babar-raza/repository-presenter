@@ -1,0 +1,102 @@
+[
+  {
+    "build_verified": true,
+    "detail": "the fence declares an import and no statement; there is nothing to compile",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "NOT_VERIFIED",
+    "return_code": null,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": ".\\main.go:16:31: undefined: generateSmallPNG",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "# rpexample\n.\\main.go:16:31: undefined: generateSmallPNG\n",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+    "fixtures": [],
+    "ordinal": 10,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

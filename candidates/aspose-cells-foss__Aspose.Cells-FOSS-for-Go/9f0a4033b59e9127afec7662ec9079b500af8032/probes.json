@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 779,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/go/"
+  },
+  {
+    "elapsed_ms": 1469,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1533,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues"
+  },
+  {
+    "elapsed_ms": 1188,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://go.dev"
+  },
+  {
+    "elapsed_ms": 588,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Go-%3E%3D1.24-blue"
+  },
+  {
+    "elapsed_ms": 570,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1049,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.svg"
+  },
+  {
+    "elapsed_ms": 669,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/go/"
+  },
+  {
+    "elapsed_ms": 1036,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg"
+  },
+  {
+    "elapsed_ms": 1107,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+  },
+  {
+    "elapsed_ms": 681,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/go-cpp/"
+  },
+  {
+    "elapsed_ms": 516,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/go/"
+  },
+  {
+    "elapsed_ms": 512,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/go/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 801,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/go/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "go-proxy-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "go_modules:github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+  }
+]
