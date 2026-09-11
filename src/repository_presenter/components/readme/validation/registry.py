@@ -179,7 +179,17 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         ("structure",),
         "S9",
     ),
-    Check("BC-08", "1", "Protected content preserved", ("all",), "S9"),
+    Check(
+        "BC-08",
+        # "2" (G4-W17 arrival item 26, a meaning change per the increment rule): a command word
+        # continued by a hyphen (`python-pptx`, `go-task`, `git-lfs`, `cargo-make`) is a package
+        # or tool name, never one of the protected shell commands, so a rewrite that drops it is
+        # an advisory note rather than a BC-08 failure.
+        "2",
+        "Protected content preserved",
+        ("all",),
+        "S9",
+    ),
     Check("BC-09", "1", "No configured secret in the bundle", ("bundle",), "S9"),
     Check(
         "BC-10",
@@ -251,9 +261,15 @@ _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
 _LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
 _LINK_DESTINATION = re.compile(r"\]\([^)]*\)")
 _URL = re.compile(r"https?://\S+")
+# G4-W17 arrival item 26 (lane B, Aspose.Slides for C++, measured 2026-09-06). `\b` alone let
+# `python-pptx` - a third-party package the upstream README names in prose and never invokes -
+# match the `python` alternative, since the boundary between `python` and `-pptx` is a word
+# boundary; python-docx, pip-compile, go-task, git-lfs, cargo-make and make-* are the same family.
+# A hyphen continuing the word makes a name, not one of these commands: `(?!-)` refuses exactly
+# that and nothing else, so every form that matched before (`python -m`, `$ pip`) still does.
 _COMMAND = re.compile(
     r"^\s*(?:[$>]\s*)?(?:pip3?|python3?(?:\s+-m)?|npm|npx|yarn|pnpm|dotnet|mvn|gradle|go|"
-    r"cargo|cmake|make|git)\b",
+    r"cargo|cmake|make|git)\b(?!-)",
     re.IGNORECASE,
 )
 _CAPABILITY_NODE = re.compile(r"^\s*c(\d+)\[", re.MULTILINE)

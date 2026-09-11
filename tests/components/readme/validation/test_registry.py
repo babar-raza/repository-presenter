@@ -28,6 +28,7 @@ from repository_presenter.components.readme.validation.registry import (
     _check_structure,
     _fences,
     blocking_failures,
+    protected_fragments,
     summarize_validation,
     validate_candidate,
     write_validation,
@@ -459,6 +460,88 @@ def test_a_dropped_protected_command_carries_its_destination_section_for_every_d
         )
         protected = _failed(document, "BC-08")
         assert protected["failures"][0]["section_id"] == "development_testing", kind
+
+
+def test_a_hyphenated_package_name_in_prose_is_not_a_protected_command(tmp_path: Path) -> None:
+    """G4-W17 arrival item 26 (lane B, Aspose.Slides for C++). `_COMMAND` ended each command
+    word with `\\b`, and the boundary between `python` and `-pptx` is a word boundary - so the
+    third-party package the upstream README names in a prose list (`python-pptx`, the reader its
+    conformance suite opens files with, never invoked) was read as a shell command, and BC-08
+    demanded the VERIFIED_REWRITE that re-authored the list keep it verbatim (measured
+    2026-09-06 on inherited_unit:078.list; python-docx, go-*, git-*, cargo-*, make-* are the same
+    family). A hyphen continuing the word makes a name, not a command: a real command dropped by
+    the same kind of rewrite stays protected, and the dropped name is what it always should have
+    been - an advisory note."""
+    table = "\n".join(
+        [
+            "python-pptx",
+            "go-task build",
+            "git-lfs install",
+            "cargo-make ci",
+            "make-me",
+            "python3 -m pip install python-pptx",
+            "$ pip install python-pptx",
+            "go build ./...",
+            "git clone https://example.com/x",
+            "cargo build",
+        ]
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        REVISION,
+        (
+            *BASE_FACTS,
+            _fact(
+                "inherited_unit:078.list",
+                "inherited_unit",
+                "- The conformance suite opens every deck with `python-pptx` and `python-docx`.",
+            ),
+            _fact(
+                "inherited_unit:079.paragraph",
+                "inherited_unit",
+                "Run `python -m pytest` before opening a pull request.",
+            ),
+            _fact("inherited_unit:080.code_block", "inherited_unit", f"```\n{table}\n```"),
+        ),
+    )
+    dispositions = {
+        "dispositions": DISPOSITIONS["dispositions"]
+        + [
+            {
+                "unit_id": unit_id,
+                "disposition": "VERIFIED_REWRITE",
+                "destination_section": "development_testing",
+                "fact_ids": [],
+                "rationale": "r",
+            }
+            for unit_id in ("inherited_unit:078.list", "inherited_unit:079.paragraph")
+        ]
+    }
+    candidate = _candidate(facts=facts, dispositions=dispositions)
+    assert "python-pptx" not in candidate.readme and "python -m pytest" not in candidate.readme
+    commands = [
+        (text, unit_id)
+        for category, text, unit_id in protected_fragments(candidate)
+        if category == "command"
+    ]
+    assert commands == [
+        ("pip install aspose-3d-foss", "inherited_unit:004.code_block"),
+        ("python -m pytest", "inherited_unit:079.paragraph"),
+        ("python3 -m pip install python-pptx", "inherited_unit:080.code_block"),
+        ("$ pip install python-pptx", "inherited_unit:080.code_block"),
+        ("go build ./...", "inherited_unit:080.code_block"),
+        ("git clone https://example.com/x", "inherited_unit:080.code_block"),
+        ("cargo build", "inherited_unit:080.code_block"),
+    ]
+    document = validate_candidate(candidate, tmp_path, ())
+    assert _failed(document, "BC-08")["details"] == [
+        "inherited_unit:079.paragraph: VERIFIED_REWRITE keeps the command 'python -m pytest' "
+        "but the candidate does not render it"
+    ]
+    assert (
+        "inherited_unit:078.list: the rewrite no longer names python-docx, python-pptx"
+        in document["advisory"]
+    )
 
 
 def test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring(
