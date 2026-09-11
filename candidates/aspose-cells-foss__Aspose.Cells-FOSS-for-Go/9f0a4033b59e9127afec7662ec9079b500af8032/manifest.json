@@ -1,0 +1,147 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 6,
+      "job": "independent_review",
+      "response_sha256s": [
+        "6d045f2618d1f0cbef1697daf3cc332424f3f1725934f4628a0f11fe0537e7d5",
+        "972c4ff995853fd5ccbce3a23c80863e375e9bb736c808a094af3627e2cf2c41",
+        "b19ed5776084f05ed8cecd82c4519ba4b3531bf0c1d1e798820905eb989909c3",
+        "b65a38ae2f6797fbbc3a8dc14edda877dbc6f9f3fbc3148b0b72c51ce21c6db7",
+        "d7ca9e2115713d358ce02f4e2435386f5ea70b570da452079fda940d8c5aa493",
+        "d7e0cfd50b86d413eb17cdcf785a1fc1dde0c6d12b955c39ecf3d26357c78e62"
+      ]
+    },
+    {
+      "distinct_responses": 7,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "0b205a9fcd648f903cb4822dae4a6a474b74e95c4ecac7e324953c6dce3ea512",
+        "5e041a5f9e9e76370afae615717e409cf42b8a7bbce1439e28ed75809eaf2c4f",
+        "8f72eb52477030b59b9b65a00ff82e0efb7649e0584a53ca5544a0d06669ed76",
+        "c13696064b39f6be9b7d60e6e6a6c57911021bb08667db39de74d41c75ec70b0",
+        "ca5355455e3d72ca71ff947e498b8c3f4b35de7f6ca7fe3237232beadbe6ae55",
+        "cbb6596fdf443506a0a4c39892485216ef15dcb74e1ca41c206f43e11ddc97ed",
+        "e925b45cdf04bf1506203486ce780cab6c45aaea7eb879772f4cdfd1f69973b9"
+      ]
+    },
+    {
+      "distinct_responses": 20,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "04230cadfc2d07169096cf818850f4518b9e70aa2f9dfa91a8ed032b79a36046",
+        "2322744c8e689c11b336dad50fd632dc6ed93c80ad0570f8ed06433a8ae6fd15",
+        "3125303faec97e90031c575dbecc8e403ee87218b1b9b4e3b73707a8fdee7af0",
+        "4385ee9a80ad009121c37824b4b7ee3ef4ce174beba2f4e2b3bffdb3d0b7dbfc",
+        "4542987f161ee7aab64e0f5cb0ce129a7f6b76781d2d1d1fe562b6a3f1bf5a56",
+        "6d96836c9313b88d15a33f156a9f21c84c137cebc6abe0b358bb918d38ea99d0",
+        "6f29f3f08390659845b51ddb79e8a4681ca1b182fe3ac7f62563f8b8f5c3e821",
+        "80c280049655b07bcbf1af82a124084e635d9fcef87420a2029e3c03f201bb63",
+        "86b2c9b62ec0de25013339d475d99fc26a3af26b5ecee15a687dc5f6a5b72482",
+        "8b8309e4226a2bc629a6eea40cb62a84dba5f948244c8b3fa46ad6c354da95ed",
+        "ab00cb0c86451883b4625f9fb2d352383284f340f7b01c17b841a47c41b6a9b3",
+        "ad510e0faf28ce88b1bfd38bd3c0b2eda7ac47ec1cd65d5fe00161fc4d799290",
+        "b7a993e3f9ba69e184026df79e9cd75a4b5db526c66ffa220eadc37e4e8c6aa7",
+        "bb92ce6a33883326ce57cdb6955438c5fc2ce28ebace6da1491fa2fd7fc15698",
+        "c4120d8991ac6350b547a4fb8e98d0391c3e80cd6b6550865f41ba6e81153548",
+        "cc70f30602054a8fc6d1f9d80d19fb7dff17b2c26f6db4f0412fab1c6b946f35",
+        "ded9e56b38138bc40508b63c6e6540310e751fe9a061ce25be7c3d3639d60a44",
+        "e81d30b00c3b7c134b94ee48999d64017e2445a1090807e0c1d686f9466926b1",
+        "f376b557ab2110d46ec5f07ecaaa84e153bb6353d4cb087ffa524863a9f12184",
+        "f5ca912e1aa1246f20e49ddd0a915d3aa09b493a607636ac48b4ae0c46adf60e"
+      ]
+    },
+    {
+      "distinct_responses": 5,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "71a382b15ca5d877aa3b7e929450300de93825b00c0187692e9f69ca2b78d3de",
+        "b4e82754a4530be927dcbb7e975620f192a07b43264e1a876f1938e20635e7d4",
+        "ba6afbf5e7fe9b08d777da77dfc031c87a8e5ab27001fd82327dc3009a0df05b",
+        "bf68801bc7d57cc97887072dc4358a6885c425024bc94afafa10ec505feeffee",
+        "c422e92e2de12579bfaf6c79d83ed2a2cdb478a74144ed9d3eeefd840af78750"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "targeted_repair",
+      "response_sha256s": [
+        "19b3decb60d0894494fb4db6212713d210388cf770ba26d68b848c1e663fc506",
+        "781946babfa93d03e1c79aa0a159bf8e388e2e3e4dfc7f9b6799189ffbc74bb6",
+        "cb2cae89c432d3477378750ebf9e843b5703e90cd97a27a44a8998d0c2fbd35e"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 8,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "ACCEPT"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 21536,
+      "sha256": "60eb7129e9b55c5c419e96fea486f63a30126f7984463bd0e018e535e9c7cecc"
+    },
+    "README.patch": {
+      "bytes": 27445,
+      "sha256": "6f0523247ab90421ea713528bba34485c90eed4fab4933b9e82c2b4fd7bf7b47"
+    },
+    "calls.jsonl": {
+      "bytes": 41414,
+      "sha256": "99cf19d810bbc0fa71affd32bb57a100c63d23cbffb711e0e79799edff6bba4f"
+    },
+    "content_units.json": {
+      "bytes": 21260,
+      "sha256": "94f3fd9b250d0bfa46ee45100c194a542e54bf1204b879c76fe58a6abe9f2249"
+    },
+    "dependencies.json": {
+      "bytes": 25561,
+      "sha256": "f520f2cb812b763d33e8d3e2f1a69972803bbd2bb0bbe2f29acb795b39d42a3e"
+    },
+    "dispositions.json": {
+      "bytes": 29442,
+      "sha256": "bcc9a6084e29bbbeed9bda32a68e799f0c158dd7d9f9bc9293996418c4c4f4de"
+    },
+    "examples.json": {
+      "bytes": 2614,
+      "sha256": "dc30e51a1abb32fc78a02fa74672b5403e9dcf9928e9909f5702915f0cb98e42"
+    },
+    "facts.json": {
+      "bytes": 133543,
+      "sha256": "412ac7ae93964b408c3df8840ddab756511e4dfb7319ec354f679bad27648f97"
+    },
+    "investigation.json": {
+      "bytes": 8205,
+      "sha256": "572c1955228e516f3a3227125840ee48dccbf9cfaf25f9f15d4700ca01e3f0c5"
+    },
+    "plan.json": {
+      "bytes": 9566,
+      "sha256": "3f6ac8f2163b22c8462679c077fe678953685f4d7a9e0e93efb3d6108210dee3"
+    },
+    "probes.json": {
+      "bytes": 2941,
+      "sha256": "d37f1b9e77f642b6a0f2e6c9086bd95a06ae88e86924336913a8cff80c97bef0"
+    },
+    "repairs.json": {
+      "bytes": 1827,
+      "sha256": "765d1984be3091c547a4c9819a869fafa1a7c54969802f5cc6b7763c6cd07349"
+    },
+    "review.json": {
+      "bytes": 8017,
+      "sha256": "8897545171f5cc1c04db18646cbec0087dfeca8816cc1ea7e86d6fe6039f46da"
+    },
+    "validation.json": {
+      "bytes": 11218,
+      "sha256": "51e7633851bca5bd4c2f1a5d2d1ec2c832aa298e3cf7f279f00bd831bfe76efe"
+    }
+  },
+  "no_op_proof": null,
+  "provider_calls": 7,
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+  "schema_version": 1,
+  "sealed_at": "2026-09-11T10:03:23Z",
+  "state": "ACCEPTED"
+}

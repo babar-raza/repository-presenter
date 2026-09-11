@@ -1,0 +1,3927 @@
+{
+  "facts": [
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "docs/usage.md"
+        },
+        {
+          "detail": "1 files; documentation directory",
+          "path": "docs/"
+        }
+      ],
+      "id": "build_test_asset:docs",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "docs/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "examples/basic/main.go"
+        },
+        {
+          "detail": null,
+          "path": "examples/csv_export/main.go"
+        },
+        {
+          "detail": null,
+          "path": "examples/csv_import/main.go"
+        },
+        {
+          "detail": null,
+          "path": "examples/data_validation/main.go"
+        },
+        {
+          "detail": null,
+          "path": "examples/formula/main.go"
+        },
+        {
+          "detail": "12 files; example directory",
+          "path": "examples/"
+        }
+      ],
+      "id": "build_test_asset:examples",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "examples/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "tests/crypto_test.go"
+        },
+        {
+          "detail": null,
+          "path": "tests/csv_handler_test.go"
+        },
+        {
+          "detail": null,
+          "path": "tests/datavalidation_test.go"
+        },
+        {
+          "detail": null,
+          "path": "tests/formula_test.go"
+        },
+        {
+          "detail": null,
+          "path": "tests/helpers_test.go"
+        },
+        {
+          "detail": "12 files; test suite",
+          "path": "tests/"
+        }
+      ],
+      "id": "build_test_asset:tests",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "tests/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "no `require` directive a consumer would install is declared",
+          "path": "go.mod"
+        }
+      ],
+      "id": "dependency:none",
+      "kind": "dependency",
+      "polarity": "SUPPORTED",
+      "value": "none"
+    },
+    {
+      "attributes": null,
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "lines 93-95; go fence; unit inherited_unit:014.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 1: NOT_VERIFIED; the fence declares an import and no statement; there is nothing to compile",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:001",
+      "kind": "example",
+      "polarity": "UNRESOLVED",
+      "value": "import cells_foss \"github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss\"\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 101-118; go fence; unit inherited_unit:017.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 2: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:002",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "package main\n\nimport cells_foss \"github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss\"\n\nfunc main() {\n\t// Create.\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\t// Write.\n\tws.Cells().Set(\"A1\", \"Hello, World!\")\n\tws.Cells().Set(\"B1\", 42)\n\n\t// Save.\n\twb.Save(\"hello.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 124-133; go fence; unit inherited_unit:020.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 3: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:003",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "wb, _ := cells_foss.LoadWorkbook(\"input.xlsx\")\nws := wb.Worksheets[0]\n\ncell, _ := ws.Cells().Get(\"A1\")\nfmt.Println(\"Current value:\", cell.Value)\n\nws.Cells().Set(\"A1\", \"Updated value\")\nwb.Save(\"output.xlsx\")\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 142-193; go fence; unit inherited_unit:024.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 4: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:004",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\t// ---- Populate sales data ----\n\tdata := []float64{1200, 850, 1400, 960, 1780}\n\theaders := []string{\"Month\", \"Sales\"}\n\n\tws.Cells().Set(\"A1\", headers[0])\n\tws.Cells().Set(\"B1\", headers[1])\n\n\tmonths := []string{\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\"}\n\tfor i, m := range months {\n\t\trow := i + 2\n\t\tws.Cells().Set(fmt.Sprintf(\"A%d\", row), m)\n\t\tws.Cells().Set(fmt.Sprintf(\"B%d\", row), data[i])\n\t}\n\n\t// ---- Add formula cells ----\n\tlastDataRow := len(data) + 1\n\ttotalRef := fmt.Sprintf(\"B2:B%d\", lastDataRow)\n\n\t// SUM formula.\n\tws.Cells().Set(\"B7\", nil)\n\tsumCell, _ := ws.Cells().Get(\"B7\")\n\tsumCell.SetFormula(fmt.Sprintf(\"SUM(%s)\", totalRef))\n\n\t// AVERAGE formula.\n\tws.Cells().Set(\"B8\", nil)\n\tavgCell, _ := ws.Cells().Get(\"B8\")\n\tavgCell.SetFormula(fmt.Sprintf(\"AVERAGE(%s)\", totalRef))\n\n\t// Labels.\n\tws.Cells().Set(\"A7\", \"TOTAL\")\n\tws.Cells().Set(\"A8\", \"AVERAGE\")\n\n\t// ---- Evaluate formulas with the engine ----\n\tfor _, row := range []int{7, 8} {\n\t\tcell, _ := ws.Cells().Get(fmt.Sprintf(\"B%d\", row))\n\t\tformula := cell.GetFormula()\n\t\tresult, err := cells_foss.CalculateFormula(formula, ws)\n\t\tif err != nil {\n\t\t\tfmt.Printf(\"  %s = ERROR: %v\\n\", formula, err)\n\t\t} else {\n\t\t\tfmt.Printf(\"  %s = %v\\n\", formula, result)\n\t\t}\n\t}\n\n\twb.Save(\"outputfiles/formula.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 200-227; go fence; unit inherited_unit:027.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 5: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:005",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tws.Cells().Set(\"A1\", \"Fruit\")\n\tws.Cells().Set(\"A2\", \"Apple\")\n\tws.Cells().Set(\"A3\", \"Banana\")\n\n\t// Create a list-type data validation.\n\tdv := &cells_foss.DataValidation{\n\t\tType:             cells_foss.DataValidationTypeList,\n\t\tFormula1:         `\"Apple,Banana,Cherry,Dragonfruit\"`,\n\t\tAllowBlank:       true,\n\t\tShowErrorMessage: true,\n\t\tErrorTitle:       \"Invalid Fruit\",\n\t\tErrorMessage:     \"Please pick a fruit from the list.\",\n\t\tErrorStyle:       cells_foss.ErrorStyleStop,\n\t}\n\n\tif err := ws.AddDataValidation(\"A2:A10\", dv); err != nil {\n\t\tfmt.Printf(\"Error: %v\\n\", err)\n\t\treturn\n\t}\n\n\twb.Save(\"outputfiles/data_validation.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 231-252; go fence; unit inherited_unit:029.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 6: FAILED; .\\main.go:16:31: undefined: generateSmallPNG",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:006",
+      "kind": "example",
+      "polarity": "CONTRADICTED",
+      "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tws.Cells().Set(\"A1\", \"Product Catalog\")\n\n\t// generateSmallPNG returns a minimal PNG for the example; see\n\t// examples/picture/main.go for the full helper.\n\tpic := cells_foss.NewPicture(generateSmallPNG(), \"png\")\n\tpic.Width = 100\n\tpic.Height = 80\n\tpic.SetAnchor(5, 1) // row 5, column B\n\n\tif err := ws.AddPicture(pic); err != nil {\n\t\tfmt.Printf(\"Error adding picture: %v\\n\", err)\n\t\treturn\n\t}\n\n\twb.Save(\"outputfiles/picture.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 256-277; go fence; unit inherited_unit:031.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 7: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:007",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\tsr := cells_foss.NewStreamingReader(\"outputfiles/streaming_data.xlsx\")\n\trowCount := 0\n\tvar totalScore float64\n\n\terr := sr.ProcessRows(\"Sheet1\", func(rowIdx int, cells map[string]string) error {\n\t\trowCount++\n\t\tif score, ok := cells[\"C\"+fmt.Sprint(rowIdx)]; ok {\n\t\t\tvar s float64\n\t\t\tfmt.Sscanf(score, \"%f\", &s)\n\t\t\ttotalScore += s\n\t\t}\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\tfmt.Fprintf(os.Stderr, \"Error streaming: %v\\n\", err)\n\t\tos.Exit(1)\n\t}\n\tfmt.Printf(\"Streamed %d rows, total score %.0f\\n\", rowCount, totalScore)\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 281-308; go fence; unit inherited_unit:033.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 8: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:008",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tboldStyle := cells_foss.NewStyle()\n\tboldStyle.Font.Bold = true\n\tboldStyle.Font.Size = 12\n\n\thighlightStyle := cells_foss.NewStyle()\n\thighlightStyle.Font.Color = \"FFFFFFFF\"\n\thighlightStyle.Font.Bold = true\n\thighlightStyle.Fill = &cells_foss.Fill{\n\t\tType:  cells_foss.FillTypeSolid,\n\t\tColor: \"FF4472C4\",\n\t}\n\n\theaders := []string{\"Item\", \"Category\", \"Price\", \"In Stock\"}\n\tfor i, h := range headers {\n\t\tref := string(rune('A'+i)) + \"1\"\n\t\tws.Cells().Set(ref, h)\n\t\tcell, _ := ws.Cells().Get(ref)\n\t\tcell.SetStyle(boldStyle)\n\t}\n\n\twb.Save(\"outputfiles/style.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 312-331; go fence; unit inherited_unit:035.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 9: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:009",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\theaders := []string{\"Product\", \"Q1\", \"Q2\", \"Q3\", \"Q4\", \"Total\"}\n\tfor i, h := range headers {\n\t\tref := string(rune('A'+i)) + \"1\"\n\t\tws.Cells().Set(ref, h)\n\t}\n\n\t// ... populate data rows (see examples/table/main.go) ...\n\n\ttbl := ws.AddTable(\"A1:F6\")\n\ttbl.HasHeaderRow = true\n\ttbl.StyleName = \"TableStyleMedium6\"\n\n\twb.Save(\"outputfiles/table.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 335-350; go fence; unit inherited_unit:037.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 10: EXECUTED; COMPILED and vetted against aspose-cells-foss__Aspose.Cells-FOSS-for-Go; Go 1.26.4",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:010",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "func main() {\n\tcsvPath := \"outputfiles/employees.csv\"\n\n\twb := cells_foss.NewWorkbook()\n\tif err := wb.ImportFromCSV(csvPath, \"Employees\", ','); err != nil {\n\t\tfmt.Fprintf(os.Stderr, \"Error importing CSV: %v\\n\", err)\n\t\tos.Exit(1)\n\t}\n\n\tws := wb.Worksheets[1] // second sheet; index 0 is the default \"Sheet1\"\n\tfmt.Printf(\"Imported sheet: %q\\n\", ws.Name)\n\n\twb.Save(\"outputfiles/csv_imported.xlsx\")\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:ecosystem",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "go"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:family",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "cells"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:platform",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "go"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:repository",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "pinned default-branch revision",
+          "path": "source/snapshot.json"
+        }
+      ],
+      "id": "identity:revision",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "9f0a4033b59e9127afec7662ec9079b500af8032"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "import path of the module's importable package, module path and the subdirectory the package is declared in",
+          "path": "go.mod"
+        }
+      ],
+      "id": "import_path:github.com-aspose-cells-foss-aspose.cells-foss-for-go-v26-aspose-cells_foss",
+      "kind": "import_path",
+      "polarity": "SUPPORTED",
+      "value": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 1-1; heading",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:001.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "# Aspose.Cells FOSS for Go"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 3-3; badge_row; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:002.badge_row",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "[![Go Version](https://img.shields.io/badge/Go-%3E%3D1.24-blue)](https://go.dev) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Go Reference](https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg)](https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26) [![Contributors](https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.svg)](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 5-5; badge_row; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:003.badge_row",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "[![Aspose.Cells FOSS for Go](https://products.aspose.org/media/cells/go/banner-readme.png)](https://products.aspose.org/cells/go/)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 7-11; paragraph; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:004.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Cells FOSS for Go is a pure-Go library for creating, reading, and writing Excel workbooks \u2014\nECMA-376 Office Open XML `.xlsx` spreadsheets \u2014 with no third-party dependency. It covers cell\ndata and A1-style addressing, visual formatting, a built-in formula engine, data validation,\nstructured tables, embedded pictures, CSV import and export, low-memory row streaming for large\nfiles, and password-based workbook encryption."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 13-13; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:005.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Navigation"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Navigation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 15-25; list; under Aspose.Cells FOSS for Go > Navigation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:006.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n- [Installation](#installation)\n- [Quick Start](#quick-start)\n- [Additional Examples](#additional-examples)\n- [Project Structure](#project-structure)\n- [API Reference](#api-reference)\n- [Documentation & Resources](#documentation--resources)\n- [Scope and Limitations](#scope-and-limitations)\n- [Development and Testing](#development-and-testing)\n- [License](#license)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 27-27; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:007.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## At a Glance"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > At a Glance"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 29-59; code_block; under Aspose.Cells FOSS for Go > At a Glance",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:008.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```mermaid\nflowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction LR\n    i1[\"An existing XLSX workbook (including password-protected)\"]\n    i2[\"CSV files\"]\n  end\n  PRODUCT[\"Aspose.Cells FOSS for Go\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction LR\n    subgraph capl[\" \"]\n      direction TB\n      c1[\"Cell read and write (A1-style references)\"]\n      c2[\"Font, fill, alignment, and border styling\"]\n      c3[\"Formulas with a built-in SUM/AVERAGE/MAX/MIN engine\"]\n      c4[\"Data validation, tables, and picture embedding\"]\n    end\n    subgraph capr[\" \"]\n      direction TB\n      c5[\"CSV import and export\"]\n      c6[\"Streaming row-by-row reading\"]\n      c7[\"Password protection and encryption\"]\n    end\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"XLSX workbooks (including password-protected)\"]\n    o2[\"CSV files\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 61-61; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:009.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Key Capabilities"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Key Capabilities"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 63-81; list; under Aspose.Cells FOSS for Go > Key Capabilities",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:010.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- Cell values are read and written through `Cells.Get`/`Cells.Set`, addressed by A1-style\n  references (`\"A1\"`, `\"B2\"`) and covering `string`, `float64`, `int`, and `bool` values.\n- Font, fill, alignment, and borders combine into a `Style` applied to any cell via\n  `Cell.SetStyle`, with automatic deduplication of identical styles during save.\n- Formulas are stored with `Cell.SetFormula` and evaluated by the built-in `CalculateFormula`\n  engine, which supports `SUM`, `AVERAGE`, `MAX`, and `MIN` over single cells or A1-style ranges.\n- Data validation rules (`DataValidation`) restrict a range to dropdown lists or whole/decimal\n  ranges with custom error messages and error styles; structured `Table` ranges add header rows\n  and auto-filters; `Picture` objects (PNG or JPEG) embed images. All three attach to a\n  `Worksheet` via `AddDataValidation`, `AddTable`, and `AddPicture`.\n- `Workbook.ExportToCSV` and `Workbook.ImportFromCSV` move data to and from CSV with a\n  caller-supplied delimiter; export converts typed cell values to their CSV string form via\n  `CellToString`, while import stores every field as a plain `string`.\n- The streaming reader (`StreamingReader.ProcessRows`) handles very large files with row-by-row\n  processing, reading directly from the source path without first building the shared\n  `Workbook`/`Worksheet` model, so peak memory stays proportional to the width of one row\n  rather than the whole file.\n- `Workbook.SetPassword` and `Workbook.VerifyPassword` add ECMA-376 Agile Encryption (SHA-512\n  key derivation, AES-256-CBC) to the save path, producing a password-protected XLSX file."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 83-83; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:011.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Installation"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 85-87; code_block; under Aspose.Cells FOSS for Go > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:012.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ngo get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 89-91; paragraph; under Aspose.Cells FOSS for Go > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:013.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The module supports Go 1.24.5 or later and has zero third-party dependencies \u2014 encryption and\neverything else builds on the Go standard library alone. Because the package name (`cells_foss`)\ndiffers from the module path's final segment (`v26`), import it with an explicit alias:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 93-95; code_block; under Aspose.Cells FOSS for Go > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:014.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nimport cells_foss \"github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss\"\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 97-97; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:015.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Quick Start"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 99-99; paragraph; under Aspose.Cells FOSS for Go > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:016.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Create a workbook, write a couple of cells, and save it to disk:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 101-118; code_block; under Aspose.Cells FOSS for Go > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:017.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\npackage main\n\nimport cells_foss \"github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss\"\n\nfunc main() {\n\t// Create.\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\t// Write.\n\tws.Cells().Set(\"A1\", \"Hello, World!\")\n\tws.Cells().Set(\"B1\", 42)\n\n\t// Save.\n\twb.Save(\"hello.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 120-120; paragraph; under Aspose.Cells FOSS for Go > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:018.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Run `go run main.go` to produce `hello.xlsx`."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 122-122; paragraph; under Aspose.Cells FOSS for Go > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:019.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Load an existing workbook, read and update a cell, then save the result:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 124-133; code_block; under Aspose.Cells FOSS for Go > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:020.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nwb, _ := cells_foss.LoadWorkbook(\"input.xlsx\")\nws := wb.Worksheets[0]\n\ncell, _ := ws.Cells().Get(\"A1\")\nfmt.Println(\"Current value:\", cell.Value)\n\nws.Cells().Set(\"A1\", \"Updated value\")\nwb.Save(\"output.xlsx\")\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 135-135; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:021.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Additional Examples"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 137-138; paragraph; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:022.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Runnable programs for every capability live under `examples/` in the repository. The formula\nengine example is shown directly below; the rest are collapsed for space."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 140-140; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:023.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Formulas and the Calculation Engine"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Formulas and the Calculation Engine"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 142-193; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Formulas and the Calculation Engine",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:024.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\t// ---- Populate sales data ----\n\tdata := []float64{1200, 850, 1400, 960, 1780}\n\theaders := []string{\"Month\", \"Sales\"}\n\n\tws.Cells().Set(\"A1\", headers[0])\n\tws.Cells().Set(\"B1\", headers[1])\n\n\tmonths := []string{\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\"}\n\tfor i, m := range months {\n\t\trow := i + 2\n\t\tws.Cells().Set(fmt.Sprintf(\"A%d\", row), m)\n\t\tws.Cells().Set(fmt.Sprintf(\"B%d\", row), data[i])\n\t}\n\n\t// ---- Add formula cells ----\n\tlastDataRow := len(data) + 1\n\ttotalRef := fmt.Sprintf(\"B2:B%d\", lastDataRow)\n\n\t// SUM formula.\n\tws.Cells().Set(\"B7\", nil)\n\tsumCell, _ := ws.Cells().Get(\"B7\")\n\tsumCell.SetFormula(fmt.Sprintf(\"SUM(%s)\", totalRef))\n\n\t// AVERAGE formula.\n\tws.Cells().Set(\"B8\", nil)\n\tavgCell, _ := ws.Cells().Get(\"B8\")\n\tavgCell.SetFormula(fmt.Sprintf(\"AVERAGE(%s)\", totalRef))\n\n\t// Labels.\n\tws.Cells().Set(\"A7\", \"TOTAL\")\n\tws.Cells().Set(\"A8\", \"AVERAGE\")\n\n\t// ---- Evaluate formulas with the engine ----\n\tfor _, row := range []int{7, 8} {\n\t\tcell, _ := ws.Cells().Get(fmt.Sprintf(\"B%d\", row))\n\t\tformula := cell.GetFormula()\n\t\tresult, err := cells_foss.CalculateFormula(formula, ws)\n\t\tif err != nil {\n\t\t\tfmt.Printf(\"  %s = ERROR: %v\\n\", formula, err)\n\t\t} else {\n\t\t\tfmt.Printf(\"  %s = %v\\n\", formula, result)\n\t\t}\n\t}\n\n\twb.Save(\"outputfiles/formula.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Formulas and the Calculation Engine"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 195-196; html_block; under Aspose.Cells FOSS for Go > Additional Examples > Formulas and the Calculation Engine",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:025.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "<details>\n<summary>View Additional Examples</summary>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 198-198; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:026.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Data Validation"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Data Validation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 200-227; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Data Validation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:027.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tws.Cells().Set(\"A1\", \"Fruit\")\n\tws.Cells().Set(\"A2\", \"Apple\")\n\tws.Cells().Set(\"A3\", \"Banana\")\n\n\t// Create a list-type data validation.\n\tdv := &cells_foss.DataValidation{\n\t\tType:             cells_foss.DataValidationTypeList,\n\t\tFormula1:         `\"Apple,Banana,Cherry,Dragonfruit\"`,\n\t\tAllowBlank:       true,\n\t\tShowErrorMessage: true,\n\t\tErrorTitle:       \"Invalid Fruit\",\n\t\tErrorMessage:     \"Please pick a fruit from the list.\",\n\t\tErrorStyle:       cells_foss.ErrorStyleStop,\n\t}\n\n\tif err := ws.AddDataValidation(\"A2:A10\", dv); err != nil {\n\t\tfmt.Printf(\"Error: %v\\n\", err)\n\t\treturn\n\t}\n\n\twb.Save(\"outputfiles/data_validation.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 229-229; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:028.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Picture Embedding"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Picture Embedding"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 231-252; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Picture Embedding",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:029.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tws.Cells().Set(\"A1\", \"Product Catalog\")\n\n\t// generateSmallPNG returns a minimal PNG for the example; see\n\t// examples/picture/main.go for the full helper.\n\tpic := cells_foss.NewPicture(generateSmallPNG(), \"png\")\n\tpic.Width = 100\n\tpic.Height = 80\n\tpic.SetAnchor(5, 1) // row 5, column B\n\n\tif err := ws.AddPicture(pic); err != nil {\n\t\tfmt.Printf(\"Error adding picture: %v\\n\", err)\n\t\treturn\n\t}\n\n\twb.Save(\"outputfiles/picture.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 254-254; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:030.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Streaming Large Files"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Streaming Large Files"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 256-277; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Streaming Large Files",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:031.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\tsr := cells_foss.NewStreamingReader(\"outputfiles/streaming_data.xlsx\")\n\trowCount := 0\n\tvar totalScore float64\n\n\terr := sr.ProcessRows(\"Sheet1\", func(rowIdx int, cells map[string]string) error {\n\t\trowCount++\n\t\tif score, ok := cells[\"C\"+fmt.Sprint(rowIdx)]; ok {\n\t\t\tvar s float64\n\t\t\tfmt.Sscanf(score, \"%f\", &s)\n\t\t\ttotalScore += s\n\t\t}\n\t\treturn nil\n\t})\n\tif err != nil {\n\t\tfmt.Fprintf(os.Stderr, \"Error streaming: %v\\n\", err)\n\t\tos.Exit(1)\n\t}\n\tfmt.Printf(\"Streamed %d rows, total score %.0f\\n\", rowCount, totalScore)\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 279-279; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:032.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Styling"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Styling"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 281-308; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Styling",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:033.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\tboldStyle := cells_foss.NewStyle()\n\tboldStyle.Font.Bold = true\n\tboldStyle.Font.Size = 12\n\n\thighlightStyle := cells_foss.NewStyle()\n\thighlightStyle.Font.Color = \"FFFFFFFF\"\n\thighlightStyle.Font.Bold = true\n\thighlightStyle.Fill = &cells_foss.Fill{\n\t\tType:  cells_foss.FillTypeSolid,\n\t\tColor: \"FF4472C4\",\n\t}\n\n\theaders := []string{\"Item\", \"Category\", \"Price\", \"In Stock\"}\n\tfor i, h := range headers {\n\t\tref := string(rune('A'+i)) + \"1\"\n\t\tws.Cells().Set(ref, h)\n\t\tcell, _ := ws.Cells().Get(ref)\n\t\tcell.SetStyle(boldStyle)\n\t}\n\n\twb.Save(\"outputfiles/style.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 310-310; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:034.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Structured Tables"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > Structured Tables"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 312-331; code_block; under Aspose.Cells FOSS for Go > Additional Examples > Structured Tables",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:035.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\twb := cells_foss.NewWorkbook()\n\tws := wb.Worksheets[0]\n\n\theaders := []string{\"Product\", \"Q1\", \"Q2\", \"Q3\", \"Q4\", \"Total\"}\n\tfor i, h := range headers {\n\t\tref := string(rune('A'+i)) + \"1\"\n\t\tws.Cells().Set(ref, h)\n\t}\n\n\t// ... populate data rows (see examples/table/main.go) ...\n\n\ttbl := ws.AddTable(\"A1:F6\")\n\ttbl.HasHeaderRow = true\n\ttbl.StyleName = \"TableStyleMedium6\"\n\n\twb.Save(\"outputfiles/table.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 333-333; heading; under Aspose.Cells FOSS for Go > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:036.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### CSV Import"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > CSV Import"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 335-350; code_block; under Aspose.Cells FOSS for Go > Additional Examples > CSV Import",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:037.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```go\nfunc main() {\n\tcsvPath := \"outputfiles/employees.csv\"\n\n\twb := cells_foss.NewWorkbook()\n\tif err := wb.ImportFromCSV(csvPath, \"Employees\", ','); err != nil {\n\t\tfmt.Fprintf(os.Stderr, \"Error importing CSV: %v\\n\", err)\n\t\tos.Exit(1)\n\t}\n\n\tws := wb.Worksheets[1] // second sheet; index 0 is the default \"Sheet1\"\n\tfmt.Printf(\"Imported sheet: %q\\n\", ws.Name)\n\n\twb.Save(\"outputfiles/csv_imported.xlsx\")\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Additional Examples > CSV Import"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 352-352; html_block; under Aspose.Cells FOSS for Go > Additional Examples > CSV Import",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:038.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "</details>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 354-354; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:039.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Project Structure"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Project Structure"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 356-357; paragraph; under Aspose.Cells FOSS for Go > Project Structure",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:040.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The library source lives under `aspose/cells_foss/`, with runnable examples, tests, a\nverification tool, and a usage guide alongside it at the repository root:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Project Structure"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 359-399; code_block; under Aspose.Cells FOSS for Go > Project Structure",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:041.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```\n\u251c\u2500\u2500 aspose/cells_foss/        # Library source code\n\u2502   \u251c\u2500\u2500 workbook.go           #   Workbook entry point\n\u2502   \u251c\u2500\u2500 worksheet.go          #   Worksheet model\n\u2502   \u251c\u2500\u2500 cell.go / cells.go    #   Cell model and collection\n\u2502   \u251c\u2500\u2500 style.go              #   Styles (font, fill, alignment, border)\n\u2502   \u251c\u2500\u2500 formula_engine.go     #   Formula calculation engine\n\u2502   \u251c\u2500\u2500 datavalidation.go     #   Data validation\n\u2502   \u251c\u2500\u2500 table.go              #   Tables\n\u2502   \u251c\u2500\u2500 picture.go            #   Picture embedding\n\u2502   \u251c\u2500\u2500 csv_handler.go        #   CSV import/export\n\u2502   \u251c\u2500\u2500 streaming_reader.go   #   Streaming row reader\n\u2502   \u251c\u2500\u2500 crypto.go             #   Encryption (SHA-512 + AES-256-CBC)\n\u2502   \u251c\u2500\u2500 xmlloader.go          #   XML loading\n\u2502   \u251c\u2500\u2500 xmlsaver.go           #   XML saving\n\u2502   \u251c\u2500\u2500 xml_feature_loader.go #   Style/table/picture loading\n\u2502   \u251c\u2500\u2500 xml_feature_saver.go  #   Style/table/picture/validation saving\n\u2502   \u2514\u2500\u2500 xml_sharedstrings_loader.go  # Shared strings\n\u251c\u2500\u2500 tests/                    # Integration tests (public API)\n\u251c\u2500\u2500 examples/                 # Runnable example programs\n\u2502   \u251c\u2500\u2500 basic/                #   Create and save\n\u2502   \u251c\u2500\u2500 load_modify_save/     #   Load \u2192 modify \u2192 save\n\u2502   \u251c\u2500\u2500 style/                #   Style application\n\u2502   \u251c\u2500\u2500 formula/              #   Formulas and calculation\n\u2502   \u251c\u2500\u2500 table/                #   Structured tables\n\u2502   \u251c\u2500\u2500 data_validation/      #   Data validation\n\u2502   \u251c\u2500\u2500 picture/              #   Picture embedding\n\u2502   \u251c\u2500\u2500 csv_export/           #   CSV export\n\u2502   \u251c\u2500\u2500 csv_import/           #   CSV import\n\u2502   \u251c\u2500\u2500 streaming/            #   Streaming large data\n\u2502   \u2514\u2500\u2500 go.mod                #   Separate module for examples (see Development and Testing)\n\u251c\u2500\u2500 docs/                     # Documentation\n\u2502   \u2514\u2500\u2500 usage.md              #   Detailed usage guide\n\u251c\u2500\u2500 verify/                   # Verification tool\n\u2502   \u2514\u2500\u2500 check_open_xlsx.go    #   .xlsx structure validator\n\u251c\u2500\u2500 doc.go                    # Package-level documentation\n\u251c\u2500\u2500 AGENTS.md                 # AI-assisted development guide\n\u251c\u2500\u2500 go.mod\n\u251c\u2500\u2500 go.sum\n\u2514\u2500\u2500 README.md\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 401-401; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:042.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## API Reference"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 403-406; paragraph; under Aspose.Cells FOSS for Go > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:043.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The library's public surface is centered on `Workbook` and `Worksheet` \u2014 created with\n`NewWorkbook`/`LoadWorkbook` and exposing a `*Cells` collection through `Worksheet.Cells()` \u2014 with\nsupporting types (`Style`, `DataValidation`, `Table`, `Picture`, `StreamingReader`) for styling,\nvalidation, structured ranges, images, and low-memory row access."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 408-409; html_block; under Aspose.Cells FOSS for Go > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:044.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "<details>\n<summary>View the Supported Public API Surface</summary>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 411-411; heading; under Aspose.Cells FOSS for Go > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:045.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Cells Foss"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > API Reference > Cells Foss"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 413-428; table; under Aspose.Cells FOSS for Go > API Reference > Cells Foss",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:046.table",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "| Class | Description |\n|---|---|\n| `Alignment` | Alignment controls how cell content is positioned within the cell bounds. |\n| `Border` | Border defines which sides of a cell have a visible rule and the colour of those rules. |\n| `Cell` | Cell represents a single cell in a worksheet grid. |\n| `Cells` | Cells is a collection of Cell values indexed by A1-style string references (e.g. \"A1\", \"B2\", \"Z100\"). |\n| `DataValidation` | DataValidation represents a single data-validation rule applied to a range of cells on a worksheet. |\n| `Fill` | Fill describes the background appearance of a cell. |\n| `Font` | Font describes the typographic properties applied to cell text. |\n| `Picture` | Picture represents an image embedded in a worksheet. |\n| `RowCallback` | RowCallback is invoked by StreamingReader.ProcessRows once for every row in the worksheet. |\n| `StreamingReader` | StreamingReader reads an .xlsx workbook row by row without loading the entire sheet XML into memory. |\n| `Style` | Style groups font, fill, alignment, and border settings into a named formatting record. |\n| `Table` | Table represents a structured range of data (a \"table\" in Excel terminology) with optional header row and built-in auto-filter. |\n| `Workbook` | Workbook is the top-level object representing an Excel workbook. |\n| `Worksheet` | Worksheet represents a single sheet within a workbook. |"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > API Reference > Cells Foss"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 430-430; html_block; under Aspose.Cells FOSS for Go > API Reference > Cells Foss",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:047.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "</details>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 432-432; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:048.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Documentation & Resources"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Documentation & Resources"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 434-444; list; under Aspose.Cells FOSS for Go > Documentation & Resources",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:049.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- **[Getting started guide](https://docs.aspose.org/cells/go/)** \u2014 Go documentation for\n  Aspose.Cells FOSS: loading, editing, styling, and saving spreadsheets.\n- **[How-to guides & FAQ](https://kb.aspose.org/cells/go/)** \u2014 Go knowledge base for Aspose.Cells\n  FOSS: how-to articles, FAQ, and troubleshooting guides.\n- **[Full API reference](https://reference.aspose.org/cells/go/)** \u2014 the complete, browsable\n  reference for all 14 public types (the [API reference](#api-reference) section above covers the\n  essentials).\n- **[AGENTS.md](AGENTS.md)** \u2014 the repository's own contribution guide for AI-assisted\n  development, covering source-of-truth conventions and areas to avoid changing without review.\n- Found a bug or have a feature request?\n  [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues) on GitHub."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 446-446; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:050.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Scope and Limitations"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Scope and Limitations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 448-458; list; under Aspose.Cells FOSS for Go > Scope and Limitations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:051.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- Cell references are A1-style strings only (`\"A1\"`, `\"B2\"`); tuple/array indices (e.g. `[0, 0]`)\n  are not supported.\n- `CalculateFormula` supports only `SUM`, `AVERAGE`, `MAX`, and `MIN`; any other formula returns\n  an error rather than being evaluated.\n- CSV import (`ImportFromCSV`/`FromCSV`) stores every field as a Go `string` \u2014 it does not infer\n  numeric or boolean types the way `Cells().Set` does when called directly with typed values.\n- On save, unmodified content is reused verbatim from the original XML byte-for-byte, and only\n  content touched since load is regenerated \u2014 round-trip fidelity depends on this split, not a\n  full re-serialization of every part.\n- Generated XML follows ECMA-376's own element ordering; this preserves round-trip compatibility\n  but isn't independently configurable."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Scope and Limitations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 460-463; paragraph; under Aspose.Cells FOSS for Go > Scope and Limitations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:052.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "These limitations don't apply to\n[Aspose.Cells for Go Enterprise Edition](https://products.aspose.com/cells/go-cpp/), which adds\nthe complete Excel formula function library, additional file-format coverage, and commercial\nsupport."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 465-465; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Development and Testing"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 467-467; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:054.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Run the full test suite from the repository root:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 469-471; code_block; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ngo test ./...\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 473-474; html_block; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:056.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "<details>\n<summary>More Test and Example Commands</summary>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 476-476; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Run only the integration tests (the public API surface):"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 478-480; code_block; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:058.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ngo test ./tests/ -v\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 482-482; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:059.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Run every bundled example program:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 484-487; code_block; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:060.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ncd examples\nfor d in */; do go run ./$d; done\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 489-493; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:061.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "`examples/` is its own Go module, with a `replace` directive already pointing it back at the\nrepository root \u2014 the exact version named in its `require` line never needs to resolve to a real\npublished release, only to satisfy Go's own version-string syntax. If building or running anything\nunder `examples/` reports an invalid module version, replace that line's version with any\nwell-formed pseudo-version for major version 26 and re-run."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 495-496; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:062.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Example programs under `examples/` write their output files to `examples/outputfiles/` (created\non first run) \u2014 avoid committing generated `.xlsx`/`.csv` files or that directory's contents."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 498-499; paragraph; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:063.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "For a complete usage walkthrough beyond this README, see the repository's own\n[docs/usage.md](docs/usage.md)."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 501-501; html_block; under Aspose.Cells FOSS for Go > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:064.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "</details>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 503-503; heading; under Aspose.Cells FOSS for Go",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:065.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## License"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Cells FOSS for Go > License"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 505-507; paragraph; under Aspose.Cells FOSS for Go > License",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:066.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty."
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the module path declared by the manifest, major-version suffix included",
+          "path": "go.mod"
+        },
+        {
+          "detail": "package registry: found on go_modules",
+          "path": "https://proxy.golang.org/github.com/aspose-cells-foss/!aspose.!cells-!f!o!s!s-for-!go/v26/@v/list"
+        }
+      ],
+      "id": "install_command:go",
+      "kind": "install_command",
+      "polarity": "SUPPORTED",
+      "value": "go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "LICENSE"
+        }
+      ],
+      "id": "license:file",
+      "kind": "license",
+      "polarity": "SUPPORTED",
+      "value": "LICENSE"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "license text states this license",
+          "path": "LICENSE"
+        }
+      ],
+      "id": "license:spdx",
+      "kind": "license",
+      "polarity": "SUPPORTED",
+      "value": "MIT"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Go Version'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/badge/Go-%3E%3D1.24-blue"
+        }
+      ],
+      "id": "link_target:001",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/badge/Go-%3E%3D1.24-blue"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Go Version'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://go.dev"
+        }
+      ],
+      "id": "link_target:002",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://go.dev"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'License: MIT'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/badge/License-MIT-blue.svg"
+        }
+      ],
+      "id": "link_target:003",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/badge/License-MIT-blue.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; relative; text 'License: MIT'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains LICENSE",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:004",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "LICENSE"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Go Reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg"
+        }
+      ],
+      "id": "link_target:005",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://pkg.go.dev/badge/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Go Reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+        }
+      ],
+      "id": "link_target:006",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://pkg.go.dev/github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Contributors'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.svg"
+        }
+      ],
+      "id": "link_target:007",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Go.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Contributors'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors"
+        }
+      ],
+      "id": "link_target:008",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/graphs/contributors"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; external; text 'Aspose.Cells FOSS for Go'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.org/media/cells/go/banner-readme.png"
+        }
+      ],
+      "id": "link_target:009",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/media/cells/go/banner-readme.png"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; external; text 'Aspose.Cells FOSS for Go'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.org/cells/go/"
+        }
+      ],
+      "id": "link_target:010",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/cells/go/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; anchor; text 'At a Glance'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #at-a-glance exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:011",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#at-a-glance"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; anchor; text 'Key Capabilities'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #key-capabilities exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:012",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#key-capabilities"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; anchor; text 'Installation'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #installation exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:013",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#installation"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; anchor; text 'Quick Start'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #quick-start exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:014",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#quick-start"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; anchor; text 'Additional Examples'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #additional-examples exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:015",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#additional-examples"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 20; anchor; text 'Project Structure'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #project-structure exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:016",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#project-structure"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; anchor; text 'API Reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #api-reference exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:017",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#api-reference"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 22; anchor; text 'Documentation & Resources'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #documentation--resources exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:018",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#documentation--resources"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; anchor; text 'Scope and Limitations'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #scope-and-limitations exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:019",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#scope-and-limitations"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; anchor; text 'Development and Testing'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #development-and-testing exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:020",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#development-and-testing"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; anchor; text 'License'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #license exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:021",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#license"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 434; external; text 'Getting started guide'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://docs.aspose.org/cells/go/"
+        }
+      ],
+      "id": "link_target:022",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://docs.aspose.org/cells/go/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 436; external; text 'How-to guides & FAQ'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://kb.aspose.org/cells/go/"
+        }
+      ],
+      "id": "link_target:023",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://kb.aspose.org/cells/go/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 438; external; text 'Full API reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://reference.aspose.org/cells/go/"
+        }
+      ],
+      "id": "link_target:024",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://reference.aspose.org/cells/go/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 441; relative; text 'AGENTS.md'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains AGENTS.md",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:025",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "AGENTS.md"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 443; external; text 'Open an issue'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues"
+        }
+      ],
+      "id": "link_target:026",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 460; external; text 'Aspose.Cells for Go Enterprise Edition'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.com/cells/go-cpp/"
+        }
+      ],
+      "id": "link_target:027",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.com/cells/go-cpp/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 498; relative; text 'docs/usage.md'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains docs/usage.md",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:028",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "docs/usage.md"
+    },
+    {
+      "attributes": {
+        "role": "banner illustration"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; banner illustration; resolved to https://products.aspose.org/media/cells/go/banner-readme.png",
+          "path": "https://products.aspose.org/media/cells/go/banner-readme.png"
+        }
+      ],
+      "id": "link_target:product.banner",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/media/cells/go/banner-readme.png"
+    },
+    {
+      "attributes": {
+        "level": "ambiguous",
+        "role": "enterprise"
+      },
+      "confidence": 0.5,
+      "evidence": [
+        {
+          "detail": "ambiguous platform targets: go, go-cpp; enterprise target",
+          "path": "https://products.aspose.com/cells/"
+        }
+      ],
+      "id": "link_target:product.enterprise",
+      "kind": "link_target",
+      "polarity": "UNRESOLVED",
+      "value": "https://products.aspose.com/cells/"
+    },
+    {
+      "attributes": {
+        "role": "product homepage"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; product homepage; resolved to https://products.aspose.org/cells/go/",
+          "path": "https://products.aspose.org/cells/go/"
+        }
+      ],
+      "id": "link_target:product.homepage",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/cells/go/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "Go language version the module file declares",
+          "path": "go.mod"
+        }
+      ],
+      "id": "package:go_version",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "1.24.5"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "module path declared by the module file",
+          "path": "go.mod"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26"
+    },
+    {
+      "attributes": {
+        "docstring": "Alignment controls how cell content is positioned within the cell bounds.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 61; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:alignment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Alignment"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 63; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:alignment.horizontal",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Alignment.Horizontal"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 66; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:alignment.vertical",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Alignment.Vertical"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 70; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:alignment.wraptext",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Alignment.WrapText"
+    },
+    {
+      "attributes": {
+        "docstring": "Border defines which sides of a cell have a visible rule and the colour of those rules.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 79; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 81; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border.bottom",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border.Bottom"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 84; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border.color",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border.Color"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 82; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border.left",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border.Left"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 83; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border.right",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border.Right"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 80; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:border.top",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Border.Top"
+    },
+    {
+      "attributes": {
+        "docstring": "CalculateFormula evaluates a formula expression against the data in ws and returns the computed result.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/formula_engine.go"
+        }
+      ],
+      "id": "public_symbol:calculateformula",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "CalculateFormula"
+    },
+    {
+      "attributes": {
+        "docstring": "Cell represents a single cell in a worksheet grid.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell"
+    },
+    {
+      "attributes": {
+        "signature": "`xml:\"f,omitempty\"`",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.formula",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.Formula"
+    },
+    {
+      "attributes": {
+        "docstring": "GetFormula returns the formula expression stored in this cell, or an empty string when the cell contains no formula.",
+        "signature": "string GetFormula()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 58; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.getformula",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.GetFormula"
+    },
+    {
+      "attributes": {
+        "docstring": "GetStyle returns the Style currently applied to this cell, or nil when the cell has no parent Workbook or the StyleID cannot be resolved.",
+        "signature": "*Style GetStyle()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 39; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.getstyle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.GetStyle"
+    },
+    {
+      "attributes": {
+        "signature": "`xml:\"r,attr\"`",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.ref",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.Ref"
+    },
+    {
+      "attributes": {
+        "docstring": "SetFormula stores a formula expression in this cell and marks the owning Workbook as modified.",
+        "signature": "SetFormula(string formula)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 49; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.setformula",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.SetFormula"
+    },
+    {
+      "attributes": {
+        "docstring": "SetStyle assigns the given Style to this cell.",
+        "signature": "error SetStyle(*Style style)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 29; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.setstyle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.SetStyle"
+    },
+    {
+      "attributes": {
+        "signature": "`xml:\"s,attr,omitempty\"`",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.styleid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.StyleID"
+    },
+    {
+      "attributes": {
+        "signature": "`xml:\"v,omitempty\"`",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.value",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.Value"
+    },
+    {
+      "attributes": {
+        "signature": "`xml:\"c\"`",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cell.go"
+        }
+      ],
+      "id": "public_symbol:cell.xmlname",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cell.XMLName"
+    },
+    {
+      "attributes": {
+        "docstring": "Cells is a collection of Cell values indexed by A1-style string references (e.g.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 8; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/cells.go"
+        }
+      ],
+      "id": "public_symbol:cells",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cells"
+    },
+    {
+      "attributes": {
+        "docstring": "All returns the underlying map of all cells keyed by A1 reference.",
+        "signature": "map[string]*Cell All()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 76; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cells.go"
+        }
+      ],
+      "id": "public_symbol:cells.all",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cells.All"
+    },
+    {
+      "attributes": {
+        "docstring": "Get returns the Cell at the given A1 reference.",
+        "signature": "(*Cell, error) Get(string ref)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cells.go"
+        }
+      ],
+      "id": "public_symbol:cells.get",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cells.Get"
+    },
+    {
+      "attributes": {
+        "docstring": "Remove deletes the cell at the given A1 reference.",
+        "signature": "error Remove(string ref)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 60; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cells.go"
+        }
+      ],
+      "id": "public_symbol:cells.remove",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cells.Remove"
+    },
+    {
+      "attributes": {
+        "docstring": "Set stores a value at the given A1 reference.",
+        "signature": "error Set(string ref, interface{} value)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/cells.go"
+        }
+      ],
+      "id": "public_symbol:cells.set",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Cells.Set"
+    },
+    {
+      "attributes": {
+        "docstring": "CellToString converts a cell value to its CSV string representation.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 180; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/csv_handler.go"
+        }
+      ],
+      "id": "public_symbol:celltostring",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "CellToString"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 174; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/xmlloader.go"
+        }
+      ],
+      "id": "public_symbol:close",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Close"
+    },
+    {
+      "attributes": {
+        "docstring": "DataValidation represents a single data-validation rule applied to a range of cells on a worksheet.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 44; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.allowblank",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.AllowBlank"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 53; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.errormessage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.ErrorMessage"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 57; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.errorstyle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.ErrorStyle"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 50; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.errortitle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.ErrorTitle"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 38; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.formula1",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.Formula1"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.formula2",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.Formula2"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 33; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.ref",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.Ref"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 47; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.showerrormessage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.ShowErrorMessage"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 29; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:datavalidation.type",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DataValidation.Type"
+    },
+    {
+      "attributes": {
+        "docstring": "DefaultStyle returns the implicit style applied to every cell that has not been assigned an explicit Style.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 122; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:defaultstyle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "DefaultStyle"
+    },
+    {
+      "attributes": {
+        "docstring": "Fill describes the background appearance of a cell.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 48; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:fill",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Fill"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 53; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:fill.color",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Fill.Color"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 50; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:fill.type",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Fill.Type"
+    },
+    {
+      "attributes": {
+        "docstring": "Font describes the typographic properties applied to cell text.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 33; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font.bold",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font.Bold"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 40; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font.color",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font.Color"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 36; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font.italic",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font.Italic"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font.Name"
+    },
+    {
+      "attributes": {
+        "signature": "float64",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 30; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:font.size",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Font.Size"
+    },
+    {
+      "attributes": {
+        "docstring": "Load opens the .xlsx file at path and returns the populated Workbook.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 147; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:load",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Load"
+    },
+    {
+      "attributes": {
+        "docstring": "LoadWithPassword opens an encrypted .xlsx file using the given password.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 124; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/xmlloader.go"
+        }
+      ],
+      "id": "public_symbol:loadwithpassword",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "LoadWithPassword"
+    },
+    {
+      "attributes": {
+        "docstring": "LoadWorkbook opens the .xlsx file at path, parses its XML parts, and returns a populated *Workbook.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 107; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/xmlloader.go"
+        }
+      ],
+      "id": "public_symbol:loadworkbook",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "LoadWorkbook"
+    },
+    {
+      "attributes": {
+        "docstring": "MinimalPNG returns a valid 1\u00d71 red PNG image as raw bytes.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 102; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/test_helpers.go"
+        }
+      ],
+      "id": "public_symbol:minimalpng",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "MinimalPNG"
+    },
+    {
+      "attributes": {
+        "docstring": "NewPicture creates a Picture value from raw image bytes.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 48; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:newpicture",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "NewPicture"
+    },
+    {
+      "attributes": {
+        "docstring": "NewStreamingReader creates a StreamingReader for the .xlsx file at path.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/streaming_reader.go"
+        }
+      ],
+      "id": "public_symbol:newstreamingreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "NewStreamingReader"
+    },
+    {
+      "attributes": {
+        "docstring": "NewStyle returns a Style initialised with sensible defaults:",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 107; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:newstyle",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "NewStyle"
+    },
+    {
+      "attributes": {
+        "docstring": "NewTable creates a Table value initialised with sensible defaults.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 29; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:newtable",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "NewTable"
+    },
+    {
+      "attributes": {
+        "docstring": "NewWorkbook creates an empty Workbook containing a single blank worksheet named \"Sheet1\".",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 154; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:newworkbook",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "NewWorkbook"
+    },
+    {
+      "attributes": {
+        "docstring": "Picture represents an image embedded in a worksheet.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.col",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Col"
+    },
+    {
+      "attributes": {
+        "signature": "int64",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 33; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.coloff",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.ColOff"
+    },
+    {
+      "attributes": {
+        "signature": "[]byte",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.data",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Data"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.format",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Format"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 39; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.height",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Height"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 42; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Name"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.row",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Row"
+    },
+    {
+      "attributes": {
+        "signature": "int64",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 30; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.rowoff",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.RowOff"
+    },
+    {
+      "attributes": {
+        "docstring": "SetAnchor positions the picture at the given 0-based row and column.",
+        "signature": "SetAnchor(int row, int col)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 63; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.setanchor",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.SetAnchor"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 36; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:picture.width",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Picture.Width"
+    },
+    {
+      "attributes": {
+        "docstring": "ReadTestZipEntry opens an .xlsx file and returns the raw bytes of the named ZIP entry (e.g.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 72; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/test_helpers.go"
+        }
+      ],
+      "id": "public_symbol:readtestzipentry",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "ReadTestZipEntry"
+    },
+    {
+      "attributes": {
+        "docstring": "RowCallback is invoked by StreamingReader.ProcessRows once for every row in the worksheet.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/streaming_reader.go"
+        }
+      ],
+      "id": "public_symbol:rowcallback",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "RowCallback"
+    },
+    {
+      "attributes": {
+        "docstring": "SaveWorkbook writes the workbook to an .xlsx file at path.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 88; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/xmlsaver.go"
+        }
+      ],
+      "id": "public_symbol:saveworkbook",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "SaveWorkbook"
+    },
+    {
+      "attributes": {
+        "docstring": "StreamingReader reads an .xlsx workbook row by row without loading the entire sheet XML into memory.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/streaming_reader.go"
+        }
+      ],
+      "id": "public_symbol:streamingreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "StreamingReader"
+    },
+    {
+      "attributes": {
+        "docstring": "ProcessRows opens the workbook, resolves the named sheet to its XML part, loads the shared-strings table (if present), and then streams through the sheet data one row at a time, calling callback for each row.",
+        "signature": "error ProcessRows(string sheetName, RowCallback callback)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 38; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/streaming_reader.go"
+        }
+      ],
+      "id": "public_symbol:streamingreader.processrows",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "StreamingReader.ProcessRows"
+    },
+    {
+      "attributes": {
+        "docstring": "Style groups font, fill, alignment, and border settings into a named formatting record.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 94; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:style",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Style"
+    },
+    {
+      "attributes": {
+        "signature": "*Alignment",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 97; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:style.alignment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Style.Alignment"
+    },
+    {
+      "attributes": {
+        "signature": "*Border",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 98; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:style.border",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Style.Border"
+    },
+    {
+      "attributes": {
+        "signature": "*Fill",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 96; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:style.fill",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Style.Fill"
+    },
+    {
+      "attributes": {
+        "signature": "*Font",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 95; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/style.go"
+        }
+      ],
+      "id": "public_symbol:style.font",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Style.Font"
+    },
+    {
+      "attributes": {
+        "docstring": "Table represents a structured range of data (a \"table\" in Excel terminology) with optional header row and built-in auto-filter.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:table",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Table"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:table.hasheaderrow",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Table.HasHeaderRow"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:table.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Table.Name"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:table.range",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Table.Range"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:table.stylename",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Table.StyleName"
+    },
+    {
+      "attributes": {
+        "docstring": "Workbook is the top-level object representing an Excel workbook.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 8; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook"
+    },
+    {
+      "attributes": {
+        "docstring": "ExportToCSV writes the worksheet at sheetIndex to a CSV file using the given delimiter (e.g.",
+        "signature": "error ExportToCSV(int sheetIndex, string path, rune delimiter)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/csv_handler.go"
+        }
+      ],
+      "id": "public_symbol:workbook.exporttocsv",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.ExportToCSV"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 35; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.filepath",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.FilePath"
+    },
+    {
+      "attributes": {
+        "docstring": "ImportFromCSV reads a CSV file and imports its contents into a new worksheet with the given name.",
+        "signature": "error ImportFromCSV(string path, string sheetName, rune delimiter)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 45; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/csv_handler.go"
+        }
+      ],
+      "id": "public_symbol:workbook.importfromcsv",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.ImportFromCSV"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 31; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.modified",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.Modified"
+    },
+    {
+      "attributes": {
+        "docstring": "Save writes the workbook to the given file path in .xlsx format.",
+        "signature": "error Save(string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 173; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.save",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.Save"
+    },
+    {
+      "attributes": {
+        "docstring": "SetPassword configures an open password for the workbook.",
+        "signature": "error SetPassword(string password)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.setpassword",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.SetPassword"
+    },
+    {
+      "attributes": {
+        "signature": "[]byte",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.sourcexml",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.SourceXML"
+    },
+    {
+      "attributes": {
+        "signature": "[]byte",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.stylesxml",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.StylesXML"
+    },
+    {
+      "attributes": {
+        "docstring": "VerifyPassword reports whether pw matches the password that was used to encrypt this workbook (as set by SetPassword, or read from an encrypted file).",
+        "signature": "bool VerifyPassword(string pw)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 54; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.verifypassword",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.VerifyPassword"
+    },
+    {
+      "attributes": {
+        "signature": "[]*Worksheet",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/workbook.go"
+        }
+      ],
+      "id": "public_symbol:workbook.worksheets",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Workbook.Worksheets"
+    },
+    {
+      "attributes": {
+        "docstring": "Worksheet represents a single sheet within a workbook.",
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 6; class; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet"
+    },
+    {
+      "attributes": {
+        "docstring": "AddDataValidation appends a data-validation rule to the worksheet.",
+        "signature": "error AddDataValidation(string ref, *DataValidation dv)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 69; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.adddatavalidation",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.AddDataValidation"
+    },
+    {
+      "attributes": {
+        "docstring": "AddPicture attaches pic to the worksheet, assigns it a unique name, and marks the workbook as modified.",
+        "signature": "error AddPicture(*Picture pic)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 70; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/picture.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.addpicture",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.AddPicture"
+    },
+    {
+      "attributes": {
+        "docstring": "AddTable creates a new Table covering the given range, assigns it a unique auto-generated name (\"Table1\", \"Table2\", \u2026), appends it to the worksheet, and returns it for further configuration.",
+        "signature": "*Table AddTable(string rangeRef)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.addtable",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.AddTable"
+    },
+    {
+      "attributes": {
+        "docstring": "Cells returns the Cells collection for this worksheet, enabling cell-level read and write operations via A1-style references.",
+        "signature": "*Cells Cells()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 26; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.cells",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.Cells"
+    },
+    {
+      "attributes": {
+        "signature": "[]*DataValidation",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.datavalidations",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.DataValidations"
+    },
+    {
+      "attributes": {
+        "docstring": "FromCSV populates the worksheet with data from a 2D string slice.",
+        "signature": "error FromCSV([][]string data, rune delimiter)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 166; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/csv_handler.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.fromcsv",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.FromCSV"
+    },
+    {
+      "attributes": {
+        "docstring": "GetTable returns the Table with the given name, or nil when no match is found.",
+        "signature": "*Table GetTable(string name)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 52; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/table.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.gettable",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.GetTable"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 8; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.index",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.Index"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.Name"
+    },
+    {
+      "attributes": {
+        "signature": "[]*Picture",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.pictures",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.Pictures"
+    },
+    {
+      "attributes": {
+        "docstring": "RemoveDataValidation removes the first data-validation rule whose Ref exactly matches the given ref string.",
+        "signature": "error RemoveDataValidation(string ref)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 87; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/datavalidation.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.removedatavalidation",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.RemoveDataValidation"
+    },
+    {
+      "attributes": {
+        "signature": "[]*Table",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/worksheet.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.tables",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.Tables"
+    },
+    {
+      "attributes": {
+        "docstring": "ToCSV converts the worksheet's cells into a 2D string slice suitable for writing with encoding/csv.",
+        "signature": "([][]string, error) ToCSV(rune delimiter)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 87; method; exported by an upper-case name",
+          "path": "aspose/cells_foss/csv_handler.go"
+        }
+      ],
+      "id": "public_symbol:worksheet.tocsv",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Worksheet.ToCSV"
+    },
+    {
+      "attributes": {
+        "docstring": "WriteTestXLSX creates a minimal valid .xlsx file at dst by writing the given sheet XML and optional shared-strings XML into the appropriate ZIP entries.",
+        "symbol_kind": "function"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; function; exported by an upper-case name",
+          "path": "aspose/cells_foss/test_helpers.go"
+        }
+      ],
+      "id": "public_symbol:writetestxlsx",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "WriteTestXLSX"
+    }
+  ],
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+  "schema_version": 1,
+  "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032"
+}
