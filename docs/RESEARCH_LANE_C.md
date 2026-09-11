@@ -723,3 +723,164 @@ Lane: `lane-c` (project/lanes/lane-c.yaml). Prompt: project/loop-prompt-lane.md.
   the first blocker this cohort has ever shared, and the reason it is recorded as a class rather than
   as one repository's accident. Slides Java's older blocker (item 33 / PROPOSAL L) was not reached
   and is neither confirmed nor refuted.
+
+## Seventh re-run, Cells Java then Slides Java (2026-09-11 15:01, after the S4 enum landed at `352fd35`)
+
+- **2026-09-11 15:01 (`date` checked) · G4-W12 seventh re-run · PROPOSAL S is CLOSED and Cells Java
+  sealed at `ACCEPTED` for the first time — and the same commit that closed it made every
+  repository's S4 unreproducible, so the seal cannot be no-op proven.** Measured on `origin/main` at
+  `08307b9`, worktree `C:\w\c127`, environment hash `f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411`
+  confirmed identical to the primary's before any candidate work. Evidence:
+  `evidence/build/lanes/lane-c/G4-W12-RERUN7.json`.
+- **PROPOSAL S is CLOSED, live, at the stage it blocked.** Cells Java's `source_reconciliation`
+  batch 1 — the identical 40-unit batch that returned `finish_reason: length` at 32,000 completion
+  tokens and 550,721 ms in the sixth re-run — now returns `http 200`, `success`, **3,325 completion
+  tokens in 64,411 ms**, and batch 2 completes in 942 tokens. The enum costs prompt tokens and buys
+  the ceiling back: prompt 25,166 → **29,265** (+4,099 for 281 enum values), completion 32,000 →
+  3,325. The repository ran to the end for the first time in its history: 50 dispositions
+  (`OMIT_UNSUPPORTED` 12, `SUPERSEDE_REDUNDANT` 26, `VERIFIED_MOVE` 1, `VERIFIED_PRESERVE` 11), 17 of
+  18 sections planned, 30 content units across 9 sections, README 241 visible lines of 452.
+- **Cells Java: BC-01 … BC-10 all PASS, review `ACCEPT` with 0 blocking findings and 11 presentation
+  advisories, bundle `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Java/779c9640ee38ed9e80c53e8db1e850f6be24372f`
+  state `ACCEPTED`, 14 files, 32 provider calls.** BC-10 is met on its v4 terms, not waived:
+  `review.json`'s `second_reader` records `read: 2` with five corroborated finding IDs (PHASE1/F6).
+  **BC-11 is `PENDING` and stays there** — *Fresh-process rerun is byte-identical with zero provider
+  calls* is the one check the candidate does not meet, so `no_op_proof` is `null` and
+  `repository-presenter status` counts it exactly as it should: *9 ever sealed, 9 integrity-valid,
+  6 current-code reproducible* with the headline unchanged at **8/34**. Nothing was forced.
+- **PROPOSAL 2026-09-11 V · `normalize()` writes a fact ID the S4 enum forbids, so every stored S4
+  output is rejected on reuse and no repository's reconciliation is reproducible.** Files:
+  `src/repository_presenter/components/readme/reconciliation/dispositions.py` —
+  `citable_fact_ids()` (the enum, added by `352fd35`) against `normalize()`'s
+  `entry["fact_ids"] = sorted(cited | set(rendering_fact_ids(destination, facts)))`. Defect:
+  `citable_fact_ids` builds the enum through `bounded_records()`, which honours
+  `core/facts.py::_EXCLUDED_FROM_PACKETS = {"identity:revision"}`; `rendering_fact_ids()` reads
+  `facts.facts` directly and so returns `identity:revision` for the two deterministic sections whose
+  `RENDERING_FACT_KINDS` include `identity` — `identity` (8 IDs) and `navigation` (5 IDs). `_parse`
+  validates the **raw** reply against the enum (jobs.py line 359) and only then runs `checks`, which
+  is `reconcile_checks` → `normalize`, mutating `output` in place (line 368); `run_job` stores the
+  **normalised** output. So the live path accepts and the reuse path — `_parse` again, on the stored
+  normalised output — rejects. Repositories and finding: Cells Java, `cache_stale OutputRejected` on
+  batch 1 of every rerun, three times in this run's own ledger; batch 2, which places nothing into
+  either section, reuses cleanly all three times.
+- **Measured, zero provider calls, nothing written into the transaction and no tracked file edited:**
+  the stored batch-1 output cites 49 distinct fact IDs, of which exactly one —
+  `identity:revision` — is outside the 280-value enum, in three entries
+  (`inherited_unit:001.heading` → `identity`; `inherited_unit:005.heading` and
+  `inherited_unit:006.list` → `navigation`). Re-parsing it against the three schemas, in memory only:
+  **(A)** the enum as shipped → rejected, 3 errors, all *`'identity:revision'` is not one of […]*;
+  **(B)** the pre-`352fd35` `pattern` `^(build_test_asset|…|third_party_notices):`, which
+  `identity:revision` matches → **accepted, 0 errors**, which is what makes this a regression of
+  `352fd35` and not a pre-existing defect; **(C)** the same enum with `identity:revision` added, 280
+  → 281 values → **accepted, 0 errors**.
+- **It is a portfolio-wide class, not this repository's accident.** Every sealed bundle on disk cites
+  `identity:revision` in its own `dispositions.json` — **10 of 10**, three entries each for nine of
+  them and one for Aspose.Slides for Python — so every one of them would take the same
+  `cache_stale` on its next re-seal, across four ecosystems and five families. Fix: `citable_fact_ids`
+  must admit every ID `normalize()` can itself write — union in `rendering_fact_ids()` over the
+  deterministic sections (equivalently today, the `_EXCLUDED_FROM_PACKETS` members the renderer
+  cites). This weakens nothing the enum was built for: the runaway `352fd35` cured was bare `<kind>:`
+  prefixes naming no fact, and `identity:revision` is a real, SUPPORTED fact the renderer reads
+  directly. Alternative rejected: reverting to the `pattern`, which re-opens the 32,000-token S4
+  truncation for the whole portfolio — the enum is right and is one value short. Second alternative
+  rejected: dropping `identity:revision` inside `normalize`, which would make a supersession cite
+  fewer facts than the section actually renders and weakens BC-05's own subject. Mutation test: a
+  stored S4 output citing `identity:revision` must re-parse clean, and a bare `<kind>:` prefix must
+  still be refused. Reversal: drop the union.
+- **PROPOSAL 2026-09-11 Y · a candidate renders from the facts in extraction order and seals them in
+  ID order, so a repository whose two orders differ can never re-render to its own sealed bytes.**
+  Files: `src/repository_presenter/core/facts.py::FactsDocument.to_json` (which writes
+  `sorted(self.facts, key=lambda f: f.id)`) against the rendering path, which takes the in-memory
+  `FactsDocument` in the order extraction built it. Defect: the two orders are independent, and a
+  rendered list follows whichever one it is handed. Repository and finding: Cells Java — the sealed
+  `README.md` lists *Development Dependencies* as `` `org.junit.jupiter:junit-jupiter 5.10.2` ``
+  then `` `org.apache.poi:poi-ooxml 5.3.0` ``, which is `pom.xml`'s own declaration order (lines 57
+  and 65); `facts.json`, in the bundle and in the transaction alike, holds
+  `dependency:development.org.apache.poi-poi-ooxml` before
+  `dependency:development.org.junit.jupiter-junit-jupiter`, which is ID order. **Measured, zero
+  provider calls:** re-rendering the sealed bundle through `tests/test_sealed_bytes.py`'s own
+  `render_readme(entry, facts, plan, units, dispositions)` from the bundle's own artifacts produces a
+  12-line unified diff that is exactly those two lines transposed, and nothing else in 27,000
+  characters; the re-render is stable at ID order under `PYTHONHASHSEED` 0–4, so this is an ordering
+  mismatch between two deterministic paths, not hash randomisation. This is why
+  `tests/test_sealed_bytes.py::test_a_sealed_candidate_renders_to_its_own_bytes[aspose-cells-foss__Aspose.Cells-FOSS-for-Java]`
+  fails, and it is independent of PROPOSAL V: V re-calls S4, Y transposes two lines with no call at
+  all. Every other sealed bundle passes the same test because its extraction order and ID order
+  happen to coincide; Cells Java is the portfolio's first repository where they do not. Fix: render
+  from the facts in the order the seal writes them — sort once, at the boundary, so the bytes a
+  candidate seals are the bytes its own artifacts render. Alternative rejected: writing `facts.json`
+  in extraction order, which would make the sealed file's ordering an accident of the extractor and
+  break every existing bundle's digest. Mutation test: a repository whose extraction order differs
+  from its ID order must re-render to its own sealed bytes. Reversal: drop the sort at the render
+  boundary.
+- **Decision: the Cells Java bundle was NOT committed.** It is real, it sealed at `ACCEPTED`, and
+  every measurement above is taken from it — but committing it would land a PR whose own suite is red
+  on PROPOSAL Y, and both the renderer and `tests/test_sealed_bytes.py`'s `KNOWN_BLOCKED_STALE`
+  registry are shared paths this lane does not own (§3). Loop-prompt-lane §2 is explicit for exactly
+  this case: a failure class whose cause is in shared code is a `PROPOSAL` plus a disposition naming
+  it as the repository's resume predicate — never a patch around it and never a widened path. So the
+  bundle stays out of the commit and dies with the worktree; the transaction's own call store makes
+  the re-seal cheap once V and Y land, and nothing about the seal was forced or faked to keep it.
+  Alternative rejected: committing it and adding a `KNOWN_BLOCKED_STALE` xfail entry — that is an
+  edit to `tests/` outside this lane's owned paths, and it would record a shared-code defect as this
+  repository's known-stale accident.
+- **PROPOSAL 2026-09-11 W · a `cache_stale` ledger row records `rejection: []`, so the one event that
+  silently re-calls the provider says nothing about why.** File:
+  `src/repository_presenter/core/llm/jobs.py` (lines 441–450). Defect: `_parse` returns
+  `(None, rejection)` and the `cache_stale` row is written from `replace(reuse, …)` without the
+  rejection list the `response_invalid` rows carry. PROPOSAL V above cost a by-hand replay to name a
+  one-line cause the runner already held in a local variable. Evidence: this run's `calls.jsonl`, all
+  three `cache_stale` rows, `"rejection": []`. Fix: carry `rejection` onto the row. Blocks nothing by
+  itself; it is what makes the next reproducibility loss readable instead of replayable-only. Sibling
+  of PROPOSAL T, and the same shape.
+- **Lane E's PROPOSAL E3 did not materialise here, and this run adds two points to its table.** The
+  S4 enum measured on these repositories' own `facts.json` through the same functions `run_round`
+  calls: **Cells Java 281 values / 13,382 characters / a 15,398-character schema**, **Slides Java 337
+  values / 15,970 characters / 18,009 characters**. Both are above lane D's validated 123 and below
+  PDF for Python's 689, and both S4 calls returned `http 200` — no HTTP 400 naming the schema or the
+  request size, at any batch. E3's open question is narrowed, not closed: the largest surfaces
+  (PDF Java) remain unmeasured live.
+- **Slides Java also clears PROPOSAL S and stops five stages later, on a new deterministic blocker.**
+  `DISPOSITION BLOCKED_COMPOSING`. All three S4 batches return `http 200` — batch 1 prompt 29,717 /
+  completion 3,208 / 63,848 ms, batch 2 29,861 / 3,546, batch 3 25,072 / 401 — against the sixth
+  re-run's `finish_reason: length` at 32,000 and 567,467 ms on batch 1 alone. 85 dispositions
+  (`VERIFIED_PRESERVE` 30, `SUPERSEDE_REDUNDANT` 22, `OMIT_UNSUPPORTED` 21, `VERIFIED_MOVE` 10,
+  `VERIFIED_REWRITE` 1, `DEFER_UNRESOLVED` 1), 17 of 18 sections planned, 34 content units, README
+  230 visible lines of 553, three repair rounds. Validation: **pass 8, fail 1, pending 2** — BC-01…05
+  and BC-07…09 PASS, **BC-06 FAIL** at `COMPOSING`, and BC-10/BC-11 never judged. So **items 33, 37
+  and 45 are again not reached**: BC-10 is `PENDING`, and this run neither confirms nor refutes
+  PROPOSAL L for the third re-run running.
+- **PROPOSAL 2026-09-11 X · a `VERIFIED_PRESERVE`d unit carries an intra-document anchor into a
+  document that does not have the heading, and nothing before BC-06 can see it.** Defect: the
+  candidate's section set is not the upstream README's, so an inherited unit preserved verbatim can
+  name an anchor no candidate heading mints. Nothing at S4 or at rendering compares a preserved
+  unit's own `#…` anchors against the headings the candidate will actually render, so the first stage
+  that notices is BC-06 at S9, where it is a blocking failure with no repair path rather than a
+  disposition the reconciler could have chosen. Repository and finding: Slides Java, BC-06
+  `#building-from-source: no heading #building-from-source`. **Measured on this run's own artifacts,
+  zero provider calls:** `inherited_unit:014.paragraph` is SUPPORTED, dispositioned
+  `VERIFIED_PRESERVE` into `scope_limitations`, and its value ends *…control, [build from
+  source](#building-from-source) rather than depending on `26.7.0`* — the anchor resolves in the
+  upstream README, whose line 424 is `## Building from source`, and the candidate's own headings
+  (rendered README lines 1–551) contain no such heading; its build-and-test section is `## Development
+  and Testing`. `inherited_unit:015.paragraph` is preserved into the same section from the same
+  passage and is clean. Fix: at S4, a unit whose text carries an intra-document anchor to a heading
+  the plan will not render cannot be `VERIFIED_PRESERVE` — the disposition class that fits already
+  exists and this repository already uses it once (`VERIFIED_REWRITE`); the anchor set is knowable
+  deterministically from `section_ids()` plus the plan. Alternative rejected: rewriting the anchor at
+  render time to the nearest candidate heading — it would silently re-point the maintainers' own
+  sentence at a section they did not mean, which is a factuality risk BC-06 exists to stop, and it
+  cannot be true in general (a candidate may render no equivalent section at all). Second alternative
+  rejected: dropping the link and keeping the text, which changes a preserved unit's bytes without
+  routing it through the rewrite path that exists precisely to record that. Mutation test: a
+  preserved unit citing an anchor absent from the plan's heading set must not survive S4 as
+  `VERIFIED_PRESERVE`. Reversal: drop the S4 guard. Not this lane's to write —
+  `reconciliation/`/`composition/` are shared.
+- **The lane prompt's own venv recipe does not reproduce the environment hash it requires.**
+  §1.3 says install `requirements-lock.txt` plus `uv==0.12.9`, then `pip install --no-deps -e .`, and
+  then confirm `f4406f1b…`. Done exactly, that yields a different hash: `requirements-lock.txt` —
+  generated by `uv pip compile pyproject.toml --extra dev` — contains **no `pytest-xdist` and no
+  `execnet`**, though `pyproject.toml`'s `dev` extra requires `pytest-xdist>=3.6` and §4 requires
+  `pytest -n auto`. Installing `pytest-xdist==3.8.0` and `execnet==2.1.2` (and leaving the venv's own
+  `pip==24.3.1` alone) reproduces `f4406f1b…` exactly. Recorded as a measurement for the owner, not a
+  lane edit: `requirements-lock.txt` and the loop prompts are not this lane's to change.

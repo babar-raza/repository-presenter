@@ -4,15 +4,19 @@
   "gate": "G4_MULTI_LANGUAGE_COHORTS",
   "work_item": "LANE-F-01",
   "work_item_status": "IN_PROGRESS",
-  "recorded_at": "2026-09-11T13:26:00+05:00",
-  "control_revision": "18e26e5",
-  "control_revision_note": "The single-use branch lane-f/LANE-F-01 was cut from origin/main at 692f57c8162cded00380761c33b74b1024cbcaae (PHASE1/F7) and every measurement below was taken against that tree; it was then rebased onto 18e26e5, which adds only project/lanes/lane-e.yaml, project/lanes/lane-f.yaml and two plans/sprint/*.jsonl lines (git diff --stat 692f57c 18e26e5 - no src/ or prompts/ change), so the measurements hold unchanged at the recorded revision. b712790 is what created this lane's own cursor, which is why the cut point did not have it. Run 1 of the item; halted at S4 (RECONCILING) by a binding reviewer instruction (loop-prompt.md section 5) before any seal, because arrival item 40's fact_ids pattern in reconciliation/dispositions.py blocks that stage for every repository. No candidate sealed, no disposition written, no G4 manifest row amended. The lane worked from C:\\w\\f01 per loop-prompt-lane.md section 1.1.",
+  "recorded_at": "2026-09-11T15:55:00+05:00",
+  "control_revision": "2b9d191",
+  "control_revision_note": "Run 2 of the item, from the single-use branch lane-f/LANE-F-01-R2 cut from origin/main at 2b9d191 (which already carries 352fd35, the S4 fact_ids enum fix run 1 was halted for). Worktree C:\\w\\f02 per loop-prompt-lane.md section 1.1. Run 1's record is superseded only where this file says so - its F1 baseline for 3D-.NET still stands and was reproduced here byte-for-byte.",
+  "runs": {
+    "run_1": "Halted at S4 by a binding reviewer instruction; nothing sealed, nothing dispositioned. Baseline kept in docs/RESEARCH_LANE_F.md F1-F5.",
+    "run_2": "This record. Two repositories run to a verdict and dispositioned, two measured facts-only. Nothing sealed."
+  },
   "environment": {
     "os": "Windows 11 10.0.26200",
     "python": "3.13.2 (.venv from C:\\Python313)",
-    "worktree": "C:\\w\\f01",
+    "worktree": "C:\\w\\f02",
     "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
-    "presenter_site_manifest_note": "Built from requirements-lock.txt plus uv==0.12.9 and verified byte-equal to the primary venv's and to all 8 sealed bundles' value before any candidate work. A literal `pip install -e .[dev]` per loop-prompt-lane.md section 1.3 produced 613b742b997a5a87... instead (five distributions resolved past their lock pins) - see RESEARCH_LANE_F.md F3."
+    "presenter_site_manifest_note": "Verified equal to the primary's and to all 8 sealed bundles BEFORE any candidate work, per the reviewer's instruction this run. Run 1's recipe (RESEARCH_LANE_F.md F3) was found incomplete and is corrected in F6: requirements-lock.txt does not contain pytest-xdist or execnet (it predates pytest-xdist entering pyproject's dev extra) and `pip install --upgrade pip` moves pip, which is itself in the manifest. Building exactly as F3 prescribed yielded 688c606066a7dd626d80f4502d825d4928a14d72ca19f6297c55410c91f7413c; pinning pytest-xdist==3.8.0, execnet==2.1.2 and pip==24.3.1 produced the correct value."
   },
   "toolchains": [
     {
@@ -28,131 +32,224 @@
     "models": 7,
     "prompts": "6 manifests routed to qwen3-next",
     "catalog_digest": "663fa5a022ef245438ac8c95690252e4725012a1afaaa55e2997b5b46dea7c6b",
-    "note": "The lane worktree has no runs/ directory of its own, so the first facts-only attempt exited with 'no recorded model catalog'. Recording the catalog is a per-worktree prerequisite, not a failure."
+    "note": "Identical to run 1's digest. Recording the catalog is a per-worktree prerequisite."
   },
-  "preflight": {
-    "command": "repository-presenter present --repo aspose-3d-foss/Aspose.3D-FOSS-for-.NET --facts-only",
-    "provider_calls": 0,
-    "repositories": 1,
-    "processable": 1,
-    "report": [
+  "s4_fix_verification": {
+    "subject": "352fd35 - fact_ids decode from an enum of the packet's own IDs (the shape run 1 proposed as F2)",
+    "verdict": "CONFIRMED WORKING on two repositories",
+    "aspose-3d-foss/Aspose.3D-FOSS-for-.NET": {
+      "source_reconciliation_calls": 2,
+      "outcome": "success",
+      "dispositions": 70,
+      "inherited_units": 70,
+      "fact_ids_cited": 128,
+      "fact_ids_distinct": 57,
+      "fact_ids_unknown": 0,
+      "bare_kind_prefix_ids": 0
+    },
+    "aspose-email-foss/Aspose.Email-FOSS-for-.Net": {
+      "source_reconciliation_calls": 2,
+      "outcome": "success",
+      "fact_ids_unknown": 0
+    },
+    "note": "Run 1's only blocker is gone. S4 is no longer the cohort's limiting stage."
+  },
+  "lane_e_proposal_e3": {
+    "question": "Does the landed unbounded enum produce an HTTP 400 on a large surface, as taskcard H confirmed at the sibling planning_schema site?",
+    "answer": "NOT REPRODUCED. Every one of the 24 provider-call records across both runs carries http_status 200. No HTTP 400 naming the schema or the request size occurred.",
+    "why_the_surface_size_did_not_drive_the_enum_size": "Neither enum is built from the raw public_symbol count. bounded_records() applies symbol_kinds=DECLARED_SYMBOL_KINDS at the reconciliation site and symbol_max_depth=3 at the planning site; SYMBOL_CAP (6000) never binds for any repository measured here.",
+    "measured_enum_sizes": [
       {
         "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
-        "source_revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
-        "source_revision_note": "The same revision the 2026-09-06 seal used and f8e3bf0 un-sealed; the G4 manifest row reads SEALED_THEN_UNSEALED.",
-        "processable": true,
-        "facts": 3931,
-        "supported": 3930,
-        "unresolved": 0,
-        "contradicted": 1,
-        "required_rows_without_evidence": [],
-        "facts_digest": "bdb5ae9087bcabe7d083fdcff99eba805f303d31962c88cfbcac6e5833cbc37a",
-        "source_digest": "917c306831a06b53b148a6134798b5e4f9c0dd3cfdfe6001e8b8754afb450424",
-        "source_shape": "3 files, 314 tree entries, readme README.md",
-        "fact_kinds": {
-          "build_test_asset": 1,
-          "dependency": 1,
-          "example": 7,
-          "identity": 5,
-          "inherited_unit": 70,
-          "install_command": 1,
-          "license": 2,
-          "link_target": 29,
-          "package": 3,
-          "public_symbol": 3812
-        },
-        "package": "Aspose.3D.FOSS 26.1.0, target framework netcoreapp3.1",
-        "install_command": "install_command:dotnet = 'dotnet add package Aspose.3D.FOSS', SUPPORTED",
-        "registry": "nuget:Aspose.3D.FOSS SUPPORTED via nuget-flatcontainer-api - the package IS published, so this repository needs no EcosystemSpec.source_install path; RESEARCH_AND_GUIDELINES.md section 28.11's census row 'NuGet not found' (2026-09-05) is stale for it",
-        "links": "12 link probes, all RESOLVED",
-        "examples": "7 candidates; 6 EXECUTED, 1 FAILED",
-        "examples_note": "The 2026-09-06 row recorded 'executed 5, failed 2'; one formerly-failing example now executes. The remaining CONTRADICTED fact is example:003 - Program.cs(3,41): error CS1503: Argument 2: cannot convert from 'Aspose.ThreeD.FileFormat' to 'System.Threading.CancellationToken' - a genuine upstream compile error in one README fence, isolated to that example per loop-prompt.md rule 16."
+        "public_symbols": 3812,
+        "symbol_kind_mix": "method 3508, class 239, enum 54, module 11",
+        "reconciliation_fact_ids_enum_entries": 352,
+        "reconciliation_fact_ids_enum_bytes": 16713,
+        "planning_symbol_fact_id_enum_entries": 39,
+        "planning_symbol_fact_id_enum_bytes": 1603
+      },
+      {
+        "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
+        "public_symbols": 12270,
+        "symbol_kind_mix": "method 11342, class 709, enum 190, module 29",
+        "reconciliation_fact_ids_enum_entries": 999,
+        "reconciliation_fact_ids_enum_bytes": 48162,
+        "planning_symbol_fact_id_enum_entries": 300,
+        "planning_symbol_fact_id_enum_bytes": 13126,
+        "note": "Measured from facts only; this repository was not run to composition, so its enums were never actually sent. It is the cohort's real test of the bound and is 3.2x the surface of 3D-.NET."
       }
-    ]
+    ],
+    "contrast": "Taskcard H's confirmed 400 was aspose-pdf-foss/Aspose.PDF-FOSS-for-Java at 24,830 symbols and ~460,256 estimated enum tokens, and composition/planning.py:189-194 already carries that fix.",
+    "caveat": "This does not clear E3 for the portfolio. 3D-.NET was the first repository attempted, not the largest surface in flight: within lane F alone PDF-.NET is 12,270 symbols and Words-.NET 6,638."
   },
-  "investigation": {
-    "job": "repository_investigation",
-    "stage": "INVESTIGATING (S3)",
-    "outcome": "success",
-    "logical_call_id": "25dcd982b086a274",
-    "provider_calls": 1,
-    "receipt": {
-      "capabilities": 8,
-      "workflows": 6,
-      "limitations": 6,
-      "problems_solved": 3,
-      "uncertainties": 3
-    },
-    "fact_citations": {
-      "cited": 26,
-      "unknown": 0
-    },
-    "fabrication_check": {
-      "subject": "the PlyReader/PlyWriter paragraph that caused the 2026-09-06 un-seal",
-      "public_symbol:aspose.threed.formats.plyreader": "ABSENT from all 3931 facts",
-      "public_symbol:aspose.threed.formats.plywriter": "ABSENT from all 3931 facts",
-      "any_fact_id_containing_plyreader_or_plywriter": [],
-      "nearest_real_symbol": "public_symbol:aspose.threed.formats.plyformat",
-      "this_run_s3_receipt": "names PlyFormat only; Ply(Reader|Writer) appears nowhere in it",
-      "conclusion": "The 2026-09-06 review paragraph was a fabrication against the fact set, confirmed by absence rather than by the reviewer's wording. This run's S3 output did not reproduce it."
-    }
-  },
-  "halt": {
-    "reason": "Binding reviewer instruction (loop-prompt.md section 5, 'Reviewer messages'), 2026-09-11: stop before spending another provider call - S4 (RECONCILING) is blocked for every repository, so a .NET run cannot reach a seal.",
-    "stage_reached": "INVESTIGATING (S3) complete; halted before the S4 source_reconciliation call",
-    "provider_calls_this_run": 1,
-    "candidates_sealed": 0,
-    "dispositions_written": 0,
-    "dispositions_note": "Deliberately none. A failure class recorded against a repository while the stage in front of it is known broken would name S4's defect as that repository's own history - see RESEARCH_LANE_F.md F4."
-  },
-  "proposals": [
+  "repositories": [
     {
-      "id": "F2",
-      "file": "src/repository_presenter/components/readme/reconciliation/dispositions.py",
-      "lines": "195-198 (reconciliation_schema)",
-      "defect": "The fact_ids item pattern '^(<kind>|...):' is prefix-only, so the bare string 'public_symbol:' (kind prefix, empty slug) satisfies it and names no fact; and fact_ids carries no maxItems while its items carry no maxLength, so constrained decoding over the unbounded array has no terminator - the runaway to the 32000-token cap. Separately, `pattern` is the one keyword RESEARCH_AND_GUIDELINES.md section 27.0 D1 rules out by name for strict json_schema.",
-      "proposed_shape": "Give fact_ids the treatment unit_id already gets four lines below in the same function: an enum of the packet's own fact IDs, plus a maxItems. Refuses 'public_symbol:' at decode time, bounds the array, drops the prohibited keyword.",
-      "owner": "the primary (shared code; reconciliation/ is not a lane-F path)",
-      "corroborates": "lanes C and D measured the same class independently this hour (852047a, 3bc7999; landed as PRs #32 and #33); the primary is landing a fix",
-      "status": "SUPERSEDED IN PRACTICE - observed 2026-09-11 08:53 UTC: the primary checkout's local HEAD reads 352fd35 'fix(reconciliation): fact_ids decode from an enum of the packet's own IDs, never a bare kind prefix (PHASE1/S4-REGRESSION)', the enum shape this proposal names; not yet on origin/main (1a8fbae). This record stands as the third independent measurement, not as work the primary still owes.",
-      "repositories_blocked": [
-        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
-        "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
-        "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
-        "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET"
-      ]
-    }
-  ],
-  "not_run_this_iteration": [
+      "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+      "order": 1,
+      "source_revision": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+      "outcome": "DISPOSITION - BLOCKED_VALIDATION (BC-07)",
+      "stage_reached": "S9 (VALIDATING); five stages further than run 1",
+      "sealed": false,
+      "provider_call_records": 17,
+      "provider_call_outcomes": "16 success, 1 response_invalid; all http_status 200",
+      "provider_call_span_utc": "09:28:27 to 09:36:08",
+      "facts": 3931,
+      "facts_digest": "bdb5ae9087bcabe7d083fdcff99eba805f303d31962c88cfbcac6e5833cbc37a",
+      "facts_digest_note": "Byte-identical to run 1's baseline on the second facts-only attempt. The first attempt and the composition run both produced 32f5d3192216e429a4a3be574acca30b1a12eb9966b650b9be725170e30ae707 instead, differing only in install_command:dotnet's polarity - see registry_probe_defect.",
+      "public_symbols": 3812,
+      "examples": "7 candidates; executed 6, failed 1 (example:003, upstream CS1503) - matches run 1",
+      "composition": "83 content units across 9 sections; plan 17/18 sections, 8 capabilities, 12 hubs, 1+4 examples, 8 links; README 184 visible lines of 762",
+      "validation": {
+        "pass": 7,
+        "fail": 2,
+        "pending": 2,
+        "BC-02": "FAIL at EXTRACTING - install_command:dotnet is UNRESOLVED: package registry: nuget could not be read. NOT a fact about this repository; see registry_probe_defect. repairs.json: unrepairable, 'EXTRACTING is not repairable by revision'.",
+        "BC-07": "FAIL at COMPOSING - heading '### ThreeD.Property' is not a shell heading in title case. Shared-code defect; see bc07_defect. repairs.json: unrepairable, 'no failing check names an LLM-owned section'.",
+        "BC-10": "PENDING, judged at S10 - never ran",
+        "BC-11": "PENDING, judged at S12 - never ran"
+      },
+      "review_verdict_observed": false,
+      "review_note": "The run stopped at S9, so no independent review verdict was produced. The 2026-09-06 PlyReader/PlyWriter un-seal question that made this repository the item's first target REMAINS OPEN: it cannot be answered until a run reaches S10. Run 1's F1 finding still stands - neither name exists in any of the 3931 facts.",
+      "resume_predicate": "F8 (BC-07's heading model) primarily; F9 (registry probe retry) independently for BC-02."
+    },
     {
       "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
-      "reason": "Not reached; its unlock (arrival item 28 fold-not-reject plus PA-02 section-scoped quote_located) is a review-stage predicate that cannot be observed through a broken S4. Its existing G4 manifest disposition (BLOCKED_REVIEW) stands unamended."
+      "order": 2,
+      "source_revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+      "outcome": "DISPOSITION - BLOCKED_PLANNING",
+      "outcome_change_note": "Its recorded blocker was BLOCKED_REVIEW (a reviewer-hallucinated Development Dependencies heading). It now stops two stages earlier, so the review-stage unlocks named for it - arrival item 28's fold-not-reject and PA-02's section-scoped quote_located - remain untested.",
+      "stage_reached": "S5 (PLANNING); aborted with 'presentation_planning: output rejected twice'",
+      "sealed": false,
+      "provider_call_records": 7,
+      "provider_call_outcomes": "5 success, 2 response_invalid; all http_status 200",
+      "provider_call_span_utc": "10:03:08 to 10:06:42",
+      "facts": 341,
+      "facts_digest_preflight": "33ed76bedc1ee18060f7fa89d52f7cc4f626f7fbf8f7912358b828b182a7a6c6",
+      "facts_digest_run": "e4d8144e09acd96469153beaeae19f96384aba5e87b673108fd20b972f516bd0",
+      "facts_polarity_preflight": "341 SUPPORTED, 0 UNRESOLVED, 0 CONTRADICTED (09:41:31Z)",
+      "facts_polarity_run": "340 SUPPORTED, 1 UNRESOLVED - install_command:dotnet",
+      "public_symbols": 220,
+      "examples": "4 candidates; 4 EXECUTED",
+      "planning_rejections": [
+        "attempt 1: unknown fact ID format:msg, format:eml, format:cfb - the planning fact_ids enum gap (F10), second repository",
+        "attempt 2: at_a_glance is included, so its formats and capabilities are given - the plan kept at_a_glance among its included sections while setting the object to null (composition/planning.py:431-433). Satisfiable in principle with empty format lists, so model variance, not a deadlock; recorded, not proposed."
+      ],
+      "would_also_have_failed_bc02": true,
+      "resume_predicate": "F10 (planning fact_ids enum) primarily; F9 independently for BC-02."
     },
     {
       "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
-      "reason": "Not reached; its unlock (SYMBOL_CAP 150 -> 6000, item 27, plus presentation_planning v10's verbatim-copy instruction) is a planning-stage predicate downstream of S4. Existing disposition (BLOCKED_PLANNING) stands unamended."
+      "order": 3,
+      "source_revision": "b7172877651413cff57a8bfe41fb8a8befb2406b",
+      "outcome": "NOT RUN TO COMPOSITION - facts-only measurement; existing G4 manifest disposition (BLOCKED_PLANNING) stands unamended",
+      "facts": 12580,
+      "facts_polarity": "12578 SUPPORTED, 1 UNRESOLVED (install_command:dotnet - F9 again), 1 CONTRADICTED (example:005, upstream CS1061 'Option' does not contain a definition for 'ExportValue')",
+      "public_symbols": 12270,
+      "examples": "12 candidates; executed 11, failed 1",
+      "verified_types": 899,
+      "bc07_collisions": 34,
+      "bc07_collision_examples": "Aspose.Pdf.Color vs Aspose.Pdf.Drawing.Color; Aspose.Pdf.Facades.Form; Aspose.Pdf.Drawing.Rectangle; Aspose.Pdf.Devices.PageSize; Aspose.Pdf.Facades.Scope",
+      "why_not_run": "17x the F8 exposure of 3D-.NET and the cohort's most expensive extraction, so it is the repository most certain to fail BC-07 and the worst use of the remaining box. Its SYMBOL_CAP unlock (arrival item 27, 150 -> 6000) is confirmed not to be its limit: at 12,270 symbols the cap never binds, because symbol_max_depth and DECLARED_SYMBOL_KINDS bound the packets first."
     },
     {
       "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
-      "reason": "Not reached; its unlock is EcosystemSpec.source_install (core/ecosystems.py, arrival item 10) on a CONCLUSIVE CONTRADICTED BC-02, evaluated at EXTRACTING but only provable by a run that reaches a seal. Existing disposition (BLOCKED_VALIDATION BC-02) stands unamended."
+      "order": 4,
+      "source_revision": "9f2d871026829b5bc2ce80e571b1813f5b762ce5",
+      "source_revision_note": "UPSTREAM HAS MOVED. The G4 manifest row records 622cd5ede213ff1af1c8ff282fdcb300729c6d85.",
+      "outcome": "NOT RUN TO COMPOSITION - facts-only measurement; existing G4 manifest disposition (BLOCKED_VALIDATION BC-02) stands unamended but is STALE",
+      "stale_disposition": "Its recorded blocker no longer exists. install_command:dotnet now reads SUPPORTED, evidence 'package registry: found on nuget', for 'dotnet add package Aspose.Slides.FOSS'. The CONCLUSIVE CONTRADICTED that justified routing it through EcosystemSpec.source_install (arrival item 10) is gone, and it needs no source_install path at all.",
+      "facts": 2734,
+      "facts_polarity": "2733 SUPPORTED, 0 UNRESOLVED, 1 CONTRADICTED",
+      "public_symbols": 2589,
+      "examples": "9 candidates; executed 8, failed 1 (example:002, upstream CSC error CS5001, no static Main)",
+      "examples_note": "The G4 manifest row records 'executed 1, failed 8'. That is now inverted.",
+      "verified_types": 264,
+      "bc07_collisions": 0,
+      "assessment": "The cohort's best remaining prospect: no F8 exposure, one CONTRADICTED fact, and its recorded blocker resolved upstream. It needs a run that survives S5 and BC-02, which is what F10 and F9 are for."
     },
     {
       "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
-      "reason": "Explicitly out of this item's scope - LANE-F-02, gated on arrival item 54 (quick_start conditional on bool(verified_examples))."
+      "order": null,
+      "outcome": "OUT OF SCOPE - LANE-F-02, gated on arrival item 54 (quick_start conditional on bool(verified_examples))"
     }
   ],
-  "recovery": {
-    "what": "The lane's first `git push` ran .githooks/pre-push -> scripts/ci_check.sh, and the suite's throwaway-repository fixtures committed onto this lane's own branch instead of their tmp_path: git exports GIT_DIR into every hook environment, GIT_DIR outranks cwd and -C, and core/git_safety/git.py::run_git forwards os.environ wholesale. Six fixture commits (seed/initial/placeholder, author `Test <test@example.com>`, 08:35:31-08:37:32 UTC) walked refs/heads/lane-f/LANE-F-01 off 1f74766 down to a two-file tree; `git ls-files` reported 2 tracked files where there are 465.",
-    "symptom": "8 failures in tests/test_version_bump_discipline.py, all '<path> is not tracked at HEAD' - the corruption's symptom, not a real red. They pass on the restored tree.",
-    "known_defect": "Not new: .githooks/pre-push already carries lane D's 2026-09-11 diagnosis and scrubs GIT_DIR and friends, naming the durable fix as run_git refusing to forward them. Lane F branched at 692f57c, where that hook was still at b9ba2be (2026-09-09), and core.hooksPath is an absolute path into the primary checkout - so the hook text that runs is the primary's working copy at push time, not the branch's. Second measured occurrence, third lane.",
-    "recovered_by": "git reset --hard 1f747663048ebfad5d652ed4c681a43b22d92b68 - 465 tracked files restored, clean status, commit tree byte-identical, nothing re-created by hand.",
-    "consequence_kept": "The same mechanism had set user.name Test / user.email test@example.com on this checkout before the lane's own commit (the worktree's first reflog entry, 08:10:48, is already `Test <test@example.com>`), so that commit was mis-authored and was re-authored to the repository's identity. Content unchanged."
+  "proposals": [
+    {
+      "id": "F8",
+      "file": "src/repository_presenter/components/readme/validation/registry.py",
+      "lines": "856-869",
+      "defect": "BC-07 exempts a level-three API-reference heading only when its text is in `topics`, a set of bare final dotted segments rebuilt inside the check. The renderer names hubs with composition/renderer.py::_table_names (lines 430-447, called at 462, emitted at 481), which returns the shortest dotted suffix that distinguishes a type whenever two verified types share a final segment - required by README_CONTRACT.md row 14 so the name is one a visitor can import. The two are independent models of one thing and drift on exactly the disambiguated names, so BC-07 rejects a heading the contract requires.",
+      "measured": "3D-.NET: of 293 verified types, Aspose.ThreeD.Property and Aspose.ThreeD.Formats.GLTF.Property share the segment 'Property', so _table_names correctly yields 'ThreeD.Property' and 'GLTF.Property'. The plan made Aspose.ThreeD.Property a hub; the renderer emitted '### ThreeD.Property'; BC-07 failed it. Reproducing the check's own expression: line in api_lines = True, 'ThreeD.Property' in topics = False, bare 'Property' in topics = True - the disambiguation is the sole cause.",
+      "blast_radius": "Any surface with two same-named types in different namespaces. Within lane F: PDF-.NET 34 collisions, 3D-.NET 2, Email-.NET 0, Slides-.NET 0. Ordinary in large .NET and Java surfaces.",
+      "proposed_shape": "BC-07 computes its allowed hub headings with the renderer's own _table_names() over the same (classes, enums) list renderer.py:462 uses, instead of re-deriving a bare-suffix set - the principle already stated at renderer.py:470-471 and reconciliation/dispositions.py:164-166.",
+      "mutation_test": "A facts fixture with two verified classes sharing a final segment, one of them a hub: BC-07 passes on the rendered heading, and still fails on a genuinely non-shell heading.",
+      "owner": "the primary (shared code; validation/ is not a lane-F path)",
+      "repositories_blocked": [
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET"
+      ]
+    },
+    {
+      "id": "F9",
+      "file": "src/repository_presenter/components/readme/extractors/surface/registry.py",
+      "lines": "103-108 (observe)",
+      "defect": "observe() calls publication_probe.probe_publication(...) exactly once, with no retry, and none exists inside the vendored probe (_vendor/aspose_extraction/publication_probe.py carries only a 10-second timeout; no adapter under package_registries/ retries). core/retry.py:40-42 already declares RETRY_POLICIES['package_registry'] = RetryPolicy(max_attempts=3, initial_seconds=1, maximum_seconds=20), and run_with_retry('package_registry', ...) is used at extractors/platforms/python_registry.py:123 - the PYTHON platform's own path. Every other ecosystem reaches its registry through this shared facade and never uses the policy. So python probes three times with backoff and net, java, typescript, go and rust probe once.",
+      "measured": "Ten nuget readings in this worktree on 2026-09-11; five could not be read. 3D-.NET facts-only #1 unreadable; #2 found; 3D-.NET composition run unreadable (BC-02 FAIL); Email-.NET facts-only found; Email-.NET composition run unreadable; PDF-.NET facts-only unreadable; Slides-.NET facts-only found; plus three direct httpx requests to the 3D URL giving 1 ConnectTimeout and 2 x HTTP 200 {\"versions\":[\"26.1.0\"]}. Every package is published - the successful readings prove it.",
+      "consequence": "An unreadable probe gives install_command:<eco> polarity UNRESOLVED, which fails BC-02 at EXTRACTING; repairs.json records it unrepairable, 'EXTRACTING is not repairable by revision', so the run cannot seal. Separately it changes the facts digest, and facts feed upstream_dependencies(), so a bundle sealed under the unlucky reading reopens EXTRACTING (bundle/seal.py:179-192).",
+      "proposed_shape": "Wrap the probe_publication call in run_with_retry('package_registry', ...), raising RetryableOperationError when the reading comes back unreadable (published is None), exactly as python_registry.py:123 already does.",
+      "mutation_test": "A fetch stub that times out once then answers 200 yields published=True; one that always fails still yields published=None, so 'we could not check' never becomes 'we checked and it is false' (section 29.6 E5 preserved, not weakened).",
+      "owner": "the primary (shared facade; extractors/surface/ is not a lane-F path)",
+      "priority_note": "Of everything this lane measured, this is the one defect that blocks candidates across every non-Python cohort rather than one repository - lanes C (maven), D (go_modules) and F (nuget) all reach their registry through this facade; C++ has no registry and is spared. It is also the cheapest to fix: one wrapper around an already declared policy.",
+      "repositories_blocked": [
+        "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+        "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+        "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET"
+      ]
+    },
+    {
+      "id": "F10",
+      "file": "prompts/presentation_planning.yaml (version 11) and src/repository_presenter/components/readme/composition/planning.py",
+      "lines": "planning.py:188-221 (planning_schema)",
+      "defect": "The four fact_ids arrays - under core_capabilities, api_hubs, material_limitations and deviations - are all typed {\"type\": \"array\", \"items\": {\"type\": \"string\"}} with no enum, no maxItems and no maxLength. planning_schema() specialises section_id, link_fact_id, symbol_fact_id and the four example-ID fields with enums built from bounded_records(), and leaves all four fact_ids arrays untouched. This is arrival item 40's class, one stage later than the site 352fd35 fixed.",
+      "measured": "3D-.NET S5 attempt 1 returned 11 invented IDs - format:fbx, format:gltf, format:obj, format:stl, format:collada, format:u3d, format:3mf, format:rvm, format:ply, format:amf, format:html5 - rejected by core/llm/binding.py:162 after the transaction was spent; attempt 2 succeeded, so the cost there was one call. Email-.NET S5 attempt 1 returned format:msg, format:eml, format:cfb; attempt 2 failed for an unrelated reason; the retry budget is two, so present aborted at S5 and that repository never reached composition.",
+      "why_a_pattern_would_not_have_caught_it": "'format' IS a member of core.facts.FACT_KINDS, and both repositories have 0 format facts. Arrival item 40's original ^(<kinds>): prefix pattern would have ADMITTED all 14 invented IDs. Only an enum of the packet's own IDs refuses them - exactly 352fd35's argument, one stage earlier.",
+      "affordability": "Planning's own citable set for 3D-.NET is 85 records, 2,507 bytes of IDs; for PDF-.NET, 370 records.",
+      "proposed_shape": "Give the four fact_ids arrays an enum of the planning packet's own fact IDs plus a maxItems, in planning_schema(), beside the enums it already builds.",
+      "mutation_test": "A planner output citing a well-formed but unshown ID is refused at decode rather than at binding_errors.",
+      "owner": "the primary (shared code; composition/ and prompts/ are not lane-F paths)",
+      "repositories_blocked": [
+        "aspose-email-foss/Aspose.Email-FOSS-for-.Net"
+      ]
+    }
+  ],
+  "not_proposed_but_recorded": [
+    {
+      "subject": "Email-.NET S5 attempt 2: 'at_a_glance is included, so its formats and capabilities are given'",
+      "why_not_a_proposal": "composition/planning.py:431-453 is satisfiable for a repository with 0 format facts - at_a_glance with empty input_format_ids/output_format_ids and three or more capability_titles passes cleanly, and the included set is the planner's own sections choice. The plan simply listed at_a_glance as included and set the object to null. Model variance, not a code defect."
+    },
+    {
+      "subject": "RESEARCH_AND_GUIDELINES.md section 28.11's census row 'NuGet not found'",
+      "detail": "Stale for 3D-.NET (run 1 F1) and now also for Slides-.NET, whose package reads 'found on nuget' at revision 9f2d8710. Recorded for the owner; the census is not a lane-F path."
+    }
+  ],
+  "checks": {
+    "ruff_check": "pass",
+    "ruff_format_check": "pass",
+    "mypy_src": "pass",
+    "pytest_n_auto": "pass",
+    "note": "One full local CI-equivalent run immediately before the commit, per loop-prompt.md section 3. This run changed no code - only docs/RESEARCH_LANE_F.md, project/lanes/lane-f.yaml and this file - so no focused test applies."
   },
   "measurement": {
-    "candidates_current": "8/34 (repository-presenter status, this worktree, before and after this run - unchanged)",
-    "provider_calls": 1,
+    "candidates_current": "8/34 (repository-presenter status, this worktree, before and after - unchanged; nothing sealed)",
+    "provider_call_records": 24,
+    "provider_calls_http_400": 0,
+    "repositories_run_to_a_verdict": 2,
+    "repositories_measured_facts_only": 3,
+    "repositories_sealed": 0,
+    "dispositions_written": 2,
+    "proposals_written": 3,
     "full_suite_runs": 1,
     "canary_runs": 0
   },
-  "next_work_item": "LANE-F-01 run 2: re-attempt 3D-.NET first, with this record as its pre-S4 baseline, once the S4 fact_ids fix is on main."
+  "next_work_item": "LANE-F-01 run 3, when F9, F10 or F8 lands. Revised order on this run's evidence: Slides-.NET first (0 F8 collisions, 2733/2734 SUPPORTED, its recorded BC-02 blocker resolved upstream), then 3D-.NET (F8), then Email-.NET (F10), then PDF-.NET (F8 x34). The item's original order put 3D-.NET first because of the 2026-09-06 un-seal; that question is now known to be unanswerable until a run reaches S10, so it no longer earns the first slot. F9 alone unblocks BC-02 for every repository here."
 }
