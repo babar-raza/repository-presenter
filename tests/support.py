@@ -116,8 +116,24 @@ def write_bundle(
 
 
 def init_git_repository(path: Path, *, with_commit: bool = True) -> Path:
-    """A disposable local repository on branch ``main`` with a local identity."""
+    """A disposable local repository on branch ``main`` with a local identity.
+
+    ``git init``'s exit status is never the evidence: when git already resolves ``path`` inside
+    some repository, ``git init`` there is a no-op re-init that still exits 0, and every fixture
+    command after it (identity config, ``add``, ``commit``) lands on that repository instead -
+    measured 2026-09-11 as fixture commits on live lane branches and this checkout's own identity
+    and ``core.bare`` rewritten (RESEARCH_AND_GUIDELINES.md section 29, G4-W17 arrival item 55).
+    So the target is refused up front if git resolves any repository for it, and the repository
+    just created is verified to be the one at ``path`` before anything is written into it.
+    """
     path.mkdir(parents=True, exist_ok=True)
+    enclosing = run_git(["rev-parse", "--absolute-git-dir"], cwd=path)
+    if enclosing.returncode == 0:
+        raise RuntimeError(
+            f"refusing to init a fixture repository at {path}: git already resolves it inside"
+            f" {enclosing.stdout.strip()}, where `git init` would be a no-op re-init exiting 0"
+            " and every fixture command after it would land on that repository"
+        )
     for args in (
         ["init", "-q", "-b", "main"],
         ["config", "user.email", "test@example.com"],
@@ -125,6 +141,11 @@ def init_git_repository(path: Path, *, with_commit: bool = True) -> Path:
     ):
         result = run_git(args, cwd=path)
         assert result.returncode == 0, result.stderr
+    own = run_git(["rev-parse", "--absolute-git-dir"], cwd=path)
+    assert own.returncode == 0, own.stderr
+    assert Path(own.stdout.strip()).resolve() == (path / ".git").resolve(), (
+        f"fixture at {path} resolved to a different repository: {own.stdout.strip()}"
+    )
     if with_commit:
         (path / "README.md").write_text("# test\n", encoding="utf-8")
         commit_all(path, "initial")
