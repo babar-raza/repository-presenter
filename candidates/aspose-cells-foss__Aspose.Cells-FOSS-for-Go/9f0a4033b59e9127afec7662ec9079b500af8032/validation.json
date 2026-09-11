@@ -143,7 +143,7 @@
     {
       "causal_stage": null,
       "details": [
-        "judged at S12"
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
       ],
       "id": "BC-11",
       "judged_at": "S12",
@@ -151,7 +151,7 @@
       "sections": [
         "bundle"
       ],
-      "verdict": "PENDING",
+      "verdict": "PASS",
       "version": "1"
     }
   ],
@@ -456,14 +456,14 @@
     }
   ],
   "protected_content_fingerprint": "4caceaf052509ca3e8ee00189e7a7dbe59c15031a0615e4c45efd2245f3a3019",
-  "readme_sha256": "60eb7129e9b55c5c419e96fea486f63a30126f7984463bd0e018e535e9c7cecc",
+  "readme_sha256": "2e3e961f5b77e19b53202e9fad99809f4a379453787d37167816c9bcc3065b52",
   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
   "schema_version": 1,
   "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
   "summary": {
     "fail": 0,
-    "pass": 10,
-    "pending": 1
+    "pass": 11,
+    "pending": 0
   },
   "validator_version": "3"
 }

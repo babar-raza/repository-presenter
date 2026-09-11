@@ -5,136 +5,92 @@
     "example:007",
     "example:008",
     "example:009",
-    "example:010",
-    "example:003"
+    "example:010"
   ],
   "api_hubs": [
     {
       "fact_ids": [
-        "public_symbol:workbook",
         "public_symbol:newworkbook",
+        "example:002"
+      ],
+      "symbol_fact_id": "public_symbol:newworkbook"
+    },
+    {
+      "fact_ids": [
         "public_symbol:loadworkbook",
+        "example:003"
+      ],
+      "symbol_fact_id": "public_symbol:loadworkbook"
+    },
+    {
+      "fact_ids": [
         "public_symbol:workbook.save",
-        "public_symbol:workbook.worksheets"
+        "example:002"
       ],
-      "symbol_fact_id": "public_symbol:workbook"
+      "symbol_fact_id": "public_symbol:workbook.save"
     },
     {
       "fact_ids": [
-        "public_symbol:worksheet",
-        "public_symbol:worksheet.cells",
-        "public_symbol:worksheet.name",
-        "public_symbol:worksheet.index"
-      ],
-      "symbol_fact_id": "public_symbol:worksheet"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:cells",
-        "public_symbol:cells.get",
         "public_symbol:cells.set",
-        "public_symbol:cells.remove",
-        "public_symbol:cells.all"
+        "example:002"
       ],
-      "symbol_fact_id": "public_symbol:cells"
+      "symbol_fact_id": "public_symbol:cells.set"
     },
     {
       "fact_ids": [
-        "public_symbol:cell",
+        "public_symbol:cells.get",
+        "example:003"
+      ],
+      "symbol_fact_id": "public_symbol:cells.get"
+    },
+    {
+      "fact_ids": [
         "public_symbol:cell.value",
-        "public_symbol:cell.ref",
-        "public_symbol:cell.formula",
-        "public_symbol:cell.setformula",
-        "public_symbol:cell.getformula",
-        "public_symbol:cell.setstyle",
-        "public_symbol:cell.getstyle"
+        "example:003"
       ],
-      "symbol_fact_id": "public_symbol:cell"
+      "symbol_fact_id": "public_symbol:cell.value"
     },
     {
       "fact_ids": [
-        "public_symbol:style",
-        "public_symbol:newstyle",
-        "public_symbol:defaultstyle",
-        "public_symbol:style.font",
-        "public_symbol:style.fill",
-        "public_symbol:style.alignment",
-        "public_symbol:style.border"
-      ],
-      "symbol_fact_id": "public_symbol:style"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:datavalidation",
-        "public_symbol:datavalidation.type",
-        "public_symbol:datavalidation.ref",
-        "public_symbol:datavalidation.formula1",
-        "public_symbol:datavalidation.formula2",
-        "public_symbol:datavalidation.allowblank",
-        "public_symbol:datavalidation.showerrormessage",
-        "public_symbol:datavalidation.errortitle",
-        "public_symbol:datavalidation.errormessage",
-        "public_symbol:datavalidation.errorstyle"
-      ],
-      "symbol_fact_id": "public_symbol:datavalidation"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:table",
-        "public_symbol:newtable",
-        "public_symbol:table.name",
-        "public_symbol:table.range",
-        "public_symbol:table.hasheaderrow",
-        "public_symbol:table.stylename"
-      ],
-      "symbol_fact_id": "public_symbol:table"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:picture",
-        "public_symbol:newpicture",
-        "public_symbol:picture.setanchor",
-        "public_symbol:picture.data",
-        "public_symbol:picture.format",
-        "public_symbol:picture.row",
-        "public_symbol:picture.col",
-        "public_symbol:picture.rowoff",
-        "public_symbol:picture.coloff",
-        "public_symbol:picture.width",
-        "public_symbol:picture.height",
-        "public_symbol:picture.name"
-      ],
-      "symbol_fact_id": "public_symbol:picture"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:streamingreader",
-        "public_symbol:newstreamingreader",
-        "public_symbol:streamingreader.processrows",
-        "public_symbol:rowcallback"
-      ],
-      "symbol_fact_id": "public_symbol:streamingreader"
-    },
-    {
-      "fact_ids": [
-        "public_symbol:calculateformula"
+        "public_symbol:calculateformula",
+        "example:004"
       ],
       "symbol_fact_id": "public_symbol:calculateformula"
     },
     {
       "fact_ids": [
-        "public_symbol:workbook.importfromcsv",
-        "public_symbol:workbook.exporttocsv",
-        "public_symbol:worksheet.tocsv"
+        "public_symbol:datavalidation",
+        "example:005"
       ],
-      "symbol_fact_id": "public_symbol:workbook.importfromcsv"
+      "symbol_fact_id": "public_symbol:datavalidation"
     },
     {
       "fact_ids": [
-        "public_symbol:workbook.setpassword",
-        "public_symbol:workbook.verifypassword"
+        "public_symbol:streamingreader",
+        "example:007"
       ],
-      "symbol_fact_id": "public_symbol:workbook.setpassword"
+      "symbol_fact_id": "public_symbol:streamingreader"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:style",
+        "example:008"
+      ],
+      "symbol_fact_id": "public_symbol:style"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:table",
+        "example:009"
+      ],
+      "symbol_fact_id": "public_symbol:table"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook.importfromcsv",
+        "example:010"
+      ],
+      "symbol_fact_id": "public_symbol:workbook.importfromcsv"
     }
   ],
   "at_a_glance": {
@@ -234,17 +190,10 @@
   "deviations": [
     {
       "fact_ids": [
-        "inherited_unit:008.code_block"
-      ],
-      "section_id": "at_a_glance",
-      "text": "The Mermaid diagram is omitted because the required example:006 is CONTRADICTED and no other Starting Points or Outputs are verified."
-    },
-    {
-      "fact_ids": [
         "link_target:027"
       ],
       "section_id": "enterprise_relationship",
-      "text": "The Enterprise Edition paragraph is deferred because the product target URL is not in policy."
+      "text": "The Enterprise Edition link (link_target:027) is omitted because no verified aspose.com product target exists in policy."
     }
   ],
   "flagship_example_id": "example:004",
@@ -271,13 +220,11 @@
       "fact_ids": [
         "inherited_unit:051.list"
       ],
-      "unit_ids": [
-        "inherited_unit:051.list"
-      ]
+      "unit_ids": []
     }
   ],
   "quick_start_example_id": "example:002",
-  "second_quick_start_example_id": null,
+  "second_quick_start_example_id": "example:003",
   "sections": [
     {
       "include": true,

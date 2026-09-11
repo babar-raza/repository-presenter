@@ -1,0 +1,124 @@
+{
+ "schema_version": 1,
+ "lane": "lane-d",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W15-RERUN4",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-11T17:45:00+05:00",
+ "control_revision": "22c2e45",
+ "why": "Sprint W-GO (plans/sprint/PHASE1-SPRINT-PLAN.md section 11). Re-seal aspose-cells-foss/Aspose.Cells-FOSS-for-Go after PROPOSAL P24's fix landed: its BLOCKED_SHARED_CODE / S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM disposition names exactly that fix as its resume predicate. The re-seal also picks up RENDERER_VERSION 19 (arrival item 61, canonical fact ordering) automatically.",
+ "scope": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go only",
+ "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+ "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+ "second_repository_not_run": {
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "reason": "G4-W17 arrival item 47 has not landed. Checked directly at 22c2e45 rather than assumed: validation/registry.py::_check_links still constructs every anchor failure as Failure(\"COMPOSING\", f\"{target.href}: {result.detail}\") with no third argument, so the Failure.section field is still None - exactly the shape item 47 exists to fix. Its BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED disposition (PROPOSAL P20) therefore stands with its resume predicate unmet, and the repository was not run. Item 46 (dd7dc73) did land and closes the BC-08 half; item 47 is the remaining half."
+ },
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\d17",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Confirmed before any candidate work, using loop-prompt-lane.md section 1.3's recipe as corrected by 54417f9: pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . That recipe reproduces the reference hash exactly on the first try - the correction this lane measured on 2026-09-11 and lane F corroborated is now in the prompt and works."
+ },
+ "toolchain": {
+  "tool": "go",
+  "resolved_by": "shutil.which(\"go\")",
+  "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+  "version": "go1.26.4 windows/amd64"
+ },
+ "lane_owned_changes": [],
+ "lane_owned_changes_note": "No lane-owned code changed. No src/ or tests/ change of any kind: this item is a re-seal at current shared code.",
+ "resume_predicate_met": true,
+ "classes_closed": [
+  {
+   "class": "S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM",
+   "proposal": "P24",
+   "landed_as": "22c2e45 (G4-W17 arrival item 60)",
+   "fix_as_landed_differs_from_the_proposal": "P24 asked for citable_fact_ids() to be widened to admit the IDs normalize() itself writes. The primary landed the other half of the same diagnosis instead: core/llm/jobs.py's cache-reuse branch now re-judges a stored output under the manifest's base schema, the binding and the checks, and never under call_schema - because call_schema constrains what a DECODER may emit, and what the store holds is the folded output. Either cut closes the class; the landed one closes it for every job with a call_schema at once, not only S4, which is why the section_authoring reuses below also work. The request digest still carries call_schema, so a changed schema still misses the store.",
+   "measured": "Request digest c4132101affc - the S4 batch-1 digest that went cache_stale / OutputRejected in EVERY round of BOTH of RERUN3's runs, four hours earlier, at this same source revision - reused cleanly in the fresh-process rerun. The digest itself never moved: it is the same twelve characters RERUN3's receipt recorded, so nothing about the packet or the request changed, only the re-judge. Batch 2 (a3ce39d30513) reused as it always did. Zero cache_stale records anywhere in the no-op run."
+  }
+ ],
+ "renderer_version": {
+  "before": "18",
+  "after": "19",
+  "picked_up_by": "the re-seal itself, with no action taken: evaluation.json recorded earliest affected stage RECONCILING, 1 change (components.renderer -> RECONCILING), and dependencies.json now carries renderer 19 (arrival item 61, canonical fact ordering)."
+ },
+ "runs": {
+  "run_1_live": {
+   "purpose": "compose and re-seal at current code",
+   "ledger_records": 18,
+   "provider_calls_success": 10,
+   "response_invalid_reasks": 1,
+   "cache_reuse": 6,
+   "cache_stale": 1,
+   "http_statuses": "11 x 200, no other status at any stage",
+   "seeded_from_sealed_bundle": "presentation_planning, repository_investigation",
+   "outcome": "bundle re-sealed at state ACCEPTED; README.md, README.patch, content_units.json, dependencies.json, dispositions.json, plan.json, review.json and validation.json changed since the last seal, so the previous (null) proof stayed withdrawn - the expected first-of-two-runs result, not a failure."
+  },
+  "run_2_no_op_proof": {
+   "purpose": "the fresh-process no-op proof BC-11 judges",
+   "ledger_records": 15,
+   "provider_calls_success": 0,
+   "response_invalid_reasks": 0,
+   "cache_reuse": 15,
+   "cache_stale": 0,
+   "outcome": "no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged. State ACCEPTED -> READY_FOR_PROPOSAL, no_op_proof {fresh_process: true, byte_identical: true, provider_calls: 0, proven_at: 2026-09-11T12:30:22Z}."
+  },
+  "run_3_stability": {
+   "purpose": "the byte-stability control the sprint asked for - a second no-op rerun must change nothing",
+   "ledger_records": 15,
+   "provider_calls_success": 0,
+   "cache_reuse": 15,
+   "cache_stale": 0,
+   "outcome": "no-op: the proven bundle was reproduced byte for byte with zero provider calls. This is seal_candidate's stable branch, which returns without writing, so even manifest.json's sealed_at did not move."
+  }
+ },
+ "stability_check": {
+  "method": "sha256 of all 14 bundle files captured immediately after run 2's proof, re-verified after run 3",
+  "files_checked": 14,
+  "files_unchanged": 14,
+  "note": "manifest.json included, so the proof's own record is stable too, not merely the content."
+ },
+ "stage_outcomes": {
+  "S1_snapshot": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go at 9f0a4033b59e9127afec7662ec9079b500af8032, 3 files, 51 tree entries, digest 69d1ebb4af27007be597166d300edb0c6340af7002577c5da14666d3850c315b - identical to RERUN2 and RERUN3",
+  "S2_examples": "10 candidates; executed 8, failed 1, not_verified 1 - identical to every prior run at this revision",
+  "S2_facts": "231 records (build_test_asset 3, dependency 1, example 10, identity 5, import_path 1, inherited_unit 66, install_command 1, license 2, link_target 31, package 2, public_symbol 109; digest 412ac7ae93964b408c3df8840ddab756511e4dfb7319ec354f679bad27648f97) - byte-identical to the 2026-09-06, RERUN2 and RERUN3 runs",
+  "S3_repository_investigation": "0 provider calls - reused from the sealed bundle's own investigation.json through seed_call_store; capabilities 8, workflows 6, limitations 5",
+  "S4_source_reconciliation": "both batches live on attempt 1 (the store had nothing to seed from: seed_call_store skips a job with more than one successful attempt, and S4 has two batches). 66 units: DEFER_UNRESOLVED 2, OMIT_UNSUPPORTED 14, SUPERSEDE_REDUNDANT 12, VERIFIED_MOVE 15, VERIFIED_PRESERVE 21, VERIFIED_REWRITE 2",
+  "S5_presentation_planning": "16 of 18 sections; one response_invalid re-ask (unknown fact ID format:xlsx), succeeded on attempt 2",
+  "S6_section_authoring": "42 units across 8 sections (opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing); coherence revised 0 of 42",
+  "S7_targeted_repair": "0 repaired, 0 unrepairable, 1 round - nothing to repair; repairs.json is absent from the bundle for the first time at this repository",
+  "S9_validation": "pass 10, fail 0, pending 1 (BC-11, judged at S12) on the first round",
+  "S10_independent_review": "ACCEPT, identity_separate true, second_reader.read 2 with 6 corroborated reads, 0 findings, 12 advisory. verdict_as_returned REJECT_PRESENTATION; every finding folded to advisory and none blocking",
+  "S12_no_op_proof": "PROVEN - fresh process, byte-identical, zero provider calls"
+ },
+ "checks_passed": [
+  "BC-01",
+  "BC-02",
+  "BC-03",
+  "BC-04",
+  "BC-05",
+  "BC-06",
+  "BC-07",
+  "BC-08",
+  "BC-09",
+  "BC-10",
+  "BC-11"
+ ],
+ "checks_failed": [],
+ "sealed": true,
+ "bundle_on_disk": {
+  "path": "candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Go/9f0a4033b59e9127afec7662ec9079b500af8032",
+  "state": "READY_FOR_PROPOSAL",
+  "files": 13,
+  "readme": "236 visible lines of 464; digest 2e3e961f5b77e19b53202e9fad99809f4a379453787d37167816c9bcc3065b52",
+  "counted": true
+ },
+ "status_after": {
+  "observed_at": "2026-09-11 17:33 +05:00, from this lane branch off origin/main at 22c2e45",
+  "line": "candidates: 9/34 current reviewable no-op-proven; 9 ever sealed, 9 integrity-valid, 7 current-code reproducible, 1 independently accepted (stale-excluded); examples 56/85 verified across counted candidates",
+  "delta": "8/34 -> 9/34. The Cells-Go bundle RERUN3 left at ACCEPTED with no_op_proof null now counts. current-code reproducible 6 -> 7 and independently accepted 0 -> 1 moved with it. G4-W16's acceptance line asked for 31 sealed and 34 dispositions; that number was written before the shared blockers were known and is still recorded rather than met."
+ },
+ "one_observation_not_a_rule": "Run 1 recorded one section_authoring cache_stale / OutputRejected (digest 9e3706affbc4), followed by a live call that succeeded on attempt 1. It is NOT the P24 class recurring: that entry was not a stored reply at all but a reconstruction of the PREVIOUS seal's content_units.json, put into the store by repair/rounds.py::run_transaction's G5-W02 seeding path before the call. The previous seal was authored against a different plan and different dispositions, so the reconstructed unit genuinely no longer satisfies this task's own unit_checks - the re-judge rejecting it is the design working, not failing. The no-op run, whose store holds this run's own accepted replies, records zero cache_stale of any kind. RERUN3's observation 1 named this same digest shape and is now explained; it is not carried forward as a proposal."
+}

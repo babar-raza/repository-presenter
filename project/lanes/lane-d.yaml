@@ -23,9 +23,17 @@ toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
-  sealed_by_lane: 1
-  dispositions_by_lane: 2
-  status_line_observed: '2026-09-11 15:40, from this lane branch off origin/main at 08307b9:
+  sealed_by_lane: 2
+  dispositions_by_lane: 1
+  status_line_observed: '2026-09-11 17:33, from this lane branch off origin/main at 22c2e45:
+    candidates 9/34 current reviewable no-op-proven - up from 8. 9 ever sealed, 9 integrity-valid,
+    7 current-code reproducible, 1 independently accepted (stale-excluded); examples 56/85 verified
+    across counted candidates. The bundle RERUN3 left at ACCEPTED with no_op_proof null now counts:
+    PROPOSAL P24 was answered by G4-W17 arrival item 60 (22c2e45), the S4 batch-1 request digest
+    c4132101affc reused instead of going cache_stale, and BC-01 to BC-11 all PASS with the no-op
+    proof reproduced twice. G4-W16''s acceptance line asked for 31 sealed and 34 dispositions; that
+    number was written before the shared blockers were known and is still recorded rather than met.'
+  status_line_observed_2026_09_11_1540: '2026-09-11 15:40, from this lane branch off origin/main at 08307b9:
     candidates 8/34 current reviewable no-op-proven - unchanged. 9 ever sealed (up from 8 - the
     Cells-Go bundle this run produced), 9 integrity-valid, 6 current-code reproducible, 0
     independently accepted (stale-excluded). The new bundle does not count: BC-01 to BC-10 PASS but
@@ -340,3 +348,39 @@ items:
     ever sealed" and not in the 8/34, and no seal was forced. The disposition becomes
     BLOCKED_SHARED_CODE / S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM; sealed_by_lane stays 1 and
     dispositions_by_lane stays 2. See docs/RESEARCH_LANE_D.md.'
+- id: G4-W15-RERUN4
+  status: ACCEPTED
+  accepted_at: '2026-09-11T17:33:00+05:00'
+  receipt: evidence/build/lanes/lane-d/G4-W15-RERUN4.json
+  purpose: 'Sprint W-GO (plans/sprint/PHASE1-SPRINT-PLAN.md section 11), after PROPOSAL P24 was answered on main (22c2e45, G4-W17 arrival item 60): re-seal aspose-cells-foss/Aspose.Cells-FOSS-for-Go, whose BLOCKED_SHARED_CODE / S4_STORED_REPLY_REJECTED_BY_ITS_OWN_ENUM disposition names exactly that fix as its resume predicate, and verify the sealed bytes are stable across a second no-op rerun. Aspose-PDF-FOSS-for-Go only if item 47 has landed - check first, never assume. Evidence evidence/build/lanes/lane-d/G4-W15-RERUN4.json.'
+  outcome: 'SEALED - the lane''s second candidate, and the first anywhere in this lane to pass BC-11
+    at this repository. PROPOSAL P24''s resume predicate was met and its class is closed, measured on
+    the same twelve characters RERUN3 recorded: request digest c4132101affc, which went cache_stale /
+    OutputRejected in every round of both RERUN3 runs four hours earlier at this same source
+    revision, reused cleanly with no call. The digest never moved, so nothing about the packet or the
+    request changed - only the re-judge. The landed fix is not the cut P24 proposed: P24 asked to
+    widen citable_fact_ids(), and the primary instead made core/llm/jobs.py re-judge a stored output
+    without call_schema, which closes the class for every job carrying a call_schema rather than S4
+    alone. Three runs: run 1 composed and re-sealed at current code (10 live calls, 1 re-ask, state
+    ACCEPTED, proof withdrawn because 8 artifacts changed since the last seal); run 2 proved the no-op
+    in a fresh process (0 provider calls, 15 cache_reuse, 0 cache_stale, state READY_FOR_PROPOSAL,
+    check 11 judged); run 3 was the byte-stability control and hit seal_candidate''s stable branch,
+    which returns without writing - verified by digest rather than by the seal''s own word, sha256 of
+    all 14 bundle files captured after run 2 and re-verified after run 3, 14 of 14 unchanged with
+    manifest.json included. BC-01 to BC-11 all PASS over 231 facts (byte-identical to every prior run
+    at this revision), a 16-of-18-section plan, 66 units dispositioned, 42 units across 8 sections and
+    README.md at 236 visible lines of 464; validation 11 pass / 0 fail on the first round with zero
+    repairs - repairs.json is absent from the bundle for the first time here - and the independent
+    review returned ACCEPT, identity_separate true, second_reader.read 2, 0 findings, 12 advisory.
+    RENDERER_VERSION 19 (arrival item 61) was picked up by the re-seal itself with no action taken:
+    evaluation.json recorded components.renderer -> RECONCILING and dependencies.json moved 18 -> 19.
+    No lane-owned code changed and no src/ or tests/ change of any kind. aspose-pdf-foss/Aspose-PDF-FOSS-for-Go
+    was NOT run: item 47 has not landed, checked directly at 22c2e45 rather than assumed -
+    validation/registry.py::_check_links still builds every anchor failure with two arguments, so
+    Failure.section is still None, which is the exact shape item 47 exists to fix. Its
+    BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED disposition (PROPOSAL P20) stands
+    unchanged. One observation, not a proposal: run 1''s single section_authoring cache_stale
+    (9e3706affbc4) was a reconstruction of the PREVIOUS seal''s content_units.json seeded by
+    repair/rounds.py''s G5-W02 path, authored against a different plan, so the re-judge rejecting it is
+    the design working; RERUN3''s observation 1 is thereby explained and not carried forward.
+    sealed_by_lane 1 -> 2, dispositions_by_lane 2 -> 1. See docs/RESEARCH_LANE_D.md.'

@@ -1,57 +1,64 @@
 {
   "advisory": [
     {
-      "absent": [
-        "Required Package Dependencies"
-      ],
+      "absent": [],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F01",
-      "quote": "### Required Package Dependencies",
-      "reader": 2,
-      "repair": "Remove the 'Required Package Dependencies' subsection and integrate dependency information directly into the Dependencies section using verified phrasing.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Required Package Dependencies', which the candidate contains",
+      "quote": "## Dependencies",
+      "repair": "Remove the 'Dependencies' section and integrate the Go version and dependency information back into the 'Installation' section as in the original README.",
+      "reviewer_scope_defect": "the quote is the heading 'Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
       "section_id": "dependencies",
-      "text": "The Dependencies section introduces a new subsection 'Required Package Dependencies' that was not present in the original README, and the phrasing 'no `require` directive a consumer would install is declared' is misleading and not supported by any fact."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "dependency:none"
-      ],
-      "id": "F02",
-      "quote": "No required third-party package dependencies; in `go.mod`, no `require` directive a consumer would install is declared.",
-      "reader": 2,
-      "repair": "Replace with: 'The library has no third-party dependencies and builds on the Go standard library alone.'",
-      "reviewer_scope_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
-      "section_id": "dependencies",
-      "text": "The claim 'no `require` directive a consumer would install is declared' contradicts the fact that the module path itself implies a require directive in the consuming project's go.mod, and this phrasing is not supported by any fact."
+      "text": "The candidate introduces a new 'Dependencies' section that was not present in the original README, and the content about Go version and zero dependencies was originally part of the 'Installation' section. This reorganization disrupts the established structure and adds unnecessary fragmentation."
     },
     {
       "absent": [
-        "### Required Package Dependencies",
-        "### Native and System Requirements"
+        "StartingPoints[",
+        "i1[",
+        "i2[",
+        "Outputs[",
+        "o1[",
+        "o2[",
+        "StartingPoints --> PRODUCT --> Capabilities --> Outputs"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "  PRODUCT[...]",
+      "repair": "Restore the original Mermaid diagram structure with 'Starting Points', 'Capabilities', and 'Outputs' subgraphs and the directional arrows connecting them.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the 'At a Glance' section was significantly simplified, losing the 'Starting Points' and 'Outputs' nodes and reducing the visual representation of the library's workflow. This makes the diagram less informative and inconsistent with the original's clarity."
+    },
+    {
+      "absent": [
+        "go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss"
       ],
       "causal_stage": "S7",
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
       "id": "F03",
-      "quote": "### Required Package Dependencies",
-      "reader": 2,
-      "repair": "Restore the original single-paragraph format for dependency information as in the original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Native and System Requirements', '### Required Package Dependencies', which the candidate contains",
-      "section_id": "dependencies",
-      "text": "The Dependencies section's structure and ordering deviates from the original README's single paragraph format, introducing a subsection and bullet points not present in the source."
+      "quote": "Verify the install:",
+      "repair": "Remove the verification command and keep only the installation command as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'go list github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26/aspose/cells_foss', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate adds a verification command `go list` that was not in the original README, making the installation instructions more complex and introducing a non-standard verification step."
     },
     {
       "absent": [
-        "Detailed Member Reference"
+        "### NewWorkbook",
+        "### LoadWorkbook",
+        "### Save",
+        "### Set",
+        "### Get",
+        "### Value",
+        "### CalculateFormula",
+        "### DataValidation"
       ],
       "causal_stage": "S7",
       "causal_state": null,
@@ -59,66 +66,10 @@
       "fact_ids": [],
       "id": "F04",
       "quote": "#### Detailed Member Reference",
-      "reader": 2,
-      "repair": "Remove the 'Detailed Member Reference' subsection and retain only the public type inventory as in the original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Detailed Member Reference', which the candidate contains",
+      "repair": "Remove the 'Detailed Member Reference' subsections and keep only the public API surface table as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### CalculateFormula', '### DataValidation', '### Get', which the candidate contains",
       "section_id": "api_reference",
-      "text": "The API Reference section adds a 'Detailed Member Reference' subsection with member-level details not present in the original README, which only listed public types."
-    },
-    {
-      "absent": [
-        "Workbook",
-        "Worksheet",
-        "Cells",
-        "Cell",
-        "Style",
-        "DataValidation",
-        "Table",
-        "Picture"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F05",
-      "quote": "### Workbook",
-      "reader": 2,
-      "repair": "Remove the member-level documentation and retain only the public type inventory as in the original README.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Cell', 'Cells', 'DataValidation', which the candidate contains",
-      "section_id": "api_reference",
-      "text": "The API Reference section's member-level documentation for Workbook, Worksheet, Cells, Cell, Style, DataValidation, Table, Picture, StreamingReader, and CalculateFormula is new and not supported by any fact."
-    },
-    {
-      "absent": [
-        "Read and update a cell value in an existing workbook"
-      ],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [],
-      "id": "F06",
-      "quote": "### Read and update a cell value in an existing workbook",
-      "reader": 2,
-      "repair": "Remove the 'Read and update a cell value in an existing workbook' example to match the original README's Additional Examples content.",
-      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Read and update a cell value in an existing workbook', which the candidate contains",
-      "section_id": "additional_examples",
-      "text": "The Additional Examples section adds a new example 'Read and update a cell value in an existing workbook' that was not in the original README's Additional Examples section."
-    },
-    {
-      "absent": [],
-      "causal_stage": "S7",
-      "causal_state": null,
-      "criterion": "presentation",
-      "fact_ids": [
-        "build_test_asset:tests"
-      ],
-      "id": "F07",
-      "quote": "The suite covers 12 test files under `tests/`.",
-      "reader": 2,
-      "repair": "Remove the unsupported claim about the number of test files.",
-      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
-      "section_id": "development_testing",
-      "text": "The Development and Testing section adds a claim 'The suite covers 12 test files under `tests/`' that is not supported by any fact."
+      "text": "The candidate adds a 'Detailed Member Reference' section with subsections for specific methods and properties, which was not present in the original README and makes the API reference overly detailed and inconsistent with the original's concise table format."
     },
     {
       "absent": [
@@ -128,13 +79,120 @@
       "causal_state": null,
       "criterion": "presentation",
       "fact_ids": [],
-      "id": "F08",
+      "id": "F05",
       "quote": "Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible formats, targeting developers who need lightweight workbook manipulation without external dependencies.",
-      "reader": 2,
-      "repair": "Remove the new paragraph and retain only the limitations list as in the original README.",
+      "repair": "Remove the introductory paragraph and start the section directly with the limitations list as in the original README.",
       "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible', which the candidate contains",
       "section_id": "scope_limitations",
-      "text": "The Scope and Limitations section adds a new paragraph about the library's purpose that was not present in the original README's Scope and Limitations section."
+      "text": "The candidate adds an introductory paragraph before the limitations list that was not present in the original README, making the section less direct and inconsistent with the original's concise format."
+    },
+    {
+      "absent": [
+        "12 test files"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests"
+      ],
+      "id": "F06",
+      "quote": "The suite covers 12 test files under `tests/`.",
+      "repair": "Remove the claim about 12 test files and keep only the general description of the test suite as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '12 test files', which the candidate contains",
+      "section_id": "development_testing",
+      "text": "The candidate adds a claim about '12 test files under tests/' that was not present in the original README, making the description more specific without supporting evidence from the facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "## Dependencies",
+      "reader": 2,
+      "repair": "Remove the 'Dependencies' section and integrate the Go version and zero-dependency information back into the 'Installation' section as in the original README.",
+      "reviewer_scope_defect": "the quote is the heading 'Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate introduces a new 'Dependencies' section that was not present in the original README, and the content about Go version and zero dependencies was originally part of the 'Installation' section. This reorganization disrupts the established structure and adds unnecessary fragmentation."
+    },
+    {
+      "absent": [
+        "StartingPoints",
+        "Outputs",
+        "i1",
+        "i2",
+        "o1",
+        "o2"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "```mermaid",
+      "reader": 2,
+      "repair": "Restore the original Mermaid diagram structure with explicit input/output nodes and the full capability breakdown to maintain clarity about data flow and capabilities.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the 'At a Glance' section was significantly simplified, losing the explicit input/output nodes and the detailed capability breakdown that was present in the original README. This reduces clarity about the library's data flow and capabilities."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "#### Detailed Member Reference",
+      "reader": 2,
+      "repair": "Remove the 'Detailed Member Reference' heading and its empty subsections, keeping only the verified public symbol table as in the original README.",
+      "reviewer_scope_defect": "the quote is the heading 'Detailed Member Reference', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "api_reference",
+      "text": "The API reference section in the candidate includes a 'Detailed Member Reference' heading followed by empty subsections for public symbols, which is not supported by any facts and adds no value. This creates a confusing and incomplete reference section."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Verify the install:",
+      "reader": 2,
+      "repair": "Remove the 'Verify the install' command and keep only the standard `go get` installation command as in the original README.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate adds a 'Verify the install' command that was not present in the original README, which is unnecessary and deviates from the established installation instructions."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Cells FOSS for Go provides a Go-native API to create, read, and convert spreadsheet workbooks in Excel-compatible formats, targeting developers who need lightweight workbook manipulation without external dependencies.",
+      "reader": 2,
+      "repair": "Remove the introductory paragraph and keep only the list of limitations as in the original README to maintain focus on actual limitations.",
+      "reviewer_scope_defect": "the quote names public_symbol:cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate adds an introductory paragraph about the library's purpose that was not present in the original README's 'Scope and Limitations' section, making the section less focused on actual limitations."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "The suite covers 12 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about 12 test files and keep only the standard test commands as in the original README.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate adds a claim about '12 test files under tests/' that is not supported by any facts and was not present in the original README, introducing unsupported specificity."
     }
   ],
   "authoring": {
@@ -145,7 +203,7 @@
   "findings": [],
   "identity_separate": true,
   "preserve": [],
-  "readme_sha256": "60eb7129e9b55c5c419e96fea486f63a30126f7984463bd0e018e535e9c7cecc",
+  "readme_sha256": "2e3e961f5b77e19b53202e9fad99809f4a379453787d37167816c9bcc3065b52",
   "reviewer": {
     "job": "independent_review",
     "model_route": "qwen3-next",
@@ -155,14 +213,15 @@
   "schema_version": 1,
   "second_reader": {
     "corroborated": [
-      "022197a2d4ecfc92d2341ccd",
-      "26b9bd5d92e1edc2d1e162cb",
-      "2e3e72ea29414d0b61e310f7",
-      "3c3b7985b1f0977c7f120bba",
-      "5a7b3d4f0db5c30bca2069e8"
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "75ce3972a5bdabd7147b459d",
+      "7bf2dd6eda183d6293dbc405",
+      "949e03aa2a199c11ad781c51",
+      "fda854a22f02daa23e26407a"
     ],
     "read": 2
   },
   "verdict": "ACCEPT",
-  "verdict_as_returned": "ACCEPT"
+  "verdict_as_returned": "REJECT_PRESENTATION"
 }
