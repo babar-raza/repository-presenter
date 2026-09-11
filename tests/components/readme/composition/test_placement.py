@@ -11,6 +11,7 @@ from repository_presenter.components.readme.composition.placement import (
     placed_texts,
     placements,
     planned_fact_ids,
+    rendered_example_ids,
     renderer_fact_ids,
     renders_verbatim,
 )
@@ -355,6 +356,63 @@ def test_planning_includes_every_verified_example_and_refuses_an_excluded_destin
     plan_checks(omitted, FACTS)
     decision = next(e for e in omitted["sections"] if e["section_id"] == "additional_examples")
     assert decision["include"] is True and omitted["additional_example_ids"] == ["example:002"]
+
+
+def test_a_lead_in_citing_an_example_the_plan_renders_elsewhere_is_overlap_not_an_orphan() -> None:
+    """G4-W17 arrival item 65 (lane C PROPOSAL AA), measured 2026-09-11 on Aspose.Cells for
+    .NET's sealed bundle (941814fd, README line 155): the reconciliation sent the lead-in "Load a
+    workbook with recovery diagnostics:" to Additional Examples citing example:002, the plan
+    rendered that example as the second Quick Start example, and the destination-only overlap
+    check compared against Additional Examples' own {example:003} - so the sentence was placed
+    with no code block after it (the block itself is owned_elsewhere). Cells for Java hit the same
+    class at BC-10 on every draw. The pair renders where the plan puts the example, so the lead-in
+    is overlap whatever its nominal destination."""
+    lead_in = _fact(
+        "inherited_unit:018.paragraph",
+        "inherited_unit",
+        "Load a workbook with recovery diagnostics:",
+    )
+    block = _fact("inherited_unit:019.code_block", "inherited_unit", "```python\nprint(1)\n```")
+    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, lead_in, block))
+    # The plan renders example:001 under Quick Start and example:002 under Additional Examples;
+    # the reconciliation sent both halves of the example:001 pair to Additional Examples.
+    plan = _plan()
+    assert rendered_example_ids(plan) == {
+        "example:001": "quick_start",
+        "example:002": "additional_examples",
+    }
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:018.paragraph", "additional_examples", "example:001"),
+            _entry("inherited_unit:019.code_block", "additional_examples", "example:001"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    assert decisions["inherited_unit:019.code_block"].outcome == "owned_elsewhere"
+    assert decisions["inherited_unit:018.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:018.paragraph"].overlap == ("example:001",)
+    assert placed_texts(list(decisions.values())) == {}
+    # Controls. Sent to the section that renders its example, the lead-in was overlap already -
+    # same answer, same fact. A sentence citing a fact no plan field renders anywhere still
+    # places: the rule drops duplicates of what the plan renders, nothing else.
+    same_section = {
+        "dispositions": [_entry("inherited_unit:018.paragraph", "quick_start", "example:001")]
+    }
+    (decision,) = placements(plan, same_section, facts, "python")
+    assert decision.outcome == "overlap" and decision.overlap == ("example:001",)
+    unrelated = {
+        "dispositions": [
+            _entry("inherited_unit:011.paragraph", "additional_examples", "identity:repository")
+        ]
+    }
+    (decision,) = placements(plan, unrelated, facts, "python")
+    assert decision.outcome == "placed"
+    # An example the plan names in a section it excludes renders nowhere, so it covers nothing.
+    excluded = _plan()
+    for entry in excluded["sections"]:
+        if entry["section_id"] == "quick_start":
+            entry["include"] = False
+    assert rendered_example_ids(excluded) == {"example:002": "additional_examples"}
 
 
 def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:

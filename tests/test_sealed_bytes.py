@@ -109,10 +109,35 @@ def test_there_is_at_least_one_sealed_bundle_to_hold_the_renderer_to() -> None:
 # the candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up, since
 # validation/review were judged against the old bytes; that re-seal is separate follow-up work, not
 # this fix's own scope. `strict=True` for the same reason as the entry above.
+# G4-W17 arrival item 65 (lane C PROPOSAL AA, docs/DECISION_LOG.md section 31 2026-09-11) is a
+# placement fix: placements() now covers every example the plan renders in any included section
+# (placement.rendered_example_ids), not only the unit's own destination's content. Aspose.Cells for
+# .NET's sealed bundle sent inherited_unit:018.paragraph ("Load a workbook with recovery
+# diagnostics:") to Additional Examples citing example:002, which the plan renders as the second
+# Quick Start example; the destination-only check placed it, and the sealed README carries the
+# sentence at line 155 with no code block after it - a real, already-shipped content defect. Under
+# the fix the unit is overlap and that line (with its blank line) is the only change to the
+# re-rendered bytes (diff checked directly, not assumed). The bundle is deliberately NOT re-sealed
+# or edited during the sprint (grandfathering ruling, section 31 2026-09-11 21:52 +05:00);
+# re-verification is recorded post-sprint debt. `strict=True` as above.
 # Each record carries the debt's reason AND the reference owning its repayment (a work item,
 # taskcard, arrival item, or dated DECISION_LOG section 31 entry) - tests/test_debt_ledger.py
 # (PHASE1/F7) enforces both, so no entry can defer a re-seal to nobody again.
 KNOWN_BLOCKED_STALE = {
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-.NET": {
+        "reason": (
+            "G4-W17 item 65's placement fix drops the orphaned lead-in 'Load a workbook with "
+            "recovery diagnostics:' (inherited_unit:018.paragraph, sealed README line 155) whose "
+            "example:002 the plan renders under Quick Start; the sealed bytes still carry the "
+            "orphan - a shipped content defect the fix corrects, not re-sealed during the sprint "
+            "- see comment above"
+        ),
+        "ref": (
+            "G4-W17 arrival item 65 (lane C PROPOSAL AA); grandfathering ruling "
+            "docs/DECISION_LOG.md section 31 2026-09-11 21:52 +05:00 - CURRENT keeps counting, "
+            "re-verification of this one bundle is post-sprint debt"
+        ),
+    },
     "aspose-email-foss__Aspose.Email-FOSS-for-Python": {
         "reason": (
             "genuine BC-10 rejection (F07, development_testing content gap) - unrelated to the "

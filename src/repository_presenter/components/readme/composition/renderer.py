@@ -52,8 +52,11 @@ from repository_presenter.core.facts import Fact, FactsDocument
 from repository_presenter.core.registry.models import RegistryEntry
 
 # The template component version dependencies.json records. 19: facts render in canonical (ID)
-# order, the order the bundle stores them in (G4-W17 arrival items 48/61).
-RENDERER_VERSION = "20"
+# order, the order the bundle stores them in (G4-W17 arrival items 48/61). 20: hub headings and
+# table rows read one naming function (api_reference_names, arrival item 58). 21: a preserved
+# lead-in citing an example the plan renders in another section is overlap, never an orphaned
+# sentence with no code block after it (placement.rendered_example_ids, arrival item 65).
+RENDERER_VERSION = "21"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"

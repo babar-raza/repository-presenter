@@ -4,8 +4,12 @@ docs/README_CONTRACT.md section 3 places every VERIFIED_PRESERVE and VERIFIED_MO
 destination section under three rules, each a confirmed G1 defect. Placement is exclusive, never
 additive, on fact-ID overlap: a unit whose cited facts intersect the destination's own plan-driven
 content is dropped, because the planned, freshly authored content already covers that material
-and passed the evidence-bound checks. A placed unit inherits its section's visibility: in a
-collapsible section it renders inside the details block, never appended outside it. A placed
+and passed the evidence-bound checks. An example the plan renders is covered wherever the unit was
+sent, not only in the unit's own destination: the example renders exactly once, where the plan put
+it, so an inherited sentence introducing it duplicates that section's own lead-in from any section
+(``rendered_example_ids``, G4-W17 arrival item 65). A placed unit inherits its section's
+visibility: in a collapsible section it renders inside the details block, never appended outside
+it. A placed
 unit whose destination the plan excludes is never dropped silently: planning fails closed naming
 the unit (planning.plan_checks), and here it is recorded as excluded so the validator can see it.
 
@@ -112,6 +116,39 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
     return frozenset(i for i in ids if i)
 
 
+def rendered_example_ids(plan: Mapping[str, Any]) -> dict[str, str]:
+    """Every example the plan renders, mapped to the included section that prints it.
+
+    An example renders exactly once, where the plan puts it - ``quick_start_example_id`` and
+    ``second_quick_start_example_id`` under Quick Start, ``additional_example_ids`` under
+    Additional Examples - each introduced by that section's own authored lead-in
+    (README_CONTRACT.md section 2 rows 10 and 12). The inherited code block behind the example is
+    ``owned_elsewhere`` and never placed, so an inherited sentence introducing it duplicates that
+    lead-in wherever the reconciliation sent the sentence: the plan, not the disposition's
+    ``destination_section``, decides where the pair renders, and ``placements()`` reads this on
+    top of the destination's own coverage. Measured 2026-09-11 (G4-W17 arrival item 65, lane C
+    PROPOSAL AA): Aspose.Cells for .NET's sealed bundle sent ``inherited_unit:018.paragraph``
+    ("Load a workbook with recovery diagnostics:") to Additional Examples citing ``example:002``,
+    which the plan renders as the second Quick Start example; the destination-only check compared
+    against ``{example:003}``, placed the sentence, and the sealed README carries it with no code
+    block after it (line 155). Cells for Java met the same class at BC-10 on every draw. A section
+    the plan excludes renders nothing, so its examples are not counted here.
+    """
+    included = {
+        str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
+    }
+    where: dict[str, str] = {}
+    if "quick_start" in included:
+        for key in ("quick_start_example_id", "second_quick_start_example_id"):
+            example_id = plan.get(key)
+            if example_id:
+                where[str(example_id)] = "quick_start"
+    if "additional_examples" in included:
+        for example_id in plan.get("additional_example_ids", []):
+            where.setdefault(str(example_id), "additional_examples")
+    return where
+
+
 _RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
 
 
@@ -209,6 +246,9 @@ def placements(
         str(entry.get("section_id")) for entry in plan.get("sections", []) if entry.get("include")
     }
     by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
+    # Where the plan actually renders each example - the paired code block's real destination,
+    # whatever section the reconciliation named for the sentence introducing it (arrival item 65).
+    rendered_examples = frozenset(rendered_example_ids(plan))
     result: list[Placement] = []
     for entry in dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
@@ -224,7 +264,11 @@ def placements(
         if destination not in included:
             result.append(Placement(unit_id, destination, unit.value, "excluded"))
             continue
-        covered = planned_fact_ids(plan, destination) | renderer_fact_ids(destination, facts, plan)
+        covered = (
+            planned_fact_ids(plan, destination)
+            | renderer_fact_ids(destination, facts, plan)
+            | rendered_examples
+        )
         overlap = (
             ()
             if unit_id.endswith(".code_block")  # a command block is content nothing else renders
