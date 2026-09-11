@@ -1,0 +1,122 @@
+[
+  {
+    "elapsed_ms": 1223,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/java/"
+  },
+  {
+    "elapsed_ms": 1812,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 2014,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/issues"
+  },
+  {
+    "elapsed_ms": 765,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Java-17%2B-blue.svg"
+  },
+  {
+    "elapsed_ms": 693,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1263,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.svg"
+  },
+  {
+    "elapsed_ms": 1257,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/maven-central/v/org.aspose/aspose-cells-foss.svg"
+  },
+  {
+    "elapsed_ms": 1149,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/java/"
+  },
+  {
+    "elapsed_ms": 1648,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://openjdk.org/projects/jdk/17/"
+  },
+  {
+    "elapsed_ms": 744,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/java/"
+  },
+  {
+    "elapsed_ms": 835,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/java/"
+  },
+  {
+    "elapsed_ms": 1635,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/java/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1523,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/java/"
+  },
+  {
+    "elapsed_ms": 786,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "maven-metadata-xml",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "maven:org.aspose:aspose-cells-foss"
+  }
+]

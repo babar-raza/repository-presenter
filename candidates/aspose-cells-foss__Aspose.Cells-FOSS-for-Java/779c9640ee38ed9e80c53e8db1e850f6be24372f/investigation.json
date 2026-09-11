@@ -1,0 +1,160 @@
+{
+  "audience": {
+    "fact_ids": [
+      "example:001",
+      "example:002",
+      "example:003",
+      "package:java_release",
+      "dependency:none"
+    ],
+    "text": "Java developers building applications that require reading, writing, and manipulating Excel .xlsx workbooks without runtime dependencies on Apache POI."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "text": "The library provides Workbook, Worksheet, and Cells collections for reading and writing string, numeric, boolean, date/time, and formula values.",
+      "title": "Read, write, and edit Excel .xlsx workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "text": "Style objects carry font, borders, fill, alignment, number format, and protection flags; row/column sizing, visibility, and outline grouping are supported.",
+      "title": "Apply cell styling and formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "text": "ValidationCollection and ConditionalFormattingCollection allow defining data rules and visual formatting for CellArea ranges.",
+      "title": "Validate data and apply conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "Pictures, comments, shapes, and Excel tables (ListObjects) can be added, retrieved, and removed with appropriate positioning and styling.",
+      "title": "Embed and manage drawing objects"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "PageSetup, WorksheetProtection, WorkbookProtection, and WorkbookView provide control over print options, protection, and window layout.",
+      "title": "Configure page setup and print layout"
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "text": "LoadOptions exposes strictMode, tryRepairPackage, and tryRepairXml flags; Workbook.getLoadDiagnostics() returns detailed repair and preservation notes.",
+      "title": "Load diagnostics and repair"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "text": "AutoFilter supports color, dynamic, top-10, and custom filters; 18 of 25 ChartType values can be created programmatically.",
+      "title": "Support auto filters and charts"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "text": "Saving is currently limited to .xlsx format only."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "text": "ChartEx types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot be created programmatically; they round-trip only when loaded from an existing workbook."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "text": "Formulas are stored and round-tripped, but the library is not a full spreadsheet calculation engine."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "text": "A handful of public XML-mapper classes are unimplemented skeleton code carried over from an early scaffold."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "text": "Enables programmatic creation and editing of Excel workbooks with cell values, formulas, styling, and layout control using a pure Java API."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "text": "Supports robust loading of potentially corrupted Excel files via strict mode toggles and repair options, with diagnostics reporting."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "text": "Provides data validation and conditional formatting capabilities scoped to worksheet ranges for enforcing and highlighting data rules."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:java_release",
+      "license:spdx"
+    ],
+    "text": "Aspose.Cells FOSS for Java is a free, open-source, pure-Java spreadsheet library for creating, loading, modifying, and saving Excel .xlsx workbooks targeting Java 17."
+  },
+  "uncertainties": [
+    "The exact set of 183 public types and their full API surface beyond what is shown in examples and public_symbol facts is not fully enumerated.",
+    "Whether the unimplemented XML-mapper classes are ever invoked by internal save/load paths is not confirmed by the provided facts.",
+    "The behavior of ChartEx types when saved and reloaded is not demonstrated in the examples."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "name": "Create and style workbook",
+      "text": "Instantiate a Workbook, access a Worksheet, write values to Cells, apply Style to individual cells, and save the result as .xlsx."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "name": "Load and repair workbook",
+      "text": "Load an existing workbook using LoadOptions with repair flags, inspect diagnostics for issues, modify metadata, and save the repaired output."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "name": "Apply validation and conditional formatting",
+      "text": "Add data validation and conditional formatting rules to a CellArea, configure style for conditional formats, and save the workbook."
+    }
+  ]
+}

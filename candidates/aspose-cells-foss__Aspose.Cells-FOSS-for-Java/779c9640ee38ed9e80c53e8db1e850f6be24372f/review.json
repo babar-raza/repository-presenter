@@ -1,0 +1,283 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "<dependency>",
+        "  <groupId>org.aspose</groupId>",
+        "  <artifactId>aspose-cells-foss</artifactId>",
+        "  <version>26.7.0</version>",
+        "</dependency>",
+        "implementation 'org.aspose:aspose-cells-foss:26.7.0'"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-cells-foss`, version 26.7.0):",
+      "repair": "Restore the standard Maven XML and Gradle Groovy DSL dependency snippets to the installation section.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '</dependency>', '<artifactId>aspose-cells-foss</artifactId>', '<dependency>', which the candidate contains; the finding asks for \"implementation 'org.aspose:aspose-cells-foss:26.7.0'\", which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "installation",
+      "text": "The installation section omits the standard Maven XML snippet and Gradle Groovy DSL snippet, which are expected by Java developers and were present in the original README."
+    },
+    {
+      "absent": [
+        "Apache POI is used only in `test` scope for compatibility checks, never at runtime."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "### Required Package Dependencies",
+      "repair": "Remove the 'Required Package Dependencies' subsection and clarify that the library has no runtime third-party dependencies, with Apache POI used only in test scope.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The dependencies section introduces a new 'Required Package Dependencies' subsection that contradicts the original README's clear statement that Apache POI is used only in test scope and never at runtime."
+    },
+    {
+      "absent": [
+        "### Core API",
+        "| Class | Description |",
+        "| --- | --- |",
+        "| `AlignmentValue` | Represents alignment settings for a cell style. |",
+        "| `AutoFilter` | Represents an auto-filter in a worksheet. |",
+        "| `AutoFilterColorFilter` | Represents the AutoFilterColorFilter component. |",
+        "| `AutoFilterCriteria` | Represents auto-filter criteria for filtering data in a worksheet. |",
+        "| `AutoFilterCustomFilter` | Represents the AutoFilterCustomFilter component. |"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "The verified public surface has 183 types.",
+      "repair": "Restore the full public API table of 183 types and remove the unsupported namespace hierarchy prose.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Core API', '| --- | --- |', '| Class | Description |', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API reference section replaces the original comprehensive table of 183 public types with a truncated list and adds unsupported namespace hierarchy prose."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot table support, and enhanced Excel format compatibility.",
+      "repair": "Remove the unsupported claim about the commercial edition's features and stick to the verified limitations listed in the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:org.aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The scope and limitations section adds an unsupported claim that the commercial edition adds 'comprehensive charting, pivot table support, and enhanced Excel format compatibility' without factual basis."
+    },
+    {
+      "absent": [
+        "mvn test",
+        "mvn compile",
+        "mvn clean package",
+        "mvn javadoc:javadoc"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Build and test the project using the CI workflows in .github/workflows/ and the documentation in docs/ with Java 17 and the package `org.aspose:aspose-cells-foss` version 26.7.0.",
+      "repair": "Restore the original specific Maven commands for building and testing the project.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "development_testing",
+      "text": "The development and testing section replaces the original specific commands with vague references to CI workflows and documentation without preserving the original commands."
+    },
+    {
+      "absent": [
+        "mvn dependency:get -Dartifact=org.aspose:aspose-cells-foss:26.7.0"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-cells-foss`, version 26.7.0):",
+      "reader": 2,
+      "repair": "Replace the `mvn dependency:get` command with the standard Maven `pom.xml` dependency snippet and Gradle `implementation` line as used in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'mvn dependency:get -Dartifact=org.aspose:aspose-cells-foss:26.7.0', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section uses an unusual command-line invocation (`mvn dependency:get`) instead of the standard `pom.xml` or `build.gradle` dependency declaration used in the original README and expected by developers."
+    },
+    {
+      "absent": [
+        "No required third-party package dependencies"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.org.apache.poi-poi-ooxml",
+        "dependency:development.org.junit.jupiter-junit-jupiter"
+      ],
+      "id": "F02",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Remove the 'Required Package Dependencies' subsection and integrate dependency information into a single Dependencies section that accurately reflects test-time dependencies.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'No required third-party package dependencies', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The Dependencies section introduces a new heading and subsection not present in the original README, and the phrasing 'No required third-party package dependencies' is misleading because Apache POI is a required test dependency."
+    },
+    {
+      "absent": [
+        "### Core API",
+        "### Interfaces",
+        "### Enumerations"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "The verified public surface has 183 types.",
+      "reader": 2,
+      "repair": "Restore the public API table with all 183 types as in the original README, or at minimum provide a link to the generated Javadoc.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Core API', '### Enumerations', '### Interfaces', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section omits the public API table entirely, which contradicts the original README's detailed table and the project's own 183-type public surface, reducing developer usability."
+    },
+    {
+      "absent": [
+        "### org",
+        "### aspose",
+        "### cells_foss"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "#### Detailed Member Reference",
+      "reader": 2,
+      "repair": "Remove the 'Detailed Member Reference' subsection and the namespace hierarchy paragraphs.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### aspose', '### cells_foss', '### org', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section includes an unhelpful and unsupported 'Detailed Member Reference' subsection with namespace hierarchy (org, aspose, cells_foss) that does not exist in the original README and adds no value."
+    },
+    {
+      "absent": [
+        "comprehensive charting, pivot table support, and enhanced Excel format compatibility"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot table support, and enhanced Excel format compatibility.",
+      "reader": 2,
+      "repair": "Remove the unsupported feature list and keep only the factual limitations already present in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'comprehensive charting, pivot table support, and enhanced Excel format compatibility', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section adds an unsupported claim that 'Aspose.Cells FOSS for Java provides core spreadsheet processing capabilities, while Aspose.Cells commercial edition adds advanced features such as comprehensive charting, pivot table support, and enhanced Excel format compatibility', which is not in the original README and introduces unsupported feature claims."
+    },
+    {
+      "absent": [
+        "mvn test",
+        "mvn compile",
+        "mvn clean package",
+        "mvn javadoc:javadoc"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Build and test the project using the CI workflows in .github/workflows/ and the documentation in docs/ with Java 17 and the package `org.aspose:aspose-cells-foss` version 26.7.0.",
+      "reader": 2,
+      "repair": "Restore the specific Maven commands (`mvn test`, `mvn compile`, etc.) and workflow file reference as in the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section replaces the original's specific commands and workflow references with vague, unsupported prose about CI workflows and documentation, losing concrete utility."
+    },
+    {
+      "absent": [
+        "Load a potentially corrupted workbook with repair options enabled, inspect any issues found, and save a repaired version"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002"
+      ],
+      "id": "F07",
+      "quote": "Create a new workbook, populate cells with data and formatting, and save the file as an Excel workbook.",
+      "reader": 2,
+      "repair": "Include both Quick Start examples (creating a workbook and loading with diagnostics) as in the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Load a potentially corrupted workbook with repair options enabled, inspect any issues found, and save a repaired version', which the candidate contains",
+      "section_id": "quick_start",
+      "text": "The Quick Start section omits the second example (loading with diagnostics) that was present in the original README and is supported by `example:002`, reducing completeness."
+    },
+    {
+      "absent": [
+        "Workbook",
+        "Worksheet",
+        "Cells",
+        "Style",
+        "Validation",
+        "ConditionalFormattingCollection",
+        "PageSetup",
+        "CommentCollection"
+      ],
+      "absent_refuted": [
+        "Cells",
+        "PageSetup",
+        "Style",
+        "Validation",
+        "Workbook",
+        "Worksheet"
+      ],
+      "absent_remaining": [
+        "ConditionalFormattingCollection",
+        "CommentCollection"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "Read, write, and edit Excel .xlsx workbooks.",
+      "reader": 2,
+      "repair": "Restore the specific API class names and collection types as in the original README to maintain specificity and developer utility.",
+      "section_id": "key_capabilities",
+      "single_reader_advisory": true,
+      "text": "The Key Capabilities section omits specific API class names (e.g., `Workbook`, `Worksheet`, `Cells`, `Style`, `Validation`, `ConditionalFormattingCollection`, `PageSetup`, `CommentCollection`, `PictureCollection`, `ChartCollection`, `ShapeCollection`, `ListObjectCollection`) that were present in the original README and are essential for developer orientation."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "26c3639a37d350526e564c74d99fae84ae8d62cc508d5631c73ba04cd65374e2",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "1314fc4e818458fa4c23cb8d",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "5a7b3d4f0db5c30bca2069e8",
+      "a3b6ba4d451861363f1cdb3d",
+      "ae6948684db4e2c953bd56e9"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

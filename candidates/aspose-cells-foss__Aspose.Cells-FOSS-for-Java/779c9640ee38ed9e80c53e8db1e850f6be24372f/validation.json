@@ -1,0 +1,443 @@
+{
+  "advisory": [
+    "inherited_unit:010.list: the rewrite no longer names #N/A, #REF!, #VALUE!, .xlsx, ChartCollection.add(), Workbook.getLoadDiagnostics(), setStyle()"
+  ],
+  "checks": [
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-01",
+      "judged_at": "S9",
+      "name": "Source revision pinned; original README bytes exact; every fact carries evidence",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-02",
+      "judged_at": "S9",
+      "name": "Install command verified against the manifest and the package-registry observation",
+      "sections": [
+        "installation"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-03",
+      "judged_at": "S9",
+      "name": "Every rendered example was executed or compiled in isolation at this revision",
+      "sections": [
+        "quick_start",
+        "additional_examples"
+      ],
+      "verdict": "PASS",
+      "version": "2"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-04",
+      "judged_at": "S9",
+      "name": "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact value in a code span",
+      "sections": [
+        "opening",
+        "key_capabilities",
+        "scope_limitations",
+        "api_reference",
+        "documentation_resources",
+        "enterprise_relationship"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-05",
+      "judged_at": "S9",
+      "name": "Every material inherited unit has exactly one disposition; placed units appear in their destination",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-06",
+      "judged_at": "S9",
+      "name": "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the only edition name",
+      "sections": [
+        "documentation_resources",
+        "enterprise_relationship",
+        "badges"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-07",
+      "judged_at": "S9",
+      "name": "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; At a Glance topology and column rules; no internal narration; within the length budget",
+      "sections": [
+        "structure"
+      ],
+      "verdict": "PASS",
+      "version": "3"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-08",
+      "judged_at": "S9",
+      "name": "Protected content preserved",
+      "sections": [
+        "all"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-09",
+      "judged_at": "S9",
+      "name": "No configured secret in the bundle",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    },
+    {
+      "causal_stage": null,
+      "details": [],
+      "failures": [],
+      "id": "BC-10",
+      "judged_at": "S10",
+      "name": "Independent review returns ACCEPT corroborated by a second independent read, under a reviewer identity separate from authoring, with no unrefuted advisory left on a required row",
+      "review_verdict": "ACCEPT",
+      "sections": [
+        "review"
+      ],
+      "verdict": "PASS",
+      "version": "4"
+    },
+    {
+      "causal_stage": null,
+      "details": [
+        "judged by the fresh-process replay: every artifact byte-identical, zero provider calls"
+      ],
+      "id": "BC-11",
+      "judged_at": "S12",
+      "name": "Fresh-process rerun is byte-identical with zero provider calls",
+      "sections": [
+        "bundle"
+      ],
+      "verdict": "PASS",
+      "version": "1"
+    }
+  ],
+  "coverage": [
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        }
+      ],
+      "required": true,
+      "section_id": "identity"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        },
+        {
+          "extracted": 32,
+          "kind": "link_target",
+          "supported": 32
+        }
+      ],
+      "required": true,
+      "section_id": "badges"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 32,
+          "kind": "link_target",
+          "supported": 32
+        }
+      ],
+      "required": false,
+      "section_id": "banner"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 5,
+          "kind": "identity",
+          "supported": 5
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        },
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 2728,
+          "kind": "public_symbol",
+          "supported": 2728
+        }
+      ],
+      "required": true,
+      "section_id": "opening"
+    },
+    {
+      "included": true,
+      "kinds": [],
+      "required": true,
+      "section_id": "navigation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 2728,
+          "kind": "public_symbol",
+          "supported": 2728
+        }
+      ],
+      "required": false,
+      "section_id": "at_a_glance"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2728,
+          "kind": "public_symbol",
+          "supported": 2728
+        },
+        {
+          "extracted": 3,
+          "kind": "example",
+          "supported": 3
+        },
+        {
+          "extracted": 0,
+          "kind": "format",
+          "supported": 0
+        },
+        {
+          "extracted": 0,
+          "kind": "import_path",
+          "supported": 0
+        }
+      ],
+      "required": true,
+      "section_id": "key_capabilities"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 1,
+          "kind": "install_command",
+          "supported": 1
+        },
+        {
+          "extracted": 3,
+          "kind": "package",
+          "supported": 3
+        }
+      ],
+      "required": true,
+      "section_id": "installation"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 3,
+          "kind": "dependency",
+          "supported": 3
+        }
+      ],
+      "required": true,
+      "section_id": "dependencies"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 3,
+          "kind": "example",
+          "supported": 3
+        }
+      ],
+      "required": true,
+      "section_id": "quick_start"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 3,
+          "kind": "example",
+          "supported": 3
+        }
+      ],
+      "required": false,
+      "section_id": "additional_examples"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2728,
+          "kind": "public_symbol",
+          "supported": 2728
+        }
+      ],
+      "required": true,
+      "section_id": "api_reference"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 32,
+          "kind": "link_target",
+          "supported": 32
+        }
+      ],
+      "required": false,
+      "section_id": "documentation_resources"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 50,
+          "kind": "inherited_unit",
+          "supported": 50
+        },
+        {
+          "extracted": 3,
+          "kind": "example",
+          "supported": 3
+        },
+        {
+          "extracted": 2728,
+          "kind": "public_symbol",
+          "supported": 2728
+        }
+      ],
+      "required": true,
+      "section_id": "scope_limitations"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "build_test_asset",
+          "supported": 2
+        }
+      ],
+      "required": false,
+      "section_id": "development_testing"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 32,
+          "kind": "link_target",
+          "supported": 32
+        }
+      ],
+      "required": false,
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "included": false,
+      "kinds": [
+        {
+          "extracted": 0,
+          "kind": "third_party_notices",
+          "supported": 0
+        }
+      ],
+      "required": false,
+      "section_id": "third_party_notices"
+    },
+    {
+      "included": true,
+      "kinds": [
+        {
+          "extracted": 2,
+          "kind": "license",
+          "supported": 2
+        }
+      ],
+      "required": true,
+      "section_id": "license"
+    }
+  ],
+  "protected_content_fingerprint": "31ca4cd17c11ae725bb76d4c2fe05aae42179707883862688754dbae11b25d5e",
+  "readme_sha256": "26c3639a37d350526e564c74d99fae84ae8d62cc508d5631c73ba04cd65374e2",
+  "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Java",
+  "schema_version": 1,
+  "source_revision": "779c9640ee38ed9e80c53e8db1e850f6be24372f",
+  "summary": {
+    "fail": 0,
+    "pass": 11,
+    "pending": 0
+  },
+  "validator_version": "3"
+}

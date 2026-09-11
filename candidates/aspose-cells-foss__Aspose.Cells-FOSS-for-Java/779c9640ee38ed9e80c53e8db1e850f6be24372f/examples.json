@@ -1,0 +1,32 @@
+[
+  {
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.cells_foss.*",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.cells_foss.*",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.cells_foss.*",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

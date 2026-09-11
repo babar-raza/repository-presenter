@@ -1,0 +1,268 @@
+{
+  "additional_example_ids": [
+    "example:003"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose.cells_foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Read, write, and edit Excel .xlsx workbooks",
+      "Apply cell styling and formatting",
+      "Validate data and apply conditional formatting",
+      "Embed and manage drawing objects",
+      "Configure page setup and print layout",
+      "Load diagnostics and repair",
+      "Support auto filters and charts"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003"
+      ],
+      "title": "Read, write, and edit Excel .xlsx workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Apply cell styling and formatting"
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "shared_fact_ids": [
+        "example:003"
+      ],
+      "title": "Validate data and apply conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Embed and manage drawing objects"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Configure page setup and print layout"
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Load diagnostics and repair"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.cells_foss"
+      ],
+      "title": "Support auto filters and charts"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:030.html_block",
+        "inherited_unit:031.heading",
+        "inherited_unit:032.table",
+        "inherited_unit:033.heading",
+        "inherited_unit:034.table",
+        "inherited_unit:035.heading",
+        "inherited_unit:036.table",
+        "inherited_unit:037.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The full public API table is omitted per dispositions; only the public_symbol facts and module entry point are rendered."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:041.list"
+      ],
+      "unit_ids": []
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
