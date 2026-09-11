@@ -38,9 +38,18 @@ class; a rule with no incident behind it is a candidate for removal, not additio
 |---|---|---|
 | Primary executor | its own CI, tree, cursor | monitors, supervisor wakes, liveness.yml (via main inactivity) |
 | Lane agent | its own PR's CI | supervisor (spawn record, completion notification), liveness.yml (PR age) |
-| Supervisor | everything above | **liveness.yml** (its only watcher — a dead supervisor's artifacts strand within 30–60 min and turn a scheduled run red) |
+| Supervisor | everything above | **liveness.yml** (its only mechanical watcher — a dead supervisor's artifacts strand within 30–60 min and turn a scheduled run red), plus any owner-directed advisor session (see below) |
 | Monitors | executor transcript, decision log, ledger | supervisor §0 re-arm; their own startup `WATCHING` line |
 | liveness.yml | PRs, branches, main cadence | GitHub itself (schedule); the supervisor polls `gh run list --workflow liveness.yml` each wake |
+
+**Advisor sessions.** The owner may run an independent verification session that re-derives real
+git, CI and liveness state and cross-checks it against what this supervision layer claims. It owns
+no paths, spawns nothing, and holds no authority over the queue — it reports. Its messages are
+prefixed `Advisor:` and carry one finding with its evidence. Treat such a finding exactly like a
+reviewer flag: verify it against the artifact yourself, then act or record why not. It answers the
+one question this matrix otherwise answers only mechanically — who checks the checker — and its
+value depends entirely on it re-deriving state rather than reading these records back (2026-09-11,
+the owner stood one up mid-sprint).
 
 No node is unwatched. The recovery from any single death is the same: a fresh session runs
 procedure §0 end to end. Durable state (channels, cursors, taskcard tables, reviewer_state) lets
