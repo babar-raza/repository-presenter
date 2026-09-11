@@ -1,0 +1,162 @@
+{
+ "schema_version": 1,
+ "lane": "lane-d",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W15-RERUN2",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-11T13:05:00+05:00",
+ "control_revision": "1fb995dcf4bd8a74871bcc738a64a08c1cf4ae54",
+ "control_revision_note": "The run executed at 1fb995d. The branch was rebased to f00e143 (F6 d6d9891, GATE-0 bceb49a, F7 f00e143) before landing; `git diff --stat 1fb995d origin/main -- .../reconciliation prompts/ core/facts.py core/llm` is empty, so nothing that landed in between touches the stage this run failed at and the finding stands unchanged at f00e143.",
+ "why": "Sprint W-GO (plans/sprint/PHASE1-SPRINT-PLAN.md section 11). Re-run aspose-cells-foss/Aspose.Cells-FOSS-for-Go to convert its BLOCKED_SHARED_CODE / BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE disposition: the resume predicate PROPOSAL P16 named (item 33, landed 70a1d8e) is met, and items 28, 29 and 45 were the unlocks under test. Aspose-PDF-FOSS-for-Go waits on item 47 and was not run.",
+ "scope": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go only",
+ "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+ "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\d15r2"
+ },
+ "toolchain": {
+  "tool": "go",
+  "resolved_by": "shutil.which(\"go\")",
+  "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+  "version": "go1.26.4 windows/amd64"
+ },
+ "lane_owned_changes": [],
+ "lane_owned_changes_note": "No lane-owned code changed. The run never reached a stage lane D owns; the blocker is in reconciliation/, which lane D may not patch.",
+ "resume_predicate_met": true,
+ "unlocks_under_test_not_reached": {
+  "items": [
+   28,
+   29,
+   45
+  ],
+  "reason": "S10 independent_review was never reached. The transaction failed at S4 source_reconciliation, six stages earlier, so nothing in this run exercised BC-10 or the review at all. The three unlocks are neither confirmed nor refuted by this run and nothing here claims they are."
+ },
+ "stage_outcomes": {
+  "S1_snapshot": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go at 9f0a4033b59e9127afec7662ec9079b500af8032, 3 files, 51 tree entries, readme README.md, digest 69d1ebb4af27007be597166d300edb0c6340af7002577c5da14666d3850c315b",
+  "S2_examples": "10 candidates; executed 8, failed 1, not_verified 1 - unchanged from the 2026-09-06 run",
+  "S2_facts": "231 records (build_test_asset 3, dependency 1, example 10, identity 5, import_path 1, inherited_unit 66, install_command 1, license 2, link_target 31, package 2, public_symbol 109; digest 412ac7ae93964b408c3df8840ddab756511e4dfb7319ec354f679bad27648f97) - identical count to the 2026-09-06 run at the same source revision",
+  "S3_repository_investigation": "SUCCEEDED on attempt 1 (prompt 9,767, completion 1,977 tokens); re-used from the call store on the second run",
+  "S4_source_reconciliation": "FAILED, both runs, identically: batch reconciliation#1 (40 of 66 inherited units) returned finish_reason=length at the manifest's max_output_tokens"
+ },
+ "provider_calls": {
+  "run_1": 2,
+  "run_2": 1,
+  "diagnostic_probes": 3,
+  "total_live": 6,
+  "note": "run_2's S3 was a cache_reuse, not a call. The three probes are diagnostics described under failure_class.evidence; they wrote nothing into the transaction."
+ },
+ "checks_passed": [],
+ "checks_pending": {
+  "BC-01..BC-11": "None was judged. The transaction never reached S9 validation; no candidate was rendered."
+ },
+ "sealed": false,
+ "failure_class": {
+  "class": "S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY",
+  "stage": "S4 source_reconciliation",
+  "proposal": "P23",
+  "shared_code": true,
+  "deterministic": true,
+  "evidence": {
+   "reproduction": [
+    {
+     "run": 1,
+     "started_at": "2026-09-11T07:19:48.438+00:00",
+     "prompt_tokens": 15271,
+     "completion_tokens": 32000,
+     "latency_ms": 552882,
+     "finish_reason": "length",
+     "response_sha256_prefix": "451561ebafa3"
+    },
+    {
+     "run": 2,
+     "started_at": "2026-09-11T07:36:12.286+00:00",
+     "prompt_tokens": 15271,
+     "completion_tokens": 32000,
+     "latency_ms": 571757,
+     "finish_reason": "length",
+     "response_sha256_prefix": "0ab7deaa03f7"
+    }
+   ],
+   "reproduction_note": "Two full runs, same prompt digest, same 15,271-token prompt, both capped at exactly 32,000 completion tokens. The two replies hash differently, so temperature 0.0 / seed 1 is not giving this gateway bit-identical output - which makes the agreement of the two failures evidence that the truncation is structural, not one unlucky sample.",
+   "expected_output_size": "The manifest's own recorded measurement is about 69 tokens per disposition record (prompts/source_reconciliation.yaml, sampling comment) and the schema caps rationale at 160 characters, so 40 records should cost roughly 2,800 tokens. 32,000 is about eleven times that.",
+   "captured_runaway": {
+    "probe": "the same batch-1 request replayed with max_tokens=6000, reply captured",
+    "prefix_only_fact_ids": 1104,
+    "prefix_only_by_kind": {
+     "public_symbol": 1047,
+     "link_target": 32,
+     "example": 17,
+     "identity": 5,
+     "package": 2,
+     "dependency": 1
+    },
+    "fact_ids_carrying_a_value": 0,
+    "well_formed_ids_in_the_whole_reply": "7, and every one of them is a unit_id - the one field reconciliation_schema() pins with an enum",
+    "shape": "Every fact_ids entry is the bare kind prefix with nothing after the colon: \"public_symbol:\", \"link_target:\", \"identity:\". One disposition's fact_ids array alone ran to 1,047 consecutive \"public_symbol:\" entries and was still going when the budget ran out."
+   },
+   "cause": "reconciliation_schema() (components/readme/reconciliation/dispositions.py, the block added by G4-W17 arrival item 40, commit e2a1a83 at 2026-09-11 06:50 +05:00) pins fact_ids items with a regex - {\"type\": \"string\", \"pattern\": \"^(build_test_asset|...|public_symbol|...):\"} - and the array carries no maxItems. The request is sent with response_format json_schema strict:true, so the gateway decodes under that grammar. \"public_symbol:\" satisfies ^(...|public_symbol|...): exactly, and with no bound on the array the decoder emits it until the token budget is exhausted. The binding guard that would reject a fact ID naming no fact never runs, because finish_reason==\"length\" raises in core/llm/jobs.py before any parsing.",
+   "regression": "Pre-item-40 the same field was {\"type\": \"string\"} with no pattern (git show e2a1a83 -- .../dispositions.py). The pattern was added to stop a job filling the slot with a packet key; under grammar-constrained decoding it instead created a degenerate minimal match. The same function pins unit_id with an enum for exactly this class of reason and its own docstring argues for it.",
+   "not_the_cause": [
+    "Batch size. _RECONCILIATION_BATCH=40 was suspected first and measured out: batch 1's packet is 40,988 characters and the required reply is bounded at roughly 2,800 tokens.",
+    "Packet growth from item 40's DECLARED_SYMBOL_KINDS binding. Measured on this repository's own facts: the S4 packet carries 83 fact records with the binding and 162 without it - for Go the change made the packet smaller, not larger."
+   ],
+   "fix_proven": [
+    {
+     "variant": "fact_ids items pinned to an enum of the packet's own 123 fact IDs, plus maxItems 12",
+     "finish_reason": "stop",
+     "completion_tokens": 3501,
+     "prefix_only_fact_ids": 0,
+     "fact_ids_carrying_a_value": 135,
+     "dispositions_parsed": 40
+    },
+    {
+     "variant": "the same enum with NO maxItems - isolating which half is load-bearing",
+     "finish_reason": "stop",
+     "completion_tokens": 3560,
+     "prefix_only_fact_ids": 0,
+     "fact_ids_carrying_a_value": 138,
+     "dispositions_parsed": 40
+    }
+   ],
+   "fix_reading": "The enum alone closes it: 3,560 tokens against 32,000, a ninefold reduction, every one of the 40 units covered, zero degenerate IDs, and 87 tokens per record against the manifest's own recorded 69. A maxItems bound changes nothing measurable here and is defence in depth, not the fix."
+  }
+ },
+ "portfolio_impact": "Not specific to Go, to this repository, or to this lane. The pattern reconciliation_schema() builds contains public_symbol for every ecosystem, S4 runs for every repository, and item 40 landed five hours before this run. Every lane and the primary compose through this stage.",
+ "dispositions_now": [
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+   "source_revision": "9f0a4033b59e9127afec7662ec9079b500af8032",
+   "state": "BLOCKED_SHARED_CODE",
+   "failure_class": "S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY",
+   "supersedes": "BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE - not because that class was closed, but because the run no longer reaches the stage that raises it. P16's fix (item 33, 70a1d8e) is on main and untested by this run.",
+   "resume_predicate": "PROPOSAL P23 landed on main, then rerun `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a fresh lane-d branch; that re-run is also the first real test of items 28, 29 and 45 on this repository."
+  }
+ ],
+ "other_repositories_not_run": {
+  "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go": "G4-W17 item 47 is still open (item 46 landed dd7dc73); the sprint plan puts it in a later wave and this item's purpose excludes it.",
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust": "SEALED 2026-09-07 under G4-W16; not in this item's scope."
+ },
+ "proposals": [
+  "P23 - reconciliation_schema() pins fact_ids by regex on an unbounded array, so strict json_schema decoding runs away on the bare kind prefix; pin it to an enum of the packet's own fact IDs, as the same function already does for unit_id. Measured fix: 32,000 -> 3,560 completion tokens, finish_reason length -> stop."
+ ],
+ "not_claimed": [
+  "No check BC-01 to BC-11 was judged for this repository in this run.",
+  "Items 28, 29 and 45 were not exercised; the run stopped six stages before the review.",
+  "Nothing here says the candidate would seal once P23 lands - only that the stage it now dies at would pass."
+ ],
+ "local_ci_equivalent": {
+  "command": "ruff check . && ruff format --check . && mypy src && pytest -n auto",
+  "result": "pass",
+  "runs_this_item": 1
+ },
+ "status_line_observed": "2026-09-11, from this lane branch rebased onto origin/main at f00e143: candidates 8/34 current reviewable no-op-proven; 8 ever sealed, 8 integrity-valid, 6 current-code reproducible, 0 independently accepted (stale-excluded). Unchanged by this run: nothing sealed. The same command at 1fb995d, before the rebase, printed 4 independently accepted rather than 0 - F6 (d6d9891) landed in between and that drop is its own disclosed side effect (PHASE1-SPRINT-PLAN.md section 7, F6 row), not anything this run did. The observed number is recorded, not the earlier one.",
+ "measurement": {
+  "sealed_by_lane_before": 1,
+  "sealed_by_lane_after": 1,
+  "dispositions_by_lane_before": 2,
+  "dispositions_by_lane_after": 2,
+  "candidate_count_delta": 0
+ }
+}

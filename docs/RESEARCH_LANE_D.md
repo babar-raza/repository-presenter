@@ -1422,3 +1422,115 @@ launch dies the same way the ID scheme's guessable type suffix is worth a propos
 
 **What is not claimed.** BC-10 and BC-11 are `PENDING` and were never judged for this repository;
 nothing here says the independent review or the no-op proof would pass.
+
+## 2026-09-11 13:05 — G4-W15-RERUN2, Aspose.Cells for Go, sprint wave W-GO
+
+`origin/main` at `1fb995d` (rebased to `f00e143` before landing), branch `lane-d/G4-W15-RERUN2`,
+worktree `C:\w\d15r2`. Receipt: `evidence/build/lanes/lane-d/G4-W15-RERUN2.json`. Scope:
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` only — Aspose.PDF for Go waits on item 47.
+
+### The run never reached the checks it was sent to test
+
+The three unlocks under test — items 28, 29 and 45 — all live at S10, and the transaction died at
+**S4 `source_reconciliation`**, six stages earlier. Nothing in this run exercised BC-10, the
+independent review, or any of the three items. They are neither confirmed nor refuted here, and
+nothing below claims otherwise. P16's own fix (item 33, `70a1d8e`) is on `main` and untested.
+
+Everything before S4 was healthy and identical to the 2026-09-06 run at the same source revision
+`9f0a4033`: 231 facts (109 public symbols, 66 inherited units), 10 example candidates with 8
+executed, and `repository_investigation` succeeding on attempt 1.
+
+### PROPOSAL P23 — a regex-pinned, unbounded `fact_ids` array makes strict decoding run away
+
+**File.** `components/readme/reconciliation/dispositions.py`, `reconciliation_schema()` — the block
+G4-W17 arrival item 40 added this morning (`e2a1a83`, 2026-09-11 06:50 +05:00, about five hours
+before this run).
+
+**Defect.** The job is sent with `response_format: json_schema`, `strict: true`, so the gateway
+decodes under the schema as a grammar. Item 40 pinned `fact_ids` items to
+
+```
+{"type": "string", "pattern": "^(build_test_asset|dependency|example|format|identity|import_path|inherited_unit|install_command|license|link_target|package|public_symbol|third_party_notices):"}
+```
+
+and the array carries no `maxItems`. The string `"public_symbol:"` — the bare kind prefix, nothing
+after the colon — satisfies that pattern exactly, and with no bound on the array the decoder emits
+it until the token budget is gone. `finish_reason == "length"` then raises in `core/llm/jobs.py`
+before anything is parsed, so the binding guard that would reject a fact ID naming no fact never
+runs at all.
+
+**Measured, twice, then captured.** Batch `reconciliation#1` (40 of 66 units) returned exactly
+`32000` completion tokens on a 15,271-token prompt in both full runs — 552,882 ms and 571,757 ms.
+The two replies hash differently (`451561ebafa3`, `0ab7deaa03f7`), so `temperature: 0.0` with
+`seed: 1` is not giving this gateway bit-identical output; that the two agree anyway is what makes
+this structural rather than one unlucky sample. Replaying the same request with `max_tokens=6000`
+and keeping the reply:
+
+| in the captured reply | count |
+| --- | --- |
+| `fact_ids` entries that are a bare kind prefix | 1,104 (`public_symbol:` 1,047, `link_target:` 32, `example:` 17, `identity:` 5, `package:` 2, `dependency:` 1) |
+| `fact_ids` entries carrying anything after the colon | 0 |
+| well-formed IDs anywhere in the reply | 7 — and every one is a `unit_id`, the one field this same function pins with an **enum** |
+
+One disposition's `fact_ids` array alone ran to 1,047 consecutive `"public_symbol:"` entries and was
+still going when the budget ran out.
+
+**What it is not.** `_RECONCILIATION_BATCH = 40` was the first suspect and measured out: batch 1's
+packet is 40,988 characters, `rationale` is capped at 160, and the manifest's own recorded figure is
+about 69 tokens per record, so 40 records should cost roughly 2,800 tokens — 32,000 is eleven times
+the work asked for. Item 40's `DECLARED_SYMBOL_KINDS` binding is not it either: measured on this
+repository's own facts, the S4 packet carries **83** records with that binding and **162** without,
+so for Go item 40 made the packet smaller, not larger.
+
+**Fix, and it is proven, not proposed blind.** Pin `fact_ids` items to an enum of the packet's own
+fact IDs — the code knows them exactly, `bounded_records()` has just built the list — which is
+precisely the argument `reconciliation_schema()`'s own docstring already makes for `unit_id`.
+Replaying the identical request with that one change, against this repository's 123 packet IDs:
+
+| variant | finish_reason | completion tokens | bare-prefix IDs | real IDs | dispositions |
+| --- | --- | --- | --- | --- | --- |
+| as landed (`pattern`) | `length` | 32,000 | 1,104 | 0 | none — truncated |
+| enum + `maxItems: 12` | `stop` | 3,501 | 0 | 135 | 40 of 40 |
+| enum, no `maxItems` | `stop` | 3,560 | 0 | 138 | 40 of 40 |
+
+The enum alone closes it — a ninefold reduction, every unit covered, 87 tokens per record against
+the manifest's own 69. A `maxItems` bound changes nothing measurable and is defence in depth, not
+the fix. An empty enum needs the same guard `unit_id` already has (`if not units: return schema`).
+
+**Rejected alternatives.** Raising `max_output_tokens`: the answer the schema actually asks for is
+~2,800 tokens, so a bigger budget only buys a longer runaway. Shrinking
+`_RECONCILIATION_BATCH`: same reason, and it would slow every repository for a cause that is not
+batch size. Reverting item 40's pattern outright: it was fixing a real defect — a job with no fact
+at the granularity it needed filling the slot with a packet key — and the enum keeps that closed
+strictly more tightly than the pattern did.
+
+**Repository and finding.** `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at
+`9f0a4033b59e9127afec7662ec9079b500af8032`; two full runs, both
+`source_reconciliation: output truncated at the manifest's max_output_tokens (32000)`.
+
+**Not a Go finding, and not a lane finding.** The pattern `reconciliation_schema()` builds contains
+`public_symbol` for every ecosystem, S4 runs for every repository, and item 40 landed five hours
+before this run. Every lane and the primary compose through this stage; this lane happened to be
+the first to make a live S4 call after it landed. Verified against the newer `origin/main`:
+`git diff --stat 1fb995d f00e143` over `reconciliation/`, `prompts/`, `core/facts.py` and
+`core/llm/` is empty, so F6, GATE-0 and F7 change nothing about this and the finding stands at
+`f00e143`.
+
+### The disposition this re-run leaves
+
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Go` at `9f0a4033b59e9127afec7662ec9079b500af8032`,
+`BLOCKED_SHARED_CODE`, failure class `S4_RECONCILIATION_FACT_IDS_DECODE_RUNAWAY`. This supersedes
+`BC10_REVIEW_REJECTS_CONTRACT_REQUIRED_SURFACE` only in the sense that the run no longer reaches the
+stage that raised it — that class is not closed, it is unreached. Resume predicate: PROPOSAL P23
+landed on `main`, then rerun `present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-Go` from a
+fresh lane-d branch; that re-run is also the first real test of items 28, 29 and 45 here.
+`sealed_by_lane` stays 1 and `dispositions_by_lane` stays 2.
+
+**What is not claimed.** No check BC-01 to BC-11 was judged. No candidate was rendered. Nothing here
+says this repository would seal once P23 lands — only that the stage it now dies at would pass.
+
+**One observation, not a class.** Two replies to a byte-identical request at `temperature: 0.0`,
+`seed: 1` hashed differently (`451561ebafa3`, `0ab7deaa03f7`). Determinism claims that rest on the
+manifest's seed rather than on the call store rest on something this gateway did not honour today.
+One pair of observations is a measurement, not a rule; recorded here because G2-W23/G5-W03's cold
+determinism work will want it.
