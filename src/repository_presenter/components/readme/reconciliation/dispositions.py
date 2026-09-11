@@ -40,7 +40,12 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
-from repository_presenter.core.facts import Fact, FactsDocument, bounded_records
+from repository_presenter.core.facts import (
+    DECLARED_SYMBOL_KINDS,
+    Fact,
+    FactsDocument,
+    bounded_records,
+)
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -156,7 +161,7 @@ def merge_dispositions(outputs: Sequence[dict[str, Any]]) -> dict[str, Any]:
 
 
 def reconciliation_schema(manifest: LoadedManifest, batch_units: Sequence[Fact]) -> dict[str, Any]:
-    """The reconciliation schema specialised for one batch: exactly its own inherited units.
+    """The reconciliation schema specialised for one batch: its units, and the shape of an ID.
 
     Every inherited unit in this batch needs one disposition and no other unit is in this batch,
     which the code knows exactly, so the schema says so rather than letting the job invent a unit
@@ -170,12 +175,30 @@ def reconciliation_schema(manifest: LoadedManifest, batch_units: Sequence[Fact])
     uses (``minItems``/``maxItems``/enum sized to one ``SectionTask``'s own slots, not the whole
     plan). No unbounded fallback: every caller, production or test, must pass a real batch,
     mirroring ``authoring_schema()``'s own signature exactly (no "give me everything" mode).
+
+    ``fact_ids`` gets the same treatment for the same reason (ported from PR #29/G4-W17 arrival
+    item 40, stranded unmerged for 4 days - landed here 2026-09-11 as part of PHASE0/G, adapted
+    to this schema's own per-batch shape). A fact ID is ``<kind>:<slug>`` and the packet's kinds
+    are known here exactly, so the schema says so; the array was typed as bare strings, and a job
+    with no fact at the granularity it needed filled the slot with the nearest token in its
+    context instead. Measured 2026-09-07: Aspose.PDF for Python was rejected twice on "unknown
+    fact ID product_summary:fact_ids; ... audience:fact_ids" - the packet's own investigation keys
+    paired with this schema's own field name. None of those begins with a packet fact kind, so
+    the pattern refuses them at decode time rather than after the whole transaction is spent. It
+    narrows nothing a real citation may say: every ID the packet carries matches it, and an ID
+    that matches the pattern but names no fact is rejected by the binding guard exactly as before.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
+    dispositions = schema["properties"]["dispositions"]
+    kinds = sorted(manifest.manifest.packet.fact_kinds)
+    if kinds:
+        dispositions["items"]["properties"]["fact_ids"]["items"] = {
+            "type": "string",
+            "pattern": "^(" + "|".join(kinds) + "):",
+        }
     units = [fact.id for fact in batch_units]
     if not units:
         return schema
-    dispositions = schema["properties"]["dispositions"]
     dispositions["minItems"] = len(units)
     dispositions["maxItems"] = len(units)
     dispositions["items"]["properties"]["unit_id"] = {"type": "string", "enum": units}
@@ -191,7 +214,16 @@ def reconciliation_packet(
 ) -> dict[str, Any]:
     """PHASE0/G: ``inherited_units`` is exactly ``batch_units`` - one batch's own units, not
     every inherited unit in the repository. ``facts`` (bounded, non-``inherited_unit`` kinds) is
-    unchanged: shared context every batch needs, already capped by ``bounded_records()``."""
+    unchanged: shared context every batch needs, already capped by ``bounded_records()``.
+
+    Public symbols enter by the granularity the extractor recorded, not by dotted depth (ported
+    from PR #29/G4-W17 arrival item 40, stranded unmerged for 4 days - landed here 2026-09-11):
+    the depth proxy is shaped by the package root, so a repository whose root is two or three
+    segments has no citable type at all. Measured 2026-09-07 on Aspose.Page for Python, whose
+    root is `aspose.page`: about seven namespace strings of its 570 public symbols reached this
+    packet, and the job - rejected twice - cited `public_symbol:aspose.page.common`, a real
+    directory of the repository, of exactly the shape of the only symbols it had been shown.
+    """
     units = [
         {"id": fact.id, "type": fact.id.rsplit(".", 1)[-1], "text": fact.value}
         for fact in batch_units
@@ -200,7 +232,9 @@ def reconciliation_packet(
     return {
         "repository": entry.repository,
         "inherited_units": units,
-        "facts": bounded_records(facts, kinds, ("SUPPORTED", "CONTRADICTED")),
+        "facts": bounded_records(
+            facts, kinds, ("SUPPORTED", "CONTRADICTED"), symbol_kinds=DECLARED_SYMBOL_KINDS
+        ),
         "investigation": investigation,
         "sections": shell_packet(),
     }

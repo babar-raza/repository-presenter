@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -493,3 +494,63 @@ def test_each_batchs_own_schema_is_bounded_to_its_own_units_not_the_repositorys_
             assert dispositions["items"]["properties"]["unit_id"]["enum"] == [
                 fact.id for fact in batch_units
             ]
+
+
+def test_the_schema_refuses_a_fact_ids_entry_that_is_not_shaped_like_a_fact_id() -> None:
+    """G4-W17 arrival item 40. `fact_ids` was typed as bare strings, so a job with no fact at the
+    granularity it needed filled the slot with the nearest token in its context and lost the whole
+    transaction. Measured 2026-09-07: Aspose.PDF for Python was rejected twice on "unknown fact ID
+    product_summary:fact_ids; unknown fact ID audience:fact_ids; unknown fact ID
+    problems_solved:fact_ids; unknown fact ID capabilities:fact_ids" - this schema's own field name
+    paired with the packet's investigation keys - and the first pass's Aspose.Note wrote the
+    disposition value OMIT_UNSUPPORTED there. The pattern refuses each at decode time; it narrows
+    nothing a real citation may say, and an ID that matches it but names no fact is still rejected
+    by the binding guard."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    batch = list(FACTS.by_kind("inherited_unit"))
+    schema = reconciliation_schema(loaded, batch)
+    items = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]["items"]
+    assert set(re.findall(r"[a-z_]+", items["pattern"])) == set(loaded.manifest.packet.fact_kinds)
+    # The manifest itself is untouched: the specialisation is per call, never a shared mutation.
+    assert loaded.manifest.output.schema_["properties"]["dispositions"]["items"]["properties"][
+        "fact_ids"
+    ] == {"type": "array", "items": {"type": "string"}}
+
+    def cite(*fact_ids: str) -> dict[str, Any]:
+        return {
+            "dispositions": [
+                {
+                    "unit_id": fact.id,
+                    "disposition": "SUPERSEDE_REDUNDANT",
+                    "destination_section": "identity",
+                    "fact_ids": list(fact_ids) if index == 0 else [],
+                    "rationale": "r",
+                }
+                for index, fact in enumerate(FACTS.by_kind("inherited_unit"))
+            ]
+        }
+
+    validator = Draft202012Validator(schema)
+    for refused in (
+        "product_summary:fact_ids",
+        "audience:fact_ids",
+        "problems_solved:fact_ids",
+        "capabilities:fact_ids",
+        "OMIT_UNSUPPORTED",
+        "installation",
+    ):
+        assert [error.json_path for error in validator.iter_errors(cite(refused))] == [
+            "$.dispositions[0].fact_ids[0]"
+        ], refused
+    # Every real citation the packet can carry still validates, an inherited unit included.
+    assert (
+        list(
+            validator.iter_errors(
+                cite("identity:repository", "example:001", "inherited_unit:002.paragraph")
+            )
+        )
+        == []
+    )
+    # A well-shaped ID naming no fact is the binding guard's job, not the schema's: it passes
+    # here exactly as before, so nothing this pattern does can hide an invented citation.
+    assert list(validator.iter_errors(cite("public_symbol:aspose.page.common"))) == []

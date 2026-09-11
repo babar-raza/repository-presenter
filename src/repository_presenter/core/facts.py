@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal, get_args
@@ -178,6 +178,38 @@ EXAMPLE_CAP = 30
 # packet, so no job ever needed to see it: nothing here narrows what a job may cite or claim.
 _EXCLUDED_FROM_PACKETS = frozenset({"identity:revision"})
 
+# What the vendored surface engine records each public symbol to BE
+# (`extractors/surface/extractor.py::_KINDS`): a module, a class, an enum, or a free function -
+# every top-level declaration - as against ``method``, the one kind that is a member of another
+# symbol. ``symbol_max_depth`` is a proxy for that same distinction, and a bad one: it counts dots
+# in the whole dotted path, so how much of a repository's surface a job may cite depends on how
+# many segments its package root happens to have. Measured 2026-09-07 (G4-W17 arrival item 40,
+# ported into PHASE0/G, 2026-09-11 - PR #29 landed the fix, never merged; independently confirmed
+# by this pass's own Taskcard I investigation, same numbers) across the sealed bundles at
+# ``SYMBOL_MAX_DEPTH = 3``: Aspose.PDF for Java admits 3 of 24,830 public symbols (`org`,
+# `org.aspose`, `org.aspose.pdf` - not one class), Aspose.3D for Java 3 of 5,366, Aspose.Cells for
+# C++ 122 of 1,943; while Aspose.Slides for Python, whose root is one segment, admits 1,702 of
+# 3,180 including every method. A caller that passes this set bounds its packet by the recorded
+# granularity instead, which is root-shape independent and still bounded: the same measurement
+# gives 1,240 symbols for Aspose.PDF for Java, 269 for Aspose.3D for Java, 535 for Slides Python,
+# 100 for Cells .NET (unchanged) - every one far inside ``SYMBOL_CAP``.
+DECLARED_SYMBOL_KINDS = frozenset({"module", "class", "enum", "function"})
+
+
+def _admits_symbol(fact: Fact, symbol_kinds: Collection[str] | None, symbol_max_depth: int) -> bool:
+    """Whether one ``public_symbol`` fact enters a packet, before the cap is applied.
+
+    By the kind the extractor recorded when the caller names a set and the fact records one;
+    otherwise by the dotted-depth proxy. A fact whose ``symbol_kind`` is absent or ``unknown``
+    keeps the old bound rather than vanishing: an ecosystem whose grammar the surface facade's
+    table does not yet map records ``unknown`` for its whole surface (measured 2026-09-06 on Go
+    and Rust, G4-W17 arrival item 9), and dropping all of it would be a silent, total loss.
+    """
+    recorded = (fact.attributes or {}).get("symbol_kind")
+    if symbol_kinds is not None and recorded not in (None, "", "unknown"):
+        return recorded in symbol_kinds
+    return fact.value.count(".") < symbol_max_depth
+
 
 def bounded_records(
     document: FactsDocument,
@@ -186,18 +218,21 @@ def bounded_records(
     *,
     symbol_max_depth: int = SYMBOL_MAX_DEPTH,
     symbol_cap: int = SYMBOL_CAP,
+    symbol_kinds: Collection[str] | None = None,
     link_cap: int = LINK_CAP,
     example_cap: int = EXAMPLE_CAP,
 ) -> list[dict[str, str]]:
     """Facts of ``kinds`` and ``polarities`` as packet records, with public symbols, links, and
     examples all bounded.
 
-    Public symbols enter only to ``symbol_max_depth`` dotted parts and ``symbol_cap`` in document
-    order; ``link_target`` and ``example`` facts enter only to ``link_cap``/``example_cap`` in
-    document order too (PHASE0/J2) - so a job's packet stays bounded however large the repository's
-    own surface, link count, or example count is. ``identity:revision`` never enters any packet at
-    all, so its own bundled call cache reuses across a revision bump that changes no fact a job
-    would ever reason about.
+    Public symbols enter only to ``symbol_max_depth`` dotted parts - or, when the caller names
+    ``symbol_kinds``, only at the granularity the extractor recorded (see
+    ``DECLARED_SYMBOL_KINDS``) - and ``symbol_cap`` in document order; ``link_target`` and
+    ``example`` facts enter only to ``link_cap``/``example_cap`` in document order too
+    (PHASE0/J2) - so a job's packet stays bounded however large the repository's own surface,
+    link count, or example count is. ``identity:revision`` never enters any packet at all, so its
+    own bundled call cache reuses across a revision bump that changes no fact a job would ever
+    reason about.
     """
     admitted_kinds = set(kinds)
     admitted_polarities = set(polarities)
@@ -211,7 +246,7 @@ def bounded_records(
         if fact.kind not in admitted_kinds or fact.polarity not in admitted_polarities:
             continue
         if fact.kind == "public_symbol":
-            if fact.value.count(".") >= symbol_max_depth or symbols >= symbol_cap:
+            if symbols >= symbol_cap or not _admits_symbol(fact, symbol_kinds, symbol_max_depth):
                 continue
             symbols += 1
         elif fact.kind == "link_target":
