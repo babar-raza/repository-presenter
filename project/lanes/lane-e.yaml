@@ -1,0 +1,35 @@
+schema_version: 1
+lane: lane-e
+branch_pattern: lane-e/<ITEM>
+pr_label: lane-e
+purpose: 'Parallel lane lane-e, opened 2026-09-11 (PHASE1 sprint, supervisor; the owner asked for more throughput and the primary held 13 of 23 remaining candidates while also owning the serialized shared-code queue). This lane owns the PYTHON cohort candidate runs so the primary runs shared-code cards only; this file is their single source; the primary never runs these repositories while this lane exists. Prompt: project/loop-prompt-lane.md with lane=lane-e. Unlike lanes B/C/D this lane owns no platform module - the Python extractor is mature and shared; a Python-extractor defect is a PROPOSAL to the primary, never edited here.'
+prerequisites_on_main:
+- G3-W01
+- PHASE1/F6
+owned_paths:
+- candidates/<lane repositories only>/
+- evidence/build/lanes/lane-e/
+- project/lanes/lane-e.yaml
+- docs/RESEARCH_LANE_E.md
+repositories:
+- aspose-pdf-foss/Aspose-PDF-FOSS-for-Python
+- aspose-page-foss/Aspose.Page-FOSS-for-Python
+- aspose-cells-foss/Aspose.Cells-FOSS-for-Python
+- aspose-html-foss/Aspose.HTML-FOSS-for-Python
+- aspose-note-foss/Aspose.Note-FOSS-for-Python
+- aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python
+- aspose-font-foss/Aspose.Font-FOSS-for-Python
+- aspose-words-foss/Aspose.Words-FOSS-for-Python
+- aspose-email-foss/Aspose.Email-FOSS-for-Python
+toolchains:
+  python: repo-local .venv from C:/Python313/python.exe; 3.11 and 3.12 under runs/verify via uv (loop-prompt section 1.5)
+progress:
+  opened: '2026-09-11T08:05:00Z'
+  note: 'Opened mid-sprint to unload the primary. The Python cohort second pass (G3-W04) recorded every disposition and failure class in evidence/build/G3_PYTHON_COHORT/manifest.json second_pass - read it before each repository; it names the exact stage and class each one stopped at.'
+items:
+- id: LANE-E-01
+  status: PENDING
+  purpose: 'Sprint W-PY1 (plans/sprint/PHASE1-SPRINT-PLAN.md section 11), in this order, one candidate at a time, seal or disposition each before the next: (1) aspose-pdf-foss/Aspose-PDF-FOSS-for-Python - second-pass class RECONCILIATION_EMITS_A_SCHEMA_KEY_AS_A_FACT_ID at S4; arrival item 40 (e2a1a83, reconciliation_schema fact_ids pattern) is its recorded unlock and cites this repository by name. (2) aspose-page-foss/Aspose.Page-FOSS-for-Python - class RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST at S4; item 40 other half (symbol_kinds bounding) cites it by name. (3) aspose-cells-foss/Aspose.Cells-FOSS-for-Python - first-pass CORROBORATED_PRESENTATION_JUDGMENT at S10/BC-10, never re-run in the second pass box; the fold stack has since gained items 28/33/37/39/45 and F6 acceptance corroboration. Stop at the box with dispositions for whatever does not seal; a real rejection is a disposition with its failure class and resume predicate, never a forced seal.'
+- id: LANE-E-02
+  status: BLOCKED_BY_GATE
+  purpose: 'Sprint W-PY2: aspose-html-foss/Aspose.HTML-FOSS-for-Python (PLAN_PICKS_A_CONTRADICTED_EXAMPLE_FOR_THE_QUICK_START) and aspose-note-foss/Aspose.Note-FOSS-for-Python (PLANNED_CAPABILITY_TITLE_NAMES_AN_UNVERIFIED_FORMAT), then aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python (API_REFERENCE_HEADING_JUDGED_AS_PROSE, BC-07). Gate: arrival items 41+42 land for the first two, item 43 for BarCode. The supervisor spawns this run when the unblock ledger fires.'

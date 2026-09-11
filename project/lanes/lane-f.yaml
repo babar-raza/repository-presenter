@@ -1,0 +1,31 @@
+schema_version: 1
+lane: lane-f
+branch_pattern: lane-f/<ITEM>
+pr_label: lane-f
+purpose: 'Parallel lane lane-f, opened 2026-09-11 (PHASE1 sprint, supervisor; same reason as lane-e - the primary held 13 of 23 remaining candidates while also owning the serialized shared-code queue). This lane owns the .NET cohort candidate runs; this file is their single source; the primary never runs these repositories while this lane exists. Prompt: project/loop-prompt-lane.md with lane=lane-f. The .NET platform module is shared and mature (G4-W11 accepted): a platform defect is a PROPOSAL to the primary, never edited here.'
+prerequisites_on_main:
+- G4-W11
+- PHASE1/F6
+owned_paths:
+- candidates/<lane repositories only>/
+- evidence/build/lanes/lane-f/
+- project/lanes/lane-f.yaml
+- docs/RESEARCH_LANE_F.md
+repositories:
+- aspose-3d-foss/Aspose.3D-FOSS-for-.NET
+- aspose-email-foss/Aspose.Email-FOSS-for-.Net
+- aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET
+- aspose-slides-foss/Aspose.Slides-FOSS-for-.NET
+- aspose-words-foss/Aspose.Words-FOSS-for-.NET
+toolchains:
+  dotnet: machine dotnet SDK; MSBuild noise scrubbed by net_examples.py (Time Elapsed, -p:WarningLevel=0) - never re-introduce either into sealed bytes
+progress:
+  opened: '2026-09-11T08:05:00Z'
+  note: 'Opened mid-sprint to unload the primary. evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json carries every .NET disposition, failure class and resume predicate - read the row for a repository before running it. Its 3D-.NET row records SEALED_THEN_UNSEALED (amended 2026-09-11): that bundle was deleted on 2026-09-06 after a stably-reproduced review fabrication, which is exactly the class PHASE1/F6 acceptance corroboration now guards.'
+items:
+- id: LANE-F-01
+  status: PENDING
+  purpose: 'Sprint W-NET (plans/sprint/PHASE1-SPRINT-PLAN.md section 11), in this order, one candidate at a time, seal or disposition each before the next: (1) aspose-3d-foss/Aspose.3D-FOSS-for-.NET - previously sealed and no-op proven, then un-sealed 2026-09-06 (f8e3bf0) when independent_review stably regenerated a fabricated PlyReader/PlyWriter paragraph; the fold stack has since gained items 28/33/37/39/45 and F6 corroboration, so re-attempt it first and read the review verdict literally. (2) aspose-email-foss/Aspose.Email-FOSS-for-.Net - BLOCKED_REVIEW, reviewer hallucinated a Development Dependencies heading (item 28 fold-not-reject plus PA-02 section-scoped quote_located are its unlocks). (3) aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET - BLOCKED_PLANNING on unknown fact ID public_symbol:aspose.pdf.devices.svgsdevice; SYMBOL_CAP was raised 150 to 6000 (item 27) and planning has moved several versions since. (4) aspose-slides-foss/Aspose.Slides-FOSS-for-.NET - BLOCKED_VALIDATION (BC-02): not on NuGet, which is a CONCLUSIVE CONTRADICTED, so EcosystemSpec.source_install (core/ecosystems.py, item 10) is the contract-legal path - its one EXECUTED example is a genuine dotnet build. Stop at the box with dispositions for whatever does not seal; never force a seal, never weaken a check. aspose-words-foss/Aspose.Words-FOSS-for-.NET is NOT in this run - it waits on arrival item 54 (quick_start conditional).'
+- id: LANE-F-02
+  status: BLOCKED_BY_GATE
+  purpose: 'aspose-words-foss/Aspose.Words-FOSS-for-.NET after arrival item 54 lands (quick_start Required becomes conditional on bool(verified_examples)); all five of its examples are genuinely CONTRADICTED, which is why the contract row rather than the candidate is the fix. The supervisor spawns this run when the unblock ledger fires.'
