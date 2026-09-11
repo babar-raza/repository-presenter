@@ -2,7 +2,7 @@
   "acceptance_profile_version": null,
   "components": {
     "normalisation": "2",
-    "renderer": "18",
+    "renderer": "19",
     "reviewer_logic": "3",
     "shell": "5"
   },

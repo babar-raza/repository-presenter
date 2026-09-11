@@ -161,7 +161,14 @@
     },
     {
       "fact_ids": [
-        "example:003",
+        "example:003"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Load an existing workbook, read the value in cell A1, update it, and save the changes to a new file."
+    },
+    {
+      "fact_ids": [
         "example:004",
         "example:005",
         "example:007",
@@ -178,112 +185,55 @@
       ],
       "section": "additional_examples",
       "slot": "preview",
-      "text": "The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import."
+      "text": "The repository provides runnable examples for formulas, data validation, streaming, styling, tables, and CSV import."
     },
     {
       "fact_ids": [
-        "example:004",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:004"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:004",
-      "text": "Compute SUM and AVERAGE formulas and evaluate them."
+      "text": "Create a workbook, populate sales data, add SUM and AVERAGE formulas, and evaluate them."
     },
     {
       "fact_ids": [
-        "example:005",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:005"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:005",
-      "text": "Apply list-type data validation to a cell range."
+      "text": "Add a dropdown list data validation to restrict cell input to predefined fruit options."
     },
     {
       "fact_ids": [
-        "example:007",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:007"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:007",
-      "text": "Stream rows from a large Excel file and aggregate values."
+      "text": "Stream a large Excel file row by row and compute the total score from column C."
     },
     {
       "fact_ids": [
-        "example:008",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:008"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:008",
-      "text": "Apply bold and solid-fill styles to header cells."
+      "text": "Apply bold font and solid fill styling to header cells in a new workbook."
     },
     {
       "fact_ids": [
-        "example:009",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:009"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:009",
-      "text": "Create a structured table with a built-in style."
+      "text": "Create a structured table with headers and apply a built-in table style."
     },
     {
       "fact_ids": [
-        "example:010",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
+        "example:010"
       ],
       "section": "additional_examples",
       "slot": "workflow:example:010",
-      "text": "Import data from a CSV file into a new worksheet."
-    },
-    {
-      "fact_ids": [
-        "example:003",
-        "identity:ecosystem",
-        "identity:family",
-        "identity:platform",
-        "identity:repository",
-        "identity:revision",
-        "package:go_version",
-        "package:name"
-      ],
-      "section": "additional_examples",
-      "slot": "workflow:example:003",
-      "text": "Read and update a cell value in an existing workbook."
+      "text": "Import data from a CSV file into a new workbook and save it as an Excel file."
     },
     {
       "fact_ids": [
@@ -294,162 +244,120 @@
         "identity:revision",
         "package:go_version",
         "package:name",
-        "inherited_unit:043.paragraph"
+        "public_symbol:newworkbook",
+        "public_symbol:loadworkbook"
       ],
       "section": "api_reference",
       "slot": "intro",
-      "text": "Aspose.Cells FOSS for Go provides workbook and worksheet management through the Workbook and Worksheet types, with Workbook created via NewWorkbook or LoadWorkbook and exposing worksheets via Workbook.Worksheets."
+      "text": "Aspose.Cells FOSS for Go provides workbook creation and manipulation through the NewWorkbook and LoadWorkbook entry points, which return a Workbook that exposes worksheets and cells for reading and writing data."
     },
     {
       "fact_ids": [
-        "public_symbol:loadworkbook",
-        "public_symbol:newworkbook",
-        "public_symbol:workbook",
-        "public_symbol:workbook.save",
-        "public_symbol:workbook.worksheets"
+        "example:002",
+        "public_symbol:newworkbook"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:workbook",
-      "text": "The Workbook type represents a spreadsheet file and supports creation with NewWorkbook, loading from a file with LoadWorkbook, saving to disk with Workbook.Save, and accessing its collection of worksheets through Workbook.Worksheets."
+      "slot": "hub:public_symbol:newworkbook",
+      "text": "Create a new workbook with NewWorkbook to begin building a spreadsheet from scratch, then populate cells and save the file."
     },
     {
       "fact_ids": [
-        "public_symbol:worksheet",
-        "public_symbol:worksheet.cells",
-        "public_symbol:worksheet.index",
-        "public_symbol:worksheet.name"
+        "example:003",
+        "public_symbol:loadworkbook"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:worksheet",
-      "text": "A Worksheet represents a single sheet in a workbook and provides access to its cells via Worksheet.Cells, its name via Worksheet.Name, and its zero-based position via Worksheet.Index."
+      "slot": "hub:public_symbol:loadworkbook",
+      "text": "Load an existing Excel file with LoadWorkbook to read or modify its contents, then update cells and save the result."
     },
     {
       "fact_ids": [
-        "public_symbol:cells",
-        "public_symbol:cells.all",
-        "public_symbol:cells.get",
-        "public_symbol:cells.remove",
+        "example:002",
+        "public_symbol:workbook.save"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:workbook.save",
+      "text": "Save a workbook to disk using Workbook.Save with a file path to persist changes in XLSX format."
+    },
+    {
+      "fact_ids": [
+        "example:002",
         "public_symbol:cells.set"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:cells",
-      "text": "The Cells collection offers cell access and modification through Cells.Get, Cells.Set, and Cells.Remove, and provides access to all cells in the worksheet via Cells.All."
+      "slot": "hub:public_symbol:cells.set",
+      "text": "Set a cell's value or formula by calling Cells.Set with a cell reference and the desired content."
     },
     {
       "fact_ids": [
-        "public_symbol:cell",
-        "public_symbol:cell.formula",
-        "public_symbol:cell.getformula",
-        "public_symbol:cell.getstyle",
-        "public_symbol:cell.ref",
-        "public_symbol:cell.setformula",
-        "public_symbol:cell.setstyle",
+        "example:003",
+        "public_symbol:cells.get"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:cells.get",
+      "text": "Retrieve a cell by calling Cells.Get with a cell reference to access its properties and current value."
+    },
+    {
+      "fact_ids": [
+        "example:003",
         "public_symbol:cell.value"
       ],
       "section": "api_reference",
-      "slot": "hub:public_symbol:cell",
-      "text": "A Cell represents an individual cell and exposes its value via Cell.Value, its reference via Cell.Ref, its formula via Cell.Formula, and supports setting and getting formulas and styles with Cell.SetFormula, Cell.GetFormula, Cell.SetStyle, and Cell.GetStyle."
+      "slot": "hub:public_symbol:cell.value",
+      "text": "Access or update a cell's content through Cell.Value after retrieving the cell with Cells.Get."
     },
     {
       "fact_ids": [
-        "public_symbol:defaultstyle",
-        "public_symbol:newstyle",
-        "public_symbol:style",
-        "public_symbol:style.alignment",
-        "public_symbol:style.border",
-        "public_symbol:style.fill",
-        "public_symbol:style.font"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:style",
-      "text": "The Style type enables formatting control through properties for font, fill, alignment, and border, created via NewStyle or retrieved as DefaultStyle."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:datavalidation",
-        "public_symbol:datavalidation.allowblank",
-        "public_symbol:datavalidation.errormessage",
-        "public_symbol:datavalidation.errorstyle",
-        "public_symbol:datavalidation.errortitle",
-        "public_symbol:datavalidation.formula1",
-        "public_symbol:datavalidation.formula2",
-        "public_symbol:datavalidation.ref",
-        "public_symbol:datavalidation.showerrormessage",
-        "public_symbol:datavalidation.type"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:datavalidation",
-      "text": "DataValidation applies validation rules to a cell range via DataValidation.Ref, supports list, number, or date constraints using DataValidation.Type, DataValidation.Formula1, and DataValidation.Formula2, and configures error messaging with DataValidation.AllowBlank, DataValidation.ShowErrorMessage, DataValidation.ErrorTitle, DataValidation.ErrorMessage, and DataValidation.ErrorStyle."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:newtable",
-        "public_symbol:table",
-        "public_symbol:table.hasheaderrow",
-        "public_symbol:table.name",
-        "public_symbol:table.range",
-        "public_symbol:table.stylename"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:table",
-      "text": "A Table represents a structured range of cells created with NewTable, identified by Table.Name, covering Table.Range, optionally containing a header row per Table.HasHeaderRow, and styled via Table.StyleName."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:newpicture",
-        "public_symbol:picture",
-        "public_symbol:picture.col",
-        "public_symbol:picture.coloff",
-        "public_symbol:picture.data",
-        "public_symbol:picture.format",
-        "public_symbol:picture.height",
-        "public_symbol:picture.name",
-        "public_symbol:picture.row",
-        "public_symbol:picture.rowoff",
-        "public_symbol:picture.setanchor",
-        "public_symbol:picture.width"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:picture",
-      "text": "A Picture embeds an image into a worksheet, configured with data and format via NewPicture, positioned with Picture.SetAnchor, and sized using Picture.Row, Picture.Col, Picture.RowOff, Picture.ColOff, Picture.Width, Picture.Height, and Picture.Name."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:newstreamingreader",
-        "public_symbol:rowcallback",
-        "public_symbol:streamingreader",
-        "public_symbol:streamingreader.processrows"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:streamingreader",
-      "text": "StreamingReader enables low-memory row processing of large workbooks using NewStreamingReader and iterates rows via StreamingReader.ProcessRows with a RowCallback function."
-    },
-    {
-      "fact_ids": [
+        "example:004",
         "public_symbol:calculateformula"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:calculateformula",
-      "text": "CalculateFormula computes formula results for the workbook to ensure values are up to date before saving or exporting."
+      "text": "Evaluate a formula string in the context of a worksheet by calling CalculateFormula with the formula and the target worksheet."
     },
     {
       "fact_ids": [
-        "public_symbol:workbook.exporttocsv",
-        "public_symbol:workbook.importfromcsv",
-        "public_symbol:worksheet.tocsv"
+        "example:005",
+        "public_symbol:datavalidation"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:datavalidation",
+      "text": "Apply data validation rules to a range by constructing a DataValidation object and adding it to the worksheet with AddDataValidation."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "public_symbol:streamingreader"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:streamingreader",
+      "text": "Process large Excel files with low memory overhead using StreamingReader to iterate over rows and extract data efficiently."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "public_symbol:style"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:style",
+      "text": "Format cells by creating a Style object, configuring its font and fill properties, and applying it to a cell with Cell.SetStyle."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "public_symbol:table"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:table",
+      "text": "Convert a range of cells into a structured table by calling Worksheet.AddTable with a cell range and configuring Table properties."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "public_symbol:workbook.importfromcsv"
       ],
       "section": "api_reference",
       "slot": "hub:public_symbol:workbook.importfromcsv",
-      "text": "Workbook.ImportFromCSV and Workbook.ExportToCSV support importing and exporting data in CSV format, and a worksheet can be exported to CSV using Worksheet.ToCSV."
-    },
-    {
-      "fact_ids": [
-        "public_symbol:workbook.setpassword",
-        "public_symbol:workbook.verifypassword"
-      ],
-      "section": "api_reference",
-      "slot": "hub:public_symbol:workbook.setpassword",
-      "text": "Workbook.SetPassword and Workbook.VerifyPassword protect and verify workbook integrity with a password."
+      "text": "Import data from a CSV file into a new workbook by calling Workbook.ImportFromCSV with the file path, sheet name, and delimiter."
     },
     {
       "fact_ids": [

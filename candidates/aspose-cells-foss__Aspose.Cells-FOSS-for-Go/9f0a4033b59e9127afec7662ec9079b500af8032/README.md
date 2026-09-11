@@ -103,11 +103,24 @@ func main() {
 }
 ```
 
+`Load` an existing workbook, read the value in cell A1, update it, and save the changes to a new file.
+
+```go
+wb, _ := cells_foss.LoadWorkbook("input.xlsx")
+ws := wb.Worksheets[0]
+
+cell, _ := ws.Cells().Get("A1")
+fmt.Println("Current value:", cell.Value)
+
+ws.Cells().Set("A1", "Updated value")
+wb.Save("output.xlsx")
+```
+
 ## Additional Examples
 
-The repository includes runnable examples for formulas, data validation, streaming, styling, tables, and CSV import.
+The repository provides runnable examples for formulas, data validation, streaming, styling, tables, and CSV import.
 
-### Compute SUM and AVERAGE formulas and evaluate them
+### Create a workbook, populate sales data, add SUM and AVERAGE formulas, and evaluate them
 
 ```go
 func main() {
@@ -165,7 +178,7 @@ func main() {
 <details>
 <summary>View Additional Examples</summary>
 
-### Apply list-type data validation to a cell range
+### Add a dropdown list data validation to restrict cell input to predefined fruit options
 
 ```go
 func main() {
@@ -196,7 +209,7 @@ func main() {
 }
 ```
 
-### Stream rows from a large Excel file and aggregate values
+### Stream a large Excel file row by row and compute the total score from column C
 
 ```go
 func main() {
@@ -221,7 +234,7 @@ func main() {
 }
 ```
 
-### Apply bold and solid-fill styles to header cells
+### Apply bold font and solid fill styling to header cells in a new workbook
 
 ```go
 func main() {
@@ -252,7 +265,7 @@ func main() {
 }
 ```
 
-### Create a structured table with a built-in style
+### Create a structured table with headers and apply a built-in table style
 
 ```go
 func main() {
@@ -275,7 +288,7 @@ func main() {
 }
 ```
 
-### Import data from a CSV file into a new worksheet
+### Import data from a CSV file into a new workbook and save it as an Excel file
 
 ```go
 func main() {
@@ -294,24 +307,11 @@ func main() {
 }
 ```
 
-### Read and update a cell value in an existing workbook
-
-```go
-wb, _ := cells_foss.LoadWorkbook("input.xlsx")
-ws := wb.Worksheets[0]
-
-cell, _ := ws.Cells().Get("A1")
-fmt.Println("Current value:", cell.Value)
-
-ws.Cells().Set("A1", "Updated value")
-wb.Save("output.xlsx")
-```
-
 </details>
 
 ## API Reference
 
-Aspose.Cells FOSS for Go provides workbook and worksheet management through the `Workbook` and `Worksheet` types, with `Workbook` created via `NewWorkbook` or `LoadWorkbook` and exposing worksheets via `Workbook.Worksheets`.
+Aspose.Cells FOSS for Go provides workbook creation and manipulation through the `NewWorkbook` and `LoadWorkbook` entry points, which return a `Workbook` that exposes worksheets and cells for reading and writing data.
 
 The verified public surface has 14 types.
 
@@ -339,74 +339,37 @@ The verified public surface has 14 types.
 
 #### Detailed Member Reference
 
-### Workbook
+### NewWorkbook
 
-The `Workbook` type represents a spreadsheet file and supports creation with `NewWorkbook`, loading from a file with `LoadWorkbook`, saving to disk with `Workbook.Save`, and accessing its collection of worksheets through `Workbook.Worksheets`.
+Create a new workbook with `NewWorkbook` to begin building a spreadsheet from scratch, then populate cells and save the file.
 
-- `ExportToCSV`: ExportToCSV writes the worksheet at sheetIndex to a CSV file using the given delimiter (e.g.
-- `FilePath`: Defined as `string`.
-- `ImportFromCSV`: ImportFromCSV reads a CSV file and imports its contents into a new worksheet with the given name.
-- `Modified`: Defined as `bool`.
-- `Save`: Save writes the workbook to the given file path in .xlsx format.
-- `SetPassword`: SetPassword configures an open password for the workbook.
-- `SourceXML`: Defined as `[]byte`.
-- `StylesXML`: Defined as `[]byte`.
-- `VerifyPassword`: VerifyPassword reports whether pw matches the password that was used to encrypt this workbook (as set by SetPassword, or read from an encrypted file).
-- `Worksheets`: Defined as `[]*Worksheet`.
+### LoadWorkbook
 
-### Worksheet
+`Load` an existing Excel file with `LoadWorkbook` to read or modify its contents, then update cells and save the result.
 
-A `Worksheet` represents a single sheet in a workbook and provides access to its cells via `Worksheet.Cells`, its name via `Worksheet.Name`, and its zero-based position via `Worksheet.Index`.
+### Save
 
-- `AddDataValidation`: AddDataValidation appends a data-validation rule to the worksheet.
-- `AddPicture`: AddPicture attaches pic to the worksheet, assigns it a unique name, and marks the workbook as modified.
-- `AddTable`: AddTable creates a new Table covering the given range, assigns it a unique auto-generated name ("Table1", "Table2", …), appends it to the worksheet, and returns it for further configuration.
-- `Cells`: Cells returns the Cells collection for this worksheet, enabling cell-level read and write operations via A1-style references.
-- `DataValidations`: Defined as `[]*DataValidation`.
-- `FromCSV`: FromCSV populates the worksheet with data from a 2D string slice.
-- `GetTable`: GetTable returns the Table with the given name, or nil when no match is found.
-- `Index`: Defined as `int`.
-- `Name`: Defined as `string`.
-- `Pictures`: Defined as `[]*Picture`.
-- `RemoveDataValidation`: RemoveDataValidation removes the first data-validation rule whose Ref exactly matches the given ref string.
-- `Tables`: Defined as `[]*Table`.
-- `ToCSV`: ToCSV converts the worksheet's cells into a 2D string slice suitable for writing with encoding/CSV.
+Save a workbook to disk using `Workbook.Save` with a file path to persist changes in XLSX format.
 
-### Cells
+### Set
 
-The `Cells` collection offers cell access and modification through `Cells.Get`, `Cells.Set`, and `Cells.Remove`, and provides access to all cells in the worksheet via `Cells.All`.
+Set a cell's value or formula by calling `Cells.Set` with a cell reference and the desired content.
 
-- `All`: All returns the underlying map of all cells keyed by A1 reference.
-- `Get`: Get returns the Cell at the given A1 reference.
-- `Remove`: Remove deletes the cell at the given A1 reference.
-- `Set`: Set stores a value at the given A1 reference.
+### Get
 
-### Cell
+Retrieve a cell by calling `Cells.Get` with a cell reference to access its properties and current value.
 
-A `Cell` represents an individual cell and exposes its value via `Cell.Value`, its reference via `Cell.Ref`, its formula via `Cell.Formula`, and supports setting and getting formulas and styles with `Cell.SetFormula`, `Cell.GetFormula`, `Cell.SetStyle`, and `Cell.GetStyle`.
+### Value
 
-- `Formula`: Defined as `xml:"f,omitempty"`.
-- `GetFormula`: GetFormula returns the formula expression stored in this cell, or an empty string when the cell contains no formula.
-- `GetStyle`: GetStyle returns the Style currently applied to this cell, or nil when the cell has no parent Workbook or the StyleID cannot be resolved.
-- `Ref`: Defined as `xml:"r,attr"`.
-- `SetFormula`: SetFormula stores a formula expression in this cell and marks the owning Workbook as modified.
-- `SetStyle`: SetStyle assigns the given Style to this cell.
-- `StyleID`: Defined as `xml:"s,attr,omitempty"`.
-- `Value`: Defined as `xml:"v,omitempty"`.
-- `XMLName`: Defined as `xml:"c"`.
+Access or update a cell's content through `Cell.Value` after retrieving the cell with `Cells.Get`.
 
-### Style
+### CalculateFormula
 
-The `Style` type enables formatting control through properties for font, fill, alignment, and border, created via `NewStyle` or retrieved as `DefaultStyle`.
-
-- `Alignment`: Defined as `*Alignment`.
-- `Border`: Defined as `*Border`.
-- `Fill`: Defined as `*Fill`.
-- `Font`: Defined as `*Font`.
+Evaluate a formula string in the context of a worksheet by calling `CalculateFormula` with the formula and the target worksheet.
 
 ### DataValidation
 
-`DataValidation` applies validation rules to a cell range via `DataValidation.Ref`, supports list, number, or date constraints using `DataValidation.Type`, `DataValidation.Formula1`, and `DataValidation.Formula2`, and configures error messaging with `DataValidation.AllowBlank`, `DataValidation.ShowErrorMessage`, `DataValidation.ErrorTitle`, `DataValidation.ErrorMessage`, and `DataValidation.ErrorStyle`.
+Apply data validation rules to a range by constructing a `DataValidation` object and adding it to the worksheet with `AddDataValidation`.
 
 - `AllowBlank`: Defined as `bool`.
 - `ErrorMessage`: Defined as `string`.
@@ -418,47 +381,33 @@ The `Style` type enables formatting control through properties for font, fill, a
 - `ShowErrorMessage`: Defined as `bool`.
 - `Type`: Defined as `string`.
 
+### StreamingReader
+
+Process large Excel files with low memory overhead using `StreamingReader` to iterate over rows and extract data efficiently.
+
+- `ProcessRows`: ProcessRows opens the workbook, resolves the named sheet to its XML part, loads the shared-strings table (if present), and then streams through the sheet data one row at a time, calling callback for each row.
+
+### Style
+
+Format cells by creating a `Style` object, configuring its font and fill properties, and applying it to a cell with `Cell.SetStyle`.
+
+- `Alignment`: Defined as `*Alignment`.
+- `Border`: Defined as `*Border`.
+- `Fill`: Defined as `*Fill`.
+- `Font`: Defined as `*Font`.
+
 ### Table
 
-A `Table` represents a structured range of cells created with `NewTable`, identified by `Table.Name`, covering `Table.Range`, optionally containing a header row per `Table.HasHeaderRow`, and styled via `Table.StyleName`.
+Convert a range of cells into a structured table by calling `Worksheet.AddTable` with a cell range and configuring `Table` properties.
 
 - `HasHeaderRow`: Defined as `bool`.
 - `Name`: Defined as `string`.
 - `Range`: Defined as `string`.
 - `StyleName`: Defined as `string`.
 
-### Picture
-
-A `Picture` embeds an image into a worksheet, configured with data and format via `NewPicture`, positioned with `Picture.SetAnchor`, and sized using `Picture.Row`, `Picture.Col`, `Picture.RowOff`, `Picture.ColOff`, `Picture.Width`, `Picture.Height`, and `Picture.Name`.
-
-- `Col`: Defined as `int`.
-- `ColOff`: Defined as `int64`.
-- `Data`: Defined as `[]byte`.
-- `Format`: Defined as `string`.
-- `Height`: Defined as `int`.
-- `Name`: Defined as `string`.
-- `Row`: Defined as `int`.
-- `RowOff`: Defined as `int64`.
-- `SetAnchor`: SetAnchor positions the picture at the given 0-based row and column.
-- `Width`: Defined as `int`.
-
-### StreamingReader
-
-`StreamingReader` enables low-memory row processing of large workbooks using `NewStreamingReader` and iterates rows via `StreamingReader.ProcessRows` with a `RowCallback` function.
-
-- `ProcessRows`: ProcessRows opens the workbook, resolves the named sheet to its XML part, loads the shared-strings table (if present), and then streams through the sheet data one row at a time, calling callback for each row.
-
-### CalculateFormula
-
-`CalculateFormula` computes formula results for the workbook to ensure values are up to date before saving or exporting.
-
 ### ImportFromCSV
 
-`Workbook.ImportFromCSV` and `Workbook.ExportToCSV` support importing and exporting data in CSV format, and a worksheet can be exported to CSV using `Worksheet.ToCSV`.
-
-### SetPassword
-
-`Workbook.SetPassword` and `Workbook.VerifyPassword` protect and verify workbook integrity with a password.
+Import data from a CSV file into a new workbook by calling `Workbook.ImportFromCSV` with the file path, sheet name, and delimiter.
 
 </details>
 

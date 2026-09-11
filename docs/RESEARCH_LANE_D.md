@@ -1690,3 +1690,91 @@ neither `pytest-xdist` (which `pytest -n auto` needs) nor `execnet`, and a fresh
 the five lane F measured for the bare-extras install, and in the other direction: too few, not too
 many. Recorded rather than fixed — `requirements-lock.txt` and the loop prompt are both outside
 this lane's owned paths.
+
+## 2026-09-11 17:33 — G4-W15-RERUN4, Aspose.Cells for Go: SEALED, and BC-11 passes for the first time
+
+`origin/main` at `22c2e45`, branch `lane-d/G4-W15-RERUN4`, worktree `C:\w\d17`. Receipt:
+`evidence/build/lanes/lane-d/G4-W15-RERUN4.json`. Scope: `aspose-cells-foss/Aspose.Cells-FOSS-for-Go`
+at `9f0a4033b59e9127afec7662ec9079b500af8032` only. Toolchain `go1.26.4 windows/amd64` at
+`C:\Program Files\Go\bin\go.EXE`, `shutil.which("go")`. Environment hash `f4406f1b04d8…` on the
+first try, from `loop-prompt-lane.md` §1.3's recipe as corrected by `54417f9` — the correction this
+lane measured yesterday is in the prompt and works. No lane-owned code changed; no `src/` or
+`tests/` change of any kind. This item is a re-seal at current shared code and nothing else.
+
+### PROPOSAL P24's resume predicate is met and its class is closed, measured
+
+The fix landed as `22c2e45` (G4-W17 arrival item 60), and it is **not** the cut P24 proposed. P24
+asked for `citable_fact_ids()` to be widened to admit the IDs `normalize()` itself writes. The
+primary landed the other half of the same diagnosis: `core/llm/jobs.py`'s cache-reuse branch now
+re-judges a stored output under the manifest's base schema, the binding and the checks, and never
+under `call_schema` — because `call_schema` constrains what a *decoder* may emit, and what the store
+holds is the *folded* output. Either cut closes the class. The landed one closes it for every job
+that carries a `call_schema`, not only S4, which is why `section_authoring` reuses cleanly below
+too. The digest still carries `call_schema`, so a changed schema still misses the store.
+
+The measurement is the same twelve characters RERUN3's receipt recorded:
+
+| request digest | RERUN3 (four hours earlier, same revision) | RERUN4 no-op run |
+| --- | --- | --- |
+| `c4132101affc` (S4 batch 1) | `cache_stale` / `OutputRejected` in **every** round of **both** runs, each followed by a live call | `cache_reuse`, no call |
+| `a3ce39d30513` (S4 batch 2) | reused cleanly (it places nothing into a deterministic section) | `cache_reuse`, no call |
+
+The digest never moved, so nothing about the packet or the request changed — only the re-judge. The
+fresh-process rerun records **zero** `cache_stale` of any kind and **zero** provider calls.
+
+### BC-11 passes, and the candidate seals
+
+| run | purpose | provider calls | `cache_reuse` | `cache_stale` | result |
+| --- | --- | --- | --- | --- | --- |
+| 1 | compose and re-seal at current code | 10 success + 1 re-ask | 6 | 1 | state `ACCEPTED`, proof withdrawn (8 artifacts changed since the last seal) |
+| 2 | the no-op proof | **0** | 15 | **0** | **no-op proven**, state `READY_FOR_PROPOSAL`, check 11 judged |
+| 3 | byte-stability control | **0** | 15 | **0** | `no-op: the proven bundle was reproduced byte for byte` |
+
+BC-01 to BC-11 **all PASS**. 231 facts (byte-identical to the 2026-09-06, RERUN2 and RERUN3 runs at
+this revision), a 16-of-18-section plan, 66 units dispositioned, 42 units across 8 sections,
+`README.md` at 236 visible lines of 464, validation 11 pass / 0 fail on the first round with **zero
+repairs** — `repairs.json` is absent from this bundle for the first time at this repository. The
+independent review returned `ACCEPT`, `identity_separate` true, `second_reader.read` 2 with six
+corroborated reads, 0 findings and 12 advisory.
+
+Run 3 is the stability control the sprint asked for, and it is checked by digest rather than by the
+seal's own word: the sha256 of all **14** bundle files was captured immediately after run 2's proof
+and re-verified after run 3 — 14 of 14 unchanged, `manifest.json` included, so the proof's own
+record is stable too and not merely the content. That is `seal_candidate`'s stable branch, which
+returns without writing.
+
+### RENDERER_VERSION 19 was picked up by the re-seal itself
+
+No action was taken for it. `evaluation.json` recorded earliest affected stage `RECONCILING`, one
+change (`components.renderer` → `RECONCILING`), and `dependencies.json` moved `renderer` 18 → 19
+(arrival item 61, canonical fact ordering). This is the mechanism working as designed: a candidate
+is invalidated only through an input listed in its own `dependencies.json`.
+
+### Aspose.PDF for Go was not run, and item 47 is why
+
+Checked directly at `22c2e45` rather than assumed: `validation/registry.py::_check_links` still
+builds every anchor failure as `Failure("COMPOSING", f"{target.href}: {result.detail}")` — two
+arguments, so `Failure.section` is still `None`, which is exactly the shape item 47 exists to fix.
+The repository's `BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED` disposition (PROPOSAL
+P20) therefore stands with its resume predicate unmet. Item 46 (`dd7dc73`) did land and closes the
+BC-08 half; item 47 is the remaining half, and the sprint plan schedules PDF-Go for the Saturday
+wave. Its disposition is unchanged by this run and nothing here claims otherwise.
+
+### One observation, and it is not a proposal
+
+Run 1 recorded one `section_authoring` `cache_stale` / `OutputRejected` (digest `9e3706affbc4`),
+followed by a live call that succeeded on attempt 1. It is **not** the P24 class recurring. That
+entry was never a stored reply: `repair/rounds.py`'s G5-W02 seeding path had put a *reconstruction*
+of the **previous** seal's `content_units.json` into the store before the call, and the previous
+seal was authored against a different plan and different dispositions, so the reconstructed unit
+genuinely no longer satisfies this task's own `unit_checks`. The re-judge rejecting it is the design
+working, not failing — and the no-op run, whose store holds this run's own accepted replies, records
+zero `cache_stale`. RERUN3's observation 1 named this same shape at this same stage; it is now
+explained and is not carried forward.
+
+### What this seal claims and what it does not
+
+It claims eleven passing checks, a proof reproduced twice, and 14 of 14 files stable across the
+second rerun. It does not claim that items 28, 29 and 45 are individually attributable — this run
+did not separate them, as RERUN3 already said. It says nothing about `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`,
+which was not run. `sealed_by_lane` 1 → 2 and `dispositions_by_lane` 2 → 1.
