@@ -226,3 +226,393 @@ diagnosis); `tests/test_version_bump_discipline.py:160,173`;
 **Reversal path.** None — a recovery record. The open follow-up is lane D's own: `run_git` stops
 forwarding the git-plumbing environment variables, at which point the hook's scrub is belt-and-braces
 rather than the only guard.
+
+## 2026-09-11 — LANE-F-01, .NET cohort re-attempt (run 2, after the S4 fix landed)
+
+Lane-F entry numbering continues F1–F5 above. These are *lane* entries; the sprint item
+`PHASE1/F6` cited throughout this file is a different namespace and is always written with its
+`PHASE1/` prefix.
+
+### F6 Correction to F3 — the lock alone does not reproduce the primary's venv
+
+**Decision.** F3's recipe is incomplete and is corrected here rather than amended in place. The
+complete recipe is: `pip install --no-deps -r requirements-lock.txt`, then `pip install --no-deps
+-e .`, then `pip install --no-deps uv==0.12.9 pytest-xdist==3.8.0 execnet==2.1.2 pip==24.3.1`, and
+**never** `pip install --upgrade pip`.
+
+**Why.** Built exactly as F3 prescribes on 2026-09-11, `_presenter_site_manifest_hash()` came out
+`688c606066a7dd626d80f4502d825d4928a14d72ca19f6297c55410c91f7413c`, not `f4406f1b…`. The package
+sets differed by exactly three distributions: `pytest-xdist==3.8.0` and `execnet==2.1.2` present in
+the primary and absent here, and `pip` at `26.2.1` against the primary's `24.3.1`. The first two are
+absent because `requirements-lock.txt`, although compiled `--extra dev`, predates `pytest-xdist`
+entering `pyproject.toml`'s dev extra — the lock contains neither it nor its `execnet` dependency,
+so a `--no-deps` lock install cannot produce them. The third is self-inflicted: `pip` is itself a
+distribution, so upgrading it moves the very hash being matched. After pinning all three the hash
+was `f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411`, verified equal to the
+primary's and to all 8 sealed bundles before any candidate work.
+
+**Alternative rejected.** Editing F3 in place. A correction to a standing fact gets its own entry
+(loop-prompt §5), or every reader who already acted on F3 misses it.
+
+**Evidence.** Measured hashes above; `requirements-lock.txt` (no `xdist`/`execnet` entry);
+`pyproject.toml:30-34` (`dev = [… "pytest-xdist>=3.6"]`); `bundle/seal.py:157-192`.
+
+**Reversal path.** Re-compiling the lock from the current `pyproject.toml` would fold the first two
+pins back in; the `pip` rule stands regardless.
+
+### F7 3D-.NET run 2: reached S9 (VALIDATING), blocked by BC-07; dispositioned, not sealed
+
+**Decision.** `aspose-3d-foss/Aspose.3D-FOSS-for-.NET` is dispositioned `BLOCKED_VALIDATION (BC-07)`,
+not sealed. Its resume predicate is F8 (BC-07's heading model), with F9 as a second, independent
+predicate for BC-02.
+
+**Measured 2026-09-11, worktree `C:\w\f02`; 17 provider-call records, 16 `success` and 1
+`response_invalid`, spanning 09:28:27–09:36:08 UTC.** The S4 fix
+(`352fd35`) works: `source_reconciliation` returned `success` twice, 70 dispositions over 70
+inherited units, **128 fact IDs cited, 57 distinct, 0 unknown, 0 bare kind-prefixes**. Run 1's
+blocker is gone and the run advanced five stages further, to S9. The facts stage reproduced run 1
+byte-for-byte on its second attempt — 3931 records, digest `bdb5ae90…cbc37a` (see F9 for the first
+attempt). Composition produced 83 units across 9 sections and a 184-visible-line README.
+
+`validation.json`: **pass 7, fail 2, pending 2**.
+
+- **BC-07 FAIL at COMPOSING** — `heading '### ThreeD.Property' is not a shell heading in title
+  case`. Cause in shared code, diagnosed in F8. `targeted_repair` recorded it `unrepairable`,
+  reason `no failing check names an LLM-owned section`: content revision cannot fix it.
+- **BC-02 FAIL at EXTRACTING** — `install_command:dotnet is UNRESOLVED: package registry: nuget
+  could not be read`. Not a fact about this repository: the package **is** published. Cause in
+  shared code, diagnosed in F9. `unrepairable`, reason `EXTRACTING is not repairable by revision`.
+- BC-10 and BC-11 never ran (`PENDING`, judged at S10/S12), so **this run did not observe an
+  independent review verdict at all.** The 2026-09-06 `PlyReader`/`PlyWriter` question F1 exists to
+  settle is still open; it cannot be answered until a run reaches S10.
+
+**Alternative rejected.** Re-running to get past BC-02. BC-02's reading is transient and a re-run
+would very likely clear it, but BC-07 is deterministic and would fail the identical bytes again, so
+the re-run would spend another ~14 provider calls and still not seal. Also rejected: choosing a
+different API hub to dodge the heading. The hub set is the planner's own choice from a schema enum,
+steering it is not a lane-F path, and dodging a blocking check is exactly the forced seal §2 forbids.
+
+**Evidence.** `runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/042a1e5f…b352/`
+(`calls.jsonl` 14 calls, `dispositions.json`, `plan.json`, `content_units.json`, `README.md`,
+`validation.json`, `repairs.json`); `evidence/build/lanes/lane-f/LANE-F-01.json`.
+
+**Reversal path.** When F8 lands, re-run this repository first; F1 and this entry are its baseline.
+
+### F8 PROPOSAL — BC-07 re-implements the renderer's heading model and rejects a heading the contract requires
+
+**Defect.** `src/repository_presenter/components/readme/validation/registry.py:856-869` (shared
+code — `validation/`, not a lane-F path). BC-07 exempts a level-three API-reference heading only
+when its text is in `topics`:
+
+```python
+topics = {fact.value.rsplit(".", 1)[-1] for fact in candidate.facts.by_kind("public_symbol") ...}
+...
+if level == 3 and line in api_lines and text in topics:
+    continue
+```
+
+`topics` is the bare final dotted segment of every verified symbol. The renderer does **not** name
+hubs that way. `composition/renderer.py:430-447` (`_table_names`) gives each type "its final
+segment, or the shortest dotted suffix that tells it apart when two verified types share that
+segment (README_CONTRACT.md row 14 …, under names a visitor can import)", and `renderer.py:481`
+emits `### {names.get(symbol.value, …)}`. So the two are independent models of one thing, and they
+drift on exactly the names `_table_names` disambiguates.
+
+**Measured on 3D-.NET.** Of 293 verified types, two share the final segment `Property` —
+`Aspose.ThreeD.Property` and `Aspose.ThreeD.Formats.GLTF.Property` — so `_table_names` correctly
+yields `ThreeD.Property` and `GLTF.Property`. The plan made `Aspose.ThreeD.Property` an API hub, the
+renderer emitted `### ThreeD.Property` as row 14 requires, and BC-07 failed it because
+`ThreeD.Property` is not in `topics` (which holds only `Property`). The renderer is right and the
+check is wrong. This is not repository-specific: any surface with two same-named types in different
+namespaces hits it, which is ordinary in large .NET and Java surfaces.
+
+**Proposed shape (the primary's to land).** BC-07 computes its allowed hub headings with the
+renderer's own `_table_names()` over the same `(classes, enums)` list `renderer.py:462` uses,
+instead of re-deriving a bare-suffix set — the principle already stated at `renderer.py:470-471`
+("one answer, not two that can independently drift") and at `reconciliation/dispositions.py:164-166`
+("one function, so the packet and the schema's citable set can never drift apart"). Mutation test: a
+facts fixture with two verified classes sharing a final segment, one of them a hub — BC-07 passes on
+the rendered heading, and still fails on a genuinely non-shell heading.
+
+**Alternative rejected.** Lane F patching `validation/registry.py`. `validation/` is shared code;
+lane prompt §2 makes this a `PROPOSAL`.
+
+**Evidence.** `validation/registry.py:856-869`; `composition/renderer.py:430-447,462,481`;
+3D-.NET `validation.json` BC-07 detail and `repairs.json` (`unrepairable`, `no failing check names
+an LLM-owned section`); the two colliding symbols measured above.
+
+**Reversal path.** If the owner rules that a disambiguated hub heading should not be emitted at all,
+the fix belongs in the renderer instead and this entry names the wrong side; the drift itself is the
+defect either way.
+
+### F9 PROPOSAL — the shared registry façade never retries, so one timeout fails BC-02 on a published package
+
+**Defect.** `src/repository_presenter/components/readme/extractors/surface/registry.py:103-108`
+(shared façade). `observe()` calls `publication_probe.probe_publication(...)` exactly once. There is
+no retry there, and none inside the vendored probe (`_vendor/aspose_extraction/publication_probe.py`
+has only a 10-second `timeout`; no adapter under `package_registries/` retries).
+
+`core/retry.py:40-42` already declares the policy this call wants —
+`"package_registry": RetryPolicy(max_attempts=3, initial_seconds=1, maximum_seconds=20)` — and
+`run_with_retry("package_registry", …)` is used at
+`extractors/platforms/python_registry.py:123`. **That is the Python platform's own path.** Every
+other ecosystem reaches its registry through the shared façade, which never uses the policy. So
+`python` probes three times with backoff and `net`, `java`, `typescript`, `go` and `rust` probe once.
+
+**Measured 2026-09-11, whole cohort — this is a majority failure rate, not an unlucky run.** Ten
+nuget readings were observed in `C:\w\f02` over this run; **five could not be read**:
+
+| reading | result |
+|---|---|
+| 3D-.NET facts-only #1 | could not be read → UNRESOLVED |
+| 3D-.NET facts-only #2 | found on nuget → SUPPORTED |
+| 3D-.NET `present` (full run) | could not be read → UNRESOLVED → **BC-02 FAIL** |
+| Email-.NET facts-only | found on nuget → SUPPORTED |
+| Email-.NET `present` (full run) | could not be read → UNRESOLVED |
+| PDF-.NET facts-only | could not be read → UNRESOLVED |
+| Slides-.NET facts-only | found on nuget → SUPPORTED |
+| 3 direct `httpx` requests to the 3D URL, back to back | 1 `ConnectTimeout`, 2 × `HTTP 200` |
+
+Every one of those packages is published — the successful readings and the two direct `HTTP 200
+{"versions":["26.1.0"]}` responses prove it. An unreadable probe gives `install_command:<eco>`
+polarity `UNRESOLVED` with evidence `package registry: nuget could not be read`, which fails
+**BC-02 at EXTRACTING**; `repairs.json` records it `unrepairable`, `EXTRACTING is not repairable by
+revision`, so the run cannot seal. At an observed 4-in-7 failure rate per extraction, a .NET
+candidate reaching a seal is close to a coin toss on this probe alone, independently of anything
+about the repository.
+
+The reproducibility cost is separate from the blocking cost: the unread probe changes the facts
+digest (`32f5d319…` against the correct `bdb5ae90…cbc37a`), and facts feed
+`upstream_dependencies()`, so a bundle sealed under the unlucky reading reopens EXTRACTING
+(`bundle/seal.py:179-192`).
+
+**Proposed shape (the primary's to land).** Wrap the `probe_publication` call in
+`run_with_retry("package_registry", …)`, raising `RetryableOperationError` when the reading comes
+back unreadable (`published is None`), exactly as `python_registry.py:123` already does. Mutation
+test: a fetch stub that times out once and then answers 200 yields `published=True`; one that always
+fails still yields `published=None`, so "we could not check" never becomes "we checked and it is
+false" (§29.6 E5 is preserved, not weakened).
+
+**Alternative rejected.** Treating an UNRESOLVED registry reading as admissible for a
+registry-having ecosystem. `evidence/facts/extract.py:64-70` rules that out by name and is right to:
+the fix belongs at the probe, not at the admission gate. Also rejected: lane F patching the façade —
+`extractors/surface/` is shared (lane prompt §2, §3).
+
+**Evidence.** `extractors/surface/registry.py:77-118`; `core/retry.py:38-45`;
+`extractors/platforms/python_registry.py:74,123`; 3D-.NET `validation.json` BC-02 detail,
+`repairs.json`, and the two facts digests above; the ten readings tabulated above, each from its
+repository's `facts.json` `install_command:dotnet` evidence or from the direct request.
+
+**Priority note.** Of everything this lane measured, this is the one defect that blocks candidates
+across every non-Python cohort rather than one repository: lanes B (C++ has no registry, so it is
+spared), C (maven), D (go\_modules), and this lane (nuget) all reach their registry through this
+façade. It is also the cheapest to fix — one `run_with_retry` wrapper around an existing, already
+declared policy.
+
+**Reversal path.** If retrying proves to mask a genuine registry outage, lower `max_attempts`; the
+asymmetry between Python and every other ecosystem is the defect regardless of the number chosen.
+
+### F10 PROPOSAL — `presentation_planning`'s four `fact_ids` arrays carry no enum (arrival item 40's class, at S5)
+
+**Defect.** `prompts/presentation_planning.yaml` (version 11) types `fact_ids` under
+`core_capabilities`, `api_hubs`, `material_limitations` and `deviations` all as
+`{"type": "array", "items": {"type": "string"}}` — no `enum`, no `maxItems`, no `maxLength`.
+`composition/planning.py::planning_schema()` specialises `section_id`, `link_fact_id`,
+`symbol_fact_id` and the four example-ID fields with enums built from `bounded_records()`, and
+leaves all four `fact_ids` arrays untouched.
+
+**Measured on 3D-.NET, S5 attempt 1 (`call_id …-response_invalid-20260911T093129451-0005`).** The
+job returned 11 invented IDs — `format:fbx`, `format:gltf`, `format:obj`, `format:stl`,
+`format:collada`, `format:u3d`, `format:3mf`, `format:rvm`, `format:ply`, `format:amf`,
+`format:html5` — and `core/llm/binding.py:162` rejected the whole transaction after it was spent.
+Attempt 2 succeeded, so on this repository the cost was one wasted S5 call.
+
+**On Email-.NET it cost the entire run.** The same defect fired again at S5 attempt 1 with
+`format:msg`, `format:eml`, `format:cfb` — that repository likewise has **0** `format` facts.
+Attempt 2 then failed for an unrelated, self-inflicted reason (`at_a_glance is included, so its
+formats and capabilities are given`: the plan listed `at_a_glance` among its included sections and
+set the object to `null`, which `planning.py:431-433` refuses). The retry budget is two, so
+`present` aborted at S5 with `presentation_planning: output rejected twice` and the repository
+never reached composition. Had the enum refused `format:msg` at decode, attempt 1 would not have
+been spent on an impossible citation and the run would still have had a good attempt in hand.
+That both repositories reached for invented `format:*` IDs is itself the signal: the .NET extractor
+emits no `format` facts at all, the packet shows none, and nothing in the schema says so.
+
+Two details make this the same class arrival item 40 fixed at the reconciliation site, not a
+near-miss. `format` **is** a member of `core.facts.FACT_KINDS`, and this repository has **0**
+`format` facts — so item 40's original `^(<kinds>):` prefix pattern would have *admitted* all 11,
+and only an enum of the packet's own IDs refuses them. That is exactly `352fd35`'s argument, one
+stage earlier. And the fix is cheap here: planning's own citable set for this repository is 85
+records, 2,507 bytes of IDs (`bounded_records(facts, kinds)`, the packet's own `facts` field).
+
+**Proposed shape (the primary's to land).** Give the four `fact_ids` arrays an `enum` of the
+planning packet's own fact IDs plus a `maxItems`, in `planning_schema()`, beside the enums it
+already builds. Mutation test: a planner output citing a well-formed but unshown ID is refused at
+decode rather than at `binding_errors`.
+
+**Alternative rejected.** Leaving it, since the binding guard already catches it. That guard is the
+*expensive* rejection the enum work exists to avoid — F2 made the same argument for S4 and the
+primary accepted it.
+
+**Evidence.** `prompts/presentation_planning.yaml` (`output.schema.properties.*.items.properties.
+fact_ids`); `composition/planning.py:188-221`; `core/llm/binding.py:149-168`; the `rejection` array
+of the call record above; `core.facts.FACT_KINDS`.
+
+**Reversal path.** Superseded if the owner instead removes `format` and other never-extracted kinds
+from `FACT_KINDS`, which would make the prefix shape sufficient — but the unbounded array would
+remain.
+
+### F11 Lane E's proposal E3 does not materialise at either enum site on 3D-.NET (measured)
+
+**Decision.** Record E3 as **not reproduced here**, with the numbers, rather than as a risk carried
+forward. No S4 or S5 call in this run returned HTTP 400; every one of the 14 calls has
+`http_status: 200`.
+
+**Why the surface size did not drive the enum size.** 3D-.NET has 3812 `public_symbol` facts, but
+neither enum is built from that number:
+
+| site | bound that actually binds | entries | JSON bytes |
+|---|---|---|---|
+| `reconciliation_schema` `fact_ids` | `symbol_kinds=DECLARED_SYMBOL_KINDS` | 352 | 16,713 |
+| `planning_schema` `symbol_fact_id` | `symbol_max_depth=3` | 39 | 1,603 |
+
+Of the 3812 symbols, 3508 are `method` and only 304 are of a declared kind (class 239, enum 54,
+module 11), so `DECLARED_SYMBOL_KINDS` cuts the reconciliation enum to 352 packet records; the
+per-batch enum adds only that batch's own inherited units (70 across 2 batches) and the
+investigation's 26 cited IDs, most already shown. `SYMBOL_CAP` (6000) never binds at either site
+for this repository. Taskcard H's confirmed 400 was `aspose-pdf-foss/Aspose.PDF-FOSS-for-Java` at
+24,830 symbols and ~460,256 estimated enum tokens; `planning.py:189-194` already carries that fix.
+
+**What this does not say.** It does not clear E3 for the portfolio. Within lane F alone,
+`Aspose.PDF-FOSS-for-.NET` has 12,270 public symbols — 3.2× this repository — and is the cohort's
+real test of the bound; `Aspose.Words-FOSS-for-.NET` has 6,638. 3D-.NET was not the largest surface
+in flight, only the first attempted.
+
+**Alternative rejected.** Reporting E3 as "did not fire" without the measurement. A negative result
+with no number cannot tell a bounded enum from a lucky one.
+
+**Evidence.** `runs/transactions/…/042a1e5f…b352/calls.jsonl` (14 calls, all `http_status` 200);
+`core/facts.py::bounded_records` (`SYMBOL_CAP` 6000, `SYMBOL_MAX_DEPTH` 3);
+`reconciliation/dispositions.py:163-171`; `composition/planning.py:189-214`; the counts above,
+measured from this run's `facts.json`.
+
+**Reversal path.** None — a measurement. If PDF-.NET returns HTTP 400 at either site, that is E3
+materialising and this table is the contrast that localises it.
+
+### F12 The cohort's facts-only preflight: two repositories' recorded blockers no longer exist
+
+**Decision.** Record the .NET cohort's facts-only readings (lane prompt §2 — "facts-only preflight
+over your repositories first") and correct two stale predicates from them:
+`Aspose.Slides-FOSS-for-.NET`'s BC-02 blocker **is gone**, and `Aspose.PDF-FOSS-for-.NET` carries
+34 instances of F8's defect.
+
+**Measured 2026-09-11, worktree `C:\w\f02`, zero provider calls; `preflight.json` written at
+09:41:31Z (Email), 09:50:45Z (PDF) and 09:58:32Z (Slides).**
+
+| repository | revision | facts | S / U / C | examples | verified types | F8 collisions |
+|---|---|---|---|---|---|---|
+| Email-.NET | `59125b47…48eb7` | 341 | 341 / 0 / 0 | 4 of 4 EXECUTED | 29 | **0** |
+| PDF-.NET | `b7172877…2406b` | 12,580 | 12,578 / 1 / 1 | 11 of 12 | 899 | **34** |
+| Slides-.NET | `9f2d8710…62ce5` | 2,734 | 2,733 / 0 / 1 | 8 of 9 | 264 | **0** |
+
+- **Slides-.NET's BC-02 disposition is stale.** The G4 manifest row and this lane file both record
+  it `BLOCKED_VALIDATION (BC-02)` because the package was "not on NuGet, a CONCLUSIVE
+  CONTRADICTED", and name `EcosystemSpec.source_install` (arrival item 10) as its unlock. That is no
+  longer the repository's state: `install_command:dotnet` now reads **SUPPORTED**, evidence
+  `package registry: found on nuget`, for `dotnet add package Aspose.Slides.FOSS`. It therefore
+  needs no `source_install` path at all. Upstream also moved — the manifest row's revision
+  `622cd5ed…29c6d85` is gone; this reading is at `9f2d8710…5b762ce5` — and its examples went from
+  "executed 1, failed 8" to **8 of 9 EXECUTED**, its one CONTRADICTED fact being `example:002`
+  (`CSC : error CS5001: Program does not contain a static 'Main' method`, genuine upstream).
+- **PDF-.NET is F8's worst case in this cohort**: 34 of its 899 verified types share a final
+  segment with another (`Aspose.Pdf.Color` vs `Aspose.Pdf.Drawing.Color`, `Aspose.Pdf.Facades.Form`,
+  `Aspose.Pdf.Drawing.Rectangle`, …), against 2 for 3D-.NET. Its `install_command:dotnet` also came
+  back UNRESOLVED on this reading — F9's defect, third occurrence today — and its one CONTRADICTED
+  fact is `example:005` (`error CS1061: 'Option' does not contain a definition for 'ExportValue'`).
+- **Email-.NET is the cohort's cleanest repository**: every one of its 341 facts SUPPORTED, all four
+  examples EXECUTED, no F8 collision. Its recorded blocker (`BLOCKED_REVIEW`, a reviewer-hallucinated
+  Development Dependencies heading) is a review-stage predicate, and S10 is now reachable.
+
+**Alternative rejected.** Amending the G4 manifest rows for Slides-.NET and PDF-.NET from this
+lane. The manifest is the primary's evidence file, not a lane-owned path (lane prompt §0, §3); the
+readings are recorded here and in `evidence/build/lanes/lane-f/LANE-F-01.json` for the owner to fold.
+
+**Evidence.** `runs/transactions/{aspose-email-foss__Aspose.Email-FOSS-for-.Net/59125b47…,
+aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET/b7172877…,
+aspose-slides-foss__Aspose.Slides-FOSS-for-.NET/9f2d8710…}/{facts.json,preflight.json}`;
+`composition/renderer.py::_table_names` run over each type list.
+
+**Reversal path.** Each row is a dated reading of a moving upstream; re-measure before acting on one
+that is more than a few days old, exactly as this entry did to the 2026-09-06 rows.
+
+### F13 Email-.NET run 2: aborted at S5 (PLANNING); dispositioned `BLOCKED_PLANNING`
+
+**Decision.** `aspose-email-foss/Aspose.Email-FOSS-for-.Net` is dispositioned `BLOCKED_PLANNING`,
+not sealed, with **F10** (the planning `fact_ids` enum) as its resume predicate and **F9** as a
+second, independent one. Its recorded blocker changes: the G4 manifest row and this lane file both
+say `BLOCKED_REVIEW` (a reviewer-hallucinated Development Dependencies heading), and that is no
+longer where it stops — it now stops two stages earlier and the review-stage unlocks named for it
+(arrival item 28's fold-not-reject, PA-02's section-scoped `quote_located`) remain untested.
+
+**Measured 2026-09-11, worktree `C:\w\f02`; 7 provider-call records, 5 `success` and 2
+`response_invalid`, spanning 10:03:08–10:06:42 UTC.** S3 and S4 both
+succeeded — `source_reconciliation` again returned `success` with no unknown fact ID, corroborating
+`352fd35` on a second repository. S5 then rejected twice and `present` exited 1:
+
+- attempt 1: `unknown fact ID format:msg`, `format:eml`, `format:cfb` — F10's defect, second
+  repository.
+- attempt 2: `at_a_glance is included, so its formats and capabilities are given` — the plan kept
+  `at_a_glance` in its included sections while setting the object to `null`
+  (`composition/planning.py:431-433`). Self-inflicted and satisfiable in principle: with 0 `format`
+  facts the empty-list form passes `planning.py:435-451` cleanly, so this is model variance, not a
+  deadlock. It is recorded, not proposed.
+
+This repository would not have sealed even past S5: its full-run extraction read
+`install_command:dotnet` as `UNRESOLVED` (F9's defect, fourth occurrence today) where its own
+facts-only preflight 21 minutes earlier (09:41:31Z) read it `SUPPORTED`, so BC-02 would have failed at S9 as it
+did for 3D-.NET. Facts digest `e4d8144e…16bd0` on the run against `33ed76be…2a7a6c6` at preflight —
+341 records both times, one polarity apart.
+
+**Alternative rejected.** Re-running to spend two more planning attempts on the chance the model
+does not reach for `format:*` a third time. Two equivalent failed attempts prohibit a third
+(loop-prompt §5) and nothing about the inputs would have changed; the mechanism to change is F10's,
+and it is not a lane-F path.
+
+**Evidence.** `runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-.Net/59125b47…48eb7/`
+(`calls.jsonl` 7 calls — the two `response_invalid` records carry the rejection arrays quoted above;
+`investigation.json`, `dispositions.json`; no `plan.json`); the run log line
+`presentation_planning: output rejected twice`; `facts.json` polarity counts above.
+
+**Reversal path.** When F10 lands, re-run this repository; if it then reaches S10, its original
+`BLOCKED_REVIEW` predicate becomes testable for the first time since 2026-09-06.
+
+### F14 What this run leaves for the cohort
+
+**Decision.** LANE-F-01 stays `IN_PROGRESS`. Two of four repositories were run to a verdict and
+dispositioned (F7, F13); PDF-.NET and Slides-.NET were measured facts-only (F12) and **not** run to
+composition, and their existing G4 manifest rows stand unamended rather than being rewritten from a
+facts-only reading.
+
+**Why those two were not run.** Both of this run's compositions ended on shared-code defects with
+no lane-F remedy, and the box was reached. Running PDF-.NET next would have been the worst use of
+what remained: it carries **34** instances of F8 against 3D-.NET's 2 (F12), so it is the repository
+most certain to fail BC-07, and at 12,580 facts it is the cohort's most expensive run. Slides-.NET
+is the opposite case and the cohort's best remaining prospect — 0 F8 collisions, 2,733 of 2,734
+facts SUPPORTED, and its recorded BC-02 blocker no longer exists (F12) — but it needs a run that can
+survive S5 and BC-02, which is exactly what F10 and F9 are for.
+
+**Order for the next run**, revised from the item's original order on this run's evidence:
+Slides-.NET first (cleanest, and its old blocker is gone), then 3D-.NET (F8), then Email-.NET
+(F10), then PDF-.NET (F8 ×34). The item's stated order put 3D-.NET first because it was the
+2026-09-06 un-seal; that question is now known to be unanswerable until a run reaches S10, so it no
+longer earns the first slot.
+
+**Alternative rejected.** Spending the remaining box on PDF-.NET or Slides-.NET anyway, to raise the
+count of repositories attempted. Neither could seal through F8/F9/F10, and a fourth and fifth
+disposition naming the same three shared-code causes would bury the per-repository predicates
+exactly as F4 warned on run 1.
+
+**Evidence.** F7, F12, F13 above; `evidence/build/lanes/lane-f/LANE-F-01.json`.
+
+**Reversal path.** The supervisor re-spawns LANE-F-01 when F8, F9 or F10 lands; F9 alone unblocks
+BC-02 for every repository here, and F9 plus F10 is enough for Slides-.NET to be worth a full run.
