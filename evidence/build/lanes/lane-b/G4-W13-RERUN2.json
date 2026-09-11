@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN2",
+  "work_item_status": "IN_PROGRESS",
+  "recorded_at": "2026-09-11T13:23:28+05:00",
+  "control_revision": "692f57c",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN2 is cut from origin/main at 692f57c (test(tests): version-bump and debt-ledger discipline enforced, PHASE1/F7). No src/ or tests/ change is carried by this run: the two failure classes it met are both in shared code the lane may not edit.",
+  "time_box": {
+    "declared": "Sprint W-CPP, pulled forward from Friday to Thursday to add throughput",
+    "started": "2026-09-11T13:05 +05:00",
+    "closed": "2026-09-11T13:23 +05:00",
+    "closed_by": "The reviewer's instruction, not the clock: 'stop before spending another provider call on a candidate - the pipeline is blocked at S4 for every repository, so a C++ run cannot reach a seal right now.' The PDF C++ composition was in flight and was stopped after one provider call. Nothing sealed, no disposition written, two findings recorded."
+  },
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313\\python.exe, pip install -e .[dev])",
+    "worktree": "C:\\w\\b13r2 - a short root, because the harness worktree path crosses Windows' 260-character limit (loop-prompt-lane.md section 1.1)",
+    "toolchain_registry": "C:\\tools\\rp-toolchains\\TOOLCHAIN_PATHS.txt",
+    "path_policy": "Nothing is on the user or system PATH. g++ is resolved from the registry key `gxx`; shutil.which('g++') returns None on this machine."
+  },
+  "toolchain_used": [
+    {
+      "name": "g++",
+      "path": "C:\\tools\\rp-toolchains\\winlibs\\mingw64\\bin\\g++.exe",
+      "version": "g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0",
+      "resolved_by": "the machine-local registry key `gxx` via cpp_examples.py's own resolver",
+      "used_for": "the library's own CMake build and the -fsyntax-only check of every README example in both repositories"
+    }
+  ],
+  "what_this_run_tested": "Whether the G4-W17 arrival items named for these two repositories have cleared their standing dispositions: Email C++ (S5 BLOCKED_PLANNING; items 25, 32, 40) and PDF C++ (BC-02; item 24 landed, TB-01 build_verified honesty governing).",
+  "answered": {
+    "item_24_and_TB-01": "ANSWERED, affirmatively and honestly. install_command:cmake is SUPPORTED for both repositories on earned evidence - the libraries' own CMake builds succeeded with the recorded GCC 16.2.0, so build_verified is true rather than defaulted. BC-02 is no longer PDF C++'s blocker.",
+    "item_32": "LANDED and present in composition/planning.py (preserved_aspose counting over placements), but not exercised: neither repository reached S5 this run.",
+    "item_25": "NOT LANDED. composition/planning.py still appends an error on placement.outcome == 'excluded' rather than deferring the unit; Email C++'s S5 block is therefore untouched, and was not reached this run in any case.",
+    "item_40": "LANDED (e2a1a83, 2026-09-11 06:50) and is itself the new S4 blocker - see findings."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-RERUN2-F1",
+      "class": "SHARED_CODE_REGRESSION",
+      "file": "src/repository_presenter/components/readme/reconciliation/dispositions.py",
+      "symbol": "reconciliation_schema",
+      "corroborating_lanes": [
+        "lane-c (852047a)",
+        "lane-d (3bc7999)",
+        "lane-b (this record)"
+      ],
+      "defect": "Arrival item 40 types fact_ids items as {'type': 'string', 'pattern': '^(<kinds>):'}. The pattern anchors the kind prefix and never requires a local part, so the bare prefix is legal at decode time and unknown at binding time; the whole transaction is spent, which is precisely what the change was written to prevent.",
+      "mechanical_proof": "Built from the production manifest - reconciliation_schema(load_manifests(Path('prompts'))['source_reconciliation'], units) - the pattern is ^(build_test_asset|dependency|example|format|identity|import_path|inherited_unit|install_command|license|link_target|package|public_symbol|third_party_notices): and re.match accepts every bare prefix that rejected the transaction.",
+      "measured_on": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp at fef9c93",
+      "measurement": "S4 source_reconciliation rejected twice. Attempt 1: 15 of 40 disposition records carry a bare prefix, 8 distinct kinds (dependency:, example:, identity:, install_command:, license:, link_target:, package:, public_symbol:). Attempt 2: 12 of 40, 7 distinct. The transaction died at S4.",
+      "lane_b_additions": [
+        "The model is filling a slot, not misreading the packet: its own rationale in the same record names the correct ID - example:001, link_target:product.banner, dependency:none, package:cmake_minimum - while fact_ids holds the bare prefix and the rationale says 'used placeholder'.",
+        "This is the 'names no fact' branch, not the 32000-token runaway, and it is not confined to a large surface: Email C++'s packet is 357 facts and 225 public symbols, the smallest C++ repository in the lane. Raising or batching the cap alone would leave this draw failing."
+      ],
+      "fix_options": [
+        "Strictly correct, and what this same function already does two lines later for unit_id: type fact_ids items as an enum of the packet's fact IDs. binding_errors already refuses anything outside facts.facts, so the enum is exactly co-extensive with what the next stage accepts and admits no bare prefix at all.",
+        "Minimal, if an enum of 1651 IDs (PDF C++) is judged too large for the decoder: require a non-empty local part in the pattern."
+      ],
+      "regression_evidence": "The same repository with the same prompt text closed S4 on 2026-09-06 after one recovered rejection (RESEARCH_LANE_B.md, entry of 2026-09-06 14:29); item 40 landed 2026-09-11 06:50.",
+      "artifacts": [
+        "runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/fef9c934c3ad7a207c97cc24546176e678f577af/calls/6ed66cf282d1.rejected-1.json",
+        "runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/fef9c934c3ad7a207c97cc24546176e678f577af/calls/6ed66cf282d1.rejected-2.json"
+      ],
+      "owner": "the primary loop - the lane may not edit reconciliation/"
+    },
+    {
+      "id": "LANE-B-RERUN2-F2",
+      "class": "GROUND_TRUTH",
+      "question": "TB-01 build_verified honesty: do these libraries genuinely build with the available GCC, or would a SUPPORTED install_command be a syntax-only promotion?",
+      "answer": "They genuinely build. Both repositories' own CMake builds succeeded with the recorded g++ 16.2.0, so build_verified is earned on merit and install_command:cmake is honestly SUPPORTED. No check was weakened and no disposition is needed for the build question.",
+      "per_repository": [
+        {
+          "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+          "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+          "build_verified": "true on all 11 receipts",
+          "receipt_clause": "'... -std=c++20 -fsyntax-only; the library's own CMake build succeeded' - the clause cpp_examples.py writes only when the real CMake build returned success (build_verified = product == 'succeeded')",
+          "examples": "11 candidates; 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED",
+          "facts": "1846 records (1651 public symbols); 1839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED",
+          "required_rows_without_evidence": [],
+          "install_command_cmake": "SUPPORTED",
+          "consequence": "BC-02 is no longer this repository's blocker on honest evidence. It is blocked only by S4, upstream and shared - sealable this sprint once that lands.",
+          "provider_calls_this_run": "1 - S3 repository_investigation, accepted first attempt; stopped there on the reviewer's instruction, so S4 was never reached"
+        },
+        {
+          "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+          "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+          "build_verified": "true on all 4 receipts",
+          "receipt_clause": "the same 'the library's own CMake build succeeded' clause at -std=c++17",
+          "examples": "4 candidates; 2 EXECUTED, 2 FAILED",
+          "facts": "357 records (225 public symbols); 355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED",
+          "required_rows_without_evidence": [],
+          "install_command_cmake": "SUPPORTED",
+          "consequence": "Preflight read 0 unresolved where the 2026-09-06 run had this fact UNRESOLVED: arrival item 24 opened for C++ as written, and TB-01's gate let it through on merit.",
+          "provider_calls_this_run": "3 - 1 accepted S3 investigation and the 2 rejected S4 attempts of F1"
+        }
+      ],
+      "contrast_that_makes_it_a_measurement": "TB-01's own worked example, aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp, is the repository whose CMake build fails with this same compiler (missing <limits>, -Werror=trigraphs, recorded 2026-09-06). The honesty rule bites there and correctly does not bite here; both outcomes come from one unchanged code path.",
+      "alternative_rejected": "Recording PDF C++'s BC-02 as a disposition with a build caveat. The receipts say the build succeeded, and writing a weaker claim than the evidence supports is as much a fabrication as writing a stronger one."
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "fef9c934c3ad7a207c97cc24546176e678f577af",
+      "outcome": "NO_VERDICT_TAKEN",
+      "reached": "S4 source_reconciliation, rejected twice",
+      "standing_disposition": "BLOCKED_PLANNING (S5), 2026-09-06 14:29 - left exactly as it is, not revised",
+      "why_no_new_disposition": "Per the reviewer's instruction this hour, a stage known to be broken portfolio-wide does not earn a per-repository verdict. Converting this to BLOCKED_RECONCILIATION would be true of this draw and would read as the repository regressing on its own merits, when the cause is one shared commit landed six hours earlier."
+    },
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "outcome": "NO_VERDICT_TAKEN",
+      "reached": "S3 repository_investigation, accepted; stopped before S4",
+      "standing_disposition": "BLOCKED_VALIDATION (BC-02), 2026-09-06 14:29 - left as it is, though F2 records that its stated cause is now cleared on honest evidence",
+      "why_no_new_disposition": "The run was stopped mid-composition on the reviewer's instruction; a verdict would be taken against a stage this run never observed."
+    }
+  ],
+  "progress": {
+    "sealed_by_lane": 0,
+    "candidates_after_run": "8/34 - unchanged; nothing sealed and nothing unsealed"
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit."
+  }
+}

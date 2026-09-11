@@ -703,3 +703,91 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` - `DISABLED_UPSTREAM`.** `data/registry.json`
   still records `mode: disabled`; the re-run request said not to touch it and no clone was
   attempted. Resume predicate unchanged.
+- **2026-09-11 13:23 (`date` checked) · G4-W13-RERUN2 · FINDING (third independent lane) · arrival
+  item 40's `fact_ids` pattern anchors a prefix and never requires a local part, so the bare kind
+  prefix is a legal fact ID at decode time and an unknown one at binding time.** Lanes C and D
+  measured this hour (`852047a`, `3bc7999`); lane B met it on its own draw and adds the mechanical
+  proof and a second failure branch. `reconciliation/dispositions.py::reconciliation_schema` sets
+  `fact_ids.items` to `{"type": "string", "pattern": "^(<kinds>):"}`; built from the production
+  manifest (`load_manifests(Path("prompts"))["source_reconciliation"]`) the pattern is
+  `^(build_test_asset|dependency|example|format|identity|import_path|inherited_unit|install_command|license|link_target|package|public_symbol|third_party_notices):`
+  and `re.match` accepts `license:`, `package:`, `example:`, `link_target:`, `identity:`,
+  `install_command:`, `dependency:` and `public_symbol:` - every string that then rejected the
+  transaction. The docstring's own claim for the change is "the pattern refuses them at decode time
+  rather than after the whole transaction is spent"; measured here the transaction is spent anyway,
+  because `core/llm/binding.py::binding_errors` is the only thing that knows an ID must *name* a
+  fact. Measured on `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93`: S4
+  `source_reconciliation` rejected twice - attempt 1, 15 of 40 disposition records carrying a bare
+  prefix across 8 distinct kinds, attempt 2, 12 of 40 across 7 - and the transaction died at S4.
+  Two points lane B can add. (a) The model is not confused about the ID; it is filling a slot. Its
+  own rationales name the right fact in the same record - `inherited_unit:026.paragraph` cites
+  `fact_ids: ["example:"]` with rationale "supported by example:001 ... used placeholder",
+  `003.badge_row` cites `link_target:` with "supported by link_target:product.banner",
+  `022.paragraph` cites `dependency:` with "supported by dependency:none", `024.list` cites
+  `package:` with "supported by package:cmake_minimum and package:cxx_standard". Every one of those
+  rationale-named IDs is a real record of the packet. (b) This is the "names no fact" branch, not
+  the 32000-token runaway, and it is not confined to a large surface: Email C++'s packet is 357
+  facts and 225 public symbols, the smallest C++ repository in the lane. So the cap is one symptom
+  and the empty local part is another, and a fix that only raises or batches the cap leaves this
+  draw failing. The strictly-correct fix mirrors what this same function already does two lines
+  later for `unit_id` (`{"type": "string", "enum": units}`): the packet's fact IDs are known exactly
+  at schema-build time, and `binding_errors` already refuses anything outside `facts.facts`, so an
+  enum over those IDs is exactly co-extensive with what the next stage will accept and admits no
+  bare prefix at all. If an enum of 1651 IDs (PDF C++) is judged too large for the decoder, the
+  minimal correction is a non-empty local part in the pattern. Lane B states the measurement and
+  the two options; the choice is the owner's and the primary is landing the fix. Regression, not a
+  standing condition: this same repository, same prompt text, closed S4 on 2026-09-06 after one
+  recovered rejection (entry of 2026-09-06 14:29 below), and item 40 landed 2026-09-11 06:50
+  (`e2a1a83`). No disposition is written against it - per the reviewer's instruction this hour, a
+  stage known to be broken portfolio-wide does not earn a per-repository verdict. Evidence:
+  `runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/fef9c934.../calls/6ed66cf282d1.rejected-1.json`
+  and `.rejected-2.json`. Reversal: none; this is a measurement.
+
+- **2026-09-11 13:23 (`date` checked) · G4-W13-RERUN2 · FINDING · TB-01 ground truth for the two
+  C++ re-run repositories: both libraries genuinely build with the available GCC, so their
+  `install_command` is honestly SUPPORTED and neither needs a weakened check.** The sprint plan
+  flags "PDF-Cpp (24; TB-01 risk)" and the re-run request asks the question directly, so it is
+  answered here from receipts rather than left to the next run. Measured with the recorded
+  `C:\tools\rp-toolchains\winlibs\mingw64\bin\g++.exe` 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh,
+  r1), resolved from `TOOLCHAIN_PATHS.txt` key `gxx`, nothing on the user or system PATH.
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a`: every one of the 11 receipts carries
+  `build_verified: true`, and the EXECUTED detail reads verbatim "... -std=c++20 -fsyntax-only; the
+  library's own CMake build **succeeded**" - which is the clause `cpp_examples.py` writes only when
+  the real CMake build returned success, since `build_verified = product == "succeeded"`. 11
+  candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED. 1846 facts (1651 public symbols), 1839
+  SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED, required contract rows without evidence: none.
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93`: the same clause at `-std=c++17`, 4
+  candidates - 2 EXECUTED, 2 FAILED; 357 facts (225 public symbols), 355 SUPPORTED, **0
+  UNRESOLVED**, 2 CONTRADICTED, no required row without evidence. The consequence both re-runs
+  existed to test: `install_command:cmake` is now **SUPPORTED** for both, carrying the evidence line
+  "verified source build: an example executed against this revision, proving the source compiles
+  even though the registry does not yet list the package". Email's preflight read 0 unresolved where
+  the 2026-09-06 run had this fact UNRESOLVED - arrival item (24) opened for C++ exactly as it was
+  written to, and TB-01's gate let it through on merit. So BC-02 is no longer PDF C++'s blocker on
+  honest evidence, and the answer to "is that candidate sealable at all this sprint" is yes on the
+  build question - it is blocked only by S4, upstream and shared. The contrast that makes this a
+  real measurement rather than a restatement: TB-01's own worked example,
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`, is the repository whose CMake build *fails* with
+  this same compiler (missing `<limits>`, `-Werror=trigraphs`, recorded 2026-09-06), so the honesty
+  rule bites there and correctly does not bite here; the two outcomes come from one unchanged code
+  path. Alternative rejected: recording PDF C++'s BC-02 as a disposition with a build caveat - the
+  receipts say the build succeeded, and writing a weaker claim than the evidence supports is as much
+  a fabrication as writing a stronger one. Evidence: `examples.json` and `facts.json` under each
+  repository's transaction directory at the revisions above. Reversal: none; this is a measurement.
+
+- **2026-09-11 13:23 (`date` checked) · G4-W13-RERUN2 · no dispositions this run, and the box was
+  closed early on the reviewer's instruction rather than at its own clock.** The reviewer's message
+  this hour ("stop before spending another provider call on a candidate - the pipeline is blocked at
+  S4 for every repository") arrived while the PDF C++ composition was in flight; it was stopped
+  after **one** provider call (S3 `repository_investigation`, accepted first attempt - the single
+  file in that transaction's `calls/`), so PDF C++ has facts and an investigation for this revision
+  and never reached S4. Email C++ spent three calls: one accepted investigation and the two rejected
+  S4 attempts above. The four standing C++ dispositions of 2026-09-06 are left exactly as they are -
+  not revised, not re-dated, not re-scoped - because a verdict taken against a stage known to be
+  broken portfolio-wide would record the wrong cause for the next reader, which is the failure mode
+  the entry of 2026-09-06 14:29 already had to correct once by hand. `sealed_by_lane` stays 0.
+  Alternative rejected: converting Email C++'s disposition from `BLOCKED_PLANNING` (S5) to a new
+  `BLOCKED_RECONCILIATION` (S4) - true of this draw, but it would read as the repository regressing
+  on its own merits when the cause is one shared commit landed six hours earlier and already being
+  reverted-forward by the primary. Reversal: the supervisor re-spawns this item when the S4 fix
+  lands; both repositories re-run from their current facts.
