@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "11"
+version: "12"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -27,12 +27,18 @@ packet:
     - name: facts
       type: json
       description: The SUPPORTED facts as {id, kind, value}; every selection is an ID from this list.
+    - name: examples
+      type: json
+      description: Which example facts a plan may select - verified_ids, the SUPPORTED example IDs (the same IDs the schema enumerates) - and withheld, how many examples failed verification (CONTRADICTED) or could not be verified (UNRESOLVED), as counts; a withheld example has no ID anywhere in the input and is never selected or cited.
+    - name: formats
+      type: json
+      description: The verified formats by direction - input and output, each a list of {id, value} for the SUPPORTED format facts - the only format IDs at_a_glance may carry and the only format names a capability title may spell; a direction with an empty list has no verified format at all, whatever the investigation or an inherited unit calls it.
     - name: investigation
       type: json
       description: The accepted repository_investigation output.
     - name: dispositions
       type: json
-      description: The accepted source_reconciliation output; placed units name their destination sections.
+      description: The accepted source_reconciliation output; placed units name their destination sections. A rationale names a fact the plan may not cite only as [<polarity> <kind>, not citable], never by ID.
     - name: shell
       type: json
       description: The semantic shell's sections with id, heading, required flag, owner, condition, and condition_holds - the inclusion decision deterministic code already made from the facts; a section with condition_holds false does not appear in this candidate.
@@ -145,7 +151,9 @@ system: |
   again in its shared_fact_ids, which is always a subset of that same fact_ids - never a fact the
   capability leaves out of fact_ids. What remains of a capability's fact_ids after the shared ones
   is what tells it apart from the others. Every title is supported by the facts that capability
-  cites, so an identifier or format name a title spells is one of them.
+  cites, so an identifier or format name a title spells is one of them. A format name comes from
+  the formats field alone: a format the investigation or the inherited README names that formats
+  does not list is unverified, and no title spells it.
 
   At a Glance. Inputs are verified input formats (format facts with direction input, SUPPORTED)
   and outputs are verified output formats; never selector parameters, intermediate structures, or
@@ -153,7 +161,8 @@ system: |
   capabilities: input_format_ids lists the verified input formats and is empty when none is
   SUPPORTED (the diagram then shows no Starting Points), output_format_ids the verified output
   formats, and capability_titles three to eight of the core capability titles, no word over 28
-  characters.
+  characters. Both ID lists are chosen from the formats field - input_format_ids from its input
+  list, output_format_ids from its output list - and a list is empty when that field's list is.
 
   Examples. quick_start_example_id is the one SUPPORTED example fact that best shows the primary
   workflow in the fewest lines. second_quick_start_example_id is a second minimal SUPPORTED
@@ -162,8 +171,10 @@ system: |
   additional_example_ids are the other SUPPORTED examples, each a distinct workflow.
   flagship_example_id is the one of them a visitor gains most from seeing without expanding
   the collapsed block, the most representative further workflow, or null when none stands
-  out; it is always one of additional_example_ids. A CONTRADICTED or UNRESOLVED example is
-  never selected.
+  out; it is always one of additional_example_ids. The examples field lists the selectable IDs
+  and counts what was withheld; a withheld example has no ID anywhere in your input - a
+  disposition rationale reading [CONTRADICTED example, not citable] refers to one - and is never
+  selected or cited.
 
   Hub APIs. At most twelve public_symbol facts a visitor starts from, never an inventory; each with
   the facts that justify its description. A symbol_fact_id is the ID as printed in the facts list,
@@ -182,6 +193,12 @@ user_template: |
 
   Facts (select by ID only):
   $facts
+
+  Examples (selectable IDs and withheld counts):
+  $examples
+
+  Formats by direction (the only format IDs and names a plan may use):
+  $formats
 
   Accepted investigation:
   $investigation

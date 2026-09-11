@@ -14,6 +14,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -39,7 +40,12 @@ from repository_presenter.components.readme.evidence.facts.product_pages import 
     banner_target,
     enterprise_target,
 )
-from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
+from repository_presenter.core.facts import (
+    FACT_KINDS,
+    POLARITIES,
+    FactsDocument,
+    bounded_records,
+)
 from repository_presenter.core.llm.prompts import LoadedManifest, PromptManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
@@ -109,6 +115,39 @@ def section_conditions(
     }
 
 
+# The characters a fact ID is spelled from (``<kind>:<slug>``, slugs dotted, underscored or
+# hyphenated). A match must not be preceded by one, and must not continue into one - or into a
+# dotted continuation - so ``example:003`` never matches inside ``example:0031`` or
+# ``example:003.paragraph`` while ``example:003.`` at a sentence's end still does.
+_ID_CHARS = r"A-Za-z0-9_.:\-"
+
+
+def _uncitable_redaction(facts: FactsDocument) -> Callable[[str], str]:
+    """Replace every uncitable fact ID in free text with its polarity and kind, never the ID.
+
+    G4-W17 arrival item 41, measured 2026-09-07 on aspose-html-foss/Aspose.HTML-FOSS-for-Python's
+    second pass (two rejected plans at temperature zero): the quick-start enum held, and the plan
+    still cited the CONTRADICTED ``example:006`` in a deviation after reading it in a
+    reconciliation *rationale* - "...contradicted by the example:006 CONTRADICTED fact". The
+    polarity label standing right beside the ID did not stop the citation, twice, so the ID is
+    not shown at all (RESEARCH_AND_GUIDELINES.md section 27.2 RC1): the planner reads
+    ``[CONTRADICTED example, not citable]`` where the stored rationale names the ID. Longest ID
+    first, so an uncitable ID that is a prefix of another is matched whole.
+    """
+    labels = {
+        fact.id: f"[{fact.polarity} {fact.kind}, not citable]"
+        for fact in facts.facts
+        if fact.polarity != "SUPPORTED"
+    }
+    if not labels:
+        return lambda text: text
+    alternation = "|".join(re.escape(i) for i in sorted(labels, key=len, reverse=True))
+    pattern = re.compile(
+        rf"(?<![{_ID_CHARS}])(?:{alternation})(?![A-Za-z0-9_\-])(?!\.[A-Za-z0-9_])"
+    )
+    return lambda text: pattern.sub(lambda match: labels[match.group(0)], text)
+
+
 def _selectable_dispositions(dispositions: dict[str, Any], facts: FactsDocument) -> dict[str, Any]:
     """The dispositions as the planner may act on them: only the fact IDs a plan may cite.
 
@@ -117,17 +156,62 @@ def _selectable_dispositions(dispositions: dict[str, Any], facts: FactsDocument)
     planner an ID its reply may not carry is cause RC1 in docs/RESEARCH_AND_GUIDELINES.md
     section 27.2: the canary's planner copied example:008 from here and was rejected twice, and
     the transaction failed closed. The destinations and unit IDs are untouched; only the
-    citations a plan may not reuse are dropped, and plan_checks still sees the whole document.
+    citations a plan may not reuse are dropped from ``fact_ids`` and redacted from the one
+    free-text field, ``rationale`` (``_uncitable_redaction``; the canary's fix left that field
+    alone and Aspose.HTML's planner read the ID there instead). The stored dispositions are
+    untouched, and plan_checks still sees the whole document.
     """
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}
-    entries = [
-        {
-            key: ([i for i in value if i in supported] if key == "fact_ids" else value)
-            for key, value in entry.items()
-        }
-        for entry in dispositions.get("dispositions", [])
-    ]
+    redact = _uncitable_redaction(facts)
+    entries = []
+    for entry in dispositions.get("dispositions", []):
+        shown: dict[str, Any] = {}
+        for key, value in entry.items():
+            if key == "fact_ids":
+                shown[key] = [i for i in value if i in supported]
+            elif key == "rationale" and isinstance(value, str):
+                shown[key] = redact(value)
+            else:
+                shown[key] = value
+        entries.append(shown)
     return {**dispositions, "dispositions": entries}
+
+
+_FORMAT_DIRECTIONS = ("input", "output")
+
+
+def _verified_formats(facts: FactsDocument) -> dict[str, list[dict[str, str]]]:
+    """The SUPPORTED format facts by direction as ``{id, value}`` records.
+
+    One function feeds both the packet's ``formats`` field and ``at_a_glance``'s enums in
+    ``planning_schema``, so what the planner is shown and what a valid plan may carry cannot
+    drift apart (the treatment S4's ``fact_ids`` enum already has). Direction is the ID's own
+    ``format:input.`` / ``format:output.`` prefix, the reading ``plan_checks`` uses.
+    """
+    by_direction: dict[str, list[dict[str, str]]] = {d: [] for d in _FORMAT_DIRECTIONS}
+    for record in sorted(bounded_records(facts, {"format"}), key=lambda r: r["id"]):
+        for direction in _FORMAT_DIRECTIONS:
+            if record["id"].startswith(f"format:{direction}."):
+                by_direction[direction].append({"id": record["id"], "value": record["value"]})
+    return by_direction
+
+
+def _examples_summary(facts: FactsDocument) -> dict[str, Any]:
+    """Which examples a plan may select, and how many were withheld and why - as counts.
+
+    Before this the packet said which examples exist only by listing the SUPPORTED ones, so a
+    numbering gap was the only trace of a failed example. Polarity now travels explicitly, but
+    an uncitable ID is never shown (section 27.2 RC1) - a count carries the fact without the
+    handle. ``verified_ids`` is the same bounded list the schema's example enums are built from.
+    """
+    withheld = {polarity: 0 for polarity in POLARITIES if polarity != "SUPPORTED"}
+    for fact in facts.by_kind("example"):
+        if fact.polarity != "SUPPORTED":
+            withheld[fact.polarity] += 1
+    return {
+        "verified_ids": sorted(record["id"] for record in bounded_records(facts, {"example"})),
+        "withheld": withheld,
+    }
 
 
 def planning_packet(
@@ -138,6 +222,11 @@ def planning_packet(
     manifest: PromptManifest,
     policy: PlanningPolicy = DEFAULT_POLICY,
 ) -> dict[str, Any]:
+    """The planner's bounded view: SUPPORTED facts, the dispositions as it may act on them, the
+    shell with its composed decisions, the policy ceilings - and, explicitly, which examples
+    it may select with what was withheld (``examples``) and which formats a title or At a Glance
+    may name (``formats``; G4-W17 arrival items 41 and 42). A packet field the template never
+    renders is invisible to the job, so both are named in the manifest's user template."""
     conditions = section_conditions(facts, policy)
     shell = [
         {**section, "condition_holds": conditions[section["id"]]} for section in shell_packet()
@@ -146,6 +235,8 @@ def planning_packet(
     return {
         "repository": entry.repository,
         "facts": bounded_records(facts, kinds),
+        "examples": _examples_summary(facts),
+        "formats": _verified_formats(facts),
         "investigation": investigation,
         "dispositions": _selectable_dispositions(dispositions, facts),
         "shell": shell,
@@ -184,6 +275,12 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
     aspose-email-foss/Aspose.Email-FOSS-for-Python candidate: a `plan_checks` rejection message
     alone was not enough here either - the model named the same module fact twice in a row across
     two attempts at the identical, unmodified planning packet.
+
+    ``at_a_glance``'s format ID lists carry the verified format IDs by direction as enums for
+    the same reason (G4-W17 arrival item 42: aspose-note-foss/Aspose.Note-FOSS-for-Python's first
+    attempt wrote a ``public_symbol`` into ``output_format_ids``); with no verified format in a
+    direction the list is pinned empty (``maxItems`` 0) rather than given an empty enum, which
+    no value could satisfy while the plan must still carry the key.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     # H: every enum below names the fact IDs a plan may choose, so it must never grow larger
@@ -212,6 +309,21 @@ def planning_schema(manifest: LoadedManifest, facts: FactsDocument) -> dict[str,
         visible_symbol_ids = {record["id"] for record in bounded_records(facts, {"public_symbol"})}
         hubbable = sorted(visible_symbol_ids - mis_hubbed)
         hub_properties["symbol_fact_id"] = {"type": "string", "enum": hubbable}
+    formats = _verified_formats(facts)
+    for variant in properties.get("at_a_glance", {}).get("oneOf", []):
+        if variant.get("type") != "object":
+            continue
+        glance_properties = variant.get("properties", {})
+        for direction, records in formats.items():
+            field = f"{direction}_format_ids"
+            if field not in glance_properties:
+                continue
+            format_ids = [record["id"] for record in records]
+            glance_properties[field] = (
+                {"type": "array", "items": {"type": "string", "enum": format_ids}}
+                if format_ids
+                else {"type": "array", "maxItems": 0}
+            )
     if not verified:
         return schema
     properties["quick_start_example_id"]["enum"] = verified

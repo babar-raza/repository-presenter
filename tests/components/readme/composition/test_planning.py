@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -156,18 +157,10 @@ def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None
     }
 
 
-# G4-W17 arrival items 41+42, red-first: these three tests were written against the measured
-# second-pass rejections before the fix, then parked as strict xfails when the Reviewer's P0
-# S4-REGRESSION (2026-09-11 08:2x UTC) outranked the landing mid-card. Strict, so the moment the
-# packet/prompt fix lands they fail loudly until the marker comes off - the fix's own mutation
-# tests, not deferred-to-nobody debt (plans/sprint/loop-status.jsonl card 41+42, phase blocked).
-PARKED_41_42 = pytest.mark.xfail(
-    strict=True,
-    reason="G4-W17 arrival item 41 / arrival item 42 parked behind S4-REGRESSION; unmark on landing",  # noqa: E501
-)
-
-
-@PARKED_41_42
+# G4-W17 arrival items 41+42: the next three tests were written red-first against the measured
+# second-pass rejections, parked as strict xfails while the Reviewer's P0 S4-REGRESSION outranked
+# the landing (2026-09-11 08:38 UTC), and unmarked by the landing itself - they are its mutation
+# tests (plans/sprint/loop-status.jsonl card 41+42; docs/DECISION_LOG.md section 31).
 def test_the_packet_states_example_polarity_and_the_formats_a_title_may_name() -> None:
     """G4-W17 arrival items 41 and 42 (G3-W04 second pass, measured 2026-09-07). The packet said
     which examples exist only by listing the SUPPORTED ones, so a numbering gap was the only
@@ -191,7 +184,6 @@ def test_the_packet_states_example_polarity_and_the_formats_a_title_may_name() -
     assert {"examples", "formats"} <= MANIFEST.placeholders()
 
 
-@PARKED_41_42
 def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view() -> None:
     """G4-W17 arrival item 41. Measured 2026-09-07 on aspose-html-foss/Aspose.HTML-FOSS-for-
     Python's second pass (calls 5e361ea38b24.rejected-1 and -2): both rejected plans kept
@@ -232,12 +224,14 @@ def test_a_rationale_naming_an_uncitable_fact_is_redacted_in_the_planners_view()
         "Waits on [CONTRADICTED link_target, not citable] (dead) and "
         "[UNRESOLVED format, not citable] (unverified)."
     )
-    assert "example:003" not in json.dumps(packet)
-    assert entries[0]["rationale"].count("example:003") == 1
+    # The whole ID is gone from the planner's view; the decoy example:0031 above is a different
+    # ID and stays, so this is a token check, not a substring one.
+    assert re.search(r"example:003\b", json.dumps(packet)) is None
+    # The stored dispositions are untouched: the input still names the whole ID exactly once.
+    assert len(re.findall(r"example:003\b", entries[0]["rationale"])) == 1
     assert entries[0]["fact_ids"] == ["example:003"]
 
 
-@PARKED_41_42
 def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_there() -> None:
     """G4-W17 arrival item 42, the same rejected reply: aspose-note-foss/Aspose.Note-FOSS-for-
     Python's first attempt put public_symbol:aspose.note.saveformat into
@@ -276,6 +270,21 @@ def test_at_a_glance_format_ids_travel_as_enums_so_a_symbol_cannot_be_written_th
     assert "'public_symbol:widget.scene' is not one of ['format:output.stl']" in [
         c.message for c in errors[0].context
     ]
+    # With no verified input format the list is pinned empty, so the UNRESOLVED input format is
+    # unwritable there too - refused by maxItems, not left to an empty enum nothing satisfies.
+    unresolved = _plan(
+        at_a_glance={
+            "input_format_ids": ["format:input.obj"],
+            "output_format_ids": ["format:output.stl"],
+            "capability_titles": ["Build scenes", "Export STL", "Run examples"],
+        }
+    )
+    errors = [e for e in validator.iter_errors(unresolved) if e.json_path == "$.at_a_glance"]
+    assert len(errors) == 1
+    assert any(
+        c.validator == "maxItems" and c.json_path == "$.at_a_glance.input_format_ids"
+        for c in errors[0].context
+    )
 
 
 def test_a_plan_within_the_rules_passes_and_each_violation_is_named() -> None:
