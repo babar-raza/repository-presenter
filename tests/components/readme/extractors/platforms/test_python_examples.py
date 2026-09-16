@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -432,3 +434,93 @@ def test_an_example_that_builds_the_path_it_opens_is_served_from_its_own_failure
     ]
     assert by_ordinal[3].outcome == "NEEDS_INPUT"
     assert by_ordinal[3].fixtures == ()
+
+
+def _fake_pinned(root: Path, name: str, version: str) -> Path:
+    """A uv-shaped pinned venv: pyvenv.cfg naming its version, an interpreter file beside it."""
+    venv = root / name
+    scripts = venv / ("Scripts" if sys.platform == "win32" else "bin")
+    scripts.mkdir(parents=True)
+    (venv / "pyvenv.cfg").write_text(
+        f"home = /x\nimplementation = CPython\nuv = 0.12.9\nversion_info = {version}\n",
+        encoding="utf-8",
+    )
+    python = scripts / ("python.exe" if sys.platform == "win32" else "python")
+    python.write_bytes(b"")
+    return python
+
+
+def test_the_interpreter_is_chosen_by_the_manifests_requires_python(tmp_path: Path) -> None:
+    """G4-W17 arrival item 52 (Aspose.Words-FOSS-for-Python @ 2d2efee2, G3 second pass): the
+    verifier built its venv from sys.executable (3.13.2) while the manifest declares
+    requires-python '>=3.10,<3.13', so pip refused before any example ran and all twelve read
+    NOT_VERIFIED. The presenter's own interpreter is used whenever the declaration admits it;
+    otherwise the highest pinned toolchain under runs/verify that does; otherwise none - and
+    the caller says so rather than running the wrong Python."""
+    running = f"{sys.version_info.major}.{sys.version_info.minor}"
+    older = _fake_pinned(tmp_path, "py309", "3.9")
+    newer_pinned = _fake_pinned(tmp_path, "py310", "3.10")
+    _fake_pinned(tmp_path, "py-broken", "not.a.version")
+    (tmp_path / "not-a-venv").mkdir()
+    assert python_examples.pinned_interpreters(tmp_path) == [
+        ("3.9", older),
+        ("3.10", newer_pinned),
+    ]
+    # No declaration, or one the presenter satisfies: the presenter itself, unlabeled.
+    presenter = python_examples.select_interpreter("", tmp_path)
+    assert presenter is not None and presenter.executable == Path(sys.executable)
+    assert presenter.label == ""
+    assert python_examples.select_interpreter(f">={running}", tmp_path) == presenter
+    # A cap below the presenter: the highest pinned interpreter that satisfies it.
+    capped = python_examples.select_interpreter(f">=3.8,<{running}", tmp_path)
+    assert capped is not None
+    assert (capped.executable, capped.version, capped.label) == (newer_pinned, "3.10", "py310")
+    # Nothing satisfies: None, so the caller records the honest reason. (`>3.13` would still admit
+    # 3.13.2 - PEP 440 compares the full version - so the floor is the next minor.)
+    above = f">={sys.version_info.major}.{sys.version_info.minor + 1}"
+    assert python_examples.select_interpreter(above, tmp_path) is None
+    # A declaration nobody can parse constrains nothing; pip would say so itself.
+    assert python_examples.select_interpreter("not a specifier", tmp_path) == presenter
+
+
+def test_a_repository_capped_below_the_presenters_python_runs_under_a_pinned_interpreter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """End to end: a manifest whose requires-python excludes the running interpreter. Where a
+    pinned toolchain satisfies it (RP_PYTHON_TOOLCHAINS, or the workspace's own runs/verify
+    parent), the venv is built from that interpreter, the install runs under it, and each
+    receipt says which Python verified it; where none does, every receipt is NOT_VERIFIED
+    naming the declaration - never CONTRADICTED, never the wrong interpreter."""
+    running = f"{sys.version_info.major}.{sys.version_info.minor}"
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "widget"\nversion = "1.0"\n'
+        f'requires-python = ">=3.8,<{running}"\n'
+        '[tool.setuptools]\npackages = ["widget"]\n',
+        encoding="utf-8",
+    )
+    tree.append("pyproject.toml")
+    toolchains = Path(os.environ.get("RP_PYTHON_TOOLCHAINS", tmp_path / "no-toolchains"))
+    monkeypatch.setenv("RP_PYTHON_TOOLCHAINS", str(toolchains))
+    satisfying = [
+        (version, path)
+        for version, path in python_examples.pinned_interpreters(toolchains)
+        if python_examples.select_interpreter(f">=3.8,<{running}", toolchains) is not None
+        and python_examples.select_interpreter(f">=3.8,<{running}", toolchains).version == version
+    ]
+    receipts = verify_python_examples(
+        root, tree, [_candidate(1, "from widget import greet\nprint(greet('x'))\n")], tmp_path / "v"
+    )
+    assert len(receipts) == 1
+    if satisfying:
+        version, _ = satisfying[0]
+        assert receipts[0].outcome == "EXECUTED", receipts[0].detail
+        assert f"ran under Python {version} (" in receipts[0].detail
+        assert f"requires-python '>=3.8,<{running}'" in receipts[0].detail
+    else:
+        assert receipts[0].outcome == "NOT_VERIFIED"
+        assert receipts[0].detail.startswith(
+            f"no interpreter satisfies requires-python '>=3.8,<{running}'"
+        )

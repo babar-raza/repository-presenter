@@ -15,6 +15,10 @@ dependencies = [
     "jsonschema>=4.23",
     "markdown-it-py>=3.0",
     "openai>=3.7",
+    # The Python example verifier evaluates a manifest's requires-python against the presenter's
+    # and the pinned interpreters (G4-W17 arrival item 52); pip's own vendored copy is not
+    # importable, and a home-grown PEP 440 reading is section 18's first mistake.
+    "packaging>=24.0",
     "pydantic>=2.10",
     "tenacity>=9.0",
     "pyyaml>=6.0.2",
