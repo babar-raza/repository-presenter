@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "lane": "words-net",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-F-03",
+  "work_item_status": "DISPOSITIONED",
+  "note": "words-net is a one-off worker run (not lane-f, which owns project/lanes/lane-f.yaml and docs/RESEARCH_LANE_F.md; that file's own LANE-F-02 item still records BLOCKED_BY_GATE against arrival item 54, stale - superseded here by the S5 truncation LANE-F-02 actually measured and by this run). Work item identity LANE-F-03 continues the words-net/LANE-F-02 sequence (evidence/build/lanes/words-net/LANE-F-02.json) on a genuinely changed input: commit 23485bf (G4-W17 items 77/85) landed presentation_planning's missing maxItems bounds between the two runs.",
+  "recorded_at": "2026-09-16T21:55:00+05:00",
+  "control_revision": "ffb485f5345e214e5a9c404f5f5b19c449f79207",
+  "control_revision_note": "origin/main HEAD at the time worktree C:/w/wnet2 was cut (git worktree add ... origin/main); carries 23485bf, the fix words-net/LANE-F-02 was waiting on. Verified before drawing: no branch, PR, or DECISION_LOG entry for this repository postdates LANE-F-02's 2026-09-16 14:26 UTC entry other than the 23485bf fix itself and its own arrival-admission commits (ffef091, 3806b6e).",
+  "environment": {
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "hash_verified_before_candidate_work": true,
+    "venv_recipe": "C:\\Python313\\python.exe -m venv .venv; pip==24.3.1; -r requirements-lock.txt; execnet==2.1.2 pytest-xdist==3.8.0 uv==0.12.9; pip install --no-deps -e . (loop-prompt-lane.md section 1.3)",
+    "gateway_preflight": "llm.professionalize.com reachable; 7 models; 6 prompt manifests routed to qwen3-next; catalog digest ef38ec95d253807e1801e2d4b18067b90ec84fa37b56ce083b7e25db641d7b0b"
+  },
+  "toolchains": {
+    "dotnet": "10.0.204 at C:\\Program Files\\dotnet\\dotnet (machine SDK, on PATH; unchanged from LANE-F-02)"
+  },
+  "run_1": {
+    "summary": "First live attempt since commit 23485bf (arrival items 77/85: material_limitations.unit_ids added to _FACT_ID_ARRAYS; maxItems 10/30/10/40 added to material_limitations/links/deviations/additional_example_ids) landed. The S5 TruncatedOutput words-net/LANE-F-02 measured is GONE: this run reached S9 (VALIDATING) for the first time on this repository - facts, examples and preflight all reproduce LANE-F-02's numbers exactly (same upstream revision, unmoved). It now stops on two independent, unrepairable BC-06 findings, both new defect classes recorded as PROPOSALs (docs/DECISION_LOG.md, 2026-09-16 16:52 UTC, two entries) since neither's cause is in a path this worker owns. Nothing sealed; no candidate bundle produced.",
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+    "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+    "revision_note": "Unchanged from words-net/LANE-F-02's own row - upstream has not moved between the two runs.",
+    "outcome": "DISPOSITION",
+    "failure_class": "BLOCKED_VALIDATION (BC-06)",
+    "facts": 6790,
+    "facts_breakdown": "dependency 2, example 5, identity 5, inherited_unit 104, install_command 1, license 2, link_target 31, package 2, public_symbol 6638",
+    "public_symbols": 6638,
+    "preflight": "6790 facts, 6784 SUPPORTED, 0 UNRESOLVED, 6 CONTRADICTED; required rows without evidence: none (unchanged from LANE-F-02)",
+    "examples": "5 candidates; failed 5 (unchanged - all 5 genuinely CONTRADICTED, real compile errors, not this run's blocker)",
+    "stages_reached": "S1 admit, S2 snapshot, S3 repository_investigation (1 call), S4 source_reconciliation (3 calls), S5 presentation_planning (2 calls, SUCCEEDED - item 77/85's fix confirmed working on the exact surface it targeted), S6 authoring (7 calls) + coherence (1 call), S7 render, S8 validate (BC-01..05/07/08/09 PASS, BC-06 FAIL x2), S9 repair (1 attempt, unrepairable) - run ends before independent_review.",
+    "detail_finding_1": "BC-06 FAIL, causal_stage PLANNING: 'https://www.nuget.org/packages/Aspose.Words.FOSS/ is not a verified link target'. The .NET version badge (renderer.py:219-227 _badges, core/ecosystems.py NET.version_badge) renders this URL unconditionally once install_command:dotnet is SUPPORTED and registry-kind (true here: 'package registry: found on nuget') - but the href is never independently verified or bound to a fact; validation/registry.py's _renderer_owned (701-714) exempts pypi.org and github.com from needing a link_target fact but has no nuget.org case. facts.json carries no link_target fact for this URL; the original upstream README (source/README.md line 952) predates this package's NuGet listing ('The NuGet package and new formats are landing soon') and so never carried the badge for the extractor to scrape and verify. Cross-checked: PDF-.NET, 3D-.NET and Cells-.NET's own sealed bundles each carry this identical badge pattern and pass BC-06 only because each one's own original README already had the exact same link, independently scraped and verified (each candidates/*/facts.json's link_target:002) - three coincidental passes, not a real guarantee. Full detail and the fix direction: docs/DECISION_LOG.md 2026-09-16 16:52 UTC, first entry.",
+    "detail_finding_2": "BC-06 FAIL, causal_stage EXTRACTING: '../../issues: tree does not contain ../../issues'. link_target:020 (../../issues) is CONTRADICTED - a genuine upstream defect (the original README uses this broken relative link at lines 85/913/957 while correctly using the absolute GitHub issues URL, link_target:028, at line 945). dispositions.json's inherited_unit:068.paragraph ('One important thing to know: ... [open an issue](../../issues) ...') is disposed VERIFIED_PRESERVE to scope_limitations with fact_ids: [] - reconciliation (S4) approved preserving the paragraph's overall true claim without separately checking the one link embedded in its raw markdown against that link's own (already-CONTRADICTED) fact, so the broken link rides straight through to the sealed bytes. Full detail and the fix direction: docs/DECISION_LOG.md 2026-09-16 16:52 UTC, second entry.",
+    "resume_predicate": "Either or both docs/DECISION_LOG.md 2026-09-16 16:52 UTC PROPOSALs land (a NuGet/ecosystem-generic case in _renderer_owned; RECONCILING checking a preserved unit's embedded links against their own facts before finalizing VERIFIED_PRESERVE/VERIFIED_MOVE), then a fresh present run at this or a later upstream revision. The two findings are independent - either alone would still leave the other blocking.",
+    "transaction_record": "runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-.NET/0d3f1add920f5294d726b4f286c2d6ba7c3ae22c/ (gitignored, this machine only): facts.json, preflight.json, examples.json, evaluation.json, investigation.json, dispositions.json, plan.json, content_units.json, README.md, README.patch, validation.json, repairs.json, calls.jsonl, calls/*.json, probes.json, source/."
+  },
+  "decision_log_entries": [
+    "docs/DECISION_LOG.md 2026-09-16 16:52 UTC \u00b7 words-net/LANE-F-03 (PROPOSAL, not landed) \u00b7 _renderer_owned has no NuGet (or Go/Rust/TypeScript) case for the ecosystem-generic version-badge href pattern",
+    "docs/DECISION_LOG.md 2026-09-16 16:52 UTC \u00b7 words-net/LANE-F-03 (PROPOSAL, not landed) \u00b7 VERIFIED_PRESERVE renders a unit's embedded links verbatim without checking their own link_target polarity"
+  ],
+  "candidates_produced": [],
+  "state_yaml_touched": false,
+  "arrival_list_admission_needed": true,
+  "next": "Re-run present for this repository once one or both PROPOSALs above land (or are declined with a reason). This is the second live attempt against this exact revision; a third attempt is not warranted under an unchanged manifest and unchanged upstream (loop-prompt.md section 5) - the next attempt needs a changed input, same as this one needed 23485bf."
+}
