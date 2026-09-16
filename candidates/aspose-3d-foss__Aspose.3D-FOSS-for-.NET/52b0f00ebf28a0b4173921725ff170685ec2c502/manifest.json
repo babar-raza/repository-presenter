@@ -1,0 +1,110 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "b65a38ae2f6797fbbc3a8dc14edda877dbc6f9f3fbc3148b0b72c51ce21c6db7",
+        "d5ac297f9ffcdac228b82816e0e216888b1743be375de9c92229abc4e3240516"
+      ]
+    },
+    {
+      "distinct_responses": 11,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "01dbee5490e51d87bcf5c0e6d280ff5922257012ea6c625585b18ec6f02c6b07",
+        "18ad46eaa4b5ec9b9228322e44fe3604324d10823e775f4b696d6607cd1be619",
+        "25d02cc94d7c43d916b2ac4ec028ede7551c3f445df55653c30c636298b0e158",
+        "30b8a0fba43534522e3153aca7a9ca5400cc5c3f10480166168c91dcc6a3889c",
+        "431cbdcb6683663f940ba24359419257f6a0f6448a623a1ddfe6625323631b36",
+        "52b9c63b80c9aeeb9ea5a41b02725ece123daa45089612b6ae91f89bd9f3a79d",
+        "660a5abf75967ceff41c0a2508ae7d1c2d511646229481a605e50d2c0623fe6b",
+        "6661842dcbdace5172cc3033c047702fcbda1414cee4a101dc99e320a07c4aeb",
+        "9bc69458b165e712333361108e7e977a763a32cb4bd83557310e5d2d2ffe8d7d",
+        "c44667ca36678624af23bddb7ec9fcbc7b5a4d8cf635970b97a0ed17014e2226",
+        "efe74f2de7ad67e6005142c2ae0665e78ff2dc78ff0c3d8a3da65a3de61c9d4d"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "a51ffb349b5c2ea5c60bc838a96164d924a72306a15e6c653b4668c4a7385524",
+        "cea0920542daea5df01acc095a1aea333cca7df75418b57d3becb60979c71687"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 6,
+    "blocking_failures": [],
+    "coverage_advisories": 2,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 35710,
+      "sha256": "b50e27564d30f5da8ff1daadc6b4d7adc1761f6f8d169e67eb29ee1c12cd6571"
+    },
+    "README.patch": {
+      "bytes": 66890,
+      "sha256": "4e8bc121474bf589c577778cc86525af88e32d879d95ae18862eac479af32f18"
+    },
+    "calls.jsonl": {
+      "bytes": 32583,
+      "sha256": "374387a56ca845762465a1e905df0d1a4b5c5d9f7552b312773049090da035c8"
+    },
+    "content_units.json": {
+      "bytes": 32427,
+      "sha256": "0583557fcc6e27a9e046d710b5eed050d093c9c184ac4996178f4e7e62c3182a"
+    },
+    "dependencies.json": {
+      "bytes": 522889,
+      "sha256": "3214e0fbf4475ce1c66adfe8139148a2888e52c75e02b9ba54861b95db696f89"
+    },
+    "dispositions.json": {
+      "bytes": 26744,
+      "sha256": "3b06a0fb654d241b6813ca4ebefd2af44ab61baaf0b9178b8471fdfab1286fcf"
+    },
+    "examples.json": {
+      "bytes": 10295,
+      "sha256": "710d92a9a6516a5ae844fa9ee908909b0697640223657596ab43b978ba9ebd1d"
+    },
+    "facts.json": {
+      "bytes": 2315216,
+      "sha256": "629bd3564b28696fd09f06fd4373d615fc82b4b84dcee9ba3245b57b8c1a894a"
+    },
+    "investigation.json": {
+      "bytes": 6238,
+      "sha256": "b77f108ef118b5a38f01e6f07562726f4bf62d7221831fef1cdc78e8904983f0"
+    },
+    "plan.json": {
+      "bytes": 7007,
+      "sha256": "99fc526fe0792978362e39381befdf1ec218f89fcd2f5e9c52ba7088eeaa6752"
+    },
+    "probes.json": {
+      "bytes": 2470,
+      "sha256": "355fad5658efe5e708580e37e615440ff808acfbb56b0906f190df32ee8bc13d"
+    },
+    "review.json": {
+      "bytes": 6815,
+      "sha256": "f35f496caf4663cd18e8891f3cdb33669020c31f892d85f4a8bc35f2427a6706"
+    },
+    "validation.json": {
+      "bytes": 10816,
+      "sha256": "8d3bd3953dbc741650049519113af44a55a828e589b870cb9e8136d18f1f97f6"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-16T10:49:29Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-.NET",
+  "revision": "52b0f00ebf28a0b4173921725ff170685ec2c502",
+  "schema_version": 1,
+  "sealed_at": "2026-09-16T10:49:29Z",
+  "state": "READY_FOR_PROPOSAL"
+}

@@ -616,3 +616,285 @@ exactly as F4 warned on run 1.
 
 **Reversal path.** The supervisor re-spawns LANE-F-01 when F8, F9 or F10 lands; F9 alone unblocks
 BC-02 for every repository here, and F9 plus F10 is enough for Slides-.NET to be worth a full run.
+## 2026-09-16 — LANE-F-01, .NET cohort re-attempt (run 3, after items 57/58/59 landed)
+
+Lane-F entry numbering continues F1–F14 above. Run 3 ran in worktree `C:\w\f03`, branch
+`lane-f/LANE-F-01-R3`, cut from `origin/main` at `4cd0219` and rebased onto `44b4690`. Run 2's
+record stands except where an entry below names it. The 4-day dormancy (machine restart
+2026-09-11, nothing ran until 2026-09-16) is why every upstream revision below is re-measured
+rather than carried forward.
+
+### F15 3D-.NET seals and proves its no-op; the 2026-09-06 fabrication does not reproduce
+
+**Decision.** `aspose-3d-foss/Aspose.3D-FOSS-for-.NET` is **SEALED and no-op proven** at
+`52b0f00ebf28a0b4173921725ff170685ec2c502`, and the G4 manifest's `SEALED_THEN_UNSEALED` row for
+it is answered rather than merely re-attempted: the run reached S10 and S12, the independent
+review returned a corroborated ACCEPT, and the paragraph that caused the 2026-09-06 un-seal is
+absent from the sealed bytes. The lane's count moves 10/34 → **11/34**.
+
+**Measured 2026-09-16 10:37–10:49 UTC, worktree `C:\w\f03`; 17 provider-call records, 17
+`success`, 0 `response_invalid`, all `http_status` 200, span 10:38:20–10:47:20 UTC.**
+
+| | 2026-09-06 seal (un-sealed) | 2026-09-11 run 2 | 2026-09-16 run 3 |
+|---|---|---|---|
+| revision | `042a1e5f…b352` | `042a1e5f…b352` | `52b0f00e…c502` (upstream moved) |
+| facts | 3931 | 3931 | 3932 (3931 SUPPORTED, 1 CONTRADICTED) |
+| public symbols | 3812 | 3812 | 3812 |
+| examples | executed 5, failed 2 | executed 6, failed 1 | executed 6, failed 1 |
+| validation | — | pass 7, fail 2, pending 2 | **pass 11, fail 0** |
+| review verdict | ACCEPT (fabricated ¶) | never reached | **ACCEPT, corroborated** |
+
+- Source digest `16044f5ec2ccf31c573ce8a99ed7159e842e69d73f885bbb429bcc62df936402` (3 files, 314
+  tree entries); facts digest `629bd3564b28696fd09f06fd4373d615fc82b4b84dcee9ba3245b57b8c1a894a`.
+  The single CONTRADICTED fact is still `example:003` (`Program.cs(3,41): error CS1503`), the same
+  genuine upstream compile error F1 recorded — one example, isolated, not a task-wide blocker.
+- **Item 57 (F9) is confirmed on this repository, directly.** `install_command:dotnet` reads
+  SUPPORTED, evidence `package registry: found on nuget`
+  (`https://api.nuget.org/v3-flatcontainer/aspose.3d.foss/index.json`), and the candidate renders
+  `dotnet add package Aspose.3D.FOSS`. Run 2's identical reading on the same package was
+  UNRESOLVED and failed BC-02 at EXTRACTING. **BC-02 PASS.**
+- **Item 58 (F8) is *not* re-exercised by this run, and that is stated rather than claimed.**
+  BC-07 PASS, but this run's planner chose four hubs — `Scene`, `Entities`, `Shading`, `Formats` —
+  so the `### ThreeD.Property` heading run 2 failed on was never emitted. Item 58's own mutation
+  test is what proves the fix; this run only shows 3D-.NET no longer fails BC-07.
+- **Item 59 (F10) held at S5**: `presentation_planning` succeeded on its first attempt, against
+  run 2's wasted attempt on eleven invented `format:*` IDs. Zero rejected calls in the whole run.
+- **The fabrication is answered.** `PlyReader`/`PlyWriter` appear nowhere in the 3932 facts (the
+  neighbouring real symbols are `plyformat`, `plyloadoptions`, `plysaveoptions`) and **zero times**
+  in the sealed `README.md`. Two independent reads produced no blocking finding. F1's standing
+  proof is now joined by a sealed candidate that does not contain the paragraph.
+- **Review, read literally as the item's purpose requires.** `verdict_as_returned`
+  `REJECT_PRESENTATION`; `verdict` `ACCEPT`; `identity_separate` true; `second_reader.read` **2**
+  with `corroborated: []` — two reads, neither leaving a blocking finding, which is PHASE1/F6's
+  corroborated accept. All six advisories are `reviewer_scope_defect` with a stated reason, and
+  two of them (F05, F08) claim the candidate lacks strings it demonstrably contains
+  (`### Main`, `#### Enumerations`, `<details><summary>View Additional Examples</summary>`).
+  No advisory sits on a required row, so **BC-10 PASS**.
+- **No-op proof, not asserted but run.** A second `present` in a fresh process:
+  `no_op_proof {"byte_identical": true, "fresh_process": true, "provider_calls": 0,
+  "proven_at": "2026-09-16T10:49:29Z"}`, **BC-11 PASS**, bundle state `READY_FOR_PROPOSAL`.
+  Byte-compared by hand over all 13 files: `README.md`, `README.patch`, `facts.json`,
+  `examples.json`, `investigation.json`, `dispositions.json`, `plan.json`, `content_units.json`,
+  `review.json`, `dependencies.json` identical; the four that moved are the proof's own
+  bookkeeping — `calls.jsonl` (the second run's records), `manifest.json` (state and
+  `no_op_proof`), `validation.json` (BC-11 judged) and `probes.json`, which differs **only** in
+  `elapsed_ms`; every probe `outcome` and `status` is unchanged.
+- `repository-presenter status` on the rebased tree: **11/34 current reviewable no-op-proven**, 11
+  ever sealed, 11 integrity-valid, 8 current-code reproducible.
+
+**Alternative rejected.** Running Slides-.NET first, as F14's revised order prescribed, and
+stopping there. Slides was in fact run first this run (F16) and did not seal; had the box ended
+there, the cohort's one answerable question — the 2026-09-06 un-seal — would have stayed open for
+a fourth run. F14's ordering argument was sound on run 2's evidence and is superseded by the
+landing of items 57/58/59, which is exactly the predicate it named.
+
+**Evidence.** `candidates/aspose-3d-foss__Aspose.3D-FOSS-for-.NET/52b0f00e…c502/` (13 files);
+`evidence/build/lanes/lane-f/LANE-F-01.json`; the run logs quoted above.
+
+**Reversal path.** The bundle is deleted and the row returns to `SEALED_THEN_UNSEALED` if a later
+reader shows the review verdict rests on a fabrication — which is what the `PlyReader`/`PlyWriter`
+grep above exists to make checkable by someone who was not in this run.
+
+### F16 Slides-.NET run 3: nine deterministic checks green, blocked by a corroborated BC-10 omission
+
+**Decision.** `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` is dispositioned
+**`BLOCKED_VALIDATION (BC-10)`, causal stage COMPOSING**, not sealed. Its resume predicate is
+**F17** (placement's unscoped example coverage). Its recorded failure class changes for the second
+time: the G4 manifest row says `BLOCKED_VALIDATION (BC-02)` — "genuinely not published on NuGet" —
+and that has now been wrong for two consecutive runs.
+
+**Measured 2026-09-16 09:59–10:34 UTC, worktree `C:\w\f03`; 39 call records — 20 `success`, 17
+`cache_reuse`, 2 `response_invalid`; every live call `http_status` 200.** Revision
+`9f2d871026829b5bc2ce80e571b1813f5b762ce5`, unchanged from F12's reading five days earlier.
+
+- **BC-02 PASS.** `install_command:dotnet` SUPPORTED, `package registry: found on nuget` for
+  `dotnet add package Aspose.Slides.FOSS`. The 2026-09-06 row's "no repository fix and no code fix
+  changes that fact" is false today, and `EcosystemSpec.source_install` was never needed here.
+- Facts 2734 (2733 SUPPORTED, 0 UNRESOLVED, 1 CONTRADICTED — `example:002`, upstream
+  `CSC : error CS5001`), digest `88ecf857d738f50c9d30afb8a69f2cd8e3aa56f0aab12f047432462d93d73421`;
+  examples 9 candidates, **executed 8, failed 1**. Dispositions 95 units (VERIFIED_PRESERVE 51,
+  SUPERSEDE_REDUNDANT 16, OMIT_UNSUPPORTED 15, VERIFIED_MOVE 11, DEFER_UNRESOLVED 1,
+  VERIFIED_REWRITE 1), 0 provider calls at S4's second round. Plan 17/18 sections, 8 capabilities,
+  3 hubs, 1+7 examples, 7 links, 6 limitations. 36 units across 9 sections. README 236 visible
+  lines of 644. **BC-01 to BC-09 all PASS** — the first .NET run in this lane to clear every
+  deterministic check.
+- **BC-10 FAIL at COMPOSING.** One blocking finding survived the fold stack: *"The candidate's
+  'Scope and Limitations' section omits the 'What round-trip does and does not mean' subsection
+  and 'Text language' subsection present in the original."* `second_reader.read` **2**, with **8
+  corroborated finding classes** — the second read raised the same class, so the corroboration
+  guard blocked rather than folded. The other 13 findings folded to advisory.
+- **The finding is half right, and the right half is a code defect** (F17). "Text language" is a
+  false alarm: `inherited_unit:078.paragraph` was folded into the plan's own limitation bullet and
+  the candidate carries it ("A deck written by this library contains no language attribute…").
+  The round-trip half is real and substantive: `inherited_unit:074.paragraph`, `:075.table` and
+  `:076.paragraph` — the measured 46-part fidelity table ("Parts in / out 46 / 46 … Parts
+  byte-identical afterwards 42 of 46") — are **dispositioned `VERIFIED_PRESERVE` to
+  `scope_limitations` and then dropped by `composition/placement.py`.** Nothing else in the
+  candidate renders that measurement.
+- **The one repair attempt could not have worked.** `targeted_repair` was routed to S4
+  (`misrouted: true`), and the dispositions are already correct — so it returned a literal no-op
+  (`{"path": "dispositions", "before": "[]", "after": "[]"}`), was recorded `outcome: repaired`,
+  and F10 was re-raised. No revision at any LLM-owned stage can restore a unit a deterministic
+  placement rule discards.
+
+**Alternative rejected.** A second full run. The placement decision is pure deterministic code
+over `plan.json`, `dispositions.json` and `facts.json`; replayed offline it drops the same three
+units every time. A re-run would spend ~20 live calls to reproduce the identical block — and
+loop-prompt §5 prohibits a third equivalent attempt after two. Also rejected: recording this as
+`BLOCKED_REVIEW`. The reviewer is right; the omission is real.
+
+**Evidence.** `runs/transactions/aspose-slides-foss__Aspose.Slides-FOSS-for-.NET/9f2d8710…2ce5/`
+(`validation.json`, `review.json`, `repairs.json`, `dispositions.json`, `plan.json`,
+`content_units.json`, `README.md`, `calls.jsonl`); the offline placement replay in F17.
+
+**Reversal path.** When F17 lands, re-run this repository first: it is the cohort's cleanest
+candidate on every other axis and stops on one rule.
+
+### F17 PROPOSAL — placement drops a preserved unit anywhere in the document because it cites a rendered example's ID
+
+**Defect.** `src/repository_presenter/components/readme/composition/placement.py:267-278` (shared
+code — `composition/`, not a lane-F path). `placements()` builds the destination's covered set as
+
+```python
+covered = (
+    planned_fact_ids(plan, destination)
+    | renderer_fact_ids(destination, facts, plan)
+    | rendered_examples
+)
+```
+
+`rendered_examples` (G4-W17 arrival item 65) is correct in its own right and fixed a real defect —
+an inherited *lead-in sentence* introducing an example duplicates the section's own lead-in
+wherever the reconciliation sent the sentence, which is what Cells-.NET's sealed line 155 showed.
+But it is scoped by **nothing**: neither by destination, nor by the unit's position, nor by the
+unit's kind. Any preserved unit anywhere in the document that cites a rendered example's fact ID
+is discarded — including a unit whose relation to the example is *evidentiary*, not introductory.
+
+**Measured on Slides-.NET, replayed offline with zero provider calls** (`placements()` over this
+run's own `plan.json`, `dispositions.json` and `facts.json`):
+
+| unit | README lines | outcome | overlap |
+|---|---|---|---|
+| `inherited_unit:074.paragraph` | 432-435 | **overlap** (dropped) | `example:009` |
+| `inherited_unit:075.table` | 437-444 | **overlap** (dropped) | `example:009` |
+| `inherited_unit:076.paragraph` | 446-450 | **overlap** (dropped) | `example:009` |
+
+`example:009`'s own inherited code block is **`inherited_unit:056.code_block`, README lines
+313-322** — 110 lines and three headings away, under a different parent. The three dropped units
+sit under `### What "round-trip" does and does not mean` and cite `example:009` as the *proof* of
+a measurement (a 46-part round-trip fidelity table). They introduce nothing. Item 65's own
+measured shape was adjacency: Cells-.NET's `inherited_unit:018.paragraph` sat immediately before
+`inherited_unit:019.code_block`, the block for `example:002`. Over the whole document this run
+placed 17 units, marked 24 `owned_elsewhere` and dropped **21** as overlap.
+
+**Proposed shape (the primary's to land, not lane F's).** Scope `rendered_examples` to the case it
+was measured on: a unit is covered by a rendered example only when it is the inherited unit
+*adjacent to that example's own code block* in the source document — the example fact's evidence
+already names its unit (`unit inherited_unit:056.code_block`), and every inherited unit carries
+its source line range, so adjacency is computable deterministically with no new input. A
+narrower variant that also closes the measured defect: exempt a unit whose kind is `table` or
+`list`, which no lead-in ever is. Mutation test: a fixture with a preserved paragraph immediately
+before an example's code block (dropped, as today) and a preserved table three units later citing
+the same example (placed) — with the Cells-.NET line-155 shape still dropped.
+
+**Alternative rejected.** Lane F patching `placement.py`; `composition/` is shared code, and lane
+prompt §2 makes this a `PROPOSAL`. Also rejected: reverting item 65 — its defect is real and this
+proposal keeps it.
+
+**Evidence.** `placement.py:119-149` (`rendered_example_ids`), `:267-271` (the `covered` union);
+Slides-.NET `validation.json` BC-10 detail, `review.json` finding F10 (`second_reader.read` 2),
+`repairs.json` (`misrouted`, no-op change, `re_raised: ["F10"]`); the replay table above.
+
+**Reversal path.** If the owner rules that a preserved unit citing a rendered example should
+always be dropped, then the defect is the *disposition* calling that table VERIFIED_PRESERVE, and
+the fix belongs at S4 instead — the content is lost either way today, which is the part that is
+not a judgment call.
+
+### F18 PROPOSAL — `targeted_repair`'s `revised_output` is an unconstrained object, so a repair can cite units the packet never showed
+
+**Defect.** `prompts/targeted_repair.yaml` (version 9) types `revised_output` as
+`{"type": "object"}` — no properties, no enum, no bound — and `changes[].fact_ids` as
+`{"type": "array", "items": {"type": "string"}}`, again with no enum, `maxItems` or `maxLength`.
+(`changes[].id` additionally uses `pattern`, the keyword §27.0 D1 rules out by name; it returned
+HTTP 200 here, so this is recorded as observed, not proposed.)
+
+**Measured on Slides-.NET, S11 attempt 1** (`targeted_repair`, `outcome: response_invalid`): the
+job was rejected for `revised_output: unknown inherited unit inherited_unit:041.heading`,
+`:042.heading`, `:043.table`, `:044.table` — four unit IDs that name no unit in the packet — and
+the whole call was spent. Attempt 2 then produced the no-op change F16 records. The retry budget
+is two, so this defect cost this repository its only usable repair attempt on a finding that was
+never repairable by revision anyway.
+
+This is arrival item 40's class (`fact_ids` admitted by a prefix pattern rather than an enum of
+the packet's own IDs), which `352fd35` closed at S4 and item 59 closed at S5, arriving one stage
+later at S11. The argument is the same one the primary has now accepted twice: the binding guard
+is the *expensive* rejection the enum exists to avoid.
+
+**Proposed shape (the primary's to land).** Give `revised_output` a per-call schema built where
+the repair packet is built, with the unit IDs it actually shows as an enum — the treatment
+`dispositions.py`'s `unit_id` and `planning.py`'s five fact-ID arrays already get — plus a
+`maxItems` on `changes[].fact_ids`. Mutation test: a repair output naming a well-formed but
+unshown unit ID is refused at decode rather than at `binding_errors`.
+
+**Alternative rejected.** Leaving it because the repair budget usually survives one waste. On this
+repository it did not: the second attempt was the last, and its output was a no-op.
+
+**Evidence.** `prompts/targeted_repair.yaml` `output.schema`; Slides-.NET `calls.jsonl`, the
+`rejection` array of the S11 attempt-1 record; `repairs.json`.
+
+**Reversal path.** Superseded if the owner instead makes `revised_output` a typed per-stage schema
+as part of a wider repair-job revision; the unbounded object is the defect either way.
+
+### F19 Measured, not proposed: a cold .NET SDK cache moved one Slides example across the 300 s cap, and the facts digest with it
+
+**Decision.** Record the observation and propose **no** timeout change.
+
+**Why.** Slides-.NET was extracted twice in this run, 40 minutes apart, on one machine at one
+revision. The facts-only preflight (09:59–10:09 UTC, the first .NET work after a 4-day dormancy
+and a machine restart) read `9 candidates; executed 7, failed 1, **timed_out 1**` — `example:001`
+`TIMED_OUT; no exit within 300s` — and gave facts digest
+`5871d732683a6fa14c280f979cd610ebbc7604356e582fc8f509420f9a27a2fc`. The full run's extraction
+(10:18 UTC) read `executed 8, failed 1` and gave `88ecf857d738f50c9d30afb8a69f2cd8e3aa56f0aab
+12f047432462d93d73421`. The two differ in exactly one fact's polarity. Every `examples.json` entry
+carries .NET's first-run banner (`Welcome to .NET 10.0!`) in `stderr`, so the first extraction paid
+the cold SDK/NuGet restore and the second did not.
+
+`EcosystemSpec.example_timeout_seconds` is `300.0` for .NET (`core/ecosystems.py:156`; the default
+is 120.0). A facts digest that moves between two extractions feeds `upstream_dependencies()` and
+reopens EXTRACTING (`bundle/seal.py:179-192`), so had Slides-.NET sealed on the cold reading, its
+no-op proof would have failed for a reason nothing about the repository or the code caused. 3D-.NET
+sealed on a warm cache and its no-op proof was byte-identical (F15).
+
+**Alternative rejected.** Proposing a larger .NET example timeout from this. One cold-cache
+straddle is a single sample; §27.10 follow-up 3 forbids fitting a threshold to one, and the
+honest reading is "the first extraction on a cold machine is not comparable", not "300 s is too
+small". The durable form of this belongs to G5's portable-reproducibility work, not to a constant.
+
+**Evidence.** The two `facts.json`/`examples.json` pairs and their digests above;
+`core/ecosystems.py:55,156`; `bundle/seal.py:179-192`.
+
+**Reversal path.** None — a measurement. If a warm-cache run ever times this example out, that is a
+genuine straddle and the constant becomes a real question.
+
+### F20 What run 3 leaves for the cohort
+
+**Decision.** LANE-F-01 stays `IN_PROGRESS`. One repository sealed (3D-.NET, F15) and one
+dispositioned (Slides-.NET, F16); Email-.NET and PDF-.NET were **not** run this run, and their G4
+manifest rows stand unamended rather than being rewritten from run 2's facts-only readings.
+
+**Order for the next run.** Email-.NET first — it is the cohort's cleanest repository (F12: 341
+facts, all SUPPORTED, 4 of 4 examples EXECUTED, 0 F8 collisions), item 59 removes the S5 defect
+that ended its run 2, and item 57 removes the BC-02 defect that would have stopped it at S9; its
+2026-09-06 `BLOCKED_REVIEW` predicate becomes testable for the first time. Then PDF-.NET, whose
+BC-07 collisions (34) item 58 addresses and which is the cohort's real test of lane E's E3 bound
+at 12,270 public symbols (F11). Words-.NET remains LANE-F-02, gated on arrival item 54.
+
+**What the next run should expect from F17.** Both remaining repositories preserve inherited units
+that cite examples the plan renders; F17's rule fires on any of them. Email-.NET's 4 examples and
+PDF-.NET's 12 make it more likely on PDF-.NET, not less.
+
+**Evidence.** F15–F19 above; `evidence/build/lanes/lane-f/LANE-F-01.json`;
+`repository-presenter status` 11/34 on the rebased tree.
+
+**Reversal path.** The supervisor re-spawns LANE-F-01 for Email-.NET; F17 landing makes
+Slides-.NET worth a fourth run before PDF-.NET.
