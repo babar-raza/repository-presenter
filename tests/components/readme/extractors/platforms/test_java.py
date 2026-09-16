@@ -318,6 +318,53 @@ def test_a_snippet_is_given_the_product_types_it_names_and_nothing_else(tmp_path
     assert "org.aspose.widget.List" not in source
 
 
+def test_a_jdk_type_no_product_type_claims_is_imported_by_name() -> None:
+    """A fence reaching java.nio.file or java.time compiles; a product type of that name wins.
+
+    Measured 2026-09-16 on Aspose.Slides for Java: `example:005` and `:007` name `Files` and
+    `Path`, `:006` names `LocalDateTime`, and all three were NOT_VERIFIED - "the fence uses
+    `Files`, `Path` without binding it" - so three of eight examples were lost to two import
+    lines, the API Reference lost their symbols, and the independent review's F07 then called
+    the candidate short of the original's examples. Resolving by name rather than by a third
+    on-demand package is what keeps Aspose.PDF for Java's own `org.aspose.pdf.drawing.Path`
+    meaning what it says: the product is resolved first and the JDK is reached only for a name
+    no product type claims.
+    """
+    _, _, supplied = java_examples.compilation_unit(
+        'byte[] png = Files.readAllBytes(Path.of("photo.png"));\n'
+        'author.getComments().addComment("x", slide, point, LocalDateTime.now());\n',
+        ("java.io", "java.util"),
+        {"Widget": "org.aspose.widget.Widget"},
+    )
+    assert supplied == [
+        "import java.io.*;",
+        "import java.util.*;",
+        "import java.nio.file.Files;",
+        "import java.nio.file.Path;",
+        "import java.time.LocalDateTime;",
+    ]
+
+    # The control, and the reason this is not a third on-demand package: Aspose.PDF for Java
+    # declares `Path` itself, so the product type is imported and the JDK one never is.
+    _, source, supplied = java_examples.compilation_unit(
+        'Path path = new Path();\nFiles.readAllBytes(Path.of("x"));\n',
+        ("java.io",),
+        {"Path": "org.aspose.pdf.drawing.Path"},
+    )
+    assert supplied == [
+        "import java.io.*;",
+        "import org.aspose.pdf.drawing.Path;",
+        "import java.nio.file.Files;",
+    ]
+    assert "java.nio.file.Path" not in source
+
+    # A snippet that binds the name itself is left alone, exactly as for a product type.
+    _, _, supplied = java_examples.compilation_unit(
+        'import java.nio.file.Path;\nPath.of("x");\n', ("java.io",), {}
+    )
+    assert supplied == ["import java.io.*;"]
+
+
 def test_a_simple_name_two_packages_declare_is_dropped_rather_than_guessed(tmp_path: Path) -> None:
     """An on-demand import of both would be a javac ambiguity error; picking one is an invention."""
     source_root = tmp_path / "src" / "main" / "java"

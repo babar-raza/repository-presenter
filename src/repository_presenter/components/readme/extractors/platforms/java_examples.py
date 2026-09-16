@@ -98,6 +98,29 @@ _JDK_NAMES = frozenset(
         "Writer",
     }
 )
+# The JDK types a README fence names without importing that the two on-demand packages above do
+# not provide, each resolved by a *single-type* import and only when the product declares no type
+# of that name. A third on-demand package would be the shorter spelling and the wrong one:
+# measured 2026-09-16, `Path` and `Month` are product classes in Aspose.PDF for Java
+# (`org.aspose.pdf.drawing.Path`), so `import java.nio.file.*` would have to be paired with
+# dropping `Path` from the product resolution above, which is how a sealed candidate silently
+# changes meaning. Resolving by name keeps the product's own type first wherever it exists, and
+# reaches the JDK only for a name no product type claims. Measured on Aspose.Slides for Java the
+# same day: three of its eight examples (`example:005`, `:006`, `:007`) were NOT_VERIFIED for
+# `Files`, `Path` and `LocalDateTime` alone - java.nio.file and java.time, the two packages a
+# modern Java README reaches for after java.io and java.util.
+_JDK_TYPES: dict[str, str] = {
+    "Duration": "java.time.Duration",
+    "Files": "java.nio.file.Files",
+    "Instant": "java.time.Instant",
+    "LocalDate": "java.time.LocalDate",
+    "LocalDateTime": "java.time.LocalDateTime",
+    "LocalTime": "java.time.LocalTime",
+    "Path": "java.nio.file.Path",
+    "Paths": "java.nio.file.Paths",
+    "StandardCopyOption": "java.nio.file.StandardCopyOption",
+    "StandardOpenOption": "java.nio.file.StandardOpenOption",
+}
 _IDENTIFIER = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
 _MAX_LISTED_IMPORTS = 8
 _WRAPPED = """{imports}public class {name} {{
@@ -226,6 +249,26 @@ def _needed_imports(code: str, declared: Sequence[str], types: dict[str, str]) -
     return sorted(f"import {types[name]};" for name in wanted)
 
 
+def _jdk_imports(code: str, declared: Sequence[str], types: dict[str, str]) -> list[str]:
+    """Single-type imports for the JDK types the snippet names and nothing else provides.
+
+    The product always wins: a name the repository declares as its own type is resolved by
+    ``_needed_imports`` above and never reaches here, so Aspose.PDF for Java's
+    ``org.aspose.pdf.drawing.Path`` keeps its meaning while Aspose.Slides for Java's `Path`,
+    which no Slides type claims, becomes ``java.nio.file.Path``. Measured 2026-09-16 on
+    Aspose.Slides for Java: `example:005` and `:007` name `Files` and `Path`, `:006` names
+    `LocalDateTime`, all three compiled against the product's own classes otherwise, and all
+    three were NOT_VERIFIED - so three verified examples of eight were lost to two import lines.
+    """
+    already = {line.rstrip(";").rsplit(".", 1)[-1] for line in declared}
+    wanted = {
+        name
+        for name in _IDENTIFIER.findall(code)
+        if name in _JDK_TYPES and name not in already and name not in types
+    }
+    return sorted(f"import {_JDK_TYPES[name]};" for name in wanted)
+
+
 def compilation_unit(
     code: str, implicit: Sequence[str] = (), types: dict[str, str] | None = None
 ) -> tuple[str, str, list[str]]:
@@ -243,6 +286,7 @@ def compilation_unit(
     remainder = _IMPORT.sub("", body).strip("\n")
     supplied = [f"import {package}.*;" for package in implicit]
     supplied += _needed_imports(remainder, declared, types or {})
+    supplied += _jdk_imports(remainder, declared, types or {})
     imports = sorted(declared) + supplied
     header = "".join(f"{line}\n" for line in imports)
     found = _TYPE.search(remainder)
