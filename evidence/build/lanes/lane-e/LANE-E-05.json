@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "lane": "lane-e",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-E-05",
+  "work_item_status": "IN_PROGRESS",
+  "recorded_at": "2026-09-16T14:35:00+00:00",
+  "control_revision": "6f2161f",
+  "control_revision_note": "First and only run of LANE-E-05 (branch lane-e/LANE-E-05, worktree C:\\w\\e05), off origin/main at 6f2161f - no rebase needed, main did not move during this run's own preflight and composition. Drawn fresh: aspose-words-foss/Aspose.Words-FOSS-for-Python was recommended by the supervisor because arrival item 52 (4995eb4, G4_MULTI_LANGUAGE_COHORTS/G4-W17) - the example verifier's requires-python interpreter selection - landed this session and names this repository as its own measured unlock; no run of any kind had been made against the fix. This is a new lane item, not a resumption of LANE-E-01/02/03/04.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\e05",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt - project/loop-prompt-lane.md section 1.3's recipe (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .). Verified before any candidate work."
+  },
+  "toolchains": [
+    {
+      "tool": "python (presenter)",
+      "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then project/loop-prompt-lane.md section 1.3's recipe",
+      "path": "C:\\w\\e05\\.venv\\Scripts\\python.exe",
+      "version": "3.13.2"
+    },
+    {
+      "tool": "python (pinned toolchain, requires-python <3.13)",
+      "resolved_by": "uv venv --python 3.12 runs/verify/py312 (arrival item 52, G4-W17); a fresh worktree ships no pinned toolchains of its own",
+      "path": "C:\\w\\e05\\runs\\verify\\py312\\Scripts\\python.exe",
+      "version": "3.12.14 (uv-provisioned)"
+    },
+    {
+      "tool": "python (pinned toolchain)",
+      "resolved_by": "uv venv --python 3.11 runs/verify/py311",
+      "path": "C:\\w\\e05\\runs\\verify\\py311\\Scripts\\python.exe",
+      "version": "3.11.16 (uv-provisioned)",
+      "note": "provisioned alongside py312 for completeness; this repository's requires-python (>=3.10,<3.13) resolved to py312"
+    },
+    {
+      "tool": "git",
+      "resolved_by": "PATH",
+      "used_for": "the repository clone under runs/clones (gitignored)"
+    }
+  ],
+  "gateway": {
+    "command": "repository-presenter preflight",
+    "host": "llm.professionalize.com",
+    "models": 7,
+    "prompt_manifests": 6,
+    "route": "qwen3-next",
+    "catalog_digest": "ad8478a60fb80a7fa8e2b6d33cf406a93817ffc22213376ac81387f8e5f3f075"
+  },
+  "blocker_reverification": {
+    "method": "present --facts-only against aspose-words-foss/Aspose.Words-FOSS-for-Python at the same revision the G3 second pass measured, before any provider call.",
+    "recorded_class": "EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON (second pass, source_revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, stage S2 facts/example verification; resume predicate named the exact interpreter-selection fix item 52 later landed)",
+    "measured": "at 2d2efee2787cb9e56d071d17f8d7b740dce8b784 (unchanged - the repository did not move): 839 facts (816 supported, 23 unresolved, 0 contradicted); examples 12 candidates, executed 12; required rows without evidence: none. select_interpreter chose py312 for this repository's requires-python '>=3.10,<3.13' declaration. Matches item 52's own commit message (12/12 EXECUTED under py312) exactly, independently reproduced.",
+    "verdict": "CLOSED for this repository, confirmed by running it, not by reading the commit"
+  },
+  "composition": {
+    "revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
+    "transaction": "runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/2d2efee2787cb9e56d071d17f8d7b740dce8b784/",
+    "facts": "839 records: build_test_asset 1, dependency 5, example 12, format 9, identity 5, import_path 3, inherited_unit 119, install_command 1, license 2, link_target 30, package 4, public_symbol 648",
+    "investigation": "capabilities 6, workflows 4, limitations 3; provider calls 0 (stored output reused within this run's own call store, populated by round 1)",
+    "dispositions": "119 units: DEFER_UNRESOLVED 1, NON_CONTENT 3, OMIT_UNSUPPORTED 15, SUPERSEDE_REDUNDANT 52, VERIFIED_PRESERVE 47, VERIFIED_REWRITE 1",
+    "plan": "sections 16/18, capabilities 6, hubs 11, examples 1+10, links 4, limitations 1",
+    "units": "100 units across 8 sections: opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing",
+    "coherence": "0 of 100 units revised",
+    "readme": "191 visible lines of 586 total (well within the BC-07 length budget - BC-07 verdict PASS)",
+    "validation": "pass 9, fail 1 (BC-10), pending 1 (BC-11, never reached)",
+    "repair": "1 attempt (F08, causal_stage COMPOSING, section additional_examples, routed to S6): outcome recorded 'repaired', but re-raised identically; rounds 2",
+    "review": "verdict REJECT_PRESENTATION; findings 1 (F08, blocking, no reviewer_scope_defect); advisory 6 (F01-F07 minus F08, each with its own reviewer_scope_defect - the existing fold stack handled all six correctly); second_reader.read 1, corroborated [] (correct: the two-reader rule applies only to an ACCEPT verdict or a PROSE_JUDGMENT finding on a required row, neither of which this is)",
+    "seal": "NOT SEALED"
+  },
+  "proposals": [
+    {
+      "id": "E17",
+      "shape": "PROPOSAL",
+      "headline": "The reviewer's fold stack (scope_defect/excluded_evidence_defect) never sees reconciliation's own OMIT_UNSUPPORTED disposition, so it demands restoration of content S4 already, correctly, refused to compose as unverified - and repair cannot satisfy the demand because nothing downstream can cite what S4 excluded.",
+      "sites": [
+        "src/repository_presenter/components/readme/review/independent/review.py:823-864 (excluded_evidence_defect)",
+        "src/repository_presenter/components/readme/review/independent/review.py:867-912 (scope_defect)",
+        "src/repository_presenter/components/readme/review/independent/review.py:915-926 (review_document signature - no dispositions parameter)",
+        "src/repository_presenter/components/readme/repair/rounds.py:221 (dispositions built)",
+        "src/repository_presenter/components/readme/repair/rounds.py:317-335 (review_document called without dispositions, though rounds.py:328 already threads dispositions into renderer_sentences three lines above)"
+      ],
+      "measured": "review.json finding F08 (additional_examples, causal_stage COMPOSING, no reviewer_scope_defect field, unlike F01-F07 which each carry one). dispositions.json unit_id inherited_unit:038.table: disposition OMIT_UNSUPPORTED, rationale 'The table is not supported by facts; the facts do not verify its content.' facts.json fact inherited_unit:038.table: polarity SUPPORTED, value byte-identical to the original README's File|What it shows table (confirmed by direct read). repairs.json attempt c64f0f23b96cb553a652a952 (request_sha256 fb858ae3b58b6b784e5038ed042f62d9729ef479935c0b2d264107b34eeb314e): outcome 'repaired', revised_output appended a bare filename list with unchanged fact_ids (identity/package only, no citation of the table or any per-file description fact) - the only move available to a repair that cannot cite what S4 excluded - and F08 re-raised identically ('re_raised': ['F08']). The original README's ApiExamples/ directory (confirmed present on disk, 8 files matching the table's names exactly) backs the filenames but not the maintainer's per-file behavioural prose.",
+      "owner_choice": [
+        "thread dispositions into review_document/scope_defect and add a disposition-aware exclusion rule beside excluded_evidence_defect: an absent claim whose nearest matching inherited_unit was OMIT_UNSUPPORTED (or DEFER_UNRESOLVED) at reconciliation is the reviewer's own defect",
+        "teach additional_examples authoring to draw a lightweight, fact-bound file/description mapping from the public_symbol and import_path facts already extracted under ApiExamples/, closer to what api_reference already composes for the same files (measured: README.md:292-295 already carries fact-bound coverage of four of the eight files via public_symbol facts)",
+        "narrow S4's OMIT_UNSUPPORTED judgment for a whole-table inherited_unit to per-row partitioning (the same shape absence_partition already uses for a finding's claims), so any row a fact does support can compose while the rest stays excluded"
+      ],
+      "lane_e_position": "no standing to choose; evidence recorded for whichever the owner picks"
+    }
+  ],
+  "disposition": {
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
+    "outcome": "NOT_SEALED",
+    "stage": "S10 review/BC-10 (one repair attempt re-raised)",
+    "failure_class": "REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION",
+    "resume_predicate": "PROPOSAL E17 lands, then re-run present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python. EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON (arrival item 52) is CLOSED for this repository and is not a predicate for the re-run."
+  },
+  "counted_unit": {
+    "status_before": "12/34",
+    "status_after": "12/34",
+    "note": "No seal, no candidates/ directory added, project/state.yaml not opened (the narrow exception applies only to a seal)."
+  }
+}

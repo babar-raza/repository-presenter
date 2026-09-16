@@ -1587,3 +1587,148 @@ repository's own measured number. It does not claim `total_lines_budget`'s dead-
 Font's blocker — BC-07 never reads it, so the 792-line total is not why validation failed. No seal
 is claimed and the counted unit does not move: `repository-presenter status` reads **12/34** both
 before and after, and `project/state.yaml` was not opened.
+
+## 2026-09-16 14:35 UTC (`date` checked) — LANE-E-05, Words for Python drawn fresh, sprint wave W-PY4
+
+Branch `lane-e/LANE-E-05`, worktree `C:\w\e05`, off `origin/main` at `6f2161f` (no rebase needed —
+this run's own preflight and composition are the only activity between start and commit). Receipt:
+`evidence/build/lanes/lane-e/LANE-E-05.json`. This is lane E's first attempt at
+`aspose-words-foss/Aspose.Words-FOSS-for-Python`, drawn because arrival item 52 (`4995eb4`,
+landed 2026-09-16 17:44:58 +05:00, `G4_MULTI_LANGUAGE_COHORTS/G4-W17`) is item 52's own named
+unlock and this repository has never been sealed. The environment matched `f4406f1b04d8…` on the
+first attempt; `runs/verify/py311` and `runs/verify/py312` were provisioned fresh via
+`uv venv --python 3.1{1,2}` (the worktree ships no pinned toolchains of its own).
+
+### The recorded blocker is closed, verified by running the repository, not by reading the commit
+
+`present --facts-only` against `2d2efee2787cb9e56d071d17f8d7b740dce8b784` (the same revision the
+G3 second pass measured) reproduced item 52's own commit-message shape independently:
+**examples: 12 candidates, executed 12** (against the second pass's recorded `EXAMPLE_RUNNER_
+IGNORES_REQUIRES_PYTHON`, "all 12 candidates read NOT_VERIFIED"), **required rows without
+evidence: none**. `select_interpreter` chose `py312` for this repository's
+`requires-python ">=3.10,<3.13"` declaration, exactly as item 52's commit measured.
+`EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON` does not recur and is **closed** for this repository.
+
+### E17 `PROPOSAL` — the reviewer's fold stack never sees reconciliation's own `OMIT_UNSUPPORTED` disposition, so it demands restoration of content S4 already, correctly, refused to compose as unverified
+
+**Decision.** Lane E writes no fix. The site is shared code lane E does not own:
+`src/repository_presenter/components/readme/review/independent/review.py:823-912`
+(`excluded_evidence_defect`, `scope_defect`) and the call site that has the missing input in
+scope and does not pass it,
+`src/repository_presenter/components/readme/repair/rounds.py:317-335`. Words for Python takes a
+disposition naming this proposal as its resume predicate.
+
+**The defect, measured on this run's own artifacts, not inferred.** The full `present` run reached
+S10 review: `verdict REJECT_PRESENTATION`, one blocking finding (`F08`, section
+`additional_examples`, `causal_stage COMPOSING`), six findings folded to advisory (each carrying
+its own `reviewer_scope_defect` — the existing fold stack works correctly on all six). One repair
+attempt ran (`repairs.json` attempt `c64f0f23b96cb553a652a952`, `request_sha256
+fb858ae3b58b6b784e5038ed042f62d9729ef479935c0b2d264107b34eeb314e`), outcome recorded `repaired`,
+then `re_raised: ["F08"]` — `BC-10` (`judged_at S10`) still `FAIL`, `causal_stage COMPOSING`,
+`validation.json` pass 9, fail 1, pending 1 (`BC-11`, never reached). `second_reader.read` is 1
+with `corroborated []`, which is not a gap: `review_document`'s two-reader rule (PHASE1/F6, and
+the required-row prose-judgment rule, section 27.8) both apply only to an `ACCEPT` verdict or a
+`PROSE_JUDGMENT`-criterion finding on a required row; F08's criterion is `presentation` and the
+verdict is a genuine `REJECT`, so a single read is the documented, correct path — nothing here
+argues the second reader should have run.
+
+**F08 itself: the original README's "Additional Examples" section carries a `<details>`-wrapped
+`File | What it shows` table** — a hand-written index of the eight scripts under the repository's
+own `ApiExamples/` directory (confirmed present on disk, filenames matching exactly) — **that the
+composed candidate omits entirely.** This table is not invented text: it is captured verbatim as
+`inherited_unit:038.table`, `polarity SUPPORTED`, in `facts.json` (confirmed by direct read: the
+fact's `value` field is byte-identical to the original README's table). But `dispositions.json`
+records, for that exact `unit_id`: `"disposition": "OMIT_UNSUPPORTED"`, `"rationale": "The table is
+not supported by facts; the facts do not verify its content."` — S4 reconciliation read the same
+table and, correctly under the contract's own no-unverified-claims rule (`project/loop-prompt.md`
+section 6 rule 12; section 3 "an unverified or mechanically generated description... is a
+failure"), refused to compose its per-file behavioural claims ("Every input format... to every
+output format...") because nothing beyond the maintainer's own prose backs them — no example
+execution, no extracted fact, ties `working_with_pdf_save_options.py` to "PDF export from all
+input formats" specifically. **The repair attempt proves the deadlock is structural, not a missed
+retry**: its `revised_output` appended a bare filename list ("See the example files listed in the
+original README for a complete reference: convert_document.py, loading_document.py, ...") with the
+same `fact_ids` as before (identity/package only) — the only move available to a repair that
+cannot cite the table's own fact (S4 excluded it) or any fact carrying the individual
+descriptions — and the reviewer correctly found the per-file `What it shows` text still absent, so
+the identical class re-raised. No second attempt is available under the one-repair-per-fingerprint
+rule (`project/loop-prompt.md` section 5).
+
+**Why nothing in the fold stack catches this.** `scope_defect` (review.py:867-912) calls
+`excluded_evidence_defect(finding, by_id)` (:823-864), whose only exclusion rule reads a fact's
+own `polarity` from `by_id` — it has no parameter for, and never reads, `dispositions.json`.
+`inherited_unit:038.table`'s polarity is `SUPPORTED` (the table really was written by the
+maintainer), so this check cannot see that reconciliation separately, and correctly, marked its
+*disposition* `OMIT_UNSUPPORTED` — polarity answers "did the maintainer write this," disposition
+answers "may this be composed," and only the second question is the one repair could ever act on.
+`absence_defect`'s own evidence set (`claim_evidence`, :482-489) is `original_readme` plus every
+fact's `value` with no polarity or disposition filter either, so each of F08's `absent` strings —
+literal substrings of the original table — is trivially "not invented" and the finding's remainder
+never empties. The information that would resolve this is already computed and already in scope at
+the one call site that would need it: `rounds.py:221` builds `dispositions` from `merge_
+dispositions`, and `rounds.py:328` already threads it into `renderer_sentences(...)` for the
+`rendered_defect` check three lines above — but `rounds.py:323-335`'s call to `review_document(...)`
+does not pass `dispositions`, and `review_document`'s own signature (:915-926) has no parameter for
+it. The wiring `rendered_defect` already uses for a different rule is the nearest existing analog
+for what `excluded_evidence_defect` would need.
+
+**A related, non-blocking observation.** The composed candidate's `api_reference` section already
+carries fact-bound, near-equivalent coverage for several of the same files — e.g. `README.md:294`:
+"`WorkingWithPdfSaveOptions` | `ApiExamples.working_with_pdf_save_options.WorkingWithPdfSaveOptions`
+demonstrates how to export documents to PDF format using `PdfSaveOptions`." — built from
+`public_symbol` facts, not from the excluded table. This is not itself the fix (a reviewer finding
+scoped to `additional_examples` is not satisfied by content in a different section, and `scope_
+defect` has no cross-section-equivalence rule either), but it shows the fact model already carries
+verified material covering similar ground; the gap is narrowly that `additional_examples`
+authoring never draws on it and reconciliation's own settled judgment about the table never
+reaches review.
+
+**Alternative rejected.** A second repair attempt: the targeted-repair call is deterministic
+(`temperature 0.0`, a fixed seed), and the one already made shows the structural ceiling — nothing
+a re-ask could cite differently. Retrying is the "two equivalent attempts" `project/loop-prompt.md`
+section 5 prohibits, not a fresh measurement.
+
+**What the owner has to choose between, not lane E's to pick.** (1) Thread `dispositions` into
+`review_document`/`scope_defect` and add a disposition-aware exclusion rule beside `excluded_
+evidence_defect`: an `absent` claim whose nearest matching `inherited_unit` was `OMIT_UNSUPPORTED`
+(or `DEFER_UNRESOLVED`) at reconciliation is the reviewer's own defect, on the same reasoning
+`excluded_evidence_defect` already applies to a non-`SUPPORTED` fact. (2) Teach `additional_
+examples` authoring to draw a lightweight, fact-bound file/description mapping from the
+`public_symbol` and `import_path` facts already extracted under `ApiExamples/`, closer to what
+`api_reference` already composes, so there is real content to place instead of nothing to restore.
+(3) Narrow S4's `OMIT_UNSUPPORTED` judgment for a whole-table `inherited_unit` to per-row
+partitioning, the same shape `absence_partition` already uses for a finding's claims, so any row a
+fact *does* support (e.g. `convert_document.py`'s coverage, backed by `public_symbol:apiexamples.
+convert_document.convertdocument.*`) can compose while the rest stays excluded. Lane E has no
+standing to choose among these and records the evidence for whichever the owner picks.
+
+**Evidence.** `runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/
+2d2efee2787cb9e56d071d17f8d7b740dce8b784/` (`review.json` finding `F08`; `dispositions.json` unit
+`inherited_unit:038.table`; `facts.json` fact `inherited_unit:038.table`; `repairs.json` attempt
+`c64f0f23b96cb553a652a952`; `validation.json` check `BC-10`); `review/independent/review.py:823-912`;
+`repair/rounds.py:221,317-335`; original README lines 174-186 and the cloned tree's `ApiExamples/`
+directory listing (8 files, names matching the table exactly).
+
+**Reversal path.** A disposition-aware exclusion rule that correctly dismisses F08 while still
+letting a *different* reviewer finding about the same section stand (one whose `absent` claims are
+not traceable to an `OMIT_UNSUPPORTED` unit) refutes nothing here; this proposal is refuted only by
+showing `dispositions.json` was already reachable from `scope_defect` some other way, or by a
+composition where restoring the excluded content genuinely is possible without citing an unverified
+claim.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-words-foss/Aspose.Words-FOSS-for-Python` | NOT_SEALED, stage S10 `review`/`BC-10` (one repair attempt re-raised) | `REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION` | PROPOSAL E17 lands, then re-run `present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python`. `EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON` (arrival item 52) is **closed** for this repository and is not a predicate for the re-run. |
+
+### What this run does not claim
+
+It does not claim Words for Python would seal once E17 lands — no other stage of the pipeline was
+touched, and BC-11 (`fresh-process no-op`, S12) never ran, so nothing here is a claim about it. It
+does not claim the six advisory findings (F01–F07, `reviewer_scope_defect` on each) needed any
+attention — the existing fold stack handled them correctly and lane E changed nothing about them.
+It does not claim the `api_reference` section's overlapping coverage is a fix, only a related,
+non-blocking observation. No seal is claimed and the counted unit does not move:
+`repository-presenter status` reads **12/34** both before and after, and `project/state.yaml` was
+not opened.
