@@ -340,6 +340,86 @@ def test_prose_wraps_bare_extension_fact_values_in_code_spans() -> None:
     )
 
 
+def test_prose_wraps_an_identifier_its_own_cited_inherited_unit_fact_spells_verbatim() -> None:
+    """G4-W17 arrival item 69: renderer.prose must wrap exactly what unit_checks (authoring.py)
+    already admitted for this same unit - an identifier spelled verbatim inside a SUPPORTED
+    inherited_unit fact the unit itself cites, not only a fact value or verified member. Scoped
+    to the passed fact_ids: the same text with no fact_ids (or citing a different fact) renders
+    unwrapped, exactly as before this item landed.
+    """
+    limits = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:200.list_item",
+                "inherited_unit",
+                "- `CSSRule.css_text` is not implemented.",
+            ),
+        ),
+    )
+    context = RenderContext(ENTRY, limits, PLAN, UNITS, DISPOSITIONS)
+    assert (
+        context.prose("CSSRule.css_text is not implemented.", ["inherited_unit:200.list_item"])
+        == "`CSSRule.css_text` is not implemented."
+    )
+    # No citation of the fact that spells it: unwrapped, exactly as before this item.
+    assert (
+        context.prose("CSSRule.css_text is not implemented.")
+        == "CSSRule.css_text is not implemented."
+    )
+    assert (
+        context.prose("CSSRule.css_text is not implemented.", ["identity:repository"])
+        == "CSSRule.css_text is not implemented."
+    )
+
+
+def test_unit_only_grants_the_cited_inherited_pass_to_scope_limitations() -> None:
+    """G4-W17 arrival item 69, narrowed after measurement: Aspose.PDF for .NET's
+    `key_capabilities capability:3` cited an inherited_unit fact for unrelated evidence and, before
+    this gate, gained a free pass to spell every identifier that broad fact mentioned - exactly the
+    capability-mis-advertising risk item 44's own docstring names. `unit()` (not `prose()`, which
+    stays section-agnostic) now forwards a unit's fact_ids to the cited-inherited mechanism only
+    when its own section is scope_limitations."""
+    limits = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:200.list_item",
+                "inherited_unit",
+                "- `CSSRule.css_text` is not implemented.",
+            ),
+        ),
+    )
+    units = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "CSSRule.css_text is not implemented.",
+                "fact_ids": ["inherited_unit:200.list_item"],
+            },
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "CSSRule.css_text is not implemented.",
+                "fact_ids": ["inherited_unit:200.list_item"],
+            },
+        ],
+        "omitted": [],
+    }
+    context = RenderContext(ENTRY, limits, PLAN, units, DISPOSITIONS)
+    assert context.unit("scope_limitations", "limitation:1") == (
+        "`CSSRule.css_text` is not implemented."
+    )
+    assert context.unit("key_capabilities", "capability:1") == (
+        "CSSRule.css_text is not implemented."
+    )
+
+
 def test_canonical_protects_a_path_and_a_command_hyphenated_with_an_abbreviation() -> None:
     # Third external review, 2026-09-07: R3's acceptance criterion names commands, paths and API
     # identifiers alongside package names, not package names alone - verified beyond the

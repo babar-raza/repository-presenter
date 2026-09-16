@@ -12,6 +12,7 @@ from __future__ import annotations
 import difflib
 import hashlib
 import re
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urlsplit
@@ -19,6 +20,7 @@ from urllib.parse import quote, urlsplit
 from repository_presenter.components.readme.composition.authoring import (
     allowed_identifiers,
     canonical_abbreviations,
+    cited_inherited_identifiers,
     identifier_allowed,
     identifier_tokens,
     surface_members,
@@ -55,8 +57,11 @@ from repository_presenter.core.registry.models import RegistryEntry
 # order, the order the bundle stores them in (G4-W17 arrival items 48/61). 20: hub headings and
 # table rows read one naming function (api_reference_names, arrival item 58). 21: a preserved
 # lead-in citing an example the plan renders in another section is overlap, never an orphaned
-# sentence with no code block after it (placement.rendered_example_ids, arrival item 65).
-RENDERER_VERSION = "22"
+# sentence with no code block after it (placement.rendered_example_ids, arrival item 65). 23: a
+# unit's own text may wrap an identifier spelled verbatim inside a SUPPORTED inherited_unit fact
+# it cites, not only a fact value or verified member (prose() now takes the unit's fact_ids,
+# G4-W17 arrival item 69).
+RENDERER_VERSION = "23"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -127,6 +132,12 @@ class RenderContext:
         self.units: dict[tuple[str, str], str] = {
             (unit["section"], unit["slot"]): unit["text"] for unit in units.get("units", [])
         }
+        # G4-W17 arrival item 69: a unit's own citations license an identifier verbatim inside a
+        # SUPPORTED inherited_unit fact it cites, so prose() needs the fact_ids alongside the text.
+        self.unit_fact_ids: dict[tuple[str, str], list[str]] = {
+            (unit["section"], unit["slot"]): unit.get("fact_ids", [])
+            for unit in units.get("units", [])
+        }
         # Placement follows the three rules of README_CONTRACT.md section 3, decided once in
         # placement.py so the validator judges exactly what the renderer did.
         self.placements = placements(plan, dispositions, facts, entry.ecosystem)
@@ -161,9 +172,15 @@ class RenderContext:
         return [f for f in self.facts.by_kind(kind) if f.polarity == "SUPPORTED"]  # type: ignore[arg-type]
 
     def unit(self, section: str, slot: str) -> str:
-        return self.prose(self.units.get((section, slot), ""))
+        # G4-W17 arrival item 69, scoped to scope_limitations only (docs/DECISION_LOG.md): a
+        # key_capabilities or api_reference unit citing the same inherited fact for unrelated
+        # evidence must not gain a free pass to spell whatever else that fact mentions.
+        fact_ids = (
+            self.unit_fact_ids.get((section, slot), []) if section == "scope_limitations" else []
+        )
+        return self.prose(self.units.get((section, slot), ""), fact_ids)
 
-    def prose(self, text: str) -> str:
+    def prose(self, text: str, fact_ids: Iterable[str] = ()) -> str:
         """Authored text with every fact-value identifier wrapped in a code span.
 
         Besides the tokens the guard checks, a capitalized word that names a recorded class or
@@ -179,8 +196,13 @@ class RenderContext:
         `` `Scene.open`() `` (a broken span with bare parens trailing it) 16+ times in one sealed
         candidate alone, and the same shape in a second, unrelated one (PDF Java's very first
         paragraph). The token alone, with no following ``()``, still renders exactly as before.
+
+        ``fact_ids`` are the calling unit's own citations: an identifier spelled verbatim inside
+        a SUPPORTED ``inherited_unit`` fact among them is wrapped too, matching what
+        ``unit_checks`` already admitted for this exact unit (G4-W17 arrival item 69).
         """
         text = self.canonical(text)
+        cited = cited_inherited_identifiers(self.facts, fact_ids)
         tokens = set(identifier_tokens(text))
         tokens.update(word for word in _WORD.findall(text) if word in self.symbol_names)
         # A bare extension that is a format fact value (``.stl``) is an identifier too.
@@ -189,8 +211,10 @@ class RenderContext:
         for token in sorted(tokens, key=len, reverse=True):
             if token in self.name_tokens or token in REGISTRY_NAMES.values() or token in self.hosts:
                 continue  # the product's name, package registries and hosting sites are nouns
-            if token not in self.symbol_names and not identifier_allowed(
-                token, self.allowed, self.members, self.methods
+            if (
+                token not in self.symbol_names
+                and token not in cited
+                and not identifier_allowed(token, self.allowed, self.members, self.methods)
             ):
                 continue
             rendered = re.sub(

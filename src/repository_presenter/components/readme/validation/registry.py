@@ -28,6 +28,7 @@ from repository_presenter.components.readme.composition.authoring import (
     SectionTask,
     allowed_identifiers,
     canonical_abbreviations,
+    cited_inherited_identifiers,
     identifier_allowed,
     surface_members,
     unit_checks,
@@ -141,7 +142,10 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-04",
-        "1",
+        # 2 (G4-W17 arrival item 69): an identifier spelled verbatim inside a SUPPORTED
+        # inherited_unit fact some unit in the candidate cites is a fact value too, not only a
+        # fact's own literal value, example identifier, or command-fence token.
+        "2",
         "Every content unit cites existing SUPPORTED facts; every identifier in prose is a fact "
         "value in a code span",
         (
@@ -608,6 +612,22 @@ def _check_units(candidate: Candidate) -> list[Failure]:
             for error in unit_checks(partial, task, facts, name)
         )
     allowed = allowed_identifiers(facts, name)
+    # G4-W17 arrival item 69: the same per-unit citation scoping unit_checks and renderer.prose
+    # apply (cited_inherited_identifiers), restricted to scope_limitations units only (a
+    # key_capabilities or api_reference unit citing the same inherited fact for unrelated
+    # evidence must not gain a free pass) - here unioned across every scope_limitations unit in
+    # the candidate, since a rendered README line is not traced back to the one unit that wrote
+    # it. Never wider than "cited by some scope_limitations unit in this exact candidate":
+    # unit_checks already gated each surviving unit's own text against its own fact_ids before it
+    # could reach a sealed candidate, so this union admits nothing BC-04's own upstream guard did
+    # not already admit.
+    cited_ids = {
+        fact_id
+        for unit in candidate.units.get("units", [])
+        if unit.get("section") == "scope_limitations"
+        for fact_id in unit.get("fact_ids", [])
+    }
+    allowed = allowed | cited_inherited_identifiers(facts, cited_ids)
     members = verified_members(facts)
     methods = surface_members(facts)
     values = {fact.value for fact in facts.facts if fact.polarity == "SUPPORTED"}

@@ -362,6 +362,130 @@ def test_every_failure_record_carries_its_section_and_stage_as_fields(tmp_path: 
     assert all("failures" in check for check in document["checks"] if check["verdict"] != "PENDING")
 
 
+def test_bc04_admits_an_identifier_a_units_own_cited_inherited_fact_spells(tmp_path: Path) -> None:
+    """G4-W17 arrival item 69: BC-04 must accept exactly what unit_checks (authoring.py) and the
+    renderer already do for the same unit - an identifier spelled verbatim inside a SUPPORTED
+    inherited_unit fact that unit cites, e.g. a scope_limitations claim naming a member the
+    source says is NOT implemented (docs/RESEARCH_LANE_E.md PROPOSAL E9). Scoped to citation: the
+    identical text on a unit that does not cite the fact still fails, end to end.
+    """
+    new_fact_id = "inherited_unit:900.list_item"
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact(new_fact_id, "inherited_unit", "- `CSSRule.css_text` is not implemented."),
+        ),
+    )
+    # The section's accepted set is the plan's, not derived from `facts` - a fresh fact needs its
+    # own task exactly as a real plan would name it among the section's citable facts.
+    tasks = [
+        SectionTask("scope_limitations", {}, ACCEPTED | {new_fact_id}, ("scope",))
+        if task.section_id == "scope_limitations"
+        else task
+        for task in TASKS
+    ]
+
+    def _units(cite: bool) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    **unit,
+                    "text": "The package writes GLB only; CSSRule.css_text is not implemented.",
+                    "fact_ids": ([*unit["fact_ids"], new_fact_id] if cite else unit["fact_ids"]),
+                }
+                if unit["section"] == "scope_limitations" and unit["slot"] == "scope"
+                else unit
+                for unit in UNITS["units"]
+            ],
+            "omitted": [],
+        }
+
+    def _make(cite: bool) -> Candidate:
+        units = _units(cite)
+        rendered = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
+        return Candidate(
+            ENTRY,
+            facts,
+            PLAN,
+            units,
+            DISPOSITIONS,
+            rendered,
+            ORIGINAL,
+            REVISION,
+            hashlib.sha256(ORIGINAL).hexdigest(),
+            ("LICENSE", "setup.py"),
+            tasks,
+        )
+
+    cited = _make(True)
+    assert "`CSSRule.css_text`" in cited.readme  # the renderer wrapped it too (item 69, renderer)
+    document = validate_candidate(cited, tmp_path, ())
+    assert "BC-04" not in {f["id"] for f in blocking_failures(document)}
+
+    # Mutation: the identical text, on a unit that does not cite the fact, still fails - the
+    # admission is scoped to citation, never a blanket allowance for any inherited_unit content
+    # (item 44's own docstring already rejected that as licensing an unrelated capability claim).
+    uncited = _make(False)
+    assert "`CSSRule.css_text`" not in uncited.readme
+    document = validate_candidate(uncited, tmp_path, ())
+    assert "BC-04" in {f["id"] for f in blocking_failures(document)}
+
+
+def test_bc04_never_extends_the_cited_inherited_pass_to_key_capabilities(tmp_path: Path) -> None:
+    """G4-W17 arrival item 69, narrowed after measurement: Aspose.PDF for .NET's
+    key_capabilities capability:3 cited an inherited_unit fact for unrelated evidence and, before
+    this gate, gained a free pass to spell every identifier that broad fact mentioned - the
+    capability-mis-advertising risk item 44's own docstring names. BC-04's union is
+    scope_limitations units only; the identical citing text in key_capabilities still fails."""
+    new_fact_id = "inherited_unit:901.list_item"
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (
+            *FACTS.facts,
+            _fact(new_fact_id, "inherited_unit", "- `CSSRule.css_text` is not implemented."),
+        ),
+    )
+    tasks = [
+        SectionTask("key_capabilities", {}, ACCEPTED | {new_fact_id}, task.slots)
+        if task.section_id == "key_capabilities"
+        else task
+        for task in TASKS
+    ]
+    units = {
+        "units": [
+            {
+                **unit,
+                "text": "CSSRule.css_text is not implemented.",
+                "fact_ids": [*unit["fact_ids"], new_fact_id],
+            }
+            if unit["section"] == "key_capabilities" and unit["slot"] == "capability:1"
+            else unit
+            for unit in UNITS["units"]
+        ],
+        "omitted": [],
+    }
+    rendered = render_readme(ENTRY, facts, PLAN, units, DISPOSITIONS)
+    candidate = Candidate(
+        ENTRY,
+        facts,
+        PLAN,
+        units,
+        DISPOSITIONS,
+        rendered,
+        ORIGINAL,
+        REVISION,
+        hashlib.sha256(ORIGINAL).hexdigest(),
+        ("LICENSE", "setup.py"),
+        tasks,
+    )
+    assert "`CSSRule.css_text`" not in candidate.readme  # the renderer withheld the pass too
+    document = validate_candidate(candidate, tmp_path, ())
+    assert "BC-04" in {f["id"] for f in blocking_failures(document)}
+
+
 def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: Path) -> None:
     """G4-W17 arrival item 18. `internal narration 'fact id'` carried no `section_id`, so
     `repair/targeted.py::validation_defects` could not route it to any stage and recorded it

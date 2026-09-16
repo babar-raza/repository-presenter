@@ -16,7 +16,7 @@ import copy
 import hashlib
 import json
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from types import MappingProxyType
@@ -88,7 +88,11 @@ _TYPE_OBJECTIVE = (
 # "2" -> "3" (G4-W17 arrival item 95): unit_checks' own title-terms rejection message now names a
 # few real candidate SUPPORTED fact IDs per unsupported term (supporting_fact_ids) instead of only
 # what is missing - a real meaning change to this governed file's own AST, not prose.
-NORMALISATION_VERSION = "3"
+# "3" -> "4" (G4-W17 arrival item 69): unit_checks' strays guard now admits an identifier
+# spelled verbatim inside a SUPPORTED inherited_unit fact the unit itself cites, scope_limitations
+# only (cited_inherited_identifiers) - a real meaning change to what allowed_identifiers' three
+# consumers accept.
+NORMALISATION_VERSION = "4"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -863,10 +867,7 @@ def prose_nouns(facts: FactsDocument, name: str) -> frozenset[str]:
     candidates = {part for token in name.split(" ") for part in token.split(".") if part}
     for fact in facts.by_kind("inherited_unit"):
         if fact.polarity == "SUPPORTED":
-            candidates.update(identifier_tokens(source_prose(fact.value)))
-            without_fences = _NOT_PROSE[0].sub(" ", fact.value)
-            for span in _CODE_SPAN.finditer(without_fences):
-                candidates.update(identifier_tokens(span.group(1)))
+            candidates.update(_inherited_unit_tokens(fact.value))
     allowed = allowed_identifiers(facts, name)
     members = verified_members(facts)
     methods = surface_members(facts)
@@ -874,6 +875,55 @@ def prose_nouns(facts: FactsDocument, name: str) -> frozenset[str]:
         token
         for token in candidates
         if proper_noun(token) and not identifier_allowed(token, allowed, members, methods)
+    )
+
+
+def _inherited_unit_tokens(value: str) -> set[str]:
+    """Identifier-shaped tokens an inherited unit's own value spells: its running prose (fenced
+    blocks and links stripped, per ``source_prose``) and each inline code span - the fence
+    pattern is applied first so a triple-fenced example's own code is never read as a span.
+    Shared by ``prose_nouns`` (proper nouns only, document-wide) and
+    ``cited_inherited_identifiers`` (every shape, scoped to a citing unit's own fact_ids).
+    """
+    found = set(identifier_tokens(source_prose(value)))
+    without_fences = _NOT_PROSE[0].sub(" ", value)
+    for span in _CODE_SPAN.finditer(without_fences):
+        found.update(identifier_tokens(span.group(1)))
+    return found
+
+
+def cited_inherited_identifiers(facts: FactsDocument, fact_ids: Iterable[str]) -> frozenset[str]:
+    """Identifiers spelled verbatim inside a SUPPORTED ``inherited_unit`` fact named in
+    ``fact_ids`` - what a unit citing that fact as its own evidence may additionally name.
+
+    A limitation's entire content is that a member is NOT implemented, so naming the member is
+    not a capability claim about the current surface; refusing it loses a true statement the
+    original README carries and no content revision can satisfy the guard instead (measured on
+    Aspose.HTML for Python: ``CSSRule.css_text``, ``HTMLImageElement.decode``, both refused twice
+    though spelled verbatim inside the same SUPPORTED ``inherited_unit`` fact the rejected unit
+    quoted - G4-W17 arrival item 69, the inline-code-span half of item 44,
+    docs/RESEARCH_LANE_E.md PROPOSAL E9).
+
+    Scoped to the citing fact_ids deliberately - item 44's own docstring already rejected
+    "admit every token of every SUPPORTED fact" as licensing prose to spell a symbol the surface
+    no longer carries merely because an unrelated inherited paragraph elsewhere mentions it. Every
+    caller additionally restricts *which* units may call this to ``scope_limitations`` only
+    (PROPOSAL E9's two discriminators combined, not (a) alone): a negative claim cannot
+    mis-advertise a surface, but a ``key_capabilities`` or ``api_reference`` unit citing the same
+    broad inherited fact for unrelated evidence must not gain the identical free pass - measured
+    live on Aspose.PDF for .NET's ``key_capabilities capability:3``, which cited
+    ``inherited_unit:010.list`` and would otherwise have gained every identifier that list spells,
+    exactly the capability-mis-advertising risk item 44 names. This function itself stays
+    section-agnostic (a pure function of ``fact_ids``); the gate lives at each call site.
+    """
+    ids = set(fact_ids)
+    if not ids:
+        return frozenset()
+    return frozenset(
+        token
+        for fact in facts.by_kind("inherited_unit")
+        if fact.polarity == "SUPPORTED" and fact.id in ids
+        for token in _inherited_unit_tokens(fact.value)
     )
 
 
@@ -1190,18 +1240,34 @@ def unit_checks(
             if matched:
                 errors.append(f"unit {slot}: text contains {meaning} ({marker.strip()!r})")
                 break
+        unit_fact_ids = unit.get("fact_ids", [])
+        # G4-W17 arrival item 69: an identifier a SUPPORTED inherited_unit fact this unit itself
+        # cites spells verbatim - a limitation naming the member the source says is NOT
+        # implemented - is as spellable as a fact value, scoped to this unit's own citations
+        # (docs/RESEARCH_LANE_E.md PROPOSAL E9 discriminator (a); cited_inherited_identifiers) AND
+        # to scope_limitations (discriminator (b) too, combined): a negative claim cannot
+        # mis-advertise a surface, but a key_capabilities or api_reference unit citing the same
+        # broad inherited fact for unrelated evidence must not gain the same free pass - exactly
+        # the capability-mis-advertising risk item 44's own docstring names, measured live on
+        # Aspose.PDF for .NET's key_capabilities capability:3 before this gate was added.
+        cited_inherited = (
+            cited_inherited_identifiers(facts, unit_fact_ids)
+            if task.section_id == "scope_limitations"
+            else frozenset()
+        )
         strays = sorted(
             token
             for token in identifier_tokens(text)
             if not identifier_allowed(token, allowed, members, methods)
             and token not in nouns
+            and token not in cited_inherited
             and not (token.endswith(_EXCEPTION_SUFFIXES) and token in recorded)
         )
         if strays:
             errors.append(
                 f"unit {slot}: identifiers that are not accepted fact values: {', '.join(strays)}"
             )
-        outside = sorted(set(unit.get("fact_ids", [])) - task.accepted_ids)
+        outside = sorted(set(unit_fact_ids) - task.accepted_ids)
         if outside:
             errors.append(
                 f"unit {slot}: cites facts outside this section's set: {', '.join(outside)}"

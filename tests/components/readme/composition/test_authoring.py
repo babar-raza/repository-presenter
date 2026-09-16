@@ -20,6 +20,7 @@ from repository_presenter.components.readme.composition.authoring import (
     canonical_abbreviations,
     capability_titles,
     citable,
+    cited_inherited_identifiers,
     command_block_tokens,
     forbidden_text_pattern,
     identifier_allowed,
@@ -937,6 +938,106 @@ def test_the_unit_that_names_a_command_blocks_output_path_passes_the_guard() -> 
     assert unit_checks(
         _output("docs/apidocs/output.html"), task, CELLS_JAVA_FACTS, CELLS_JAVA_NAME
     ) == ["unit summary: identifiers that are not accepted fact values: output.html"]
+
+
+def test_a_unit_may_spell_an_identifier_its_own_cited_inherited_unit_fact_spells_verbatim() -> None:
+    """G4-W17 arrival item 69, the inline-code-span half of item 44 (docs/RESEARCH_LANE_E.md
+    PROPOSAL E9). Aspose.HTML for Python's scope_limitations unit named a member the source
+    itself says is NOT implemented - CSSRule.css_text, HTMLImageElement.decode - refused twice
+    though spelled verbatim inside the same SUPPORTED inherited_unit fact the rejected unit
+    quoted: allowed_identifiers only extracted identifier_tokens for kind example or a command
+    fence, never an inherited_unit's own prose or code spans.
+
+    Scoped to citation AND to scope_limitations (PROPOSAL E9's two discriminators combined): a
+    unit that does not cite the fact is still refused for the identical text, and so is a
+    key_capabilities unit that does cite it - item 44's own docstring already rejected "admit
+    every token of every SUPPORTED fact" as licensing a capability claim to spell a symbol the
+    surface no longer carries merely because an unrelated inherited paragraph mentions it; the
+    section gate closes the same risk for a unit that cites the fact directly but for other
+    evidence (measured live on Aspose.PDF for .NET's key_capabilities capability:3).
+    """
+    facts = FactsDocument(
+        "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+        "h" * 40,
+        (
+            _fact(
+                "identity:repository",
+                "identity",
+                "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+            ),
+            _fact(
+                "inherited_unit:200.list_item",
+                "inherited_unit",
+                "- `CSSRule.css_text` and `HTMLImageElement.decode` are not implemented.",
+            ),
+            _fact(
+                "inherited_unit:201.paragraph",
+                "inherited_unit",
+                "The removed helper was called scene.legacy_save.",
+                "CONTRADICTED",
+            ),
+        ),
+    )
+    name = "Aspose.HTML FOSS for Python"
+    cited = cited_inherited_identifiers(facts, ["inherited_unit:200.list_item"])
+    assert {"CSSRule.css_text", "css_text", "HTMLImageElement.decode"} <= cited
+    # No fact_ids: nothing is cited, nothing is added.
+    assert cited_inherited_identifiers(facts, []) == frozenset()
+    # A CONTRADICTED fact proves nothing even when cited.
+    assert cited_inherited_identifiers(facts, ["inherited_unit:201.paragraph"]) == frozenset()
+    # allowed_identifiers (document-wide, every consumer's base set) is unchanged by this item -
+    # a fact no unit cites still licenses nothing, exactly as item 44 measured.
+    assert "css_text" not in allowed_identifiers(facts, name)
+
+    task = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"inherited_unit:200.list_item"}),
+        ("limitation:1",),
+        slot_facts={"limitation:1": frozenset({"inherited_unit:200.list_item"})},
+        slot_titles={},
+    )
+
+    def _output(cite: bool) -> dict[str, Any]:
+        return {
+            "units": [
+                {
+                    "section": "scope_limitations",
+                    "slot": "limitation:1",
+                    "text": "CSSRule.css_text is not implemented.",
+                    "fact_ids": ["inherited_unit:200.list_item"] if cite else [],
+                }
+            ],
+            "omitted": [],
+        }
+
+    assert unit_checks(_output(True), task, facts, name) == []
+    rejected = unit_checks(_output(False), task, facts, name)
+    assert len(rejected) == 1 and "CSSRule.css_text" in rejected[0] and "css_text" in rejected[0]
+
+    # Mutation: the identical citing text, in a key_capabilities unit, is still refused - the
+    # cited-inherited pass is scope_limitations only.
+    capability_task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"inherited_unit:200.list_item"}),
+        ("capability:1",),
+        slot_facts={"capability:1": frozenset({"inherited_unit:200.list_item"})},
+        slot_titles={},
+    )
+    capability_output = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "CSSRule.css_text is not implemented.",
+                "fact_ids": ["inherited_unit:200.list_item"],
+            }
+        ],
+        "omitted": [],
+    }
+    still_rejected = unit_checks(capability_output, capability_task, facts, name)
+    assert len(still_rejected) == 1 and "CSSRule.css_text" in still_rejected[0]
 
 
 def test_the_hosting_site_a_verified_link_names_is_a_proper_noun_too() -> None:

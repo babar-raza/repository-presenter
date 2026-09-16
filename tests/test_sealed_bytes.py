@@ -161,6 +161,76 @@ KNOWN_BLOCKED_STALE = {
             "one honest re-seal attempt Sunday only if it passes BC-02"
         ),
     },
+    # G4-W17 arrival item 69 (docs/DECISION_LOG.md 2026-09-16 20:26 UTC) is a renderer-affecting
+    # fix, the same class item 44 above already is: cited_inherited_identifiers lets a
+    # scope_limitations unit spell an identifier its own cited SUPPORTED inherited_unit fact
+    # spells verbatim, and renderer.prose now wraps exactly those tokens too, not only fact
+    # values and verified members. Seven sealed candidates cite a broad inherited limitations
+    # list for their own scope_limitations content and that list also spells (usually inside its
+    # own backticks) a standard-library exception name or a product/format proper noun the
+    # candidate's authored prose already used bare - each diff checked directly (not assumed):
+    # exactly one or more identifiers gain a matching pair of backticks, nothing else in the
+    # document moves. A real, deliberate, correct rendering-behavior change, not a regression -
+    # each candidate needs a real re-seal (through `present`, not a bare re-render) to pick it up,
+    # since validation/review were judged against the old bytes; that re-seal is separate
+    # follow-up work, not this fix's own scope. `strict=True` for the same reason as above.
+    "aspose-3d-foss__Aspose.3D-FOSS-for-.NET": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `NotImplementedException` (three "
+            "occurrences, scope_limitations limitation:1-3, all citing inherited_unit:061.list, "
+            "which spells the same exception name) - see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Java": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `UnsupportedOperationException` "
+            "(scope_limitations, citing an inherited limitations list that spells it) - see "
+            "comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-3d-foss__Aspose.3D-FOSS-for-Python": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `NotImplementedError` (four "
+            "occurrences, scope_limitations, citing an inherited limitations list that spells "
+            "it) - see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-cells-foss__Aspose.Cells-FOSS-for-Java": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `ChartEx` (scope_limitations "
+            "limitation:2, citing inherited_unit:041.list, which spells it) - see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `LowCode`, "
+            "`PlatformNotSupportedException`, `AcroForm`, and `NotImplementedException` "
+            "(scope_limitations limitation:5, citing inherited_unit:227.list, which spells all "
+            "four) - see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-pdf-foss__Aspose.PDF-FOSS-for-Java": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `LaTeX` and "
+            "`UnsupportedOperationException` (scope_limitations limitation:1, citing "
+            "inherited_unit:126.paragraph/127.list, which spell them) - see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
+    "aspose-slides-foss__Aspose.Slides-FOSS-for-Python": {
+        "reason": (
+            "item 69's cited_inherited_identifiers now wraps `PowerPoint`, `ValueError`, "
+            "`SmartArt`, and `AttributeError` (scope_limitations scope, citing eight inherited "
+            "facts spelling the old README's own limitations section, which spell all four) - "
+            "see comment above"
+        ),
+        "ref": "G4-W17 arrival item 69; docs/DECISION_LOG.md section 31 2026-09-16 20:26 UTC",
+    },
 }
 
 
