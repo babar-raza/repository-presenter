@@ -2013,3 +2013,221 @@ does not claim Words for Python would seal once E19 lands — `BC-11` (fresh-pro
 ran either round, so nothing here is a claim about it. No seal is claimed and the counted unit does
 not move: `repository-presenter status` reads **12/34** both before and after, and
 `project/state.yaml` was not opened.
+
+## 2026-09-16 22:58 UTC (`date` checked) — LANE-E-06, HTML for Python drawn fresh against arrival item 69
+
+Branch `lane-e/LANE-E-02-R2` (a fresh item, `LANE-E-06`, added rather than editing `LANE-E-02`'s own
+text: `LANE-E-02`'s resume predicate still covers `aspose-note-foss/Aspose.Note-FOSS-for-Python`,
+drawn concurrently by another worker against the same arrival commit, and this run touches neither
+that repository nor that text), worktree `C:\w\e02r2`, off `origin/main` at `6463f37`, no rebase
+needed. Receipt: `evidence/build/lanes/lane-e/LANE-E-06.json`. Venv matched `f4406f1b...` on the
+first attempt.
+
+### Item 69 confirmed closed, measured by running the repository, not by reading the commit
+
+The spawn instruction named commit `e6698d7` (subject: "a `scope_limitations` unit may name a member
+its own cited inherited-README fact spells verbatim") as PROPOSAL E9's landing and asked it to be
+verified against `origin/main` before drawing. Confirmed an ancestor of `origin/main` first
+(`git log origin/main` lists it), then verified **working**, on this repository's own fresh
+composition, by the production code's own control flow rather than by inspecting the diff a second
+time:
+
+- `authoring.py:895` now defines `cited_inherited_identifiers(facts, fact_ids)`, scoped to
+  `scope_limitations` alone at its one call site (`authoring.py:1253-1263`), exactly PROPOSAL E9's
+  two discriminators combined.
+- **In the run**, `section_authoring` (S6) never raised the recorded class
+  `LIMITATION_UNIT_CANNOT_NAME_THE_MEMBER_IT_LIMITS` at all — no rejection cites "identifiers that
+  are not accepted fact values" against a `scope_limitations` unit anywhere in `calls.jsonl`'s 40
+  `section_authoring` entries — and `BC-04` ("every identifier in prose is a fact value in a code
+  span") returned **PASS** in the final `validation.json`, the exact check item 69 changed
+  (`NORMALISATION_VERSION` "3" → "4", `Check("BC-04")` version "1" → "2").
+- **The repository advanced past every stage it has ever reached.** The first LANE-E-02 run (run 1,
+  2026-09-11) stopped at S6 on this exact class. This run reached S9 validation, two repair rounds,
+  and a rendered `README.md` (196 visible lines of 606) — `BC-11`'s fresh-process rerun is the only
+  stage never reached, because the run did not seal.
+
+So PROPOSAL E9 / arrival item 69 is **closed for this repository**, corroborated live, not merely by
+commit inspection.
+
+### It still did not seal, for two new and different causes
+
+| stage | outcome |
+| --- | --- |
+| examples | 7 candidates, 6 executed, 1 failed (`ImportError`, retried with the `js` extra, still failed) |
+| facts | 497 records (`public_symbol` 338, `inherited_unit` 103, `link_target` 30, `dependency` 4, `identity` 5, `package` 4, `build_test_asset` 2, `license` 2, `import_path` 1, `install_command` 1); 494 SUPPORTED, 1 UNRESOLVED, 2 CONTRADICTED |
+| S3 investigation | 8 capabilities, 6 workflows, 6 limitations |
+| S4 dispositions | 103 units; `SUPERSEDE_REDUNDANT` 42, `VERIFIED_PRESERVE` 42, `OMIT_UNSUPPORTED` 8, `DEFER_UNRESOLVED` 6, `VERIFIED_MOVE` 3, `VERIFIED_REWRITE` 1, `NON_CONTENT` 1 |
+| S5 plan | 17 of 18 sections, 8 capabilities, 12 hubs, 1+4 examples, 10 links, 1 limitation |
+| S6 units | 347 units across 9 sections; coherence revised 0 of 347 |
+| readme | 196 visible lines of 606 |
+| S9 validation | **pass 7, fail 2, pending 2** (`BC-02`, `BC-07` FAIL; `BC-10`, `BC-11` pending) |
+| repair | 1 repaired, 2 unrepairable, 2 findings stand after repair; 2 rounds |
+| bundle | none — `candidates/` untouched by this PR |
+
+29 live provider calls this run (2 `repository_investigation`, 3 `source_reconciliation`, 20
+`section_authoring`, 4 `targeted_repair`), 6 rejected, 23 served from this run's own cache across its
+two repair rounds — a genuine live composition on revision `bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11`
+(the repository moved from run 1's `912f0ae0` during the four-day dormancy), not a replay.
+
+### `BC-02`: a genuine, independently confirmed upstream defect — not a repository-presenter proposal
+
+`install_command:pip` is `CONTRADICTED`: `"pip install aspose-html-foss"`, evidence
+`"package registry: distribution not found"` at `https://pypi.org/pypi/aspose-html-foss/json`.
+`extract.py:52-124`'s existing, ecosystem-agnostic `_source_build_fact` — precisely the "source-install
+path when a registry has nothing to confirm" `project/loop-prompt.md` section 6 rule 16 and
+`RESEARCH_AND_GUIDELINES.md` section 27.9 item (0) already provide for this class — correctly
+**declined** to admit a `SUPPORTED` alternative: it requires a receipt with `outcome == "EXECUTED" and
+build_verified`, and `examples.json` records `build_verified: false` on **all seven** receipts, each
+saying "the package would not build."
+
+Measured independently, twice, outside the pipeline entirely, not inferred from its output:
+
+1. `curl -s -o /dev/null -w '%{http_code}' https://pypi.org/pypi/aspose-html-foss/json` →
+   **404** — the distribution genuinely is not published under the manifest's declared name.
+2. `pip install --target <dir> <the pinned clone root>` (the same command `python_examples.py`'s
+   fallback path runs) fails with `pip._vendor.pyproject_hooks._impl.BackendUnavailable:
+   ModuleNotFoundError: No module named 'setuptools.backends'`. The repository's own
+   `pyproject.toml` line 3 declares `build-backend = "setuptools.backends.legacy:build"` — not a
+   real setuptools entry point (the correct name is `setuptools.build_meta`); the package cannot be
+   built by any standard tool, not only ours.
+
+Both routes to `SUPPORTED` are closed by the target repository's own manifest, independently of
+repository-presenter. Four other sealed Python FOSS candidates (`aspose-email-foss`, `aspose-3d-foss`,
+`aspose-cells-foss`, `aspose-slides-foss`) all carry `install_command:pip` **SUPPORTED** against a
+genuinely published distribution of the same shape (`candidates/*/*/facts.json`), so this is not a
+systemic gap in the Python platform module either — it is this one repository's manifest, at this
+revision, and `_source_build_fact` and `BC-02` are both doing exactly their documented job by
+refusing to render a claim that would be false (`project/loop-prompt.md` section 6 rule 12).
+
+**A secondary observation, not a proposal.** The repository's own `README.md` (lines 66-87) never
+claims a `pip install aspose-html-foss` at all — it documents `git clone` plus putting `src/` on
+`PYTHONPATH` directly, precisely the fallback route `python_examples.py:434-470` already takes when
+the wheel build fails, and precisely how six of the seven examples ran (`source_note`: "ran against
+the repository source tree; the package would not build"). `_source_build_fact` treats that
+fallback's success as proof only when `build_verified` is also true, which by `TB-01`'s own design
+(2026-09-08) it is not: `build_verified` means the *advertised build/install command* succeeded, and
+here it demonstrably did not. A distinct install kind — "documented PYTHONPATH source install,
+corroborated by N examples executing against the source tree, independent of `build_verified`" —
+would be a real, honest `SUPPORTED` path for a repository whose own README never claims installability
+via a registry or a local build at all, and would not fabricate anything `TB-01` was written to
+forbid. Lane E does **not** propose this now: it is new machinery on a currently-open, single-instance
+observation (`project/loop-prompt.md` section 6 rule 1), and the primary already carries E16-E19 in
+this same file. Recorded so a second occurrence is not re-diagnosed from nothing.
+
+### E20 `PROPOSAL` — the "generated by" narration exemption's noun list does not include a repository's own real subsystems
+
+**Decision.** Lane E writes no code. `validation/registry.py` is shared code and this is the
+primary's to land. HTML for Python takes a disposition naming this proposal as part of its resume
+predicate, not a forced seal.
+
+**The defect, measured.** `BC-07` failed with `"internal narration 'generated by'"`, `section_id`
+`api_reference`. The offending text, verbatim from `content_units.json`: *"The
+`aspose_html.tokenizer.EndTagToken` class represents an end tag token generated by the tokenizer."*
+and *"...the `aspose_html.tree.TreeBuilder` class constructs the DOM tree from tokens generated by
+the tokenizer."* Both are true, unremarkable technical descriptions of the product's own tokenizer —
+not self-referential narration about this document's own authorship, the class `_NARRATION`
+(`registry.py:290-301`) exists to catch.
+
+`registry.py:324-326` already carries one exemption for exactly this shape, added after external
+review 2026-09-07 on a different repository:
+
+```
+_NOT_DOCUMENT_GENERATED_BY = re.compile(
+    r"\bgenerated by\b(?!\s+(?:this|the)\s+(?:library|package|module|crate|tool|project))"
+)
+```
+
+The enumerated noun list — `library`, `package`, `module`, `crate`, `tool`, `project` — does not
+include `tokenizer`, so `"generated by the tokenizer"` still matches the guarded pattern and still
+blocks. Confirmed neither exemption already in scope saves it: `"tokenizer"` is not itself a
+`SUPPORTED` `public_symbol`'s bare name (the real symbol is `Tokenizer`, capitalised, a different
+string than the lowered phrase match), and the phrase is not verbatim in any `SUPPORTED`
+`inherited_unit` fact or `public_symbol` docstring — `grep`ing the pinned clone's own source
+(`src/aspose_html/tokenizer/_tokens.py:87`, `src/aspose_html/tree/_builder.py:106-110`) shows the real
+docstrings say *"An end tag token, e.g. `</div>`."* and *"...consumes tokens from a Tokenizer and
+builds a Document tree..."* — neither contains the bigram `"generated by"` at all. The rendered
+sentence is authoring's own paraphrase, exactly the shape the code comment above the regex
+(`registry.py:315-323`) already names as the reason the enumerated-noun approach was chosen over the
+inherited-prose exemption: *"that exact bigram was never in the source text to begin with."*
+
+**What lane E proposes, and what it does not.** The minimal change is widening the exemption from a
+fixed noun enumeration to also admit a noun that is itself a real component of the repository's own
+surface — for instance, matching `symbol_names` the same way the narration check's own `"validator"`
+entry already does two lines above (`registry.py:1008-1012`), rather than adding `tokenizer` (or every
+future repository's own component nouns) to a hand-maintained list one repository at a time. Lane E
+does **not** propose relaxing the guard to admit any `"generated by the <noun>"` unconditionally — the
+document-generation narration this check exists to catch would slip back in.
+
+**Evidence.** `runs/transactions/aspose-html-foss__Aspose.HTML-FOSS-for-Python/
+bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11/validation.json` (`BC-07` failure detail), `content_units.json`
+(the two unit texts, `grep -n "generated by"`), `README.md:491,495` (the rendered table rows);
+`runs/clones/aspose-html-foss__Aspose.HTML-FOSS-for-Python/src/aspose_html/tokenizer/_tokens.py:87`
+and `.../tree/_builder.py:106-110` (the real docstrings, read independently of the pipeline).
+
+**Reversal path.** A repository whose `"generated by the <real component>"` sentence turns out to be
+genuinely self-referential narration (not a technical description) once the exemption widens refutes
+this; none is known.
+
+### E21 `PROPOSAL` — the canonical-abbreviation scan has no hyphen-continuation guard, unlike the sibling command-word check it was modelled on
+
+**Decision.** Lane E writes no code. `validation/registry.py` is shared code and this is the
+primary's to land. HTML for Python takes a disposition naming this proposal as part of its resume
+predicate.
+
+**The defect, measured.** `BC-07` also failed with `"abbreviation 'html' is not in its canonical form
+HTML"`, `section_id` `documentation_resources`. Every occurrence (`content_units.json` units
+329,331,334,335,336,337) is inside a link description naming the repository's own declared
+distribution, e.g. *"...API reference for all 243 public types in aspose-html-foss."* — `html` here is
+a substring of `aspose-html-foss`, the literal value of the `package:name` fact, not a bare use of the
+abbreviation.
+
+`registry.py:272`'s scanning pattern:
+
+```
+_LOWER_WORD = re.compile(r"(?<![.\w])[a-z]{3,}\b")
+```
+
+excludes a match immediately preceded by a dot or a word character, but **not by a hyphen** — a
+hyphen is neither. So `"html"` inside `"aspose-html-foss"` matches (preceded by `-`, which the
+lookbehind does not exclude) and is then found in `canonical_abbreviations()`'s fixed `html → HTML`
+table (`authoring.py:930-941`). This is the identical shape of defect `_COMMAND`
+(`registry.py:275-284`) was already hardened against, three lines above in the same file, for
+`python-pptx` (arrival item 26, 2026-09-06): *"A hyphen continuing the word makes a name, not one of
+these commands."* `_LOWER_WORD` never received the equivalent guard.
+
+**What lane E proposes, and what it does not.** The minimal change is a negative lookbehind on
+`_LOWER_WORD` matching `_COMMAND`'s own `(?!-)`-style treatment, extended to the *preceding* side:
+refuse a match immediately preceded by a hyphen, the same way one immediately preceded by a dot or
+word character already is. Lane E does **not** propose exempting every hyphenated compound
+unconditionally — only continuing a hyphen-joined name, which is what a package/distribution name
+(and `python-pptx`'s own family) actually is.
+
+**Evidence.** `runs/transactions/aspose-html-foss__Aspose.HTML-FOSS-for-Python/
+bf0f1e7a6d29ca9e14de576fe3ff1aa49ddbaf11/validation.json` (`BC-07` failure detail),
+`content_units.json` (units 329,331,334-337, `grep -n '\bhtml\b'`), `facts.json`
+(`package:name` = `aspose-html-foss`); `registry.py:272,275-284,930-941` (current file, this
+worktree, unchanged by this PR).
+
+**Reversal path.** A repository whose distribution name itself embeds a real bare abbreviation in a
+context that should render canonically (not as a name) would refute a lookbehind this broad; none is
+known among the sealed portfolio's Python FOSS names (`aspose-3d-foss`, `aspose-cells-foss`,
+`aspose-email-foss`, `aspose-slides-foss`, `aspose-html-foss` itself once corrected).
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-html-foss/Aspose.HTML-FOSS-for-Python` | NOT_SEALED, stage S9 `validation` (`BC-02` unrepairable at EXTRACTING; `BC-07` one repaired, one re-raised after repair) | `INSTALL_COMMAND_UNPUBLISHED_AND_UNBUILDABLE_UPSTREAM_DEFECT` plus `NARRATION_AND_ABBREVIATION_GUARDS_MISS_A_REAL_SUBSYSTEM_NOUN_AND_A_HYPHENATED_NAME` | PROPOSAL E20 and E21 land, clearing `BC-07`; `BC-02` stays blocked on the target repository's own defect (unpublished distribution, broken `build-backend`) independent of any repository-presenter change, until the upstream repository is fixed or published, or the owner takes up the secondary observation above — then re-run `present --repo aspose-html-foss/Aspose.HTML-FOSS-for-Python`. PROPOSAL E9 (arrival item 69) is **closed** for this repository and is not a predicate for the re-run. |
+
+### What this run does not claim
+
+It does not claim `BC-02` is fixable inside repository-presenter without either the upstream
+repository changing or the owner authorising new machinery (the secondary observation) — both
+verifications (PyPI, local `pip install`) were run independently of the pipeline and agree with it. It
+does not claim E20 or E21 alone would seal this candidate — `BC-02` blocks regardless, and `BC-10`/
+`BC-11` were never reached (`judged_at` `S10`/`S12`, both `PENDING`) so nothing here is a claim about
+review or the no-op proof. It does not claim the `inherited_unit:010.list` advisory (rewrite dropped
+several identifiers the fact spells) shares any mechanism with E20 or E21 — it folded to advisory
+correctly and is not investigated further this run. No seal is claimed and the counted unit does not
+move: `repository-presenter status` reads **15/34** both before and after (unrelated cohorts sealed
+since this lane's last run), and `project/state.yaml` was not opened.
