@@ -369,3 +369,66 @@ def test_a_tree_with_no_importable_package_stays_unverified_when_the_build_fails
     )
     assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "NOT_VERIFIED")]
     assert (receipts[0].detail or "").startswith("package install failed")
+
+
+def test_the_missing_path_is_read_off_the_examples_own_failure(tmp_path: Path) -> None:
+    """The traceback names what the example actually opened; the literal scan cannot."""
+    run_dir = tmp_path / "example_001"
+    run_dir.mkdir()
+    trace = (
+        'Traceback (most recent call last):\n  File "example.py", line 3, in <module>\n'
+        "FileNotFoundError: [Errno 2] No such file or directory: 'sample.obj'\n"
+    )
+    assert python_examples.missing_input_path(trace, run_dir) == "sample.obj"
+    # A path the example built with a directory, spelled with either separator.
+    nested = "FileNotFoundError: [Errno 2] No such file or directory: 'fonts\\\\arial.ttf'\n"
+    assert python_examples.missing_input_path(nested, run_dir) == "fonts/arial.ttf"
+    # An absolute path inside the run directory is the same file, relative to it.
+    absolute = (
+        "FileNotFoundError: [Errno 2] No such file or directory: "
+        f"{str(run_dir / 'data' / 'in.cff')!r}\n"
+    )
+    assert python_examples.missing_input_path(absolute, run_dir) == "data/in.cff"
+    # Outside the run directory, or climbing out of it, is never staged; nor is a non-file error.
+    outside = "FileNotFoundError: [Errno 2] No such file or directory: '/etc/fonts/x.ttf'\n"
+    assert python_examples.missing_input_path(outside, run_dir) is None
+    assert python_examples.missing_input_path("...directory: '../x.ttf'\n", run_dir) is None
+    assert python_examples.missing_input_path("ValueError: bad input\n", run_dir) is None
+
+
+def test_an_example_that_builds_the_path_it_opens_is_served_from_its_own_failure(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 53 (Aspose.Font-FOSS-for-Python @ c4c453b8, G3 second pass): all eight
+    candidates ended NEEDS_INPUT - three spell no file literal at all and build the path at run
+    time, five name one literal and then open a second input they never spelled - while the tree
+    carries 107 .ttf, 46 .fntdata, 21 .cff, 20 .pfb and 13 .otf. A matching problem, not a
+    scarcity one: the example's own FileNotFoundError names the path, so that path is staged
+    (same name, then same suffix, then the produced pool - stage_fixtures' own order) and the
+    example gets exactly one more attempt, the fold-not-reject shape the NEEDS_INPUT retry
+    already has."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    loader = "from widget import load\n"
+    candidates = [
+        # Builds the name at run time: no literal for the scan, the failure names sample.obj.
+        _candidate(1, loader + "name = 'sam' + 'ple'\nprint(load(name + '.obj'))\n"),
+        # Names one literal (staged first time round) and then opens a second, unspelled input.
+        _candidate(2, loader + "load('sample.obj')\nprint(load('mesh' + '.stl'))\n"),
+        # Nothing in the tree or the pool can serve it: one attempt, honestly NEEDS_INPUT.
+        _candidate(3, loader + "print(load('no' + 'where.xyz'))\n"),
+    ]
+    receipts = verify_python_examples(root, tree, candidates, tmp_path / "verify")
+    by_ordinal = {receipt.ordinal: receipt for receipt in receipts}
+    assert by_ordinal[1].outcome == "EXECUTED"
+    assert [(b.literal, b.source_path) for b in by_ordinal[1].fixtures] == [
+        ("sample.obj", "tests/sample.obj")
+    ]
+    assert by_ordinal[2].outcome == "EXECUTED"
+    assert [(b.literal, b.source_path) for b in by_ordinal[2].fixtures] == [
+        ("sample.obj", "tests/sample.obj"),
+        ("mesh.stl", "tests/small.stl"),
+    ]
+    assert by_ordinal[3].outcome == "NEEDS_INPUT"
+    assert by_ordinal[3].fixtures == ()
