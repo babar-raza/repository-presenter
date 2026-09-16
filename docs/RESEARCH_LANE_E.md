@@ -1201,3 +1201,166 @@ findings are a reviewer defect; they are corroborated and, read against the byte
 not claim anything about `project/state.yaml`, which was not opened: this PR seals nothing, so the
 lane prompt's narrow `current_candidates` exception does not apply. `repository-presenter status`
 reads **10/34** on the rebased tree both before and after this PR.
+
+## 2026-09-16 11:01 UTC (`date` checked) - LANE-E-01 run 4: lane E's first seal
+
+Branch `lane-e/LANE-E-01-R4`, worktree `C:\w\e01r4`, off `origin/main` at `4cd0219`, rebased onto
+`44b4690` before the commit. Receipt: `evidence/build/lanes/lane-e/LANE-E-01.json`. Venv matched
+`f4406f1b...` on the first attempt - the fifth independent confirmation of `54417f9`'s recipe.
+
+Resuming after a four-day dormancy, nothing in this lane's record was trusted: every one of the
+eight remaining Python candidates' recorded blockers was re-verified against `origin/main`'s code
+before any provider call was spent.
+
+### What the re-verification found, before any run
+
+`origin/main` moved from `f26a57f` to `4cd0219`, but **no shared-code fix landed after
+`b6e8f21` (2026-09-12 00:19)** - only governance and sprint commits, then the dormancy. The
+arrival list's own state, read from `RESEARCH_AND_GUIDELINES.md` section 29 and
+`evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl`, and each site read in the code:
+
+| repository | blocker | admitted as | landed? | evidence in the tree |
+| --- | --- | --- | --- | --- |
+| Page for Python | E6 | item **59** (lane F F10, same defect) | **YES**, `3e9b81f` | `planning.py::_pin_fact_id_arrays` and `_FACT_ID_ARRAYS` now pin `api_hubs.fact_ids` - the exact site of Page's invented `public_symbol:aspose.page.xps.renderer` - to a `$defs` enum of `citable_fact_ids()` |
+| Cells for Python | E8 | **never admitted** | no | `scope_defect` reproduces the 2026-09-11 table exactly (below) |
+| PDF for Python | E4 | **never admitted** | no | `validation/registry.py:918-928` still builds the abbreviation `Failure("COMPOSING", ...)` with no `section` |
+| HTML for Python | E9 | item **69** | no | `authoring.py::allowed_identifiers:890-900` still extracts `identifier_tokens()` for kind `example` only |
+| Note for Python | E12 | item **70** | no | no `optional-dependencies` retry anywhere under `extractors/platforms/`; `python_format_declarations.py` untouched |
+| BarCode for Python | E13 | **never admitted** | no | `repair/rounds.py:518` still reads `probe.conflicts` unlatched |
+| Words for Python | - | item **52** | no | `python_examples.py` last changed 2026-09-07; the verification venv is still created from `sys.executable` (lines 173, 183, 221) |
+| Font for Python | - | item **53** | no | same file; `_serviceable` still literal-scan based (line 311) |
+
+`aspose-email-foss/Aspose.Email-FOSS-for-Python` is `ALREADY_SEALED`; `aspose-tex-foss` is
+`NOT_PROCESSABLE`. So exactly one candidate had a genuinely closed gate, and the order of work
+followed the measurement rather than the item's written order.
+
+Three of this lane's own proposals - **E4, E8 and E13** - are in no arrival item, so nothing can
+land them. That is a supervision gap, not a lane decision, and it is reported rather than acted on:
+writing section 27.9 is not this lane's to do.
+
+### E8 replayed against today's code, offline, zero provider calls
+
+Before running anything, LANE-E-01 run 3's recorded `F07` - `criterion: presentation`,
+`section_id: scope_limitations`, `fact_ids: []`, `absent: []`, quote present in the named
+section - was fed back through `scope_defect` on `4cd0219`:
+
+| call | result |
+| --- | --- |
+| `absence_defect` as returned (`absent: []`) | `None` |
+| `cited_fact_defect` as returned (`fact_ids: []`) | `None` |
+| `scope_defect` as returned | `None` - **it blocks** |
+| `scope_defect` with units that wrote the quote | `None` |
+| `scope_defect` with units that did *not* write the quote | `None` |
+| `scope_defect`, same claim stated in `absent[]` | *"...which the candidate contains"* |
+| `scope_defect`, relabelled `criterion: factuality` | *"a factuality finding names neither..."* |
+
+**PROPOSAL E8 is unchanged and still open.** The three-row table from 2026-09-11 reproduces exactly
+five days and three landed review commits later (`2d4875d` items 62/63, `846eaaf` item 64): the
+finding is dismissed under one label and blocks under the other. `absence_defect` now runs *before*
+the criterion switch, which is item 37's principle - but it returns `None` on its first line when
+`absent` is empty, so a finding that alleges a gap without stating one never reaches it.
+
+### Aspose.Cells for Python - SEALED, and the no-op is proven
+
+`4f6768a7b349a1309644f456eb43bc35f70c16d7` - a different upstream revision from run 3's
+`26c3bd16`; the repository moved during the dormancy, so this is a fresh composition, not a replay.
+
+| stage | outcome |
+| --- | --- |
+| examples | 6 candidates, **6 executed, 0 failed** |
+| facts | **1,100 records** (`public_symbol` 987, `inherited_unit` 54, `link_target` 30), 1,099 SUPPORTED, 1 UNRESOLVED; digest `fa0fa914...` |
+| S3 `repository_investigation` | 1 call - capabilities 8, workflows 6, limitations 3 |
+| S4 `source_reconciliation` | 2 batched calls, 54 units |
+| S5 `presentation_planning` | **accepted attempt 1**; sections 16/18, hubs 12 |
+| S6 `section_authoring` | 42 units across 8 sections, 9 calls; coherence 0 of 42 revised |
+| render | 199 visible lines of 675; digest `fa2093a6...` |
+| S9 validation | **pass 10, fail 0, pending 1** - `BC-01` to `BC-10` all `PASS` |
+| S10 `independent_review` | `ACCEPT`, findings **0**, advisory 15, `second_reader.read` **2** |
+| repair | 0 repaired, 0 unrepairable; rounds 1 |
+| bundle | `candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-Python/4f6768a7...`, **sealed**, 16 provider calls |
+
+**Nothing was forced and no check was weakened.** `verdict_as_returned` is
+`REJECT_PRESENTATION`: the first read raised 8 findings and the second read 7 more, and all
+fifteen folded to advisory - each with its own recorded `reviewer_scope_defect` naming the rule
+that refuted it, none silently. Ten of the fifteen are item 63's rule (the quote carries the
+literal value of a SUPPORTED fact the finding itself cites), three are `absence_defect`'s own
+"which the candidate contains" / "there is nothing to restore", and two are the renderer-owned
+rule (`Detailed Member Reference` is a heading no unit wrote). `BC-10` version 4 passed on its own
+terms - ACCEPT, corroborated, reviewer identity separate from authoring, no unrefuted advisory on
+a required row.
+
+**E8's shape did not arise this draw, and this run does not claim E8 is closed.** This run's `F07`
+is a different finding: it cites `public_symbol:...standardencryptionparameters`, so item 63's rule
+had something to read; run 3's cited nothing at all. The offline replay above is the standing
+measurement, and it says E8 still blocks the moment that shape returns.
+
+**The no-op proof is genuine.** A second `present` in a **fresh process** reproduced every
+artifact byte for byte - `facts fa0fa914...`, `dispositions 016f0997...`, `plan 5b0a80dc...`,
+`content_units 182c51f2...`, `readme fa2093a6...`, `validation 68ddf466...`, `review b3017d7d...` -
+with **0 provider calls** against run 1's 16, S4's two batched calls included (`seeded from sealed
+bundle: presentation_planning, repository_investigation`). `BC-11` judged at S12; bundle state
+`READY_FOR_PROPOSAL`; `no_op_proof.byte_identical true, fresh_process true, provider_calls 0`.
+
+### Aspose.Page for Python - E6 is closed in code, and the run still could not reach a provider call
+
+`present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python` failed before S1: `clone ... failed
+after 3 attempts: transient clone failure: git clone --depth 1 --no-tags ... timed out after
+600.0s`. Measured while it ran: the clone reached ~20 MB, then ~81 MB four minutes later, then
+restarted from empty (the destination is wiped on each attempt, `clone.py:96-110`), and the third
+attempt reached ~131 MB before its own timeout. The repository is **409 MB** (`gh api`), 1.1 GB on
+disk, against Cells for Python's 1.4 MB - and four other lane worktrees (`C:\w\b05`, `c12s`,
+`d15r5`, `f03`) were each cloning their own repositories in the same window, confirmed by files
+written to their `runs/clones/` inside the last twenty minutes.
+
+This is the **second independent occurrence** of the class lane E first recorded on 2026-09-11 and
+explicitly declined to build a rule from ("never a rule from one observation"). There are now two,
+on different days, with different lane populations, each costing the full 30-minute retry budget
+before reporting.
+
+`PROPOSAL E14`, for the primary: `core/git_safety/clone.py` - `CLONE_TIMEOUT_SECONDS = 600.0` is a
+single constant applied to every repository in a portfolio spanning 1.4 MB to 409 MB, and each of
+`RETRY_POLICIES["clone"]`'s three attempts starts from an empty directory (`force_rmtree` on
+failure), so a large clone under link contention can never converge: the budget resets instead of
+accumulating, and 30 minutes buys three partial copies of the same objects. Lane E proposes **no
+new constant fitted to these two samples** (section 27.10). The shape that needs no threshold is to
+stop discarding the partial clone - retry into the same directory (a `git fetch --depth 1` onto the
+partial repository rather than a fresh `clone`) so the second attempt continues where the first
+stopped - with the timeout untouched. Lane E explicitly proposes **no** raise of
+`CLONE_TIMEOUT_SECONDS` and **no** relaxation of the revision-pin check, which is what makes the
+clone trustworthy. Evidence: this run's log; the 2026-09-11 timed solo run (316 s, RC=0, 2,430
+files); the four concurrent lane worktrees above.
+
+A second, smaller observation, recorded and **not** proposed as a rule from one sighting: the
+failed `present` exited **0** while printing a clone failure, where the earlier missing-catalog
+error exited 2. Lane E has one sighting and builds nothing on it.
+
+### Dispositions and seal written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-cells-foss/Aspose.Cells-FOSS-for-Python` | **SEALED** (`READY_FOR_PROPOSAL`) | - | none; `BC-01` to `BC-11` all judged, no-op proven in a fresh process with 0 provider calls |
+| `aspose-page-foss/Aspose.Page-FOSS-for-Python` | NOT_SEALED | `CLONE_BUDGET_CANNOT_CONVERGE_ON_A_409MB_REPOSITORY_UNDER_LANE_CONTENTION` (pre-S1) | PROPOSAL E14 lands, **or** the run is taken in a window with no other lane cloning; E6 is already closed in code (`3e9b81f`), so the composition itself has never been attempted against the fix |
+
+`LANE-E-01` stays `IN_PROGRESS`: its purpose is one seal or disposition for each of its three
+repositories, and PDF for Python still stands on E4, which was never admitted to the arrival list.
+
+### What this run does not claim
+
+It does not claim E8, E4, E9, E12 or E13 are closed - each was measured as open, in code, this
+run. It does not claim Page for Python would seal: no provider call was spent on it, so its
+composition after `3e9b81f` is unmeasured. It does not claim the clone budget needs a larger
+constant; it claims the retry discards its own progress. `project/state.yaml` was opened for the
+single field the lane prompt's narrow exception allows - `progress.current_candidates`, recomputed
+by `repository-presenter status` on the tree rebased onto `6181989`, which reads **12/34**,
+up from **10/34** when this run opened.
+
+### The lost-update race, caught by the method rather than by luck
+
+The first attempt at this PR rebased onto `44b4690`, counted **11**, and wrote 11. While its
+checks ran, lane F landed its Aspose.3D for .NET seal (`6181989`, PR #53) and wrote **11**
+from its own rebased tree, which did not contain this bundle. Both sides wrote the same
+literal line, so git merged it with no conflict and `mergeable` stayed `MERGEABLE` - the
+2026-09-06 lost update exactly, and invisible to every check that reads the file rather than
+the disk. Rebasing onto `6181989` and re-running `repository-presenter status` reported
+`cursor records 11 current candidates but 12 sealed on disk`, and **12** is what this PR
+writes. Recomputing from the rebased tree is what caught it; nothing else would have.
