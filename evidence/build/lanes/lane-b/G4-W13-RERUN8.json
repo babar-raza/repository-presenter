@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN8",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-17T01:34:00+05:00",
+  "control_revision": "25aae12",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN8 was cut from origin/main at 25aae12 in a fresh short-path worktree at C:\\w\\b13 (00:57:38). origin/main did not advance during the draw; re-fetched at recording time and confirmed still at 25aae12, so no rebase was needed before landing.",
+  "resume_predicate_verification": "Before drawing: confirmed draw 7's named resume predicate, PROPOSAL LANE-B-R7-F1, landed as commit ce3a38a ('an S4 repair reply may declare only the unit its own change touched'), three commits behind the worktree's own HEAD, and cross-checked against evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl, which names arrival item 94 landed 2026-09-16T19:37:06Z unlocking lane-b/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp specifically. Read the diff itself: repair/rounds.py threads original=target.output into repair_checks; repair/targeted.py's repair_checks calls the new merge_partial_units(revised, original) before validation when binding is unit_ids. A genuine changed-input retry, not a redraw on the spawn instruction's word alone.",
+  "time_box": {
+    "declared": "Spawn instruction 2026-09-17 00:5x: re-draw PDF-Cpp now that item 94 (commit ce3a38a) has landed, clearing draw 7's LANE-B-R7-F1 resume predicate.",
+    "started": "2026-09-17T00:57:00+05:00",
+    "closed": "2026-09-17T01:34:00+05:00",
+    "closed_by": "Its own evidence: PDF C++ was drawn once end to end and has a literal verdict (BC-08 PASS, confirming LANE-B-R7-F1's fix functions; BC-10 FAIL, REJECT_PRESENTATION, one corroborated finding on a different, newly-identified shared-code gap). The one repair attempt routed at the final occurrence returned a rejected no-op (calls.jsonl, response_invalid), proof the repair mechanism has nothing left to try - a genuine BC-10 rejection, not a re-roll candidate."
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+    "python": "3.13.2",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "worktree": "C:\\w\\b13",
+    "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; g++ 16.2.0 and ninja 1.13.2 resolved from it by cpp_examples.py and prepended to the subprocess PATH only; cmake resolved by the extractor's own probe."
+  },
+  "what_this_run_tested": "Whether item 94 (merge_partial_units, letting an S4-bound targeted_repair reply declare only the units its own revision touches) actually lets PDF-Cpp's repair mechanism function, and what the transaction does next if it does. No assumption was made about whether the candidate would seal; the draw was run and the result measured.",
+  "answered": {
+    "bc_08_and_the_s4_repair_mechanism": "BC-08 PASS again (9 PASS / 1 FAIL / 1 PENDING, same shape as draw 7). More directly: repairs.json records a real S4-adjacent repair - package:cxx_standard corrected from C++17 to C++20 in the scope_limitations unit - applied and accepted with no full-batch redeclaration, which draw 7's LANE-B-R7-F1 proved impossible before item 94. LANE-B-R7-F1 is closed.",
+    "did_it_seal": "NO. S10 independent review returned REJECT_PRESENTATION again: one finding (F08, additional_examples, presentation, reader 2, corroborated) survived corroboration. Its quote is the bare '<details>' tag - renderer-emitted structural markup, not any content unit's authored text (mechanically confirmed: zero of 287 content units in content_units.json contain the substring 'details').",
+    "root_cause_of_bc10_failure": "review/independent/review.py's renderer-owned-chrome exemption (_RENDERED_CHROME / _quoted_chrome) recognizes only the rendered <summary> text (ADDITIONAL_EXAMPLES_SUMMARY, API_SURFACE_SUMMARY), not the <details>/</details> tag lines composition/renderer.py emits as separate literal lines beside it (renderer.py:519,545,815,820). A finding quoting the tag itself, rather than the summary line, evades the exemption entirely and additional_examples is a mixed-owned section, so the final _DETERMINISTIC_SECTIONS fallback does not catch it either.",
+    "root_cause_of_unrepairable": "PROPOSAL LANE-B-R8-F1 (see docs/RESEARCH_LANE_B.md 2026-09-17 01:34): no content unit's text contains the flagged markup, so a content revision cannot satisfy 'remove the unsupported HTML details block'. The one targeted_repair call routed at this finding's final recurrence returned its causal stage's own output completely unchanged and was correctly rejected as a no-op (calls.jsonl, outcome response_invalid, rejection quoting: 'revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change')."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R8-F1",
+      "kind": "PROPOSAL",
+      "files": [
+        "src/repository_presenter/components/readme/review/independent/review.py (_RENDERED_CHROME, _quoted_chrome, lines ~697-706; renderer_owned_defect's chrome branch, lines ~657-661)",
+        "src/repository_presenter/components/readme/composition/renderer.py (the <details>/</details> literal lines this gap concerns: 519, 545, 815, 820)"
+      ],
+      "defect": "A presentation finding quoting the bare '<details>' (or '</details>') wrapper tag, rather than its paired <summary> text, is not recognized by the renderer-owned-chrome exemption and is never caught by the deterministic-section fallback either (additional_examples/api_reference are mixed-owned sections), so it stands as a real, unrefuted, uncorroborated-by-content finding even though no content unit wrote it and no repair could remove it.",
+      "evidence": "review.json: finding F08, reader 2, corroborated (second_reader.corroborated includes its hash id), section_id additional_examples, criterion presentation, fact_ids [], quote '<details>' exactly. content_units.json: 287 units, zero contain the substring 'details' (checked programmatically). calls.jsonl: the targeted_repair call routed at this finding's final recurrence, outcome response_invalid, rejection 'revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change'.",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "landed": false
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "disposition": "BLOCKED_REVIEW (BC-10)",
+      "disposition_change": "restated, not moved: same check and stage as draw 7 (BC-10 at COMPOSING), but a different cause - draw 7's F05 (genuine cross-unit redundancy) does not recur; this draw's S4 live-recomputed a materially different disposition split on the same 124 units and same facts (the same live-call non-determinism draw 6 already measured at this stage), and the surviving finding is F08, a new shared-code gap (LANE-B-R8-F1). sealed_by_lane stays 1; dispositions_by_lane stays 9 (restated, not a new repository).",
+      "facts": "1,846 records (public_symbol 1,651, inherited_unit 124, link_target 40, example 11, identity 5, package 4, build_test_asset 3, dependency 3, license 2, import_path 1, install_command 1, third_party_notices 1); digest bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb (matches every prior draw exactly - deterministic facts stage, unchanged source and extractor); 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none",
+      "examples": "11 candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED",
+      "stages": "S3 8 capabilities, 6 workflows, 4 limitations (0 provider calls, stored output reused). S4 124 of 124 units, live-recomputed (SUPERSEDE_REDUNDANT 39, VERIFIED_MOVE 22, VERIFIED_PRESERVE 46, DEFER_UNRESOLVED 5, OMIT_UNSUPPORTED 9, NON_CONTENT 2, VERIFIED_REWRITE 1) - materially different from draw 7's split on the same input. S5 18 of 18 sections, 8 capabilities, 12 hubs, examples 1+3, 6 links, 4 limitations. S6 287 units across 9 sections; coherence revised 0 of 287. README 189 visible lines of 669.",
+      "validation": "9 PASS / 1 FAIL / 1 PENDING. BC-01 through BC-09 PASS (BC-08 PASS - LANE-B-R7-F1's fix confirmed functioning); BC-10 FAIL at COMPOSING on REJECT_PRESENTATION (finding F08, additional_examples, corroborated second_reader.read=2); BC-11 PENDING (no seal, S12 never runs).",
+      "review": "review.json: verdict REJECT_PRESENTATION, findings 1 (F08), advisory 13, preserve 0, second_reader.read=2, 6 corroborated ids including F08's own.",
+      "repair": "3 rounds. F08 (S6, scope_limitations, package:cxx_standard C++17->C++20 correction): repaired - a real fact fix. F08 (S6, additional_examples, an omission attempt): repaired mechanically but did not address the wrapper markup. F08 (final recurrence, additional_examples, <details> tag): the routed targeted_repair call returned a no-op, rejected as response_invalid rather than recorded unrepairable; F08 re-raised, BC-10 stands.",
+      "provider_calls": "87 ledger rows: 35 live completed calls (all HTTP 200), 47 cache_reuse, 0 cache_stale, 5 response_invalid, 71,077 completion tokens; by job section_authoring 57, source_reconciliation 12, independent_review 6, repository_investigation 5, targeted_repair 4, presentation_planning 3",
+      "resume_predicate": "Re-run present --repo aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp once PROPOSAL LANE-B-R8-F1 (the renderer-owned-chrome exemption also recognizes a finding quoting the bare <details>/</details> tag, not only the paired <summary> text) lands in review/independent/review.py, or once the primary rules a narrower fix sufficient, or rules the corroborated F08 finding unblocking on some other ground - not on BC-01..BC-09 passing alone, since BC-10 is again precisely what failed, on a real finding, now a different one than draw 7's."
+    }
+  ],
+  "not_drawn": {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "BLOCKED_REVIEW (BC-10) since G4-W14-RERUN3 (2026-09-16 17:59), resume predicate PROPOSAL LANE-B-W14R3-F1 (out of this item's named scope; not re-checked).",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "SEALED at G4-W14-RERUN5 (2026-09-16 21:33); not applicable.",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript": "BLOCKED_INVESTIGATION (S3) since G4-W14-RERUN4 (2026-09-16 20:36), resume predicate a shared-code multi-block citation class (out of this item's named scope, and disabled: disposition only per the lane file; not re-checked).",
+    "aspose-email-foss/Aspose.Email-FOSS-for-Cpp": "BLOCKED_PLANNING (S5), resume predicate arrival item (25) landing (out of this item's named scope; not re-checked).",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp": "BLOCKED_REVIEW (BC-10) since G4-W13-RERUN5 (2026-09-16 15:48) (out of this item's named scope; not re-checked)."
+  },
+  "provider_calls": {
+    "total_ledger_rows": 87,
+    "completed": 35,
+    "output_rejections": 5,
+    "cache_reuse": 47,
+    "cache_stale": 0,
+    "by_job": "section_authoring 57, source_reconciliation 12, independent_review 6, repository_investigation 5, targeted_repair 4, presentation_planning 3",
+    "completion_tokens": 71077,
+    "note": "87 ledger rows total, 35 live provider calls, all HTTP 200, 0 cache_stale - a seventh independent non-materialisation of lane E's PROPOSAL E3 at this repository's own surface size (1,846 facts, 1,651 public symbols), this repository's fifth."
+  },
+  "progress": {
+    "sealed_by_lane": 1,
+    "candidates_after_run": "15/34 (repository-presenter status, run from this worktree already at origin/main's head; the rise from 14 to 15 is another lane's seal, not this draw's - recorded as observed rather than assumed)",
+    "dispositions_by_lane": 9
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this item (this draw's own blocker, LANE-B-R8-F1, is shared code the lane may not edit), so the suite is a control on the evidence, lane-file and RESEARCH log edits only.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "236 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest": "1,213 passed, 16 xfailed in 102.98s (-n auto)",
+    "runs_this_iteration": "1 full pytest run for 1 commit"
+  }
+}
