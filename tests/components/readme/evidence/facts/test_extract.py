@@ -129,6 +129,46 @@ def test_facts_document_for_a_local_clone(tmp_path: Path, monkeypatch: pytest.Mo
     assert again.to_json() == document.to_json()
 
 
+def test_a_license_the_manifest_declares_is_a_fact_when_the_repository_ships_no_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 51. The declaration reaches license_facts through the ManifestReader
+    facade the plugins already read identity from, so the repository's own manifest is the
+    evidence - never a portfolio policy the repository does not state itself."""
+    monkeypatch.setattr(
+        python_registry,
+        "fetch_project_json",
+        lambda url, transport=None: httpx.Response(404, json={"message": "Not Found"}),
+    )
+    source = init_git_repository(tmp_path / "upstream", with_commit=False)
+    (source / "README.md").write_text("# Example\n", encoding="utf-8")
+    (source / "pyproject.toml").write_text(
+        '[project]\nname = "aspose-example"\nversion = "1.0.0"\nrequires-python = ">=3.8"\n'
+        'license = {text = "MIT"}\n',
+        encoding="utf-8",
+    )
+    (source / "aspose" / "example").mkdir(parents=True)
+    (source / "aspose" / "__init__.py").write_text("", encoding="utf-8")
+    (source / "aspose" / "example" / "__init__.py").write_text("VERSION = '1.0.0'\n", "utf-8")
+    commit_all(source, "seed")
+    clone = pinned_read_only_clone(str(source), tmp_path / "clone")
+    snapshot = capture_snapshot(ENTRY.repository, clone)
+    assert snapshot.license_path is None
+    plugin = plugin_for(ENTRY.ecosystem)
+    manifest = plugin.detect_manifest(clone.path)
+    document, _ = extract_facts(
+        ENTRY, snapshot, clone.path, list_tree_paths(clone.path), plugin, manifest
+    )
+    by_id = {fact.id: fact for fact in document.facts}
+    assert "license:file" not in by_id
+    assert (by_id["license:spdx"].value, by_id["license:spdx"].polarity) == ("MIT", "SUPPORTED")
+    assert by_id["license:spdx"].evidence == (
+        Evidence(
+            "pyproject.toml", "license declared by the manifest; no license file at this revision"
+        ),
+    )
+
+
 def test_without_a_manifest_only_identity_license_and_assets_remain(tmp_path: Path) -> None:
     source = init_git_repository(tmp_path / "upstream", with_commit=False)
     (source / "README.md").write_text("# Example\n", encoding="utf-8")

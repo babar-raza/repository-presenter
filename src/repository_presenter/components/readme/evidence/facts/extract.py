@@ -14,6 +14,7 @@ from repository_presenter.components.readme.evidence.facts.links import link_fac
 from repository_presenter.components.readme.evidence.facts.product_pages import product_page_facts
 from repository_presenter.components.readme.extractors.examples.verify import example_facts
 from repository_presenter.components.readme.extractors.platforms.registry import PlatformPlugin
+from repository_presenter.components.readme.extractors.surface.manifest import read_identity
 from repository_presenter.components.readme.extractors.surface.registry import REGISTRY_TYPES
 from repository_presenter.core.ecosystems import spec_for
 from repository_presenter.core.examples import (
@@ -160,7 +161,20 @@ def extract_facts(
         facts.extend(_source_build_fact(fact, entry, receipts) for fact in resolved)
         probes.extend(registry_probes)
     facts.extend(plugin.surface_facts(clone_path, tree_paths))
-    facts.extend(license_facts(clone_path, snapshot.license_path, snapshot.notices_path))
+    # G4-W17 arrival item 51: the manifest's own license declaration, through the ManifestReader
+    # facade the plugins read identity from, stands in for a license file the repository does
+    # not ship (license_facts consults it only then).
+    declared = declared_in = None
+    if manifest is not None:
+        stated = read_identity(clone_path, entry.ecosystem, manifest).raw.get("license")
+        if isinstance(stated, str) and stated.strip():
+            declared = stated
+            declared_in = manifest.relative_to(clone_path).as_posix()
+    facts.extend(
+        license_facts(
+            clone_path, snapshot.license_path, snapshot.notices_path, declared, declared_in
+        )
+    )
     facts.extend(asset_facts(tree_paths))
     facts.extend(product_page_facts(entry))
     if snapshot.readme_path is not None:

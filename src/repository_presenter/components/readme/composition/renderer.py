@@ -56,7 +56,7 @@ from repository_presenter.core.registry.models import RegistryEntry
 # table rows read one naming function (api_reference_names, arrival item 58). 21: a preserved
 # lead-in citing an example the plan renders in another section is overlap, never an orphaned
 # sentence with no code block after it (placement.rendered_example_ids, arrival item 65).
-RENDERER_VERSION = "21"
+RENDERER_VERSION = "22"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -79,6 +79,19 @@ _MIT_PROSE = (
     "copyright and permission notice are retained. The software is provided without warranty."
 )
 _GENERIC_PROSE = "This project is licensed under the [{spdx}]({file})."
+# G4-W17 arrival item 51 (DIRECTIVE 2026-09-06 20:05 rule 1): the same declaration when the
+# repository ships no license file and states its license in its manifest instead - the honest
+# qualifier in place of a link to a file that does not exist. Aspose.3D for TypeScript.
+_MIT_DECLARED_PROSE = (
+    "This project is licensed under the MIT License, as declared in `{manifest}`; no license file "
+    "is present at this revision. The MIT License permits use, copying, modification, "
+    "distribution, sublicensing, and commercial use, provided its copyright and permission notice "
+    "are retained. The software is provided without warranty."
+)
+_GENERIC_DECLARED_PROSE = (
+    "This project is licensed under the {spdx}, as declared in `{manifest}`; no license file is "
+    "present at this revision."
+)
 _EXTRA = re.compile(r"extra '([^']+)'")
 _FLOOR = re.compile(r">=\s*(\d+(?:\.\d+)*)")
 _FILE_COUNT = re.compile(r"(\d+) files")
@@ -820,6 +833,10 @@ def _section_body(context: RenderContext, section: Section) -> list[str]:
             lines.append(
                 template.format(name=context.name, spdx=spdx.value, file=license_file.value)
             )
+        elif spdx is not None and spdx.polarity == "SUPPORTED":
+            # No file to link: the fact's own evidence path is the manifest that declared it.
+            template = _MIT_DECLARED_PROSE if spdx.value == "MIT" else _GENERIC_DECLARED_PROSE
+            lines.append(template.format(spdx=spdx.value, manifest=spdx.evidence[0].path))
     placed = context.placed.get(sid, [])
     if placed and section.visibility == "collapsible" and lines and lines[-1] == "</details>":
         # A placed unit inherits its section's visibility: inside the details block, after the

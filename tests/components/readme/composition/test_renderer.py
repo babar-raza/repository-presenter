@@ -543,6 +543,62 @@ def test_an_unpublished_package_is_stated_plainly_and_only_verified_installs_ren
     )
 
 
+def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> None:
+    """G4-W17 arrival item 51 (DIRECTIVE 2026-09-06 20:05 rule 1). Aspose.3D for TypeScript
+    declares MIT in package.json and ships no LICENSE file; the section rendered nothing, so
+    Navigation's `- [License](#license)` pointed at no heading and BC-06 failed unrepairable
+    (lane B, G4-W14). The declaration renders with the honest qualifier and no link to a file
+    that does not exist; with a file the wording is byte-for-byte what every sealed candidate
+    carries."""
+    declared_evidence = (
+        Evidence(
+            "package.json", "license declared by the manifest; no license file at this revision"
+        ),
+    )
+
+    def declared(spdx: str, polarity: str = "SUPPORTED") -> FactsDocument:
+        return FactsDocument(
+            ENTRY.repository,
+            "a" * 40,
+            tuple(
+                Fact(f.id, f.kind, spdx, declared_evidence, polarity=polarity)  # type: ignore[arg-type]
+                if f.id == "license:spdx"
+                else f
+                for f in FACTS.facts
+                if f.id != "license:file"
+            ),
+        )
+
+    readme = render_readme(ENTRY, declared("MIT"), PLAN, UNITS, DISPOSITIONS)
+    lines = readme.splitlines()
+    assert "## License" in lines and "- [License](#license)" in lines
+    assert lines[-1] == (
+        "This project is licensed under the MIT License, as declared in `package.json`; no license "
+        "file is present at this revision. The MIT License permits use, copying, modification, "
+        "distribution, sublicensing, and commercial use, provided its copyright and permission "
+        "notice are retained. The software is provided without warranty."
+    )
+    # Nothing links a file that does not exist - not the prose, not the badge row.
+    assert "](LICENSE)" not in readme
+    assert render_readme(ENTRY, declared("Apache-2.0"), PLAN, UNITS, DISPOSITIONS).endswith(
+        "This project is licensed under the Apache-2.0, as declared in `package.json`; no license "
+        "file is present at this revision.\n"
+    )
+    # A declaration the classifier could not resolve is no declaration to render.
+    unresolved = render_readme(
+        ENTRY, declared("UNCLASSIFIED", "UNRESOLVED"), PLAN, UNITS, DISPOSITIONS
+    )
+    assert "## License" not in unresolved.splitlines()
+    # With a file, the sealed wording - the file linked - is untouched.
+    assert (
+        render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
+        .splitlines()[-1]
+        .startswith(
+            "This project is licensed under the [MIT License](LICENSE). The MIT License permits"
+        )
+    )
+
+
 def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> None:
     facts = FactsDocument(
         ENTRY.repository,
