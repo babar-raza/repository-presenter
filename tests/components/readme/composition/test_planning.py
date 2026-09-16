@@ -308,6 +308,7 @@ _FACT_ID_ARRAYS = (
     ("core_capabilities", "shared_fact_ids"),
     ("api_hubs", "fact_ids"),
     ("material_limitations", "fact_ids"),
+    ("material_limitations", "unit_ids"),  # G4-W17 arrival item 77
     ("deviations", "fact_ids"),
 )
 
@@ -347,7 +348,7 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
         return sorted(
             (error.json_path, str(error.validator))
             for error in validator.iter_errors(plan)
-            if "fact_ids" in error.json_path
+            if "fact_ids" in error.json_path or "unit_ids" in error.json_path
         )
 
     assert refused(_plan()) == []
@@ -364,6 +365,17 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
     assert refused(_plan(material_limitations=[limitation])) == [
         ("$.material_limitations[0].fact_ids[0]", "enum")
     ]
+    # G4-W17 arrival item 77 (lane F PROPOSAL F22, Email-.NET): unit_ids sits beside fact_ids in
+    # the same object and previously carried no enum at all - a well-formed fact id written there
+    # (the exact live shape: package:target_framework, a real fact, written into the unit array)
+    # was refused only by the binding after the call was spent.
+    unit_limitation = {"fact_ids": [], "unit_ids": ["format:msg"]}
+    assert refused(_plan(material_limitations=[unit_limitation])) == [
+        ("$.material_limitations[0].unit_ids[0]", "enum")
+    ]
+    # A real inherited_unit id is admitted - the same set fact_ids draws from, not a narrower one.
+    real_unit = {"fact_ids": [], "unit_ids": ["inherited_unit:001.paragraph"]}
+    assert refused(_plan(material_limitations=[real_unit])) == []
     deviation = {"section_id": "opening", "text": "t", "fact_ids": ["format:msg"]}
     assert refused(_plan(deviations=[deviation])) == [("$.deviations[0].fact_ids[0]", "enum")]
     # The bound: a citation list longer than the citable set can only be repeating itself.
@@ -379,6 +391,53 @@ def test_the_fact_id_arrays_travel_as_one_enum_so_an_invented_id_is_refused_at_d
             "type": "array",
             "maxItems": 0,
         }
+
+
+def test_the_four_previously_unbounded_outer_arrays_now_refuse_past_their_ceiling() -> None:
+    """G4-W17 arrival item 85 (words-net worker LANE-F-02, Words-.NET's S5 blocker; corroborates
+    and extends item 77/E22). material_limitations, links, deviations, and additional_example_ids
+    had no maxItems at the outer-array level at all - on the portfolio's largest S5 surface
+    measured so far (6638 public_symbol facts) the plan call truncated at the manifest's own
+    token budget with no retry possible, the identical class item 75 already fixed for
+    section_authoring. The manifest's static schema now bounds all four directly (their per-item
+    fact-ID fields are bounded separately, by _pin_fact_id_arrays)."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    schema = planning_schema(loaded, FACTS, {}, {})
+    validator = Draft202012Validator(schema)
+
+    def field_errors(plan: dict[str, Any], field: str) -> list[str]:
+        # _plan()'s own baseline omits two required top-level keys no test here cares about
+        # (second_quick_start_example_id, flagship_example_id) - scoped to this one field's own
+        # errors, exactly as the existing refused() helper above scopes to fact_ids/unit_ids.
+        return [
+            str(e.validator) for e in validator.iter_errors(plan) if e.json_path == f"$.{field}"
+        ]
+
+    def past_ceiling(field: str, item: dict[str, Any], ceiling: int) -> None:
+        plan = _plan(**{field: [item] * ceiling})
+        assert field_errors(plan, field) == [], f"{field} at its own ceiling ({ceiling}) must pass"
+        over = _plan(**{field: [item] * (ceiling + 1)})
+        assert field_errors(over, field) == ["maxItems"], field
+
+    past_ceiling(
+        "material_limitations", {"fact_ids": [], "unit_ids": ["inherited_unit:001.paragraph"]}, 10
+    )
+    past_ceiling(
+        "links", {"link_fact_id": "link_target:002", "section_id": "documentation_resources"}, 30
+    )
+    past_ceiling(
+        "deviations",
+        {"section_id": "opening", "text": "t", "fact_ids": ["identity:repository"]},
+        10,
+    )
+    past_ceiling("additional_example_ids", "example:002", 40)
+    # The manifest's own schema carries the same bounds directly (no per-call specialisation
+    # touches these four - only the fact-ID sub-arrays inside material_limitations/deviations do).
+    static = loaded.manifest.output.schema_["properties"]
+    assert static["material_limitations"]["maxItems"] == 10
+    assert static["links"]["maxItems"] == 30
+    assert static["deviations"]["maxItems"] == 10
+    assert static["additional_example_ids"]["maxItems"] == 40
 
 
 def test_the_planner_may_cite_what_its_packet_shows_and_nothing_it_does_not() -> None:

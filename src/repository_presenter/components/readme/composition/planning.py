@@ -261,11 +261,20 @@ def _decision(section: Section, holds: bool | None) -> dict[str, Any]:
 
 
 # The fact-ID arrays a plan writes, as (plan property, item property) paths into the schema.
+# G4-W17 arrival item 77 (lane F PROPOSAL F22, Email-.NET): ``material_limitations.unit_ids``
+# sits beside ``material_limitations.fact_ids`` in the same object and holds the same shape of
+# ID (an inherited_unit fact's own id, one of ``citable_fact_ids``' kinds), but item 59 enumerated
+# only the ``fact_ids``-named paths - measured live, a well-formed *fact* id written into
+# ``unit_ids`` cost Email-.NET a wasted S5 attempt before the binding caught it. Sharing the one
+# ``citable_fact_id`` enum (rather than a second, unit-only ``$defs`` branch) keeps
+# ``_pin_fact_id_arrays`` a single mechanism; the field name alone tells a reader which kind of ID
+# belongs there, exactly as it already does for a human reading ``fact_ids``/``shared_fact_ids``.
 _FACT_ID_ARRAYS = (
     ("core_capabilities", "fact_ids"),
     ("core_capabilities", "shared_fact_ids"),
     ("api_hubs", "fact_ids"),
     ("material_limitations", "fact_ids"),
+    ("material_limitations", "unit_ids"),
     ("deviations", "fact_ids"),
 )
 
@@ -364,10 +373,19 @@ def planning_schema(
     no value could satisfy while the plan must still carry the key.
 
     Every fact-ID array a plan writes (``core_capabilities``' ``fact_ids`` and
-    ``shared_fact_ids``, and the ``fact_ids`` of ``api_hubs``, ``material_limitations`` and
-    ``deviations``) is pinned to ``citable_fact_ids`` - the IDs this packet shows - through one
-    ``$defs`` enum (``_pin_fact_id_arrays``; G4-W17 arrival item 59), so an ID naming no fact is
-    refused at decode rather than by the binding after the call is spent.
+    ``shared_fact_ids``, the ``fact_ids`` of ``api_hubs``, ``material_limitations`` and
+    ``deviations``, and ``material_limitations``' own ``unit_ids``) is pinned to
+    ``citable_fact_ids`` - the IDs this packet shows - through one ``$defs`` enum
+    (``_pin_fact_id_arrays``; G4-W17 arrival item 59, extended to ``unit_ids`` by item 77), so an
+    ID naming no fact is refused at decode rather than by the binding after the call is spent.
+    This also gives every one of those arrays a real ``maxItems`` (``len(citable)``) where the
+    static schema had none - the four outer list counts with no citable-set bound of their own
+    (``material_limitations``, ``links``, ``deviations``, ``additional_example_ids``) get an
+    explicit ``maxItems`` in the manifest itself instead (G4-W17 arrival item 85: on the
+    portfolio's largest S5 surface measured so far, Aspose.Words for .NET's 6638 ``public_symbol``
+    facts, an unbounded array had no terminating condition under constrained decoding and the
+    plan call truncated at the manifest's own token budget with no retry possible - the identical
+    class item 75 already fixed for ``section_authoring``).
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     # H: every enum below names the fact IDs a plan may choose, so it must never grow larger

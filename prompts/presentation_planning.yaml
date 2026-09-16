@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "13"
+version: "14"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -92,7 +92,11 @@ output:
       # (README_CONTRACT row 10, conditional on a verified example - G4-W17 arrival item 54).
       quick_start_example_id: { type: [string, "null"], minLength: 1 }
       second_quick_start_example_id: { type: [string, "null"] }
-      additional_example_ids: { type: array, items: { type: string } }
+      # maxItems 40: G4-W17 arrival items 77/85 - measured headroom over the widest count on
+      # record across every sealed bundle's plan.json (13, 14 bundles); every id must still name
+      # an actual SUPPORTED example (bound separately, section 27.5 D1), so this only stops an
+      # unbounded reply, never a real repository's legitimate count.
+      additional_example_ids: { type: array, maxItems: 40, items: { type: string } }
       flagship_example_id: { type: [string, "null"] }
       api_hubs:
         type: array
@@ -104,8 +108,12 @@ output:
           properties:
             symbol_fact_id: { type: string, minLength: 1 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
+      # maxItems 10: G4-W17 arrival items 77/85 - measured headroom over the widest count on
+      # record across every sealed bundle's plan.json (3, 14 bundles); fact_ids/unit_ids below get
+      # their own bound from _pin_fact_id_arrays (planning.py), not this file.
       material_limitations:
         type: array
+        maxItems: 10
         items:
           type: object
           required: [fact_ids, unit_ids]
@@ -113,8 +121,11 @@ output:
           properties:
             fact_ids: { type: array, items: { type: string } }
             unit_ids: { type: array, items: { type: string } }
+      # maxItems 30: G4-W17 arrival items 77/85 - measured headroom over the widest count on
+      # record across every sealed bundle's plan.json (10, 14 bundles).
       links:
         type: array
+        maxItems: 30
         items:
           type: object
           required: [link_fact_id, section_id]
@@ -122,8 +133,11 @@ output:
           properties:
             link_fact_id: { type: string, minLength: 1 }
             section_id: { type: string, minLength: 1 }
+      # maxItems 10: G4-W17 arrival items 77/85 - measured headroom over the widest count on
+      # record across every sealed bundle's plan.json (3, 14 bundles).
       deviations:
         type: array
+        maxItems: 10
         items:
           type: object
           required: [section_id, text, fact_ids]
