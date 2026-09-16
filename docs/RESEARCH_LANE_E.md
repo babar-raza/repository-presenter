@@ -1471,3 +1471,119 @@ plan cites, not in the title rule. It does not claim E14 is closed; it records t
 failure did not recur under measurably lighter contention. No seal is claimed and the counted unit
 does not move: `repository-presenter status` reads **12/34** on the rebased tree both before and
 after, and this PR adds no `candidates/` directory. `project/state.yaml` was not opened.
+
+## 2026-09-16 13:20 UTC (`date` checked) — LANE-E-04, Font for Python drawn fresh, sprint wave W-PY3
+
+Branch `lane-e/LANE-E-04`, worktree `C:\w\e04`, off `origin/main` at `a7746e9`, rebased onto
+`60e86c1` before the commit. Receipt: `evidence/build/lanes/lane-e/LANE-E-04.json`. This is lane
+E's first attempt at `aspose-font-foss/Aspose.Font-FOSS-for-Python`, drawn because arrival item 53
+(`503f1d6`, PR #62, landed `2026-09-16T12:20:22Z`) fixes the G3 second pass's recorded class for
+this repository, `EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME`
+(`evidence/build/G3_PYTHON_COHORT/manifest.json` `second_pass.report`), and no run of any kind had
+been made against the fix. The environment matched `f4406f1b04d8…` on the first attempt, per
+section 1.3's recipe.
+
+### The recorded blocker is closed, verified by running the repository, not by reading the commit
+
+`present --facts-only` against `96c59f9149dd27849acabb1489610375aa9ad057` (the G3 second pass ran
+`c4c453b8`; the repository moved) measured **examples: 8 candidates, executed 7, failed 1** and
+**`required rows without evidence: none`** — the exact shape item 53's own commit message claims
+("8/8 NEEDS_INPUT with the read disabled, 7 EXECUTED + 1 honest FAILED as shipped"), reproduced
+independently at a newer revision. The one `FAILED` example (ordinal 3) is honest, not a pipeline
+gap: it passes the strings `"Bold"`/`"Condensed"` where `TtfInstancer.instantiate` wants a numeric
+axis coordinate (`ValueError: could not convert string to float: 'Bold'`, `site/aspose_font/ttf/
+instancer.py:581`) — a defect in the README's own example code, not something this pipeline should
+paper over. `EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME` does not recur and is **closed** for this
+repository.
+
+### E16 `PROPOSAL` — a length-budget repair at S5 has no way to know whether its own revision would shrink anything, so a byte-identical no-op is accepted as "repaired"
+
+**Decision.** Lane E writes no fix. The two sites are shared code lane E does not own:
+`src/repository_presenter/components/readme/repair/rounds.py:440-452,463-524` (`_stage_target`,
+`repair_defect`) and `src/repository_presenter/components/readme/validation/registry.py:1024-1034`
+(check 7, BC-07's length half). Font for Python takes a disposition naming this proposal as its
+resume predicate.
+
+**The defect, measured on this run's own artifacts, not inferred.** The full `present` run reached
+S9 with `pass 8, fail 1 (BC-07), pending 2`. BC-07's own failure: `"307 visible lines of 792 exceed
+the visible budget 300"`, `causal_stage: "PLANNING"`, `section_id: null` — `registry.py:1024-1034`
+hardcodes that stage and leaves the section unset for every instance of this check, because the
+budget is a whole-document property with no single owning section. `repairs.json` records one
+attempt, outcome `repaired`, then `"re_raised": ["BC-07"]` — the identical failure returned after
+the repair, at the same 307/792. Diffing the repair call's own request and reply settles why:
+`calls/5d606fb2c9aa.json` (the original `presentation_planning` output) and
+`calls/f4eb10ab2942.json`'s `revised_output` (the repair's reply) are **byte-identical**, field for
+field, verified by direct equality in Python — the model returned the same plan it was given,
+including the same 12 `api_hubs` and 8 `core_capabilities`, and satisfied `targeted_repair.yaml`'s
+schema-required `changes` array (`minItems: 1`) by inventing a change that isn't one:
+`{"path": "api_hubs", "before": "12", "after": "12"}`.
+
+**Why the model had nothing real to return.** `composition/policy.py:18-20` sets
+`capabilities_max: 8` and `api_hubs_max: 12`; this repository's plan sits at **both ceilings
+exactly** — a real reading of 655 `public_symbol` facts (the second-highest count lane E has
+composed against, after PDF's 601) across a product `RESEARCH_AND_GUIDELINES.md` section 4.3
+already names as a legitimate variation: *"Font/Python: variable-font-first workflows, generated
+outputs, CLI behavior, MCP server and review artifacts are central to the product story."*
+`rounds.py`'s `_stage_target` for an `S5` defect hands the repair job `plan_checks` alone
+(`rounds.py:440-452`) — a structural/schema check with no visibility into rendered line count,
+because that number does not exist until S6 authors prose and the renderer runs, two stages later.
+So the repair is asked to fix a whole-document length overage by revising a plan that is already
+schema-maximal, with no signal for *which* hub or capability costs the most rendered lines, and no
+check anywhere in the repair path (`targeted.py:393-435`'s `repair_checks`) that would refuse a
+revision proven not to move the number the finding actually names. A no-op clears every check the
+repair path runs and is labelled `repaired`; only the next round's S9 — a full re-composition later
+— discovers it changed nothing, and by then the one-attempt-per-fingerprint rule has already spent
+its attempt.
+
+**A second, smaller observation, not the blocker.** `policy.py:23` also defines
+`total_lines_budget: int = 600`; this document is 792 total lines, 32% over it, but
+`registry.py`'s check 7 never reads that field (`total_lines_budget` has no reader anywhere under
+`src/`) — a module with no production importer, though not one lane E may wire or delete outside
+its own paths.
+
+**Alternative rejected.** Nothing lane E can do inside its own paths: retrying reproduces the same
+call byte-for-byte (`temperature: 0.0`, `seed: 1` in `targeted_repair.yaml`), so a second attempt is
+the "two equivalent attempts" `project/loop-prompt.md` section 5 prohibits, not a fresh measurement.
+
+**What the owner has to choose between, not lane E's to pick.** (1) Give the S5 repair a concrete
+numeric target — how many lines to shed, computed from the failing round's own render, the way
+`unit_checks` already hands `section_authoring` its slot's own fact set rather than the whole
+corpus. (2) Build the per-family policy overlay `policy.py`'s own docstring already anticipates
+("a per-repository or per-family overlay under `profiles/` arrives with the family that needs it")
+— no `profiles/` directory exists yet anywhere in the tree, and Font for Python, a repository
+`RESEARCH_AND_GUIDELINES.md` section 4.3 already documents as legitimately richer, is the first
+sealed-attempt case that would actually consume it; `project/loop-prompt.md` section 6 rule 1
+forbids building it before a consumer names it, and this run is that naming. (3) Make
+`repair_checks` refuse a `revised_output` identical to its input, so the ledger honestly records
+`unrepairable` (as it already does when a repair genuinely cannot satisfy its contract) instead of
+`repaired` on a change that changed nothing. Lane E has no standing to choose among these and
+records the evidence for whichever the owner picks.
+
+**Evidence.** `runs/transactions/aspose-font-foss__Aspose.Font-FOSS-for-Python/
+96c59f9149dd27849acabb1489610375aa9ad057/` (`validation.json` BC-07 entry; `repairs.json` attempt
+`a6186369c489f441d885c7f2`; `calls/5d606fb2c9aa.json` and `calls/f4eb10ab2942.json`, diffed equal);
+`repair/rounds.py:440-452,463-524`; `repair/targeted.py:393-435`;
+`validation/registry.py:1024-1034`; `composition/policy.py:16-27`; `prompts/targeted_repair.yaml`
+(`changes` schema lines 56-68; `Judgment` paragraph lines 89-101); `RESEARCH_AND_GUIDELINES.md`
+section 4.3.
+
+**Reversal path.** One S5 repair on any repository that measurably reduces rendered line count on
+its first attempt refutes the "no signal to act on" half of this reading; the no-op-accepted-as-
+repaired mechanism stands independently of that and is refuted only by a code change to
+`repair_checks` or a test proving it already rejects an identical `revised_output`.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-font-foss/Aspose.Font-FOSS-for-Python` | NOT_SEALED, stage S9 `validation` (`BC-07`, one repair attempt re-raised) | `PLANNING_LENGTH_BUDGET_REPAIR_CANNOT_VERIFY_ITS_OWN_REVISION_SHRINKS_ANYTHING` | PROPOSAL E16 lands, then re-run `present --repo aspose-font-foss/Aspose.Font-FOSS-for-Python`. `EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME` (arrival item 53) is **closed** for this repository and is not a predicate for the re-run. |
+
+### What this run does not claim
+
+It does not claim Font for Python would seal once E16 lands — S10 independent review never ran
+(S9 stopped the round first), so nothing here is a claim about `BC-10`. It does not claim the
+7-line-over-300 margin is representative of every repository at both plan ceilings; it is this
+repository's own measured number. It does not claim `total_lines_budget`'s dead-code status is
+Font's blocker — BC-07 never reads it, so the 792-line total is not why validation failed. No seal
+is claimed and the counted unit does not move: `repository-presenter status` reads **12/34** both
+before and after, and `project/state.yaml` was not opened.
