@@ -1,0 +1,82 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W14-RERUN2",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-16T17:09:00+05:00",
+ "control_revision": "32c7d28",
+ "control_revision_note": "The single-use branch lane-b/G4-W14-RERUN2 was cut from origin/main at 32c7d2805fd9210008cbca8d1a5626a49499a0a1 in a fresh short-path worktree at C:\\w\\b06 (the previous lane-b worktrees, b03/b04/b05, were already removed after their PRs merged). This is the first lane-b draw of any TypeScript repository since arrival items 50 (44b4690, install_command from a proven receipt) and 51 (49ac70d, license-from-spdx-alone) both landed, per the spawn instruction to check for them before starting.",
+ "time_box": {
+  "declared": "per-item box under RESEARCH_AND_GUIDELINES.md section 28.12; this draw closed on its own question, not the clock",
+  "started": "2026-09-16T16:55:56+05:00",
+  "closed": "2026-09-16T17:09:00+05:00",
+  "closed_by": "its own question, answered: Cells TypeScript was drawn once end to end and failed closed at a named, deterministic cause. Not the clock."
+ },
+ "environment": {
+  "os": "Microsoft Windows 11 Pro 10.0.26200",
+  "python": "3.13",
+  "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+  "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "worktree": "C:\\w\\b06",
+  "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; tsc 5.9.3 in the disposable npm profile at C:/tools/rp-toolchains/npm, node v24.13.1, npx 11.8.0 (not needed this draw - TypeScript's verifier and build driver resolve their own tools)"
+ },
+ "what_this_run_tested": "Whether aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript can now progress past BC-02 (its only blocking failure on the 2026-09-06 19:28 re-run) now that arrival item 50 rewrote _source_build_fact and BC-02 to admit a verified source build, and whether item 51's license-from-spdx-alone fix was even needed here. unblocked.jsonl confirms item 50 unlocks this repository (and 3D-TS) and item 51 unlocks 3D-TS.",
+ "answered": {
+  "item_50": "DELIVERED for this repository. install_command:npm is SUPPORTED, value `git clone .../Aspose.Cells-FOSS-for-TypeScript.git && cd ... && npm install`, evidence 'verified source build: the verifier ran `npm install` against this revision, every step exiting 0; the advertised steps are exactly the ones it ran' - the 2026-09-06 blocker (install_command:npm is UNRESOLVED / BC-02) is gone.",
+  "item_51": "NOT NEEDED for this repository. Cells-TS ships a real License/LICENSE.txt; license:file and license:spdx are both SUPPORTED from the file text alone, unlike 3D-TS which item 51 was written for.",
+  "did_it_seal": "NO. The transaction never reached rendering or validation. S6 section_authoring authored 11 of its 12 dispatched tasks, then the api_reference undocumented-type batch (31 types, cap 40) hit the manifest's 8000-completion-token cap (finish_reason length) and core/llm/jobs.py raised JobError by design (no retry on a length truncation). The whole transaction failed closed before content_units.json, README.md, or validation.json were ever written.",
+  "cause": "Shared code the lane may not edit: prompts/section_authoring.yaml's max_output_tokens (8000) and composition/authoring.py's _TYPE_BATCH (40) together left less than one call's worth of headroom for this repository's 31-undocumented-type batch. Full mechanical detail in docs/RESEARCH_LANE_B.md, finding LANE-B-W14R2-F1."
+ },
+ "findings": [
+  {
+   "id": "LANE-B-W14R2-F1",
+   "class": "PROPOSAL - shared code the lane may not edit",
+   "owner": "G4-W17",
+   "file": "prompts/section_authoring.yaml (sampling.max_output_tokens) and src/repository_presenter/components/readme/composition/authoring.py (_TYPE_BATCH, _type_batches)",
+   "title": "The api_reference undocumented-type batch truncates at the manifest's 8000-completion-token cap for a batch of only 31 types (cap 40), and a length-truncated reply is never retried by design.",
+   "detail": "authoring_tasks dispatches one section_authoring call per batch of up to _TYPE_BATCH (40) undocumented types (README_CONTRACT row 14, 'the descriptions are authored from the signature evidence, never in one oversized call'). Cells-TS has 31 such types (29 class, 2 enum, of 321 public symbols) - one batch, well under the cap by count. That single call generated exactly 8000 completion tokens over 168 s and was cut off mid-generation (finish_reason == length). core/llm/jobs.py:473-483 treats this as structurally unrepairable - 'a re-ask under the same budget cannot help; the manifest's budget must change' - and raises JobError immediately, which aborts the whole transaction (no content_units, no render, no validation). The raw truncated content is never persisted (by the same design), so the exact cause of the per-type verbosity cannot be inspected directly; what is measured is that this repository's 31-type batch needed more than 8000 completion tokens where the cap and the batch size were evidently sized together for a smaller typical output. Proposed, either clears this repository (the lane cannot land either - both files are outside owned_paths): raise section_authoring's max_output_tokens past 8000, the same shape of fix 7ea433e already applied to source_reconciliation (16000 -> 32000) for an analogous truncation; or lower _TYPE_BATCH below 40 so a batch this repository's types produce fits the existing budget. Alternative rejected: an unmodified re-ask - section_authoring.yaml pins temperature 0.0 and seed 1, so a second draw with no code change reproduces the identical 8000-token truncation; that is why this is a fresh finding and a disposition, not a second draw in this box.",
+   "evidence": "calls.jsonl row 0f7c4a7ecb4faf7b-01-success-20260916T120321434-0017 (completion_tokens 8000, latency_ms 168153) followed by 0f7c4a7ecb4faf7b-01-response_invalid-20260916T120609594-0018 (error_class TruncatedOutput); plan.json api_hubs (12 hubs) and facts.json (31 public_symbol facts with symbol_kind in {class, enum} and no docstring attribute, out of 321 total); prompts/section_authoring.yaml sampling block (max_output_tokens 8000, temperature 0.0, seed 1); src/repository_presenter/components/readme/composition/authoring.py:78 (_TYPE_BATCH = 40) and :469-518 (_type_batches)."
+  }
+ ],
+ "cohort": [
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+   "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+   "disposition": "BLOCKED_COMPOSING (S6 section_authoring, TruncatedOutput)",
+   "disposition_change": "MOVED: the 2026-09-06 19:28 re-run's disposition was BLOCKED_VALIDATION (BC-02) at 179 visible lines of 434; before that, G4-W14's original disposition was BLOCKED_ENVIRONMENT (Windows MAX_PATH). Both earlier blockers are gone (install_command:npm SUPPORTED via item 50; the repository was never actually license-blocked, it has a real LICENSE file), and the transaction now reaches one stage further - authoring - before stopping on an unrelated, deterministic cause.",
+   "facts": "419 records (build_test_asset 1, dependency 7, example 3, identity 5, import_path 1, inherited_unit 49, install_command 1, license 2, link_target 27, package 2, public_symbol 321); digest 0078f1968b6188466fc33bc68421154a9cc749a7df0c7c9f3314644e9e3f75ca; 419 SUPPORTED, 0 UNRESOLVED, 0 CONTRADICTED; required contract rows without evidence: none",
+   "examples": "3 candidates, 3 EXECUTED",
+   "stages": "S3 5 capabilities, 5 workflows, 3 limitations (1 call). S4 49 of 49 units, first attempt (28 SUPERSEDE_REDUNDANT, 16 OMIT_UNSUPPORTED, 3 VERIFIED_PRESERVE, 2 VERIFIED_MOVE; 2 calls). S5 12 api_hubs, 18 sections (17 included, third_party_notices excluded), 1 call. S6 11 of 12 dispatched authoring tasks completed (1 recovered rejection - a stray AGENTS.md identifier in documentation_resources), then the api_reference type-batch (31 types) truncated at 8000 completion tokens and the transaction raised JobError. No S7 onward.",
+   "validation": "never reached - no validation.json was written",
+   "review": "never reached",
+   "repair": "never reached",
+   "provider_calls": "18 completed calls, all HTTP 200, 0 cache_reuse (first draw of this revision, no sealed bundle to seed from), 2 response_invalid (1 recovered on retry, 1 fatal TruncatedOutput), 23,867 completion tokens; by job: repository_investigation 1, source_reconciliation 2, presentation_planning 1, section_authoring 14",
+   "resume_predicate": "Re-run present --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript once PROPOSAL LANE-B-W14R2-F1 lands (a raised section_authoring max_output_tokens, or a smaller _TYPE_BATCH, either one clears this specific repository - it is short by less than one call's worth of headroom)."
+  }
+ ],
+ "not_drawn": {
+  "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "Both gating arrival items (50, 51) are now landed. Attempted next in this same session as a separate item if the box allows, per the spawn instruction; not folded into this item's draw."
+ },
+ "provider_calls": {
+  "total_completed": 18,
+  "output_rejections": 2,
+  "cache_reuse": 0,
+  "cache_stale": 0,
+  "completion_tokens": 23867,
+  "note": "First draw of this revision - no sealed bundle existed to seed the call store, so every call was a genuinely live provider call."
+ },
+ "progress": {
+  "sealed_by_lane": 0,
+  "candidates_after_run": "12/34, unchanged by this draw (repository-presenter status reads 12/34 from this worktree's origin/main tree and this draw sealed nothing)",
+  "dispositions_by_lane": 8
+ },
+ "local_ci_equivalent": {
+  "note": "Run once, after the draw finished and failed closed (no composition was in progress while pytest ran).",
+  "ruff_check": "All checks passed!",
+  "ruff_format": "236 files already formatted",
+  "mypy_src": "Success: no issues found in 126 source files",
+  "pytest": "pytest -n auto: 1153 passed, 16 xfailed in 93.04s, exit 0",
+  "runs_this_iteration": "1 full run. No src/ or tests/ change this item - only docs/RESEARCH_LANE_B.md, project/lanes/lane-b.yaml, and this evidence file - so the full suite is run once to confirm nothing regressed, never to validate new code"
+ }
+}

@@ -1511,3 +1511,76 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   install` exit 0, no build script), so the draw is ready to be taken. Alternative rejected: opening it
   at the end of a spent box — a lane subagent works one item per run (loop-prompt-lane §5), and a draw
   started without its own box is how a candidate gets forced. Reversal: the next lane item draws it.
+
+- **2026-09-16 17:09 (`date` checked) · G4-W14-RERUN2 · FINDING `LANE-B-W14R2-F1` (shared code, the
+  lane may not edit) · `prompts/section_authoring.yaml`'s `max_output_tokens: 8000`, combined with
+  `composition/authoring.py`'s `_type_batches` (`_TYPE_BATCH = 40`), truncates a 31-type batch and
+  aborts the whole transaction with no retry.** First full draw of
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` since arrival items 50 and 51 landed
+  (`44b4690`, `49ac70d`), against `origin/main` at `32c7d28` from a fresh worktree `C:\w\b06`. Facts,
+  examples and preflight were all clean — 419 facts (321 public symbols), 3 of 3 examples EXECUTED,
+  0 unresolved, 0 contradicted, no required contract row without evidence; `install_command:npm` is
+  SUPPORTED by a verified source build (item 50's own fix, measured here on the repository item 50's
+  commit named: `npm install` exit 0, no build script) and `license:spdx`/`license:file` are both
+  SUPPORTED from a real `License/LICENSE.txt` (item 51 was not even needed for this repository).
+  Investigation (5 capabilities, 5 workflows, 3 limitations) and reconciliation (49 units — 28
+  SUPERSEDE_REDUNDANT, 16 OMIT_UNSUPPORTED, 3 VERIFIED_PRESERVE, 2 VERIFIED_MOVE, first attempt) and
+  planning (12 api_hubs, 18 sections, 17 included) all closed on the first call. `section_authoring`
+  then authored 11 of 12 dispatched tasks cleanly (one retry recovered a stray `AGENTS.md` identifier
+  in `documentation_resources`) before the `api_reference` undocumented-type batch — 31 types
+  (`class` 29, `enum` 2) of the repository's 321 public symbols carry no docstring, under
+  `_TYPE_BATCH`'s cap of 40, so one call — generated exactly 8000 completion tokens in 168 s and hit
+  `finish_reason == "length"`. `core/llm/jobs.py:473-483` treats a length-truncated reply as
+  unrepairable by design ("a re-ask under the same budget cannot help") and raises `JobError`
+  immediately: `section_authoring: output truncated at the manifest's max_output_tokens (8000); raise
+  the budget or bound the output, never retry`. The whole transaction fails closed; no `content_units`,
+  no render, no validation. What the raw completion actually said cannot be recovered — the code never
+  persists a length-truncated reply, by the same design — so this finding states only what is
+  measured: 31 short one-sentence-per-type units, well inside precedent for other ecosystems' batches
+  at the same cap, needed more than 8000 completion tokens for Cells-TS specifically. Proposed, either
+  or both (the lane cannot land either — `prompts/` and `composition/authoring.py` are both outside
+  `owned_paths`): raise `section_authoring`'s `max_output_tokens` past 8000, the same shape of fix
+  `7ea433e` already applied to `source_reconciliation` (16000 → 32000) for an analogous truncation: or
+  lower `_TYPE_BATCH` below 40 so a batch this repository's types produce fits the existing budget.
+  Alternative rejected: retrying verbatim — `section_authoring.yaml` pins `temperature: 0.0` and
+  `seed: 1`, so an unmodified re-ask reproduces the identical 8000-token truncation, which is why this
+  is reported as a fresh finding rather than redrawn a second time in this box (the W-card's
+  stop-don't-force applies here too: a deterministic cause does not get a second, equivalent attempt).
+  Evidence: `calls.jsonl` row `0f7c4a7ecb4faf7b-01-success-...-0017` (`completion_tokens: 8000`,
+  `latency_ms: 168153`) followed by row `...-0018` (`outcome: response_invalid`,
+  `error_class: TruncatedOutput`); `runs/transactions/aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript/fc186507e5b7124f4664aa6035f25cfd3112367d/`
+  (`plan.json`, `dispositions.json`, `investigation.json`, `calls.jsonl`); full detail in
+  `evidence/build/lanes/lane-b/G4-W14-RERUN2.json`. Reversal: none; a measurement plus a proposal.
+
+- **2026-09-16 17:09 (`date` checked) · G4-W14-RERUN2 · DECISION · Cells TypeScript is not redrawn in
+  this box.** The cause is deterministic (`temperature: 0.0`, `seed: 1` on `section_authoring`) and
+  named mechanically above; an unmodified re-ask reproduces the identical truncation, so a second draw
+  would not be a new attempt, it would be the same attempt with extra ledger rows. The fix is shared
+  code the lane may not land (`LANE-B-W14R2-F1`). Nothing here weakens any check: the transaction
+  failed closed exactly as `core/llm/jobs.py` requires on a truncated reply, and no candidate is
+  forced past it. Reversal: the resume predicate in the disposition below.
+
+- **2026-09-16 17:09 (`date` checked) · G4-W14-RERUN2 · DISPOSITION ·
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` at `fc18650` — `BLOCKED_COMPOSING` (S6
+  `section_authoring`, `TruncatedOutput`).** First draw since arrival items 50/51 landed; previously
+  `BLOCKED_ENVIRONMENT` (Windows MAX_PATH, resolved at G4-W14) then, on the 2026-09-06 19:28 re-run,
+  `BLOCKED_VALIDATION (BC-02)` — both of those are gone (`install_command:npm` SUPPORTED, license
+  SUPPORTED with a real file), and the repository now reaches one stage further before stopping. 419
+  facts (321 public symbols), no required contract row without evidence, 3 of 3 examples EXECUTED. S3
+  5 capabilities / 5 workflows / 3 limitations; S4 49 of 49 units, first attempt; S5 12 api_hubs / 18
+  sections (17 included); S6 11 of 12 dispatched authoring tasks completed (one recovered rejection)
+  before the api_reference type-batch of 31 undocumented types truncated at the 8000-token cap and the
+  transaction failed closed — no `content_units.json`, no render, no validation record. 18 provider
+  calls, all HTTP 200, 0 cache_reuse (first draw of this revision), 2 `response_invalid` (1 recovered,
+  1 fatal), 23,867 completion tokens. Resume predicate: re-run once `LANE-B-W14R2-F1` lands (either
+  half — a raised `section_authoring` budget or a smaller `_TYPE_BATCH` — clears this specific
+  repository, since it is short by less than one call's worth of headroom). Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN2.json`.
+
+- **2026-09-16 17:09 (`date` checked) · G4-W14-RERUN2 · NOT DRAWN · Aspose.3D for TypeScript is
+  attempted next in this same session, box allowing (spawn instruction), rather than being folded into
+  this item.** Both its gating arrival items are now landed (50 at `44b4690`, 51 at `49ac70d`,
+  confirmed in `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` at `origin/main` `32c7d28`),
+  so the sprint plan's "Cells-TS + 3D-TS (50/51)" pair is now fully open. Recorded here rather than
+  assumed: a draw of 3D-TS is a separate transaction, on its own branch, and gets its own item and
+  evidence record if the box allows it this run.
