@@ -1348,3 +1348,166 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` now holds fifteen rows - 36, 22, 32,
   33, 23, 55, 39, 40, 44, 45, 46, 60, 61, 62, 63 - and none is 25. Resume predicate: arrival item
   (25) lands; then re-run `present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · FINDING (lane-owned, fixed here) · a
+  configure that does not complete threw away every dependency header it had already fetched, and
+  that cost Aspose.Slides for C++ a required contract row.** `cpp_examples.build_product` returned
+  `("configure failed", [])` on a non-zero configure, discarding `fetched_includes(build)` — the
+  directories that same step had already written. Slides' public `shape_collection.h` opens with
+  `#include <pugixml.hpp>`, so all ten examples stopped in a header with no diagnostic of their own
+  and were honestly recorded `NOT_VERIFIED`; `quick_start`'s only evidence kind is `example`, so
+  preflight read `required rows without evidence: quick_start`. Measured: the run's own workspace
+  `runs/verify/dd476f154c80/cmake-build/_deps` held `pugixml-{src,build,subbuild}` and nothing else —
+  cut off after pugixml, before miniz and GoogleTest — while `_deps/pugixml-src/src/pugixml.hpp`, the
+  exact directory `fetched_includes` returns, was on disk throughout. Before: `not_verified 10`,
+  `3000 supported, 11 unresolved`, `without evidence: quick_start`. After the one-line fix, same
+  revision, same machine: `executed 9, not_verified 1`, `3010 supported, 1 unresolved`, `without
+  evidence: none`. Alternative rejected: raising the ceiling alone — no ceiling this side of
+  `core.execution.MAX_TIMEOUT_SECONDS` can outrun a slow enough link. Reversal: restore the early
+  `[]`; `test_a_configure_cut_off_still_hands_back_what_it_already_fetched` then fails.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · FINDING (lane-owned, fixed here) · the
+  configure ceiling sat below the measured spread of the step it bounds, and a receipt called a step
+  that was cut off "failed".** `_TIMEOUT_CONFIGURE` was 180 s for the one network-bound step in the
+  C++ verifier: `FetchContent` downloads one archive per `find_package` that finds nothing, and this
+  repository fetches three (pugixml v1.14, miniz 3.0.2, GoogleTest v1.15.2). Measured 2026-09-16,
+  three cold configures of one revision on one machine: `Configuring done` at 57.8 s, 71.7 s and
+  141.7 s — a 2.4x spread — with the run that produced this transaction's first receipts past 180 s.
+  Raised to 300 s, which is `MAX_TIMEOUT_SECONDS` itself; 600.0 was refused outright with `ValueError:
+  example timeout must be within (0, 300] seconds`, which is how the cap was found. The receipt phrase
+  now separates `configure timed out` from `configure failed` — saying a step failed when it was cut
+  off is not true — and neither is `succeeded`, so `build_verified` stays false either way and TB-01 is
+  not loosened. Alternative rejected: fitting the number to the 141.7 s sample (§3 forbids a threshold
+  from one measurement). Reversal: the constant and
+  `test_the_configure_ceiling_clears_the_measured_download_spread`.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · PROPOSAL `LANE-B-R5-F3` (shared code) ·
+  `review/independent/review.py`, `scope_defect`: a presentation finding is never asked whether its
+  own quote lies in the section it names.** F09 is the only one of nine findings to survive the fold
+  stack, and it blocks BC-10. It sets `section_id: enterprise_relationship`, cites
+  `link_target:product.enterprise`, says the candidate's "Enterprise Relationship section is
+  promotional … while the original README does not contain such a section", and asks to remove it.
+  Three mechanical refutations. (1) `docs/README_CONTRACT.md` row 18 gives that slot the heading
+  **`none` (closing paragraph of Scope and Limitations)**; the candidate emits no such heading, and the
+  slot's single unit renders at line 634 as row 18's prescribed sentence, `These limitations don't
+  apply to [Aspose.Slides for Cpp — Enterprise Edition](https://products.aspose.com/slides/cpp/)`.
+  (2) The finding's own quote — `There is no API for these. The member named is the one that does not
+  exist, so a call to it is a` — is rendered at line 605 under `## Scope and Limitations` (line 594),
+  and `_carried_by_units` reports no content unit wrote it. (3) The cited fact is what makes the
+  paragraph mandatory: `link_target:product.enterprise` is SUPPORTED with evidence `HTTP 200;
+  enterprise target; platform level; slug cpp`, exactly row 18's condition. Why every fold returns
+  None, replayed through the production functions on this run's artifacts: `_STRUCTURAL_SECTIONS` is
+  `{document, structure}`; `_DETERMINISTIC_SECTIONS` is nine sections, not this one; `_SECTION_HEADINGS`
+  is built only from shell sections that *have* a heading, so the one slot the contract gives heading
+  `none` can never match `_quoted_heading`; `_quoted_chrome` is None; and `cited_fact_defect` (arrival
+  item 63, this lane's own run-3 PROPOSAL) folds only when the quote contains a cited fact's literal
+  value — here a URL the quote does not contain. The rule that would have caught it on its merits,
+  `renderer_owned_defect`'s "judging against the original README as the standard of support" (lane D
+  P16), is gated behind `_quoted_verified_fact`, scoped to `public_symbol` alone, so a `link_target`
+  citation cannot reach it. Proposed: before the criterion switch, refute a finding whose quote is
+  rendered in a section other than the one its own `section_id` names. Evidence: `absence_defect`,
+  `excluded_evidence_defect`, `rendered_defect` and `renderer_owned_defect` each returned None on F09
+  with this run's real `content_units.json` and `README.md`; production agrees, having recorded F09
+  blocking rather than advisory. Reversal: the proposal's own mutation test.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · PROPOSAL `LANE-B-R5-F4` (shared code) · a
+  finding whose repair instruction is "remove this slot" is routed to a stage that can only rewrite a
+  unit.** This is the mechanical proof that F09 is not repairable content work rather than an opinion
+  about it. `repairs.json` holds exactly one attempt — label F09, `section_id enterprise_relationship`,
+  stage S6, outcome `unrepairable`, `re_raised [F09]` — with reason `targeted_repair: output rejected
+  twice; last rejection: revised_output.units[0].fact_ids: [] should be non-empty;
+  revised_output.units[0].text: '' should be non-empty`. The repair understood the instruction and
+  tried: the only expression of "remove this" available to a unit revision is an empty unit, and a unit
+  must cite facts and carry text. Whether a slot is composed at all is S5's decision and the shell's at
+  render time, never a unit's. Proposed: route a removal-of-a-section finding to the stage that owns
+  that decision, or refuse it as unactionable at routing, rather than spending four live calls proving
+  a schema forbids the only reply. Evidence: the ledger's S11 rows — 4 provider calls, 0 cache reuses,
+  all four `response_invalid` on the same rejection. Reversal: none; a measurement plus a proposal.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · PROPOSAL `LANE-B-R5-P2` (shared code, low
+  priority, not blocking) · one ceiling bounds both a compile-bound step and a network-bound one.**
+  `core/execution.py`'s `MAX_TIMEOUT_SECONDS` is 300 and `execute()` refuses any larger
+  `timeout_seconds`, so no platform module can give a dependency download more headroom than a build.
+  Recorded rather than pressed, because the finding above removes the consequence: a configure that
+  runs out of time now keeps the headers it fetched, so the examples are still verified and only
+  `build_verified` is honestly withheld. Alternative rejected: proposing it as a blocker — it is not
+  one any more. Reversal: none needed.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · MEASUREMENT · the largest surface any lane B
+  draw has carried produced no HTTP 400 and no `cache_stale`.** Lane E's PROPOSAL E3 anticipated a
+  large `fact_ids` enum being refused by the provider. Run 2 measured 122 enum values for Email C++
+  (357 facts) and 361 for PDF C++ (1,846 facts), against lane D's validated 123, with no 400. Slides
+  C++ is **3,011 facts and 2,845 public symbols**, 1.6x PDF C++, and all 31 of its provider calls
+  returned HTTP 200. Separately, run 2's headline PROPOSAL — no candidate sealed since `352fd35` could
+  pass a no-op proof — stays closed on a third independent repository: 54 ledger rows, 23
+  `cache_reuse`, **zero** `cache_stale`. Alternative rejected: none. Reversal: none; a measurement.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · DECISION · Slides C++ is not drawn a second
+  time in this box, and the candidate is not forced.** BC-01..BC-09 all PASS and `second_reader.read`
+  is already 2 with five corroborated ids, so the only thing between this candidate and a seal is one
+  finding whose every refutation is named mechanically above and whose repair the schema forbids. The
+  transaction is reproducible from its own call store (zero `cache_stale` across 54 rows), so a re-run
+  cannot change the outcome; the only route to a different draw is to clear the store and re-roll,
+  which draws 3 and 4 of this lane already ruled is what the W-card's stop-don't-force forbids, and
+  reuse having made a re-roll cheap is a reason the rule matters more, not less. Nothing here weakens
+  BC-10: the *check* is right and the *verdict* is reported literally; what is wrong is one finding,
+  and the fix for it is shared code this lane may not edit. Alternative rejected: deleting the call
+  store and drawing again on a first draw. Reversal: the resume predicate below.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · DISPOSITION (moved) ·
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` at `1e347e8` — `BLOCKED_REVIEW (BC-10)`.** Moved,
+  not restated: the standing disposition was `BLOCKED_AUTHORING` at S6 `section_authoring`
+  (2026-09-06), and that day's 14:29 re-run added BC-02 and BC-08 at validation. All three are gone —
+  **arrival item 26 delivered exactly what `unblocked.jsonl` says it unlocks: BC-08 PASSES**, and BC-02
+  PASSES besides, because the library's own CMake build genuinely succeeds with the recorded g++ 16.2.0
+  so TB-01's `build_verified` is earned rather than defaulted. 3,011 facts (2,845 public symbols), no
+  required contract row without evidence, 10 examples (9 EXECUTED, 1 NOT_VERIFIED — the documented
+  unbound-fence class). S3 8 capabilities / 6 workflows / 6 limitations; S4 **95 of 95 units, first
+  attempt, zero bare kind prefixes**; S5 18 of 18 sections; S6 269 units across 9 sections, coherence
+  revised 0 of 269; **243 visible lines of 662**, against 202 of 629 on 2026-09-06. Validation 9 PASS /
+  1 FAIL / 1 PENDING: BC-01..BC-09 PASS, BC-10 FAIL at COMPOSING on `REJECT_PRESENTATION`, BC-11 PENDING
+  (S12 never reached). 31 provider calls, 23 cache reuses, 0 `cache_stale`, 4 output rejections, 45,763
+  completion tokens. Resume predicate: re-run once PROPOSAL `LANE-B-R5-F3` lands, or once the primary
+  rules it sealable on BC-01..BC-09 plus a corroborated second read — it already has both.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · DISPOSITION (restated, no run, no call) ·
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `fef9c93` — `BLOCKED_PLANNING` (S5).** Outside this
+  run's named scope, and its sole predicate is still unmet at `471a43a`:
+  `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` now holds 25 rows — 36, 22, 32, 33, 23,
+  55, 39, 40, 44, 45, 46, 60, 61, 62, 63, 64, 41, 42, 57, 58, 65, 59, 43, 26, 47 — and none is 25.
+  Resume predicate: arrival item (25) lands; then re-run `present --repo
+  aspose-email-foss/Aspose.Email-FOSS-for-Cpp`.
+
+- **2026-09-16 15:48 (`date` checked) · G4-W13-RERUN5 · NOT DRAWN · Cells TypeScript and 3D
+  TypeScript stay admission-gated.** The spawn instruction made them conditional on arrival items 50
+  (BC-02 per-repo receipt) and 51 (license-from-spdx) having landed; `plans/sprint/PHASE1-SPRINT-PLAN.md`
+  §11 lists them together as "Admission-gated (5): Cells-TS + 3D-TS (50/51)". Neither 50 nor 51 is in
+  `unblocked.jsonl` at `471a43a` (the 25 rows above), so neither was drawn and neither disposition
+  moves. Reversal: when 50 and 51 land, a new lane item draws both.
+
+- **2026-09-16 15:56 (`date` checked) · G4-W13-RERUN5 · MEASUREMENT · the draw was re-invoked on the
+  rebased tree rather than having its verdict carried forward, and cost zero provider calls.**
+  G4-W17 arrival item 50 landed at `44b4690` while the draw was running, rewriting
+  `_source_build_fact` and bumping **BC-02 from check version 1 to 2** — "refuses a rendered command
+  that ends with steps its receipt did not prove". This run's headline claim is that BC-02 PASSES, so
+  carrying the pre-rebase verdict forward would have been a claim about code that is not the code
+  being landed (rule 12). Re-invoked: `facts.json 359daa81`, `plan.json a06f41e7`,
+  `content_units.json 4cc7cbb7`, `README.md 136b7a75` (243 visible lines of 662), `README.patch
+  904f621e` and `review.json f384d8e7` all byte-identical; `validation.json` alone moves
+  (`64dcfd2e` → `99139c19`) and for one reason, BC-02 now recorded at version 2. The table is
+  unchanged: 9 PASS / 1 FAIL / 1 PENDING. BC-02 PASSES at v2 because C++ receipts carry no
+  `build_command`, so the new `elif proved and …` branch is skipped and the template path admits
+  `{'install_kind': 'source'}` as before — observed, not reasoned. Cost: the ledger went 54 → 77 rows,
+  all 23 new ones `cache_reuse`, **zero provider calls and still zero `cache_stale`** — a cleaner
+  control than run 4's one-call-in-47 because the shared-code change touched this very check.
+  Alternative rejected: reporting the 4cd0219 verdict and noting the rebase. Reversal: none; a
+  measurement.
+
+- **2026-09-16 15:56 (`date` checked) · G4-W13-RERUN5 · NOT DRAWN (updated) · Cells TypeScript is
+  unblocked as of `44b4690` and is the next lane item's, not this one's.** Arrival item 50 was absent
+  from `unblocked.jsonl` when this run selected its work and landed at 15:41, after the C++ draw
+  finished; the ledger now holds 26 rows ending 26, 47, **50**. Item 51 (license-from-spdx) is still
+  absent, so 3D-TS stays gated and the sprint plan's pair "Cells-TS + 3D-TS (50/51)" is half open.
+  Item 50's own commit already records live `build_product` measurements on Cells-TS (fc18650, `npm
+  install` exit 0, no build script), so the draw is ready to be taken. Alternative rejected: opening it
+  at the end of a spent box — a lane subagent works one item per run (loop-prompt-lane §5), and a draw
+  started without its own box is how a candidate gets forced. Reversal: the next lane item draws it.

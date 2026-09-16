@@ -1,0 +1,152 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W13-RERUN5",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-16T15:45:47+05:00",
+ "control_revision": "44b4690",
+ "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN5 was cut from origin/main at 4cd0219 in a fresh short-path worktree at C:\\w\\b05 (nothing carried over from C:\\w\\b03 or C:\\w\\b04), and the draw ran against 4cd0219 plus this run's own two lane-owned fixes in cpp_examples.py. origin/main then moved twice while the draw was running - 471a43a (PHASE1/F9, a cursor fix this run does not read) and 44b4690 (G4-W17 arrival item 50, which changes `_source_build_fact` and bumps BC-02 from check version 1 to 2, both of which this draw's BC-02 PASS depends on). The branch is rebased onto 44b4690 and the transaction was RE-INVOKED there rather than having its earlier verdict carried forward, because a claim must be observed on the tree being landed. Result below under `rebase_reproduction`.",
+ "time_box": {
+  "declared": "3 hours from promotion (RESEARCH_AND_GUIDELINES.md 28.12, G4-W13's own box)",
+  "started": "2026-09-16T13:05:00+05:00",
+  "closed": "2026-09-16T15:45:47+05:00",
+  "closed_by": "its own question, answered: Slides C++ was drawn once end to end and has a verdict. Not the clock."
+ },
+ "environment": {
+  "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+  "python": "3.13.2",
+  "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+  "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "reviewer_logic_version": "5",
+  "targeted_repair_prompt_version": "9",
+  "worktree": "C:\\w\\b05",
+  "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; g++ 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh r1) and ninja 1.13.2 by absolute path, cmake from C:\\Program Files\\CMake\\bin\\cmake.EXE (which-first, per cpp_examples.cmake_executable's own recorded reason), each bin directory on the subprocess PATH only"
+ },
+ "what_this_run_tested": "Whether aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp can seal now that arrival item 26 has landed at 865eae7 - `_COMMAND` no longer reads a command word continued by a hyphen as a shell command, so `python-pptx`, which this repository's upstream README names once in a prose list at line 573 and never invokes, is no longer protected content BC-08 demands a VERIFIED_REWRITE keep verbatim. unblocked.jsonl records item 26 as unlocking exactly this repository and nothing else. Slides C++ had not been drawn since 2026-09-06, when it died at S6 section_authoring.",
+ "answered": {
+  "item_26": "DELIVERED, and measured at the check itself rather than from receipts. BC-08 (Protected content preserved) PASSES on this draw, having been one of the two checks that refused Slides C++ on 2026-09-06. Confirmed independently against the production regex on the real README: `_COMMAND.finditer` over the upstream README returns zero command fragments and does not match `python-pptx`, while `pip install foo` still matches `pip`.",
+  "bc_02": "ALSO CLEARED, and not by item 26. install_command:cmake is SUPPORTED, not UNRESOLVED, because the library's own CMake build genuinely succeeds with the recorded g++ 16.2.0, so TB-01's build_verified is earned rather than defaulted. The 2026-09-06 disposition and the 14:29 re-run both named `install_command:cmake is UNRESOLVED: package registry: none could not be read` as Slides' other blocker; it is gone.",
+  "bc_10_verdict_literally": "FAIL - REJECT_PRESENTATION, reported as returned, with second_reader.read = 2 and five corroborated finding ids. Eight of the nine findings the two reads raised folded as reviewer scope defects; the ninth, F09, survived every fold and blocks. Nothing was forced and no check was weakened.",
+  "did_it_seal": "NO. Validation is 9 PASS / 1 FAIL / 1 PENDING: BC-01 through BC-09 all PASS, BC-10 FAILs at COMPOSING, BC-11 is PENDING because S12 was never reached. sealed_by_lane stays 0 and repository-presenter status stays 10/34.",
+  "reproducibility": "31 provider calls, 23 cache reuses, ZERO cache_stale across 54 ledger rows, all 31 HTTP 200. At 3,011 facts and 2,845 public symbols this is the largest surface lane B has ever drawn - 1.6x Aspose.PDF for C++'s 1,846 - and it produced no HTTP 400 at any stage, which is a fourth independent non-materialisation of lane E's PROPOSAL E3 at a new high-water mark."
+ },
+ "rebase_reproduction": {
+  "why": "G4-W17 arrival item 50 landed at 44b4690 fourteen minutes before this item was written, while the draw was still running. It rewrites `_source_build_fact` and bumps BC-02 to check version 2, which 'refuses a rendered command that ends with steps its receipt did not prove'. This draw's headline claim is that BC-02 PASSES, so carrying the pre-rebase verdict forward would have been a claim about code that is not the code being landed (loop-prompt rule 12). The transaction was re-invoked on the rebased tree instead. This is not a second draw: the call store is intact, so the composition is re-judged, never re-rolled.",
+  "result": "Byte-identical where it should be, and changed only where the new code legitimately changes it. facts.json 359daa81..., plan.json a06f41e7..., content_units.json 4cc7cbb7..., README.md 136b7a75... (243 visible lines of 662), README.patch 904f621e... and review.json f384d8e7... are all unchanged digests. validation.json moves from 64dcfd2e... to 99139c19... for one reason: BC-02 is now recorded at version 2. The verdict table is unchanged - 9 PASS / 1 FAIL / 1 PENDING, BC-01..BC-09 PASS, BC-10 v4 FAIL at COMPOSING on REJECT_PRESENTATION, BC-11 PENDING.",
+  "bc_02_under_the_new_check": "PASSES at version 2, observed rather than reasoned. The new branch is `elif proved and not (...)`, where `proved` is the fact's `build_command` attribute; C++ receipts carry none, so `_source_build_fact` takes the template path and admits `{'install_kind': 'source'}` alone. install_command:cmake is SUPPORTED with value `git clone … / cd … / cmake -S . -B build` and evidence `verified source build: an example executed against this revision, proving the source compiles even though the registry does not yet list the package`.",
+  "cost": "ZERO provider calls. The ledger went from 54 rows to 77 - 23 new rows, every one of them cache_reuse - giving 46 cache_reuse and 31 provider_call with cache_stale still ZERO. An identical re-invocation across a shared-code change that touched this very check cost nothing, which is a cleaner control than run 4's (one call out of 47 rows) and a fourth independent corroboration that run 2's no-op-proof blocker is closed."
+ },
+ "findings": [
+  {
+   "id": "LANE-B-R5-F1",
+   "class": "lane-owned defect, fixed this run with a mutation test",
+   "owner": "lane-b",
+   "file": "src/repository_presenter/components/readme/extractors/platforms/cpp_examples.py (build_product, the configure-failure branch)",
+   "title": "A configure that does not complete discarded every dependency header it had already fetched, so ten compilable examples were recorded NOT_VERIFIED and a required contract row lost its evidence.",
+   "detail": "build_product returned ('configure failed', []) the moment the configure step exited non-zero, throwing away fetched_includes(build) - the include directories that same step had already written to disk. Aspose.Slides for C++'s public shape_collection.h opens with `#include <pugixml.hpp>`, so without pugixml's include directory every one of its ten examples stops at that line with a fatal error in a header rather than a diagnostic of its own, and the verifier honestly records NOT_VERIFIED / BLOCKED_TOOLCHAIN for all ten. Measured on this repository: the run's own workspace `runs/verify/dd476f154c80/cmake-build/_deps` held `pugixml-build`, `pugixml-src` and `pugixml-subbuild` and nothing else - the configure had fetched pugixml and been cut off before miniz and GoogleTest - while `_deps/pugixml-src/src/pugixml.hpp`, exactly the directory fetched_includes returns, was on disk the whole time. The cost was not ten receipts but a contract row: preflight read `required rows without evidence: quick_start`, because quick_start's only evidence kind is `example` and no example was SUPPORTED.",
+   "evidence": "Before: `examples: 10 candidates; not_verified 10`, `3011 facts, 3000 supported, 11 unresolved`, `required rows without evidence: quick_start`. After the one-line fix, same revision, same machine: `examples: 10 candidates; executed 9, not_verified 1`, `3011 facts, 3010 supported, 1 unresolved`, `required rows without evidence: none`. The single remaining NOT_VERIFIED is example 10, whose only diagnostics are unbound identifiers (`pres`, `SaveFormat`) - the documented incomplete-fence class, not a failure. Mutation tests: test_a_configure_cut_off_still_hands_back_what_it_already_fetched and test_a_configure_that_genuinely_failed_says_so_and_keeps_its_fetches."
+  },
+  {
+   "id": "LANE-B-R5-F2",
+   "class": "lane-owned defect, fixed this run with a mutation test",
+   "owner": "lane-b",
+   "file": "src/repository_presenter/components/readme/extractors/platforms/cpp_examples.py (_TIMEOUT_CONFIGURE, and the phrase build_product returns)",
+   "title": "The configure ceiling was below the measured spread of the step it bounds, and a receipt called a step that was cut off 'failed'.",
+   "detail": "_TIMEOUT_CONFIGURE was 180 s. The configure step is the network-bound one - FetchContent downloads one archive per find_package that finds nothing, and Aspose.Slides for C++ fetches three (pugixml v1.14, miniz 3.0.2, GoogleTest v1.15.2) - so its duration tracks the link, not the machine. Measured 2026-09-16, three cold configures of the same revision on the same machine: CMake reported `Configuring done` at 57.8 s, 71.7 s and 141.7 s, a 2.4x spread, and the run that produced this transaction's first receipts exceeded 180 s. Raised to 300 s, which is `core.execution.MAX_TIMEOUT_SECONDS` - the most one bounded execution may be given at all, so no larger value is available to a platform module. Separately, the phrase the receipt carries now distinguishes 'configure timed out' from 'configure failed': saying a step failed when it was cut off is not true, and both phrases differ from 'succeeded', so build_verified stays false either way and TB-01 is not loosened.",
+   "evidence": "`_TIMEOUT_CONFIGURE = 600.0` was refused by the boundary with `ValueError: example timeout must be within (0, 300] seconds`, which is how the cap was found; the constant is 300.0 and test_the_configure_ceiling_clears_the_measured_download_spread pins it to MAX_TIMEOUT_SECONDS and above twice the measured maximum. That the boundary caps a network-bound step at the same ceiling as a compile-bound one is PROPOSAL LANE-B-R5-P2 below; with F1 fixed it no longer costs a repository its examples, which is why it is a proposal and not a blocker."
+  },
+  {
+   "id": "LANE-B-R5-F3",
+   "class": "PROPOSAL - shared code the lane may not edit",
+   "owner": "G4-W17",
+   "file": "src/repository_presenter/components/readme/review/independent/review.py (scope_defect and renderer_owned_defect)",
+   "title": "A presentation finding is never asked whether its own quote lies in the section it names, so F09 condemns enterprise_relationship while quoting scope_limitations and blocks BC-10.",
+   "detail": "F09 is the only finding of nine that survived the fold stack. It sets section_id `enterprise_relationship`, cites `link_target:product.enterprise`, and says 'The candidate's Enterprise Relationship section is promotional and adds no product-specific substance, while the original README does not contain such a section', with repair 'Remove the Enterprise Relationship section entirely'. Three independent refutations, each mechanical. (1) There is no such section: docs/README_CONTRACT.md row 18 gives enterprise_relationship the heading `none (closing paragraph of Scope and Limitations)`, and the candidate's heading list contains no Enterprise Relationship heading - the slot's single content unit renders as the closing sentence of `## Scope and Limitations` at line 634, in exactly row 18's prescribed shape, opening `These limitations don't apply to [Aspose.Slides for Cpp - Enterprise Edition](https://products.aspose.com/slides/cpp/)`. (2) The finding's own quote is not from the slot it faults: 'There is no API for these. The member named is the one that does not exist, so a call to it is a' is rendered at line 605, under `## Scope and Limitations` at line 594, and `_carried_by_units` reports no content unit wrote it - it is renderer-emitted lead-in to the absence table. (3) The cited fact is what makes the paragraph mandatory: `link_target:product.enterprise` is SUPPORTED with evidence `HTTP 200; enterprise target; platform level; slug cpp`, which is precisely row 18's condition 'a verified aspose.com product target exists in policy'. Why every fold returns None, replayed through the production functions on this run's own artifacts: `_STRUCTURAL_SECTIONS` is {document, structure} and enterprise_relationship is neither; `_DETERMINISTIC_SECTIONS` is nine sections and enterprise_relationship is not among them; `_SECTION_HEADINGS` is built only from shell sections that HAVE a heading, so the one slot the contract gives heading `none` can never match `_quoted_heading`; `_quoted_chrome` is None; and `cited_fact_defect`, arrival item 63's own guard, folds a presentation finding only when the quote contains the literal value of a cited SUPPORTED fact - here that value is a URL the quote does not contain. The rule that would have caught it on its merits, renderer_owned_defect's 'the reviewer judging against the original README as the standard of support rather than against the facts' (lane D PROPOSAL P16), is gated behind `_quoted_verified_fact`, which is scoped to `public_symbol` alone and so cannot reach a finding citing a `link_target`. Proposed: before the criterion switch, refute a finding whose quote is rendered in a section other than the one its own section_id names - the finding's evidence and its target disagree, which no reading of the criterion repairs.",
+   "evidence": "Replayed mechanically: absence_defect, excluded_evidence_defect, rendered_defect and renderer_owned_defect each returned None on F09 with this run's real content_units.json and README.md; production agrees, since F09 was recorded blocking rather than advisory. The docstring of renderer_owned_defect already names this exact repository for the sibling class - 'Measured 2026-09-06: Aspose.Slides was held unsealed by a finding asking for a \"Links\" section the shell does not define' - which is a finding inventing a section, where F09 is a finding deleting one the shell renders headingless."
+  },
+  {
+   "id": "LANE-B-R5-F4",
+   "class": "PROPOSAL - shared code the lane may not edit",
+   "owner": "G4-W17",
+   "file": "src/repository_presenter/components/readme/repair/ (the route from a review finding to a targeted_repair packet)",
+   "title": "A finding whose repair instruction is 'remove this slot' is routed to a stage that can only rewrite a unit, so the repair can obey it only by emitting an empty unit, which the schema refuses.",
+   "detail": "This is the mechanical proof that F09 is not repairable content work rather than an opinion about it. repairs.json holds exactly one attempt, labelled F09, section_id enterprise_relationship, stage S6, outcome `unrepairable`, re_raised [F09], with reason `targeted_repair: output rejected twice; last rejection: revised_output.units[0].fact_ids: [] should be non-empty; revised_output.units[0].text: '' should be non-empty`. The repair understood the instruction and tried to carry it out; the only expression of 'remove this' available to a unit revision is an empty unit, and a unit must cite facts and carry text. Whether a slot is composed at all is the plan's decision at S5 and the shell's at render time, never a unit's, so a finding asking for a slot's removal is either a scope defect (it is here, see F3) or a finding against the plan - and in neither case can S6 act on it. Proposed: a finding whose repair names removal of a whole section or slot is routed to the stage that owns that decision, or refused as unactionable at the point of routing, rather than spending two live calls proving a schema forbids the only reply.",
+   "evidence": "runs/.../repairs.json, the single attempt above; the run's ledger shows S11 with 4 provider calls and 0 cache reuses - two attempts per round across two rounds, all four response_invalid on the same empty-unit rejection. `repair: 0 repaired, 1 unrepairable recorded advisory, 1 re-raised after repair; the equivalent failure stands; rounds 2`."
+  },
+  {
+   "id": "LANE-B-R5-P2",
+   "class": "PROPOSAL - shared code the lane may not edit; low priority, not blocking",
+   "owner": "G4-W17",
+   "file": "src/repository_presenter/core/execution.py (MAX_TIMEOUT_SECONDS)",
+   "title": "One ceiling bounds both a compile-bound step and a network-bound one, so a platform module cannot give a dependency download more headroom than a build.",
+   "detail": "MAX_TIMEOUT_SECONDS is 300 and execute() refuses any larger timeout_seconds outright. A C++ configure that fetches three dependencies over HTTPS is bounded by the link, and this machine measured a 2.4x spread (57.8 s / 71.7 s / 141.7 s) on one repository at one revision; a slow enough link still exceeds 300 s and nothing in a platform module can raise it. Recorded rather than pressed, because LANE-B-R5-F1 removes the consequence: a configure that runs out of time now keeps the headers it fetched, so the examples are still verified and only build_verified is honestly withheld. Proposed, if the owner wants it at all: a per-call ceiling that distinguishes a fetch from a compile, or a documented exemption for the configure step.",
+   "evidence": "`ValueError: example timeout must be within (0, 300] seconds`, raised by core/execution.py:142 when _TIMEOUT_CONFIGURE was set to 600.0; five previously-green tests in test_cpp_examples.py went red on it, which is how it was found."
+  },
+  {
+   "id": "LANE-B-R5-F5",
+   "class": "measurement, corroborating another lane; not a proposal",
+   "owner": "lane-b",
+   "file": "-",
+   "title": "The largest surface any lane has drawn produced no HTTP 400 and no cache_stale.",
+   "detail": "Lane E's PROPOSAL E3 anticipated that a large fact_ids enum would be refused by the provider. Run 2 of this lane measured 122 enum values for Email C++ (357 facts) and 361 for PDF C++ (1,846 facts, 1,651 symbols), against lane D's validated 123, and saw no 400. Slides C++ is 3,011 facts and 2,845 public symbols - 1.6x PDF C++ and the largest lane B has drawn - and all 31 of its provider calls returned HTTP 200. Separately, run 2's headline PROPOSAL (no candidate sealed since 352fd35 could pass a no-op proof, because run_job re-judged a stored reply against the decoder's enum) stays closed: 54 ledger rows, 23 cache_reuse, zero cache_stale, on a third independent repository.",
+   "evidence": "calls.jsonl: 54 rows, disposition {provider_call 31, cache_reuse 23}, outcome {success 27, cache_reuse 23, response_invalid 4}, http_status {200: 31, null: 23}, 45,763 completion tokens. The 4 response_invalid are the F09 repair's own empty-unit rejections (S11) and two at S6."
+  }
+ ],
+ "cohort": [
+  {
+   "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp",
+   "revision": "1e347e8e090f593c84a1d187b07b77b403dd219f",
+   "disposition": "BLOCKED_REVIEW (BC-10)",
+   "disposition_change": "MOVED, not restated: the standing disposition from 2026-09-06 was BLOCKED_AUTHORING at S6 section_authoring, and the 14:29 re-run of that day added BC-02 and BC-08 at validation. All three of those blockers are gone - S6 completed, BC-02 PASSES and BC-08 PASSES - and the repository now stops one stage later, at the independent review. sealed_by_lane stays 0; dispositions_by_lane stays 7, because this repository already held one.",
+   "facts": "3,011 records (public_symbol 2,845, inherited_unit 95, link_target 38, example 10, identity 5, dependency 5, build_test_asset 4, package 4, license 2, import_path 1, install_command 1, third_party_notices 1); digest 359daa81a2547f797a2f6dee087e0223affacbb862d5cba6c9a58a0dc818f14d; 3,010 SUPPORTED, 1 UNRESOLVED, 0 CONTRADICTED; required contract rows without evidence: none",
+   "examples": "10 candidates: 9 EXECUTED, 1 NOT_VERIFIED. The one is example 10, whose only diagnostics are the unbound identifiers `pres` and `SaveFormat` - the documented incomplete-fence class. On 2026-09-06 this repository compiled examples too; on this run's FIRST pass it recorded 10 NOT_VERIFIED, which is finding LANE-B-R5-F1 and was fixed before the draw.",
+   "stages": "S3 8 capabilities, 6 workflows, 6 limitations. S4 95 of 95 units, first attempt, zero bare kind prefixes (SUPERSEDE_REDUNDANT 30, VERIFIED_PRESERVE 29, VERIFIED_MOVE 22, OMIT_UNSUPPORTED 11, VERIFIED_REWRITE 2, DEFER_UNRESOLVED 1). S5 18 of 18 sections, 8 capabilities, 1 hub, examples 1+8, 5 links, 5 limitations. S6 269 units across 9 sections; coherence revised 0 of 269. README 243 visible lines of 662, against 202 of 629 on 2026-09-06.",
+   "validation": "9 PASS / 1 FAIL / 1 PENDING. BC-01 through BC-09 all PASS - including BC-02 (install command verified) and BC-08 (protected content preserved), the two checks that refused this repository in 2026-09-06's re-run. BC-10 FAILs at COMPOSING on REJECT_PRESENTATION. BC-11 is PENDING because S12 was never reached.",
+   "review": "REJECT_PRESENTATION, reported as returned, with second_reader.read = 2 and five corroborated ids. Nine findings raised across the two reads, F01 to F09; eight folded as reviewer scope defects (F01 and F04 name a SUPPORTED public_symbol BC-04 already verifies; F02 and F03 a deterministic section's own rendering, navigation and at_a_glance; F05 and F06 a heading the shell requires, 'Installation' and 'Development Dependencies'; F07 the renderer's own sentence in api_reference; F08 in scope_limitations) and F09 alone survives and blocks. F09 is PROPOSAL LANE-B-R5-F3: it condemns the enterprise_relationship slot while quoting renderer-emitted text from scope_limitations, and cites the very SUPPORTED link_target that makes contract row 18's paragraph mandatory.",
+   "repair": "1 attempt (F09, S6, enterprise_relationship), outcome `unrepairable`, re-raised; 0 repaired; rounds 2. The repair could obey 'remove the section' only by returning an empty unit, which the schema refuses - `revised_output.units[0].fact_ids: [] should be non-empty` - twice. PROPOSAL LANE-B-R5-F4.",
+   "provider_calls": "31 completed calls (all HTTP 200), 23 cache reuses, 0 cache_stale, 4 response_invalid, 45,763 completion tokens, 54 ledger rows; by stage S3 2, S4 6, S5 2, S6 36, S10 4, S11 4",
+   "resume_predicate": "Re-run `present --repo aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp` once PROPOSAL LANE-B-R5-F3 lands (a presentation finding whose quote is rendered in a section other than the one its section_id names is a reviewer scope defect), or once the primary rules it sealable on BC-01..BC-09 plus a corroborated second read - it has both, with second_reader.read = 2. Not before, and not by a re-roll: this is one genuine BC-10 rejection on a first draw, and clearing the call store to draw again is what the W-card's stop-don't-force forbids."
+  },
+  {
+   "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+   "revision": "fef9c93",
+   "disposition": "BLOCKED_PLANNING (S5) - restated, no run, no provider call",
+   "disposition_change": "unchanged since run 2. Outside this run's named scope and its sole predicate is still unmet.",
+   "facts": "not re-extracted this run",
+   "examples": "not re-verified this run",
+   "stages": "not run",
+   "validation": "not run",
+   "review": "not run",
+   "repair": "not run",
+   "provider_calls": "0",
+   "resume_predicate": "Arrival item (25) lands; then re-run `present --repo aspose-email-foss/Aspose.Email-FOSS-for-Cpp`. Measured mechanically at 471a43a with zero provider calls: evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl now holds 25 rows - 36, 22, 32, 33, 23, 55, 39, 40, 44, 45, 46, 60, 61, 62, 63, 64, 41, 42, 57, 58, 65, 59, 43, 26, 47 - and none of them is 25."
+  }
+ ],
+ "not_drawn": {
+  "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "NOW UNBLOCKED, but not drawn in this box. Arrival item 50 was absent from unblocked.jsonl when this run selected its work and landed at 44b4690 at 15:41, after the C++ draw was complete; the ledger now holds 26 rows ending 26, 47, 50. Item 50's own commit records live build_product measurements on this repository (fc18650, `npm install` exit 0, no build script), so the next lane item should draw it. Left for that item rather than opened at the end of a spent box - one item per run (loop-prompt-lane section 5).",
+  "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "Still admission-gated on arrival item 51 (license-from-spdx), which is NOT in unblocked.jsonl at 44b4690. plans/sprint/PHASE1-SPRINT-PLAN.md section 11 lists the pair as 'Admission-gated (5): Cells-TS + 3D-TS (50/51)'; only 50 of the two has landed. Not drawn."
+ },
+ "provider_calls": {
+  "total_completed": 31,
+  "output_rejections": 4,
+  "cache_reuse": 23,
+  "cache_stale": 0,
+  "by_stage": "S3 2 rows (1 call), S4 6 rows (3 calls), S5 2 rows (1 call), S6 36 rows (20 calls), S10 4 rows (2 calls), S11 4 rows (4 calls)",
+  "completion_tokens": 45763,
+  "note": "All 31 provider calls returned HTTP 200 at 3,011 facts and 2,845 public symbols, the largest surface any lane B draw has carried. Zero cache_stale across 54 rows."
+ },
+ "progress": {
+  "sealed_by_lane": 0,
+  "candidates_after_run": "10/34, unchanged (repository-presenter status, run from this worktree after the draw)",
+  "dispositions_by_lane": 7
+ },
+ "local_ci_equivalent": {
+  "note": "Two full runs this iteration, which is one per commit's worth plus the one the rebase forced: the first was on 4cd0219 before origin/main moved, the second on the rebased tree at 44b4690, which is the tree being committed. The lane-owned code changed once, before the draw; nothing in src/ or tests/ changed after it.",
+  "ruff_check": "All checks passed!",
+  "ruff_format": "236 files already formatted",
+  "mypy_src": "Success: no issues found in 126 source files",
+  "pytest": "pytest -n auto on the committed tree: 1,137 passed, 16 xfailed in 167.14s, exit 0. The earlier run on 4cd0219 was exit 0 at 94 s with 1,143 collected.",
+  "runs_this_iteration": "2 full runs (94 s on 4cd0219, 167 s on the rebased 44b4690); 3 focused runs of tests/components/readme/extractors/platforms/test_cpp_examples.py - one red at the MAX_TIMEOUT_SECONDS boundary, two green at 20 passed (once before the rebase, once after)"
+ }
+}
