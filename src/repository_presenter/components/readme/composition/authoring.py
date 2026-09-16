@@ -97,7 +97,10 @@ _TYPE_OBJECTIVE = (
 # class shared by both call sites (S6 authoring and S8 coherence_checks), closing a gap where the
 # prompt's own title_rule was advisory only and coherence could silently revert an already-fixed
 # unit back to a title-restating one.
-NORMALISATION_VERSION = "5"
+# "5" -> "6" (G4-W17 arrival item 104): WORD_EXTENSIONS gains "one" (Microsoft OneNote's own
+# format extension) - canonical_abbreviations() no longer maps the ordinary pronoun "one" to a
+# spurious "ONE" abbreviation, a real meaning change to what BC-07 accepts.
+NORMALISATION_VERSION = "6"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -126,8 +129,15 @@ ABBREVIATIONS = frozenset(
         "CLI",
     }
 )
-# Format extensions that are also ordinary words are never judged as abbreviations.
-WORD_EXTENSIONS = frozenset({"max", "ply", "dat", "raw", "bin", "log", "map", "mat", "tag", "ini"})
+# Format extensions that are also ordinary words are never judged as abbreviations. G4-W17
+# arrival item 104: "one" (Microsoft OneNote's own format extension) was missing - measured on
+# Note-Python, canonical_abbreviations() added "one" -> "ONE" and BC-07 flagged the ordinary
+# pronoun "one" in unrelated prose ("The most illustrative one"), exactly the false-positive
+# class this set exists to prevent, simply not yet populated for a format this portfolio had
+# not drawn when the set was built.
+WORD_EXTENSIONS = frozenset(
+    {"max", "ply", "dat", "raw", "bin", "log", "map", "mat", "tag", "ini", "one"}
+)
 _FORBIDDEN = (
     ("```", "a code fence"),
     ("http://", "a URL"),

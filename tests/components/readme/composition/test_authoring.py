@@ -1863,6 +1863,22 @@ def test_the_canonical_abbreviations_cover_the_set_and_this_products_formats() -
     assert "max" not in forms, "a format extension that is an ordinary word is not one"
 
 
+def test_one_note_extension_is_not_flagged_as_an_abbreviation() -> None:
+    """G4-W17 arrival item 104. Measured on Note-Python: `.one` (Microsoft OneNote's own format
+    extension) was missing from `WORD_EXTENSIONS`, so `canonical_abbreviations()` added a
+    spurious `"one" -> "ONE"` mapping and BC-07 flagged the ordinary pronoun "one" in unrelated
+    prose ("The most illustrative one") - exactly the false-positive class `WORD_EXTENSIONS`
+    exists to prevent, simply not yet populated for a format this portfolio had not drawn when
+    the set was built."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("format:output.one", "format", ".one")),
+    )
+    forms = canonical_abbreviations(facts)
+    assert "one" not in forms, "a format extension that is an ordinary word is not one"
+
+
 def test_the_forbidden_text_pattern_matches_what_unit_checks_judges() -> None:
     # Section 27.10 offered a schema pattern for the URL, command and edition families, and the
     # gateway answered HTTP 400 for a strict json_schema carrying one - the fallback section 27.7
