@@ -898,3 +898,210 @@ PDF-.NET's 12 make it more likely on PDF-.NET, not less.
 
 **Reversal path.** The supervisor re-spawns LANE-F-01 for Email-.NET; F17 landing makes
 Slides-.NET worth a fourth run before PDF-.NET.
+## 2026-09-16 — LANE-F-01, run 3 continued: Email-.NET after the first PR landed
+
+These entries were written after `feat(candidates): Aspose.3D for .NET seals…` merged as `6181989`
+(PR #53), on the single-use branch `lane-f/LANE-F-01-R3B` cut from `origin/main` at `873af03`.
+F20's "order for the next run" is acted on here rather than deferred, and F25 corrects it.
+
+### F21 Email-.NET run 3: past S5 and S6 at last, dispositioned `BLOCKED_REVIEW` on an observed verdict
+
+**Decision.** `aspose-email-foss/Aspose.Email-FOSS-for-.Net` is dispositioned **`BLOCKED_REVIEW`
+(BC-10 FAIL, verdict `REJECT_FACTUAL`, causal stage COMPOSING)**, not sealed. This is the class its
+2026-09-06 G4 manifest row already records — but that row was written from a verdict nobody had
+seen since, and run 2 (F13) showed the repository stopping two stages earlier at S5. **This run is
+the first time the class has actually been observed**, and the findings are not the ones the row
+names.
+
+**Measured 2026-09-16 11:28–11:56 UTC, worktree `C:\w\f03`; 53 cumulative call records over two
+`present` invocations — 25 `success`, 22 `cache_reuse`, 6 `response_invalid`.** Revision
+`59125b4732df0eedbc4d4c2ab978698ed4348eb7`, unchanged since 2026-09-06.
+
+- Facts 341, **all 341 SUPPORTED**, digest
+  `33ed76bedc1ee18060f7fa89d52f7cc4f626f7fbf8f7912358b828b182a7a6c6` — identical to F12's
+  facts-only reading five days ago, including `install_command:dotnet` SUPPORTED. **4 of 4 examples
+  EXECUTED.** The cohort's cleanest repository, as F12 said.
+- **Item 59 did its job, partly.** S5 attempt 1 was still rejected — but for
+  `unknown inherited unit package:target_framework`, a *fact* ID written into a *unit* field, not
+  for an invented `format:*` ID. Attempt 2 succeeded, so unlike run 2 the repository reached
+  composition. The remaining gap is F22.
+- **BC-01 to BC-09 all PASS** — the second repository this run to clear every deterministic check,
+  and the run-2 `BLOCKED_PLANNING` and 2026-09-06 `BLOCKED_VALIDATION (BC-02)` predicates are both
+  gone. Plan 17/18 sections, 5 capabilities, 1 hub, 1+2 examples, 4 links, 2 limitations; 72 units
+  dispositioned (SUPERSEDE_REDUNDANT 49, VERIFIED_PRESERVE 17, VERIFIED_MOVE 4, VERIFIED_REWRITE
+  2); 48 content units across 9 sections; README 161 visible lines of 234.
+- **BC-10 FAIL, `REJECT_FACTUAL`, three blocking findings, `second_reader.read` 1.** The second
+  read is triggered by an ACCEPT or by a prose judgment on a required row; none of these three is
+  either, so one read is correct here and the corroboration guard is not implicated.
+  - F04 `quick_start` (COMPOSING): a second Quick Start example that belongs in Additional
+    Examples. `targeted_repair` **repaired** it and the reviewer **re-raised** it.
+  - F05 `additional_examples` (COMPOSING): an extraneous `dotnet run --project …` command line.
+    `unrepairable` — `targeted_repair: output rejected twice`, and the last rejection is F18's
+    class again (below).
+  - F08 `development_testing` (COMPOSING): omits the three runnable example programs under
+    `examples/`.
+- Five advisories, including F03 "omits the Development Dependencies section entirely" — the
+  **exact** heading the 2026-09-06 row records as a reviewer hallucination that blocked the run.
+  It folded to advisory this time, which is arrival item 28's fold-not-reject doing what it was
+  landed for; the unlock worked, and a different set of findings blocks instead.
+- **F18 is corroborated on a second repository, and here it cost the whole repair budget.** Both
+  `targeted_repair` attempts for F05 were rejected on `revised_output`: attempt 1 for
+  `unit preview: text contains a Markdown link ('](')` plus unaccepted identifiers, attempt 2 for
+  `identifiers that are not accepted fact values: README.md, create_msg_and_eml.cs, msg_reader,
+  msg_reader.cs, msg_summar…`. On Slides-.NET F18 cost one of two attempts; here it cost both, and
+  the finding was recorded `unrepairable` for that reason alone.
+
+**Alternative rejected.** A third `present` run. Two runs have now ended on two different
+mechanisms and the remaining blocker is a review verdict on three deterministic composition
+choices; §5 prohibits a third equivalent attempt and nothing about the inputs would change. The
+mechanism to change is F22's and F18's.
+
+**Evidence.** `runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-.Net/59125b47…48eb7/`
+(`calls.jsonl` 53 records, `validation.json`, `review.json`, `repairs.json`, `plan.json`,
+`dispositions.json`, `content_units.json`, `README.md`).
+
+**Reversal path.** F22 and F18 land, then re-run: F04 is already known repairable, and F05's
+repair has never actually been attempted with a usable schema.
+
+### F22 PROPOSAL — item 59 enumerated the plan's five fact-ID arrays and left `material_limitations.unit_ids` unbounded
+
+**Defect.** `src/repository_presenter/components/readme/composition/planning.py:260-266`
+(shared code). `_FACT_ID_ARRAYS` names five schema paths —
+`core_capabilities.fact_ids`, `core_capabilities.shared_fact_ids`, `api_hubs.fact_ids`,
+`material_limitations.fact_ids`, `deviations.fact_ids` — and `planning_schema()` gives each an
+`enum` of `citable_fact_ids(...)`. `prompts/presentation_planning.yaml` (version 12) also declares
+`material_limitations.unit_ids` as `{"type": "array", "items": {"type": "string"}}`, and that path
+is **not** in the tuple, so it keeps no enum, no `maxItems` and no `maxLength`.
+
+The two arrays sit side by side in the same object and hold **different** ID spaces: `fact_ids`
+takes fact IDs, `unit_ids` takes inherited-unit IDs. Nothing in the schema says so.
+
+**Measured on Email-.NET, S5 attempt 1** (`presentation_planning`, `outcome: response_invalid`):
+rejected for `unknown inherited unit package:target_framework` — a real, SUPPORTED **fact** ID
+written into the **unit** array. Attempt 2 succeeded, so the cost here was one wasted S5 call out
+of a budget of two; on a repository whose second attempt also failed it would be the whole run,
+which is exactly what item 59's own ledger says this class cost Email-.NET in run 2.
+
+**Proposed shape (the primary's to land).** Add `("material_limitations", "unit_ids")` to the same
+mechanism with its own enum — the inherited-unit IDs the packet shows, which
+`_selectable_dispositions(...)` already computes for `citable_fact_ids` — plus a `maxItems`. The
+argument is item 59's own, unchanged: an ID naming nothing is refused at decode rather than by the
+binding after the call is spent. Mutation test: a plan citing a well-formed fact ID in `unit_ids`
+is refused at decode, and a real unit ID still passes.
+
+**Alternative rejected.** Lane F patching `planning.py`; `composition/` is shared code (lane
+prompt §2). Also rejected: treating this as item 59 being incomplete rather than as its own entry —
+a correction to a standing fact gets its own record.
+
+**Evidence.** `planning.py:260-266` (`_FACT_ID_ARRAYS`), `:269-300` (`citable_fact_ids`);
+`prompts/presentation_planning.yaml` v12 `material_limitations`; Email-.NET `calls.jsonl`, the
+S5 attempt-1 `rejection` array.
+
+**Reversal path.** Superseded if the owner instead merges the two arrays into one typed by kind;
+the unbounded array is the defect either way.
+
+### F23 PROPOSAL — `section_authoring`'s output is unbounded at every level, and a truncation aborts the run without storing what truncated
+
+**Defect.** `prompts/section_authoring.yaml` (version 14). `units` is `{"type": "array",
+"minItems": 1}` with **no `maxItems`**; each unit's `text` is `{"type": "string", "minLength": 1}`
+with **no `maxLength`**; `fact_ids` is an unbounded array of unbounded strings with **no enum**;
+`omitted` is unbounded too. `sampling` is `temperature 0.0, seed 1, max_output_tokens 8000,
+response_format json_schema`. Under constrained decoding there is nothing in the schema to
+terminate the generation — the same shape F2 diagnosed at S4 and F10/item 59 at S5, now the only
+remaining job whose output array is unbounded at both levels.
+
+`core/llm/jobs.py:472-482` then fails **closed and immediately** on `finish_reason == "length"`:
+it records `TruncatedOutput`, raises, and — because `store.put` only runs after a successful parse
+— writes **no** `calls/<id>.rejected-N.json`. The run aborts with
+`section_authoring: output truncated at the manifest's max_output_tokens (8000); raise the budget
+or bound the output, never retry`, and the transaction keeps no copy of the text that overran, so
+the cause cannot be diagnosed from the transaction directory afterwards. That is the part this
+lane could not investigate further and is reporting rather than guessing at.
+
+**Measured on Email-.NET.** One `section_authoring` request, `request_sha256`
+`f2d362be6d26ed33e968f856e80e87ae39444f094fc1bd553a22f42cff36f465`, aborted the first `present`
+at 11:42:24 UTC. Every other authoring call in that run returned between 123 and 811 completion
+tokens; this one hit the cap. The repository has 220 public symbols, 1 API hub and 2 limitations —
+it is the *smallest* surface in the cohort, so the overrun is not a large-section problem.
+
+**Proposed shape (the primary's to land).** Bound the output rather than raise the budget — the
+error message offers both, and raising 8000 only moves the cliff. `units` gets a `maxItems` (the
+plan already knows how many slots the section has), `text` a `maxLength`, `fact_ids` the
+`citable_fact_ids` enum this job's packet already computes plus a `maxItems`, and `omitted` a
+`maxItems`. Separately, and smaller: store the truncated text beside the other rejections so the
+next reader can see what overran. Mutation test: a stub reply whose `units` array runs past
+`maxItems` is refused at decode with the array named, not at the token cap.
+
+**Alternative rejected.** Raising `max_output_tokens` from 8000. It is the option the error
+message lists first and the one §27.0 D1 argues against by implication ("use enums,
+`minItems`/`maxItems`, `maxLength`"); an unbounded array under constrained decoding has no
+terminating condition at any budget.
+
+**Evidence.** `prompts/section_authoring.yaml` v14 `sampling` and `output.schema`;
+`core/llm/jobs.py:471-482`; Email-.NET `calls.jsonl` (the `TruncatedOutput` record and the
+123–811-token neighbours); the absence of any `calls/f2d362be….rejected-*.json`.
+
+**Reversal path.** If a bounded schema turns out to cut real content on a large surface, the
+bounds move; the absence of any bound is the defect.
+
+### F24 Measured and flagged, not proposed: one identical request returned three different lengths under `temperature 0` / `seed 1`
+
+**Decision.** Record the reading and flag it for the owner. Propose nothing: this lane cannot tell
+a gateway-side effect from a client-side one, and §27.0's standing claim is an owner-level fact.
+
+**What the record shows.** `request_sha256`
+`f2d362be6d26ed33e968f856e80e87ae39444f094fc1bd553a22f42cff36f465` — one `section_authoring`
+request, `temperature 0.0`, `seed 1` — was asked live three times and answered three ways:
+
+| time (UTC) | outcome | completion tokens | response_sha256 |
+|---|---|---|---|
+| 11:39:49 | `success` | 8000 | `09cf5bcf88dcd82f…` |
+| 11:42:24 | `response_invalid` (`TruncatedOutput`) | — | — |
+| 11:50:10 | `success` | 431 | `df824a2107179068…` |
+
+`RESEARCH_AND_GUIDELINES.md` §27.0 records "**`seed` is honoured** by `qwen3-next` (two identical
+calls, identical bytes; `catalog.json`)". Three identical calls did not produce identical bytes
+here. The lane states only what the four `calls.jsonl` rows say; it did not reproduce the effect
+deliberately, and the 8000-token row being recorded `success` at exactly the cap is itself
+unexplained. **This is not a claim that the seed is ignored** — it is a claim that this
+transaction's record is inconsistent with the standing one, on a job that decides sealed bytes.
+
+**Why it matters beyond this repository.** G2-W23 (folded into G3-W01) measures cold-run
+determinism and G5 owns portable reproducibility; a job whose reply length varies on an identical
+request is upstream of both, and of every no-op proof. 3D-.NET's no-op proof passed byte-identical
+in this same session (F15), so whatever this is, it did not reach that bundle.
+
+**Alternative rejected.** Reporting it as "the model is non-deterministic". One transaction, one
+request, no controlled repetition — that would be a rule from one observation.
+
+**Evidence.** Email-.NET `calls.jsonl`, the four rows sharing `logical_call_id`
+`f2d362be…f465`; `prompts/section_authoring.yaml` `sampling`; §27.0's seed line.
+
+**Reversal path.** A deliberate repetition (the same request asked N times through the production
+path, bytes compared) settles it either way; that is a primary-side measurement, not a lane's.
+
+### F25 Correction to F20 — Email-.NET was run this run, and PDF-.NET is the only unrun repository left
+
+**Decision.** F20 said "Email-.NET and PDF-.NET were **not** run this run" and put Email-.NET first
+in the next run's order. That was true when F20 was written and is superseded here: Email-.NET was
+run immediately after PR #53 merged and is dispositioned in F21. **PDF-.NET is now the only
+LANE-F-01 repository that has never been run past a facts-only reading.**
+
+**Revised order for run 4.** PDF-.NET first — it is the last unrun repository, the cohort's real
+test of item 58 (34 of 899 verified types collide, against 2 for 3D-.NET) and of lane E's E3 enum
+bound (12,270 public symbols, 3.2× 3D-.NET; F11 measured 3D-.NET's enums at 352 entries / 16.7 KB
+with every call HTTP 200, which does not clear E3 for PDF). Then Slides-.NET once F17 lands, then
+Email-.NET once F22 and F18 land. Words-.NET stays LANE-F-02 on arrival item 54.
+
+**Where the cohort stands after run 3.** One sealed (3D-.NET), three dispositioned on three
+*different* stages — Slides-.NET BC-10 at COMPOSING via placement (F16), Email-.NET BC-10 at
+COMPOSING via review (F21), PDF-.NET not run — and every repository that was run cleared BC-01 to
+BC-09, which no .NET run in this lane had ever done before items 57/58/59 landed.
+
+**Alternative rejected.** Editing F20 in place. A correction to a standing fact gets its own
+entry (loop-prompt §5); F20 is already on `main` in `6181989` and its readers need to see the
+correction, not a silently rewritten paragraph.
+
+**Evidence.** F21 above; PR #53 (`6181989`); `evidence/build/lanes/lane-f/LANE-F-01.json`.
+
+**Reversal path.** None — a correction record.
