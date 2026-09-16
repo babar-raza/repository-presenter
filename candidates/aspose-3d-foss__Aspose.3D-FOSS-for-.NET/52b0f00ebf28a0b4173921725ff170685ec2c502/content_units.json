@@ -1,0 +1,863 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:010.list",
+      "reason": "inherited_unit, not a fact about the product; used only to verify scope and member names",
+      "section": "key_capabilities"
+    },
+    {
+      "fact_id": "inherited_unit:026.paragraph",
+      "reason": "Redundant with preview content; covered by example descriptions.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:027.paragraph",
+      "reason": "Not cited by any example fact; belongs to a different workflow.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:028.code_block",
+      "reason": "Not cited by any example fact; belongs to a different workflow.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:030.heading",
+      "reason": "Not cited by any example fact; belongs to a different workflow.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:031.paragraph",
+      "reason": "Not cited by any example fact; belongs to a different workflow.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:033.heading",
+      "reason": "Redundant with example:004 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:034.paragraph",
+      "reason": "Redundant with example:004 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:035.code_block",
+      "reason": "Redundant with example:004 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:036.heading",
+      "reason": "Redundant with example:005 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:037.paragraph",
+      "reason": "Redundant with example:005 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:038.code_block",
+      "reason": "Redundant with example:005 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:039.heading",
+      "reason": "Redundant with example:006 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:040.paragraph",
+      "reason": "Redundant with example:006 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:041.code_block",
+      "reason": "Redundant with example:006 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:044.code_block",
+      "reason": "Redundant with example:007 description.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:047.paragraph",
+      "reason": "The renderer owns this unit and will insert it directly; it is not prose to be authored.",
+      "section": "api_reference"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "The summary unit does not describe documentation assets; the renderer handles docs separately.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository identity is already embedded in the command URLs rendered by the slot.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision identity is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family identity is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform identity is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem identity is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Package version is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:target_framework",
+      "reason": "Target framework is not referenced in the summary capability.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:068.paragraph",
+      "reason": "The AGENTS.md reference is not part of the summary capability and is handled by a separate inherited unit.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:target_framework",
+        "license:spdx",
+        "example:001",
+        "example:002",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "public_symbol:aspose",
+        "public_symbol:aspose.threed",
+        "public_symbol:aspose.threed.scene",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.entities",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.3D FOSS for .NET is a free and open-source library that enables developers to create, read, convert, and manipulate 3D scenes and models in .NET applications. It supports common 3D formats such as FBX, OBJ, STL, and GLTF, allowing users to load existing files, modify scene hierarchies, and export to target formats without requiring a commercial license. Developers working with 3D content in .NET Core or .NET 5+ projects use this library to integrate 3D modeling capabilities, including primitive geometry creation, material assignment, and scene graph manipulation. The package targets netcoreapp3.1 and is distributed under the MIT license."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.scene"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create and manage a hierarchical 3D scene graph using Scene and Node objects, where each Scene initializes with a RootNode and child nodes are added via Node.CreateChildNode() or Node.AddChildNode() to carry entities, transforms, and materials."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.threed.entities"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Generate primitive geometry such as boxes, cylinders, spheres, and IFC-compatible 2D profiles like LShape, TShape, and RectangleShape directly within the scene graph using classes from the Aspose.ThreeD.Entities namespace."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Assign and convert shading materials including LambertMaterial, PhongMaterial, and PbrMaterial to nodes, with support for converting legacy materials to physically based rendering via PbrMaterial.FromMaterial()."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:005",
+        "example:006"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Import and export scenes across multiple formats including FBX, glTF, Wavefront OBJ, STL, COLLADA, U3D, 3MF, RVM, AMF, and HTML5 viewer exports using Scene.FromFile(), Scene.Open(), and Scene.Save() with corresponding FileFormat constants."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:006"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Apply format-specific load and save options such as coordinate system flipping and normal normalization for OBJ, or stream-based saving with COLLADA save options, through dedicated options classes like ObjLoadOptions and ColladaSaveOptions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Manipulate per-vertex mesh data including normals, UV coordinates, vertex colors, tangents, binormals, smoothing groups, and custom user data using VertexDeclaration and VertexElement subclasses from the Aspose.ThreeD.Entities namespace."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a new scene with a box primitive, assign a Lambert material, and save it as FBX using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "Load a GLTF file into a scene and export it to OBJ format using Aspose.3D.FOSS version 26.1.0 for netcoreapp3.1."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The Aspose.3D FOSS for .NET library supports material conversion, format conversion, and stream-based saving. The following examples demonstrate these workflows."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Convert a Lambert material to PBR using Aspose.3D.FOSS."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Load OBJ with custom options and export to STL."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Save a scene to COLLADA through a stream."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Handle unsupported file formats with exception handling."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.scene"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.3D.FOSS for .NET provides core 3D scene management through the Scene and Node classes, where Scene acts as the container for the entire 3D hierarchy and Node represents individual elements within that hierarchy."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.node",
+        "public_symbol:aspose.threed.scene"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.scene",
+      "text": "The Scene class serves as the primary entry point, owning a RootNode hierarchy and providing static FromFile and FromStream methods for loading scenes as well as instance Save methods for exporting, with support for animation clips, asset information, and scene properties through its API surface."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.entities"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.entities",
+      "text": "The Aspose.ThreeD.Entities namespace provides geometric primitives such as Box and methods to add them to nodes, enabling construction of 3D geometry within a scene hierarchy."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.shading"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.shading",
+      "text": "The Aspose.ThreeD.Shading namespace enables material definition and manipulation, including creating Lambert materials and converting them to physically based rendering materials for realistic rendering."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:005",
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.threed.formats"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.threed.formats",
+      "text": "The Aspose.ThreeD.Formats namespace supports loading and saving 3D files in various formats including FBX, OBJ, STL, and Collada, with format-specific options such as coordinate system flipping and normal normalization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation.animationchannel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animation.animationchannel",
+      "text": "Represents an animation channel that controls how properties change over time in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation.extrapolation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animation.extrapolation",
+      "text": "Defines how animation behavior is extended beyond the defined keyframe range in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation.keyframe"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animation.keyframe",
+      "text": "Represents a single keyframe containing time, value, and interpolation parameters for animation curves in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.animation.keyframesequence"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.animation.keyframesequence",
+      "text": "Represents a sequence of keyframes that define an animation curve in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.booleanoperator"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.booleanoperator",
+      "text": "Performs boolean operations between geometric entities in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.polygonmodifier"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.polygonmodifier",
+      "text": "Provides functionality to modify polygonal geometry in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.skeletontype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.skeletontype",
+      "text": "Specifies the type of skeleton used for skeletal animation in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementbinormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementbinormal",
+      "text": "Represents a vertex element storing binormal data for 3D geometry in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementnormal"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementnormal",
+      "text": "Represents a vertex element storing normal data for 3D geometry in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.entities.vertexelementtangent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.entities.vertexelementtangent",
+      "text": "Represents a vertex element storing tangent data for 3D geometry in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.enumtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.enumtype",
+      "text": "Defines the type of an enumeration in GLTF format for Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.enumvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.enumvalue",
+      "text": "Represents a single value within a GLTF enumeration in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.property"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.property",
+      "text": "Represents a named property with a value in GLTF format for Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.gltf.propertytable"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.gltf.propertytable",
+      "text": "Groups related GLTF properties into a table structure in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.microsoft3mfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.microsoft3mfsaveoptions",
+      "text": "Controls how 3MF documents are saved in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.plyloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.plyloadoptions",
+      "text": "Specifies options for loading PLY files in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.formats.plysaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.formats.plysaveoptions",
+      "text": "Specifies options for saving PLY files in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.render.pixelmapmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.render.pixelmapmode",
+      "text": "Determines how pixel maps are interpreted during rendering in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.render.pixelmapping"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.render.pixelmapping",
+      "text": "Defines how texture coordinates map to pixels during rendering in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.boundingbox2d"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.boundingbox2d",
+      "text": "Represents a two-dimensional bounding box in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fmatrix4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fmatrix4",
+      "text": "Represents a 4x4 matrix of single-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fvector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fvector2",
+      "text": "Represents a two-dimensional vector of single-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.fvector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.fvector4",
+      "text": "Represents a four-dimensional vector of single-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.ioextension"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.ioextension",
+      "text": "Provides input and output extension methods for file operations in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.mathutils"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.mathutils",
+      "text": "Offers utility methods for common mathematical operations in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.matrix4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.matrix4",
+      "text": "Represents a 4x4 matrix of double-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.parseexception"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.parseexception",
+      "text": "Represents an error that occurs during parsing of 3D data in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.rect"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.rect",
+      "text": "Represents a rectangle defined by position and size in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.relativerectangle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.relativerectangle",
+      "text": "Represents a rectangle with relative coordinates in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.semanticattribute"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.semanticattribute",
+      "text": "Defines semantic meaning for vertex attributes in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.transformbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.transformbuilder",
+      "text": "Assists in constructing transformation matrices in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector2"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector2",
+      "text": "Represents a two-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector3"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector3",
+      "text": "Represents a three-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vector4"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vector4",
+      "text": "Represents a four-dimensional vector of double-precision floating-point values in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vertex"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vertex",
+      "text": "Represents a single vertex in a 3D mesh in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vertexdeclaration"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vertexdeclaration",
+      "text": "Describes the layout of vertex data in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.vertexfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.vertexfield",
+      "text": "Represents a single field within a vertex declaration in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.threed.utilities.watermark"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.threed.utilities.watermark",
+      "text": "Represents a watermark that can be applied to 3D scenes in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "The getting started guide covers installation, step-by-step walkthroughs, and feature introductions for Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "How-to articles and the FAQ provide task-focused instructions and answers to frequently asked questions for Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The full API reference delivers complete, generated documentation for every public type in Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "Implementation progress notes detail the current FOSS-edition implementation status within the repository."
+    },
+    {
+      "fact_ids": [
+        "link_target:024"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:024",
+      "text": "Release 26.2.0 notes document changes introduced in that release, as maintained in the repository."
+    },
+    {
+      "fact_ids": [
+        "link_target:026"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:026",
+      "text": "The issues and feature requests page on GitHub allows users to report bugs or propose enhancements for Aspose.3D FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:061.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.3D FOSS for .NET version 26.1.0 supports reading and writing common 3D formats such as PLY through the Scene.Open and Scene.Save APIs on the netcoreapp3.1 target framework, but excludes rendering, advanced mesh processing, NURBS evaluation, and metadata handling."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Rendering is not implemented in this FOSS build — Scene.Render, RenderFactory, and the IRenderTarget/IRenderWindow rendering pipeline all throw NotImplementedException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "PolygonModifier and most TriMesh raw-buffer conversion helpers throw NotImplementedException, so mesh post-processing utilities beyond basic scene-graph construction are not functional."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "NURBS evaluation is not functional — NurbsCurve.Evaluate/EvaluateAt and NurbsSurface.ToMesh throw NotImplementedException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Text watermarking is not currently functional in this FOSS build."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "License and trial-management APIs (License, Metered) are present for API-surface compatibility but are not applicable to this open-source edition."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "PDF and Google Draco import/export are genuinely not functional — PdfFormat and DracoFormat have no reader/writer implementation anywhere in the codebase."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:064.paragraph",
+        "inherited_unit:065.code_block",
+        "inherited_unit:066.paragraph",
+        "inherited_unit:067.code_block"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Clone the repository and run the test suite with the .NET SDK, or build the console converter tool separately as a project reference to the library."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.3D FOSS for .NET provides open-source access to core 3D file format capabilities, while Aspose.3D commercial edition adds advanced features such as scene optimization, custom material support, and enhanced export formats."
+    }
+  ]
+}
