@@ -307,7 +307,32 @@ progress:
     seal, not lost). Aspose.3D-FOSS-for-TypeScript is unaffected by this fix (its own RERUN3
     disposition is a factuality-citation defect, a different shared-code class) and was not
     redrawn. Full detail in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14-RERUN5.json,
-    the live source. repository-presenter status after the run: 14/34, risen by this draw.'
+    the live source. repository-presenter status after the run: 14/34, risen by this draw.
+    G4-W13-RERUN7 2026-09-16 23:12 against origin/main at 1a0173a, rebased onto 17ee567
+    before the PR (branch lane-b/G4-W13-RERUN7, fresh worktree C:/w/b12): resume PDF-Cpp
+    now that items 87/88 (commit 8b10f59) have landed, verified directly against the
+    checked-out source before drawing rather than assumed from the commit message. BC-08
+    genuinely PASSES for the first time - validation moves from 8 PASS/1 FAIL(BC-08)/2
+    PENDING to 9 PASS/1 FAIL/1 PENDING, proof the resume predicate actually cleared the
+    named blocker rather than drift, since nothing else in the repair path changed since
+    draw 6. The transaction reached S10 independent review for the first time since draw 3
+    and failed closed there: REJECT_PRESENTATION on one corroborated finding (F05,
+    additional_examples - a genuine cross-unit redundancy between two individually
+    fact-backed VERIFIED_MOVE units that source_reconciliation, judging each unit
+    independently by design, cannot itself catch). The one repair attempt routed at it
+    (misrouted S7 to S4 per RC-04) was rejected twice and recorded unrepairable - not
+    because the fix was wrong: calls/ffa627155822.rejected-1/2.json show the model twice
+    correctly naming and fixing the exact two duplicate units, but core/llm/binding.py''s
+    unit_ids binding demands a disposition for every unit in the causal 40-unit
+    reconciliation batch, not only the ones a revision changes. New PROPOSAL
+    LANE-B-R7-F1 (shared code: repair/rounds.py''s _stage_target S4 branch,
+    repair/targeted.py''s repair_checks, core/llm/binding.py''s binding_errors) is in
+    docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN7.json, the live
+    source. Disposition MOVES from BLOCKED_COMPOSING (BC-08) to BLOCKED_REVIEW (BC-10).
+    No lane-owned code changed this run (both draw 6''s and this draw''s blockers are
+    shared code). sealed_by_lane stays 1, dispositions_by_lane stays 9 (moved, not a new
+    repository). repository-presenter status after the run: 14/34, unchanged by this
+    draw.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -594,3 +619,26 @@ items:
     repository.'
   run_2026_09_16_r10: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN5.json, which
     is the live source for this run rather than a copy.
+- id: G4-W13-RERUN7
+  status: ACCEPTED
+  accepted_at: '2026-09-16T23:12:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN7.json
+  purpose: 'Spawn instruction 2026-09-16: resume aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp''s
+    BLOCKED_COMPOSING (BC-08) disposition (G4-W13-RERUN6) now that items 87/88 (commit 8b10f59,
+    "latch slot conflicts, split multi-section validation defects, carry named protected units,
+    bound repair changes[]") have landed on origin/main. Verified directly against the checked-out
+    source before drawing rather than trusted from the spawn instruction: validation_defects and
+    repair_packet in repair/targeted.py both carry the described fixes, byte-different from draw
+    6''s copies at 6f2161f. A genuine changed-input retry. Never force a seal, never weaken a
+    check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn once, end to end, and has its verdict,
+    reported literally (BC-08 PASS for the first time; BC-10 FAIL, REJECT_PRESENTATION, one
+    corroborated finding F05, additional_examples; BC-11 PENDING, no seal). What remains open is
+    shared code the lane may not land: aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp, BLOCKED_REVIEW
+    (BC-10) - re-run once PROPOSAL LANE-B-R7-F1 lands (an S4 repair reply may declare only the
+    units its own revision changes rather than every unit of the causal 40-unit reconciliation
+    batch; repair/rounds.py''s _stage_target S4 branch, repair/targeted.py''s repair_checks,
+    core/llm/binding.py''s binding_errors), or once the primary rules a narrower fix sufficient,
+    or rules the corroborated F05 finding unblocking on some other ground.'
+  run_2026_09_16_r11: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN7.json,
+    which is the live source for this run rather than a copy.

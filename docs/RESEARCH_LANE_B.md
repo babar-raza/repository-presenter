@@ -1901,3 +1901,107 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   is a factuality-citation defect (an inherited_unit fact refuting a finding), a different shared-code
   class than item 75 touches, so it is unaffected by this fix. Full detail:
   `evidence/build/lanes/lane-b/G4-W14-RERUN5.json`.
+
+- **2026-09-16 23:12 (`date` checked) · G4-W13-RERUN7 · DECISION · resume predicate verified landed
+  before drawing.** Spawn instruction: PDF-Cpp's standing disposition entering this item was
+  `BLOCKED_COMPOSING (BC-08)` (RERUN6), resume predicate PROPOSAL `LANE-B-R4-F1` or `LANE-B-R4-F2`
+  landing in `repair/targeted.py`. Checked directly against `origin/main` before drawing rather than
+  trusted: `git log --oneline` and `git show --stat 8b10f59` confirm both landed in commit `8b10f59`
+  ("latch slot conflicts, split multi-section validation defects, carry named protected units, bound
+  repair changes[]"), an ancestor of `origin/main` (`git merge-base --is-ancestor 8b10f59 origin/main`
+  confirms). Read the worktree's own checked-out source, not assumed from the commit message:
+  `validation_defects` (line ~213) now returns one `Defect` per `(check, section)` pair with narrowed
+  `failures`, and `repair_packet` (line ~401) now calls a new `_named_inherited_units(defect, facts)`
+  helper that adds back exactly the `inherited_unit` records a defect's own `details`/`failures` name -
+  both exactly as item 87/88 describe, neither the stale text draw 6 read at `6f2161f`. A genuine
+  changed-input retry, not a redraw of unchanged ground. Worktree `C:\w\b12`, branch
+  `lane-b/G4-W13-RERUN7`, cut from `origin/main` at `1a0173a` (a0baf05 landed docs-only, mid-session,
+  after the worktree was cut; rebased before landing, see below). Reversal: none; a verification.
+
+- **2026-09-16 23:12 (`date` checked) · G4-W13-RERUN7 · a sixth draw: BC-08 genuinely clears for the
+  first time; the transaction reaches BC-10 for the first time on this repository since draw 3.**
+  Same repository revision as every draw since `G4-W13` (`888700a`), same 1,846-record facts.json
+  (digest `bd8f4a98...`, matching draw 4's exactly - a deterministic facts stage on unchanged source
+  and unchanged extractor). `examples: 11 candidates; executed 4, failed 2, not_verified 5`; no
+  required contract row without evidence. **BC-08 (protected content) now PASSES** - validation reads
+  `pass 9, fail 1, pending 1` (BC-01 through BC-09 all PASS; BC-10 FAIL; BC-11 PENDING because S12's
+  fresh-process rerun only runs after a seal) - against draws 4 and 6's `8 PASS / 1 FAIL(BC-08) / 2
+  PENDING`. This is the resume predicate's own proof: items 87/88 are what moved the check, not
+  incidental drift, since nothing else in the repair path changed between draw 6 and this draw except
+  those two commits (confirmed above). The transaction ran S10 independent review for the first time
+  since draw 3 (2026-09-11) and returned `REJECT_PRESENTATION`: 1 finding (`F05`, `additional_examples`,
+  criterion presentation) survived corroboration out of many raised (`second_reader.read=2`, `F05`'s own
+  id is in the 7-entry `corroborated` list; 14 entries folded to advisory - `review.json`). `F05`'s text:
+  "The candidate duplicates the 'Additional Examples' lead-in paragraph and the '12_create_features'
+  description, creating redundancy and a cluttered structure," repair instruction "Remove the
+  duplicated lead-in and description to avoid redundancy and keep the section concise." Root cause read
+  directly from `dispositions.json`: `inherited_unit:026.paragraph` ("The Additional Examples lead-in
+  is supported by the examples directory and README") and `inherited_unit:029.paragraph` ("The
+  12_create_features example description is supported by the example and link target") were both
+  disposed `VERIFIED_MOVE` to `additional_examples` at S4 - each individually true and fact-backed, but
+  together redundant once placed in the same section. `source_reconciliation` judges each unit's own
+  disposition independently of its neighbours by design (`reconciliation/dispositions.py`'s own
+  docstring), so this class of cross-unit redundancy is exactly what S10's presentation check exists to
+  catch - not itself a defect. Reversal: none; a measurement.
+
+- **2026-09-16 23:12 (`date` checked) · G4-W13-RERUN7 · PROPOSAL LANE-B-R7-F1 (shared code:
+  `repair/rounds.py`'s `_stage_target` S4 branch and `repair/targeted.py`'s `repair_checks` /
+  `core/llm/binding.py`'s `binding_errors`) · a mechanically correct S4 repair reply is rejected twice
+  and marked unrepairable because the binding check demands a disposition for every unit in the causal
+  reconciliation batch, not only the units the fix actually changes.** Evidence, read directly from the
+  transaction's own call files, not inferred: `repairs.json`'s `a28bcc6fec261472c863c78e` attempt,
+  `misrouted: true` (RC-04 correctly retargeted F05 from the reviewer's guessed `S7` to `S4`, since its
+  quote is placed text `source_reconciliation` itself produced), `outcome: "unrepairable"`, `reason`
+  quoting `core/llm/binding.py:175`'s own message verbatim: `"no disposition for inherited units:
+  inherited_unit:001.heading, ... inherited_unit:040.heading"` (35 unit IDs, all inside reconciliation
+  batch 1, `reconciliation_batches()`'s own 40-unit-per-batch split).
+  `calls/ffa627155822.rejected-1.json` and `.rejected-2.json` (both attempts) show the model twice
+  correctly identifying and fixing the ONE real defect - `revised_output.dispositions` carrying
+  `inherited_unit:026.paragraph -> OMIT_UNSUPPORTED` ("duplicates the section heading and is
+  unsupported") and `inherited_unit:029.paragraph -> OMIT_UNSUPPORTED` ("duplicates the section
+  lead-in and is unsupported") on attempt 1, `026` alone on attempt 2 - verbatim the two units named
+  above and verbatim the reviewer's own repair instruction - yet both replies are rejected outright
+  because `binding_errors` (`core/llm/binding.py:165-177`, `binding == "unit_ids"`) requires
+  `cited.unit_ids` to cover every one of `stage_facts.by_kind("inherited_unit")`, and `_stage_target`'s
+  S4 branch (`repair/rounds.py:452-481`, `PHASE0/G`) already scopes `stage_facts` down to one
+  40-unit reconciliation batch (a prior, already-landed fix for the same shape of bug at a coarser
+  grain - full-corpus scoping - found live against Cells-Rust) but still requires the *whole batch*
+  re-declared, not just the units a targeted revision changes. The two repair mechanisms this codebase
+  already has for a narrower-than-full-redeclaration fix don't reach S4: S6's `repair_packet` narrows
+  the *evidence* a reply may cite (`allowed`) but still requires the full `units` array for the one
+  assigned section, which is small enough in practice to redeclare; S4's batch is 40 units, and this
+  defect's own two-attempt, two-identical-shape evidence says a model naturally returns only the
+  delta when only 2 of 40 units are wrong, so the full-batch contract turns a real, correctly-diagnosed
+  fix into an exhausted, unrepairable one. Cost and unlocks: no check weakened (BC-08 and BC-10 both
+  still block on real defects); blocks this repository's own resume, corroborated by three prior BC-10
+  rejections' worth of precedent (draws 2, 3) that S4/S10 boundary findings are a recurring shape here.
+  Needs arrival-list admission before it can land; not landed by this session. Reverse by: superseded
+  once an S4 repair reply may declare only the units its own `changes[]` names, merged onto the causal
+  stage's stored output the way a delta is applied elsewhere, rather than judged for 100% batch
+  coverage; until then this entry stands as `G4-W13-RERUN7`'s resume predicate.
+
+- **2026-09-16 23:12 (`date` checked) · G4-W13-RERUN7 · DISPOSITION (moved) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_REVIEW (BC-10)`.** Moved, not
+  restated: draw 6's disposition was `BLOCKED_COMPOSING (BC-08)`; this draw clears BC-08 (now PASS)
+  and reaches one stage further, S10 independent review, where it fails closed on a real, corroborated
+  finding a structural repair-mechanism gap (`LANE-B-R7-F1`, shared code) prevents fixing. 1,846 facts,
+  no required contract row without evidence, 11 examples (4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED). S3 8
+  capabilities / 6 workflows / 4 limitations (0 calls, stored output reused); S4 124 of 124 units
+  (SUPERSEDE_REDUNDANT 52, VERIFIED_MOVE 47, VERIFIED_PRESERVE 12, DEFER_UNRESOLVED 5,
+  OMIT_UNSUPPORTED 5, NON_CONTENT 2, VERIFIED_REWRITE 1); S5 18 of 18 sections, 8 capabilities, 12
+  hubs, examples 1+3, 6 links, 1 limitation; S6 287 units across 9 sections, 0 of 287 revised; 182
+  visible lines of 638. Validation 9 PASS / 1 FAIL / 1 PENDING: BC-01 through BC-09 PASS, **BC-08
+  PASS** (cleared by items 87/88), BC-10 FAIL at COMPOSING on `REJECT_PRESENTATION` (finding F05,
+  corroborated, `second_reader.read=2`), BC-11 PENDING (no seal, so S12 never runs). Repair: 3 rounds -
+  1 repaired (F04, S6, quick_start: added a one-sentence page-indexing clarification to
+  `example:001`'s unit text), 1 unrepairable-and-misrouted (F05, retargeted S7->S4, two rejections,
+  `LANE-B-R7-F1`'s own evidence); F05 re-raised, BC-10 stands. 83 ledger rows, 32 live completed calls
+  (0 HTTP failures), 47 cache_reuse, **0 cache_stale** (a sixth independent non-materialisation of
+  lane E's PROPOSAL E3, this repository's fourth), 4 response_invalid (the two F05 rejections plus two
+  earlier in-composition retries), 72,233 completion tokens. sealed_by_lane stays 1 (unchanged from
+  Cells-TS's seal); dispositions_by_lane stays 9 (this repository moves check/stage, not a new
+  disposition). Resume predicate: re-run once PROPOSAL `LANE-B-R7-F1` lands (an S4 repair may declare
+  only the units its revision actually changes), or once the primary rules a narrower fix sufficient,
+  or rules the corroborated F05 finding itself unblocking on some other ground - not on BC-01..BC-09
+  passing alone, since BC-10 is precisely what failed this time, on a real finding. Full detail:
+  `evidence/build/lanes/lane-b/G4-W13-RERUN7.json`.
