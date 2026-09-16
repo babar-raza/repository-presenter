@@ -332,7 +332,31 @@ progress:
     No lane-owned code changed this run (both draw 6''s and this draw''s blockers are
     shared code). sealed_by_lane stays 1, dispositions_by_lane stays 9 (moved, not a new
     repository). repository-presenter status after the run: 14/34, unchanged by this
-    draw.'
+    draw.
+    G4-W13-RERUN8 2026-09-17 01:34 against origin/main at 25aae12 (branch lane-b/G4-W13-RERUN8,
+    fresh worktree C:/w/b13): resume PDF-Cpp now that item 94 (commit ce3a38a) has landed,
+    verified directly against the checked-out source and unblocked.jsonl before drawing rather
+    than trusted from the spawn instruction. BC-08 PASSES again, and more directly, the S4 repair
+    mechanism itself is now proven functioning: repairs.json records a real package:cxx_standard
+    fix (C++17 to C++20) applied and accepted with no full-batch redeclaration, exactly what draw
+    7''s LANE-B-R7-F1 proved impossible before item 94 - LANE-B-R7-F1 is CLOSED. Did not seal:
+    S10 independent review again returned REJECT_PRESENTATION, this time on a different,
+    corroborated finding (F08, second_reader.read=2) quoting the bare `<details>` wrapper tag -
+    renderer-emitted structural markup, mechanically confirmed absent from all 287 content units''
+    own text. review.py''s renderer-owned-chrome exemption recognizes only the paired `<summary>`
+    text, not the `<details>`/`</details>` tag lines the renderer emits beside it, so the finding
+    evades every exemption branch and blocks on content no unit wrote and no repair could remove
+    - the one targeted_repair call routed at it returned a no-op, correctly rejected
+    (response_invalid), proving the repair mechanism has genuinely nothing left to try. New
+    PROPOSAL LANE-B-R8-F1 (shared code: review/independent/review.py''s _RENDERED_CHROME /
+    _quoted_chrome) is in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN8.json,
+    the live source. Disposition RESTATED at the same check (BC-10) and stage, but not the same
+    cause: draw 7''s F05 does not recur (S4''s live-recomputed disposition split differs
+    materially from draw 7''s on the same 124 units and facts, the same live-call
+    non-determinism draw 6 already measured at this stage). No lane-owned code changed this run
+    (the blocker is shared code). sealed_by_lane stays 1, dispositions_by_lane stays 9 (restated,
+    not a new repository). repository-presenter status after the run: 15/34 - the rise is
+    another lane''s seal, not this draw''s, and is recorded as observed rather than assumed.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -641,4 +665,29 @@ items:
     core/llm/binding.py''s binding_errors), or once the primary rules a narrower fix sufficient,
     or rules the corroborated F05 finding unblocking on some other ground.'
   run_2026_09_16_r11: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN7.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W13-RERUN8
+  status: ACCEPTED
+  accepted_at: '2026-09-17T01:34:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN8.json
+  purpose: 'Spawn instruction 2026-09-17: re-draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that
+    item 94 (commit ce3a38a, "an S4 repair reply may declare only the unit its own change
+    touched") has landed on origin/main, clearing draw 7''s resume predicate PROPOSAL
+    LANE-B-R7-F1. Verified directly against the checked-out source and
+    evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl before drawing rather than trusted
+    from the spawn instruction alone: ce3a38a is three commits behind origin/main''s head and
+    unblocked.jsonl names arrival item 94 as unlocking exactly this repository for this lane. A
+    genuine changed-input retry. Never force a seal, never weaken a check, report the verdict
+    literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn once, end to end, and has its verdict,
+    reported literally (BC-08 PASS again, confirming LANE-B-R7-F1''s fix functions - LANE-B-R7-F1
+    is CLOSED; BC-10 FAIL, REJECT_PRESENTATION, one corroborated finding F08 quoting the bare
+    <details> renderer-chrome tag; BC-11 PENDING, no seal). What remains open is shared code the
+    lane may not land: aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp, BLOCKED_REVIEW (BC-10) - re-run
+    once PROPOSAL LANE-B-R8-F1 lands (review/independent/review.py''s renderer-owned-chrome
+    exemption, _RENDERED_CHROME/_quoted_chrome, recognizes only the <summary> text and not the
+    <details>/</details> tag lines the renderer emits beside it), or once the primary rules a
+    narrower fix sufficient, or rules the corroborated F08 finding unblocking on some other
+    ground.'
+  run_2026_09_17_r12: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN8.json,
     which is the live source for this run rather than a copy.

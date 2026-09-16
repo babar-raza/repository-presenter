@@ -2005,3 +2005,83 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   or rules the corroborated F05 finding itself unblocking on some other ground - not on BC-01..BC-09
   passing alone, since BC-10 is precisely what failed this time, on a real finding. Full detail:
   `evidence/build/lanes/lane-b/G4-W13-RERUN7.json`.
+
+- **2026-09-17 01:34 (`date` checked) · G4-W13-RERUN8 · resume predicate verified, not assumed, before
+  drawing: `LANE-B-R7-F1` is landed and demonstrably functioning.** `git log` on a fresh worktree cut
+  from `origin/main` at `25aae12` shows `ce3a38a` ("an S4 repair reply may declare only the unit its
+  own change touched") three commits back, and `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl`
+  names arrival item 94 landed `2026-09-16T19:37:06Z`, unlocking exactly `lane-b,
+  aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`. Read the diff itself, not the commit message alone:
+  `repair/rounds.py` now threads `original=target.output` into `repair_checks`; `repair/targeted.py`'s
+  `repair_checks` calls the new `merge_partial_units(revised, original)` before validation whenever
+  `binding == "unit_ids"`. The draw below is the functioning proof, not a restatement: `repairs.json`
+  records one real S4-adjacent repair (`package:cxx_standard`, C++17 to C++20, `scope_limitations`)
+  applied and accepted without any full-batch redeclaration. `LANE-B-R7-F1` is CLOSED.
+
+- **2026-09-17 01:34 (`date` checked) · G4-W13-RERUN8 · PROPOSAL LANE-B-R8-F1 (shared code:
+  `review/independent/review.py`'s `_RENDERED_CHROME` / `_quoted_chrome`, lines ~697-706, and the
+  `renderer_owned_defect` chrome branch, lines ~657-661) · a presentation finding quoting the bare
+  `<details>` wrapper tag itself, rather than its `<summary>` line, evades the existing
+  renderer-owned-chrome exemption and blocks on content no unit wrote and no repair can remove.**
+  `composition/renderer.py` emits the collapsible wrapper as two separate literal lines at each of its
+  two call sites - `lines += ["", "<details>", f"<summary>{API_SURFACE_SUMMARY}</summary>", ""]`
+  (line 519) and `lines.append("<details>")` / `lines.append(f"<summary>{ADDITIONAL_EXAMPLES_SUMMARY}
+  </summary>")` (lines 815-816), each later closed by a bare `lines += ["", "</details>"]` /
+  `lines.append("</details>")` (lines 545, 820). `review.py`'s own exemption for this class
+  (`_RENDERED_CHROME = frozenset({ADDITIONAL_EXAMPLES_SUMMARY, API_SURFACE_SUMMARY})`, matched by
+  `_quoted_chrome`) recognizes only the `<summary>...</summary>` text, never the `<details>`/
+  `</details>` tag lines the same renderer call sites emit right beside it. Measured on this draw's own
+  `review.json`: finding `F08` (`reader: 2`, corroborated), `section_id: "additional_examples"`,
+  `criterion: "presentation"`, `fact_ids: []`, quote exactly `"<details>"`, text "The candidate includes
+  an unsupported HTML details block that is not supported by any fact and should be omitted." Mechanically
+  confirmed no content unit wrote it: `content_units.json`'s 287 units contain zero occurrences of the
+  substring "details" (checked programmatically, not by inspection). `renderer_owned_defect` therefore
+  falls through every branch that would exempt it - `_quoted_chrome` fails (tag, not summary text),
+  `_quoted_heading` fails (no leading `#`), the verified-fact check fails (`<details>` names no fact),
+  and the final `section not in _DETERMINISTIC_SECTIONS` fallback also fails because `additional_examples`
+  is a mixed-owned section (`owner` other than `"D"` in `SEMANTIC_SHELL`), the same "never wholesale
+  exempted" section this exact guard already documents for the chrome case it does catch. Proof the
+  repair mechanism cannot satisfy it either, not merely that it didn't: the one `targeted_repair` call
+  routed at this finding's final recurrence returned `response_invalid`, rejection `"revised_output:
+  matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content
+  did not change"` (`calls.jsonl`) - the model had nothing in any content unit's own text to revise, so
+  it echoed the input back, and was correctly rejected for the no-op rather than credited with a fix
+  that fixes nothing. Cost and unlocks: no check weakened (BC-10 still blocks on what looks, from the
+  binding's point of view, like a real unrefuted finding); blocks this repository's resume alone so far,
+  but the same renderer call sites are shared by every ecosystem's additional-examples/api-reference
+  collapsible section, so any repository whose collapsed block draws a reviewer's literal-tag quote
+  rather than a summary-text quote is equally exposed. Reverse by: superseded once `_quoted_chrome` (or
+  `renderer_owned_defect` directly) also recognizes a quote equal to `"<details>"` or `"</details>"` as
+  renderer-owned chrome, with a mutation test proving a finding quoting either tag folds to advisory;
+  until then this entry stands as `G4-W13-RERUN8`'s resume predicate.
+
+- **2026-09-17 01:34 (`date` checked) · G4-W13-RERUN8 · DISPOSITION (restated, check unchanged; finding
+  changed) · `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_REVIEW (BC-10)`.**
+  Restated at the same check and stage as draw 7, but not the same cause: draw 7's blocking finding
+  (`F05`, a genuine cross-unit redundancy) is gone from this draw entirely - the S4 disposition split
+  differs materially from draw 7's on the same 124 units and same input facts (`VERIFIED_PRESERVE` 12
+  to 46, `VERIFIED_MOVE` 47 to 22, `SUPERSEDE_REDUNDANT` 52 to 39, `OMIT_UNSUPPORTED` 5 to 9), the same
+  live-call non-determinism draw 6 already measured at this same stage. 1,846 facts, digest
+  `bd8f4a98...` unchanged from every prior draw (deterministic facts stage); 1,839 SUPPORTED, 5
+  UNRESOLVED, 2 CONTRADICTED; no required contract row without evidence. 11 examples (4 EXECUTED, 2
+  FAILED, 5 NOT_VERIFIED). S3 8 capabilities / 6 workflows / 4 limitations (0 calls, stored output
+  reused); S4 124 of 124 units, live-recomputed (12 `source_reconciliation` ledger rows, not a cache
+  hit); S5 18/18 sections; S6 287 units across 9 sections, 189 visible lines of 669. Validation 9 PASS /
+  1 FAIL / 1 PENDING: BC-01 through BC-09 PASS - **BC-08 PASS again, `LANE-B-R7-F1`'s own fix confirmed
+  functioning this draw** (see the verification entry above) - BC-10 FAIL at COMPOSING on
+  `REJECT_PRESENTATION` (finding `F08`, `additional_examples`, corroborated `second_reader.read=2`),
+  BC-11 PENDING (no seal). Repair: 3 rounds, 2 repaired (a real `package:cxx_standard` C++17-to-C++20
+  fix in `scope_limitations`; an `additional_examples` omission that did not address the wrapper), 1
+  rejected no-op recorded `response_invalid` rather than `unrepairable` (`LANE-B-R8-F1`'s own evidence);
+  `F08` re-raised, BC-10 stands. 87 ledger rows: 35 live completed (HTTP 200), 47 cache_reuse, 0
+  cache_stale (a seventh independent non-materialisation of lane E's PROPOSAL E3, this repository's
+  fifth), 5 response_invalid, 71,077 completion tokens; by job section_authoring 57,
+  source_reconciliation 12, independent_review 6, repository_investigation 5, targeted_repair 4,
+  presentation_planning 3. sealed_by_lane stays 1 (unchanged); dispositions_by_lane stays 9 (restated,
+  not a new repository). `repository-presenter status` from this worktree (already at `origin/main`'s
+  head, no rebase needed): 15/34 - the rise is another lane's seal, not this draw's; recorded rather
+  than assumed. Resume predicate: re-run once PROPOSAL `LANE-B-R8-F1` lands (`_quoted_chrome` also
+  recognizes the bare `<details>`/`</details>` tags as renderer chrome), or once the primary rules a
+  narrower fix sufficient, or rules the corroborated F08 finding itself unblocking on some other
+  ground - not on BC-01..BC-09 passing alone, since BC-10 is again precisely what failed, on a real
+  finding, now a different one than draw 7's. Full detail: `evidence/build/lanes/lane-b/G4-W13-RERUN8.json`.
