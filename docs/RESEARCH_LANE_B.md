@@ -1676,3 +1676,79 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   literal text, the same way a `public_symbol` or `package` citation already refutes one), or once
   the primary rules it sealable on BC-01..BC-09 plus a corroborated second read - it does not yet
   have either (`second_reader.read = 1`). Full detail: `evidence/build/lanes/lane-b/G4-W14-RERUN3.json`.
+
+- **2026-09-16 19:31 (`date` checked) · G4-W13-RERUN6 · DECISION · the spawn instruction's premise
+  for this item ("PDF-Cpp has never been attempted by any lane this sprint; no disposition on record
+  for it in your own lane file or any other") is false, checked against this file before acting on
+  it.** `project/lanes/lane-b.yaml` itself carries three prior draws of exactly this repository -
+  `G4-W13-RERUN2` (13:23, S4 blocker), `G4-W13-RERUN3` (17:50, `BLOCKED_REVIEW` BC-10) and
+  `G4-W13-RERUN4` (21:30, `BLOCKED_COMPOSING` BC-08), all 2026-09-11 - and its standing disposition
+  going into this run was `BLOCKED_COMPOSING (BC-08)`, resume predicate PROPOSAL `LANE-B-R4-F1` or
+  `LANE-B-R4-F2` landing. Neither had: `repair/targeted.py`'s `repair_packet` (line ~376) still reads
+  `kinds = [kind for kind in FACT_KINDS if kind != "inherited_unit"]` verbatim at `origin/main`
+  `6f2161f`, and `validation_defects`'s `section = named[0] if named else None` (line 210) is
+  likewise unchanged - both read directly off the checked-out tree before the draw, not assumed from
+  the 2026-09-11 note. Only the "no SEALED bundle" half of the premise holds (`candidates/` has no
+  `aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp` entry, confirmed by directory listing). Two readings
+  were available: decline the draw as a redraw of an already-blocked repository (which the spawn
+  instruction's own stated principle - "rather than redraw a blocked repository" - would forbid), or
+  draw it anyway since the instruction explicitly anticipated exactly this uncertainty ("go in with
+  no assumptions about its blocker; measure and report literally") and five days and roughly a dozen
+  arrival items (50-65, F9-F12) have landed in shared code since the last draw, any of which could
+  plausibly have shifted this repository's behaviour even without clearing its named blocker. Decided
+  the second way: drawn as `G4-W13-RERUN6`, reported literally below, premise correction recorded
+  here rather than silently substituted or silently obeyed. Alternative rejected: picking a different
+  lane-b repository unilaterally (e.g. `aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp`, last drawn
+  2026-09-06) instead of the one named - rejected because the instruction's factual premise being
+  wrong is not the same as its target being wrong, and the target is explicitly within this lane's
+  owned repository list. Reversal: none; a correction plus a decision, both dated.
+
+- **2026-09-16 19:31 (`date` checked) · G4-W13-RERUN6 · a fifth draw, same revision, genuinely fresh
+  composition rather than a cache replay: BC-08 fails again on a different specific fact, with the
+  repair engaging (partially) for the first time.** Same repository, same revision `888700a` as
+  draws 2-4 (`facts.json` still 1,846 records, same per-kind breakdown, same 11 examples at 4
+  EXECUTED / 2 FAILED / 5 NOT_VERIFIED) - but NOT a byte-identical replay: `facts.json` digest is
+  `7396982d...` against draw 4's `bd8f4a98...`, S4 disposed the same 124 units into a materially
+  different distribution (`VERIFIED_MOVE` 49 against 18, `VERIFIED_PRESERVE` 25 against 45,
+  `VERIFIED_REWRITE` 1 against 7), and S6 authoring produced 286 units against 285 and 185 visible
+  lines of 665 against 180 of 583. 29 provider calls (0 `cache_stale` of 51 ledger rows) confirm this
+  draw made genuinely live S3-S6 calls rather than reusing draw 4's store, which is why the surface
+  differs while the input facts do not - `runs/` is gitignored and this worktree (`C:\w\b09`) never
+  held draw 4's store to reuse from, so `--fresh` was not needed to get a live draw. BC-08 failed on a
+  single fact this time - `inherited_unit:019.paragraph`, "VERIFIED_PRESERVE keeps the command
+  `cmake --preset windows-msvc-debug` but the candidate does not render it", section
+  `development_testing` - where draw 4 failed on three facts across two sections at once. The one
+  repair round this draw got (S6, `development_testing`) is `outcome: "repaired"` in `repairs.json`,
+  not the flat no-op draw 4 recorded twice: it patched `units.0.fact_ids` to add
+  `inherited_unit:019.paragraph`, but never touched `units.0.text`, so the rendered command stayed
+  absent and the CLI's own summary says it plainly - "after one repair attempt the equivalent failure
+  stands". This is exactly `LANE-B-R4-F2`'s mechanism, not a new defect: `repair_packet` still
+  excludes `inherited_unit` from the records it offers the model to cite, so the model can name the
+  fact ID (visible to it via `preserve`) but cannot see or reproduce its text. `LANE-B-R4-F1` is not
+  independently exercised here - only one section failed this time, so `named[0]` routing had nothing
+  to misroute. Validation: 8 PASS / 1 FAIL / 2 PENDING (BC-01..BC-07, BC-09 PASS; BC-08 FAIL at
+  COMPOSING; BC-10, BC-11 PENDING, S10 never reached). Alternative rejected: treating the reduced
+  failure count (1 against 3) as evidence the blocker is clearing - rejected because the causal code
+  is read unchanged above, and one fact failing for the identical structural reason is not progress
+  toward zero, it is the same defect landing on a smaller target this draw's own composition
+  happened to produce. Reversal: none; a measurement.
+
+- **2026-09-16 19:31 (`date` checked) · G4-W13-RERUN6 · DISPOSITION (restated) ·
+  `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp` at `888700a` - `BLOCKED_COMPOSING (BC-08)`.** Restated,
+  not moved: draw 4's disposition was already `BLOCKED_COMPOSING (BC-08)` and this draw lands on the
+  same check and causal stage, on a different specific fact. 1,846 facts, no required contract row
+  without evidence, 11 examples (4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED). S3 8 capabilities / 5
+  workflows / 4 limitations; S4 124 of 124 units (SUPERSEDE_REDUNDANT 37, VERIFIED_MOVE 49,
+  VERIFIED_PRESERVE 25, OMIT_UNSUPPORTED 5, DEFER_UNRESOLVED 5, NON_CONTENT 2, VERIFIED_REWRITE 1);
+  S5 18 of 18 sections, 8 capabilities, 12 hubs, examples 1+3, 4 links, 1 limitation; S6 286 units
+  across 9 sections, coherence revised 0 of 286 (1 provider call); 185 visible lines of 665.
+  Validation 8 PASS / 1 FAIL / 2 PENDING: BC-01..BC-07 and BC-09 PASS, BC-08 FAIL at COMPOSING on
+  `inherited_unit:019.paragraph` ("cmake --preset windows-msvc-debug" not rendered), BC-10 and BC-11
+  PENDING (S10 never reached). Repair: 1 attempt (BC-08, S6, `development_testing`), outcome
+  `repaired` (added the fact ID, not the text), re-raised; rounds 2. 51 ledger rows, 29 provider
+  calls (all HTTP 200), 22 cache_reuse, 0 cache_stale, 2 response_invalid, 52,505 completion tokens.
+  Resume predicate unchanged from draw 4: re-run once either PROPOSAL `LANE-B-R4-F1` (one repairable
+  defect per failing check-and-section pair) or `LANE-B-R4-F2` (a BC-08 packet carries the
+  `inherited_unit` records its defect names) lands, or once the primary rules it sealable on
+  BC-01..BC-09 plus a corroborated second read. Full detail:
+  `evidence/build/lanes/lane-b/G4-W13-RERUN6.json`.
