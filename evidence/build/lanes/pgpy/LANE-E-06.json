@@ -1,0 +1,80 @@
+{
+ "schema_version": 1,
+ "worker": "pgpy (one-off, branch pgpy/LANE-E-06, label primary)",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+ "recorded_at": "2026-09-16T18:04:00Z",
+ "control_revision": "1a0173a",
+ "control_revision_note": "Worktree C:\\w\\pgpy1, single-use branch pgpy/LANE-E-06, off origin/main at 1a0173a. Task: re-draw this repository now that G4-W17 arrival item 82 (lane E PROPOSAL E15, its S6 blocker) has landed, per docs/RESEARCH_LANE_E.md's 2026-09-16 13:20 UTC entry's recorded resume predicate for this repository.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\pgpy1",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the first attempt (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .), confirmed before any candidate work."
+ },
+ "blocker_reverification_before_any_provider_call": {
+  "method": "git fetch origin; git worktree add C:/w/pgpy1 -b pgpy/LANE-E-06 origin/main resolved to 1a0173a directly (tip commit). git show 1a0173a's full diff read against composition/planning.py and composition/authoring.py, plus its test_planning.py diff, plus RESEARCH_AND_GUIDELINES.md section 29 arrival item 82's own text, all independently, not merely trusting the commit message.",
+  "result": "1a0173a is origin/main's own tip (no ancestor check needed). plan_checks (lines ~642-679) now builds nouns/common/cited exactly parallel to authoring.py::unit_checks (lines 1092-1118) - same prose_nouns() call, same neutral identity/package-fact set, same product-name derivation, same per-capability 'cited' string built only from that capability's own fact_ids. A new red-before/green-after mutation test (test_a_capability_title_is_judged_by_its_own_citations_not_the_whole_document) proves the fix's own escape path: citing the supporting fact clears the same title that fails without it. Confirmed real and correctly scoped, not merely claimed."
+ },
+ "present_run": {
+  "command": "repository-presenter present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+  "mode": "dry_run (push disabled, verified)",
+  "clone": "1.1 GB / 2430 tree entries, succeeded on this attempt despite measured heavy contention (8 concurrent repository-presenter processes across worktrees b12, bcpy1, e04r2, enet1, f05, pdfpy1, pgpy1 plus the primary's own two, confirmed live via ps aux mid-clone) - real-time progress checked directly against runs/clones/.../.git/shallow.lock and directory size at five separate points (178MB to 1.1GB) rather than assumed; no E14 timeout this run.",
+  "outcome": "NOT SEALED - presentation_planning (S5) rejected twice; run ends with JobError before S6 is ever reached",
+  "stages": {
+   "examples": "8 candidates; executed 6, failed 2 (unchanged from every prior draw of this repository)",
+   "facts": "735 records (public_symbol 570, inherited_unit 104, link_target 31, example 8, identity 5, format 5, dependency 4, package 3, build_test_asset 1, import_path 1, install_command 1, license 2); digest 22c9e2a4c6c9fabd41f29fb76762d3f413ba0393e68e01dac39bb9c74edec16c - identical to the 2026-09-16 13:20 UTC lane-E draw at the same revision",
+   "S3_repository_investigation": "1 provider call, success",
+   "S4_source_reconciliation": "3 provider calls, success; dispositions.json written",
+   "S5_presentation_planning": "REJECTED TWICE, independently, on two separate live present invocations - see reproduction below. Run ends; S6-S12 never reached this draw."
+  }
+ },
+ "item_82_e15_confirmed_closed_for_this_repository": {
+  "old_class": "PLAN_WRITES_A_SLOT_WHOSE_TITLE_AND_FACT_SET_NO_UNIT_CAN_SATISFY (S6 section_authoring, proven jointly unsatisfiable 2026-09-16 13:20 UTC: citing the plan's set failed the title rule, adding any supporting fact failed the slot-set rule, no third option).",
+  "does_it_recur": "NO - not once, across two independent live draws. The check now fires at S5, where the planner CAN act: attempt 1 of this run's first draw rejected core_capabilities 1 AND 3 for the identical .eps-naming defect (both title format terms uncited); attempt 2 (the one re-ask the system budgets) fixed capability 3 by RETITLING it ('Author PS/EPS and XPS content programmatically' -> 'Create and edit PostScript and XPS documents', dropping the unsupported EPS claim entirely) - exactly the escape S6 could never offer, proven live rather than assumed. This is the fix working as designed.",
+  "why_the_repository_still_did_not_seal": "A second, simultaneous violation on capability 1 was not fixed within the same one-re-ask budget - see below. This is a new, different, and narrower class from the one item 82 closed."
+ },
+ "the_new_class_measured_and_reproduced": {
+  "class": "PLAN_S5_REASK_BUDGET_EXHAUSTED_BY_TWO_SIMULTANEOUS_TITLE_VIOLATIONS",
+  "final_rejection_text": "core_capabilities 1 is titled 'Read and parse PostScript and EPS documents', which names .eps, which the facts it cites do not carry; cite the facts that support this title, or title the capability by what it cites",
+  "is_this_slot_satisfiable": "YES, unlike item 82's old class - measured against the run's own facts.json with zero provider calls: 26 SUPPORTED facts carry 'eps', including format:input.eps, example:004 (whose value is the eps_metadata example), and inherited_unit:073.001.list (verbatim: '`PsDocument` - `create(is_eps, page_size)` / `from_bytes(data)` / `from_file(path)`'). Any one of these, added to capability 1's fact_ids, would have satisfied the same standard that let capability 3 pass. The model's own two attempts cited only ['public_symbol:aspose.page.ps', 'inherited_unit:073.004.list'] for capability 1 in BOTH attempts (byte-identical fact_ids across attempts) - it reworded the title ('PS/EPS' -> 'PostScript and EPS') without ever adding a supporting citation.",
+  "mechanism": "core/llm/jobs.py::run_job (lines 468-501) budgets exactly one re-ask (`for ask in (1, 2)`) per job, universal to every job in the pipeline. The first attempt of this draw had TWO simultaneous violations (capabilities 1 and 3); the single re-ask's correction message (jobs.py::_re_ask, line 504) concatenates both rejection strings verbatim from plan_checks and asks for one combined fix. The model fixed capability 3 (an easier fix: drop the unsupported term from the title) but not capability 1 (which correctly cannot drop 'EPS' from its own scope - the fix there requires ADDING a citation, not removing a word) inside that one shot.",
+  "reproduction": {
+   "run_1": "22:43-22:54 local (17:52-17:53 UTC per calls.jsonl): repository_investigation 1 call, source_reconciliation 3 calls, presentation_planning 2 live provider calls (attempt 1 rejected 2 capabilities, attempt 2 rejected 1) - call_ids 2b389a106836e354-01-*-...0005/0006 and -02-*-...0007/0008.",
+   "run_2": "22:55-23:01 local (17:59-18:00 UTC): fresh `present` invocation, same revision. repository_investigation and source_reconciliation both served as cache_reuse (0 new calls, confirmed via calls.jsonl disposition field and call_id -00-cache_reuse- entries) - store.get() only ever serves an ACCEPTED prior reply (jobs.py line 410), and S3/S4 succeeded on run 1, so this is the system correctly not repeating settled work. presentation_planning made 2 GENUINELY FRESH live provider calls (new call_ids with new timestamps ...175928667/180008445/180008475/180047130 - distinct from run 1's, and via cli.py's own reasoning at lines 410-424, store.get() finds nothing for a request that was only ever rejected, so this was never a cache hit) and returned BYTE-IDENTICAL content for capability 1 (same title on attempt 2, same two fact_ids, same final rejection string) as run 1.",
+   "conclusion": "Two independent live draws, 4 total fresh presentation_planning provider calls, byte-identical outcome for capability 1 both times. This is measured determinism for this specific job/prompt/payload (temperature 0, seed 1), not a cache artifact - confirmed by call-record timestamps and by reading jobs.py's cache-reuse gate, which only matches an ACCEPTED stored reply."
+  },
+  "no_third_attempt_made": "loop-prompt.md section 5: two equivalent failed attempts prohibit a third equivalent one. A bare third `present` would reproduce the identical outcome (S3/S4 cache-served, S5 genuinely live but deterministic on this payload per the reproduction above). `--fresh` was considered and rejected as not materially different for this specific question: it only clears the calls/ store to force every stage live again (cli.py lines 511-516), but S5's behaviour already does not depend on any cached S5 reply (there was never an ACCEPTED one to seed from) - re-running S3/S4 live under --fresh would add cost with no plausible effect on S5's outcome, so it was not spent."
+ },
+ "proposal": {
+  "id": "PGPY-01",
+  "for": "the primary/supervisor - needs arrival-list admission before any lane or worker may land it",
+  "file": "src/repository_presenter/components/readme/composition/planning.py::plan_checks (the per-capability title-vs-citation loop, ~lines 655-679) and, for consistency, authoring.py::unit_checks (~lines 1099-1118), which shares the identical standard by item 82's own design",
+  "root_cause": "The rejection message plan_checks emits ('cite the facts that support this title, or title the capability by what it cites') states the RULE but names no candidate fact the model could actually cite - unlike, say, a fact-ID enum that constrains what a decoder may emit at all. With only one re-ask budgeted per job (core/llm/jobs.py, universal, not proposed for change here), a model correcting two simultaneous violations has to independently rediscover which of potentially hundreds of facts would satisfy each one, in one shot, with no gradient beyond the abstract instruction - as measured, it can manage a title-only fix (dropping the unsupported term) more reliably than a citation-add fix (finding the one supporting fact among 735) within that single try.",
+  "proposed_shape": "When plan_checks (and unit_checks) finds a title term unsupported by the capability's own citations, look up which SUPPORTED facts elsewhere in the document DO carry that exact term (the same `facts.by_kind`-style scan plan_checks already had before item 82, now repurposed only for the error MESSAGE, never for the pass/fail verdict) and name up to a few of their fact IDs in the rejection string, e.g. '...which the facts it cites do not carry; cite one of format:input.eps, example:004 (which do), or title the capability by what it cites'. This changes no pass/fail boundary and weakens nothing - the verdict logic (item 82's fix) is untouched; only the re-ask's actionability improves, the same shape as the packet-enum fixes (items 40/55/59) that let a model cite instead of invent, applied to an error message instead of a schema.",
+  "explicitly_not_proposed": "NO increase to the one-re-ask budget in core/llm/jobs.py (that is universal machinery touching every job in the pipeline, a materially bigger and costlier lever than this narrow message enrichment, and not measured as necessary here - a well-informed single re-ask may already be enough, per capability 3's own successful title-only fix in the very same attempt this run measured). NO relaxation of the slot-set rule, the title rule, or item 82's standard itself - explicitly the same guarantee E15/item 82 already committed to preserving.",
+  "repository_and_finding": "aspose-page-foss/Aspose.Page-FOSS-for-Python at ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e; presentation_planning rejected twice across two independent live draws, final rejection naming core_capabilities 1's uncited .eps claim, as recorded above.",
+  "evidence_paths": [
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls.jsonl",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls/2b389a106836.rejected-1.json",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls/2b389a106836.rejected-2.json",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/facts.json"
+  ],
+  "note_on_evidence_path_lifetime": "These paths are under runs/ (gitignored, disposable) in worktree C:\\w\\pgpy1; not committed. This evidence file records their content inline so the finding is reproducible after the worktree is removed; a fresh present at the same upstream revision is expected to reproduce the identical S5 result deterministically, per the reproduction section above."
+ },
+ "disposition": {
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "state": "NOT_SEALED",
+  "class": "PLAN_S5_REASK_BUDGET_EXHAUSTED_BY_TWO_SIMULTANEOUS_TITLE_VIOLATIONS",
+  "previous_class_closed": "PLAN_WRITES_A_SLOT_WHOSE_TITLE_AND_FACT_SET_NO_UNIT_CAN_SATISFY (item 82 / E15) is CLOSED for this repository, confirmed by running it twice, not by reading the commit - see item_82_e15_confirmed_closed_for_this_repository above.",
+  "resume_predicate": "PROPOSAL PGPY-01 lands with its mutation test, then a fresh present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python. S6 through S12 remain unmeasured for this repository, which has still never rendered a README.",
+  "no_seal_forced_no_check_weakened": "Verdict reported literally. No check was edited, relaxed, or bypassed. No re-draw was attempted a third time; the cause was narrowed by direct code-reading (jobs.py, cli.py) and a live-facts replay instead, per loop-prompt.md section 5."
+ },
+ "counted_unit": {
+  "before": "14/34 (repository-presenter status, worktree rebased onto origin/main at 1a0173a, before this run)",
+  "after": "unchanged - no seal produced by this run",
+  "method": "no state.yaml edit made; nothing sealed; project/state.yaml not opened by this worker"
+ }
+}
