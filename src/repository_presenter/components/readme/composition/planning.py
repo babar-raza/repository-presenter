@@ -19,7 +19,11 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.composition.authoring import prose_nouns, title_terms
+from repository_presenter.components.readme.composition.authoring import (
+    prose_nouns,
+    supporting_fact_ids,
+    title_terms,
+)
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
     Section,
@@ -670,10 +674,22 @@ def plan_checks(
             and term.lstrip(".").lower() not in common
         )
         if unsupported:
+            # G4-W17 arrival item 95: name a few real candidate fact IDs per unsupported term,
+            # not just what is missing - core/llm/jobs.py budgets one universal re-ask per job,
+            # and a model searching hundreds of facts for a citation spends it less reliably than
+            # one retitling a capability by the escape this rejection already offers.
+            candidates = {term: supporting_fact_ids(term, facts) for term in unsupported}
+            suggestions = "; ".join(
+                f"{term!r} is carried by {', '.join(ids)}"
+                if ids
+                else f"{term!r} by no SUPPORTED fact"
+                for term, ids in candidates.items()
+            )
             errors.append(
                 f"core_capabilities {index} is titled {item.get('title')!r}, which names "
-                f"{', '.join(unsupported)}, which the facts it cites do not carry; cite the "
-                "facts that support this title, or title the capability by what it cites"
+                f"{', '.join(unsupported)}, which the facts it cites do not carry ({suggestions}); "
+                "cite one of the named facts that supports this title, or title the capability by "
+                "what it cites"
             )
 
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}

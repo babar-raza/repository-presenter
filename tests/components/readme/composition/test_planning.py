@@ -956,8 +956,8 @@ def test_a_capability_title_names_only_a_format_the_facts_verify() -> None:
     }
     assert plan_checks(_plan(core_capabilities=unverified, at_a_glance=glance), FACTS) == [
         "core_capabilities 1 is titled 'Import OBJ meshes', which names .obj, which the facts "
-        "it cites do not carry; cite the facts that support this title, or title the "
-        "capability by what it cites"
+        "it cites do not carry ('.obj' by no SUPPORTED fact); cite one of the named facts that "
+        "supports this title, or title the capability by what it cites"
     ]
     # A verified format is free to name, and prose that matches no format fact is just prose.
     assert plan_checks(_plan(), FACTS) == []
@@ -986,8 +986,8 @@ def test_a_capability_title_is_judged_by_its_own_citations_not_the_whole_documen
     }
     assert plan_checks(_plan(core_capabilities=uncited_format, at_a_glance=glance), FACTS) == [
         "core_capabilities 1 is titled 'Export STL files', which names .stl, which the facts "
-        "it cites do not carry; cite the facts that support this title, or title the "
-        "capability by what it cites"
+        "it cites do not carry ('.stl' is carried by format:output.stl); cite one of the named "
+        "facts that supports this title, or title the capability by what it cites"
     ]
     # The escape the old rule never offered: citing the supporting fact clears it, exactly the
     # move S6 needs and cannot make once the plan is already fixed.

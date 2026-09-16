@@ -85,7 +85,10 @@ _TYPE_OBJECTIVE = (
 # prose, and the rewrites unit_checks makes before judging - decides rendered bytes, so it is a
 # component dependencies.json records and a change to it reopens COMPOSING, exactly as the shell
 # and the renderer do (the gap recorded at d147b4a; docs/STATE_MACHINE.md section 9).
-NORMALISATION_VERSION = "2"
+# "2" -> "3" (G4-W17 arrival item 95): unit_checks' own title-terms rejection message now names a
+# few real candidate SUPPORTED fact IDs per unsupported term (supporting_fact_ids) instead of only
+# what is missing - a real meaning change to this governed file's own AST, not prose.
+NORMALISATION_VERSION = "3"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -348,6 +351,40 @@ def title_terms(title: str, facts: FactsDocument) -> set[str]:
         if recorded:
             terms.add(recorded)
     return terms
+
+
+# How many candidate fact IDs a rejection names per unsupported term - enough for a model to pick
+# a real citation without restating the whole packet, never the full match list. The same count
+# review.py's own `_ABSENCE_REPORTED` already uses for "the first few claims, quoted, so the
+# reason names what it judged without listing all" - the identical shape, a rejection naming a
+# bounded sample rather than everything or nothing.
+_SUPPORTING_FACTS_NAMED = 3
+
+
+def supporting_fact_ids(
+    term: str, facts: FactsDocument, limit: int = _SUPPORTING_FACTS_NAMED
+) -> list[str]:
+    """A few SUPPORTED fact IDs whose own value literally carries ``term``, in document order.
+
+    G4-W17 arrival item 95 (lane E pgpy worker LANE-E-06, Page-Python): a title-terms rejection
+    named only what was unsupported, leaving a model with hundreds of facts to search for a real
+    citation while ``core/llm/jobs.py``'s ``run_job`` budgets exactly one universal re-ask per
+    job - measured reproduced byte-identical across two independent live draws, a capability whose
+    title needed only a rename used the escape while a sibling needing a citation-add among
+    hundreds of facts spent the same one re-ask unevenly and failed. Naming a few real candidates
+    directly in the rejection string turns "find one of hundreds" into "pick one of a few named
+    here", the same shape the packet-enum fixes (items 40/55/59) applied to a schema instead of a
+    message. An empty result means no SUPPORTED fact carries the term at all - the title needs a
+    genuine rename, not a citation, and the caller's own wording already says so.
+    """
+    needle = term.lstrip(".").lower()
+    if not needle:
+        return []
+    return sorted(
+        fact.id
+        for fact in facts.facts
+        if fact.polarity == "SUPPORTED" and needle in fact.value.lower()
+    )[:limit]
 
 
 def slot_fact_sets(section: str, plan: dict[str, Any]) -> dict[str, frozenset[str]]:
@@ -1111,10 +1148,21 @@ def unit_checks(
             and term.lstrip(".").lower() not in common
         )
         if unsupported:
+            # G4-W17 arrival item 95: the identical fix plan_checks' own sibling check applies -
+            # name a few real candidate fact IDs per unsupported term, not just what is missing,
+            # since core/llm/jobs.py budgets one universal re-ask per job.
+            candidates = {term: supporting_fact_ids(term, facts) for term in unsupported}
+            suggestions = "; ".join(
+                f"{term!r} is carried by {', '.join(ids)}"
+                if ids
+                else f"{term!r} by no SUPPORTED fact"
+                for term, ids in candidates.items()
+            )
             errors.append(
                 f"unit {unit.get('slot')}: its title {title!r} names "
-                f"{', '.join(unsupported)}, which the facts it cites do not carry; cite the facts "
-                "that support this slot's title, or the sentence belongs to another slot"
+                f"{', '.join(unsupported)}, which the facts it cites do not carry ({suggestions}); "
+                "cite one of the named facts that supports this slot's title, or the sentence "
+                "belongs to another slot"
             )
     # An exception class name is written only when a fact this section may cite records it
     # verbatim (README_CONTRACT.md section 2 row 16: the precise mechanism a fact records).

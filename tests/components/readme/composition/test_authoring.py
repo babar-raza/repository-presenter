@@ -1366,11 +1366,12 @@ def test_a_capability_sentence_is_held_to_the_title_it_fills() -> None:
     # both sentences are nonetheless under the wrong title, and the title check names both.
     assert unit_checks(swapped, task, FACTS, NAME) == [
         "unit capability:1: its title 'Save GLB' names .glb, which the facts it cites do not "
-        "carry; cite the facts that support this slot's title, or the sentence belongs to "
-        "another slot",
+        "carry ('.glb' is carried by format:output.glb); cite one of the named facts that "
+        "supports this slot's title, or the sentence belongs to another slot",
         "unit capability:2: its title 'Import aspose.threed' names aspose.threed, which the facts "
-        "it cites do not carry; cite the facts that support this slot's title, or the sentence "
-        "belongs to another slot",
+        "it cites do not carry ('aspose.threed' is carried by import_path:aspose.threed, "
+        "public_symbol:aspose.threed.scene, public_symbol:aspose.threed.scene.save); cite one of "
+        "the named facts that supports this slot's title, or the sentence belongs to another slot",
     ]
 
 
