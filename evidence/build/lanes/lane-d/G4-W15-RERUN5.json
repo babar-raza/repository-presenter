@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "lane": "lane-d",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W15-RERUN5",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-16T15:45:43+05:00",
+  "control_revision": "4cd0219",
+  "why": "Sprint W-GO / the single-item row 'PDF-Go (47; 46 landed dd7dc73)' in plans/sprint/PHASE1-SPRINT-PLAN.md section 11, run after the four-day dormancy that began with the 2026-09-11 machine restart. aspose-pdf-foss/Aspose-PDF-FOSS-for-Go carried BLOCKED_SHARED_CODE / BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE (PROPOSAL P19) with BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED (PROPOSAL P20) beside it, and its resume predicate was exactly 'P19 and P20 landed on main, then rerun from a fresh lane-d branch'.",
+  "scope": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go only; the lane's other two repositories were not run",
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "source_revision": "6784921e711f00a26fb30a0be279965502d3ff34",
+  "source_revision_note": "A NEW revision ('ship as v0.9.0 - complex scripts and document comparison'), not the 2306eeb06216be4d9cb663adcb85155594572c11 every earlier run in this lane used. The upstream README has grown from 913 lines to 987 and the public surface from 1,467 symbols to 1,560. Both strings the two blockers are about are still present: the anchor at line 288 and 'go run ./_examples/<name>' at line 965.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\d15r5",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Confirmed before any candidate work with loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . Reproduced the reference hash on the first try."
+  },
+  "toolchain": {
+    "tool": "go",
+    "resolved_by": "shutil.which(\"go\")",
+    "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+    "version": "go1.26.4 windows/amd64"
+  },
+  "lane_owned_changes": [],
+  "lane_owned_changes_note": "No lane-owned code changed. No src/ or tests/ change of any kind: this item is a re-run at current shared code, and every defect it found is in shared code and is recorded as a PROPOSAL rather than patched around.",
+  "resume_predicate_met": true,
+  "predicate_checked_how": "By reading main's code, not by trusting a ledger line - though the ledger agrees: evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl records {\"item\": 47, \"landed_at\": \"2026-09-11T18:50:12Z\", \"unlocks\": [[\"lane-d\", \"aspose-pdf-foss/Aspose-PDF-FOSS-for-Go\"]]}.",
+  "classes_closed": [
+    {
+      "class": "BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE",
+      "proposal": "P19",
+      "landed_as": "dd7dc73 (G4-W17 arrival item 46)",
+      "how_verified": "Twice. Offline, with zero provider calls, on the exact string whose two targeted_repair attempts were rejected identically on 2026-09-07: _bare_angle_bracket(\"Run it with `go run ./_examples/<name>` from the repository root.\") is False and _bare_angle_bracket(\"Use a <div> here.\") is True - a code-span bracket is a command's placeholder, a bare one is still HTML. And live: BC-08 PASSES in run 1.",
+      "closed": true
+    }
+  ],
+  "classes_partly_closed": [
+    {
+      "class": "BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED",
+      "proposal": "P20",
+      "landed_as": "78555bc (G4-W17 arrival item 47)",
+      "routing_half_closed": true,
+      "how_verified": "Twice, and the second time end to end. Run 1's validation.json carries the anchor failure as {\"causal_stage\": \"COMPOSING\", \"detail\": \"#encryption-and-signing: no heading #encryption-and-signing\", \"section_id\": \"additional_examples\"} where every earlier run of this repository carried section_id null. Run 3, with the transient link failure gone from the same check, went further: repairs.json records {\"label\": \"BC-06\", \"outcome\": \"repaired\", \"stage\": \"S6\", \"section_id\": \"additional_examples\"} with a real targeted_repair request digest - the first time this failure has ever been routed to a repair in this repository.",
+      "but": "The repair could not succeed and BC-06 re-raised, for a reason run 3 isolates precisely. The repair's one change was byte-identical and its path was units.0.text - the additional_examples section's authored 'preview' slot, which contains no anchor. The anchor is in inherited_unit:025.paragraph, VERIFIED_PRESERVE into the same section, copied verbatim and rendered at README.md line 223; a preserved inherited unit is not an authored unit, so no section_authoring task owns it and targeted_repair may not edit it. That is the CAUSE half P20 named on 2026-09-07, which item 47 never claimed to fix. See PROPOSAL P30.",
+      "closed": false
+    }
+  ],
+  "runs": {
+    "run_1": {
+      "purpose": "the first composition of this repository at the new revision and at current shared code",
+      "outcome": "7 pass, 2 fail, 2 pending. Did not seal.",
+      "facts": 1715,
+      "facts_detail": "public_symbol 1560, inherited_unit 92, link_target 43, example 6, identity 5, build_test_asset 2, license 2, package 2, dependency 1, import_path 1; 1712 SUPPORTED, 3 UNRESOLVED",
+      "examples": "6 candidates, 5 executed, 1 not_verified (example:004, a certificate-generation snippet whose imports the verifier cannot bind)",
+      "dispositions": "92 units in one round: VERIFIED_PRESERVE 35, SUPERSEDE_REDUNDANT 28, VERIFIED_MOVE 18, DEFER_UNRESOLVED 5, NON_CONTENT 4, OMIT_UNSUPPORTED 2",
+      "plan": "16 of 18 sections",
+      "units": "42 units across 8 sections",
+      "readme": "210 visible lines of 802",
+      "ledger": "16 records, 15 success and one S3 re-ask, every one HTTP 200, 0 cache_reuse, 0 cache_stale",
+      "checks_passed": [
+        "BC-01",
+        "BC-02",
+        "BC-03",
+        "BC-04",
+        "BC-05",
+        "BC-08",
+        "BC-09"
+      ],
+      "checks_failed": [
+        "BC-06",
+        "BC-07"
+      ],
+      "checks_pending": [
+        "BC-10",
+        "BC-11"
+      ],
+      "failures": [
+        "BC-06 EXTRACTING https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go is UNRESOLVED: UNCHECKED: unreachable: ReadTimeout (32,662 ms); section_id null",
+        "BC-06 COMPOSING #encryption-and-signing: no heading #encryption-and-signing; section_id additional_examples",
+        "BC-07 COMPOSING abbreviation 'pdf' is not in its canonical form PDF; section_id null"
+      ],
+      "repair": "0 repaired, 2 unrepairable recorded advisory, rounds 1"
+    },
+    "run_2": {
+      "purpose": "re-run after the run-1 link probe was shown transient, to let the anchor failure stand alone so item 47's routing could be exercised end to end",
+      "outcome": "Died at S5. No validation, no checks judged.",
+      "probe_result": "The production path re-probed the timed-out link and got RESOLVED, 200 in 1,028 ms; zero non-resolved probes; only example:004 left UNRESOLVED in the facts. The run-1 ReadTimeout was transient, confirmed on the production path.",
+      "s3": "cache_reuse, zero provider calls - the investigation packet does not carry the link fact that changed",
+      "s4": "three batches, all live, all clean on attempt 1 (87,267 / 53,953 / 23,525 ms)",
+      "s5": "presentation_planning, request digest 8be652cfcbc2, returned exactly 6,000 completion tokens on a 120,132-token prompt, finish_reason length, error_class TruncatedOutput. The stage raises rather than re-asking, by design ('raise the budget or bound the output, never retry'), so the transaction ended with no plan, no units, no document and no checks. Run 3 sent the identical digest and got 3,351 tokens cleanly. See PROPOSAL P29."
+    },
+    "run_3": {
+      "purpose": "resend the identical S5 request after run 2's truncation, so BC-06 would carry the anchor failure alone and item 47's routing could be exercised end to end",
+      "outcome": "7 pass, 2 fail, 2 pending. Did not seal. BC-06 WAS routed and repaired for the first time in this repository's history, and re-raised.",
+      "probe_result": "RESOLVED, 200 in 3,081 ms - the third consecutive production-path resolution of the link that timed out in run 1",
+      "cache": "S3, all three S4 batches, S6 and the coherence pass all served from the store with zero provider calls; only the one live S5 and the one repair call went to the provider",
+      "s5": "request digest 8be652cfcbc2 - byte-identical to run 2's - returned 3,351 completion tokens on the same 120,132-token prompt and succeeded",
+      "plan": "17 of 18 sections",
+      "units": "43 units across 9 sections",
+      "readme": "218 visible lines of 808",
+      "checks_passed": [
+        "BC-01",
+        "BC-02",
+        "BC-03",
+        "BC-04",
+        "BC-05",
+        "BC-08",
+        "BC-09"
+      ],
+      "checks_failed": [
+        "BC-06",
+        "BC-07"
+      ],
+      "checks_pending": [
+        "BC-10",
+        "BC-11"
+      ],
+      "failures": [
+        "BC-06 COMPOSING #encryption-and-signing: no heading #encryption-and-signing; section_id additional_examples; check-level causal_stage COMPOSING",
+        "BC-07 COMPOSING abbreviation 'pdf' is not in its canonical form PDF; section_id null"
+      ],
+      "repair": "1 repaired (BC-06 S6 additional_examples, request_sha256 8dea8962669335e1843ef6beb500015d0c4cffc8490c298e4323cdf9a6340d0e), 1 unrepairable recorded advisory, 1 re-raised after repair; the equivalent failure stands; rounds 2",
+      "why_it_matters": "This is the end-to-end confirmation of arrival item 47. With the transient probe gone, BC-06's check-level causal_stage was COMPOSING, validation_defects read the per-failure section_id additional_examples, and a real targeted_repair call was made - where run 1 and every run before 2026-09-16 recorded 'unrepairable'."
+    }
+  },
+  "e3_size_control": {
+    "for": "lane E PROPOSAL E3 (does a large citable enum provoke HTTP 400?)",
+    "measured_offline_from_this_run_s_own_facts": "S4's citable_fact_ids() enum for this repository is 512, 512 and 483 values - 15,571, 15,486 and 14,668 characters of IDs",
+    "live_result": "All three batches succeeded on attempt 1 in run 1 (92,013 ms / 3,603 completion tokens; 105,455 / 4,019; 23,355 / 986) and again in run 2, every call HTTP 200. No HTTP 400 at any stage of any run.",
+    "comparison": "Aspose.Cells for Go, the control RERUN3 recorded, ran at 139 and 125 values (3,604 characters). The production path is now measured clean at 512. Nothing here speaks to 3,812."
+  },
+  "proposals": [
+    "P25 - BC-07's and the renderer's lowercase-word patterns disagree about hyphens, so BC-07 demands a spelling renderer.canonical() is forbidden to write. Measured on run 1's own rendered prose: the validator's (?<![.\\w])[a-z]{3,}\\b matches 'pdf' 7 times and yields violation ['pdf']; the renderer's (?<![.\\w:-])[a-z]{3,}(?![\\w:-]) matches it 0 times and yields []. All 7 sit inside hyphenated tokens - 6 in the module path aspose-pdf-foss/aspose-pdf-foss-for-go, 1 in the upstream ticket slug '(epic pdf-go-w4ht)'. The failure carries section_id null, so no repair is attempted. P19's shape one check over, and arrival item 26's reasoning for BC-08 one check over. Fix: give validation/registry.py's _LOWER_WORD the renderer's hyphen guard. Proven on this candidate's bytes: 7 matches to 0, one violation to none. Trade-off stated plainly: that guard also stops BC-07 seeing a violation someone might genuinely write in prose (\"the pdf-format output\"). The narrower alternative is to exempt only a lowercase abbreviation falling inside a SUPPORTED fact value and keep failing it elsewhere - more faithful, more code. Either way the invariant is the one that matters: BC-07 must not demand a spelling renderer.canonical() is forbidden to write, and the check and the normaliser should be built from one pattern rather than two that drifted apart.",
+    "P26 - a Go module path is one identifier and the renderer splits it. identifier_tokens() has _COORDINATE for a colon-bearing Maven coordinate but nothing for a slash-bearing Go module path: identifier_tokens('... and Save methods from github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.') returns ['github.com'] only. renderer.prose therefore renders '`github.com`/aspose-pdf-foss/aspose-pdf-foss-for-go' - a split identifier in the visible README, which loop-prompt.md section 6 rule 8 names a defect in its own right. Three units carry it. Measured as NOT sufficient for BC-07 on its own: wrapping the path takes the 'pdf' matches from 7 to 1, and the survivor '(epic pdf-go-w4ht)' is ordinary prose. P25 is the necessary fix; P26 removes the split identifier.",
+    "P27 - a link probe that times out is never asked again. 091e8bc gave registry probes a retry for every ecosystem; link probes have none. One ReadTimeout at 32,662 ms turned a link that answers 200 in about a second into UNRESOLVED and failed BC-06 at EXTRACTING. Evidence: three independent live GETs at 200 in 2,362 / 701 / 764 ms, and run 2's production probe at RESOLVED 200 in 1,028 ms, all at the same revision within twenty minutes.",
+    "P28 - a check's repairability is decided by its worst failure, not per failure. repair/targeted.py::validation_defects reads check['causal_stage'], one value for the whole check, and only then, and only for stage S6, looks at per-failure section_id. BC-06 carried an EXTRACTING and a COMPOSING failure together; the check-level value was EXTRACTING, so the COMPOSING failure carrying section_id 'additional_examples' was never considered. This is exactly what stopped item 47 - landed for this repository by name - from being exercised in run 1.",
+    "P29 - S5 planning truncates at its 6,000-token budget on a coin flip, and the body that would explain it is discarded. Proven on one request digest: calls.jsonl records presentation_planning req 8be652cfcbc2 returning 6,000 completion tokens with finish_reason length (run 2, transaction killed six stages before validation) and the SAME digest returning 3,351 completion tokens cleanly (run 3); run 1's slightly different request da3aac42f740 returned 2,102. Nothing about the packet changed - the digest is the proof. prompts/presentation_planning.yaml sets max_output_tokens 6000 and bounds core_capabilities (3-8), api_hubs (<=12) and capability_titles (3-8), but leaves sections, additional_example_ids, material_limitations, links, deviations and every nested fact_ids/shared_fact_ids/unit_ids/input_format_ids/output_format_ids array with no maxItems; composition/planning.py pins those arrays' items to citable_fact_ids() as one enum (3e9b81f) but not their length, and this repository's citable set is 512 values - P23's residual one stage over, where the batch no longer bounds the count. NOT PROVEN that this truncation was a runaway array, and that is the second half of the proposal: core/llm/jobs.py's finish_reason == 'length' branch calls attempts.record_invalid() and raises without calling store.reject(), so reply.content is discarded, though CallStore.reject's own docstring is 'Keep a rejected reply beside the store, so a rejection can be read, never guessed.' Fix, smallest first: store the truncated body like any other rejection; then bound the five unbounded arrays, as authoring_schema() already bounds its slots. Raising the budget alone moves the ceiling.",
+    "P30 - the anchor is in a preserved unit and the repair may only edit authored ones. Measured in run 3: repairs.json's single change is before == after ('Create encrypted documents, build tables with the Rectangle API, and render pages to images.') at path units.0.text, the additional_examples authored 'preview' slot, which carries no anchor; the anchor is in inherited_unit:025.paragraph, VERIFIED_PRESERVE into the same section, at README.md line 223. The repairer was shown the right section and handed the only units it may edit, none of which is the one carrying the defect, so it returned the text unchanged, the round was recorded as 'repaired', and BC-06 re-raised on the identical detail. This is the cause half PROPOSAL P20 named: 'a preserved unit's intra-document anchor should be resolved against the planned headings when the unit is placed - rewritten to the heading that survived, or dropped to plain text - rather than carried into the document to fail at S9.' Placement is the right place: at S4/S5 the planned headings are known and an anchor resolving to none of them can be downgraded to its link text deterministically, with no provider call. Repairing it at S6 cannot work while preserved units sit outside the repair's edit surface. Corroboration, not a new class: a repair writing back byte-identical prose is still recorded as 'repaired' with a re-raise rather than as a no-op - RERUN3 saw the same shape on 2026-09-06 and named lane C's item 34; this is a second, independent occurrence in a different ecosystem."
+  ],
+  "sealed": false,
+  "seal_note": "No seal, and none forced. BC-10 and BC-11 were never judged in any of the three runs and neither is claimed. The blocking failure is BC-07 (PROPOSAL P25), which no repair can reach, with BC-06 beside it (PROPOSAL P30).",
+  "bundle_on_disk": false,
+  "local_ci": "ruff check clean, ruff format clean (236 files), mypy clean (126 source files), pytest -n auto green with xfails only. One full run, immediately before the commit.",
+  "status_after": "10/34 current reviewable no-op-proven candidates - unchanged by this item, which sealed nothing."
+}

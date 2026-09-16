@@ -25,6 +25,15 @@ toolchains:
 progress:
   sealed_by_lane: 2
   dispositions_by_lane: 1
+  status_line_observed_2026_09_16: '2026-09-16 15:44, from this lane branch off origin/main at
+    4cd0219: candidates 10/34 current reviewable no-op-proven - unchanged by this item, which sealed
+    nothing. 10 ever sealed, 10 integrity-valid, 7 current-code reproducible, 0 independently
+    accepted (stale-excluded); examples 59/88 verified across counted candidates. The count did not
+    move because aspose-pdf-foss/Aspose-PDF-FOSS-for-Go stops at BC-07 on a check that demands a
+    spelling the renderer is forbidden to write (PROPOSAL P25) and at BC-06 on an anchor inside a
+    preserved unit no repair may edit (PROPOSAL P30). G4-W16''s acceptance line asked for 31 sealed
+    and 34 dispositions; that number was written before the shared blockers were known and is still
+    recorded rather than met.'
   status_line_observed: '2026-09-11 17:33, from this lane branch off origin/main at 22c2e45:
     candidates 9/34 current reviewable no-op-proven - up from 8. 9 ever sealed, 9 integrity-valid,
     7 current-code reproducible, 1 independently accepted (stale-excluded); examples 56/85 verified
@@ -384,3 +393,53 @@ items:
     repair/rounds.py''s G5-W02 path, authored against a different plan, so the re-judge rejecting it is
     the design working; RERUN3''s observation 1 is thereby explained and not carried forward.
     sealed_by_lane 1 -> 2, dispositions_by_lane 2 -> 1. See docs/RESEARCH_LANE_D.md.'
+- id: G4-W15-RERUN5
+  status: ACCEPTED
+  receipt: evidence/build/lanes/lane-d/G4-W15-RERUN5.json
+  purpose: 'Sprint W-GO / single-item PDF-Go (plans/sprint/PHASE1-SPRINT-PLAN.md section 11: "PDF-Go (47; 46 landed dd7dc73)"), after the 4-day dormancy from the 2026-09-11 machine restart. Re-run aspose-pdf-foss/Aspose-PDF-FOSS-for-Go, whose BLOCKED_SHARED_CODE / BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE (PROPOSAL P19) with BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED (PROPOSAL P20) beside it names exactly those two fixes as its resume predicate. Both are confirmed landed on main rather than assumed: item 46 as dd7dc73 (composition/authoring.py::_bare_angle_bracket) and item 47 as 78555bc (validation/registry.py::_check_links carries the section). Evidence evidence/build/lanes/lane-d/G4-W15-RERUN5.json.'
+  accepted_at: '2026-09-16T15:45:43+05:00'
+  outcome: 'Accepted at the box with a disposition and six proposals; no seal, one named
+    blocker fully closed and the other''s routing half closed end to end. PROPOSAL P19''s resume
+    predicate was met and its class is closed, measured twice: offline, _bare_angle_bracket admits
+    `go run ./_examples/<name>` inside a code span and still rejects a bare <div> - the exact string
+    whose two repairs were rejected identically on 2026-09-07 - and live, BC-08 PASSES in every run.
+    PROPOSAL P20''s routing half is closed and was exercised end to end in run 3: repairs.json records
+    BC-06 as outcome repaired, stage S6, section_id additional_examples with a real targeted_repair
+    request digest, where run 1 and every run before today recorded unrepairable. The repository is at
+    a NEW revision, 6784921e (v0.9.0), not the 2306eeb0 every earlier run used; 1,715 facts, 1,560
+    public symbols, 92 inherited units. Three runs. Run 1 reached S9 at 7 pass / 2 fail / 2 pending
+    over a 16-of-18 plan, 42 units and README.md at 210 visible lines of 802; BC-01 to BC-05, BC-08
+    and BC-09 green. BC-06 carried two failures at once - a link probe that timed out at 32,662 ms
+    (EXTRACTING, section_id null) and the anchor (COMPOSING, additional_examples) - and because
+    repair/targeted.py::validation_defects reads only the CHECK-level causal_stage, the transient
+    masked the very failure item 47 had just made routable (PROPOSAL P28; PROPOSAL P27 for the
+    missing link-probe retry that 091e8bc already gave registry probes). The probe is transient,
+    measured not asserted: three independent live GETs at 200 in 2,362 / 701 / 764 ms, then RESOLVED
+    200 in 1,028 ms and 3,081 ms on the production path in runs 2 and 3. Run 2 died at S5 and judged
+    nothing. Run 3 re-sent the identical S5 request, reached S9 at 7 pass / 2 fail / 2 pending over a
+    17-of-18 plan, 43 units across 9 sections and README.md at 218 visible lines of 808, and routed
+    the BC-06 repair - which then wrote back byte-identical prose and re-raised, because its one
+    editable path was units.0.text, the section''s authored preview slot, while the anchor lives in
+    inherited_unit:025.paragraph, VERIFIED_PRESERVE, at README.md line 223: a preserved unit no
+    authoring task owns and no repair may edit (PROPOSAL P30 - P20''s cause half, which item 47 never
+    claimed to fix). BC-07 fails in both judged runs on "abbreviation ''pdf'' is not in its canonical
+    form PDF" with section_id null, and is unrepairable by construction: validation/registry.py''s
+    _LOWER_WORD has no hyphen guard and composition/renderer.py''s has one on both sides, so BC-07
+    fails the document for spellings renderer.canonical() is forbidden to write. Measured on the
+    candidate''s own prose: the validator matches ''pdf'' 7 times and the renderer 0, all seven inside
+    hyphenated tokens - six in the module path aspose-pdf-foss/aspose-pdf-foss-for-go and one in the
+    upstream slug "(epic pdf-go-w4ht)" (PROPOSAL P25, with the trade-off and the narrower alternative
+    both recorded; PROPOSAL P26 records that identifier_tokens() has _COORDINATE for a colon-bearing
+    Maven coordinate but nothing for a slash-bearing Go module path, so the renderer emits
+    `github.com`/aspose-pdf-foss/... - a split identifier under rule 8 - and is measured NOT sufficient
+    for BC-07 alone: 7 matches to 1, not to 0). PROPOSAL P29: one S5 request digest, 8be652cfcbc2,
+    truncated at the 6,000-token budget in run 2 and returned 3,351 tokens in run 3, and the truncated
+    body is discarded rather than stored, so it cannot be diagnosed. As lane E PROPOSAL E3''s size
+    control: S4''s citable enum here is 512 / 512 / 483 values (15,571 / 15,486 / 14,668 characters)
+    and every batch answered 200 on attempt 1, against Cells-Go''s 139 / 125; no HTTP 400 at any stage
+    of any run. No lane-owned code changed and no src/ or tests/ change of any kind. The disposition
+    becomes BLOCKED_SHARED_CODE / BC07_HYPHENATED_ABBREVIATION_IS_UNWRITABLE, superseding
+    BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE (closed), with
+    BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED beside it - routing half closed, cause
+    half open on P30. sealed_by_lane stays 2 and dispositions_by_lane stays 1. BC-10 and BC-11 were
+    never judged in any run and neither is claimed. See docs/RESEARCH_LANE_D.md.'
