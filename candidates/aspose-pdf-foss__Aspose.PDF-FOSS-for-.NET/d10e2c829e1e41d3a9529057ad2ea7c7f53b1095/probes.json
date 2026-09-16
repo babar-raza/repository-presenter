@@ -1,0 +1,98 @@
+[
+  {
+    "elapsed_ms": 928,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/pdf/net/"
+  },
+  {
+    "elapsed_ms": 1425,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/issues"
+  },
+  {
+    "elapsed_ms": 428,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/.NET-8.0-blue.svg"
+  },
+  {
+    "elapsed_ms": 421,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1853,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.PDF.FOSS.svg"
+  },
+  {
+    "elapsed_ms": 949,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/pdf/net/"
+  },
+  {
+    "elapsed_ms": 539,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/pdf/net/"
+  },
+  {
+    "elapsed_ms": 481,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/pdf/net/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 607,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/pdf/net/"
+  },
+  {
+    "elapsed_ms": 874,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/pdf/net/"
+  },
+  {
+    "elapsed_ms": 1933,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.PDF.FOSS/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "nuget-flatcontainer-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "nuget:Aspose.PDF.FOSS"
+  }
+]

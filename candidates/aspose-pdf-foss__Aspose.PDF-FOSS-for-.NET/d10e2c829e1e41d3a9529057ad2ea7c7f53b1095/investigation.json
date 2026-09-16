@@ -1,0 +1,215 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:target_framework",
+      "inherited_unit:004.paragraph"
+    ],
+    "text": "Developers building .NET 8+ applications who need to process PDF documents without licensing costs, especially those migrating from Aspose.PDF for .NET or seeking a drop-in replacement for common PDF tasks."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "inherited_unit:010.list"
+      ],
+      "text": "Create new documents or open existing ones, add/delete/reorder pages, and save with full round-trip support for bookmarks, outlines, page labels, named destinations, document info, XMP metadata, and optional content layers.",
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:007",
+        "inherited_unit:010.list"
+      ],
+      "text": "Extract text using TextAbsorber and TextFragmentAbsorber, find and replace text across pages including ligature-aware spans, and build new text with TextFragment, TextStamp, and FormattedText.",
+      "title": "Extract and replace text"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "inherited_unit:010.list"
+      ],
+      "text": "Read, fill, and build AcroForm fields including text, checkbox, radio, choice, button, signature, and rich text, with field-level flatten and JSON/XFDF export/import.",
+      "title": "Process interactive forms"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "inherited_unit:010.list"
+      ],
+      "text": "Add and edit standard annotation types including link, text, free-text, highlight, ink, stamp, popup, file attachment, redaction, and pre-press marks with appearance generation.",
+      "title": "Add annotations and stamps"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:012",
+        "inherited_unit:010.list"
+      ],
+      "text": "Encrypt documents with RC4-40, RC4-128, AES-128, and AES-256, and sign using PKCS#7/CMS detached signatures including DocMDP certifying signatures.",
+      "title": "Encrypt and sign documents"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:011",
+        "inherited_unit:010.list"
+      ],
+      "text": "Render pages to PNG, JPEG, BMP, TIFF, or SVG using pluggable devices with mesh shading, JBIG2 decoding, and JPEG/JPEG2000/CCITT-Fax filter support.",
+      "title": "Render pages to images and SVG"
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "inherited_unit:010.list"
+      ],
+      "text": "Convert PDF to and from HTML and SVG, load Markdown, XML, or plain-text files, and export to Markdown, plain text, or PDF/A (1A through 4F).",
+      "title": "Convert between formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.comparison",
+        "inherited_unit:010.list"
+      ],
+      "text": "Compare two documents or pages using SideBySidePdfComparer for text-based differences or GraphicalPdfComparer for pixel-level diffs (Windows only).",
+      "title": "Compare documents"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "AI/LowCode workflows (Aspose.Pdf.AI.*, Aspose.Pdf.LowCode.*) are out of scope; use Aspose.PDF for .NET Enterprise Edition for AI-powered features."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "Multithreading APIs are not included; this edition is single-threaded for a single Document instance."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "Format converters are limited to PDF, HTML, SVG, Markdown, and XML; DOCX, EPUB, MHT, XPS, PCL, LaTeX, DJVU, OFD, PostScript, and CGM conversion are not included."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "TiffDevice.BinarizeBradley and DocumentCollection.GetEnumerator() are not implemented and throw NotImplementedException."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "Advanced digital signature validation options (ValidationOptions, OCSP, network timestamping) are stored but not active."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "text": "Rendering output is pixel-close but not byte-identical to Aspose.PDF for .NET Enterprise Edition due to differences in sub-pixel positioning, dithering, and anti-aliasing."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "inherited_unit:004.paragraph"
+      ],
+      "text": "Enables programmatic PDF creation, editing, and conversion using a familiar API surface without requiring a commercial license."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:008",
+        "example:009",
+        "example:012"
+      ],
+      "text": "Supports text extraction, form filling, annotation management, and document security (encryption and signing) through dedicated APIs."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:010",
+        "example:011"
+      ],
+      "text": "Provides rendering to raster and vector formats (PNG, JPEG, SVG) and conversion between PDF, HTML, SVG, Markdown, and plain text."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:target_framework"
+    ],
+    "text": "Aspose.PDF FOSS for .NET is a free, open-source .NET 8+ library for reading, creating, modifying, and converting PDF documents with an API surface compatible with Aspose.PDF for .NET."
+  },
+  "uncertainties": [
+    "The exact scope of 'limited' XFA authoring capabilities is not specified beyond basic read/flatten and dataset round-tripping.",
+    "Whether 'basic' digital signatures include PKCS#1 support is implied but not explicitly confirmed by the public symbols.",
+    "The behavior of DocumentCollection.GetEnumerator() on non-implemented platforms is not detailed beyond throwing NotImplementedException."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "name": "Create and edit PDF documents",
+      "text": "Create a new document using Document.Create(), add pages, insert text fragments, and save the result to disk."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:007"
+      ],
+      "name": "Extract and replace text",
+      "text": "Use TextAbsorber or TextFragmentAbsorber to find text, then modify fragments and save the updated document."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004"
+      ],
+      "name": "Add annotations and stamps",
+      "text": "Open an existing PDF, add link annotations with URI actions, or insert stamp annotations on specific pages."
+    },
+    {
+      "fact_ids": [
+        "example:008"
+      ],
+      "name": "Process interactive forms",
+      "text": "Open a PDF with form fields, iterate over fields in Document.Form.Fields, and read or modify their values."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:011"
+      ],
+      "name": "Render pages to images or SVG",
+      "text": "Use SvgDevice, PngDevice, or other image devices to convert PDF pages to vector or raster formats."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:012"
+      ],
+      "name": "Encrypt and sign documents",
+      "text": "Apply encryption with user/owner passwords and AES-256, or sign documents using PKCS#7 certificates."
+    }
+  ]
+}

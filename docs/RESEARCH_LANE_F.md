@@ -1105,3 +1105,148 @@ correction, not a silently rewritten paragraph.
 **Evidence.** F21 above; PR #53 (`6181989`); `evidence/build/lanes/lane-f/LANE-F-01.json`.
 
 **Reversal path.** None — a correction record.
+
+## 2026-09-16 — LANE-F-01, run 4: PDF-.NET seals; a second job's unbounded array joins F2's class
+
+Fresh short-path worktree `C:\w\f04`, branch `lane-f/LANE-F-01-R4` off `origin/main` at `ed9b67e`
+(PR #62 merged). `.venv` built by the §1.3 recipe; `_presenter_site_manifest_hash` confirmed
+`f4406f1b…` before any candidate work. F25's revised order (PDF-.NET first, the only LANE-F-01
+repository never run past a facts-only reading) is acted on directly.
+
+### F26 PDF-.NET run 4: SEALED and no-op proven — items 57, 58 and 59 all hold at PDF-.NET's real scale
+
+**Decision.** `aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET` is **SEALED and no-op proven** at
+`b7172877651413cff57a8bfe41fb8a8befb2406b` (unchanged from the stale G4 manifest row's revision).
+Portfolio count 12/34 → 13/34 (`repository-presenter status` from `C:\w\f04` rebased onto
+`ed9b67e`: "13 ever sealed, 13 integrity-valid, 10 current-code reproducible, 1 independently
+accepted (stale-excluded)").
+
+**Facts-only preflight (2026-09-16 12:36–12:47 UTC, no provider calls).** 12,582 facts: 12,581
+SUPPORTED, 0 UNRESOLVED, 1 CONTRADICTED, `required_rows_without_evidence: none`. 12 examples,
+executed 11 failed 1 — `example:005`'s `ChoiceField` snippet calls `options[i].ExportValue`, which
+does not exist on `Option` (`CS1061`), a genuine upstream defect (rule 16), not this codebase's.
+`install_command:dotnet` SUPPORTED, "found on nuget" — item 57 confirmed a third time. 12,270
+`public_symbol` facts, 239 `inherited_unit` facts.
+
+**Composition, attempt 1, aborted at S4 (`source_reconciliation`).** After three normal batches
+(2,968–3,356 completion tokens), the fourth batch's first live call returned exactly 32,000
+completion tokens — `source_reconciliation`'s own `max_output_tokens` — and `core/llm/jobs.py`
+recorded it `TruncatedOutput` and stopped the run: "`source_reconciliation: output truncated at
+the manifest's max_output_tokens (32000); raise the budget or bound the output, never retry`".
+Exit code 0 (a graceful stop, not a crash). See F27 for the precise diagnosis.
+
+**Composition, attempt 2, same transaction directory (revision-keyed, so the prior run's three
+successful batches replayed from `cache_reuse` at 0 tokens each), reached ACCEPT.** The same batch
+that truncated (identical `request_sha256` `4db383bbc59f5d4a…`, identical `prompt_tokens` 73,860)
+returned 3,016 completion tokens this time — see F27. `source_reconciliation` finished at 239
+units: NON_CONTENT 5, OMIT_UNSUPPORTED 2, SUPERSEDE_REDUNDANT 188, VERIFIED_MOVE 11,
+VERIFIED_PRESERVE 30, VERIFIED_REWRITE 3. Plan: 17/18 sections, 8 capabilities, 1 hub, 1+10
+examples, 4 links, 1 limitation. 163 content units across 9 sections. `section_authoring` made 14
+successful calls, largest completion 4,199 tokens against the 8,000 cap (prompt 54,589 tokens) —
+**item 75's class did not recur here**: PDF-.NET has 3.2× 3D-.NET's symbol count but no
+`section_authoring` call came within half the cap, because `api_reference` is renderer-owned, not
+authored, and no single section's content-unit count spiked. README 188 visible lines of 1,219.
+
+**Validation: BC-01 through BC-10 all PASS at S9/S10 on the first composition pass** — the first
+.NET repository in this lane to clear BC-07 (item 58's heading-collision fix) against a real
+34-of-899 same-final-segment collision rate, 17× 3D-.NET's 2. `independent_review` returned
+`REJECT_PRESENTATION` (`verdict_as_returned`) on 8 findings, all `criterion: presentation`, none
+factual/safety/protected-content; the corroboration guard's second read (PHASE1/F6) repeated 7 of
+8 as advisory and the fold to `verdict: ACCEPT` is correct per the guard's own rule (no ACCEPT-
+invalidating finding survives). 15 advisories total, `identity_separate: true`.
+
+**BC-11 (no-op proof): PASS.** A third `present` invocation, same transaction directory, seeded
+every job from the sealed bundle's own call history: `investigation`, `dispositions`, `plan`,
+`content_units`, `coherence`, `review` all read "provider calls 0, model stored output reused",
+and every printed digest (facts `7d79a34e…`, dispositions `3151a8b5…`, plan `f1d8bbeb…`,
+content_units `a78051ae…`, README `d84f2346…`, patch `a0d547a1…`, review `84bb69eb…`) is
+byte-identical to attempt 2's. `manifest.json`: `no_op_proof: {byte_identical: true,
+fresh_process: true, provider_calls: 0, proven_at: "2026-09-16T13:47:55Z"}`. Bundle: 13 files,
+`state: READY_FOR_PROPOSAL`.
+
+**Alternative rejected.** A third live composition attempt "just in case" — unnecessary, the second
+attempt already reached ACCEPT and no-op proved; and treating attempt 1's abort as a disposition
+(`BLOCKED_PLANNING`/`BLOCKED_COMPOSING`) rather than retrying once — §5's two-equivalent-attempts
+rule permits exactly one retry, and Email-.NET's run 3 (F21) already established that a same-digest
+retry on a transport-level truncation is not an "equivalent attempt" in the sense the rule guards
+against (it ended on a truncation, not a verdict).
+
+**Evidence.** `runs/transactions/aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET/b7172877…2406b/`
+(`calls.jsonl` 53 records across both live invocations, `validation.json`, `review.json`,
+`plan.json`, `dispositions.json`, `content_units.json`, `manifest.json`, `README.md`);
+`candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-.NET/b7172877…2406b/`.
+
+**Reversal path.** `git revert` of the landing commit removes the bundle and `CURRENT` pointer;
+the G4 manifest row (`BLOCKED_PLANNING`, stale since before items 57/58/59) is left for the owner
+to fold, not amended here (not a lane-owned path).
+
+### F27 PROPOSAL — `source_reconciliation`'s `fact_ids` array still has no `maxItems` after item 40's enum fix; the same digest answered 32,000 tokens truncated, then 3,016 tokens complete
+
+**Defect.** `src/repository_presenter/components/readme/reconciliation/dispositions.py:239-242`
+(shared code — `reconciliation/`, not a lane-F path). Item 40 (`e2a1a83`) gave `fact_ids`'s
+**items** an `enum` of the packet's own citable fact IDs — closing F2's first half (the
+prefix-only `pattern` that admitted IDs naming no fact) — but never gave the `fact_ids` **array**
+a `maxItems`. `prompts/source_reconciliation.yaml` v6 line 83 still declares
+`fact_ids: { type: array, items: { type: string } }` with no bound at the array level, and
+`reconciliation_schema()` only ever narrows `.items`, never adds `.maxItems`. F2 named this exact
+half in run 1 ("`fact_ids` has no `maxItems` and its items have no `maxLength`... nothing to
+terminate it — the runaway to the 32000-token cap") and it is still true after item 40 landed.
+
+**Measured on PDF-.NET, batch 3 of 6** (`reconciliation_batches()`'s fixed `_RECONCILIATION_BATCH
+= 40`; 239 inherited units → 6 batches, five of 40 and one of 39 — this was an ordinary-sized
+batch, not the largest). `request_sha256` `4db383bbc59f5d4a1dbe0ecaec8c5a8ccb03b369eb6d77fc6d86a1e328faebc0`,
+`prompt_tokens` 73,860 both times (the request is byte-identical; its five sibling batches'
+prompts ranged 72,086–75,404 and all completed normally at 2,968–8,841 tokens). **Attempt 1**
+(`temperature 0.0`, `seed 1`, `2026-09-16T13:02:06Z`, `latency_ms` 644,670 ≈ 10.7 min):
+`completion_tokens` exactly 32,000 — `source_reconciliation`'s own `max_output_tokens` — `http_status`
+200, then a second record for the same `logical_call_id` at the same instant, `outcome:
+response_invalid`, `error_class: TruncatedOutput`. No `calls/4db383bbc59f5d4a….json` was ever
+written (`core/llm/jobs.py`'s `store.put` runs only after a successful parse, the same absence F23
+documented for `section_authoring`), so the text that overran is unrecoverable from this
+transaction. **Attempt 2**, 21 minutes later, same transaction directory, a genuinely live call
+(nothing cached for a request that was never stored): `completion_tokens` 3,016, `outcome: success`
+— well inside the sibling batches' range.
+
+**Why this is not item 75's class, and why it still matters.** Item 75 names
+`section_authoring.yaml`'s fixed `max_output_tokens`, corroborated on Email-.NET and Cells-TS; this
+run's `section_authoring` calls stayed under half that cap even on PDF-.NET's 3.2×-larger surface
+(F26 above) — item 75's class did **not** recur here. This is the *structural sibling* F2 already
+named at S4: a different job, a different prompt manifest, the same shape (an array with no
+`maxItems`, over an enum-bounded but otherwise open-ended item set, under a fixed token ceiling
+with no retry). Item 40 fixed exactly half of F2's original two-part diagnosis; this is the
+other half, now measured at real repository scale for the first time (Cells-Go and Cells/Slides
+for Java, item 40's own measured cases, were the *pattern* failure — every batch ran away; this is
+the *volume* failure — one batch among six, with the array's value space already correctly
+enum-bounded, still overran on citation count alone).
+
+**Second reading of F24.** This is a second concrete instance of F24's flagged shape: one
+`request_sha256`, `temperature 0.0`, `seed 1`, answered two different ways on two live calls
+21 minutes apart — 32,000 tokens truncated, then 3,016 tokens complete, a ratio of roughly 10.6×.
+F24 was one sample on Email-.NET's `section_authoring`; this is a second sample, a different job,
+a different repository, same shape. Still not proposed as a mechanism change here — F24's own
+reversal path (a deliberate, controlled repetition through the production path) is a primary-side
+measurement, not a lane's — but the count of independent observations is now two, not one.
+
+**Proposed shape (the primary's to land, not lane F's).** Give `fact_ids` a `maxItems` the way
+`dispositions`, `unit_id` and (per item 59) `planning.py`'s five fact-ID arrays already get one —
+sized from the batch's own measured ceiling (the six batches here cited at most a few fact IDs per
+unit; a value in the low tens, not thousands, would have refused runaway generation long before
+32,000 tokens) — in the same `reconciliation_schema()` function, beside the existing `.items`
+assignment at line 239. Mutation test: a stub batch whose one disposition's `fact_ids` array runs
+past `maxItems` is refused at decode with the array named, not at the token cap; a batch citing a
+normal handful of fact IDs per unit still passes.
+
+**Alternative rejected.** Raising `max_output_tokens` past 32,000 — the same option F23 rejected
+for `section_authoring`, for the same reason: an array with no upper bound defeats any ceiling.
+Also rejected: lane F patching `dispositions.py` to unblock its own cohort — `reconciliation/` is
+shared code, §2 of the lane prompt makes this a `PROPOSAL`.
+
+**Evidence.** `dispositions.py:220-244`; `prompts/source_reconciliation.yaml` v6 line 83; PDF-.NET
+`calls.jsonl`, the five records sharing `logical_call_id` `4db383bbc59f5d4a…` across both
+invocations (two `success`, one `response_invalid`, two `cache_reuse`); F2 and F24 above.
+
+**Reversal path.** Superseded if the primary instead merges `fact_ids` and a citation-count model
+into one differently-shaped field; the unbounded array is the defect either way. This entry does
+not change PDF-.NET's outcome — it sealed on the retry — so there is nothing here to revert on this
+repository; it stands as a corroborating measurement for whichever repository hits it without a
+recoverable retry.
