@@ -25,6 +25,20 @@ def _fact(fact_id: str, kind: str, value: str, polarity: str = "SUPPORTED") -> F
     return Fact(fact_id, kind, value, (Evidence("x"),), polarity=polarity)  # type: ignore[arg-type]
 
 
+def _example(fact_id: str, code: str, unit_id: str, polarity: str = "SUPPORTED") -> Fact:
+    """An ``example`` fact carrying the same evidence shape
+    ``extractors/examples/verify.py`` always produces - naming its own code-block unit in the
+    first evidence entry's detail - so ``placement.py``'s adjacency scoping (G4-W17 arrival item
+    76) can find the example's own position in the source document."""
+    return Fact(
+        fact_id,
+        "example",
+        code,
+        (Evidence("README.md", f"unit {unit_id}"),),
+        polarity=polarity,  # type: ignore[arg-type]
+    )
+
+
 FACTS = FactsDocument(
     REPOSITORY,
     "a" * 40,
@@ -373,7 +387,14 @@ def test_a_lead_in_citing_an_example_the_plan_renders_elsewhere_is_overlap_not_a
         "Load a workbook with recovery diagnostics:",
     )
     block = _fact("inherited_unit:019.code_block", "inherited_unit", "```python\nprint(1)\n```")
-    facts = FactsDocument(FACTS.repository, FACTS.source_revision, (*FACTS.facts, lead_in, block))
+    # example:001 replaces FACTS' own generic-evidence version with one naming its own code
+    # block's unit (item 76's adjacency scoping needs this to find the block at 018's side).
+    example_one = _example("example:001", "print(1)", "inherited_unit:019.code_block")
+    facts = FactsDocument(
+        FACTS.repository,
+        FACTS.source_revision,
+        (*(f for f in FACTS.facts if f.id != "example:001"), example_one, lead_in, block),
+    )
     # The plan renders example:001 under Quick Start and example:002 under Additional Examples;
     # the reconciliation sent both halves of the example:001 pair to Additional Examples.
     plan = _plan()
@@ -413,6 +434,46 @@ def test_a_lead_in_citing_an_example_the_plan_renders_elsewhere_is_overlap_not_a
         if entry["section_id"] == "quick_start":
             entry["include"] = False
     assert rendered_example_ids(excluded) == {"example:002": "additional_examples"}
+
+
+def test_rendered_example_coverage_is_scoped_to_the_unit_adjacent_to_its_code_block() -> None:
+    """G4-W17 arrival item 76 (lane F F17), measured on Aspose.Slides for .NET: item 65's fix
+    covered a rendered example's fact ID for any preserved unit anywhere in the document, with no
+    scoping by destination, position, or kind. Three units far from example:009's own code block
+    (110 lines and three headings away) cited it only as evidence for a 46-part round-trip
+    fidelity table, not as its lead-in, and were dropped anyway - discarding real, substantive
+    content the candidate then rendered nowhere. Scoped to adjacency (item 65's own measured
+    shape: a lead-in one ordinal from its example's code block), the distant table survives while
+    a true lead-in immediately beside the block is still dropped."""
+    example = _example("example:009", "print(9)", "inherited_unit:020.code_block")
+    lead_in = _fact("inherited_unit:019.paragraph", "inherited_unit", "Round-trip a scene:")
+    block = _fact("inherited_unit:020.code_block", "inherited_unit", "```python\nprint(9)\n```")
+    distant_table = _fact(
+        "inherited_unit:023.table",
+        "inherited_unit",
+        "| in | out |\n|---|---|\n| 46 | 46 |",
+    )
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (*FACTS.facts, example, lead_in, block, distant_table)
+    )
+    plan = _plan(additional_example_ids=["example:002", "example:009"])
+    dispositions = {
+        "dispositions": [
+            # A true lead-in, one ordinal before the example's own code block.
+            _entry("inherited_unit:019.paragraph", "scope_limitations", "example:009"),
+            _entry("inherited_unit:020.code_block", "additional_examples", "example:009"),
+            # Evidence for a measurement, three ordinals after the block - never a lead-in.
+            _entry("inherited_unit:023.table", "scope_limitations", "example:009"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    assert decisions["inherited_unit:020.code_block"].outcome == "owned_elsewhere"
+    assert decisions["inherited_unit:019.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:019.paragraph"].overlap == ("example:009",)
+    assert decisions["inherited_unit:023.table"].outcome == "placed"
+    assert placed_texts(list(decisions.values())) == {
+        "scope_limitations": ["| in | out |\n|---|---|\n| 46 | 46 |"]
+    }
 
 
 def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:

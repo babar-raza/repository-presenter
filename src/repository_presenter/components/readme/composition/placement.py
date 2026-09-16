@@ -4,12 +4,16 @@ docs/README_CONTRACT.md section 3 places every VERIFIED_PRESERVE and VERIFIED_MO
 destination section under three rules, each a confirmed G1 defect. Placement is exclusive, never
 additive, on fact-ID overlap: a unit whose cited facts intersect the destination's own plan-driven
 content is dropped, because the planned, freshly authored content already covers that material
-and passed the evidence-bound checks. An example the plan renders is covered wherever the unit was
-sent, not only in the unit's own destination: the example renders exactly once, where the plan put
-it, so an inherited sentence introducing it duplicates that section's own lead-in from any section
-(``rendered_example_ids``, G4-W17 arrival item 65). A placed unit inherits its section's
-visibility: in a collapsible section it renders inside the details block, never appended outside
-it. A placed
+and passed the evidence-bound checks. An example the plan renders is covered wherever the unit
+adjacent to the example's own code block was sent, not only in the unit's own destination: the
+example renders exactly once, where the plan put it, so an inherited sentence introducing it
+duplicates that section's own lead-in from any section (``rendered_example_ids``, G4-W17 arrival
+item 65). That coverage is scoped to the one shape it was ever measured on - the citing unit sits
+immediately beside the example's own code block in the source document
+(``_adjacent_rendered_examples``, G4-W17 arrival item 76, lane F F17): unscoped, it dropped a
+distant unit on Slides-.NET that cited a rendered example only as evidence, never as its lead-in.
+A placed unit inherits its section's visibility: in a collapsible section it renders inside the
+details block, never appended outside it. A placed
 unit whose destination the plan excludes is never dropped silently: planning fails closed naming
 the unit (planning.plan_checks), and here it is recorded as excluded so the validator can see it.
 
@@ -27,6 +31,7 @@ candidates' dispositions turned out to depend on even though it is itself only a
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -149,6 +154,65 @@ def rendered_example_ids(plan: Mapping[str, Any]) -> dict[str, str]:
     return where
 
 
+_UNIT_ORDINAL = re.compile(r"^inherited_unit:(\d+)")
+_EXAMPLE_UNIT = re.compile(r"unit (inherited_unit:\S+)")
+
+
+def _unit_ordinal(unit_id: str) -> int | None:
+    """The block-ordinal ``inherited.py`` gave this unit's source block, parsed from its own ID
+    (``NNN`` in ``inherited_unit:NNN...``) - shared by every bullet a member-reference list was
+    split into from the same block (RC-06), so two split bullets of one block read as the same
+    position, which is correct: neither is "adjacent" to the other, both sit at the block itself.
+    """
+    match = _UNIT_ORDINAL.match(unit_id)
+    return int(match.group(1)) if match else None
+
+
+def _example_code_block_ordinals(facts: FactsDocument) -> dict[str, int]:
+    """Each example fact's own code-block ordinal, read back from its own evidence.
+
+    ``extractors/examples/verify.py`` always names the inherited unit an example candidate came
+    from in its first evidence entry's detail (``"...; unit inherited_unit:NNN.code_block"``,
+    the exact string ``selection.py``'s own ``unit_id=f"inherited_unit:{unit.ordinal:03d}.
+    code_block"`` writes); this reads that back rather than inventing a second source for the
+    same fact (G4-W17 arrival item 76, lane F F17).
+    """
+    ordinals: dict[str, int] = {}
+    for fact in facts.by_kind("example"):
+        detail = fact.evidence[0].detail if fact.evidence else None
+        match = _EXAMPLE_UNIT.search(detail or "")
+        if match is None:
+            continue
+        ordinal = _unit_ordinal(match.group(1))
+        if ordinal is not None:
+            ordinals[fact.id] = ordinal
+    return ordinals
+
+
+def _adjacent_rendered_examples(
+    unit_id: str, rendered: frozenset[str], example_ordinals: Mapping[str, int]
+) -> frozenset[str]:
+    """The rendered example IDs whose own code block sits immediately beside ``unit_id`` in the
+    source document - the one shape item 65's fix was ever measured on (Aspose.Cells for .NET's
+    lead-in paragraph one ordinal before its example's own code block).
+
+    G4-W17 arrival item 76 (lane F F17): the unscoped version covered a rendered example's fact
+    ID for any preserved unit anywhere in the document, so three units on Aspose.Slides for .NET
+    that cited ``example:009`` as *evidence* (a 46-part round-trip fidelity table three headings
+    and 110 lines from the example's own code block) were dropped as if they were its lead-in.
+    Scoping to adjacency keeps item 65's fix - a unit one ordinal from its example's block - and
+    releases a distant citation, which is never a duplicate lead-in.
+    """
+    ordinal = _unit_ordinal(unit_id)
+    if ordinal is None:
+        return frozenset()
+    return frozenset(
+        example_id
+        for example_id in rendered
+        if example_id in example_ordinals and abs(example_ordinals[example_id] - ordinal) == 1
+    )
+
+
 _RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
 
 
@@ -249,6 +313,10 @@ def placements(
     # Where the plan actually renders each example - the paired code block's real destination,
     # whatever section the reconciliation named for the sentence introducing it (arrival item 65).
     rendered_examples = frozenset(rendered_example_ids(plan))
+    # Each rendered example's own code-block ordinal, so coverage below can be scoped to the one
+    # unit actually adjacent to it rather than any unit anywhere that cites the same ID
+    # (arrival item 76).
+    example_ordinals = _example_code_block_ordinals(facts)
     result: list[Placement] = []
     for entry in dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
@@ -267,7 +335,7 @@ def placements(
         covered = (
             planned_fact_ids(plan, destination)
             | renderer_fact_ids(destination, facts, plan)
-            | rendered_examples
+            | _adjacent_rendered_examples(unit_id, rendered_examples, example_ordinals)
         )
         overlap = (
             ()
