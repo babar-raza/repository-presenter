@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "lane": "lane-e",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-E-04",
+  "work_item_status": "IN_PROGRESS",
+  "recorded_at": "2026-09-16T13:20:00+00:00",
+  "control_revision": "60e86c1",
+  "control_revision_note": "First and only run of LANE-E-04 (branch lane-e/LANE-E-04, worktree C:\\w\\e04), off origin/main at a7746e9, rebased onto 60e86c1 before the commit - arrival items 75-82 admitted but none landed as code beyond item 53; item 52 (Words-Python interpreter selection) also landed between the start of composition and the rebase. Drawn fresh: aspose-font-foss/Aspose.Font-FOSS-for-Python was recommended after LANE-E-01 run 5 because arrival item 53 (503f1d6, PR #62, landed 2026-09-16T12:20:22Z) unblocks its recorded G3 second-pass class and no run of any kind had been made against the fix. This is a new lane item, not a resumption of LANE-E-01/02/03.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\e04",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt - project/loop-prompt-lane.md section 1.3's recipe (pip==24.3.1, requirements-lock.txt --no-deps, execnet, pytest-xdist, uv --no-deps, then pip install --no-deps -e .). Verified before any candidate work, and re-verified unchanged after the rebase onto 60e86c1."
+  },
+  "toolchains": [
+    {
+      "tool": "python",
+      "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then project/loop-prompt-lane.md section 1.3's recipe",
+      "path": "C:\\w\\e04\\.venv\\Scripts\\python.exe",
+      "version": "3.13.2"
+    },
+    {
+      "tool": "git",
+      "resolved_by": "PATH",
+      "used_for": "the repository clone under runs/clones (gitignored)"
+    }
+  ],
+  "gateway": {
+    "command": "repository-presenter preflight",
+    "host": "llm.professionalize.com",
+    "models": 7,
+    "prompt_manifests": 6,
+    "route": "qwen3-next",
+    "catalog_digest": "0dc7f649a004c6fecc0927806fedd61865b2e149f935103a61cb4b548cd357d4"
+  },
+  "blocker_reverification": {
+    "method": "present --facts-only against aspose-font-foss/Aspose.Font-FOSS-for-Python at the current default-branch revision, before any provider call; compared against evidence/build/G3_PYTHON_COHORT/manifest.json second_pass.report's recorded row for this repository. Re-run after the rebase onto 60e86c1 to confirm item 52 (Words-Python interpreter selection) changed nothing for this repository.",
+    "recorded_class": "EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME (second pass, source_revision c4c453b8, stage S2 facts/example verification; resume predicate named the exact fix item 53 later landed)",
+    "measured": "at 96c59f9149dd27849acabb1489610375aa9ad057 (the repository moved since the second pass): 769 facts (763 supported, 5 unresolved, 1 contradicted); examples 8 candidates, executed 7, failed 1; required rows without evidence: none. Matches item 53's own commit message (7 EXECUTED + 1 honest FAILED) at a newer revision. Post-rebase re-run reproduced every digest byte for byte (facts 5652640dfd7f2d92..., source 265bd0597507d4e4..., evaluation b89402584843cba8...) because Font declares requires-python >=3.10 with no upper bound, so item 52's new interpreter-selection branch is never taken for it.",
+    "verdict": "CLOSED for this repository, confirmed by running it, not by reading the commit"
+  },
+  "composition": {
+    "revision": "96c59f9149dd27849acabb1489610375aa9ad057",
+    "transaction": "runs/transactions/aspose-font-foss__Aspose.Font-FOSS-for-Python/96c59f9149dd27849acabb1489610375aa9ad057/",
+    "facts": "769 records: build_test_asset 1, dependency 5, example 8, format 7, identity 5, import_path 1, inherited_unit 70, install_command 1, license 2, link_target 10, package 4, public_symbol 655",
+    "investigation": "capabilities 8, workflows 6, limitations 4; provider calls 0 (stored output reused)",
+    "dispositions": "70 units: CORRECT_WITH_EVIDENCE 1, OMIT_UNSUPPORTED 10, SUPERSEDE_REDUNDANT 27, VERIFIED_MOVE 5, VERIFIED_PRESERVE 27; provider calls 0 (stored output reused)",
+    "plan": "sections 17/18, capabilities 8 (at policy ceiling 8), hubs 12 (at policy ceiling 12), examples 1+5, links 7, limitations 3; provider calls 0 (stored output reused)",
+    "units": "163 units across 9 sections: opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing, enterprise_relationship",
+    "coherence": "0 of 163 units revised",
+    "readme": "307 visible lines of 792 total",
+    "validation": "pass 8, fail 1 (BC-07), pending 2 (BC-10, BC-11 - never reached)",
+    "repair": "1 attempt (BC-07, causal_stage PLANNING, routed to S5): outcome recorded 'repaired', but re-raised identically; rounds 2",
+    "seal": "NOT SEALED"
+  },
+  "proposals": [
+    {
+      "id": "E16",
+      "shape": "PROPOSAL",
+      "headline": "A length-budget (BC-07) repair routed to S5 has no visibility into rendered line count and no check that its own revision changed anything, so a byte-identical no-op plan is accepted as 'repaired' and the same overflow re-raises.",
+      "sites": [
+        "src/repository_presenter/components/readme/repair/rounds.py:440-452,463-524",
+        "src/repository_presenter/components/readme/repair/targeted.py:393-435",
+        "src/repository_presenter/components/readme/validation/registry.py:1024-1034",
+        "src/repository_presenter/components/readme/composition/policy.py:16-27",
+        "prompts/targeted_repair.yaml (changes schema lines 56-68; Judgment paragraph lines 89-101)"
+      ],
+      "measured": "repairs.json attempt a6186369c489f441d885c7f2: outcome 'repaired', changes [{'path':'api_hubs','before':'12','after':'12'}]. calls/5d606fb2c9aa.json (original presentation_planning output) and calls/f4eb10ab2942.json's revised_output are byte-identical (verified by direct Python dict equality). The plan sits at both policy ceilings (capabilities_max 8, api_hubs_max 12) given 655 public_symbol facts and RESEARCH_AND_GUIDELINES.md section 4.3's own documented Font/Python variation ('variable-font-first workflows, generated outputs, CLI behavior, MCP server and review artifacts are central to the product story'). total_lines_budget (policy.py:23, value 600) has no reader anywhere under src/ - a secondary observation, not the blocker (792 total lines is not what BC-07 judged).",
+      "owner_choice": [
+        "give the S5 repair a concrete numeric line-reduction target computed from the failing round's own render",
+        "build the per-family policy overlay under profiles/ that policy.py's own docstring already anticipates - no profiles/ directory exists yet anywhere in the tree",
+        "make repair_checks refuse a revised_output identical to its input, so the ledger honestly records unrepairable instead of repaired"
+      ],
+      "lane_e_position": "no standing to choose; evidence recorded for whichever the owner picks"
+    }
+  ],
+  "disposition": {
+    "repository": "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+    "outcome": "NOT_SEALED",
+    "stage": "S9 validation (BC-07, one repair attempt re-raised)",
+    "failure_class": "PLANNING_LENGTH_BUDGET_REPAIR_CANNOT_VERIFY_ITS_OWN_REVISION_SHRINKS_ANYTHING",
+    "resume_predicate": "PROPOSAL E16 lands, then re-run present --repo aspose-font-foss/Aspose.Font-FOSS-for-Python. EXAMPLE_OPENS_A_PATH_IT_BUILDS_AT_RUNTIME (arrival item 53) is CLOSED for this repository and is not a predicate for the re-run."
+  },
+  "counted_unit": {
+    "status_before": "12/34",
+    "status_after": "12/34",
+    "note": "No seal, no candidates/ directory added, project/state.yaml not opened (the narrow exception applies only to a seal)."
+  }
+}
