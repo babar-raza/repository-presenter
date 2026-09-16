@@ -1732,3 +1732,133 @@ It does not claim the `api_reference` section's overlapping coverage is a fix, o
 non-blocking observation. No seal is claimed and the counted unit does not move:
 `repository-presenter status` reads **12/34** both before and after, and `project/state.yaml` was
 not opened.
+
+## 2026-09-16 18:06 UTC (`date` checked) — LANE-E-04 run 2, Font for Python drawn fresh against arrival item 84
+
+Branch `lane-e/LANE-E-04-R2`, worktree `C:\w\e04r2`, off `origin/main` rebased to `17ee567` before
+the commit. Receipt: `evidence/build/lanes/lane-e/LANE-E-04.json`. This is lane E's second attempt
+at `aspose-font-foss/Aspose.Font-FOSS-for-Python`, drawn because arrival item 84 (`aee8d5d`, landed
+`2026-09-16T22:06:19+05:00`) lands E16's owner choice 3 (`_refuse_noop` in `repair/rounds.py`) and
+no run of any kind had been made against it.
+
+### Item 84 is closed and landed, verified before spending a provider call
+
+`git merge-base --is-ancestor aee8d5d origin/main` on the fetched, rebased tree: ancestor. The
+commit adds `_refuse_noop` (`repair/rounds.py:402-427`) wrapping every `_stage_target` branch's own
+checks — S3 through S6 — against that stage's own accepted output, exactly E16's owner choice 3.
+Read directly, not assumed.
+
+### This is a genuinely new attempt, not a replay: the repository is unchanged, the composition is not
+
+`present --facts-only` at the current default-branch revision reproduced every digest byte for byte
+against run 1's own record: facts `5652640dfd7f2d92...`, source `265bd0597507d4e4...`, both matching
+`evidence/build/lanes/lane-e/LANE-E-04.json`'s run-1 figures exactly — the repository has not moved
+since `96c59f9149dd27849acabb1489610375aa9ad057`, and item 53's fix still holds (769 facts, 763
+supported, examples 8/7/1 unchanged). The full `present` run that followed was **not a cache
+replay**: this worktree has no prior `runs/` directory, `units` cost 3 provider calls and
+`coherence` 1 more (run 1 was 1 and 0, model-stored-output-reused throughout), and the resulting
+composition differs from run 1's in ways only live variance explains — `investigation` capabilities
+8 vs 8 but `plan` capabilities **7** (run 1: 8, exactly at the policy ceiling), dispositions'
+distribution entirely different (`DEFER_UNRESOLVED 1, OMIT_UNSUPPORTED 3, ...` vs run 1's
+`CORRECT_WITH_EVIDENCE 1, OMIT_UNSUPPORTED 10, ...`). This satisfies "genuine changed-input retry"
+on both counts the task named: the shared code changed (item 84) **and** the input this run
+actually composed against was freshly, independently generated, not the byte-identical replay a
+`loop-prompt.md` section 5 "equivalent attempt" would be.
+
+### BC-07 still fails — a new measurement, not the same one recurring
+
+`validation.json`: pass 8, fail 1 (`BC-07`), pending 2 (`BC-10`, `BC-11`, never reached).
+`BC-07`'s own failure: `"377 visible lines of 799 exceed the visible budget 300"`,
+`causal_stage: "PLANNING"` — a different overage than run 1's `307/792` because this run's live
+composition differs from run 1's, not because anything regressed. `repairs.json` records one
+attempt (fingerprint `9be211b1e2bb58f1350f3d5b`, request `add865bd98c6...`), outcome `repaired`,
+then `re_raised: ["BC-07"]` at the next round's re-validation — the same surface symptom E16
+recorded. Whether the cause is the same is exactly what this run had to measure, not assume.
+
+### Item 84's own mechanism is proven working: this repair is not a whole-object no-op
+
+`repair/targeted.py:536`'s `repair_checks` calls `stage_checks` (item 84's `_refuse_noop`-wrapped
+`plan_checks`) only when the schema/binding/slot checks ahead of it already passed with zero
+errors; a `_refuse_noop` refusal, had it fired, would itself be one of those errors, which
+`run_job` treats as a rejection (the `*.rejected-1.json` pattern this same transaction's
+`section_authoring` calls show four times). No `add865bd98c6.rejected-1.json` exists, and the
+outcome recorded is `repaired`, not `unrepairable` — under item 84's own code
+(`revised == original` is the entire test `guarded()` runs), that combination is possible only when
+`revised != original`. **Item 84's specific named mechanism — a whole-object byte-identical no-op
+accepted as "repaired" — is CLOSED for this repository**, proven by the production code's own
+control flow on this run's own artifacts, the same standard E16 itself used.
+
+### E18 `PROPOSAL` — the repair's own self-reported change ledger contains an entry the accepted revision never made, and item 84 does not check it
+
+**Decision.** Lane E writes no fix. The site is shared code lane E does not own:
+`src/repository_presenter/components/readme/repair/targeted.py:491-538` (`repair_checks`) and
+`repair/rounds.py:402-427` (`_refuse_noop`). Font for Python takes a disposition naming this
+proposal as its resume predicate.
+
+**The defect, measured on this run's own artifacts, not inferred.** `repairs.json`'s one attempt
+records three self-reported changes: `R01` (`core_capabilities`, `"7 items"` → `"7 items"`, a
+declared non-change), `R02` (`at_a_glance.capability_titles`, `"6 items"` → `"7 items"`), and `R03`
+(`additional_example_ids`, `"5 items"` → `"4 items"`). The **accepted, final** `plan.json` —
+the actual outcome of this "repaired" attempt, read directly, not from the model's self-report —
+carries `additional_example_ids: [example:004, example:005, example:006, example:007, example:008]`,
+**five entries**, not four. `R03`'s claimed reduction did not happen; the ledger's own "after" value
+is contradicted by the plan it purports to describe, needing no assumption about the true pre-repair
+state to prove — the final state is what shipped, and it disagrees with R03 on its face.
+`at_a_glance.capability_titles` does carry seven entries in the final plan, matching `R02` and
+matching `core_capabilities`'s own count of 7 — the one change in this ledger that the final
+artifact actually corroborates, and it is purely additive (a title list growing to match a
+capability count adds rendered lines; it cannot remove any).
+
+**Why this still closes BC-07 against the repository.** The one change the revision demonstrably
+made (`R02`) could only add visible lines; the one change that could have helped (`R03`) never
+happened. `plan_checks` and `_refuse_noop` both passed the revision because neither checks whether
+a `changes[]` entry is truthful against the object it describes, and neither weighs a change against
+the specific quantity the failing check (`BC-07`, rendered line count) measures. The repair was
+always going to re-raise the identical failure, for a reason the ledger itself, read carefully,
+already contains — E16's diagnosis (no numeric target, no verification a revision moves the failing
+number) is not retired by item 84; E18 narrows it with a second, independent mechanism item 84's
+narrower fix does not reach.
+
+**Alternative rejected.** A third `present` attempt inside lane E's own paths would spend live
+provider calls to re-measure the same class of variance already measured twice (run 1's cached
+no-op, run 2's live partial-and-fabricated repair) — not a fresh finding, the "two equivalent
+attempts" `loop-prompt.md` section 5 prohibits.
+
+**What the owner has to choose between, not lane E's to pick.** (1) E16's own choice 1: give the S5
+repair a concrete numeric line-reduction target computed from the failing round's own render. (2)
+E16's own choice 2: the `profiles/` per-family policy overlay. (3) A narrower strengthening of item
+84 itself: `repair_checks` (or `_refuse_noop`) verifies each `changes[]` entry's claimed `before`/
+`after` against the actual original/revised values at that JSON path, and refuses a revision whose
+ledger contains an entry the revision does not corroborate — this does not require a numeric target
+or the `profiles/` overlay, stays inside the two files item 84 already touches, and would have
+caught `R03` specifically without touching `R02`. Lane E has no standing to choose and records the
+evidence for whichever the owner picks.
+
+**Evidence.** `runs/transactions/aspose-font-foss__Aspose.Font-FOSS-for-Python/
+96c59f9149dd27849acabb1489610375aa9ad057/` (`validation.json` `BC-07` entry; `repairs.json` attempt
+`9be211b1e2bb58f1350f3d5b`; `plan.json` `additional_example_ids` and `at_a_glance.capability_titles`
+read directly); `repair/targeted.py:491-538`; `repair/rounds.py:402-427`; `aee8d5d`'s own diff and
+commit message (`RESEARCH_LANE_E.md` E16, arrival item 84).
+
+**Reversal path.** A repair whose `changes[]` ledger is corroborated entry-by-entry against the
+actual revision, on any repository, and still cannot close a length-budget finding on its first
+attempt, would refute the "the ledger itself explains this" half of this reading; item 84's own
+no-op refusal stands independently and is not in question here.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-font-foss/Aspose.Font-FOSS-for-Python` | NOT_SEALED, stage S9 `validation` (`BC-07`, one repair attempt re-raised) | `LENGTH_BUDGET_REPAIR_CHANGE_LEDGER_CLAIMS_A_REDUCTION_THE_REVISED_PLAN_DOES_NOT_CONTAIN` | PROPOSAL E18 lands, then re-run `present --repo aspose-font-foss/Aspose.Font-FOSS-for-Python`. Arrival item 84 (E16's owner choice 3, whole-object no-op refusal) is **closed**, verified landed and working on this run's own artifacts, and is not a predicate for the re-run. |
+
+### What this run does not claim
+
+It does not claim item 84 was a wrong or unnecessary fix — the whole-object no-op it refuses is a
+real, distinct, now-closed mechanism, proven still working correctly on this run (a genuine partial
+change passed through, as it should). It does not claim `R02`'s self-reported `"before": "6 items"`
+is true — only the final, accepted state is verified directly; the ledger's `before` values are the
+model's own unverified report throughout, which is part of what E18 asks to fix. It does not claim
+Font for Python would seal once E18 lands — S10 independent review never ran (S9 stopped the round
+first), so nothing here is a claim about `BC-10`. No seal is claimed and the counted unit does not
+move: `repository-presenter status` reads **12/34** both before and after, and `project/state.yaml`
+was not opened.
