@@ -303,6 +303,63 @@ def test_findings_are_held_to_the_candidate_and_a_rejection_needs_a_blocking_fin
     assert [f["section_id"] for f in bad["findings"]] == ["nowhere"]
 
 
+def test_the_reviewed_units_own_inherited_citation_refutes_a_finding_that_omits_it() -> None:
+    """G4-W17 arrival item 83 (lane B LANE-B-W14R3-F1, 3D-TS). Every refutation guard read only
+    the finding's own self-reported fact_ids - so a finding whose quote is already proven true by
+    a SUPPORTED inherited_unit fact the REVIEWED UNIT cites (the upstream repository's own words)
+    stood anyway, whenever the finding itself omitted that citation. Measured: the surviving
+    finding on 3D-TS cited only a verified example, not the inherited_unit paragraph its own unit
+    also cited and that states the exact limitation almost verbatim."""
+    upstream = Fact(
+        "inherited_unit:002.paragraph",
+        "inherited_unit",
+        "fails for large files",
+        (Evidence("x"),),
+    )
+    by_id = {**{fact.id: fact for fact in FACTS.facts}, upstream.id: upstream}
+    units: dict[str, Any] = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "Binary export fails for large files, per the upstream project.",
+                "fact_ids": ["format:output.glb", upstream.id],
+            }
+        ],
+        "omitted": [],
+    }
+    factuality = {
+        **_finding(
+            "F04",
+            "scope_limitations",
+            "S6",
+            "Binary export fails for large files, per the upstream project.",
+        ),
+        "fact_ids": ["format:output.glb"],  # omits upstream.id, exactly as the real F04 did
+    }
+    # Without the reviewed unit's own citations, the finding stands - format:output.glb's value
+    # ('.glb') is not a substring of the quote, so the old, finding-only check finds nothing.
+    assert scope_defect(factuality, CANDIDATE, by_id) is None
+    # With them, the finding is refuted: the quote is already the upstream repository's own words.
+    assert scope_defect(factuality, CANDIDATE, by_id, units=units) == (
+        "the quote contains the literal value of SUPPORTED fact inherited_unit:002.paragraph "
+        "('fails for large files'); literal fact text is supported"
+    )
+    # A presentation-criterion finding gets the identical treatment (item 63's own sibling check).
+    presentation = {**factuality, "criterion": "presentation"}
+    assert scope_defect(presentation, CANDIDATE, by_id) is None
+    assert scope_defect(presentation, CANDIDATE, by_id, units=units) == (
+        "the quote contains the literal value of SUPPORTED fact inherited_unit:002.paragraph "
+        "('fails for large files'), which the reviewed unit cites as its own evidence; literal "
+        "fact text is supported whatever criterion the finding files itself under"
+    )
+    # Item 39's own gate is untouched: a finding citing no product fact at all still stands, even
+    # when its unit's own citations would otherwise refute it - unit_fact_ids only widens the
+    # literal-value check, never what makes a finding grounded enough to reach it.
+    ungrounded = {**factuality, "fact_ids": ["inherited_unit:001.paragraph"]}
+    assert scope_defect(ungrounded, CANDIDATE, by_id, units=units) is not None
+
+
 def test_one_unlocatable_quote_is_folded_out_and_the_other_findings_are_kept() -> None:
     """G4-W17 arrival item 28 (lane D PROPOSAL). Same shape as items 16 and 17, ``d707693``.
 

@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -53,7 +53,12 @@ ACCEPT = "ACCEPT"
 # "5" (G4-W17 arrival item 64): a standing absence finding records which of its claims the
 # candidate already refuted and which remain, so the repair is handed only the remainder - a
 # change to what review.json carries and what a repair round is asked to do.
-REVIEWER_LOGIC_VERSION = "5"
+# "6" (G4-W17 arrival item 83): factuality_defect and cited_fact_defect's literal-value
+# refutation now also reads the one reviewed unit's own inherited_unit citations, not only the
+# finding's self-reported fact_ids - a finding can be refuted by evidence its own unit cited even
+# when the finding's own reply omitted it. The "cites at least one product fact" grounding gate
+# item 39 established is untouched.
+REVIEWER_LOGIC_VERSION = "6"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -231,7 +236,10 @@ REVIEWER_SCOPE_DEFECT = "reviewer-scope defect"
 
 
 def factuality_defect(
-    finding: Mapping[str, Any], quote: str, by_id: Mapping[str, Fact]
+    finding: Mapping[str, Any],
+    quote: str,
+    by_id: Mapping[str, Fact],
+    unit_fact_ids: Collection[str] = (),
 ) -> str | None:
     """Why a factuality finding is the reviewer's own defect, or None when it may stand.
 
@@ -252,6 +260,16 @@ def factuality_defect(
     could change. The prompt already asks for one or the other
     (prompts/independent_review.yaml lines 141-157); this enforces it deterministically rather
     than trusting compliance.
+
+    ``unit_fact_ids`` (G4-W17 arrival item 83, LANE-B-W14R3-F1): the reviewed content unit's own
+    ``fact_ids`` - not the finding's - as ``_reviewed_unit_fact_ids`` locates them. This widens
+    only the literal-value refutation below, never the "cites at least one product fact" gate
+    above: item 39's rule about what makes a factuality finding grounded enough to judge at all is
+    untouched, and a bare inherited_unit citation still does not, by itself, grant that grounding.
+    Once a finding clears that gate, though, its unit's own ``inherited_unit`` citations are a
+    real refutation source the finding itself may simply not have repeated - measured on 3D-TS,
+    Aspose.3D-FOSS-for-TypeScript's own upstream README already states, almost verbatim, the exact
+    limitation a surviving finding called unverified.
     """
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     if not cited:
@@ -270,7 +288,8 @@ def factuality_defect(
         )
     if any(fact.polarity == "CONTRADICTED" for fact in product):
         return None
-    literal = _cited_literal(product, quote)
+    reviewed = [by_id[i] for i in unit_fact_ids if i in by_id and by_id[i].kind == "inherited_unit"]
+    literal = _cited_literal([*product, *reviewed], quote)
     if literal is not None:
         return (
             f"the quote contains the literal value of SUPPORTED fact {literal.id} "
@@ -299,7 +318,10 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
 
 
 def cited_fact_defect(
-    finding: Mapping[str, Any], quote: str, by_id: Mapping[str, Fact]
+    finding: Mapping[str, Any],
+    quote: str,
+    by_id: Mapping[str, Fact],
+    unit_fact_ids: Collection[str] = (),
 ) -> str | None:
     """Why a presentation finding whose own citation verifies its quote is the reviewer's defect.
 
@@ -318,18 +340,29 @@ def cited_fact_defect(
     ``none``; a ``format``'s is a bare extension) - the collision item 45 was written to stop.
     A cited CONTRADICTED fact leaves the finding standing, exactly as in ``factuality_defect``:
     the reviewer then names a fact that disproves the quote, which is a real finding.
+
+    ``unit_fact_ids`` (G4-W17 arrival item 83) widens the literal-value check the identical way
+    ``factuality_defect`` above is widened, and for the identical reason: the reviewed unit's own
+    ``inherited_unit`` citations, not only the finding's self-reported ones. Still bounded to one
+    unit's own small citation set, never the whole fact set item 45's own collision measured -
+    the gate above is untouched, so a finding citing no product fact of its own still stands.
     """
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     product = [fact for fact in cited if fact.kind != "inherited_unit"]
     if not product or any(fact.polarity == "CONTRADICTED" for fact in product):
         return None
-    literal = _cited_literal(product, quote)
+    reviewed = [by_id[i] for i in unit_fact_ids if i in by_id and by_id[i].kind == "inherited_unit"]
+    literal = _cited_literal([*product, *reviewed], quote)
     if literal is None:
         return None
+    if literal.id in finding.get("fact_ids", []):
+        source = "which the finding itself cites as its evidence"
+    else:
+        source = "which the reviewed unit cites as its own evidence"  # item 83
     return (
         f"the quote contains the literal value of SUPPORTED fact {literal.id} "
-        f"({literal.value!r}), which the finding itself cites as its evidence; literal fact "
-        "text is supported whatever criterion the finding files itself under"
+        f"({literal.value!r}), {source}; literal fact text is supported whatever criterion the "
+        "finding files itself under"
     )
 
 
@@ -729,6 +762,34 @@ def unit_texts(units: Mapping[str, Any] | None) -> list[str] | None:
     ]
 
 
+def _reviewed_unit_fact_ids(quote: str, units: Mapping[str, Any] | None) -> tuple[str, ...]:
+    """The fact IDs of the one content unit whose own text carries the quote, or an exact
+    ellipsis fragment of it - the same quote-location rule ``_carried_by_units`` already applies.
+
+    G4-W17 arrival item 83 (lane B LANE-B-W14R3-F1, 3D-TS): every refutation guard in
+    ``scope_defect`` reads a finding's own self-reported ``fact_ids`` and nothing else, so a
+    finding that omits a fact its own reviewed unit actually cited - here, an ``inherited_unit``
+    fact stating the exact claim in the upstream repository's own words - can never be refuted by
+    it, even though the unit is fully entitled to cite it as evidence. A finding that never looks
+    at what the candidate actually cited cannot be a defect in the candidate.
+    """
+    if not units or not _normalized(quote):
+        return ()
+    for unit in units.get("units", []):
+        if not isinstance(unit, Mapping):
+            continue
+        text = str(unit.get("text", ""))
+        if quote_located(quote, text):
+            return tuple(str(i) for i in unit.get("fact_ids", []))
+        fragments = [part.strip() for part in _ELLIPSIS.split(quote) if part.strip()]
+        if len(fragments) > 1 and any(
+            len(_normalized(part)) >= _CARRIED_FRAGMENT_LENGTH and quote_located(part, text)
+            for part in fragments
+        ):
+            return tuple(str(i) for i in unit.get("fact_ids", []))
+    return ()
+
+
 # At a Glance is mixed-owned only in what the plan selects: the renderer owns every node, edge,
 # and label (README_CONTRACT.md section 2.1), so its presentation is likewise the renderer's.
 _DETERMINISTIC_SECTIONS = frozenset(
@@ -871,6 +932,7 @@ def scope_defect(
     evidence: str = "",
     rendered: Sequence[str] = (),
     unit_texts: Sequence[str] | None = None,
+    units: Mapping[str, Any] | None = None,
 ) -> str | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
@@ -890,7 +952,9 @@ def scope_defect(
     factuality claim measured against the facts it cites, a presentation claim contradicted by
     the finding's own citation (item 63) - come after the switch. ``unit_texts``, when the
     caller has the content units, lets the renderer-owned rule tell a rendered row no unit wrote
-    from a unit's own sentence (item 62).
+    from a unit's own sentence (item 62). ``units``, the same content units document unreduced,
+    lets the criterion-specific refutations also read the one reviewed unit's own fact_ids, not
+    only the finding's self-reported ones (item 83).
     """
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
@@ -905,10 +969,11 @@ def scope_defect(
     if owned is not None:
         return owned
     quote = str(finding.get("quote", ""))
+    unit_fact_ids = _reviewed_unit_fact_ids(quote, units)
     if finding.get("criterion") == "factuality":
-        return factuality_defect(finding, quote, by_id)
+        return factuality_defect(finding, quote, by_id, unit_fact_ids)
     if finding.get("criterion") == PROSE_JUDGMENT:
-        return cited_fact_defect(finding, quote, by_id)
+        return cited_fact_defect(finding, quote, by_id, unit_fact_ids)
     return None
 
 
@@ -971,7 +1036,7 @@ def review_document(
     for finding in output.get("findings", []):
         record = dict(finding)
         reason = (
-            scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts)
+            scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts, units)
             if facts is not None
             else None
         )
@@ -1004,7 +1069,7 @@ def review_document(
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
             reason = (
-                scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts)
+                scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts, units)
                 if facts is not None
                 else None
             )
