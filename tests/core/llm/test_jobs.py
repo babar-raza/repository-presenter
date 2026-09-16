@@ -276,6 +276,88 @@ def test_a_jobs_own_checks_are_quoted_in_the_re_ask(
     )
 
 
+def test_a_binding_defect_does_not_suppress_a_simultaneous_domain_check_defect(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 100 (PGPY-02). Before this fix, ``_parse`` only ran a job's own
+    ``checks`` when ``binding_errors`` was already clean, so an attempt carrying both a binding
+    defect (an unknown or unsupported cited fact) and a domain defect (whatever ``checks`` judges)
+    only ever surfaced the binding one - the model's sole re-ask fixed what it was told, the
+    domain defect survived byte-identical, and by the time ``checks`` finally ran the budget was
+    spent (measured live on Page-Python, docs/DECISION_LOG.md 2026-09-16 20:20 UTC).
+
+    Attempt 1 here cites both a CONTRADICTED fact and an unknown one (a real binding defect) AND
+    trips the domain ``checks`` callable - the fix surfaces both in the one rejection message, so
+    a single re-ask can fix both at once, exactly as it does for two binding defects together
+    (the sibling test above this one).
+    """
+    gateway = _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    seen: list[int] = []
+
+    def checks(output: dict[str, Any]) -> list[str]:
+        seen.append(len(output["capabilities"]))
+        return [] if len(seen) > 1 else ["capability titles repeat the keyword Do"]
+
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        checks=checks,
+    )
+    assert result.attempts == 2
+    # checks ran on attempt 1 despite the binding defect - both classes of defect were judged.
+    assert seen == [3, 3]
+    rejection = gateway.requests[1]["messages"][-1]["content"]
+    assert "fact example:002 is CONTRADICTED, not SUPPORTED" in rejection
+    assert "unknown fact ID nope:1" in rejection
+    assert "capability titles repeat the keyword Do" in rejection
+
+
+def test_a_schema_defect_still_suppresses_domain_checks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The narrower half of item 100's fix: gating ``checks`` on the schema alone, not on
+    ``binding_errors`` too, is safe only because a schema-valid output is exactly the shape a
+    domain check is written against - a schema-invalid one is not, and must never reach it. This
+    proves ``checks`` is never even called when attempt 1 fails schema validation (here, an object
+    with none of the required keys) - a domain check written to assume a valid shape (as this one
+    does, indexing ``output["capabilities"]`` with no ``.get`` fallback) would raise if it were.
+    """
+    _Gateway(
+        monkeypatch,
+        _completion({"not": "the schema"}),
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    calls = 0
+
+    def checks(output: dict[str, Any]) -> list[str]:
+        nonlocal calls
+        calls += 1
+        len(output["capabilities"])  # would raise KeyError on the malformed reply
+        return []
+
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        checks=checks,
+    )
+    assert result.attempts == 2
+    assert calls == 1  # only the schema-valid second attempt ever reached checks
+
+
 def test_a_truncated_reply_fails_fast_naming_the_budget(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

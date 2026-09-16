@@ -361,11 +361,23 @@ def _parse(
         f"{error.json_path}: {error.message}"
         for error in sorted(validator.iter_errors(output), key=lambda error: error.json_path)
     ]
+    # G4-W17 arrival item 100 (PGPY-02): a job's domain checks run once the schema has passed,
+    # never gated on binding_errors too - binding_errors is a read-only citation check (it never
+    # changes output's shape, unlike resolve_symbol_ids/fold_duplicate_units above, which already
+    # run unconditionally), so a schema-valid output is exactly as safe for a domain check to read
+    # whether or not one of its citations also turns out unresolvable. Gating on schema alone
+    # still protects a domain check written against the schema's own shape (a missing key, a
+    # wrong type) from ever seeing malformed input. Before this, a binding defect and a domain
+    # defect present in the same attempt only ever surfaced the binding one - measured on
+    # Page-Python: the model's sole re-ask fixed what it was told, the domain defect (an
+    # uncited title) survived byte-identical, and by the time the domain check finally ran the
+    # re-ask budget was spent.
+    schema_valid = not errors
     resolve_symbol_ids(output, facts)  # a symbol cited by its read path binds to its fact
     if manifest.manifest.output.binding == "unit_ids":
         fold_duplicate_units(output)  # a repeated disposition answers nothing the first lacked
     errors.extend(binding_errors(output, facts, manifest.manifest.output.binding))
-    if not errors and checks is not None:
+    if schema_valid and checks is not None:
         errors.extend(checks(output))
     return (output if not errors else None), errors
 
