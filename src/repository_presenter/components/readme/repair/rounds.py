@@ -12,7 +12,7 @@ never retried. Every artifact of the round is written, so the last round is what
 from __future__ import annotations
 
 import functools
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -399,6 +399,34 @@ def round_defects(current: Round, tx: TransactionInputs) -> list[Defect]:
     return defects
 
 
+def _refuse_noop(
+    original: dict[str, Any], checks: Callable[[dict[str, Any]], list[str]] | None
+) -> Callable[[dict[str, Any]], list[str]]:
+    """Wrap a causal stage's own checks so a revision proven identical to the stage's own output
+    is refused before those checks even run.
+
+    Measured live (RESEARCH_LANE_E.md E16, arrival item 84: Font for Python's S9 BC-07 blocker).
+    A repair asked to shrink an already schema-maximal plan can satisfy schema, binding, slot-set,
+    and the causal stage's own checks by returning the SAME output it was given - nothing compared
+    the reply to its input, so the no-op cleared every check, was recorded "repaired", and only
+    the next round's re-validation discovered nothing had changed, by when the
+    one-attempt-per-fingerprint rule had already spent its only try. `repair_checks`
+    (`repair/targeted.py`) is not this work item's file to edit, so the refusal lives here, at the
+    one seam `_stage_target` already owns for every causal stage - S3, S4, S5, and S6 alike, not
+    just the S5 case this was measured on, since nothing about the mechanism is S5-specific.
+    """
+
+    def guarded(revised: dict[str, Any]) -> list[str]:
+        if revised == original:
+            return [
+                "matches the causal stage's own output unchanged; a no-op cannot repair a "
+                "defect this stage's content did not change"
+            ]
+        return list(checks(revised)) if checks is not None else []
+
+    return guarded
+
+
 def _stage_target(
     current: Round, defect: Defect, facts: FactsDocument, name: str, ecosystem: str
 ) -> tuple[
@@ -409,10 +437,18 @@ def _stage_target(
 
     Only an authored section has a fact set narrower than the corpus; the upstream stages are
     judged against all of it, so they carry None. The two fact-set values agree everywhere except
-    S4 (see below) - a real, found-live divergence, not a hypothetical one.
+    S4 (see below) - a real, found-live divergence, not a hypothetical one. Every branch's checks
+    are wrapped in ``_refuse_noop`` against that stage's own accepted output, so a repair reply
+    proven identical to what it was meant to revise is refused, never recorded "repaired".
     """
     if defect.stage == "S3":
-        return current.investigation, None, None, None, facts
+        return (
+            current.investigation,
+            _refuse_noop(current.investigation.output, None),
+            None,
+            None,
+            facts,
+        )
     if defect.stage == "S4":
         # PHASE0/G: an S4 defect names no batch - `_check_dispositions` (validation/registry.py)
         # constructs every RECONCILING-stage Failure with no structured section/unit identifier,
@@ -436,7 +472,10 @@ def _stage_target(
         # of "expected" coverage either, the identical shape of the same underlying gap.
         return (
             current.reconciled[first_batch_id],
-            functools.partial(reconcile_checks, facts=batch_facts),
+            _refuse_noop(
+                current.reconciled[first_batch_id].output,
+                functools.partial(reconcile_checks, facts=batch_facts),
+            ),
             None,
             None,
             batch_facts,
@@ -444,11 +483,14 @@ def _stage_target(
     if defect.stage == "S5":
         return (
             current.planned,
-            functools.partial(
-                plan_checks,
-                facts=facts,
-                dispositions=current.dispositions,
-                ecosystem=ecosystem,
+            _refuse_noop(
+                current.planned.output,
+                functools.partial(
+                    plan_checks,
+                    facts=facts,
+                    dispositions=current.dispositions,
+                    ecosystem=ecosystem,
+                ),
             ),
             None,
             None,
@@ -457,7 +499,10 @@ def _stage_target(
     task = next(task for task in current.tasks if task.section_id == defect.section_id)
     return (
         current.authored[task.label],
-        functools.partial(unit_checks, task=task, facts=facts, name=name),
+        _refuse_noop(
+            current.authored[task.label].output,
+            functools.partial(unit_checks, task=task, facts=facts, name=name),
+        ),
         task.accepted_ids,
         task.slot_facts,
         facts,
