@@ -146,6 +146,49 @@ def fold_duplicate_units(payload: Any) -> None:
             fold_duplicate_units(item)
 
 
+def merge_partial_units(revised: Any, original: Any) -> Any:
+    """A copy of ``revised`` with each unit-keyed list filled in from ``original`` for any unit
+    the reply left silent, so a reply may declare only the units it actually revised instead of
+    re-stating a whole batch just to satisfy the ``unit_ids`` binding's completeness check.
+
+    G4-W17 arrival item 94, measured on PDF-Cpp: an S4 repair reply that correctly identified and
+    fixed exactly two of a forty-unit reconciliation batch was rejected outright, twice, for not
+    re-declaring the other thirty-eight - the completeness check below (``binding_errors``,
+    ``binding == "unit_ids"``) has no way to distinguish "every unit accounted for" from "every
+    unit re-typed", and demanding the second spends the one repair attempt a defect's fingerprint
+    ever gets on pure transcription of content nothing asked to change. A unit ``revised`` does
+    name overrides ``original``'s own record for it; a unit ``revised`` is silent on carries over
+    ``original``'s record unchanged, in ``original``'s own order - the repair reply's own
+    ``changes[]`` already names which units it touched, so this never has to guess which of
+    ``revised``'s declared units are the real edits.
+
+    Only a top-level list of records each keyed by its own ``unit_id`` is merged this way - the
+    identical shape ``fold_duplicate_units`` already folds duplicates within - so a payload with
+    no such list at any key returns ``revised`` unchanged at that key, and a non-dict payload (a
+    schema violation some other check will already reject) is returned as given.
+    """
+    if not (isinstance(revised, dict) and isinstance(original, dict)):
+        return revised
+    merged = dict(revised)
+    for key, original_value in original.items():
+        if not (
+            isinstance(original_value, list)
+            and original_value
+            and all(isinstance(item, dict) and "unit_id" in item for item in original_value)
+        ):
+            continue
+        declared = merged.get(key)
+        if not isinstance(declared, list):
+            declared = []
+        declared_by_unit = {
+            item["unit_id"]: item
+            for item in declared
+            if isinstance(item, dict) and "unit_id" in item
+        }
+        merged[key] = [declared_by_unit.get(item["unit_id"], item) for item in original_value]
+    return merged
+
+
 def binding_errors(payload: Any, facts: FactsDocument, binding: Binding) -> list[str]:
     """Why the output may not be used, or an empty list when every citation holds."""
     known = {fact.id: fact for fact in facts.facts}

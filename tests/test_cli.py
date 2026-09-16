@@ -2326,6 +2326,94 @@ def test_an_injected_preservation_defect_is_repaired_at_reconciling(
     assert json.loads((transaction / "review.json").read_text("utf-8"))["verdict"] == "ACCEPT"
 
 
+def test_an_s4_repair_may_declare_only_the_unit_its_own_change_touched(
+    project_with_registry: Path,
+    local_canary: dict[str, Any],
+    gateway_ready: _ChatGateway,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """G4-W17 arrival item 94, measured on PDF-Cpp: an S4 repair reply that correctly identified
+    and fixed exactly the flagged unit of a multi-unit reconciliation batch was rejected outright,
+    twice, for not re-declaring every other unit too - core/llm/binding.py's ``unit_ids`` binding
+    has no way to distinguish "every unit accounted for" from "every unit re-typed". The reply
+    below declares ONLY the one unit its own ``changes[]`` touched (unlike the sibling
+    preservation test above, which - being small enough to echo in full - never exercised this
+    path); ``merge_partial_units`` fills the other three units in from the causal stage's own
+    stored dispositions, unchanged."""
+    context = f"{_PROMPTS['independent_review'].sha256}|{_PROMPTS['targeted_repair'].sha256}"
+    fingerprint = defect_fingerprint("review", "opening", "S4", "preservation", context)
+    finding = {
+        "id": "F01",
+        "section_id": "opening",
+        "causal_stage": "S4",
+        "criterion": "preservation",
+        "text": "The rewrite dropped the inherited paragraph's LICENSE and docs links.",
+        "quote": OPENING_QUOTE,
+        "fact_ids": ["inherited_unit:002.paragraph"],
+        "absent": [],
+        "repair": "Preserve the inherited paragraph where a visitor finds it.",
+    }
+    # Only the one changed disposition - the other three units of LOCAL_DISPOSITIONS are never
+    # re-declared, the exact shape PDF-Cpp's real 40-unit batch measured.
+    partial_reply = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:002.paragraph",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "scope_limitations",
+                "fact_ids": ["identity:repository", "link_target:002"],
+                "rationale": "The paragraph's links are verified and it is kept verbatim.",
+            }
+        ]
+    }
+    repair = {
+        "fingerprint": fingerprint,
+        "causal_stage": "S4",
+        "revised_output": partial_reply,
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.dispositions[1].disposition",
+                "before": "VERIFIED_REWRITE",
+                "after": "VERIFIED_PRESERVE",
+                "fact_ids": ["inherited_unit:002.paragraph"],
+            }
+        ],
+    }
+    gateway_ready.queues = {
+        "independent_review": [
+            {"verdict": "REJECT_PRESERVATION", "findings": [finding], "preserve": []},
+            {"verdict": "ACCEPT", "findings": [], "preserve": []},
+        ],
+        "targeted_repair": [repair],
+    }
+    code = main(["present", "--repo", CANARY, "--root", str(project_with_registry)])
+    captured = capsys.readouterr()
+    assert code == EXIT_OK and "state ACCEPTED" in captured.out
+    assert (
+        "repair: 1 repaired (F01 S4 opening), 0 unrepairable recorded advisory; rounds 2"
+    ) in captured.out
+    transaction = next((project_with_registry / "runs" / "transactions").glob("*/*"))
+    dispositions = json.loads((transaction / "dispositions.json").read_text("utf-8"))
+    # All four original units are still present - the three the reply never mentioned carried
+    # over verbatim from the causal stage's own stored output, and the one it did name changed.
+    by_unit = {d["unit_id"]: d for d in dispositions["dispositions"]}
+    assert set(by_unit) == {
+        "inherited_unit:001.heading",
+        "inherited_unit:002.paragraph",
+        "inherited_unit:003.code_block",
+        "inherited_unit:004.code_block",
+    }
+    assert by_unit["inherited_unit:001.heading"] == LOCAL_DISPOSITIONS["dispositions"][0]
+    assert (
+        by_unit["inherited_unit:002.paragraph"]["disposition"],
+        by_unit["inherited_unit:002.paragraph"]["destination_section"],
+    ) == ("VERIFIED_PRESERVE", "scope_limitations")
+    assert by_unit["inherited_unit:003.code_block"] == LOCAL_DISPOSITIONS["dispositions"][2]
+    assert by_unit["inherited_unit:004.code_block"] == LOCAL_DISPOSITIONS["dispositions"][3]
+    assert json.loads((transaction / "review.json").read_text("utf-8"))["verdict"] == "ACCEPT"
+
+
 def test_a_blocking_check_failing_again_after_its_one_repair_stops_with_the_candidate_intact(
     project_with_registry: Path,
     sealed_canary: Path,

@@ -567,6 +567,10 @@ def repair_defect(
                 facts=stage_facts,
                 stage_checks=stage_checks,
                 slots=probe,
+                # G4-W17 arrival item 94: the causal stage's own stored output, so a unit_ids-
+                # bound (S4) reply may declare only the units it actually revised - the rest
+                # merges in from here instead of demanding a token-costly full re-declaration.
+                original=target.output,
             ),
         )
     except JobError as exc:

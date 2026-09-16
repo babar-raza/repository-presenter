@@ -29,7 +29,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
-from repository_presenter.core.llm.binding import binding_errors
+from repository_presenter.core.llm.binding import binding_errors, merge_partial_units
 from repository_presenter.core.llm.ledger import canonical_hash
 from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
@@ -496,6 +496,7 @@ def repair_checks(
     facts: FactsDocument,
     stage_checks: Callable[[dict[str, Any]], list[str]] | None = None,
     slots: SlotSetProbe | None = None,
+    original: dict[str, Any] | None = None,
 ) -> list[str]:
     """Why the repair may not be used: it must target the defect, and the revised output must
     satisfy the causal stage's own contract, binding, and checks exactly as a fresh reply would.
@@ -503,6 +504,14 @@ def repair_checks(
     ``slots``, when a content stage gave one, records the slot set this reply would leave behind
     and rejects a revision that changes it: the plan owns that set, so such a fix is a planning
     decision the escalation routes to S5 rather than a revision this stage may make.
+
+    ``original``, the causal stage's own stored output before this repair, lets a ``unit_ids``-
+    bound reply (S4 reconciliation) declare only the units it actually revised: item 94's
+    ``merge_partial_units`` fills the rest in from ``original`` before anything below judges
+    completeness, so the merged, full object - not the reply's own partial one - is what schema,
+    binding, and the stage's own checks see, and what ends up stored. Every other binding has no
+    completeness notion for ``merge_partial_units`` to matter to, so passing ``original`` for
+    those stages is harmless and, today, unused.
     """
     errors: list[str] = []
     if output.get("causal_stage") != defect.stage:
@@ -512,6 +521,9 @@ def repair_checks(
     revised = output.get("revised_output")
     if not isinstance(revised, dict):
         return [*errors, "revised_output must be the causal stage's output object"]
+    if binding == "unit_ids" and original is not None:
+        revised = merge_partial_units(revised, original)
+        output["revised_output"] = revised
     validator = Draft202012Validator(output_contract)
     errors.extend(
         f"revised_output{error.json_path[1:]}: {error.message}"

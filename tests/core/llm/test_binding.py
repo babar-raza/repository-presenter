@@ -7,6 +7,7 @@ from repository_presenter.core.llm.binding import (
     binding_errors,
     collect_ids,
     fold_duplicate_units,
+    merge_partial_units,
     resolve_symbol_ids,
 )
 
@@ -111,6 +112,50 @@ def test_a_repeated_disposition_is_folded_to_its_first_occurrence() -> None:
         {"unit_id": "inherited_unit:002.paragraph", "disposition": "b"},
     ]
     assert binding_errors(payload, FACTS, "unit_ids") == []
+
+
+def test_merge_partial_units_fills_the_units_a_reply_left_silent_from_the_original() -> None:
+    """G4-W17 arrival item 94, measured on PDF-Cpp: an S4 repair reply that correctly fixed two
+    of a forty-unit reconciliation batch was rejected outright for not re-declaring the other
+    thirty-eight. A reply naming only the unit it actually revised now merges onto the causal
+    stage's own stored output instead."""
+    original = {
+        "dispositions": [
+            {"unit_id": "inherited_unit:001.heading", "disposition": "SUPERSEDE_REDUNDANT"},
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "VERIFIED_REWRITE"},
+        ]
+    }
+    partial = {
+        "dispositions": [
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "VERIFIED_PRESERVE"},
+        ]
+    }
+    assert binding_errors(partial, FACTS, "unit_ids") == [
+        "no disposition for inherited units: inherited_unit:001.heading"
+    ]
+    merged = merge_partial_units(partial, original)
+    assert merged == {
+        "dispositions": [
+            {"unit_id": "inherited_unit:001.heading", "disposition": "SUPERSEDE_REDUNDANT"},
+            {"unit_id": "inherited_unit:002.paragraph", "disposition": "VERIFIED_PRESERVE"},
+        ]
+    }
+    assert binding_errors(merged, FACTS, "unit_ids") == []
+    # The reply's own untouched value is never mutated - callers store the returned copy.
+    assert partial["dispositions"] == [
+        {"unit_id": "inherited_unit:002.paragraph", "disposition": "VERIFIED_PRESERVE"}
+    ]
+
+
+def test_merge_partial_units_is_structural_like_fold_duplicate_units() -> None:
+    # A payload with no unit_id-keyed list anywhere is returned with the reply's own value,
+    # unchanged - the identical "structural, never a name specific to one job's schema" contract
+    # fold_duplicate_units already keeps.
+    revised = {"findings": [{"fact_ids": ["example:001"]}]}
+    original = {"findings": [{"fact_ids": ["example:002"]}]}
+    assert merge_partial_units(revised, original) == revised
+    # A non-dict payload (a schema violation some other check already rejects) passes through.
+    assert merge_partial_units("x", original) == "x"
 
 
 def test_folding_duplicate_units_never_touches_a_list_without_that_shape() -> None:
