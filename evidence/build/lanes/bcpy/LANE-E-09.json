@@ -1,0 +1,101 @@
+{
+ "schema_version": 1,
+ "lane": "bcpy",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-E-09",
+ "work_item_status": "NOT_SEALED",
+ "recorded_at": "2026-09-16T20:17:00+00:00",
+ "control_revision": "25aae12",
+ "control_revision_note": "One-off worker (not lane-e), spawned to re-draw aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python now that G4-W17 arrival items 79/96 (bcpy/LANE-E-07's own BCPY-01 proposal) landed as commit 6ebddab, REVERSES the earlier item-79 disposition. Worktree C:\\w\\bcpy2, branch bcpy/LANE-E-09, created fresh off origin/main at 25aae12 (which contains both 8b10f59 - item 80, the SlotSetProbe latch - and 6ebddab - items 79/96, cited_fact_defect's fact-bound-quote widening - as ancestors, verified with `git merge-base --is-ancestor <sha> origin/main` for each before any candidate work began, not assumed from the spawn message). Owns no platform module; the defect below is a PROPOSAL for the primary, never an edit in this branch.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\bcpy2",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt, verified before any candidate work. Built by project/loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e ."
+ },
+ "gateway": {
+  "command": "repository-presenter preflight",
+  "host": "llm.professionalize.com",
+  "models": 7,
+  "prompt_manifests": 6,
+  "route": "qwen3-next"
+ },
+ "items_79_96_verification_before_drawing": {
+  "method": "Read against origin/main directly, not assumed from the spawn message's summary.",
+  "commit": "6ebddab",
+  "confirmed": "git merge-base --is-ancestor 6ebddab origin/main (exit 0) and git merge-base --is-ancestor 8b10f59926e578189a9f4965b18f7c744a3544dc origin/main (exit 0), both on the worktree's own origin/main at 25aae12. src/repository_presenter/components/readme/review/independent/review.py:69 reads REVIEWER_LOGIC_VERSION = \"8\" (was 7 pre-fix), confirming the widened cited_fact_defect is the code actually running in this worktree, not merely present in history.",
+  "docs_cross_check": "docs/DECISION_LOG.md's 2026-09-16 19:39 UTC entry independently describes the identical fix (cited_fact_defect folds a criterion=='presentation' finding naming neither a fact_id nor an absent claim when the reviewed unit's own product-fact citations literally back the quote), naming item 96/bcpy-LANE-E-07/BarCode-Python as its third sighting."
+ },
+ "repository": {
+  "name": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "outcome": "NOT_SEALED",
+  "previous_failure_class": "UNGROUNDED_PRESENTATION_OMISSION_FINDING_SURVIVES_EVERY_REFUTATION_GATE (bcpy/LANE-E-07's F06, items 79/96's own unfixed state)",
+  "previous_failure_class_status": "CLOSED - items 79/96 fixed the groundedness gate; this draw's F06-shaped candidate finding does not recur (review round 2's advisory list below includes F06 among six advisories, unblocking - see review_round_2_final), confirmed by code reading (REVIEWER_LOGIC_VERSION 8) and by this run's own review.json, not merely assumed",
+  "failure_class": "RECONCILIATION_VERIFIED_MOVE_PLACES_A_SECOND_EXAMPLES_POINTER_BESIDE_ONE_ALREADY_THERE",
+  "stage": "S4 reconciliation / dispositions (symptom surfaces at S10 independent_review / BC-10)",
+  "stages_reached": "S1 through S10 and repair round 1; the furthest this repository has ever reached, matching bcpy/LANE-E-07's high-water mark",
+  "measured": {
+   "source": "3 files, 136 tree entries, readme README.md, digest 0ce1e023a0fef7f7cf9aede590fa12820bf107276953afb36df651cdccd888ef (unchanged - same revision as LANE-E-07's draw)",
+   "examples": "6 candidates, 6 executed, 0 failed",
+   "facts": "178 records, digest 77deed930e8dc4b10e805cef1dd60df7207dc0d3c01b46e0c74e1fd2ae191531 (byte-identical to LANE-E-07's draw - same revision, same extraction)",
+   "dispositions": "59 units: SUPERSEDE_REDUNDANT 33, VERIFIED_PRESERVE 19, VERIFIED_MOVE 3, DEFER_UNRESOLVED 1, NON_CONTENT 2, OMIT_UNSUPPORTED 1; provider calls 0, model stored output reused - a DIFFERENT distribution from LANE-E-07's (27/22/5/1/2/0), because every other G4-W17 fix landed since 2026-09-16 18:02 UTC (items 79/96, 86, 94, 95, plus the item-79 false-start-then-fix session) changed shared composition code between the two draws",
+   "plan": "sections 16/18, capabilities 5, hubs 12, examples 1+5, links 4, limitations 1; provider calls 0, model stored output reused",
+   "units": "86 units across 8 sections; provider calls 0, model stored output reused",
+   "coherence": "0 of 86 units revised; provider calls 0, model stored output reused",
+   "readme": "135 visible lines of 310; digest f73c88f0b7aaa5af044ea4f10217e5ae50622006373f1355941871bcb1dd38db",
+   "validation": "pass 9, fail 1 (BC-10), pending 1; digest bc13c928c8f02eceeb411525529a7f668d0bb4cb7faf3ba2bf3ed4bcfd7b1b07",
+   "review_round_1": "verdict REJECT_PRESENTATION, blocking findings included F05 (additional_examples, presentation) among others",
+   "repair": "1 repaired (F05, S6, additional_examples), 0 unrepairable, 1 re-raised after repair (F05 itself, identical shape); rounds 2",
+   "review_round_2_final": "verdict REJECT_PRESENTATION, findings 1 (F05), advisory 11 (F01, F02, F03, F04, F06, F08 and duplicates across the two rounds - each folded with a recorded reviewer_scope_defect reason, F06 among them, confirming items 79/96's fix is live and working on this exact repository), preserve 0",
+   "second_reader": "read 2, five finding_classes corroborated (012d630ea87dd4b2ed3b6aaa, 2b06bea189f3d0d28382df47, 5b4af6802e28f2886ef081a2, 8e354b15b1c1dbf784765257, dcdff0a647163c5adef33c0b)",
+   "provider_calls": "0 recorded fresh calls this run; every stage replayed a stored reply by content-derived request hash from prior sessions' identical-input calls on this machine - a legitimate cache hit (runs/ is machine-local and gitignored), not a fabricated result"
+  },
+  "the_blocking_finding_is_true": {
+   "claim": "F05 (id F05, criterion presentation, section_id additional_examples, causal_stage S6/COMPOSING): 'The Additional Examples section duplicates the examples directory reference and adds redundant text that was already present in the original README.'",
+   "read_against_the_bytes": "TRUE. README.md lines 141-146 (runs/transactions/.../06eca5c.../README.md) carry two adjacent, distinct sentences both pointing the reader at the same examples directory: line 141-143 'Runnable scripts are available in the `examples` directory (`all_symbologies.py`, `render_options.py`, `error_handling.py`, `quickstart.py`). Additional worked examples cover the generic entry point and per-symbology encoding options below.' and line 145-146 'Runnable example scripts and what each one demonstrates are listed in `examples/README.md`.' Both are genuine, SUPPORTED, maintainer-authored sentences (facts.json: inherited_unit:026.paragraph, originally under the source README's own 'Additional Examples' heading, lines 110-112; inherited_unit:057.paragraph, originally under the source README's own 'Development and Testing' heading, lines 257-258) - neither is invented, but placing both in the same rendered section is a genuine content duplication a reader would notice.",
+   "root_cause_is_reconciliation_not_authoring_or_review": "dispositions.json disposes inherited_unit:026.paragraph VERIFIED_PRESERVE, destination_section additional_examples (correct - this is its original section) and inherited_unit:057.paragraph VERIFIED_MOVE, destination_section additional_examples, rationale 'The paragraph about example scripts is preserved and moved to the additional_examples section, which is rendered from facts.' S4 reconciliation moved a paragraph out of its own original section (development_testing) into a section that already had an equivalent maintainer sentence about the same subject, creating the duplication F05 correctly names. Neither content_units.json's authored 'units' array nor the renderer's own template strings contain either sentence (grepped: no match for either sentence's text anywhere under src/) - both are rendered verbatim from VERIFIED_PRESERVE/VERIFIED_MOVE dispositions, a path repair cannot reach (grepped: no match for VERIFIED_MOVE or VERIFIED_PRESERVE anywhere under src/repository_presenter/components/readme/repair/).",
+   "repair_could_not_fix_it_for_a_structural_reason": "repairs.json's one S6 attempt (request_sha256 94cbb...) could only add an entry to content_units.json's per-section 'omitted' list, marking build_test_asset:examples as no longer cited by any AUTHORED unit in additional_examples - outcome recorded 'repaired'. This changed nothing renderable: the duplicate text was never an authored unit to begin with, it is the literal, verbatim text of two VERIFIED_PRESERVE/VERIFIED_MOVE inherited_unit dispositions, which the renderer stitches in directly regardless of the 'omitted' ledger. Round 2 re-raised the identical finding because the candidate's rendered bytes had not moved at all - confirmed by comparing content_units.json's additional_examples units across both rounds (identical) and README.md lines 141-146 (unchanged)."
+  },
+  "resume_predicate": "A duplicate-subject guard in reconciliation's normalize() (src/repository_presenter/components/readme/reconciliation/dispositions.py) refuses (or downgrades to SUPERSEDE_REDUNDANT/OMIT_UNSUPPORTED) a VERIFIED_MOVE into a destination_section that already carries a VERIFIED_PRESERVE/VERIFIED_MOVE unit covering the same subject - the file already has this exact shape of precedent fix at line ~421-427 for a duplicate Core API table placed by the LLM reconciler ('the re-asked reconciler placed two such tables on the canary') - then re-run present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python. No other finding blocks; every other round-2 finding is already correctly advisory with a recorded reviewer_scope_defect, including F06 (confirming items 79/96's fix independently on this repository's own fresh draw)."
+ },
+ "proposals": [
+  {
+   "id": "BCPY-02",
+   "for": "the primary, through G4-W17",
+   "title": "S4 reconciliation's normalize() (dispositions.py) can VERIFIED_MOVE an inherited paragraph into a section that already carries a different inherited paragraph covering the same subject, producing a genuine, repair-unreachable content duplication - measured on BarCode-Python's own re-draw past items 79/96",
+   "files": [
+    "src/repository_presenter/components/readme/reconciliation/dispositions.py:316-479 (normalize, the deterministic post-processing pass over the model's raw reconciliation output; the API-table dedup rule at ~421-427 is the nearest existing precedent for this exact shape of fix)",
+    "src/repository_presenter/components/readme/repair/rounds.py, repair/targeted.py (confirmed to have no VERIFIED_MOVE/VERIFIED_PRESERVE awareness at all - repair cannot reach this class of defect by construction, so this is not repair work)"
+   ],
+   "defect": "normalize() already corrects several observed shapes of duplicate placement chosen by the LLM reconciler (banner, opening, Core API table - each with its own committed precedent and code comment naming the live repository that exposed it), but has no rule for two DIFFERENT inherited_unit paragraphs, from two different original sections, that both describe 'where to find the runnable example scripts', being routed to the same destination_section. Both units individually pass every existing placement_errors() check (correct fact citations, non-null destination, PLACING disposition) - the defect is invisible to every current structural check because it is about redundancy BETWEEN two otherwise-valid placements, not about either one alone.",
+   "measured_on_this_repository": {
+    "finding": "F05, aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python, revision 06eca5c01e13ed6d59a640f1cf330c1c5a57d151, round 2 of runs/transactions/aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python/06eca5c01e13ed6d59a640f1cf330c1c5a57d151/review.json",
+    "fact_ids": ["build_test_asset:examples", "link_target:024"],
+    "units_in_conflict": "inherited_unit:026.paragraph (VERIFIED_PRESERVE, additional_examples, its own original section) and inherited_unit:057.paragraph (VERIFIED_MOVE, additional_examples, moved out of its original development_testing section)",
+    "consequence": "review verdict REJECT_PRESENTATION, BC-10 FAIL, candidate NOT_SEALED; repair round 1 correctly repaired the two findings it had a real lever for and had nothing reachable for F05"
+   },
+   "why_no_existing_check_catches_it": "placement_errors() (dispositions.py:483) validates each disposition entry in isolation (destination_section non-null, fact_ids present, disposition/destination pairing) - it has no cross-entry pass comparing two entries destined for the same section against each other. The precedent fixes at lines ~381-393 (banner), ~409-420 (opening), ~421-427 (Core API table) each hard-code ONE specific known-duplicate pair by unit-id/kind pattern; none generalizes to 'any two VERIFIED_PRESERVE/VERIFIED_MOVE units in the same destination_section whose fact_ids overlap on a shared non-trivial fact' (here, both cite build_test_asset:examples).",
+   "governance": "project/loop-prompt.md section 3 ('A work item touching a sealed candidate's bundle reads its review.json advisory list first. A finding whose cause is deterministic code ... not a prose judgment call, is real repair work that survived one targeted_repair attempt for a structural reason - content revision cannot fix a code defect. Route it to the causal module now') and section 6 rule 5 (never leave a permanent unrepairable finding blocking a candidate).",
+   "not_proposed": [
+    "a semantic/similarity check (comparing free text for 'near-duplicate meaning') - out of reach for a deterministic check per rule 13/14; the narrower, checkable signal actually available is the shared fact_id (build_test_asset:examples) both units cite, which the existing Core-API-table and banner precedents already show is an accepted basis for this kind of rule",
+    "weakening BC-10, the review verdict, or repair's round budget - all are working correctly; the gap is upstream of all three"
+   ],
+   "reversal_path": "n/a - a proposal record; superseded once the owner lands a fix (or a different one) and this repository is re-drawn."
+  }
+ ],
+ "why_no_re_draw": "Repair already ran its one attempt (rounds 2, per project/loop-prompt.md section 5's prohibition on a third equivalent attempt and rounds.py's own two-round budget), and re-raised the identical finding because nothing in the candidate's authored units changed - the offending text is injected by reconciliation's own VERIFIED_MOVE/VERIFIED_PRESERVE dispositions, outside repair's reach entirely. A fresh present at the same revision would replay the identical cached dispositions and reproduce the identical finding; re-running until a composition happens to avoid it would be selecting for a seal, not earning one.",
+ "no_seal_and_the_counted_unit_does_not_move": {
+  "status_before": "15/34 current reviewable no-op-proven, on the tree at origin/main 25aae12",
+  "status_after": "15/34 - this PR adds no candidates/ directory",
+  "note": "No no-op proof was attempted because no bundle was produced; a no-op proof requires a seal, and no seal was possible or forced. project/state.yaml was not opened - the lane prompt's narrow current_candidates exception applies only to a seal, and none occurred."
+ },
+ "checks": {
+  "ruff_check": "pass",
+  "ruff_format_check": "pass",
+  "mypy_src": "pass",
+  "pytest_n_auto": "pass",
+  "note": "Documentation-and-evidence-only change (this file and a docs/DECISION_LOG.md append); the full local CI-equivalent was run once before the commit, on this exact tree apart from this note."
+ }
+}
