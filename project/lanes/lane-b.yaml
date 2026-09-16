@@ -227,7 +227,30 @@ progress:
     despite a larger 81-type undocumented batch (40/40/1 split, zero truncation) - the defect is
     data-dependent, not purely a function of batch size. No lane-owned code changed this run.
     sealed_by_lane stays 0, dispositions_by_lane rises 8 to 9.
-    repository-presenter status after the run: 12/34, unchanged by this draw.'
+    repository-presenter status after the run: 12/34, unchanged by this draw.
+    G4-W13-RERUN6 2026-09-16 19:31 against origin/main at 6f2161f (branch lane-b/G4-W13-RERUN6,
+    fresh worktree C:/w/b09): the spawn instruction for this item claimed PDF-Cpp had never been
+    attempted by any lane and carried no disposition anywhere on record. Checked against this file
+    before acting and found false - three prior 2026-09-11 draws (RERUN2, RERUN3, RERUN4) already
+    stand above, and the standing disposition was BLOCKED_COMPOSING (BC-08). Drawn anyway as a
+    genuinely fresh attempt since draw 4''s own resume predicate (PROPOSAL LANE-B-R4-F1 or
+    LANE-B-R4-F2) was checked directly against 6f2161f''s source and confirmed still unlanded, but
+    roughly a dozen unrelated arrival items have landed in shared code in the five days since draw
+    4. Same revision (888700a), same facts by kind (1,846), NOT a byte-identical replay - 29 of 51
+    ledger rows are live provider calls (0 cache_stale), S4 disposed the same 124 units into a
+    materially different split, and S6 produced 286 units and 185 visible lines of 665 against
+    draw 4''s 285 and 180 of 583. BC-08 FAILs again at COMPOSING, this time on a single fact
+    (inherited_unit:019.paragraph, "cmake --preset windows-msvc-debug") rather than draw 4''s
+    three; one repair round engaged for the first time (outcome "repaired", added the fact_id but
+    never the text) where draw 4''s two attempts were flat no-ops, and the equivalent failure
+    still stands after repair either way - the CLI''s own words. Root cause read directly from
+    source, not assumed: repair/targeted.py''s validation_defects (named[0] routing) and
+    repair_packet (excludes inherited_unit from citable records) are byte-identical to draw 4''s
+    copies at both named lines, so LANE-B-R4-F2 remains the active blocker. Disposition RESTATED,
+    not moved: BLOCKED_COMPOSING (BC-08), same check and stage as draw 4. sealed_by_lane stays 0,
+    dispositions_by_lane stays 9 (restated, not a new repository). Full findings and the premise
+    correction are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN6.json,
+    the live source. repository-presenter status after the run: 12/34, unchanged.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -441,4 +464,30 @@ items:
     package citation already refutes one), or once the primary rules it sealable on BC-01..BC-09
     plus a corroborated second read - it does not yet have either.'
   run_2026_09_16_r7: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN3.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W13-RERUN6
+  status: ACCEPTED
+  accepted_at: '2026-09-16T19:31:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN6.json
+  purpose: 'Spawn instruction 2026-09-16: with both TypeScript repositories and Email-Cpp confirmed
+    blocked on unlanded shared code, draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp fresh. The spawn
+    instruction asserted this repository had never been attempted by any lane and carried no
+    disposition on record; both claims are false (three 2026-09-11 draws already stand in this
+    file, standing disposition BLOCKED_COMPOSING BC-08) and are corrected in
+    docs/RESEARCH_LANE_B.md before acting. Drawn anyway as a genuinely fresh attempt rather than
+    declined as a redraw, since its own resume predicate was independently re-checked against
+    current origin/main and roughly a dozen unrelated arrival items have landed in shared code
+    since its last draw. Never force a seal, never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn once, end to end, on a genuinely fresh
+    composition (not a cache replay - 29 of 51 ledger rows are live calls), and has its verdict,
+    reported literally (BC-08 FAIL at COMPOSING on inherited_unit:019.paragraph; one repair round
+    engaged but did not restore the missing text; BC-10 and BC-11 PENDING, S10 never reached). What
+    remains open is shared code the lane may not land: aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp,
+    BLOCKED_COMPOSING (BC-08) - re-run once either PROPOSAL LANE-B-R4-F1 (validation_defects routes
+    a multi-section BC-08 failure to only the first named section) or LANE-B-R4-F2 (repair_packet
+    excludes the inherited_unit fact kind that a BC-08 repair is about) lands in
+    src/repository_presenter/components/readme/repair/targeted.py, both confirmed still unlanded
+    against origin/main 6f2161f before this draw, or once the primary rules it sealable on
+    BC-01..BC-09 plus a corroborated second read.'
+  run_2026_09_16_r8: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN6.json, which
     is the live source for this run rather than a copy.
