@@ -75,11 +75,13 @@ disk + hosted CI green + count recomputed from disk.
 | F8 | primary | tests/test_governance_consistency.py | after F3 | Port reviewer_check's deterministic repo_checks (queue order/purpose, budgets, limits-vs-decisions, gate-purpose-vs-ESM) + promote audit_second_reader_ledger + `test_gate_evidence_matches_disk` (a manifest SEALED row ⇒ live `candidates/<slug>/CURRENT`) + ceiling-absence test. tests/→tools/ import is sanctioned (test_bundle_audits precedent). Strict-xfail any residue. | revert test file |
 | F9 | primary | schemas/state.schema.json, tests/test_queue_agreement.py | GATE-A | Add COMPLETE to next_ready_items' status enum; accepted_work_items() reads nested second_pass → G3-W04 unpinned. Authorized via this card (AGENTS.md schema route). | revert; schema+test only |
 | F10 | supervisor | — (read-only) | GATE-0 | TeX-Python upstream check. RESULT 2026-09-11: no source commit since the broken 26.5 release — NOT recoverable; stays NOT_PROCESSABLE; zero margin stands. | n/a |
+| F11 | supervisor | tools/reviewer/procedure.md, docs/SUPERVISION.md, plans/sprint/PHASE1-SPRINT-PLAN.md, docs/DECISION_LOG.md, tools/reviewer/reviewer_check.py, plans/sprint/loop-instructions.jsonl | GATE-0 | Lane/background spawn model policy: rule text in the three prose files; §31 decision entry; reviewer_check.py behavioural check flags any observed Agent-tool spawn whose model isn't exactly sonnet; adds card F12 to this table. Accept: none of the three prose files still route a spawn to Opus or Fable in any of F12's six banned phrasings pairing the spawn-model key or the lane-agent-type phrase with either model name (this row deliberately avoids quoting them verbatim, since doing so here would trip F12's own check — DECISION_LOG.md §31 carries the literal diff as evidence instead, and is not one of F12's scanned files); `reviewer_check.py --record` runs clean against the live transcript; a synthetic transcript line with an Agent spawn whose model is one of the two banned values produces the new [FLAG], sonnet does not. | `git revert` the commit; tools/ never imported by src/; prose reverts cleanly since nothing downstream depends on the wording |
+| F12 | primary | tests/test_governance_consistency.py | after F11 | Add a test (test_lane_spawn_recipes_never_name_opus_or_fable) asserting procedure.md, SUPERVISION.md, PHASE1-SPRINT-PLAN.md never contain the six literal substrings pairing the spawn-model key or the lane-agent-type phrase with Opus or Fable (enumerated in the test itself and in DECISION_LOG.md §31's F11 entry — not quoted in this row, since quoting them here would trip the very check this row describes). Literal-substring checks only, not a loose regex/blanket absence check — procedure.md's own historical sentence naming both models must keep passing. Accept: red against F11's pre-image, green against F11's post-image; mirrors this file's existing text-membership check style. | revert test file only |
 | W-* | lanes/primary | candidates/, runs/ | GATE-B | Waves per §11; per-candidate acceptance above; real rejection → disposition + move on (stop-don't-force); fold-don't-code for content classes (DIRECTIVE rule 16). | failed seal leaves no bundle; broken re-seal → KNOWN_BLOCKED_STALE + card ref |
 | Z1 | supervisor | evidence/build/PHASE1_SPRINT/ | GATE-Z | Evidence bundle: manifest.json (card statuses + evidence, gate verdicts, checkpoint counts, CI + liveness run ids, final `status --stale` output, PA-03 four-count), kill-test outputs, channel copies. Remove ACTIVE. Final report names the bundle's absolute path. | n/a |
 
-**Shared-code slot order (primary):** F6 → F7 → 41+42 (batch) → 43 → 26 → 47 → F8 → F9 → 50 →
-51 → 53 → 52 → 54 → 48. Item 34 deferred unless a Java rerun flags it; 49 declined; 45/46
+**Shared-code slot order (primary):** F6 → F7 → 41+42 (batch) → 43 → 26 → 47 → F8 → F9 → F11 →
+F12 → 50 → 51 → 53 → 52 → 54 → 48. Item 34 deferred unless a Java rerun flags it; 49 declined; 45/46
 landed pre-sprint; 38 superseded.
 
 ## 5. Gates
@@ -185,12 +187,15 @@ Cells-Cpp re-seal attempt (policy: §31 2026-09-11), sweep 2 over the remainder.
 ## 12. Lane spawn recipe (procedure §2b)
 
 Between runs only: append `- id: G4-W1x-RERUNn, status: PENDING` naming target repos +
-unlocks-under-test to the lane yaml; spawn Agent (general-purpose, model opus, isolation
+unlocks-under-test to the lane yaml; spawn Agent (general-purpose, model sonnet, isolation
 worktree, background): "Read project/loop-prompt-lane.md in full and follow it; your lane is
 <lane>. Work ONE item this run — <ITEM> — land it by PR (branch <lane>/<ITEM>, label <lane>,
 squash-merge when CI green), then end with the report." Record the agent id in
 reviewer_state.lanes. One live run per lane; never edit a lane-owned file while live; mid-run
-corrections only by `Reviewer:` SendMessage to the recorded agent id.
+corrections only by `Reviewer:` SendMessage to the recorded agent id. Never spawn a lane, or any
+background subagent, with the Agent tool's `model` parameter set to anything other than Sonnet
+(Opus and Fable are both prohibited there) — owner cost ruling 2026-09-06 (primary/reviewer),
+extended to lanes 2026-09-16 (§31).
 
 ## 13. Control plane
 

@@ -24,8 +24,11 @@ class; a rule with no incident behind it is a candidate for removal, not additio
 - **Primary executor** — one interactive session running `project/loop-prompt.md` (or the active
   mission prompt, e.g. `project/loop-prompt-sprint.md`, which inherits it). Owns `src/`, `tests/`,
   the cursor, and gate evidence. Continues itself by self-scheduled wakeups (§ Wakeup policy).
-- **Lane agents** — Opus subagents in isolated worktrees (`project/loop-prompt-lane.md`), one item
-  per run, landing by self-merged PR. Spawned and supervised by the supervisor (procedure §2b).
+- **Lane agents** — Sonnet subagents in isolated worktrees (`project/loop-prompt-lane.md`), one item
+  per run, landing by self-merged PR. Spawned and supervised by the supervisor (procedure §2b). Never
+  spawn a lane, or any background subagent, with the Agent tool's `model` parameter set to anything
+  other than Sonnet (Opus and Fable are both prohibited there) — owner cost ruling 2026-09-06
+  (primary/reviewer), extended to lanes 2026-09-16 (§31).
 - **Monitors** — `stop_monitor.py`, `timestamp_monitor.py`, `unblock_monitor.py`, run under the
   supervisor's Monitor tool. In-band: they die with the supervisor, and know it — each announces
   `WATCHING <transcript>` at startup and warns on a stale target (transcript_path.py).

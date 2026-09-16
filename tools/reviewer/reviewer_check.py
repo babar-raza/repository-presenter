@@ -165,6 +165,8 @@ def parse_transcript(since_z: str) -> dict:
                         ev["arg"] = str(inp.get("file_path", ""))
                     elif name == "ScheduleWakeup":
                         ev["arg"] = json.dumps(inp)[:200]
+                    elif name == "Agent":
+                        ev["arg"] = json.dumps({"model": inp.get("model"), "subagent_type": inp.get("subagent_type"), "background": inp.get("run_in_background")})[:200]
                     events.append(ev)
                     event_by_tid[part.get("id") or ""] = ev
                     if name == "ScheduleWakeup":
@@ -593,6 +595,22 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
                 outside.append(f"{c['sha']}:{f}")
     out.append(flag(f"loop commits touched governance/other paths: {outside[:5]}") if outside else ok("loop commits stayed within its paths"))
     out.append((flag if prompts_touched >= 3 else info)(f"loop commits changing prompts/ this window: {prompts_touched} (each one re-seals the canary)"))
+    # --- lane/background spawn model policy: every Agent-tool spawn must use model=sonnet, never
+    # opus/fable (owner cost ruling 2026-09-06 primary/reviewer, extended to lanes/background spawns
+    # 2026-09-16, §31 PHASE1/F11). An omitted model key can silently inherit an expensive parent
+    # model, so it flags too.
+    bad_spawns = []
+    for e in events:
+        if e["tool"] != "Agent":
+            continue
+        try:
+            detail = json.loads(e["arg"] or "{}")
+        except Exception:
+            detail = {}
+        model = detail.get("model")
+        if model != "sonnet":
+            bad_spawns.append(f"{e['ts']}: model={model!r}")
+    out.append(flag(f"Agent spawn(s) not using model=sonnet (§31 PHASE1/F11): {bad_spawns[:5]}") if bad_spawns else ok(f"all {sum(1 for e in events if e['tool'] == 'Agent')} Agent spawn(s) this window used model=sonnet"))
     # --- weaker-executor watch (owner switched the loop to a cheaper model, 2026-09-06 ~10:30;
     # "at any cost" pressure + a less capable executor is exactly the combination that produces
     # shortcuts, so these checks run every wake regardless of whether anything else flagged).

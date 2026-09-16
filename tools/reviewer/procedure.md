@@ -93,16 +93,20 @@ stopped. Every message is also a one-line §31 reviewer entry.
 | Accept-in-part language; hedged/assumed-fixed language in a commit | Read the commit's diff and the item's acceptance predicates literally, one by one, against what actually landed. A predicate not met → the item is not accepted regardless of what the commit says; message the loop to re-open it and cite the unmet predicate. | — |
 | An "ACCEPTED" gate/work-item evidence manifest with no visible evidence field | Read the full manifest before trusting the status line; if the acceptance is unearned, message the loop and record a §31 reviewer entry naming the exact unmet predicate. | — |
 | Growth (module with no importer; ≥3 new check definitions; deferral language in evidence) | §31 entry asking for the importer or removal; accept-in-part → owning item named in §27.9. | Second wake → message. |
+| Lane/spawn model violation (a spawn's `model` was Opus, Fable, or omitted, instead of Sonnet) | Don't spawn further with the wrong model; correct at the next spawn; never interrupts a run already in flight. | Persisting (second occurrence): §31 note + PushNotification the owner. |
 
 ## 2b. Lanes (parallel loops; owner decisions 2026-09-06 01:20 and 08:00, RESEARCH §28.12 "Lanes")
 
-Lanes are **Opus subagents in their own git worktrees**, one item per run: lane B (TypeScript, then
+Lanes are **Sonnet subagents in their own git worktrees**, one item per run: lane B (TypeScript, then
 C++), lane C (Java), lane D (Go, then Rust) — files `project/lanes/<lane>.yaml`, generic prompt
 `project/loop-prompt-lane.md`. Spawn with the Agent tool: `subagent_type: general-purpose`, `model:
-opus`, `isolation: worktree`, `run_in_background: true`, prompt `Read project/loop-prompt-lane.md in
+sonnet`, `isolation: worktree`, `run_in_background: true`, prompt `Read project/loop-prompt-lane.md in
 full and follow it; your lane is <lane>. Work ONE item this run — <ITEM> — land it by PR (branch
 <lane>/<ITEM>, label <lane>, squash-merge when CI is green), then end with the report.` Keep at most
-one live run per lane; note each spawn's agent id and item in reviewer_state.json `lanes`. A lane
+one live run per lane; note each spawn's agent id and item in reviewer_state.json `lanes`. Never spawn
+a lane, or any background subagent, with the Agent tool's `model` parameter set to anything other
+than Sonnet (Opus and Fable are both prohibited there) — owner cost ruling 2026-09-06
+(primary/reviewer), extended to lanes 2026-09-16 (§31). A lane
 `PROPOSAL` (shared-code defect) is admitted by adding it to G4-W17's arrival list in §27.9 (one line:
 lane, file, defect, repository) — the primary lands it; when it lands, re-spawn the lane whose
 dispositions it unblocks. Between runs only: edit a lane file (e.g. drop W15/W16 from lane-b.yaml,
