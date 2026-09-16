@@ -19,7 +19,7 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-from repository_presenter.components.readme.composition.authoring import title_terms
+from repository_presenter.components.readme.composition.authoring import prose_nouns, title_terms
 from repository_presenter.components.readme.composition.components.shell import (
     SEMANTIC_SHELL,
     Section,
@@ -59,6 +59,16 @@ _SHELL_OWNED_LINKS = frozenset({BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FAC
 
 def _supported(facts: FactsDocument, kind: str) -> list[str]:
     return [fact.id for fact in facts.by_kind(kind) if fact.polarity == "SUPPORTED"]  # type: ignore[arg-type]
+
+
+def _product_name(facts: FactsDocument) -> str:
+    """The product's own display name, read the same way ``identity.product_name`` reads it from
+    a ``RegistryEntry`` (``owner/Name-With-Dashes`` -> ``"Name With Dashes"``) - derived from
+    ``facts.repository`` instead of a ``RegistryEntry`` parameter, since ``evidence/facts/
+    extract.py`` always sets it to ``entry.repository`` and ``plan_checks`` has no registry
+    entry of its own to take one from (G4-W17 arrival item 82)."""
+    slug = facts.repository.rsplit("/", 1)[-1]
+    return " ".join(part for part in slug.split("-") if part)
 
 
 def _simple_symbol_name(value: str) -> str:
@@ -632,23 +642,38 @@ def plan_checks(
     if len(set(titles)) != len(titles):
         errors.append("core_capabilities titles must be distinct")
     errors.extend(_capability_facts_apart(capabilities))
-    # A capability title names only formats the facts verify. S6 judges the same titles by the
-    # same rule (README_CONTRACT.md check 4), but by then the plan is fixed and the re-ask can
-    # only rewrite prose, so the transaction dies: Aspose.Note titled a capability "Export pages
-    # to PDF" while format:output.pdf is UNRESOLVED, and section_authoring failed twice on it
-    # (measured 2026-09-06). Asked here, the model can choose another title.
-    recorded = {fact.value: fact.polarity for fact in facts.by_kind("format")}
+    # README_CONTRACT.md check 4: a capability title is supported by the facts its own capability
+    # cites. This used to judge a title's format terms against every format fact in the whole
+    # document, while authoring.py's unit_checks (~1099-1118) judges the very same title against
+    # only that slot's own planned fact_ids - the narrower, correct standard, which applied
+    # second, after the plan was fixed and S6 could no longer retitle or add a fact. Proven
+    # jointly unsatisfiable on Page-Python (G4-W17 arrival item 82, lane E E15): citing the
+    # plan's set failed the title rule, adding any supporting fact failed the slot-set rule, and
+    # there was no third option. Applying unit_checks' own standard here instead, while the
+    # planner can still retitle or add the fact, closes the gap without relaxing either rule -
+    # the same lineage as item 42's original fix (Aspose.Note titled a capability "Export pages
+    # to PDF" while format:output.pdf is UNRESOLVED, and section_authoring failed twice on it,
+    # measured 2026-09-06).
+    name = _product_name(facts)
+    nouns = prose_nouns(facts, name)
+    neutral = {fact.id for fact in facts.facts if fact.kind in {"identity", "package"}}
+    values = {fact.id: fact.value for fact in facts.facts}
+    common = " ".join([*(values[i] for i in sorted(neutral) if i in values), name]).lower()
     for index, item in enumerate(capabilities, start=1):
-        unverified = sorted(
+        title = str(item.get("title", ""))
+        cited = " ".join(values.get(i, "") for i in item.get("fact_ids", [])).lower()
+        unsupported = sorted(
             term
-            for term in title_terms(str(item.get("title", "")), facts)
-            if recorded.get(term, "SUPPORTED") != "SUPPORTED"
+            for term in title_terms(title, facts)
+            if term not in nouns
+            and term.lstrip(".").lower() not in cited
+            and term.lstrip(".").lower() not in common
         )
-        if unverified:
+        if unsupported:
             errors.append(
                 f"core_capabilities {index} is titled {item.get('title')!r}, which names "
-                f"{', '.join(unverified)}; no fact verifies that format, so the title claims "
-                "what the repository does not prove - title the capability by what is verified"
+                f"{', '.join(unsupported)}, which the facts it cites do not carry; cite the "
+                "facts that support this title, or title the capability by what it cites"
             )
 
     supported = {fact.id for fact in facts.facts if fact.polarity == "SUPPORTED"}

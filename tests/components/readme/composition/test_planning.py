@@ -909,9 +909,15 @@ def test_which_capability_facts_are_shared_is_composed_from_the_citations() -> N
     # The rule has always offered two equal arms - own facts *or* a declaration - so declaring was
     # always sufficient and distinctness was never demanded. Two capabilities resting on the same
     # facts are declared and pass, exactly as they did when the model declared them by hand.
+    # (Capability 2 additionally cites format:output.stl, unshared - G4-W17 arrival item 82 judges
+    # its "Export STL" title against its own citations, so the title needs its own supporting fact
+    # now; shared_fact_ids below is still only the *shared* subset, unaffected by the addition.)
     indistinct = [
         {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
-        {"title": "Export STL", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+        {
+            "title": "Export STL",
+            "fact_ids": ["public_symbol:widget.scene", "example:001", "format:output.stl"],
+        },
         {"title": "Run examples", "fact_ids": ["example:002"]},
     ]
     plan = _plan(core_capabilities=indistinct)
@@ -949,12 +955,49 @@ def test_a_capability_title_names_only_a_format_the_facts_verify() -> None:
         "capability_titles": [item["title"] for item in unverified],
     }
     assert plan_checks(_plan(core_capabilities=unverified, at_a_glance=glance), FACTS) == [
-        "core_capabilities 1 is titled 'Import OBJ meshes', which names .obj; no fact verifies "
-        "that format, so the title claims what the repository does not prove - title the "
-        "capability by what is verified"
+        "core_capabilities 1 is titled 'Import OBJ meshes', which names .obj, which the facts "
+        "it cites do not carry; cite the facts that support this title, or title the "
+        "capability by what it cites"
     ]
     # A verified format is free to name, and prose that matches no format fact is just prose.
     assert plan_checks(_plan(), FACTS) == []
+
+
+def test_a_capability_title_is_judged_by_its_own_citations_not_the_whole_document() -> None:
+    """G4-W17 arrival item 82 (lane E E15), measured on Page-Python: plan_checks used to judge a
+    capability title's format terms against every format fact in the whole document - so a title
+    naming a format that is SUPPORTED *somewhere*, but never cited by that capability itself,
+    passed here and then failed authoring.py's unit_checks (~1099-1118), which judges the same
+    title against only that slot's own planned fact_ids. By S6 the plan is fixed, so the model
+    could neither retitle (S5 already accepted the title) nor cite the supporting fact (S6 may
+    only cite what the plan already bound to the slot) - proven jointly unsatisfiable. Applying
+    the narrower, S6 standard here instead catches it while the planner can still do either."""
+    # format:output.stl is SUPPORTED (FACTS), but this capability cites only the unrelated
+    # symbol - the exact shape that used to pass here and die at S6 with no way back.
+    uncited_format = [
+        {"title": "Export STL files", "fact_ids": ["public_symbol:widget.scene"]},
+        {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+        {"title": "Run examples", "fact_ids": ["example:002"]},
+    ]
+    glance = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in uncited_format],
+    }
+    assert plan_checks(_plan(core_capabilities=uncited_format, at_a_glance=glance), FACTS) == [
+        "core_capabilities 1 is titled 'Export STL files', which names .stl, which the facts "
+        "it cites do not carry; cite the facts that support this title, or title the "
+        "capability by what it cites"
+    ]
+    # The escape the old rule never offered: citing the supporting fact clears it, exactly the
+    # move S6 needs and cannot make once the plan is already fixed.
+    cited_format = [
+        {"title": "Export STL files", "fact_ids": ["format:output.stl"]},
+        {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+        {"title": "Run examples", "fact_ids": ["example:002"]},
+    ]
+    glance = {**glance, "capability_titles": [item["title"] for item in cited_format]}
+    assert plan_checks(_plan(core_capabilities=cited_format, at_a_glance=glance), FACTS) == []
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
