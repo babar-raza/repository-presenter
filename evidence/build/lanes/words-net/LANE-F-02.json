@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "lane": "words-net",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "LANE-F-02",
+  "work_item_status": "DISPOSITIONED",
+  "note": "words-net is a one-off worker run (not lane-f, which owns project/lanes/lane-f.yaml and docs/RESEARCH_LANE_F.md and is live on a different item, PDF-.NET, at the time of this run); the branch and this evidence path are new, per the supervisor's own instruction, so as not to touch lane-f's owned files. Work item identity LANE-F-02 is borrowed from project/lanes/lane-f.yaml (read-only reference), which already names this candidate's queued identity: 'aspose-words-foss/Aspose.Words-FOSS-for-.NET after arrival item 54 lands'.",
+  "recorded_at": "2026-09-16T19:30:00+05:00",
+  "control_revision": "6f2161f9843a6c20315d443d71c37230c5a52ff7",
+  "control_revision_note": "origin/main at the time this worktree (C:/w/wnet1) was cut, which already carries 599a0f1 (README_CONTRACT revision eight, arrival item 54, Quick Start conditional on a verified example) - the fix LANE-F-02 was waiting on.",
+  "environment": {
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "hash_verified_before_candidate_work": true,
+    "venv_recipe": "C:\\Python313\\python.exe -m venv .venv; pip==24.3.1; -r requirements-lock.txt; execnet==2.1.2 pytest-xdist==3.8.0 uv==0.12.9; pip install --no-deps -e . (loop-prompt-lane.md section 1.3)",
+    "gateway_preflight": "llm.professionalize.com reachable; 7 models; 6 prompt manifests routed to qwen3-next; catalog digest ad8478a60fb80a7fa8e2b6d33cf406a93817ffc22213376ac81387f8e5f3f075"
+  },
+  "toolchains": {
+    "dotnet": "10.0.204 at C:\\Program Files\\dotnet\\dotnet (machine SDK, on PATH; lane-f.yaml records the same)"
+  },
+  "run_1": {
+    "summary": "First live attempt since arrival item 54 landed. facts-only preflight confirmed item 54 closes the old BLOCKED_CONTRACT_GAP: 'required rows without evidence: none'. The full present run reached S5 (presentation_planning) and aborted there on TruncatedOutput - a different, still-open defect (see docs/DECISION_LOG.md 2026-09-16 14:26 UTC entry, words-net/LANE-F-02). Nothing sealed; no candidate bundle produced.",
+    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
+    "revision": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+    "revision_note": "Unchanged from the G4 manifest's existing DISPOSITION row (evidence/build/G4_MULTI_LANGUAGE_COHORTS/manifest.json) - upstream has not moved.",
+    "outcome": "DISPOSITION",
+    "failure_class": "BLOCKED_PLANNING",
+    "facts": 6790,
+    "facts_breakdown": "dependency 2, example 5, identity 5, inherited_unit 104, install_command 1, license 2, link_target 31, package 2, public_symbol 6638",
+    "public_symbols": 6638,
+    "preflight": "6790 facts, 6784 SUPPORTED, 0 UNRESOLVED, 6 CONTRADICTED; required rows without evidence: none (item 54 closes the old contract gap correctly)",
+    "examples": "5 candidates; failed 5 (unchanged from the manifest's prior row - all 5 genuinely CONTRADICTED, real compile errors)",
+    "stages_reached": "S1 admit, S2 snapshot, S3 repository_investigation (success), S4 source_reconciliation (3 calls, success), S5 presentation_planning (TruncatedOutput, aborted)",
+    "detail": "S5's presentation_planning call (request_sha256 043a30c7a0a3690a...) returns finish_reason 'length' at exactly max_output_tokens (6000, prompts/presentation_planning.yaml v13). core/llm/jobs.py:472-483 raises JobError('TruncatedOutput') immediately on finish_reason=='length' and does not re-ask - 'a re-ask under the same budget cannot help; the manifest's budget must change' (jobs.py:474). This is Aspose.Words for .NET's public_symbol count (6638) that is materially larger than every other .NET repository this cohort has reached S5 with (PDF-.NET 999, 3D-.NET ~3900, Slides-.NET 2589 per prompts/presentation_planning.yaml's own comment). The schema fields a large surface plausibly fills past budget: core_capabilities[].fact_ids/shared_fact_ids, api_hubs[].fact_ids, material_limitations[].fact_ids/unit_ids, the outer links array, deviations[].fact_ids, and additional_example_ids - none has a maxItems bound (prompts/presentation_planning.yaml lines 69-134). composition/planning.py:264-269's _FACT_ID_ARRAYS bounds four of these five fact_ids/shared_fact_ids paths by enum (item 59) but none by length; docs/RESEARCH_LANE_F.md F22 already flagged material_limitations.unit_ids missing from that same enum list on a different repository (Email-.NET) for ID validity, not length - this run's defect is length, corroborated on the portfolio's largest surface.",
+    "resume_predicate": "docs/DECISION_LOG.md's 2026-09-16 14:26 UTC words-net/LANE-F-02 PROPOSAL lands with a mutation test (maxItems bounds on the named schema paths, or an equivalent bounded restructuring), then a fresh present run at this or a later upstream revision.",
+    "transaction_record": "runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-.NET/0d3f1add920f5294d726b4f286c2d6ba7c3ae22c/ (gitignored, this machine only): facts.json, preflight.json, evaluation.json, calls.jsonl, calls/*.json, investigation.json, dispositions.json (absent - S5 never accepted), source/."
+  },
+  "decision_log_entries": [
+    "docs/DECISION_LOG.md 2026-09-16 14:26 UTC \u00b7 words-net/LANE-F-02 (PROPOSAL, not landed) \u00b7 presentation_planning's unbounded fact-ID arrays truncate on Aspose.Words for .NET's 6638-symbol surface"
+  ],
+  "candidates_produced": [],
+  "state_yaml_touched": false,
+  "arrival_list_admission_needed": true,
+  "next": "Re-run present for this repository once the PROPOSAL above lands (or is declined with a reason). No further attempt under the unchanged manifest - loop-prompt.md section 5's 'never a third equivalent attempt' (this is already the second)."
+}
