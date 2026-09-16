@@ -332,6 +332,11 @@ def run_round(tx: TransactionInputs) -> Round:
         rendered=renderer_sentences(entry, facts, planned.output, current.units, dispositions),
         # G4-W17 arrival item 62: the fold stack reads which quoted text a unit actually wrote.
         units=current.units,
+        # G4-W17 arrival item 86: the fold stack also learns which inherited_unit reconciliation
+        # itself marked OMIT_UNSUPPORTED, so a finding demanding it back is the reviewer's own
+        # defect rather than a doomed block - review.py's own excluded_disposition_defect was
+        # already landed inert (c37791f) pending exactly this one line.
+        dispositions=dispositions,
     )
     review = document()
     # Two triggers share the one corroborating read under a different seed. A prose judgment on
