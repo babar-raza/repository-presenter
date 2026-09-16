@@ -1862,3 +1862,154 @@ Font for Python would seal once E18 lands — S10 independent review never ran (
 first), so nothing here is a claim about `BC-10`. No seal is claimed and the counted unit does not
 move: `repository-presenter status` reads **12/34** both before and after, and `project/state.yaml`
 was not opened.
+
+## 2026-09-16 20:36 UTC (`date` checked) — LANE-E-05 run 2, Words for Python re-drawn against the landed E17 fix
+
+Branch `lane-e/LANE-E-05-R2`, worktree `C:\w\e05r2`, off `origin/main` at `25aae12` (fresh worktree,
+no rebase needed — this run's own preflight and composition are the only activity between start and
+commit). Receipt: `evidence/build/lanes/lane-e/LANE-E-05.json` (overwritten with this run's figures;
+run 1's are in this file's dated entry above). Drawn because commit `846a9b1`
+(`G4_MULTI_LANGUAGE_COHORTS/G4-W17`, landed 2026-09-17T00:33:59+05:00) threads `dispositions` into
+`review_document`'s call site, the one line PROPOSAL E17 named as Words for Python's resume
+predicate. The environment matched `f4406f1b04d8…` on the first attempt (confirmed before any
+candidate work); `runs/verify/py311` and `runs/verify/py312` were provisioned fresh via
+`uv venv --python 3.1{1,2}` (a fresh worktree ships none of its own).
+
+### E17 is closed, verified by running the repository against its own recorded blocker, not by reading the commit
+
+`present --facts-only --fresh` against `2d2efee2787cb9e56d071d17f8d7b740dce8b784` (unchanged — the
+repository did not move) reproduced run 1's own measurement independently: **examples 12 candidates,
+executed 12**, required rows without evidence none, `839` facts. The full pipeline then ran S1
+through S10/S11 twice (two repair rounds) and **never once raised a finding about
+`additional_examples` or `inherited_unit:038.table`** — the exact fact ID and section E17's fix was
+meant to stop the reviewer from misjudging. `review.json`'s two blocking findings this run (`F02`,
+`F04`, below) are in `opening` and `key_capabilities`, sections E17 never touched. That silence, on a
+run that reached S10 review twice, is the closing proof: the disposition-aware exclusion the fix adds
+is doing nothing wrong (it is not even exercised this run, since S4 recorded no `OMIT_UNSUPPORTED` on
+content this composition's plan tried to restore), and the mechanism it fixed does not recur.
+
+### E19 `PROPOSAL` — the coherence pass (S8) has no rule against a unit restating its own title, and it silently discards a repair that already fixed exactly that, in the same round
+
+**Decision.** Lane E writes no fix. Both sites are shared code lane E does not own:
+`src/repository_presenter/components/readme/composition/coherence.py:31-84`
+(`coherence_packet`) and `:110-125` (`coherence_checks`), and
+`src/repository_presenter/components/readme/composition/authoring.py:1122-1263` (`unit_checks`, which
+`coherence_checks` calls at line 124 with no additions). Words for Python takes a disposition naming
+this proposal as its resume predicate.
+
+**The defect, measured on this run's own artifacts, not inferred.** The full run reached S10 twice:
+`verdict REJECT_PRESENTATION` both times, one repair attempt (`repairs.json` attempt
+`4fcd5d6923bff0f7e2f1c81c`, logical call `a3c96d92fda4acea`, two provider attempts — the first
+rejected for citing facts outside its slot, the second accepted), outcome `repaired`,
+`re_raised: ["F04"]`. `F04`'s exact quote in the **final** `review.json`: "- **Read multiple input
+formats.** Read multiple input formats. The library supports loading documents in `.doc`, `.docx`,
+`.rtf`, and `.txt` formats…" — the bolded title the renderer prints (`composition/renderer.py:780`,
+`f"- **{item['title']}.** {context.unit(...)}"`) followed immediately by the unit's own text
+restating it verbatim, for **every one of the six** `key_capabilities` units, confirmed byte-identical
+in the final `content_units.json`/`README.md` on disk.
+
+**The repair genuinely fixed this, and the fix was thrown away by the very next step, not lost or
+ignored.** The accepted repair call (`calls/a3c96d92fda4.json`) declared two explicit `changes`
+(`capability:1`, `capability:2`) but its `revised_output.units` carried all six slots, and all six had
+the leading restatement **stripped** — `capability:3`'s revised text, for example, opens "Image
+handling in documents is supported through the drawing module…", not "Handle images in documents.
+Image handling…". Round 2 (`repair/rounds.py::run_transaction`'s second `run_round` call) correctly
+retrieved this repaired output for every upstream stage (`calls.jsonl`: `repository_investigation`,
+`source_reconciliation`×3, `presentation_planning`, and ten of eleven `section_authoring` tasks all
+replay with `model_served: null` — genuine cache hits, zero provider calls, the module's own documented
+behaviour working exactly as designed). Then the **coherence** call ran — one further `section_authoring`
+job invocation (`calls/bec2a9264398.json`, `stage S6`, 5546 completion tokens, the single largest call
+of the run) that returns **every** LLM-owned unit in the document at once
+(`composition/coherence.py::coherence_packet`, `mode: "coherence"`). Its output for all six
+`key_capabilities` slots is **byte-identical to the original, pre-repair, defective text** — the exact
+duplication the repair had just removed — and `content_units.json`'s own `"coherence": {"revised":
+[...]}` field names exactly these six slots as the ones coherence changed, proving the pre-coherence
+input to that call genuinely carried the repaired text and the coherence call is what reverted it.
+`write_content_units`/`write_text` (`repair/rounds.py:276-278`) then persisted this post-coherence,
+reverted state as `content_units.json` and `README.md` — the files on disk, and what round 2's own
+S10 review judged, never reflect the repair that `repairs.json` correctly records as accepted.
+
+**Why nothing catches it.** `coherence_packet`'s `objective` (`coherence.py:54-61`) says "no
+repetition across sections, one voice" — a cross-section rule — and never states the rule
+`composition/authoring.py`'s own per-task packet gives the model for the *same* slots
+(`authoring.py:669-677`, the `title_rule` string: "a slot's title is printed immediately before its
+unit, so the unit never restates it"). `coherence_checks` (`coherence.py:110-125`) validates the
+reply with the identical `unit_checks` function `section_authoring` itself uses
+(`authoring.py:1122-1263`) — and `unit_checks` has no deterministic check against a unit restating
+its own title at all, for *either* call site: the only comparable precedent in that function is the
+`enterprise_relationship`-specific literal-name check (`authoring.py:1148-1158`), which exists
+for one named section and nothing generalises it to `key_capabilities`'s renderer-printed title. So a
+unit that restates its title clears every check both at first composition and at re-generation during
+coherence; only the S10 independent reviewer (an LLM judgment, not a deterministic gate) ever catches
+it, and the one deterministic-adjacent step in the whole causal chain — the repair — has its correct
+answer silently discarded one call later by a step that was never told the rule it needs to preserve.
+
+**A secondary, unrepaired, and currently distinct finding.** `F02` (`opening`, `causal_stage
+COMPOSING`) is real: the opening paragraph says "depends only on olefile greater than or equal to
+0.46," while `facts.json` carries two more `SUPPORTED` runtime dependency facts
+(`dependency:fpdf2-2.7.5`, `dependency:pydantic-2.0.0`) the opening unit's `fact_ids` never cite, in
+either the pre-repair or the coherence-regenerated text. No repair attempt was made for it this run
+(`repairs.json` records exactly one attempt, targeting `key_capabilities` only) — `round_defects`
+apparently did not treat it as a fresh, distinct, repairable fingerprint alongside `F04`'s. Lane E
+does not fold this into E19: it is a citation-completeness gap at first composition, not something
+this run's evidence ties to the coherence mechanism, and a deterministic rule that would catch it
+("cite every `SUPPORTED` dependency fact the section's claim implies") is a materially different,
+narrower kind of check than E19 asks for. It is named here because it is currently blocking too, and
+because — until E19 lands — any future repair attempt on it faces the identical risk of being
+reverted by the next coherence call.
+
+**Alternative rejected.** A third `present` attempt: the pipeline reached S10 twice in this one run
+already (two full rounds, one repair, one coherence pass each), and a fresh composition would only
+remeasure whether the *same model, same facts* independently reproduces the identical class — it does
+not change what coherence does with whatever it is given. Retrying is the "two equivalent attempts"
+`project/loop-prompt.md` §5 prohibits, not a fresh measurement; this run's own two rounds already
+carry that proof.
+
+**What the owner has to choose between, not lane E's to pick.** (1) Extend `unit_checks`
+(`authoring.py`) with a deterministic rule mirroring the existing `enterprise_relationship` pattern —
+strip or reject a unit whose text opens by restating its own slot's `title` (available via
+`task.slot_titles` at both call sites) — since `coherence_checks` already calls `unit_checks`
+unmodified, this one fix covers both the original composition and every coherence regeneration with
+no separate change to `coherence.py`. (2) Add `authoring.py`'s own `title_rule` string to
+`coherence_packet`'s `objective` too, so the coherence call is at least told the rule its sibling call
+already states — prompt-only, not a deterministic guarantee, so weaker alone than (1). (3) Have
+`apply_coherence`/`run_round` refuse a coherence revision for any slot whose *pre-coherence* text
+already passed that slot's own `unit_checks` and whose only material difference from the coherence
+reply is textual, i.e. a narrower "coherence must not un-fix an already-passing slot" guard — would
+have caught this run's specific regression but does not generalise to a first-composition occurrence
+of the same title-restatement defect the way (1) does. Lane E has no standing to choose among these
+and records the evidence for whichever the owner picks.
+
+**Evidence.** `runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/
+2d2efee2787cb9e56d071d17f8d7b740dce8b784/` (`review.json` findings `F02`, `F04`; `repairs.json`
+attempt `4fcd5d6923bff0f7e2f1c81c`; `calls/a3c96d92fda4.json` the accepted repair reply;
+`calls/bec2a9264398.json` the coherence call that reverted it; `content_units.json`'s own
+`coherence.revised` list naming all six `key_capabilities` slots; `calls.jsonl` for the full call
+sequence and `model_served: null` cache hits); `composition/coherence.py:31-125`;
+`composition/authoring.py:669-677,1122-1263`; `composition/renderer.py:778-780`;
+`repair/rounds.py:264-278,643-678`.
+
+**Reversal path.** A composition where coherence runs and changes a `key_capabilities` (or any
+titled) slot's text without reintroducing a title restatement, on a repository whose repair also
+touched that section, refutes nothing here by itself (coherence not misbehaving once is not proof it
+cannot); this proposal is refuted only by showing `unit_checks` already had a title-restatement rule
+somewhere this reading missed, or by a code path proving `coherence_checks` judges a slot against
+something other than the shared `unit_checks` this reading found.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-words-foss/Aspose.Words-FOSS-for-Python` | NOT_SEALED, stage S10 `review`/`BC-10` (one repair attempt re-raised; two rounds) | `COHERENCE_PASS_REVERTS_AN_ACCEPTED_REPAIR_WITH_NO_TITLE_RESTATEMENT_GUARD` | PROPOSAL E19 lands, then re-run `present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python`. `EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON` (item 52) and `REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION` (PROPOSAL E17) are both **closed** for this repository and are not predicates for the re-run. `F02` (opening, dependency completeness) has no repair attempt yet and needs one on the next run regardless of E19.  |
+
+### What this run does not claim
+
+It does not claim coherence is wrong to exist or that its cross-section deduplication objective is
+unnecessary — six other findings across both rounds (`F01`, `F03`, `F05`, `F06`, `F08`, `F09`) folded
+to advisory correctly via the existing `reviewer_scope_defect` stack, and nothing here touched or
+needed to touch that fold logic. It does not claim `F02` (opening) shares E19's mechanism — only that
+it is currently blocking and unrepaired, named so a future run does not have to re-discover it. It
+does not claim Words for Python would seal once E19 lands — `BC-11` (fresh-process no-op, S12) never
+ran either round, so nothing here is a claim about it. No seal is claimed and the counted unit does
+not move: `repository-presenter status` reads **12/34** both before and after, and
+`project/state.yaml` was not opened.

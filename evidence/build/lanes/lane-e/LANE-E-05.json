@@ -4,13 +4,13 @@
   "gate": "G4_MULTI_LANGUAGE_COHORTS",
   "work_item": "LANE-E-05",
   "work_item_status": "IN_PROGRESS",
-  "recorded_at": "2026-09-16T14:35:00+00:00",
-  "control_revision": "6f2161f",
-  "control_revision_note": "First and only run of LANE-E-05 (branch lane-e/LANE-E-05, worktree C:\\w\\e05), off origin/main at 6f2161f - no rebase needed, main did not move during this run's own preflight and composition. Drawn fresh: aspose-words-foss/Aspose.Words-FOSS-for-Python was recommended by the supervisor because arrival item 52 (4995eb4, G4_MULTI_LANGUAGE_COHORTS/G4-W17) - the example verifier's requires-python interpreter selection - landed this session and names this repository as its own measured unlock; no run of any kind had been made against the fix. This is a new lane item, not a resumption of LANE-E-01/02/03/04.",
+  "recorded_at": "2026-09-16T20:36:00+00:00",
+  "control_revision": "25aae12",
+  "control_revision_note": "Run 2 of LANE-E-05 (branch lane-e/LANE-E-05-R2, worktree C:\\w\\e05r2), off origin/main at 25aae12 - fresh worktree, no rebase needed, main did not move during this run's own preflight and composition. Re-drawn: commit 846a9b1 (G4_MULTI_LANGUAGE_COHORTS/G4-W17, landed 2026-09-17T00:33:59+05:00) threads dispositions into review_document, the one line PROPOSAL E17 named as this repository's resume predicate. Run 1's own record (branch lane-e/LANE-E-05, worktree C:\\w\\e05, control_revision 6f2161f) is preserved in docs/RESEARCH_LANE_E.md's dated entry; this file is overwritten with run 2's figures per the lane prompt.",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "python": "3.13.2 (.venv from C:\\Python313)",
-    "worktree": "C:\\w\\e05",
+    "worktree": "C:\\w\\e05r2",
     "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
     "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt - project/loop-prompt-lane.md section 1.3's recipe (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .). Verified before any candidate work."
   },
@@ -18,19 +18,19 @@
     {
       "tool": "python (presenter)",
       "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then project/loop-prompt-lane.md section 1.3's recipe",
-      "path": "C:\\w\\e05\\.venv\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r2\\.venv\\Scripts\\python.exe",
       "version": "3.13.2"
     },
     {
       "tool": "python (pinned toolchain, requires-python <3.13)",
       "resolved_by": "uv venv --python 3.12 runs/verify/py312 (arrival item 52, G4-W17); a fresh worktree ships no pinned toolchains of its own",
-      "path": "C:\\w\\e05\\runs\\verify\\py312\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r2\\runs\\verify\\py312\\Scripts\\python.exe",
       "version": "3.12.14 (uv-provisioned)"
     },
     {
       "tool": "python (pinned toolchain)",
       "resolved_by": "uv venv --python 3.11 runs/verify/py311",
-      "path": "C:\\w\\e05\\runs\\verify\\py311\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r2\\runs\\verify\\py311\\Scripts\\python.exe",
       "version": "3.11.16 (uv-provisioned)",
       "note": "provisioned alongside py312 for completeness; this repository's requires-python (>=3.10,<3.13) resolved to py312"
     },
@@ -46,46 +46,54 @@
     "models": 7,
     "prompt_manifests": 6,
     "route": "qwen3-next",
-    "catalog_digest": "ad8478a60fb80a7fa8e2b6d33cf406a93817ffc22213376ac81387f8e5f3f075"
+    "catalog_digest": "65b7049796ff5e89ea56b06f46c7cd0a104c6b54396062dc4219640e4d610e19"
   },
   "blocker_reverification": {
-    "method": "present --facts-only against aspose-words-foss/Aspose.Words-FOSS-for-Python at the same revision the G3 second pass measured, before any provider call.",
-    "recorded_class": "EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON (second pass, source_revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, stage S2 facts/example verification; resume predicate named the exact interpreter-selection fix item 52 later landed)",
-    "measured": "at 2d2efee2787cb9e56d071d17f8d7b740dce8b784 (unchanged - the repository did not move): 839 facts (816 supported, 23 unresolved, 0 contradicted); examples 12 candidates, executed 12; required rows without evidence: none. select_interpreter chose py312 for this repository's requires-python '>=3.10,<3.13' declaration. Matches item 52's own commit message (12/12 EXECUTED under py312) exactly, independently reproduced.",
-    "verdict": "CLOSED for this repository, confirmed by running it, not by reading the commit"
+    "method": "present --facts-only --fresh against aspose-words-foss/Aspose.Words-FOSS-for-Python at the same revision run 1 and the G3 second pass measured, before any provider call.",
+    "recorded_class": "REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION (PROPOSAL E17; run 1, source_revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, stage S10 review/BC-10)",
+    "measured": "at 2d2efee2787cb9e56d071d17f8d7b740dce8b784 (unchanged - the repository did not move): 839 facts; examples 12 candidates, executed 12; required rows without evidence: none, matching run 1's own measurement exactly. The full pipeline then reached S10 review twice (two repair rounds) and never once raised a finding about additional_examples or inherited_unit:038.table - the exact section and fact PROPOSAL E17 named.",
+    "verdict": "CLOSED for this repository, confirmed by running it through S10 twice, not by reading the commit"
   },
   "composition": {
     "revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
     "transaction": "runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/2d2efee2787cb9e56d071d17f8d7b740dce8b784/",
     "facts": "839 records: build_test_asset 1, dependency 5, example 12, format 9, identity 5, import_path 3, inherited_unit 119, install_command 1, license 2, link_target 30, package 4, public_symbol 648",
-    "investigation": "capabilities 6, workflows 4, limitations 3; provider calls 0 (stored output reused within this run's own call store, populated by round 1)",
-    "dispositions": "119 units: DEFER_UNRESOLVED 1, NON_CONTENT 3, OMIT_UNSUPPORTED 15, SUPERSEDE_REDUNDANT 52, VERIFIED_PRESERVE 47, VERIFIED_REWRITE 1",
-    "plan": "sections 16/18, capabilities 6, hubs 11, examples 1+10, links 4, limitations 1",
-    "units": "100 units across 8 sections: opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing",
-    "coherence": "0 of 100 units revised",
-    "readme": "191 visible lines of 586 total (well within the BC-07 length budget - BC-07 verdict PASS)",
+    "investigation": "capabilities 6, workflows 4, limitations 3; provider calls 0, model stored output reused",
+    "dispositions": "119 units: DEFER_UNRESOLVED 1, NON_CONTENT 1, OMIT_UNSUPPORTED 5, SUPERSEDE_REDUNDANT 73, VERIFIED_MOVE 2, VERIFIED_PRESERVE 35, VERIFIED_REWRITE 2",
+    "plan": "sections 16/18, capabilities 6, hubs 11, examples 1+10, links 3, limitations 1",
+    "units": "99 units across 8 sections: opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing",
+    "coherence": "6 of 99 units revised (all six key_capabilities slots; round 2's coherence call reverted the repair applied to them - see PROPOSAL E19)",
+    "readme": "189 visible lines of 587 total (well within the BC-07 length budget)",
     "validation": "pass 9, fail 1 (BC-10), pending 1 (BC-11, never reached)",
-    "repair": "1 attempt (F08, causal_stage COMPOSING, section additional_examples, routed to S6): outcome recorded 'repaired', but re-raised identically; rounds 2",
-    "review": "verdict REJECT_PRESENTATION; findings 1 (F08, blocking, no reviewer_scope_defect); advisory 6 (F01-F07 minus F08, each with its own reviewer_scope_defect - the existing fold stack handled all six correctly); second_reader.read 1, corroborated [] (correct: the two-reader rule applies only to an ACCEPT verdict or a PROSE_JUDGMENT finding on a required row, neither of which this is)",
+    "repair": "1 attempt (key_capabilities, causal_stage S6, routed from a round-1 finding): outcome recorded 'repaired' and genuinely correct (all six units fixed, verified against calls/a3c96d92fda4.json's revised_output), but the round-2 coherence call reverted it before persistence; re-raised as F04; rounds 2",
+    "review": "verdict REJECT_PRESENTATION (both rounds); round 2 findings: 2 blocking (F02 opening dependency-completeness, F04 key_capabilities title-restatement), 6 advisory (F01,F03,F05,F06,F08,F09, each with its own reviewer_scope_defect - the existing fold stack handled all six correctly)",
     "seal": "NOT SEALED"
   },
   "proposals": [
     {
       "id": "E17",
       "shape": "PROPOSAL",
+      "status": "CLOSED (landed 846a9b1, G4_MULTI_LANGUAGE_COHORTS/G4-W17, 2026-09-17T00:33:59+05:00)",
       "headline": "The reviewer's fold stack (scope_defect/excluded_evidence_defect) never sees reconciliation's own OMIT_UNSUPPORTED disposition, so it demands restoration of content S4 already, correctly, refused to compose as unverified - and repair cannot satisfy the demand because nothing downstream can cite what S4 excluded.",
+      "verified_closed": "This run reached S10 review twice on the same revision and prompt set run 1 used, and never once raised a finding about additional_examples or inherited_unit:038.table. rounds.py's review_document call now passes dispositions=dispositions (846a9b1); review.py's excluded_disposition_defect fold (landed c37791f, previously inert) is confirmed live by inspection: review_document (review.py:1087-1098) accepts and threads dispositions through to scope_defect (:1069) and excluded_disposition_defect (:968-998)."
+    },
+    {
+      "id": "E19",
+      "shape": "PROPOSAL",
+      "headline": "The coherence pass (S8, composition/coherence.py) has no rule against a unit restating its own rendered title, and it silently discards a repair that already, correctly, fixed exactly that in the same round.",
       "sites": [
-        "src/repository_presenter/components/readme/review/independent/review.py:823-864 (excluded_evidence_defect)",
-        "src/repository_presenter/components/readme/review/independent/review.py:867-912 (scope_defect)",
-        "src/repository_presenter/components/readme/review/independent/review.py:915-926 (review_document signature - no dispositions parameter)",
-        "src/repository_presenter/components/readme/repair/rounds.py:221 (dispositions built)",
-        "src/repository_presenter/components/readme/repair/rounds.py:317-335 (review_document called without dispositions, though rounds.py:328 already threads dispositions into renderer_sentences three lines above)"
+        "src/repository_presenter/components/readme/composition/coherence.py:31-84 (coherence_packet - objective omits the title-restatement rule authoring.py's own per-task packet states)",
+        "src/repository_presenter/components/readme/composition/coherence.py:110-125 (coherence_checks - delegates to unit_checks unmodified)",
+        "src/repository_presenter/components/readme/composition/authoring.py:1122-1263 (unit_checks - no deterministic rule against a unit restating its own slot title; the only comparable precedent, the enterprise_relationship literal-name check at :1148-1158, is section-specific and not generalised)",
+        "src/repository_presenter/components/readme/composition/renderer.py:778-780 (key_capabilities rendering always bolds the plan's title immediately before the unit's own text)",
+        "src/repository_presenter/components/readme/repair/rounds.py:264-278 (coherence runs unconditionally after section_authoring/repair-retrieval inside run_round, and its output is what write_content_units/write_text persist)"
       ],
-      "measured": "review.json finding F08 (additional_examples, causal_stage COMPOSING, no reviewer_scope_defect field, unlike F01-F07 which each carry one). dispositions.json unit_id inherited_unit:038.table: disposition OMIT_UNSUPPORTED, rationale 'The table is not supported by facts; the facts do not verify its content.' facts.json fact inherited_unit:038.table: polarity SUPPORTED, value byte-identical to the original README's File|What it shows table (confirmed by direct read). repairs.json attempt c64f0f23b96cb553a652a952 (request_sha256 fb858ae3b58b6b784e5038ed042f62d9729ef479935c0b2d264107b34eeb314e): outcome 'repaired', revised_output appended a bare filename list with unchanged fact_ids (identity/package only, no citation of the table or any per-file description fact) - the only move available to a repair that cannot cite what S4 excluded - and F08 re-raised identically ('re_raised': ['F08']). The original README's ApiExamples/ directory (confirmed present on disk, 8 files matching the table's names exactly) backs the filenames but not the maintainer's per-file behavioural prose.",
+      "measured": "review.json finding F04 (key_capabilities, causal_stage S6): quote '- **Read multiple input formats.** Read multiple input formats. The library supports loading documents in .doc, .docx, .rtf, and .txt formats...' for every one of the six key_capabilities units, confirmed byte-identical in the final content_units.json/README.md. repairs.json attempt 4fcd5d6923bff0f7e2f1c81c (logical call a3c96d92fda4acea, 2 provider attempts, second accepted): outcome 'repaired'. calls/a3c96d92fda4.json's revised_output.units carries all six capability slots with the title-restatement stripped from every one (not just the two it declared in 'changes') - a genuinely correct, comprehensive fix. calls.jsonl shows round 2 correctly retrieved this via cache hits (model_served: null) for repository_investigation, all 3 source_reconciliation batches, presentation_planning, and 10 of 11 section_authoring tasks - zero provider calls, the store-reuse mechanism working as documented. The one further call, calls/bec2a9264398.json (stage S6, 5546 completion tokens, the largest call of the run, mode 'coherence'), returned all 8 sections' units at once and its six key_capabilities texts are byte-identical to the original pre-repair, defective text. content_units.json's own 'coherence': {'revised': [...]} field names exactly these six slots, proving the pre-coherence input carried the repaired text and the coherence call is what reverted it. write_content_units/write_text (rounds.py:276-278) then persisted this post-coherence, reverted state - the files on disk, and what round 2's own review judged, never reflect the accepted repair.",
+      "secondary_observation": "F02 (opening, causal_stage COMPOSING) is a second, currently blocking, unrepaired finding: the opening paragraph claims the library 'depends only on olefile greater than or equal to 0.46' while facts.json carries two more SUPPORTED runtime dependency facts (dependency:fpdf2-2.7.5, dependency:pydantic-2.0.0) the opening unit's fact_ids never cite, in either the pre-repair or coherence-regenerated text. No repair attempt was made for it this run (repairs.json records exactly one attempt, targeting key_capabilities only). Not folded into E19 - a citation-completeness gap at first composition, not evidence tying it to the coherence mechanism - but named because any future repair on it faces the identical reversion risk until E19 lands.",
       "owner_choice": [
-        "thread dispositions into review_document/scope_defect and add a disposition-aware exclusion rule beside excluded_evidence_defect: an absent claim whose nearest matching inherited_unit was OMIT_UNSUPPORTED (or DEFER_UNRESOLVED) at reconciliation is the reviewer's own defect",
-        "teach additional_examples authoring to draw a lightweight, fact-bound file/description mapping from the public_symbol and import_path facts already extracted under ApiExamples/, closer to what api_reference already composes for the same files (measured: README.md:292-295 already carries fact-bound coverage of four of the eight files via public_symbol facts)",
-        "narrow S4's OMIT_UNSUPPORTED judgment for a whole-table inherited_unit to per-row partitioning (the same shape absence_partition already uses for a finding's claims), so any row a fact does support can compose while the rest stays excluded"
+        "extend unit_checks (authoring.py) with a deterministic rule mirroring the existing enterprise_relationship pattern: strip or reject a unit whose text opens by restating its own slot's title (available via task.slot_titles at both call sites); since coherence_checks already calls unit_checks unmodified, this one fix covers both first composition and every coherence regeneration",
+        "add authoring.py's own title_rule string to coherence_packet's objective too, so the coherence call is at least told the rule its sibling call already states - prompt-only, weaker alone than the first choice",
+        "have apply_coherence/run_round refuse a coherence revision for any slot whose pre-coherence text already passed that slot's own unit_checks and whose only material difference from the coherence reply is textual - narrower, catches this run's specific regression but not a first-composition occurrence of the same defect"
       ],
       "lane_e_position": "no standing to choose; evidence recorded for whichever the owner picks"
     }
@@ -93,9 +101,9 @@
   "disposition": {
     "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
     "outcome": "NOT_SEALED",
-    "stage": "S10 review/BC-10 (one repair attempt re-raised)",
-    "failure_class": "REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION",
-    "resume_predicate": "PROPOSAL E17 lands, then re-run present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python. EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON (arrival item 52) is CLOSED for this repository and is not a predicate for the re-run."
+    "stage": "S10 review/BC-10 (one repair attempt re-raised; two rounds)",
+    "failure_class": "COHERENCE_PASS_REVERTS_AN_ACCEPTED_REPAIR_WITH_NO_TITLE_RESTATEMENT_GUARD",
+    "resume_predicate": "PROPOSAL E19 lands, then re-run present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python. EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON (item 52) and REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION (PROPOSAL E17) are both CLOSED for this repository and are not predicates for the re-run. F02 (opening, dependency completeness) has no repair attempt yet and needs one on the next run regardless of E19."
   },
   "counted_unit": {
     "status_before": "12/34",
