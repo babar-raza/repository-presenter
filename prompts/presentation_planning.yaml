@@ -1,5 +1,5 @@
 prompt_id: presentation_planning
-version: "12"
+version: "13"
 stage: S5
 purpose: Choose what the README shows - conditional sections, the three to eight core capabilities, the At a Glance formats, the minimal and additional examples, the hub APIs, the material limitations, and which verified links help which section - using only IDs from the supplied fact set.
 model_route: qwen3-next
@@ -88,7 +88,9 @@ output:
               input_format_ids: { type: array, items: { type: string } }
               output_format_ids: { type: array, items: { type: string } }
               capability_titles: { type: array, minItems: 3, maxItems: 8, items: { type: string } }
-      quick_start_example_id: { type: string, minLength: 1 }
+      # Null only when the examples field lists no verified ID at all: Quick Start is then omitted
+      # (README_CONTRACT row 10, conditional on a verified example - G4-W17 arrival item 54).
+      quick_start_example_id: { type: [string, "null"], minLength: 1 }
       second_quick_start_example_id: { type: [string, "null"] }
       additional_example_ids: { type: array, items: { type: string } }
       flagship_example_id: { type: [string, "null"] }
@@ -165,7 +167,9 @@ system: |
   list, output_format_ids from its output list - and a list is empty when that field's list is.
 
   Examples. quick_start_example_id is the one SUPPORTED example fact that best shows the primary
-  workflow in the fewest lines. second_quick_start_example_id is a second minimal SUPPORTED
+  workflow in the fewest lines; it is null only when the examples field lists no verified ID at
+  all, and the Quick Start section is then omitted rather than filled with anything unverified.
+  second_quick_start_example_id is a second minimal SUPPORTED
   example only when the product both reads and creates files and the two together show both
   paths (one opens an existing input, one builds from scratch); otherwise it is null.
   additional_example_ids are the other SUPPORTED examples, each a distinct workflow.

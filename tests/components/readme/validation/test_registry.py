@@ -300,9 +300,12 @@ def test_the_coverage_ledger_records_each_row_against_the_evidence(tmp_path: Pat
     assert [row["section_id"] for row in document["coverage"]] == [s.id for s in SEMANTIC_SHELL]
     # A structural row rests on no fact kind; navigation renders from the sections present.
     assert ledger["navigation"]["kinds"] == [] and ledger["navigation"]["required"] is True
-    # A required row names its kinds and how far each resolved.
+    # A row names its kinds and how far each resolved. Quick Start is conditional on a verified
+    # example since G4-W17 arrival item 54 (README_CONTRACT row 10, eighth revision), so the
+    # ledger records it as not required while this plan includes it.
     quick_start = ledger["quick_start"]
-    assert quick_start["required"] is True and quick_start["included"] is True
+    assert quick_start["required"] is False and quick_start["included"] is True
+    assert ledger["installation"]["required"] is True
     # A kind that resolved completely is a count and nothing else - no reasons to give.
     assert quick_start["kinds"] == [{"kind": "example", "supported": 1, "extracted": 1}]
     # A row the plan omitted is still recorded, so a gap cannot hide behind an omission.
