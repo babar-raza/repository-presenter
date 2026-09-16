@@ -4,9 +4,9 @@
  "gate": "G4_MULTI_LANGUAGE_COHORTS",
  "work_item": "LANE-E-01",
  "work_item_status": "IN_PROGRESS",
- "recorded_at": "2026-09-16T11:01:35+00:00",
- "control_revision": "6181989",
- "control_revision_note": "Run 4 of LANE-E-01, branch lane-e/LANE-E-01-R4, worktree C:\\w\\e01r4, opened off origin/main at 4cd0219 and rebased onto 44b4690, then onto 6181989 after lane F's seal landed mid-review. Resumed after a four-day dormancy (machine restart 2026-09-11; nothing ran until 2026-09-16). Supersedes run 3's record; runs 1-3 are preserved in docs/RESEARCH_LANE_E.md. Lane E owns no platform module: every defect below is a PROPOSAL for the primary, never an edit in this lane.",
+ "recorded_at": "2026-09-16T12:02:17+00:00",
+ "control_revision": "32c7d28",
+ "control_revision_note": "Runs 4 and 5 of LANE-E-01. Run 4 (branch lane-e/LANE-E-01-R4) sealed Aspose.Cells for Python and landed as 878ae56; run 5 (branch lane-e/LANE-E-01-R5, same short-path worktree C:\\w\\e01r4, off origin/main at 32c7d28) re-attempted Aspose.Page for Python after the lane contention that defeated its clone measurably eased. Supersedes run 3's record; runs 1-3 are preserved in docs/RESEARCH_LANE_E.md. Lane E owns no platform module: every defect below is a PROPOSAL for the primary, never an edit in this lane.",
  "environment": {
   "os": "Windows 11 10.0.26200",
   "python": "3.13.2 (.venv from C:\\Python313)",
@@ -168,21 +168,60 @@
   }
  },
  "page_for_python": {
-  "outcome": "NOT_SEALED - no provider call was spent; the run failed before S1",
-  "class": "CLONE_BUDGET_CANNOT_CONVERGE_ON_A_409MB_REPOSITORY_UNDER_LANE_CONTENTION",
-  "e6_status": "CLOSED IN CODE by arrival item 59 (3e9b81f), verified by reading planning.py::_FACT_ID_ARRAYS and _pin_fact_id_arrays. The composition has still never been attempted against the fix, so no claim is made about whether it seals.",
-  "log": "clone of https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git failed after 3 attempts: transient clone failure: git clone --depth 1 --no-tags ... timed out after 600.0s",
-  "measured_while_it_ran": {
-   "attempt_progress": "~20 MB, then ~81 MB four minutes later, then a restart from empty, then ~131 MB before the final timeout - clone.py wipes the destination on every failure (force_rmtree, lines 96-110), so each attempt starts over.",
-   "repository_size": "409 MB per gh api; 1.1 GB on disk (2026-09-11 solo measurement)",
-   "cohort_comparison": "Cells for Python is 1.4 MB - a factor of ~300",
-   "contention": "Four other lane worktrees (C:\\w\\b05, c12s, d15r5, f03) each had files written into their own runs/clones/ inside the same twenty-minute window.",
-   "solo_baseline_2026_09_11": "the identical command, run alone and timed: 316 s, RC=0, 2,430 files"
+  "outcome": "NOT_SEALED - reached S6 section_authoring, rejected twice",
+  "revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+  "class": "PLAN_WRITES_A_SLOT_WHOSE_TITLE_AND_FACT_SET_NO_UNIT_CAN_SATISFY",
+  "previous_class_closed": "RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST, and PROPOSAL E6's restatement of it at S5, are CLOSED - proven by running the repository, not by reading the code. Run 3 ended at S5 with 'presentation_planning: output rejected twice; last rejection: unknown fact ID public_symbol:aspose.page.xps.renderer'. This run's S5 passed and wrote plan.json; the invented ID is unrepresentable now that _pin_fact_id_arrays pins api_hubs.fact_ids to a $defs enum of citable_fact_ids() (arrival item 59, 3e9b81f). The repository advanced two full stages further than it has ever reached.",
+  "clone": {
+   "outcome": "succeeded on the first attempt",
+   "condition_measured_before_retrying": "Three of the four other lane worktrees (C:\\w\\b05, c12s, d15r5) had written nothing into runs/clones/ for ten minutes; only lane F was active. A measurably different input, so the retry is not the third equivalent attempt loop-prompt section 5 prohibits.",
+   "measured": "283 MB to 1,058 MB in 120 s (~6.5 MB/s), finishing at 1.1 GB on disk and 2,430 tree entries - exactly the 2026-09-11 solo figures.",
+   "effect_on_E14": "E14 stands as written and is strengthened: the link clears this clone well inside 600 s, so the two failures were three restarts-from-empty under contention, not a constant that is too small. E14 no longer blocks THIS repository, but the defect it names is unchanged."
   },
-  "second_independent_occurrence": "Lane E recorded this class once on 2026-09-11 and explicitly declined to build a rule from one observation. This is the second, on a different day with a different lane population, each costing the full 30-minute retry budget before reporting.",
-  "no_fourth_attempt": "loop-prompt.md section 5 prohibits a third equivalent attempt; the run's own three are already that. The mechanism was changed instead - work moved to the cheap candidate, which sealed."
+  "stages": {
+   "examples": "8 candidates, 6 executed, 2 failed",
+   "facts": "735 records (public_symbol 570, inherited_unit 104, link_target 31, example 8, identity 5, format 5, dependency 4, package 3, build_test_asset 1, import_path 1, install_command 1, license 2); digest 22c9e2a4c6c9fabd41f29fb76762d3f413ba0393e68e01dac39bb9c74edec16c. All five format facts are input.*; there is no format:output.* at all.",
+   "S4_source_reconciliation": "passed; dispositions.json written",
+   "S5_presentation_planning": "PASSED - plan.json written, 6 core capabilities",
+   "S6_section_authoring": "rejected twice, run ended: 'unit capability:3: its title \"Author PS/EPS and XPS documents\" names .eps, which the facts it cites do not carry'",
+   "provider_calls": 10
+  },
+  "measured_unsatisfiability": {
+   "method": "The production unit_checks called on the run's own facts.json and plan.json, with the real slot titles and slot fact sets the plan assigned. Zero provider calls.",
+   "slot": "capability:3",
+   "title": "Author PS/EPS and XPS documents",
+   "title_terms": [
+    ".eps",
+    ".ps",
+    ".xps"
+   ],
+   "plan_fact_ids": [
+    "example:003",
+    "public_symbol:aspose.page.ps",
+    "public_symbol:aspose.page.xps"
+   ],
+   "supported_facts_carrying_eps": 26,
+   "intersection_with_the_slots_planned_set": [],
+   "results": {
+    "cites exactly the plan's set (what the model did)": "unit capability:3: its title 'Author PS/EPS and XPS documents' names .eps, which the facts it cites do not carry; cite the facts that support this slot's title, or the sentence belongs to another slot",
+    "plus public_symbol:aspose.page.ps.image_to_eps": "unit capability:3: cites facts outside its slot's planned set (public_symbol:aspose.page.ps.image_to_eps); a unit describes its own slot's facts, never another slot's",
+    "plus format:input.eps": "unit capability:3: cites facts outside its slot's planned set (format:input.eps); a unit describes its own slot's facts, never another slot's"
+   },
+   "conclusion": "There is no third option: both the citation set and the title are the plan's, so no reply section_authoring is allowed to make satisfies both halves of README_CONTRACT check 4. The two re-asks were spent on a slot that could not be filled.",
+   "why_capability_1_passes": "It is titled 'Read and parse PS/EPS documents' and cites example:004, whose own value carries 'eps'. The difference between the two slots is which examples the plan happened to assign, not anything about the claims."
+  },
+  "no_re_draw": "A different S5 draw might title capability:3 with terms its own citations carry. That is what selecting for a seal looks like: the defect is that the two checks disagree on their standard, and a lucky title hides it rather than fixing it."
  },
  "proposals": [
+  {
+   "id": "E15",
+   "for": "the primary",
+   "file": "src/repository_presenter/components/readme/composition/planning.py::plan_checks (lines 606-622)",
+   "defect": "plan_checks judges a capability title's format terms against EVERY format fact in the document (recorded = {fact.value: fact.polarity for fact in facts.by_kind('format')}), while authoring.py::unit_checks (lines 1099-1118) judges the SAME title against only the values of that slot's own planned fact_ids. The narrower standard is applied second, at S6, where neither the title nor the citation set can be changed - so a plan passes S5 carrying a slot no unit can fill. The planning check's own comment states the purpose it fails to serve: 'S6 judges the same titles by the same rule ..., but by then the plan is fixed ... Asked here, the model can choose another title.'",
+   "repository_and_finding": "aspose-page-foss/Aspose.Page-FOSS-for-Python at ca4fb3d7; 'unit capability:3: its title \"Author PS/EPS and XPS documents\" names .eps, which the facts it cites do not carry', twice, run ended.",
+   "proposed_shape": "plan_checks applies authoring.py's standard: each capability's title terms must be carried by the values of THAT capability's own fact_ids, plus the identity/package neutrals and the product name. The planner is then told at S5, where it can retitle or add public_symbol:aspose.page.ps.image_to_eps to the slot - both its own to do, neither of them S6's.",
+   "explicitly_not_proposed": "NO relaxation of the slot-set rule (section 27.2 RC2: overlapping slot fact sets mean the title is the only separator), NO relaxation of the title rule, and NO permission for S6 to add facts the plan did not assign."
+  },
   {
    "id": "E14",
    "for": "the primary",
@@ -216,6 +255,7 @@
   "method": "repository-presenter status run on the tree already rebased onto origin/main at 6181989, per the lane prompt's narrow state.yaml exception - a fresh count of sealed bundles on disk, never the last value plus one.",
   "state_yaml": "progress.current_candidates 10 -> 12. That single field is the only byte of project/state.yaml this PR touches.",
   "lost_update_race_caught_by_the_method": "The first attempt rebased onto 44b4690, counted 11 and wrote 11. Lane F then landed its own seal and also wrote 11, from a tree that did not contain this bundle. Both sides wrote the same literal line, so git merged it with no conflict and GitHub kept reporting mergeable MERGEABLE - the 2026-09-06 lost update exactly. Rebasing onto 6181989 and re-running status reported 'cursor records 11 current candidates but 12 sealed on disk'. Recomputing from the rebased tree is what caught it; nothing else would have.",
-  "honest_note": "status also reports 'independently accepted (stale-excluded) 0': 44b4690 (arrival item 50) changed extraction, so freshly sealed bundles are routed to VALID_UPDATE_AVAILABLE. Per loop-prompt.md section 3 such a bundle stays current and counted and its re-seal is G5-W02's; the counted unit is 12 either way."
+  "honest_note": "status also reports 'independently accepted (stale-excluded) 0': 44b4690 (arrival item 50) changed extraction, so freshly sealed bundles are routed to VALID_UPDATE_AVAILABLE. Per loop-prompt.md section 3 such a bundle stays current and counted and its re-seal is G5-W02's; the counted unit is 12 either way.",
+  "after_run_5": "unchanged at 12/34 - run 5 seals nothing and adds no candidates/ directory; project/state.yaml was not opened by run 5."
  }
 }

@@ -1364,3 +1364,110 @@ literal line, so git merged it with no conflict and `mergeable` stayed `MERGEABL
 the disk. Rebasing onto `6181989` and re-running `repository-presenter status` reported
 `cursor records 11 current candidates but 12 sealed on disk`, and **12** is what this PR
 writes. Recomputing from the rebased tree is what caught it; nothing else would have.
+
+## 2026-09-16 12:02 UTC (`date` checked) - LANE-E-01 run 5: Page for Python, E6 confirmed closed by running it
+
+Branch `lane-e/LANE-E-01-R5`, same short-path worktree `C:\w\e01r4`, off `origin/main` at
+`32c7d28`. Same venv, `f4406f1b...` re-confirmed before the run.
+
+### The clone that failed twice succeeded, and the failure's cause is confirmed as contention
+
+Run 4 recorded `CLONE_BUDGET_CANNOT_CONVERGE...` with four other lane worktrees cloning in the
+same window. Before retrying, the condition itself was measured rather than assumed: three of the
+four (`C:\w\b05`, `c12s`, `d15r5`) had written nothing into their `runs/clones/` for ten minutes;
+only lane F was active. That is a **different condition**, so the retry is not the third equivalent
+attempt `loop-prompt.md` section 5 prohibits - it is a measurement of a changed input.
+
+The clone then completed on the first attempt: 283 MB to 1,058 MB in 120 seconds (~6.5 MB/s),
+finishing at **1.1 GB on disk, 2,430 tree entries**, exactly the 2026-09-11 solo figures, at
+revision `ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e`. **PROPOSAL E14 stands as written and is
+strengthened, not weakened, by this**: the link is capable of the clone in well under the 600 s
+budget, and the two failures were three restarts-from-empty competing with four other lanes. A
+budget that resets on every attempt is the defect; the constant is not.
+
+### E6 is closed, and this run is the proof - not a reading of the code
+
+Run 4 read `planning.py` and concluded arrival item 59 (`3e9b81f`) closed E6. This run executed it:
+
+| stage | run 3 (2026-09-11, before `3e9b81f`) | this run |
+| --- | --- | --- |
+| S4 `source_reconciliation` | 3 calls, all HTTP 200 attempt 1 | passed, `dispositions.json` written |
+| S5 `presentation_planning` | **rejected twice; run ended** - `unknown fact ID public_symbol:aspose.page.xps.renderer` at `api_hubs[2].fact_ids[5]` | **passed**, `plan.json` written: 6 capabilities, hubs and examples bound |
+| S6 `section_authoring` | never reached | reached, rejected twice |
+
+The invented ID cannot be emitted any more, because `_pin_fact_id_arrays` pins `api_hubs.fact_ids`
+to a `$defs` enum of `citable_fact_ids()`. The repository advanced **two full stages** further than
+it has ever reached. Its recorded class `RECONCILIATION_CITES_A_FACT_ID_THAT_DOES_NOT_EXIST`, and
+E6's restatement of it at S5, are **closed and do not return**.
+
+### It stopped at S6 on a new class: the plan can write a slot no unit can fill
+
+`section_authoring: output rejected twice; last rejection: unit capability:3: its title 'Author
+PS/EPS and XPS documents' names .eps, which the facts it cites do not carry; cite the facts that
+support this slot's title, or the sentence belongs to another slot`.
+
+Facts: 735 records (`public_symbol` 570, `inherited_unit` 104, `link_target` 31, `example` 8,
+`identity` 5, `format` 5, `dependency` 4, `package` 3), 8 example candidates, **6 executed, 2
+failed**. All five `format` facts are `input.*`; there is no `format:output.*` at all.
+
+The plan's `capability:3` is titled *Author PS/EPS and XPS documents* and cites exactly
+`example:003`, `public_symbol:aspose.page.ps`, `public_symbol:aspose.page.xps`. None of those
+three values contains `eps`. **26 SUPPORTED facts do** - `format:input.eps`,
+`public_symbol:aspose.page.ps.image_to_eps`, `public_symbol:aspose.page.ps.convert_image_to_eps`
+and 23 more - and **none of them is in the plan's set for this slot**. (`capability:1`, titled
+*Read and parse PS/EPS documents*, passes for exactly this reason: it cites `example:004`, whose
+value does carry `eps`.)
+
+**The two halves of README_CONTRACT check 4 are jointly unsatisfiable for this slot.** Measured by
+calling the production `unit_checks` on the run's own `facts.json` and `plan.json`, with zero
+provider calls:
+
+| the unit cites | `unit_checks` returns for `capability:3` |
+| --- | --- |
+| exactly the plan's set (what the model did) | *"its title ... names .eps, which the facts it cites do not carry"* |
+| the plan's set **plus** `public_symbol:aspose.page.ps.image_to_eps` | *"cites facts outside its slot's planned set ...; a unit describes its own slot's facts, never another slot's"* |
+| the plan's set **plus** `format:input.eps` | *"cites facts outside its slot's planned set ..."* |
+
+There is no third option: the citation set is the plan's, and the title is the plan's. No reply
+`section_authoring` is allowed to make can satisfy both, so the two re-asks were spent on a slot
+that could not be filled.
+
+`PROPOSAL E15`, for the primary:
+`src/repository_presenter/components/readme/composition/planning.py::plan_checks` (lines 606-622)
+judges a capability title's format terms against **every** `format` fact in the document
+(`recorded = {fact.value: fact.polarity for fact in facts.by_kind("format")}`), while
+`authoring.py::unit_checks` (lines 1099-1118) judges the **same title** against **only the values
+of that slot's own planned `fact_ids`**. The narrower standard is applied second, where nothing can
+be changed. The planning check's own comment states the purpose it is failing to serve: *"S6 judges
+the same titles by the same rule ..., but by then the plan is fixed and the re-ask can only rewrite
+prose, so the transaction dies ... Asked here, the model can choose another title."* It does not
+judge by the same rule. Fix: `plan_checks` applies `authoring.py`'s standard - each capability's
+title terms must be carried by the values of **that capability's own `fact_ids`**, plus the
+identity/package neutrals and the product name - so the planner is told at S5, where it can either
+retitle or add `public_symbol:aspose.page.ps.image_to_eps` to the slot, both of which are its to
+do and neither of which S6 may do. This is item 42's own lineage (Note for Python, the comment's
+worked example) with the standard corrected rather than the check added.
+
+Lane E explicitly proposes **NO** relaxation of the slot-set rule (section 27.2 RC2 is its whole
+point: overlapping slot fact sets mean the title is the only separator), **NO** relaxation of the
+title rule, and **NO** permission for S6 to add facts the plan did not assign.
+
+**No re-draw was attempted.** A different S5 draw might happen to title `capability:3` with terms
+its own citations carry, and that is exactly what selecting for a seal looks like: the defect is
+that the two checks disagree on their standard, and a lucky title hides it rather than fixing it.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-page-foss/Aspose.Page-FOSS-for-Python` | NOT_SEALED, stage S6 `section_authoring` | `PLAN_WRITES_A_SLOT_WHOSE_TITLE_AND_FACT_SET_NO_UNIT_CAN_SATISFY` | PROPOSAL E15 lands, then re-run `present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python`. Its previous predicates are **closed**: E6 by `3e9b81f`, proven by running it; and the clone converges in a window without four concurrent lane clones, so E14 no longer blocks this repository even though it stands as a proposal. |
+
+### What this run does not claim
+
+It does not claim Page for Python would seal once E15 lands - S9 and S10 remain unmeasured for this
+repository, which has still never rendered a README. It does not claim `capability:3`'s title is
+false: 26 SUPPORTED facts evidence EPS authoring, which is why the fix belongs in which facts the
+plan cites, not in the title rule. It does not claim E14 is closed; it records that E14's own
+failure did not recur under measurably lighter contention. No seal is claimed and the counted unit
+does not move: `repository-presenter status` reads **12/34** on the rebased tree both before and
+after, and this PR adds no `candidates/` directory. `project/state.yaml` was not opened.
