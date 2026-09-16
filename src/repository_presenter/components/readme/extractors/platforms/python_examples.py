@@ -1,9 +1,11 @@
 """Run the README's Python examples against the repository's own package, in isolation.
 
-A disposable, pip-less virtual environment is created from the presenter's interpreter under a
-short workspace, the pinned clone is installed by the presenter's pip into a target directory
-that only that environment's interpreter sees, and every candidate runs as its own process under
-the bounded secret-free execution boundary with a fresh working directory.
+A disposable, pip-less virtual environment is created under a short workspace from the
+interpreter the manifest's ``requires-python`` admits - the presenter's own whenever it does,
+else a pinned toolchain under ``runs/verify`` (G4-W17 arrival item 52) - the pinned clone is
+installed by the presenter's pip, run under that interpreter, into a target directory that only
+that environment sees, and every candidate runs as its own process under the bounded secret-free
+execution boundary with a fresh working directory.
 Input files an example opens are staged from repository-owned files of the same name or
 extension when the tree has one, and the receipt names what was staged. An example that fails
 is recorded as failed; nothing is explained away.
@@ -18,7 +20,11 @@ import shutil
 import sys
 import tomllib
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
+
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
+from packaging.version import InvalidVersion, Version
 
 from repository_presenter.core.ecosystems import PYTHON
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt, FixtureBinding
@@ -34,6 +40,11 @@ _ERROR_LINE = re.compile(r"^(\w+(?:\.\w+)*(?:Error|Exception|Warning))(?::|$)", 
 # The path an example's own FileNotFoundError names (G4-W17 arrival item 53): `open()` reprs the
 # name it was handed, so the quotes are repr's and a Windows separator arrives doubled.
 _MISSING_PATH = re.compile(r"No such file or directory: (['\"])(.+?)\1\s*$", re.MULTILINE)
+# Where the pinned interpreters live when not beside the workspace (G4-W17 arrival item 52): the
+# same override shape typescript_examples gives its toolchain registry, never a PATH edit.
+PYTHON_TOOLCHAINS_VARIABLE = "RP_PYTHON_TOOLCHAINS"
+# uv writes `version_info = 3.12` into every venv it creates; the stock `venv` writes `version`.
+_VERSION_INFO = re.compile(r"^version(?:_info)?\s*=\s*(\S+)", re.MULTILINE)
 
 
 def _venv_python(venv: Path) -> Path:
@@ -215,6 +226,90 @@ def _servable(wanted: str, tree_paths: Sequence[str], produced: ProducedFiles) -
     return bool(suffix and produced.get(suffix))
 
 
+@dataclass(frozen=True)
+class Interpreter:
+    """The Python an example runs under: its executable, its version, and - when it is a pinned
+    toolchain rather than the presenter's own - that toolchain's directory name (empty otherwise,
+    so the default path's receipts read exactly as before)."""
+
+    executable: Path
+    version: str
+    label: str
+
+
+def _declared_requires_python(root: Path) -> str:
+    """The manifest's ``requires-python``, or an empty string when it declares none."""
+    manifest = root / "pyproject.toml"
+    if not manifest.is_file():
+        return ""
+    try:
+        data = tomllib.loads(manifest.read_text(encoding="utf-8-sig", errors="replace"))
+    except tomllib.TOMLDecodeError:
+        return ""
+    project = data.get("project")
+    declared = project.get("requires-python", "") if isinstance(project, dict) else ""
+    return declared.strip() if isinstance(declared, str) else ""
+
+
+def pinned_interpreters(verify_root: Path) -> list[tuple[str, Path]]:
+    """The interpreters provisioned beside the verifier's workspaces, lowest version first.
+
+    Loop-prompt section 1.5 puts them under ``runs/verify/py3NN`` as uv venvs, each naming its
+    version in ``pyvenv.cfg`` (``version_info = 3.12``); a directory with no readable version or
+    no interpreter file is not one. Read from the file, never by running each interpreter: the
+    read is free and identical on every call.
+    """
+    if not verify_root.is_dir():
+        return []
+    found: list[tuple[Version, str, Path]] = []
+    for venv in sorted(verify_root.iterdir()):
+        cfg = venv / "pyvenv.cfg"
+        python = _venv_python(venv)
+        if not cfg.is_file() or not python.is_file():
+            continue
+        match = _VERSION_INFO.search(cfg.read_text(encoding="utf-8", errors="replace"))
+        if match is None:
+            continue
+        try:
+            found.append((Version(match.group(1)), match.group(1), python))
+        except InvalidVersion:
+            continue
+    return [(version, python) for _, version, python in sorted(found, key=lambda f: f[0])]
+
+
+def select_interpreter(requires_python: str, verify_root: Path) -> Interpreter | None:
+    """The interpreter to verify under: the presenter's own whenever the declaration admits it (or
+    there is none), else the highest pinned toolchain that does, else None.
+
+    G4-W17 arrival item 52, measured 2026-09-07 on Aspose.Words for Python (G3 second pass): the
+    venv came from ``sys.executable`` (3.13.2) while the manifest declares ``>=3.10,<3.13``, so
+    pip refused before any example ran and all twelve read NOT_VERIFIED - a repository blocked by
+    an interpreter choice, not by its code. A declaration nothing can parse constrains nothing
+    here; pip reports it in its own words.
+    """
+    running = ".".join(str(part) for part in sys.version_info[:3])
+    presenter = Interpreter(Path(sys.executable), running, "")
+    if not requires_python:
+        return presenter
+    try:
+        wanted = SpecifierSet(requires_python)
+    except InvalidSpecifier:
+        return presenter
+    if wanted.contains(running, prereleases=True):
+        return presenter
+    for version, python in reversed(pinned_interpreters(verify_root)):
+        if wanted.contains(version, prereleases=True):
+            return Interpreter(python, version, python.parent.parent.name)
+    return None
+
+
+def _toolchains_root(workspace: Path) -> Path:
+    """Where the pinned interpreters live: ``RP_PYTHON_TOOLCHAINS`` when set, else the workspace's
+    parent - ``runs/verify``, where loop-prompt section 1.5 provisions them."""
+    override = os.environ.get(PYTHON_TOOLCHAINS_VARIABLE, "").strip()
+    return Path(override) if override else workspace.parent
+
+
 def verify_python_examples(
     root: Path,
     tree_paths: Sequence[str],
@@ -234,8 +329,21 @@ def verify_python_examples(
     # unredirected read and wrote the developer's real account (TB-08, external review D8,
     # 2026-09-08).
     install_environment = profile_environment(workspace)
+    # G4-W17 arrival item 52: the interpreter the manifest's requires-python admits - the
+    # presenter's own unless it is excluded, then a pinned toolchain, else an honest refusal.
+    declared = _declared_requires_python(root)
+    toolchains = _toolchains_root(workspace)
+    interpreter = select_interpreter(declared, toolchains)
+    if interpreter is None:
+        offered = ", ".join(version for version, _ in pinned_interpreters(toolchains)) or "none"
+        running = ".".join(str(part) for part in sys.version_info[:3])
+        return _all_not_verified(
+            candidates,
+            f"no interpreter satisfies requires-python {declared!r}: the presenter runs Python "
+            f"{running} and the pinned toolchains offer {offered}",
+        )
     bootstrap = execute(
-        [sys.executable, "-m", "venv", "--without-pip", str(venv)],
+        [str(interpreter.executable), "-m", "venv", "--without-pip", str(venv)],
         workspace=workspace,
         timeout_seconds=INSTALL_TIMEOUT_SECONDS,
         extra_environment=install_environment,
@@ -243,11 +351,14 @@ def verify_python_examples(
     if bootstrap.return_code != 0:
         return _all_not_verified(candidates, f"venv creation failed: {_clip(bootstrap.stderr)}")
     python = _venv_python(venv)
+    pip = [sys.executable, "-m", "pip"]
+    if interpreter.label:
+        # The presenter's pip, run under the chosen interpreter: wheels resolve for that Python
+        # and its requires-python check reads the version the examples will actually run on.
+        pip.extend(["--python", str(python.resolve())])
     install = execute(
         [
-            sys.executable,
-            "-m",
-            "pip",
+            *pip,
             "install",
             "--disable-pip-version-check",
             "--quiet",
@@ -283,9 +394,7 @@ def verify_python_examples(
         if requirements:
             execute(
                 [
-                    sys.executable,
-                    "-m",
-                    "pip",
+                    *pip,
                     "install",
                     "--disable-pip-version-check",
                     "--quiet",
@@ -331,6 +440,13 @@ def verify_python_examples(
         outcome, detail = _classify(result, candidate.code)
         if source_note:
             detail = f"{detail}; {source_note}"
+        if interpreter.label:
+            # Which Python verified this example, by the toolchain's directory name and version -
+            # never an absolute path, which would differ per machine inside a sealed receipt.
+            detail = (
+                f"{detail}; ran under Python {interpreter.version} ({interpreter.label}, chosen by "
+                f"requires-python {declared!r})"
+            )
         receipt = ExampleReceipt(
             ordinal=candidate.ordinal,
             outcome=outcome,  # type: ignore[arg-type]
