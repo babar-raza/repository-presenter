@@ -151,7 +151,45 @@ progress:
     three protected inherited units keep and the upstream README carries. No fifth draw: the transaction
     is byte-reproducible, so only clearing the call store could change it, and that is the re-roll the
     W-card forbids. Six findings and both dispositions are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN4.json,
-    which is the live source. repository-presenter status after the run: 9/34, unchanged.'
+    which is the live source. repository-presenter status after the run: 9/34, unchanged.
+    RE-RUN 5 2026-09-16 15:48 against origin/main at 4cd0219, rebased onto 44b4690 before the PR
+    (branch lane-b/G4-W13-RERUN5, fresh worktree C:\w\b05, nothing carried over): arrival item 26
+    delivered exactly what unblocked.jsonl says it unlocks, and Aspose.Slides for C++ ran end to end
+    for the first time since 2026-09-06. BC-08, one of the two checks that refused it that day,
+    PASSES; so does BC-02, and not by item 26 - the library''s own CMake build genuinely succeeds
+    with the recorded g++ 16.2.0, so TB-01''s build_verified is earned rather than defaulted and
+    install_command:cmake is SUPPORTED where 2026-09-06 read `UNRESOLVED: package registry: none
+    could not be read`. BC-01 through BC-09 all PASS. It did not seal: BC-10 FAILs at COMPOSING on
+    REJECT_PRESENTATION and BC-11 is PENDING, so the disposition MOVES from BLOCKED_AUTHORING (S6)
+    to BLOCKED_REVIEW (BC-10), sealed_by_lane stays 0 and dispositions_by_lane stays 7. Nine
+    findings were raised across two reads (second_reader.read = 2, five corroborated ids); eight
+    folded as reviewer scope defects and one, F09, survives every fold and blocks - it condemns the
+    enterprise_relationship slot as a promotional "section" while README_CONTRACT row 18 gives that
+    slot the heading `none (closing paragraph of Scope and Limitations)`, quotes renderer-emitted
+    text rendered 29 lines earlier under Scope and Limitations that no content unit wrote, and cites
+    the very SUPPORTED link_target (HTTP 200, platform level, slug cpp) that makes row 18''s
+    paragraph mandatory. The repair proved it unactionable rather than merely wrong: obeying "remove
+    the section entirely" required an empty unit, which the schema refuses, twice. This run also
+    carries two lane-owned code fixes, each with a mutation test, both found before the draw:
+    build_product discarded the dependency headers a cut-off configure had already fetched, which
+    turned one slow download into ten NOT_VERIFIED examples and cost the required quick_start row
+    its only evidence kind (10 not_verified and `without evidence: quick_start` before, 9 EXECUTED
+    and `without evidence: none` after, same revision, same machine); and _TIMEOUT_CONFIGURE was 180
+    s against three cold configures measured at 57.8 s, 71.7 s and 141.7 s, now 300 s, which is
+    core.execution.MAX_TIMEOUT_SECONDS itself and the most the boundary allows. At 3,011 facts and
+    2,845 public symbols - 1.6x PDF C++, the largest surface any lane B draw has carried - all 31
+    provider calls returned HTTP 200 and 54 ledger rows held zero cache_stale, a fourth non-
+    materialisation of lane E''s PROPOSAL E3 and a third independent corroboration that run 2''s no-
+    op-proof blocker is closed. No second draw: the transaction is reproducible from its own call
+    store, so only clearing it could change the verdict, and that is the re-roll the W-card forbids.
+    Neither TypeScript repository was drawn: item 51 is still absent from unblocked.jsonl, and
+    item 50 landed at 44b4690 at 15:41, after the C++ draw was complete, so Cells-TS is unblocked
+    and belongs to the next lane item. The rebase onto 44b4690 - which bumped BC-02 to check
+    version 2 - was re-invoked rather than assumed: every artifact digest stayed byte-identical
+    except validation.json, which records the new version, the table stayed 9 PASS / 1 FAIL / 1
+    PENDING, and the re-invocation cost ZERO provider calls across 23 new cache_reuse rows. Six findings, three PROPOSALs and both dispositions are in docs/RESEARCH_LANE_B.md and
+    evidence/build/lanes/lane-b/G4-W13-RERUN5.json, which is the live source. repository-presenter
+    status after the run: 10/34, unchanged.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -301,4 +339,26 @@ items:
     two stages before the review that would have exercised them. (b) aspose-email-foss/Aspose.Email-FOSS-for-Cpp,
     BLOCKED_PLANNING (S5): unchanged, clears when arrival item (25) lands, which it has not at 846eaaf.'
   run_2026_09_11_r4: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN4.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W13-RERUN5
+  status: ACCEPTED
+  accepted_at: '2026-09-16T15:48:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN5.json
+  purpose: 'Sprint W-CPP, Saturday slot (plans/sprint/PHASE1-SPRINT-PLAN.md section 11, "Single-item
+    (5): ... Slides-Cpp (26)"): draw aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp, whose only recorded
+    blocker was arrival item 26 - BC-08 reading `python-pptx` in a prose list as a protected shell
+    command - now landed at 865eae7 and recorded in unblocked.jsonl as unlocking exactly this
+    repository. First draw of Slides C++ since 2026-09-06. Cells-TS and 3D-TS stay out of scope: they
+    are admission-gated on arrival items 50/51 and neither is in the ledger. Never force a seal, never
+    weaken a check, and report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: Slides C++ was drawn once, end to end, and has its verdict,
+    reported literally (BC-10 FAIL, REJECT_PRESENTATION). What remains open is shared code the lane may
+    not land. (a) aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp, BLOCKED_REVIEW (BC-10): re-run once
+    PROPOSAL LANE-B-R5-F3 lands (a presentation finding whose quote is rendered in a section other than
+    the one its own section_id names is a reviewer scope defect), or once the primary rules it sealable
+    on BC-01..BC-09 plus a corroborated second read - it already has both, with second_reader.read = 2.
+    (b) aspose-email-foss/Aspose.Email-FOSS-for-Cpp, BLOCKED_PLANNING (S5): unchanged, clears when
+    arrival item (25) lands, which it has not at 471a43a. (c) Cells-TS and 3D-TS were not drawn:
+    arrival items 50 and 51 are not in unblocked.jsonl.'
+  run_2026_09_16_r5: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN5.json, which
     is the live source for this run rather than a copy.

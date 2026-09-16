@@ -71,7 +71,18 @@ _HAS_MAIN = re.compile(r"^[^\S\n]*(?:[A-Za-z_][\w:<>,\s*&]*\s+)?main\s*\(", re.M
 # What stays at file scope when a body is wrapped: preprocessor lines, comments, `using` and
 # namespace-alias declarations. Everything from the first other statement down goes into `main`.
 _PREAMBLE = re.compile(r"^\s*(?:#|//|/\*|\*|using\b|namespace\s+\w+\s*=)")
-_TIMEOUT_CONFIGURE = 180.0
+# The configure step is the network-bound one: `FetchContent` downloads a dependency archive per
+# `find_package` that finds nothing, so its duration tracks the link rather than the machine, and
+# a ceiling here exists to stop a hang, never to enforce a performance budget. Measured
+# 2026-09-16 on Aspose.Slides for C++, which fetches pugixml, miniz and GoogleTest: the same
+# configure of the same revision on the same machine reported 57.8 s, 71.7 s and 141.7 s across
+# three cold runs - a 2.4x spread - and the run before them exceeded 180 s and was cut off with
+# only `_deps/pugixml-src` on disk, which cost all ten of its examples their verdict. A ceiling
+# must sit clear of the top of that spread, so this is `core.execution.MAX_TIMEOUT_SECONDS`, the
+# most one bounded execution may be given at all - which is why the durable fix is below, in
+# `build_product`: no ceiling this side of the boundary can outrun a slow enough link, so a
+# configure that does not finish must keep what it fetched rather than discard it.
+_TIMEOUT_CONFIGURE = 300.0
 _TIMEOUT_BUILD = 300.0
 
 
@@ -314,7 +325,17 @@ def build_product(
         extra_environment=environment,
     )
     if configure.return_code != 0:
-        return ("configure failed", [])
+        # A configure that stops partway has still written to disk every dependency it had
+        # already fetched, and those headers are the whole reason this step runs at all. Throwing
+        # them away turns one slow download into ten unverified examples: measured 2026-09-16 on
+        # Aspose.Slides for C++, whose configure was cut off after pugixml and before miniz, so
+        # `shape_collection.h` could not find `pugixml.hpp` and every one of its ten examples was
+        # NOT_VERIFIED - including the ones that compile, and including the `quick_start` row the
+        # contract requires. The phrase separates the two ways a configure ends without
+        # finishing, because a receipt saying "failed" of a step that was cut off is not true,
+        # and neither phrase is "succeeded", so `build_verified` stays false either way (TB-01).
+        stopped = "timed out" if configure.timed_out else "failed"
+        return (f"configure {stopped}", fetched_includes(build))
     built = execute(
         [cmake, "--build", str(build)],
         workspace=workspace,

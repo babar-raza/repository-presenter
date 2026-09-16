@@ -9,6 +9,7 @@ import pytest
 
 from repository_presenter.components.readme.extractors.platforms import cpp_examples
 from repository_presenter.core.examples import ExampleCandidate
+from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS, ExecutionResult
 
 CMAKELISTS = """
 cmake_minimum_required(VERSION 3.16)
@@ -362,3 +363,61 @@ def test_the_toolchain_registry_is_read_by_absolute_path(tmp_path: Path, monkeyp
     # A recorded path that no longer exists is no tool at all.
     assert cpp_examples.recorded_tool("ninja") is None
     assert cpp_examples.recorded_tool("cargo") is None
+
+
+def _configure_stopping(build_holder: list[Path], *, timed_out: bool) -> object:
+    """A fake `execute` whose configure writes one fetched dependency and then stops."""
+
+    def fake(argv, workspace, timeout_seconds, extra_environment):  # type: ignore[no-untyped-def]
+        build = Path(argv[argv.index("-B") + 1])
+        build_holder.append(build)
+        (build / "_deps" / "pugixml-src" / "src").mkdir(parents=True, exist_ok=True)
+        return ExecutionResult(
+            argv=tuple(argv),
+            return_code=1,
+            stdout="-- pugixml: fetched v1.14",
+            stderr="",
+            timed_out=timed_out,
+        )
+
+    return fake
+
+
+def test_a_configure_cut_off_still_hands_back_what_it_already_fetched(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """Measured 2026-09-16 on Aspose.Slides for C++: the configure stopped after pugixml and
+    before miniz, and returning `[]` cost all ten examples their verdict - `shape_collection.h`
+    could not find `pugixml.hpp`, which was on disk the whole time."""
+    holder: list[Path] = []
+    monkeypatch.setattr(cpp_examples, "execute", _configure_stopping(holder, timed_out=True))
+    product, fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+    # Not "failed": nothing failed, the step was cut off - and not "succeeded", so a receipt
+    # built on it keeps `build_verified` false (TB-01).
+    assert product == "configure timed out"
+    assert [path.relative_to(holder[0]).as_posix() for path in fetched] == ["_deps/pugixml-src/src"]
+
+
+def test_a_configure_that_genuinely_failed_says_so_and_keeps_its_fetches(
+    tmp_path: Path, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    holder: list[Path] = []
+    monkeypatch.setattr(cpp_examples, "execute", _configure_stopping(holder, timed_out=False))
+    product, fetched = cpp_examples.build_product(
+        tmp_path, tmp_path / "ws", "PATH", "cmake", "ninja"
+    )
+    assert product == "configure failed"
+    assert product != "succeeded"
+    assert len(fetched) == 1
+
+
+def test_the_configure_ceiling_clears_the_measured_download_spread() -> None:
+    """The configure step downloads and the build step compiles, so the ceiling that must be
+    generous is the configure's. Measured 2026-09-16, three cold configures of Aspose.Slides for
+    C++ on one machine: 57.8 s, 71.7 s, 141.7 s, with the run before them cut off at 180 s. The
+    boundary refuses anything past `MAX_TIMEOUT_SECONDS`, so this is as generous as it gets."""
+    assert cpp_examples._TIMEOUT_CONFIGURE >= cpp_examples._TIMEOUT_BUILD
+    assert cpp_examples._TIMEOUT_CONFIGURE > 2 * 141.7
+    assert cpp_examples._TIMEOUT_CONFIGURE == MAX_TIMEOUT_SECONDS
