@@ -11,7 +11,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
-SHELL_VERSION = "5"
+# 6 (G4-W17 arrival item 54): README_CONTRACT row 10's Quick Start became conditional on a verified
+# example - a Required row that nothing could honestly fill blocked Aspose.Words for .NET at S5.
+SHELL_VERSION = "6"
 # Fixed subheadings a shell row prescribes (README_CONTRACT.md section 2 rows 9 and 14),
 # at level three or four as the row states.
 SUBSECTION_HEADINGS = frozenset(
@@ -130,10 +132,10 @@ SEMANTIC_SHELL: tuple[Section, ...] = (
     Section(
         "quick_start",
         "Quick Start",
-        True,
+        False,
         "visible",
         "M",
-        None,
+        "at least one example executed or compiled in isolation at this revision",
         "One minimal example executed in isolation; the LLM supplies one lead-in sentence.",
     ),
     Section(

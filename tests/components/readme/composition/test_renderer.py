@@ -599,6 +599,35 @@ def test_a_license_declared_in_the_manifest_renders_without_a_file_to_link() -> 
     )
 
 
+def test_a_plan_without_a_verified_example_renders_no_quick_start() -> None:
+    """G4-W17 arrival item 54: Quick Start is conditional on a verified example (README_CONTRACT
+    row 10, eighth revision). When the plan excludes it - Aspose.Words for .NET, all five README
+    examples CONTRADICTED - the renderer emits no heading, Navigation lists none, and every other
+    section renders as before; nothing is invented to fill a row."""
+    plan: dict[str, Any] = {
+        **PLAN,
+        "sections": [
+            {**section, "include": False, "reason": "its condition does not hold"}
+            if section["section_id"] in {"quick_start", "additional_examples"}
+            else section
+            for section in PLAN["sections"]
+        ],
+        "quick_start_example_id": None,
+        "second_quick_start_example_id": None,
+        "additional_example_ids": [],
+        "flagship_example_id": None,
+    }
+    readme = render_readme(ENTRY, FACTS, plan, UNITS, DISPOSITIONS)
+    lines = readme.splitlines()
+    assert "## Quick Start" not in lines
+    assert "- [Quick Start](#quick-start)" not in lines
+    assert "## Installation" in lines and "## API Reference" in lines and "## License" in lines
+    assert "- [Installation](#installation)" in lines
+    # With a verified example the section renders exactly as it always has.
+    with_example = render_readme(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS).splitlines()
+    assert "## Quick Start" in with_example and "- [Quick Start](#quick-start)" in with_example
+
+
 def test_dependencies_render_in_four_subsections_with_verified_zero_stated() -> None:
     facts = FactsDocument(
         ENTRY.repository,
