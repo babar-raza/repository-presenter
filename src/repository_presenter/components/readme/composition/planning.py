@@ -103,6 +103,10 @@ def section_conditions(
         # follow the verified input formats and are absent without one.
         "at_a_glance": True,
         "dependencies": bool(_supported(facts, "dependency")),
+        # README_CONTRACT.md row 10 (G4-W17 arrival item 54): Quick Start holds when at least one
+        # example executed or compiled at this revision; a repository whose every README example
+        # is CONTRADICTED omits the row rather than filling it with anything unverified.
+        "quick_start": bool(_supported(facts, "example")),
         "additional_examples": len(_supported(facts, "example")) >= 2,
         "api_reference": True,  # README_CONTRACT.md row 14: Required
         "documentation_resources": bool(links),
@@ -411,6 +415,13 @@ def planning_schema(
         schema, citable_fact_ids(facts, investigation, dispositions, manifest.manifest)
     )
     if not verified:
+        # G4-W17 arrival item 54: with nothing verified the Quick Start row is omitted, so the
+        # decoder is pinned to the only honest reply - null ids and an empty list - rather than
+        # a well-formed example id that names nothing.
+        properties["quick_start_example_id"] = {"type": "null"}
+        properties["second_quick_start_example_id"] = {"type": "null"}
+        properties["flagship_example_id"] = {"type": "null"}
+        properties["additional_example_ids"] = {"type": "array", "maxItems": 0}
         return schema
     properties["quick_start_example_id"]["enum"] = verified
     properties["additional_example_ids"]["items"]["enum"] = verified
@@ -665,8 +676,13 @@ def plan_checks(
 
     examples = {i for i in supported if i.startswith("example:")}
     quick = output.get("quick_start_example_id")
-    if quick not in examples:
-        errors.append(f"quick_start_example_id must be a SUPPORTED example; got {quick!r}")
+    # README_CONTRACT.md row 10 (G4-W17 arrival item 54): the id is given exactly when the
+    # conditional Quick Start row is included, and null when its condition does not hold.
+    if "quick_start" in included:
+        if quick not in examples:
+            errors.append(f"quick_start_example_id must be a SUPPORTED example; got {quick!r}")
+    elif quick is not None:
+        errors.append(f"quick_start_example_id is null when quick_start is omitted; got {quick!r}")
     second = output.get("second_quick_start_example_id")
     if second is not None and (second not in examples or second == quick):
         errors.append(

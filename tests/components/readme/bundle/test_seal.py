@@ -194,7 +194,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["prompts"]["targeted_repair"]["version"] == "9"
     assert document["contract_version"] == "readme-contract-v1-draft"
     assert document["components"] == {
-        "shell": "5",
+        "shell": "6",
         "renderer": "22",
         "normalisation": "2",
         "reviewer_logic": "5",

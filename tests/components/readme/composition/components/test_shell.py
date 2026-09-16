@@ -41,13 +41,20 @@ def test_the_shell_lists_the_eighteen_sections_in_contract_order() -> None:
         "key_capabilities",
         "installation",
         "dependencies",
-        "quick_start",
         "api_reference",
         "scope_limitations",
         "license",
     ]
     assert all(section.condition for section in SEMANTIC_SHELL if not section.required)
     assert all(section.condition is None for section in SEMANTIC_SHELL if section.required)
+    # G4-W17 arrival item 54 (README_CONTRACT row 10, eighth revision): Quick Start is conditional
+    # on a verified example - a repository whose every README example is CONTRADICTED renders no
+    # Quick Start rather than fabricating one (DIRECTIVE 2026-09-06 20:05 rules 2 and 4).
+    quick_start = next(section for section in SEMANTIC_SHELL if section.id == "quick_start")
+    assert quick_start.required is False
+    assert quick_start.condition == (
+        "at least one example executed or compiled in isolation at this revision"
+    )
 
 
 def test_only_llm_and_mixed_sections_can_hold_inherited_units() -> None:

@@ -132,6 +132,70 @@ def test_conditions_are_evaluated_from_the_facts() -> None:
     assert conditions["third_party_notices"] is False
 
 
+def test_quick_start_is_conditional_on_a_verified_example() -> None:
+    """G4-W17 arrival item 54 (README_CONTRACT row 10, eighth revision; DIRECTIVE 2026-09-06
+    20:05 rules 2 and 4). Aspose.Words for .NET has five README examples and every one is
+    CONTRADICTED, so no plan could name a SUPPORTED quick_start_example_id and S5 failed on a
+    Required row nothing could fill - a contract gap, not a candidate defect. The row is now
+    conditional: the condition is a verified example, the schema pins the id to null when none
+    exists (so the decoder cannot invent one), and the check demands the id exactly when the
+    section is included."""
+    assert section_conditions(FACTS)["quick_start"] is True
+    nothing_verified = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        tuple(
+            Fact(f.id, f.kind, f.value, f.evidence, polarity="CONTRADICTED")
+            if f.kind == "example"
+            else f
+            for f in FACTS.facts
+        ),
+    )
+    assert section_conditions(nothing_verified)["quick_start"] is False
+    assert section_conditions(nothing_verified)["additional_examples"] is False
+    # Schema: nothing verified pins the example ids to null and the additional list empty.
+    loaded = load_manifests(REPO_ROOT / "prompts")["presentation_planning"]
+    pinned = planning_schema(loaded, nothing_verified, {}, {})["properties"]
+    assert pinned["quick_start_example_id"] == {"type": "null"}
+    assert pinned["second_quick_start_example_id"] == {"type": "null"}
+    assert pinned["additional_example_ids"] == {"type": "array", "maxItems": 0}
+    # ... and verified examples still travel as the enum they always did.
+    verified = planning_schema(loaded, FACTS, {}, {})["properties"]
+    assert verified["quick_start_example_id"]["enum"] == ["example:001", "example:002"]
+    # Checks: the id is given exactly when the section is included.
+    omitted = [
+        {**section, "include": False, "reason": "its condition does not hold"}
+        if section["section_id"] in {"quick_start", "additional_examples"}
+        else section
+        for section in _plan()["sections"]
+    ]
+    without = _plan(
+        sections=omitted,
+        quick_start_example_id=None,
+        additional_example_ids=[],
+        core_capabilities=[
+            {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene"]},
+            {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+            {"title": "Keep limits", "fact_ids": ["inherited_unit:001.paragraph"]},
+        ],
+        api_hubs=[{"symbol_fact_id": "public_symbol:widget.scene", "fact_ids": []}],
+    )
+    assert [e for e in plan_checks(without, nothing_verified) if "quick_start" in e] == []
+    # The decision is composed by plan_checks itself: the row reads as any other conditional row.
+    decisions = {entry["section_id"]: entry for entry in without["sections"]}
+    assert decisions["quick_start"] == {
+        "section_id": "quick_start",
+        "include": False,
+        "reason": "its condition does not hold",
+    }
+    assert "quick_start_example_id is null when quick_start is omitted; got 'example:001'" in (
+        plan_checks({**without, "quick_start_example_id": "example:001"}, nothing_verified)
+    )
+    assert "quick_start_example_id must be a SUPPORTED example; got None" in plan_checks(
+        _plan(quick_start_example_id=None), FACTS
+    )
+
+
 def test_the_packet_carries_conditions_policy_and_supported_facts_only() -> None:
     packet = planning_packet(ENTRY, FACTS, {"i": 1}, {"d": 2}, MANIFEST)
     assert packet["repository"] == ENTRY.repository
