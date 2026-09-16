@@ -1250,3 +1250,121 @@ into one differently-shaped field; the unbounded array is the defect either way.
 not change PDF-.NET's outcome — it sealed on the retry — so there is nothing here to revert on this
 repository; it stands as a corroborating measurement for whichever repository hits it without a
 recoverable retry.
+
+### F28 Slides-.NET run 5: F17 confirmed fixed, a second placement gap now blocks (BC-08, not BC-10)
+
+**Decision.** `aspose-slides-foss/Aspose.Slides-FOSS-for-.NET` stays dispositioned, now
+**`BLOCKED_VALIDATION (BC-08)`, causal stage COMPOSING** — a different check and a different unit
+than F16's row. Its resume predicate is **F29** below.
+
+**Measured 2026-09-16 17:50:40–17:58:33 UTC, worktree `C:\w\f05`, branch `lane-f/LANE-F-01-R5` cut
+from `origin/main` at `1a0173a` (67f4418 landed, F17's own fix).** Revision
+`9f2d871026829b5bc2ce80e571b1813f5b762ce5`, unchanged from F16/F12's reading — facts digest
+`88ecf857d738f50c9d30afb8a69f2cd8e3aa56f0aab12f047432462d93d73421` byte-identical to run 3's, so
+this is a genuine changed-input retry on the code side only, not a different repository state.
+31 call records — 17 `success` (all `http_status` 200), 14 `cache_reuse`, 0 errors — across
+`repository_investigation` 2, `source_reconciliation` 6, `presentation_planning` 2,
+`section_authoring` 20, `targeted_repair` 1, plus one live `coherence` call.
+
+- **F17 confirmed fixed, first direct evidence.** BC-10 never even reached a verdict this run — it
+  sits `PENDING` at S10 because validation stopped the run at S9 — so F16's own finding (the
+  46-part round-trip table dropped as overlap with `example:009`, 110 lines and three headings
+  away) cannot be re-observed on this exact disposition round. But item 76's own regression test
+  (`test_rendered_example_coverage_is_scoped_to_the_unit_adjacent_to_its_code_block`,
+  `tests/components/readme/composition/test_placement.py`) passed in this worktree's full suite
+  (1202 passed, 16 xfailed, 0 failed) before this run started, and this run's own dispositions
+  contain no unit dropped via `_adjacent_rendered_examples` at all (checked below) — the fix is
+  live and doing nothing wrong on this repository's real data.
+- **BC-08 FAIL at COMPOSING**, one finding: *"`inherited_unit:036.paragraph`: `VERIFIED_PRESERVE`
+  keeps the command `dotnet new console` but the candidate does not render it."* Dispositions this
+  round (95 units: `OMIT_UNSUPPORTED` 15, `SUPERSEDE_REDUNDANT` 36, `VERIFIED_MOVE` 18,
+  `VERIFIED_PRESERVE` 25, `VERIFIED_REWRITE` 1) differ substantially in shape from run 3's (`VERIFIED_PRESERVE` 51,
+  `SUPERSEDE_REDUNDANT` 16, `VERIFIED_MOVE` 11) despite identical facts — `source_reconciliation`
+  is not reproducible run to run on this repository (consistent with F24's flagged same-digest
+  variance), and this round's shape is what exposes F29, not anything F17 touches.
+- **One repair round, re-raised unchanged.** `repairs.json` records one `S6`/`additional_examples`
+  attempt (`request_sha256 a0f57b04…`, `outcome: repaired`, `revised_output.omitted` rewritten from
+  `[]` to a non-empty list) that re-raised as `BC-08` on re-validation (`re_raised: ["BC-08"]`) —
+  the same "no LLM-owned revision can undo a deterministic placement drop" shape F16/F17 already
+  established, not a second equivalent whole-run attempt under loop-prompt section 5.
+
+**Alternative rejected.** A second full run. `placements()` is pure deterministic code over
+`plan.json`, `dispositions.json` and `facts.json`; replayed offline (below) it drops the same unit
+every time this disposition round is fed to it. Re-running would spend ~17 more live calls to
+reproduce a block already proven code-caused.
+
+**Evidence.** `runs/transactions/aspose-slides-foss__Aspose.Slides-FOSS-for-.NET/9f2d871026829b5bc2ce80e571b1813f5b762ce5/`
+(`validation.json`, `repairs.json`, `dispositions.json`, `plan.json`, `facts.json`, `content_units.json`,
+`README.md`, `calls.jsonl`); the offline placement replay in F29; `evidence/build/lanes/lane-f/LANE-F-01.json`.
+
+**Reversal path.** When F29 lands, re-run this repository next: every other deterministic check
+(BC-01 through BC-07, BC-09) still passes, F17's own class does not recur, and review has never
+yet run against a disposition round this clean.
+
+### F29 PROPOSAL — `placement.py`'s `planned_fact_ids("additional_examples")` overlap is unscoped by adjacency, the same defect class as item 76 in a second code path
+
+**Defect.** `src/repository_presenter/components/readme/composition/placement.py:112-113` (shared
+code — `composition/`, not a lane-F path, the same file F17/item 76 already touched).
+`planned_fact_ids()`'s `additional_examples` branch is
+
+```python
+elif section == "additional_examples":
+    ids.update(plan.get("additional_example_ids", []))
+```
+
+— every example ID the plan renders in that section, unconditionally, with no adjacency scoping.
+`placements()` folds this straight into `covered` (line ~335) alongside the now-scoped
+`_adjacent_rendered_examples(unit_id, rendered_examples, example_ordinals)` — but the adjacency
+scoping item 76 added applies only to the separate `rendered_examples` variable, never to
+`planned_fact_ids`'s own return value. A preserved unit destined for `additional_examples` that
+cites *any* example ID the section renders is dropped as overlap regardless of position or of
+whether its content actually duplicates that example — the identical shape item 76 fixed for
+`rendered_examples` (any citing unit anywhere, not just the adjacent lead-in), reproduced in the
+sibling code path item 76 did not touch.
+
+**Measured on Slides-.NET run 5, replayed offline with zero provider calls**
+(`placements()` over this run's own `plan.json`, `dispositions.json` and `facts.json`, in this
+worktree's `.venv`):
+
+```
+inherited_unit:035.paragraph -> outcome: overlap  overlap: ('example:003','example:004','example:006')  destination: additional_examples
+inherited_unit:036.paragraph -> outcome: overlap  overlap: ('example:003','example:004','example:006')  destination: additional_examples
+```
+
+`example:003`'s own code block is `inherited_unit:038.code_block` (README lines 192-209) —
+ordinal distance **2** from unit 036, not 1; `example:004`'s is `inherited_unit:041.code_block`,
+distance 5; `example:006`'s is `inherited_unit:047.code_block`, distance 11. None is adjacent, so
+`_adjacent_rendered_examples` correctly returns nothing for this unit — the drop is entirely
+`planned_fact_ids`'s doing. `inherited_unit:036.paragraph` (README lines 184-188) reads: *"Those
+three are this library's own namespaces. The samples also use `Console`, `DateTime`, `File`,
+`FileStream` and `MemoryStream`, which come from `System` and `System.IO`: `<ImplicitUsings>`
+brings both into scope and is on by default in a project from `dotnet new console` — the same
+default this page relies on for `Nullable` above."* It cites `example:003/004/006` as *evidence*
+that its claim about implicit usings holds across those samples, not as their lead-in — the exact
+"evidentiary, not introductory" relationship item 76's own writeup already names as the un-covered
+case. `inherited_unit:035.paragraph` (the `Color`/`PointF` namespace note, README lines 181-183)
+is dropped the same way for the same reason — real content lost, though no BC check happens to
+name a protected pattern in its text.
+
+**Proposed shape (the primary's to land, not lane F's).** Scope `additional_examples`' (and, by
+the same reasoning, `quick_start`'s) contribution to `covered` through the same
+`_adjacent_rendered_examples` ordinal-adjacency test item 76 already built, rather than the raw
+`plan.get("additional_example_ids", [])` / `quick_start_example_id` lookup — or, equivalently,
+stop special-casing examples inside `planned_fact_ids` for these two sections and let
+`_adjacent_rendered_examples` (already unioned into `covered` separately) be the only source of
+example-ID overlap anywhere. Mutation test: a stub unit two ordinals from an
+`additional_examples`-bound example's code block, citing that example only as evidence, must be
+`placed`, not `overlap`; a true one-ordinal lead-in must still be `owned_elsewhere`/dropped
+(item 76's own existing test must keep passing).
+
+**Alternative rejected.** Lane F patching `placement.py` to unblock its own cohort —
+`composition/` is shared code, section 2 of the lane prompt makes this a `PROPOSAL`. Also
+rejected: recording this as the same predicate as F17 — F17 is landed and independently confirmed
+fixed above; conflating the two would misstate what actually blocks this repository now.
+
+**Evidence.** `placement.py:83-121` (`planned_fact_ids`), `:305-345` (`placements`); this run's
+`plan.json`, `dispositions.json`, `facts.json`; the offline replay above; F28.
+
+**Reversal path.** Superseded if the primary instead redesigns `covered` to unify all three
+sources under one adjacency-or-explicit-destination rule; the unscoped `additional_example_ids`
+lookup is the defect either way. Nothing to revert on Slides-.NET — it has never sealed.
