@@ -1,0 +1,1662 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "identity:repository",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "package:target_framework",
+      "reason": "identity fact not needed in prose description",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:001",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:003",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:004",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:012",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:006",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:010",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:010.list",
+      "reason": "detailed feature list belongs in later sections, not opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "example fact not needed in opening summary",
+      "section": "opening"
+    },
+    {
+      "fact_id": "inherited_unit:030.paragraph",
+      "reason": "inherited_unit, not a product fact",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:031.code_block",
+      "reason": "inherited_unit, not a product fact",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "build_test_asset:ci",
+      "reason": "CI workflow details are covered by inherited_unit:231.paragraph and not needed in the summary sentence.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository identity is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision identity is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family identity is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform identity is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem identity is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Package version is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:target_framework",
+      "reason": "Target framework is not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "Documentation assets are not relevant to the testing procedure description.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:229.heading",
+      "reason": "Heading is rendered by the renderer and not to be repeated in prose.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "inherited_unit:004.paragraph",
+        "public_symbol:aspose.pdf.comparison"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.PDF FOSS for .NET is a free, open-source PDF library for .NET 8+ that reads, creates, modifies, and converts PDF documents. It solves the problem of needing a drop-in, API-compatible alternative to Aspose.PDF for .NET for common PDF scenarios, allowing existing code to compile and run unchanged. Developers building document processing applications in .NET use it to generate reports, fill forms, add annotations, encrypt documents, and compare PDFs. The library supports the Aspose.Pdf.Comparison namespace for side-by-side and graphical comparison workflows."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create a new document with Document.Create or open an existing one with Document.Open, then manipulate pages through Page and PageCollection operations such as add, delete, reorder, rotate, resize, or copy across documents, preserving bookmarks, outlines, page labels, named destinations, document info, XMP metadata, and optional content layers on full or incremental save."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:007",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Extract text from pages using TextAbsorber, TextFragmentAbsorber, ParagraphAbsorber, or TableAbsorber, then find and replace text across pages—including cross-operator and ligature-aware spans—using TextFragmentAbsorber and TextFragment, and build new text with TextBuilder, TextFragment, TextSegment, TextStamp, and FormattedText including Bidi (RTL) support and AGL Unicode mapping."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Read, fill, and build AcroForm fields—including text, checkbox, radio, choice, button, signature, and rich text—through Form, Field, FormFieldBuilder, FormEditor, and FormDataConverter, with field-level flatten and JSON/XFDF form-data import and export."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Add and edit every standard annotation type—including link, text, free-text, highlight, square/circle/line/polyline, ink, stamp, popup, file attachment, screen, redaction, watermark, pre-press marks, and rich media—with appearance generation and flatten, as demonstrated by adding a link annotation with PdfAction.CreateUri and a stamp annotation with StampAnnotation."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:012",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Encrypt and decrypt documents with RC4-40, RC4-128, AES-128, and AES-256 using Document.Encrypt, and sign documents with PKCS#7/CMS detached signatures—including DocMDP certifying signatures—through PdfFileSignature, PdfSigner, and PdfCertificate, with document permissions set directly on Document."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:011",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Render pages to PNG, JPEG, BMP, TIFF, or SVG using PngDevice, JpegDevice, BmpDevice, TiffDevice, and SvgDevice through the pluggable IPageRenderer interface, supporting mesh shading types 4-7, a JBIG2 decoder, and JPEG/JPEG2000/CCITT-Fax filters."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "inherited_unit:010.list"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Convert PDF to and from HTML and SVG, load Markdown, XML, or plain-text files, and export to Markdown, plain text, or PDF/A (1A through 4F) using HtmlLoadOptions, HtmlSaveOptions, SvgLoadOptions, MdLoadOptions, and TxtLoadOptions."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list",
+        "public_symbol:aspose.pdf.comparison"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Compare two documents or two pages using Aspose.Pdf.Comparison, where SideBySidePdfComparer writes a result PDF with both versions side by side marking deletions on the left and insertions on the right, and GraphicalPdfComparer diffs rendered pixels of two pages."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "package:version",
+        "package:target_framework"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "This example shows how to create a new PDF document with a text fragment and how to open an existing PDF to extract its text using Aspose.PDF.FOSS version 26.9.0 targeting net8.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The Aspose.PDF FOSS for .NET library supports common PDF operations such as adding annotations, searching and replacing text, converting formats, encrypting documents, and applying digital signatures. The following examples demonstrate these capabilities."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Add a clickable link annotation to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Find occurrences of specific text in a PDF page."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Add a stamp annotation to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Render a PDF page to SVG format."
+    },
+    {
+      "fact_ids": [
+        "example:007",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Find and replace text throughout a PDF document."
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "List all form field names and values."
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:009",
+      "text": "Encrypt a PDF with user and owner passwords."
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:010",
+      "text": "Convert an HTML file to PDF."
+    },
+    {
+      "fact_ids": [
+        "example:011",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:011",
+      "text": "Render a PDF page to PNG at 300 DPI."
+    },
+    {
+      "fact_ids": [
+        "example:012",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:012",
+      "text": "Apply a digital signature to a PDF document."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:name",
+        "package:target_framework",
+        "package:version",
+        "public_symbol:aspose.pdf"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.PDF.FOSS for .NET 26.9.0 targets net8.0 and exposes its core functionality through the Aspose.Pdf.Document class and related types in the Aspose.Pdf namespace."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf",
+        "public_symbol:aspose.pdf.acroformdata",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.annotations.annotationcollection",
+        "public_symbol:aspose.pdf.annotations.pdfaction"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf",
+      "text": "The Aspose.Pdf namespace provides the primary entry points for working with PDF documents, including document creation, manipulation, and conversion through classes such as Aspose.Pdf.Document, Aspose.Pdf.Annotations.AnnotationCollection, and Aspose.Pdf.AcroFormData."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.activationevent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.activationevent",
+      "text": "ActivationEvent represents an event that occurs when an annotation is activated in Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.bleedmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.bleedmarkannotation",
+      "text": "BleedMarkAnnotation represents a bleed mark annotation used to indicate the trim area in print production."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.caretannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.caretannotation",
+      "text": "CaretAnnotation represents a caret annotation used to indicate the insertion point for text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.circleannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.circleannotation",
+      "text": "CircleAnnotation represents a circular annotation used to highlight or emphasize content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.colorbarannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.colorbarannotation",
+      "text": "ColorBarAnnotation represents a color bar annotation used for color calibration in print workflows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.contenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.contenttype",
+      "text": "ContentType specifies the type of content associated with an annotation in Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fixedprint"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fixedprint",
+      "text": "FixedPrint represents a fixed print annotation used to define static print properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.freetextannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.freetextannotation",
+      "text": "FreeTextAnnotation represents a text annotation that allows free-form text placement on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.gotoaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.gotoaction",
+      "text": "GoToAction represents an action that navigates to a specified destination within the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.inkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.inkannotation",
+      "text": "InkAnnotation represents an ink annotation used to capture freehand drawing input."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.javascriptaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.javascriptaction",
+      "text": "JavascriptAction represents an action that executes JavaScript code when triggered."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.launchaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.launchaction",
+      "text": "LaunchAction represents an action that launches an external application or opens a file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.lineannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.lineannotation",
+      "text": "LineAnnotation represents a line annotation used to draw a straight line on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.linkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.linkannotation",
+      "text": "LinkAnnotation represents a link annotation used to create hyperlinks within or outside the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.markupannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.markupannotation",
+      "text": "MarkupAnnotation is a base class for annotations that provide markup capabilities such as highlighting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.movieannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.movieannotation",
+      "text": "MovieAnnotation represents a movie annotation used to embed and play video content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.namedaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.namedaction",
+      "text": "NamedAction represents an action that performs a predefined operation identified by a name."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.pdf3dannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.pdf3dannotation",
+      "text": "PDF3DAnnotation represents a 3D annotation used to embed and interact with 3D content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.pageinformationannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.pageinformationannotation",
+      "text": "PageInformationAnnotation represents metadata or information associated with a specific page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polygonannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polygonannotation",
+      "text": "PolygonAnnotation represents a polygon annotation used to highlight or annotate irregular areas."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polylineannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polylineannotation",
+      "text": "PolylineAnnotation represents a polyline annotation used to draw connected line segments."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.popupannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.popupannotation",
+      "text": "PopupAnnotation represents a popup annotation that displays additional content when opened."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.registrationmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.registrationmarkannotation",
+      "text": "RegistrationMarkAnnotation represents a registration mark annotation used for alignment in printing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.richmediaannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.richmediaannotation",
+      "text": "RichMediaAnnotation represents an annotation that embeds rich media content such as audio or video."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.screenannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.screenannotation",
+      "text": "ScreenAnnotation represents a screen annotation used to create interactive screen elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundannotation",
+      "text": "SoundAnnotation represents a sound annotation used to attach audio content to a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.sounddata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.sounddata",
+      "text": "SoundData represents the raw data of a sound used in a sound annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundencoding"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundencoding",
+      "text": "SoundEncoding specifies the encoding format used for sound data in annotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundicon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundicon",
+      "text": "SoundIcon specifies the icon used to represent a sound annotation visually."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundsampledata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundsampledata",
+      "text": "SoundSampleData represents the sample data of a sound used in a sound annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundsampledataencodingformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundsampledataencodingformat",
+      "text": "SoundSampleDataEncodingFormat specifies the encoding format for sound sample data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.squareannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.squareannotation",
+      "text": "SquareAnnotation represents a square annotation used to highlight or annotate rectangular areas."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.stampannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.stampannotation",
+      "text": "StampAnnotation represents a stamp annotation used to apply predefined or custom stamps to a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.textannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.textannotation",
+      "text": "TextAnnotation represents a text annotation used to add notes or comments to a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.trimmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.trimmarkannotation",
+      "text": "TrimMarkAnnotation represents a trim mark annotation used to indicate the final trim size in printing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.uriaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.uriaction",
+      "text": "UriAction represents an action that opens a Uniform Resource Identifier (URI) in a web browser."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.widgetannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.widgetannotation",
+      "text": "WidgetAnnotation represents a widget annotation used to render interactive form fields."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.bitmapinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.bitmapinfo",
+      "text": "BitmapInfo provides information about a bitmap image used in annotations or page elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.borderpartstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.borderpartstyle",
+      "text": "BorderPartStyle defines the style of individual parts of an annotation's border."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.columninfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.columninfo",
+      "text": "ColumnInfo provides information about the layout and properties of a column in a document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.documentcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.documentcollection",
+      "text": "Aspose.Pdf.DocumentCollection represents a collection of documents managed by Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.ifacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.ifacade",
+      "text": "Aspose.Pdf.Facades.IFacade defines the interface for facade classes that provide high-level PDF processing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.isaveablefacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.isaveablefacade",
+      "text": "Aspose.Pdf.Facades.ISaveableFacade defines the interface for facade classes that support saving processed PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfprintpageinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfprintpageinfo",
+      "text": "Aspose.Pdf.Facades.PdfPrintPageInfo provides information about a specific page to be printed in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.checkboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.checkboxfield",
+      "text": "Aspose.Pdf.Forms.CheckboxField represents a checkbox form field in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.choicefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.choicefield",
+      "text": "Aspose.Pdf.Forms.ChoiceField represents a choice form field in a PDF document, allowing users to select from multiple options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.pkcs1"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.pkcs1",
+      "text": "Aspose.Pdf.Forms.PKCS1 represents a PKCS#1 signature format used for digital signatures in PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.pkcs7"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.pkcs7",
+      "text": "Aspose.Pdf.Forms.PKCS7 represents a PKCS#7 signature format used for digital signatures in PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.radiobuttonfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.radiobuttonfield",
+      "text": "Aspose.Pdf.Forms.RadioButtonField represents a radio button form field in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.signaturefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.signaturefield",
+      "text": "Aspose.Pdf.Forms.SignatureField represents a signature form field in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.textboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.textboxfield",
+      "text": "Aspose.Pdf.Forms.TextBoxField represents a text box form field in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.htmlborderlinetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.htmlborderlinetype",
+      "text": "Aspose.Pdf.HtmlBorderLineType specifies the line type used for borders in HTML content imported into a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.iindexbitmapconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.iindexbitmapconverter",
+      "text": "Aspose.Pdf.IIndexBitmapConverter defines a contract for converting indexed bitmaps during PDF processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.iwarningcallback"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.iwarningcallback",
+      "text": "Aspose.Pdf.IWarningCallback defines a contract for receiving warnings during PDF processing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.image"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.image",
+      "text": "Aspose.Pdf.Image represents an image object embedded in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.imagefiltertype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.imagefiltertype",
+      "text": "Aspose.Pdf.ImageFilterType specifies the filter used to encode image data within a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.interruptmonitor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.interruptmonitor",
+      "text": "Aspose.Pdf.InterruptMonitor provides a mechanism to monitor and interrupt long-running PDF processing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.launchactionoperation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.launchactionoperation",
+      "text": "Aspose.Pdf.LaunchActionOperation represents an action that launches an external application or file from a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.launchactionoperationconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.launchactionoperationconverter",
+      "text": "Aspose.Pdf.LaunchActionOperationConverter provides functionality to convert launch action operations during PDF processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.loadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.loadoptions",
+      "text": "Aspose.Pdf.LoadOptions specifies options used when loading a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.annotelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.annotelement",
+      "text": "Aspose.Pdf.LogicalStructure.AnnotElement represents an annotation element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.artelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.artelement",
+      "text": "Aspose.Pdf.LogicalStructure.ArtElement represents an artifact element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.bibentryelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.bibentryelement",
+      "text": "Aspose.Pdf.LogicalStructure.BibEntryElement represents a bibliographic entry element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.blockquoteelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.blockquoteelement",
+      "text": "Aspose.Pdf.LogicalStructure.BlockQuoteElement represents a block quote element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.captionelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.captionelement",
+      "text": "Aspose.Pdf.LogicalStructure.CaptionElement represents a caption element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.codeelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.codeelement",
+      "text": "Aspose.Pdf.LogicalStructure.CodeElement represents a code element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.divelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.divelement",
+      "text": "Aspose.Pdf.LogicalStructure.DivElement represents a division element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.figureelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.figureelement",
+      "text": "Aspose.Pdf.LogicalStructure.FigureElement represents a figure element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.formelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.formelement",
+      "text": "Aspose.Pdf.LogicalStructure.FormElement represents a form element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.formulaelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.formulaelement",
+      "text": "Aspose.Pdf.LogicalStructure.FormulaElement represents a formula element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.headerelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.headerelement",
+      "text": "Aspose.Pdf.LogicalStructure.HeaderElement represents a header element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.indexelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.indexelement",
+      "text": "Aspose.Pdf.LogicalStructure.IndexElement represents an index element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.linkelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.linkelement",
+      "text": "Aspose.Pdf.LogicalStructure.LinkElement represents a link element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.listelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.listelement",
+      "text": "Aspose.Pdf.LogicalStructure.ListElement represents a list element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.listlbodyelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.listlbodyelement",
+      "text": "Aspose.Pdf.LogicalStructure.ListLBodyElement represents a list body element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.listlielement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.listlielement",
+      "text": "Aspose.Pdf.LogicalStructure.ListLIElement represents a list item element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.listlblelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.listlblelement",
+      "text": "Aspose.Pdf.LogicalStructure.ListLblElement represents a list label element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.nonstructelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.nonstructelement",
+      "text": "Aspose.Pdf.LogicalStructure.NonStructElement represents a non-structural element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.noteelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.noteelement",
+      "text": "Aspose.Pdf.LogicalStructure.NoteElement represents a note element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.paragraphelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.paragraphelement",
+      "text": "Aspose.Pdf.LogicalStructure.ParagraphElement represents a paragraph element in the logical structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.partelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.partelement",
+      "text": "PartElement represents a logical structure part element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.privateelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.privateelement",
+      "text": "PrivateElement represents a private logical structure element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.quoteelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.quoteelement",
+      "text": "QuoteElement represents a quoted content element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.referenceelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.referenceelement",
+      "text": "ReferenceElement represents a reference element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.rubyelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.rubyelement",
+      "text": "RubyElement represents a ruby annotation element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.rubyrbelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.rubyrbelement",
+      "text": "RubyRBElement represents a ruby base element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.rubyrpelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.rubyrpelement",
+      "text": "RubyRPElement represents a ruby pronunciation element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.rubyrtelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.rubyrtelement",
+      "text": "RubyRTElement represents a ruby text element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.sectelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.sectelement",
+      "text": "SectElement represents a section element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.spanelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.spanelement",
+      "text": "SpanElement represents a span element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tocelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tocelement",
+      "text": "TOCElement represents a table of contents element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tocielement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tocielement",
+      "text": "TOCIElement represents a table of contents item element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tableelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tableelement",
+      "text": "TableElement represents a table element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tabletbodyelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tabletbodyelement",
+      "text": "TableTBodyElement represents a table body element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tabletdelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tabletdelement",
+      "text": "TableTDElement represents a table data cell element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tabletfootelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tabletfootelement",
+      "text": "TableTFootElement represents a table footer element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tablethelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tablethelement",
+      "text": "TableTHElement represents a table header cell element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tabletheadelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tabletheadelement",
+      "text": "TableTHeadElement represents a table header element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.tabletrelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.tabletrelement",
+      "text": "TableTRElement represents a table row element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.warichuelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.warichuelement",
+      "text": "WarichuElement represents a warichu annotation element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.warichuwpelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.warichuwpelement",
+      "text": "WarichuWPElement represents a warichu wrapped paragraph element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.warichuwtelement"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.logicalstructure.warichuwtelement",
+      "text": "WarichuWTElement represents a warichu wrapped text element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.logicalstructure.partelement",
+        "public_symbol:aspose.pdf.nodelevelresourcetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.nodelevelresourcetype",
+      "text": "NodeLevelResourceType specifies the type of resource associated with a logical structure node."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.outlinecollection",
+      "text": "OutlineCollection manages the collection of outlines in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pdfastandardversion"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pdfastandardversion",
+      "text": "PdfAStandardVersion indicates the PDF/A standard version used for a document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pdfsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pdfsaveoptions",
+      "text": "PdfSaveOptions provides settings for saving a document to PDF format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.permissions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.permissions",
+      "text": "Permissions defines the permission settings for a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pixelformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pixelformat",
+      "text": "PixelFormat specifies the pixel format used for images in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.printscaling"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.printscaling",
+      "text": "PrintScaling specifies the print scaling behavior for a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.printing.papersize"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.printing.papersize",
+      "text": "PaperSize represents the dimensions of a paper size used in printing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.progresseventhandlerinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.progresseventhandlerinfo",
+      "text": "ProgressEventHandlerInfo provides information about the progress of an operation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.resourceloadingresult"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.resourceloadingresult",
+      "text": "ResourceLoadingResult indicates the result of loading a resource during document processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.resourcesavinginfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.resourcesavinginfo",
+      "text": "ResourceSavingInfo provides information about saving a resource during document processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.returnaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.returnaction",
+      "text": "ReturnAction defines an action to be performed when returning to a previous state in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.rotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.rotation",
+      "text": "Rotation specifies the rotation angle applied to a page or element in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.row"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.row",
+      "text": "Row represents a row in a table element within a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.saveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.saveoptions",
+      "text": "SaveOptions provides base settings for saving a document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.svgimagesavinginfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.svgimagesavinginfo",
+      "text": "SvgImageSavingInfo provides information about saving an SVG image during document processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.svgsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.svgsaveoptions",
+      "text": "SvgSaveOptions provides settings for saving a document to SVG format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.tablebroken"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.tablebroken",
+      "text": "TableBroken indicates whether a table spans across multiple pages in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.customfontsubstitutionbase"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.customfontsubstitutionbase",
+      "text": "CustomFontSubstitutionBase provides a base class for implementing custom font substitution logic, allowing developers to define how fonts are replaced during document processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.fontsubstitutioncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.fontsubstitutioncollection",
+      "text": "FontSubstitutionCollection manages a collection of font substitution rules, supporting operations such as adding, removing, and checking for specific substitution entries."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.originalfontspecification"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.originalfontspecification",
+      "text": "OriginalFontSpecification describes the original font used in a document, including whether it is embedded and whether substitution is unavoidable."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.position"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.position",
+      "text": "Position represents a coordinate point in a document with X and Y indentation values, supporting equality comparisons and string representation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.simplefontsubstitution"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.simplefontsubstitution",
+      "text": "SimpleFontSubstitution defines a straightforward font replacement rule that maps an original font name to a substitution font name."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.unifiedsaveoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.unifiedsaveoptions",
+      "text": "UnifiedSaveOptions controls how a document is saved, offering settings for output format, file path, glyph caching, and warning handling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.warninginfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.warninginfo",
+      "text": "WarningInfo captures details about warnings generated during document processing, including the warning message and its type."
+    },
+    {
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "The getting started guide covers installation, walkthroughs, and feature guides for Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The how-to guides and FAQ provide task-focused answers for common PDF-processing questions."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The full API reference offers a complete, browsable reference for all 881 public types in Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "Users can open an issue on GitHub to report bugs or request features for Aspose.PDF FOSS for .NET."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:226.heading",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.PDF FOSS for .NET version 26.9.0 targets net8.0 and provides a free, open-source subset of Aspose.PDF for .NET for PDF creation, reading, and basic editing."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "AI and LowCode workflows, multithreading APIs, and format converters beyond PDF, HTML, SVG, Markdown, and XML are not included in this edition."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "PdfViewer's Print methods throw PlatformNotSupportedException, requiring users to render to an image and use their own printing stack."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Basic digital signatures work, but advanced validation features such as OCSP, network timestamping, and custom remote-sign delegates are stored but not active."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Advanced PdfFileEditor features like MakeNUp imposition and MakeBooklet from a Stream with non-trivial margins accept input but emit a simplified layout on save."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Dynamic XFA forms can be read, laid out, and flattened to AcroForm pages, but fine-grained authoring of individual XFA dataset fields remains limited."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:227.list",
+        "package:name",
+        "package:target_framework",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Rendering output is pixel-close but not byte-identical to Aspose.PDF for .NET, and TiffDevice.BinarizeBradley and DocumentCollection.GetEnumerator() throw NotImplementedException."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "inherited_unit:230.code_block",
+        "inherited_unit:231.paragraph"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Run the xUnit test suite included in the repository by executing dotnet test tests/Aspose.Pdf.Foss.Tests.csproj from the repository root."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:target_framework"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.PDF FOSS for .NET provides open-source PDF processing capabilities, while the commercial Aspose.PDF for .NET adds advanced features such as digital signatures, form filling, and document protection."
+    }
+  ]
+}

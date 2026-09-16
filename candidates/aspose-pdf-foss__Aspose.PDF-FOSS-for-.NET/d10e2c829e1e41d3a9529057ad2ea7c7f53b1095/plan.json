@@ -1,0 +1,570 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:006",
+    "example:007",
+    "example:008",
+    "example:009",
+    "example:010",
+    "example:011",
+    "example:012"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf",
+        "public_symbol:aspose.pdf.acroformdata",
+        "public_symbol:aspose.pdf.afrelationship",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.annotations.annotationcollection",
+        "public_symbol:aspose.pdf.annotations.pdfaction",
+        "public_symbol:aspose.pdf.antialiasingprocessingtype",
+        "public_symbol:aspose.pdf.appearanceentry",
+        "public_symbol:aspose.pdf.appearanceimagedata",
+        "public_symbol:aspose.pdf.artifact",
+        "public_symbol:aspose.pdf.artifactcollection",
+        "public_symbol:aspose.pdf.artifactsubtype",
+        "public_symbol:aspose.pdf.artifacttype",
+        "public_symbol:aspose.pdf.autotaggingsettings",
+        "public_symbol:aspose.pdf.backgroundartifact",
+        "public_symbol:aspose.pdf.baseoperatorcollection",
+        "public_symbol:aspose.pdf.baseparagraph",
+        "public_symbol:aspose.pdf.batesnartifact",
+        "public_symbol:aspose.pdf.bitmapinfo",
+        "public_symbol:aspose.pdf.blendmode",
+        "public_symbol:aspose.pdf.bordercornerstyle",
+        "public_symbol:aspose.pdf.borderinfo",
+        "public_symbol:aspose.pdf.borderpartstyle",
+        "public_symbol:aspose.pdf.borderside",
+        "public_symbol:aspose.pdf.boundscheckablelist",
+        "public_symbol:aspose.pdf.boundscheckmode",
+        "public_symbol:aspose.pdf.boundsoutofrangeexception",
+        "public_symbol:aspose.pdf.buildversioninfo",
+        "public_symbol:aspose.pdf.cell",
+        "public_symbol:aspose.pdf.cells",
+        "public_symbol:aspose.pdf.cmapencodingtabletype",
+        "public_symbol:aspose.pdf.collection",
+        "public_symbol:aspose.pdf.collectionfield",
+        "public_symbol:aspose.pdf.collectionfieldsubtype",
+        "public_symbol:aspose.pdf.collectionitem",
+        "public_symbol:aspose.pdf.collectionschema",
+        "public_symbol:aspose.pdf.color",
+        "public_symbol:aspose.pdf.colorspace",
+        "public_symbol:aspose.pdf.colortype",
+        "public_symbol:aspose.pdf.columnadjustment",
+        "public_symbol:aspose.pdf.columninfo",
+        "public_symbol:aspose.pdf.comparison",
+        "public_symbol:aspose.pdf.compositingparameters",
+        "public_symbol:aspose.pdf.content",
+        "public_symbol:aspose.pdf.contentsappender",
+        "public_symbol:aspose.pdf.conversionengines",
+        "public_symbol:aspose.pdf.converterroraction",
+        "public_symbol:aspose.pdf.converters",
+        "public_symbol:aspose.pdf.convertsoftmaskaction",
+        "public_symbol:aspose.pdf.converttransparencyaction",
+        "public_symbol:aspose.pdf.crashreportoptions",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.csssavinginfo",
+        "public_symbol:aspose.pdf.cssurlrequestinfo",
+        "public_symbol:aspose.pdf.defaultresourcesdata",
+        "public_symbol:aspose.pdf.defaultstate",
+        "public_symbol:aspose.pdf.deprecatedfeatureexception",
+        "public_symbol:aspose.pdf.destinationarray",
+        "public_symbol:aspose.pdf.destinationcollection",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.devices.svgdevice",
+        "public_symbol:aspose.pdf.devices.pngdevice",
+        "public_symbol:aspose.pdf.devices.jpegdevice",
+        "public_symbol:aspose.pdf.devices.bmpdevice",
+        "public_symbol:aspose.pdf.devices.tiffdevice",
+        "public_symbol:aspose.pdf.digesthashalgorithm",
+        "public_symbol:aspose.pdf.direction",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentcollection",
+        "public_symbol:aspose.pdf.documentinfo",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.embeddedfilecollection",
+        "public_symbol:aspose.pdf.emptyvalueexception",
+        "public_symbol:aspose.pdf.encryptedpayload",
+        "public_symbol:aspose.pdf.exportfieldstojsonoptions",
+        "public_symbol:aspose.pdf.extendedboolean",
+        "public_symbol:aspose.pdf.extgstatevalue",
+        "public_symbol:aspose.pdf.extractimagemode",
+        "public_symbol:aspose.pdf.extracttextmode",
+        "public_symbol:aspose.pdf.facades",
+        "public_symbol:aspose.pdf.fieldexportingdata",
+        "public_symbol:aspose.pdf.fieldserializationresult",
+        "public_symbol:aspose.pdf.fieldserializationstatus",
+        "public_symbol:aspose.pdf.fieldvaluetype",
+        "public_symbol:aspose.pdf.fileencoding",
+        "public_symbol:aspose.pdf.filehyperlink",
+        "public_symbol:aspose.pdf.fileparams",
+        "public_symbol:aspose.pdf.filespecification",
+        "public_symbol:aspose.pdf.fixup",
+        "public_symbol:aspose.pdf.floatingbox",
+        "public_symbol:aspose.pdf.fontembeddingexception",
+        "public_symbol:aspose.pdf.fontembeddingoptions",
+        "public_symbol:aspose.pdf.fontencodingrules",
+        "public_symbol:aspose.pdf.fontnotfoundexception",
+        "public_symbol:aspose.pdf.fontsavingmodes",
+        "public_symbol:aspose.pdf.fontsubsetstrategy",
+        "public_symbol:aspose.pdf.fontutilities",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.functions",
+        "public_symbol:aspose.pdf.graphinfo",
+        "public_symbol:aspose.pdf.group",
+        "public_symbol:aspose.pdf.groupprocessor",
+        "public_symbol:aspose.pdf.groupprocessor.objectkey",
+        "public_symbol:aspose.pdf.headerartifact",
+        "public_symbol:aspose.pdf.headerfooter",
+        "public_symbol:aspose.pdf.heading",
+        "public_symbol:aspose.pdf.headinglevels",
+        "public_symbol:aspose.pdf.headingrecognitionstrategy",
+        "public_symbol:aspose.pdf.horizontalalignment",
+        "public_symbol:aspose.pdf.htmlborderlinetype",
+        "public_symbol:aspose.pdf.htmldocumenttype",
+        "public_symbol:aspose.pdf.htmlfragment",
+        "public_symbol:aspose.pdf.htmlimagesavinginfo",
+        "public_symbol:aspose.pdf.htmlimagetype",
+        "public_symbol:aspose.pdf.htmlloadoptions",
+        "public_symbol:aspose.pdf.htmlmarkupgenerationmodes",
+        "public_symbol:aspose.pdf.htmlmediatype",
+        "public_symbol:aspose.pdf.htmlpagelayoutoption",
+        "public_symbol:aspose.pdf.htmlpagemarkupsavinginfo",
+        "public_symbol:aspose.pdf.htmlsaveoptions",
+        "public_symbol:aspose.pdf.hyperlink",
+        "public_symbol:aspose.pdf.id",
+        "public_symbol:aspose.pdf.idocumentfontutilities",
+        "public_symbol:aspose.pdf.iindexbitmapconverter",
+        "public_symbol:aspose.pdf.image",
+        "public_symbol:aspose.pdf.imagecollection",
+        "public_symbol:aspose.pdf.imagedeleteaction",
+        "public_symbol:aspose.pdf.imagefiletype",
+        "public_symbol:aspose.pdf.imagefiltertype",
+        "public_symbol:aspose.pdf.imageparenttypes",
+        "public_symbol:aspose.pdf.imageplacement",
+        "public_symbol:aspose.pdf.imageplacementabsorber",
+        "public_symbol:aspose.pdf.imageplacementcollection",
+        "public_symbol:aspose.pdf.imagestamp",
+        "public_symbol:aspose.pdf.imagexobject",
+        "public_symbol:aspose.pdf.incorrectfontusageexception",
+        "public_symbol:aspose.pdf.interruptmonitor",
+        "public_symbol:aspose.pdf.invalidformtypeoperationexception",
+        "public_symbol:aspose.pdf.invalidpasswordexception",
+        "public_symbol:aspose.pdf.invalidpdffileformatexception",
+        "public_symbol:aspose.pdf.ioperatorselector",
+        "public_symbol:aspose.pdf.iwarningcallback",
+        "public_symbol:aspose.pdf.javascriptcollection",
+        "public_symbol:aspose.pdf.launchactionoperation",
+        "public_symbol:aspose.pdf.launchactionoperationconverter",
+        "public_symbol:aspose.pdf.layer",
+        "public_symbol:aspose.pdf.layercollection",
+        "public_symbol:aspose.pdf.layerentry",
+        "public_symbol:aspose.pdf.letterspositioningmethods",
+        "public_symbol:aspose.pdf.levelformat",
+        "public_symbol:aspose.pdf.loadformat",
+        "public_symbol:aspose.pdf.loadoptions",
+        "public_symbol:aspose.pdf.localhyperlink",
+        "public_symbol:aspose.pdf.logicalstructure",
+        "public_symbol:aspose.pdf.margininfo",
+        "public_symbol:aspose.pdf.marginpartstyle",
+        "public_symbol:aspose.pdf.matrix",
+        "public_symbol:aspose.pdf.matrix3d",
+        "public_symbol:aspose.pdf.mdloadoptions",
+        "public_symbol:aspose.pdf.mergeoptions",
+        "public_symbol:aspose.pdf.metadata",
+        "public_symbol:aspose.pdf.missingoptionaldependencyexception",
+        "public_symbol:aspose.pdf.nameddestination",
+        "public_symbol:aspose.pdf.nameddestinationcollection",
+        "public_symbol:aspose.pdf.nocharacteraction",
+        "public_symbol:aspose.pdf.nodelevelresourcetype",
+        "public_symbol:aspose.pdf.note",
+        "public_symbol:aspose.pdf.numberingstyle",
+        "public_symbol:aspose.pdf.ocspsettings",
+        "public_symbol:aspose.pdf.operator",
+        "public_symbol:aspose.pdf.operatorcollection",
+        "public_symbol:aspose.pdf.operators",
+        "public_symbol:aspose.pdf.operatorselector",
+        "public_symbol:aspose.pdf.opi",
+        "public_symbol:aspose.pdf.optimization",
+        "public_symbol:aspose.pdf.optimizationoptions",
+        "public_symbol:aspose.pdf.optimizedmemorystream",
+        "public_symbol:aspose.pdf.optionalcontentbuilder",
+        "public_symbol:aspose.pdf.optionalcontentgroup",
+        "public_symbol:aspose.pdf.optionalcontentproperties",
+        "public_symbol:aspose.pdf.outlinebuilder",
+        "public_symbol:aspose.pdf.outlinecollection",
+        "public_symbol:aspose.pdf.outlineitem",
+        "public_symbol:aspose.pdf.outlineitembuilder",
+        "public_symbol:aspose.pdf.outlineitemcollection",
+        "public_symbol:aspose.pdf.outlines",
+        "public_symbol:aspose.pdf.outputintent",
+        "public_symbol:aspose.pdf.outputintents",
+        "public_symbol:aspose.pdf.page",
+        "public_symbol:aspose.pdf.pageactioncollection",
+        "public_symbol:aspose.pdf.pagecollection",
+        "public_symbol:aspose.pdf.pagecollectionextensions",
+        "public_symbol:aspose.pdf.pagecoordinatetype",
+        "public_symbol:aspose.pdf.pageextensions",
+        "public_symbol:aspose.pdf.pageinfo",
+        "public_symbol:aspose.pdf.pagelabel",
+        "public_symbol:aspose.pdf.pagelabelbuilder",
+        "public_symbol:aspose.pdf.pagelabelcollection",
+        "public_symbol:aspose.pdf.pagelayout",
+        "public_symbol:aspose.pdf.pagelayoutmode",
+        "public_symbol:aspose.pdf.pagemode",
+        "public_symbol:aspose.pdf.pagemodevalue",
+        "public_symbol:aspose.pdf.pagenumberstamp",
+        "public_symbol:aspose.pdf.pageresources",
+        "public_symbol:aspose.pdf.pagesize",
+        "public_symbol:aspose.pdf.pagesizeinfo",
+        "public_symbol:aspose.pdf.pagetransition",
+        "public_symbol:aspose.pdf.paginationartifact",
+        "public_symbol:aspose.pdf.paragraphpositioningmode",
+        "public_symbol:aspose.pdf.paragraphs",
+        "public_symbol:aspose.pdf.partsembeddingmodes",
+        "public_symbol:aspose.pdf.passwordtype",
+        "public_symbol:aspose.pdf.pdfanonspecificationflags",
+        "public_symbol:aspose.pdf.pdfastandardversion",
+        "public_symbol:aspose.pdf.pdfasymbolicfontencodingstrategy",
+        "public_symbol:aspose.pdf.pdfexception",
+        "public_symbol:aspose.pdf.pdfexceptionmessages",
+        "public_symbol:aspose.pdf.pdfformat",
+        "public_symbol:aspose.pdf.pdfformatconversionoptions",
+        "public_symbol:aspose.pdf.pdfpagestamp",
+        "public_symbol:aspose.pdf.pdfsaveoptions",
+        "public_symbol:aspose.pdf.pdftextdecodingexception",
+        "public_symbol:aspose.pdf.pdftomarkdown",
+        "public_symbol:aspose.pdf.pdfversion",
+        "public_symbol:aspose.pdf.permissions",
+        "public_symbol:aspose.pdf.pixelformat",
+        "public_symbol:aspose.pdf.point",
+        "public_symbol:aspose.pdf.point3d",
+        "public_symbol:aspose.pdf.polygonshelper",
+        "public_symbol:aspose.pdf.printduplex",
+        "public_symbol:aspose.pdf.printing",
+        "public_symbol:aspose.pdf.printscaling",
+        "public_symbol:aspose.pdf.progresseventhandlerinfo",
+        "public_symbol:aspose.pdf.progresseventtype",
+        "public_symbol:aspose.pdf.puaprocessingstrategy",
+        "public_symbol:aspose.pdf.queueitem",
+        "public_symbol:aspose.pdf.rasterimagessavingmodes",
+        "public_symbol:aspose.pdf.rawoperator",
+        "public_symbol:aspose.pdf.rectangle",
+        "public_symbol:aspose.pdf.rectangleposition",
+        "public_symbol:aspose.pdf.removefontsstrategy",
+        "public_symbol:aspose.pdf.renderingoptions",
+        "public_symbol:aspose.pdf.repairoptions",
+        "public_symbol:aspose.pdf.resourceloadingresult",
+        "public_symbol:aspose.pdf.resources",
+        "public_symbol:aspose.pdf.resourcesavinginfo",
+        "public_symbol:aspose.pdf.returnaction",
+        "public_symbol:aspose.pdf.rgbtodevicegrayconversionstrategy",
+        "public_symbol:aspose.pdf.rotation",
+        "public_symbol:aspose.pdf.row",
+        "public_symbol:aspose.pdf.rows",
+        "public_symbol:aspose.pdf.sanitization",
+        "public_symbol:aspose.pdf.saveformat",
+        "public_symbol:aspose.pdf.saveoptions",
+        "public_symbol:aspose.pdf.security",
+        "public_symbol:aspose.pdf.segmentalignstrategy",
+        "public_symbol:aspose.pdf.shading",
+        "public_symbol:aspose.pdf.stamp",
+        "public_symbol:aspose.pdf.stamps",
+        "public_symbol:aspose.pdf.structure",
+        "public_symbol:aspose.pdf.subset",
+        "public_symbol:aspose.pdf.svgexternalimagetype",
+        "public_symbol:aspose.pdf.svgimagesavinginfo",
+        "public_symbol:aspose.pdf.svgloadoptions",
+        "public_symbol:aspose.pdf.svgsaveoptions",
+        "public_symbol:aspose.pdf.table",
+        "public_symbol:aspose.pdf.tablebroken",
+        "public_symbol:aspose.pdf.taborder",
+        "public_symbol:aspose.pdf.tagged",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.textstamp",
+        "public_symbol:aspose.pdf.timestampsettings",
+        "public_symbol:aspose.pdf.tocinfo",
+        "public_symbol:aspose.pdf.tounicodeprocessingrules",
+        "public_symbol:aspose.pdf.txtloadoptions",
+        "public_symbol:aspose.pdf.unifiedsaveoptions",
+        "public_symbol:aspose.pdf.unsupportedfonttypeexception",
+        "public_symbol:aspose.pdf.validationissue",
+        "public_symbol:aspose.pdf.value",
+        "public_symbol:aspose.pdf.vector",
+        "public_symbol:aspose.pdf.verticalalignment",
+        "public_symbol:aspose.pdf.viewerpreferences",
+        "public_symbol:aspose.pdf.warninginfo",
+        "public_symbol:aspose.pdf.warningtype",
+        "public_symbol:aspose.pdf.watermark",
+        "public_symbol:aspose.pdf.watermarkartifact",
+        "public_symbol:aspose.pdf.webhyperlink",
+        "public_symbol:aspose.pdf.xform",
+        "public_symbol:aspose.pdf.xformcollection",
+        "public_symbol:aspose.pdf.xformresources",
+        "public_symbol:aspose.pdf.ximage",
+        "public_symbol:aspose.pdf.ximagecollection",
+        "public_symbol:aspose.pdf.xmpfield",
+        "public_symbol:aspose.pdf.xmpfieldtype",
+        "public_symbol:aspose.pdf.xmpmetadata",
+        "public_symbol:aspose.pdf.xmppacketcontainer",
+        "public_symbol:aspose.pdf.xmppdfaextensioncategorytype",
+        "public_symbol:aspose.pdf.xmppdfaextensionfield",
+        "public_symbol:aspose.pdf.xmppdfaextensionobject",
+        "public_symbol:aspose.pdf.xmppdfaextensionproperty",
+        "public_symbol:aspose.pdf.xmppdfaextensionschema",
+        "public_symbol:aspose.pdf.xmppdfaextensionschemadescription",
+        "public_symbol:aspose.pdf.xmppdfaextensionvaluetype",
+        "public_symbol:aspose.pdf.xmpvalue",
+        "public_symbol:aspose.pdf.xmpworkingpacket",
+        "public_symbol:aspose.pdf.zdeflateroutputstream",
+        "public_symbol:aspose.pdf.zinflaterinputstream"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and modify PDF documents",
+      "Extract and replace text",
+      "Process interactive forms",
+      "Add annotations and stamps",
+      "Encrypt and sign documents",
+      "Render pages to images and SVG",
+      "Convert between formats",
+      "Compare documents"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "inherited_unit:010.list"
+      ],
+      "title": "Create and modify PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:007",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "inherited_unit:010.list"
+      ],
+      "title": "Extract and replace text"
+    },
+    {
+      "fact_ids": [
+        "example:008",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Process interactive forms"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:004",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Add annotations and stamps"
+    },
+    {
+      "fact_ids": [
+        "example:009",
+        "example:012",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Encrypt and sign documents"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "example:011",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Render pages to images and SVG"
+    },
+    {
+      "fact_ids": [
+        "example:010",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Convert between formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.comparison",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list"
+      ],
+      "title": "Compare documents"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf"
+      ],
+      "section_id": "api_reference",
+      "text": "The API Reference section renders the complete public symbol list (881 types) from facts; inherited tables are superseded."
+    },
+    {
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The relationship to Aspose.PDF for .NET Enterprise Edition is described in a dedicated section."
+    }
+  ],
+  "flagship_example_id": "example:006",
+  "links": [
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:227.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:227.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
