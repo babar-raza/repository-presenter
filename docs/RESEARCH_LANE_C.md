@@ -1236,3 +1236,181 @@ overwritten by later diagnostic calls). `runs/` started empty in `C:\w\c129`; en
   `example:001` **and** `example:002` there, and both rounds' `F03` claim the API Reference omits or
   truncates the public type table the document carries in full inside `<details>` — the absence
   rule's own shape, folded, recorded, not dismissed.
+- **2026-09-16 · G4-W12-RERUN12 · `aspose-slides-foss/Aspose.Slides-FOSS-for-Java`, first draw on
+  `4cd0219`: BC-01 through BC-09 all `PASS`, BC-10 `FAIL` on one finding, and the finding is this
+  lane's own defect, not a shared one.** 37 ledger rows — 19 `success`, 17 `cache_reuse`, 1
+  `response_invalid`, **0 `cache_stale`** (PROPOSAL V stays closed on a fourth repository-run),
+  10:05:08Z–10:16:55Z. `README.md` 201 visible lines of 512 (sha256 `00cd8fae…`), plan 17 of 18
+  sections, hubs 2, examples 1+4, 85 dispositions (`OMIT_UNSUPPORTED` 44, `SUPERSEDE_REDUNDANT` 24,
+  `VERIFIED_MOVE` 14, `VERIFIED_PRESERVE` 1, `VERIFIED_REWRITE` 1, `DEFER_UNRESOLVED` 1),
+  `validation.json` pass 9 fail 1 pending 1. The single blocking finding is `F07`,
+  `presentation`/`additional_examples`, corroborated by the second reader (`second_reader.read` 2,
+  so it blocks on the owner's two-reader rule, not on a single read): *"The candidate omits several
+  verified examples (text formatting, tables, connectors, pictures, notes and comments, streams,
+  subset of slides)"*.
+- **2026-09-16 · G4-W12-RERUN12 · the lane-owned cause: `java_examples.py` supplied `java.io` and
+  `java.util` and nothing else, so three of eight examples could not be verified and the candidate
+  could not render them.** `example:005` and `:007` name `Files` and `Path`, `:006` names
+  `LocalDateTime`; javac reports `cannot find symbol: variable Files`, which this module correctly
+  reads as an unbound name rather than a false example, and records `NOT_VERIFIED` — *"the fence
+  uses `Files`, `Path` without binding it"*. So the preflight read **5 of 8** examples verified, the
+  plan could only render those five, and the reviewer then said, correctly, that the candidate is
+  short of the original's examples. **Fixed in this iteration, in this lane's own path** (`_JDK_TYPES`
+  and `_jdk_imports` in `extractors/platforms/java_examples.py`, with its test in
+  `tests/…/platforms/test_java.py`): a JDK type the fence names is resolved by a **single-type**
+  import and only when the product declares no type of that name. Alternative rejected: a third
+  on-demand package (`import java.nio.file.*`), because Aspose.PDF for Java declares
+  `org.aspose.pdf.drawing.Path` and `…localeset.Month` — measured — so the wildcard would have to be
+  paired with dropping `Path` from the product resolution, which is how a sealed candidate silently
+  changes meaning. Mutation test: red before the change (three imports missing), green after; the
+  product-type control keeps `import org.aspose.pdf.drawing.Path;` and never the JDK's. **Blast
+  radius measured before the change:** across the three sealed Java bundles (3D, Cells, PDF) **no**
+  example names a `_JDK_TYPES` key that is not already a product type or self-imported, so not one
+  sealed fact digest moves; `environment.extractor_version` is therefore not bumped, following
+  `091e8bc`'s own precedent for a surface-extractor fix. **Measured live after the change: 8 of 8
+  examples compile**, and the receipts name what was supplied (`java.nio.file.Files`,
+  `java.nio.file.Path`, `java.time.LocalDateTime`).
+- **PROPOSAL 2026-09-16 AD · an absence claim spelled as the upstream README's own heading can never
+  be refuted, even when the candidate renders exactly the content that heading names — and when it
+  names an example the contract forbids rendering, nothing can ever satisfy it.** File:
+  `src/repository_presenter/components/readme/review/independent/review.py`, `absence_partition()`
+  and `absence_defect()` (the `quote_located(claim, haystack)` byte lookup), with `scope_defect()`
+  as the caller that returns `None`. Repository and finding: Slides Java, BC-10
+  `REJECT_PRESENTATION`, `F07`. **Measured on that draw's own artifacts, zero provider calls:**
+  `absence_partition` returns `present []`, `invented []`, `remaining` = all **7** claims, and
+  `absence_defect`, `excluded_evidence_defect`, `rendered_defect`, `renderer_owned_defect`,
+  `cited_fact_defect` and `scope_defect` each return `None`. The seven claims are the upstream
+  README's own `###` headings (its lines 167, 184, 196, 212, 224, 244, 253): every one occurs in the
+  original, so none is `invented`; none occurs in the candidate, whose example headings the renderer
+  mints from the authored unit, so none is `present`. **Four of the seven name examples the plan
+  renders in the very section the finding names**, and the finding's own `fact_ids` are exactly
+  those four IDs — `example:002` (candidate line 133), `:003` (150), `:004` (162), `:008` (121).
+  **Three name `example:005`, `:006`, `:007`**, whose facts were `UNRESOLVED`, which BC-03 forbids
+  the candidate from rendering: a claim no repair may satisfy, and it cost the run its one repair
+  attempt. `_quoted_heading` does not reach it either — it matches only the semantic shell's own
+  headings, and `F07` quotes an example's `###`. Fix: measure an absence claim against the plan and
+  the fact set rather than against candidate bytes — a claim whose content is an example the plan
+  renders in that section is `present`, and one naming an example whose fact is not `SUPPORTED` is
+  settled as unsatisfiable and recorded as such. Alternative rejected: matching the upstream
+  heading's text inside the candidate, which is substring matching on prose (loop-prompt.md §3) and
+  fails precisely here, because two honest documents head the same example differently. Mutation
+  test: a finding whose `absent` claims name examples the plan renders must not block; one naming a
+  `SUPPORTED` example genuinely absent from the plan must still block. Reversal: restore the byte
+  lookup. Not this lane's to write — `review/` is shared. **Standing:** this draw's own remainder
+  was removed by the lane-owned fix above (all eight examples verify, and the next plan renders
+  seven of them in `additional_examples`), so AD is recorded as a **latent** class, not as this
+  repository's standing blocker.
+- **PROPOSAL 2026-09-16 AE · a repair whose every change is byte-identical is recorded `repaired`,
+  and it costs the finding its one attempt.** File:
+  `src/repository_presenter/components/readme/repair/rounds.py`, the `repairs.record(defect,
+  "repaired", …)` that ends an attempt (line 524), with `repair_checks` in `repair/targeted.py` the
+  place a check belongs. **Measured on this run's own `repairs.json`, zero provider calls:** the
+  single attempt (`F07`, `S6`, `additional_examples`, `misrouted` false) returned **10** changes,
+  `R01`–`R10`, and **10 of 10** have `before` equal to `after` to the byte — five `units.<n>.slot`
+  values (`preview`, `workflow:example:002`, `:003`, `:004`, `:008`) and the five unit texts beside
+  them; `outcome` `repaired`, `re_raised` `["F07"]`, rounds 2, and the run ended *"after one repair
+  attempt the equivalent failure stands"*. This is the fourth time this lane has recorded the shape
+  and the first in which *every* change is a no-op: PROPOSAL N (2026-09-06), PROPOSAL Z
+  (2026-09-11), and RERUN9's attached observation (a change whose `before` occurred in no unit and
+  no rendered byte). Fix: a change whose `before` equals its `after` is not a change; an attempt
+  with no effective change is recorded `no_change`, leaves the finding standing, and does not
+  consume the attempt the fingerprint allows — escalating to the stage that owns the content, as a
+  slot-set conflict already does, is the honest alternative. Alternative rejected: trusting the
+  reply's own `changes` list, which is what records a no-op as work. Mutation test: an attempt whose
+  changes are all `before == after` must not be recorded `repaired` and must not exhaust the
+  fingerprint; one with a single real edit keeps today's record. Reversal: record every returned
+  attempt as `repaired` again. Not this lane's to write — `repair/` is shared.
+- **2026-09-16 · G4-W12-RERUN12 · PROPOSAL AC recurs live in a second Java repository, on today's
+  `main`, after `e947573`.** The first draw's `api_hubs` are `public_symbol:org` (a module) and
+  `public_symbol:relationship`, and the candidate renders `#### Detailed Member Reference` (line
+  437) over `### org` (line 439, a bare path segment with a blurb and **zero** members) and
+  `### Relationship` (443) — the split-identifier and mechanical-filler shapes loop-prompt.md §6
+  rule 8 names, with the group heading still a level *deeper* than its own children. The second
+  draw's plan is starker: five hubs, three of them modules (`org`, `org.aspose`,
+  `org.aspose.slides`) and one a **method** (`public_symbol:getfontname`). Re-measured over all 11
+  bundle directories on the current tree: **86** planned hubs, **33** non-type, **35** rendering
+  zero members, in **9** of 11 — unchanged by `e947573`, which fixed BC-07's *reading* of the
+  heading, not the planner's admission of a memberless symbol.
+- **2026-09-16 · G4-W12-RERUN12 · item 65 (PROPOSAL AA) is still not exercised — the third draw
+  running, and this time on a draw with 24 preserved units.** Replaying each draw's own
+  `plan.json` and `dispositions.json` through the production `placements()`, once with
+  `rendered_example_ids` returning `{}` and once as shipped: **0 of 15** outcomes change on the
+  first draw and **0 of 32** on the second, although the second plan renders **8** examples. The
+  preserved paragraphs already overlap through `planned_fact_ids`, so item 65's union adds nothing
+  on this repository's draws. It remains landed and unit-tested on `main`, and still owes its live
+  confirmation.
+- **2026-09-16 · G4-W12-RERUN12 · PROPOSAL X stays latent for the second run running, and item 47
+  was therefore not exercised either.** `inherited_unit:014.paragraph`, the unit carrying
+  `[build from source](#building-from-source)`, was `OMIT_UNSUPPORTED` on the first draw and
+  `SUPERSEDE_REDUNDANT` on the second — never placed — so `#building-from-source` occurs **0** times
+  and BC-06 `PASS`es. `78555bc` (arrival item 47), which gives an anchor failure the section it
+  renders in so `validation_defects` can route a repair instead of recording it unrepairable, needs
+  an anchor failure to act on and this repository produced none.
+- **2026-09-16 · G4-W12-RERUN12 · RERUN9's `F06` did not recur, and the question that disposition
+  left open is settled: the finding was substantively right.** The note it said the candidate
+  omitted — *"`-Dgpg.skip=true` skips artifact signing, which is part of `verify` and needs the
+  release key"* — is genuine upstream text (the original README's lines 432–436) carried verbatim by
+  the SUPPORTED fact `inherited_unit:070.paragraph`, so it was neither invented nor unfixable; it
+  was simply unmeasurable, because the finding named no `absent` string and cited no fact, and
+  `factuality_defect`'s item-39 rule reaches that shape only under `factuality`. This run's first
+  draw renders it — candidate line 493 *"…skipping GPG signing…"* beside line 500
+  `mvn verify -Dgpg.skip=true` — and it is section authoring's prose, not a preserved unit: unit
+  `070`'s own placement is `overlap`.
+- **2026-09-16 · G4-W12-RERUN12 · the second draw, on the fixed extractor: 8 of 8 examples
+  executed, seven rendered, BC-01 through BC-09 `PASS`, and BC-10 `FAIL` on **one** finding whose
+  cause is deterministic and named.** `examples: 8 candidates; executed 8`; 85 dispositions
+  (`SUPERSEDE_REDUNDANT` 45, `VERIFIED_PRESERVE` 24, `VERIFIED_MOVE` 8, `OMIT_UNSUPPORTED` 6,
+  `DEFER_UNRESOLVED` 2); plan 17 of 18 sections, hubs 5, examples 1+7, links 12; 39 units across 9
+  sections; `README.md` 195 visible lines of 548 (digest `e4757463…`); `validation.json` pass 9,
+  fail 1, pending 1; review `REJECT_PRESENTATION`, 1 blocking finding, 12 advisories,
+  `second_reader.read` 2 with 6 corroborated classes; 3 repairs attempted, rounds 2. The seven
+  headings the first draw's `F07` named are all in the document now — *"Add speaker notes and
+  threaded comments to a slide"*, *"Format text with font height, bold, and solid fill color"*,
+  *"Create a table…"*, *"Connect two shapes…"*, *"Embed a PNG image…"*, *"Load and save
+  presentations using input and output streams"*, *"Save only specific slides by index…"* — so that
+  finding's substance is gone, exactly as the lane-owned fix predicted, and the new blocker is a
+  different one.
+- **PROPOSAL 2026-09-16 AF · `_normalized()` deletes a Markdown link's target, so the literal-value
+  rule can never refute a finding that cites a `link_target` fact — and one such finding is all
+  that stands between this candidate and `ACCEPT`.** File:
+  `src/repository_presenter/components/readme/review/independent/review.py`, `_normalized()` (its
+  `_LINK.sub(r"\1", …)`) as read by `_cited_literal()` and therefore by `cited_fact_defect()` —
+  G4-W17 arrival item 63's own rule. Repository and finding: Slides Java, second draw, `F07`
+  `presentation`/`documentation_resources`, quoting the candidate's own rendered line
+  *"- **[Code of Conduct](CODE_OF_CONDUCT.md)** — The Code of Conduct outlines expected behavior…"*,
+  citing `link_target:023` (SUPPORTED, value `CODE_OF_CONDUCT.md`), `absent` empty, and saying the
+  link *"is misplaced as it belongs in the Contributing or Development section per the original
+  README structure"* — the upstream README as the standard of support, the shape P16 and item 63
+  both exist to fold. **Measured, zero provider calls:** `_normalized(quote)` is *"code of conduct -
+  the code of conduct outlines expected behavior for contributors and participants in the project's
+  community spaces."* — the target gone with the link syntax — while `_normalized(value)` is
+  `code_of_conduct.md`, so `_cited_literal` returns `None` and `cited_fact_defect` returns `None`;
+  the raw quote contains `CODE_OF_CONDUCT.md` verbatim. **The counterfactual is the whole verdict:**
+  with the cited value also compared against the raw quote, `scope_defect` returns *"the quote
+  contains the literal value of SUPPORTED fact `link_target:023` … which the finding itself cites as
+  its evidence"*, `F07` folds to advisory, and `review_document`'s own rule (`verdict = returned if
+  findings else ACCEPT`) makes the verdict `ACCEPT` with 0 blocking findings and 13 advisories.
+  Fix: compare a cited fact's value against the quote's raw text as well as its normalized form (or
+  normalize the value under the same rules that rewrote the quote), so a `link_target`'s value
+  counts as present where the document actually renders it. Alternative rejected: dropping
+  normalization, which item 63's rule needs — a reviewer quotes what it reads, and code spans and
+  typography must still be folded away. Second alternative rejected: exempting the
+  `documentation_resources` section, which would hide every other finding there. Mutation test: a
+  presentation finding citing a SUPPORTED `link_target` whose value the quote renders inside link
+  syntax must be recorded a reviewer-scope defect; one citing a fact the quote does not carry must
+  still stand. Reversal: compare the normalized forms alone. Not this lane's to write — `review/`
+  is shared.
+- **2026-09-16 · G4-W12-RERUN12 · PROPOSAL AE recurs in the second draw, twice in three attempts.**
+  `repairs.json`: `F07`/`S6`/`documentation_resources` returned **1** change with `before` equal to
+  `after` and was recorded `repaired`, and the finding re-raised; `F05`/`S6`/`scope_limitations` did
+  the same and happened not to re-raise; only `F06`/`S6`/`development_testing` returned a real edit.
+  So two of the run's three "repairs" changed nothing, and the run still ended *"after one repair
+  attempt the equivalent failure stands"*.
+- **2026-09-16 · G4-W12-RERUN12 · `DISPOSITION BLOCKED_VALIDATION` for
+  `aspose-slides-foss/Aspose.Slides-FOSS-for-Java` at BC-10, resume predicate PROPOSAL AF.** Nothing
+  was sealed and nothing was forced: BC-11 was never judged, `candidates/` holds no directory for
+  this repository, and `project/state.yaml` was not opened. No third composition was attempted
+  (loop-prompt.md §5): the mechanism was changed once inside this run — the lane-owned example
+  verifier — and the second draw's rejection was diagnosed deterministically rather than redrawn.
+  **Java cohort: 3 of 4 landed** — PDF (`099e70a8`), 3D (`e308de58`), Cells (`779c9640`);
+  `repository-presenter status` reads **10/34** before and after.

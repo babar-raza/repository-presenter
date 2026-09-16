@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "lane": "lane-c",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W12-RERUN12",
+  "work_item_status": "ACCEPTED",
+  "record_kind": "disposition re-run of one repository after a four-day dormancy; a lane-owned example-verification defect found, fixed and measured live; two new shared-code proposals",
+  "recorded_at": "2026-09-16T15:45:47+05:00",
+  "control_revision": "4cd0219",
+  "control_revision_note": "origin/main at the start and at the end of this run (fetched again before landing). Since this lane's RERUN11 it carries 3e9b81f (item 59, the S5 fact-ID enum), ed5cb02 (item 65 / PROPOSAL AA), c0da8e1, 091e8bc, 846eaaf, e947573 (BC-07 hub heading naming), 865eae7 and 78555bc (item 47, the anchor failure's section). Arrival items 66-70 are ADMITTED to the G4-W17 list, not landed: 0fecf88 is a docs(research) commit, and repair/targeted.py still reads named[0] (item 67's subject) at line 210.",
+  "trigger": "Sprint W-JAVA: re-attempt aspose-slides-foss/Aspose.Slides-FOSS-for-Java, whose RERUN9 disposition was BLOCKED_VALIDATION at BC-10 on F06. No held call store reused; composed fresh in a new short-path worktree.",
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13.2",
+    "worktree": "C:\\w\\c12s - a fresh worktree off origin/main at a short path, per loop-prompt-lane section 1; the 260-character limit was not met.",
+    "venv_build": "loop-prompt-lane section 1.3: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, pip install --no-deps -e .",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_check": "Confirmed BEFORE any candidate work; identical to the primary's and to every sealed bundle's.",
+    "preflight": "runs/preflight/catalog.json, digest 0dc7f649a004c6fecc0927806fedd61865b2e149f935103a61cb4b548cd357d4; 7 models, 6 prompt manifests routed to qwen3-next.",
+    "toolchains": "javac C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/javac.EXE (21.0.11), resolved on PATH by shutil.which; mvn not needed - every declared dependency of the POM is test scope.",
+    "call_store_seeded_from": "nothing - no sealed bundle exists for this revision and no held store (C:/w/c127-held, C:/w/c128-held) was read, copied or verified."
+  },
+  "headline": "Nothing sealed, and the run moved the repository from an unrefutable blocker to a named one. The first draw's BC-10 finding was caused by this lane's OWN module - java_examples.py supplied only java.io and java.util, so three of eight examples were NOT_VERIFIED and could not be rendered - and that is fixed in this iteration with its mutation test. On the fixed extractor the candidate verifies 8 of 8 examples, renders seven of them, passes BC-01 through BC-09, and fails BC-10 on ONE finding whose cause is measured: _normalized() strips a Markdown link's target, so the literal-value rule cannot see that the finding cites the very SUPPORTED link_target fact its quote renders. With that one comparison widened, the verdict is ACCEPT with 0 blocking findings.",
+  "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+  "revision": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+  "preflight_record": "5235 facts (build_test_asset 2, dependency 6, example 8, identity 5, inherited_unit 85, install_command 1, license 2, link_target 26, package 3, public_symbol 5097), 5232 supported, 3 unresolved, 0 contradicted; required rows without evidence: none. The 3 unresolved were example:005, :006 and :007 - the defect this run fixed.",
+  "draw_1": {
+    "outcome": "BC-10 FAIL at COMPOSING, REJECT_PRESENTATION, after one repair attempt the equivalent failure stands (rounds 2).",
+    "ledger": "37 rows - 19 success, 17 cache_reuse, 1 response_invalid, 0 cache_stale; 10:05:08Z to 10:16:55Z.",
+    "validation": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS (BC-06 among them), BC-10 FAIL, BC-11 PENDING.",
+    "readme": "201 visible lines of 512, sha256 00cd8faee64c817e1bef0ab7b3dbdca5ebae176a9c26aa741f38fe3fd62fdbc2",
+    "plan": "17 of 18 sections, capabilities 6, hubs 2, examples 1+4, links 8, limitations 5",
+    "dispositions": "85 units: OMIT_UNSUPPORTED 44, SUPERSEDE_REDUNDANT 24, VERIFIED_MOVE 14, VERIFIED_PRESERVE 1, VERIFIED_REWRITE 1, DEFER_UNRESOLVED 1",
+    "review": "verdict REJECT_PRESENTATION (as returned), 1 blocking finding, 9 advisories, second_reader.read 2 with 5 corroborated classes",
+    "blocking_finding": "F07 presentation/additional_examples: 'The candidate omits several verified examples (text formatting, tables, connectors, pictures, notes and comments, streams, subset of slides)'. It blocks because the second reader raised the same class, not by a single-read escalation."
+  },
+  "lane_owned_defect_found_and_fixed": {
+    "file": "src/repository_presenter/components/readme/extractors/platforms/java_examples.py (owned path: platforms/java*.py)",
+    "test": "tests/components/readme/extractors/platforms/test_java.py::test_a_jdk_type_no_product_type_claims_is_imported_by_name (owned path: test_java*.py)",
+    "defect": "compilation_unit() supplied only the java.io and java.util on-demand packages, so a fence naming java.nio.file.Files/Path or java.time.LocalDateTime could not compile; javac's 'cannot find symbol: variable Files' is correctly read as an unbound name and the example is recorded NOT_VERIFIED. Aspose.Slides for Java: example:005 and :007 (Files, Path), example:006 (LocalDateTime) - 5 of 8 examples verified, so the plan could render only five and the reviewer was right that the candidate was short of the original's examples.",
+    "fix": "_JDK_TYPES (10 names across java.nio.file and java.time) plus _jdk_imports(): a single-type import for a JDK name the fence uses, the snippet does not import, and NO product type claims.",
+    "alternative_rejected": "A third on-demand package (import java.nio.file.*). Measured 2026-09-16: Aspose.PDF for Java declares org.aspose.pdf.drawing.Path and org.aspose.pdf.engine.xfa.model.localeset.Month, so the wildcard would have to be paired with dropping Path from the product resolution - which is how a sealed candidate silently changes meaning. Resolving by name keeps the product's own type first and reaches the JDK only for a name no product type claims.",
+    "mutation_test": "Red before the fix (the three JDK imports absent from `supplied`), green after; the control asserts that with {'Path': 'org.aspose.pdf.drawing.Path'} in the product index the product import is emitted and java.nio.file.Path never is, and that a snippet importing the name itself is left alone.",
+    "blast_radius_measured_before_the_change": "Across the three sealed Java bundles (3D-Java e308de58, Cells-Java 779c9640, PDF-Java 099e70a8) NO example names a _JDK_TYPES key that is not already a product type or self-imported, so no sealed fact digest moves. environment.extractor_version is therefore not bumped - the same choice 091e8bc made for a surface-extractor fix.",
+    "measured_live_after_the_change": "8 of 8 examples compile against the product's own classes (javac 21.0.11); the receipts record the supplied imports, including java.nio.file.Files, java.nio.file.Path and java.time.LocalDateTime. The next plan renders example:001 in quick_start and example:002 through :008 in additional_examples - all eight."
+  },
+  "draw_2": {
+    "outcome": "BC-10 FAIL at COMPOSING, REJECT_PRESENTATION on ONE finding after three repair attempts; rounds 2. DISPOSITION BLOCKED_VALIDATION, resume predicate PROPOSAL AF.",
+    "examples": "8 candidates; executed 8 (was 5 of 8 before the fix).",
+    "dispositions": "85 units: SUPERSEDE_REDUNDANT 45, VERIFIED_PRESERVE 24, VERIFIED_MOVE 8, OMIT_UNSUPPORTED 6, DEFER_UNRESOLVED 2; digest 651bc1c3",
+    "plan": "17 of 18 sections, capabilities 8, hubs 5, examples 1+7, links 12, limitations 6; digest 51c5e9d8",
+    "readme": "195 visible lines of 548, digest e4757463d11864773ca0e355f63a427438b1c20efbcc3147a7894582d632782e",
+    "validation": "pass 9, fail 1, pending 1 - BC-01 through BC-09 PASS, BC-10 FAIL, BC-11 never judged",
+    "review": "REJECT_PRESENTATION, 1 blocking finding, 12 advisories, second_reader.read 2 with 6 corroborated classes",
+    "the_first_draw_blocker_is_gone": "All seven headings the first draw's F07 named are in this document: 'Add speaker notes and threaded comments to a slide', 'Format text with font height, bold, and solid fill color', 'Create a table with specified column widths and row heights', 'Connect two shapes using a bent connector with connection sites', 'Embed a PNG image into a picture frame on a slide', 'Load and save presentations using input and output streams', 'Save only specific slides by index to a new presentation'.",
+    "the_remaining_blocker": "F07 presentation/documentation_resources, absent [], citing link_target:023 (SUPPORTED, CODE_OF_CONDUCT.md), quoting the candidate's own rendered line and saying the link 'is misplaced as it belongs in the Contributing or Development section per the original README structure' - the upstream README as the standard of support, the shape lane D's P16 and arrival item 63 both exist to fold."
+  },
+  "proposal_AD": {
+    "title": "An absence claim spelled as the upstream README's own heading can never be refuted, even when the candidate renders exactly the content that heading names - and when it names an example the contract forbids rendering, nothing can ever satisfy it.",
+    "file": "src/repository_presenter/components/readme/review/independent/review.py: absence_partition() and absence_defect() (the quote_located(claim, haystack) byte lookup), with scope_defect() as the caller that returns None.",
+    "repository_and_evidence": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java, first draw of this run, finding F07.",
+    "measured_zero_provider_calls": {
+      "the_partition": "absence_partition returns present [], invented [], remaining = all 7 claims; absence_defect, excluded_evidence_defect, rendered_defect, renderer_owned_defect, cited_fact_defect and scope_defect each return None, so the finding blocks.",
+      "why_none_is_present_or_invented": "The 7 claims are the ORIGINAL README's own h3 headings (its lines 167, 184, 196, 212, 224, 244, 253). Each occurs in the original, so none is invented; none occurs in the candidate, whose example headings the renderer mints from the authored unit, so none is present.",
+      "four_are_already_rendered": "example:002 (candidate line 133), example:003 (150), example:004 (162) and example:008 (121) - and the finding's own fact_ids are exactly those four IDs.",
+      "three_are_unsatisfiable": "Pictures, Notes and comments and Streams are example:005, :006 and :007, UNRESOLVED at extraction, which BC-03 ('every rendered example was executed or compiled in isolation') forbids the candidate from rendering. No repair could satisfy them, and the one attempt was spent.",
+      "why_the_heading_rule_does_not_reach_it": "_quoted_heading matches only the semantic shell's own headings; F07 quotes an example's ###.",
+      "the_class_on_disk": "Across the 11 sealed bundles, 58 findings carry an absent list and 5 of them (16 claims) spell at least one claim as a heading; all five were folded advisory by some other rule, so this run is the first time the shape has blocked a candidate."
+    },
+    "fix": "Measure an absence claim against the plan and the fact set rather than against candidate bytes: a claim whose content is an example the plan renders in that section is 'present', and one naming an example whose fact is not SUPPORTED is settled as unsatisfiable and recorded as such.",
+    "alternative_rejected": "Matching the upstream heading's text inside the candidate - substring matching on prose (loop-prompt.md section 3), which fails precisely here because two honest documents head the same example differently.",
+    "mutation_test": "A finding whose absent claims name examples the plan renders must not block; one naming a SUPPORTED example genuinely absent from the plan must still block.",
+    "standing": "This draw's own remainder was removed by the lane-owned fix above, so AD is recorded as a LATENT class, not as this repository's standing blocker.",
+    "not_this_lane_to_write": "review/ is shared."
+  },
+  "proposal_AE": {
+    "title": "A repair whose every change is byte-identical is recorded 'repaired', and it costs the finding its one attempt.",
+    "file": "src/repository_presenter/components/readme/repair/rounds.py, the repairs.record(defect, 'repaired', ...) that ends an attempt (line 524), with repair_checks in repair/targeted.py the place a check belongs.",
+    "measured_zero_provider_calls": "repairs.json's single attempt (F07, S6, additional_examples, misrouted false) returned 10 changes R01-R10 and 10 of 10 have before == after to the byte: five units.<n>.slot values (preview, workflow:example:002, :003, :004, :008) and the five unit texts beside them. outcome 'repaired', re_raised ['F07'], rounds 2, and the run ended 'after one repair attempt the equivalent failure stands'.",
+    "history": "The fourth time this lane has recorded the shape and the first in which every change is a no-op: PROPOSAL N (2026-09-06), PROPOSAL Z (2026-09-11), and RERUN9's attached observation (a change whose before occurred in no unit and no rendered byte).",
+    "fix": "A change whose before equals its after is not a change: an attempt with no effective change is recorded 'no_change', leaves the finding standing, and does not consume the attempt the fingerprint allows - escalating to the stage that owns the content, as a slot-set conflict already does, is the honest alternative.",
+    "alternative_rejected": "Trusting the reply's own changes list, which is what records a no-op as work.",
+    "mutation_test": "An attempt whose changes are all before == after must not be recorded 'repaired' and must not exhaust the fingerprint; one with a single real edit keeps today's record.",
+    "not_this_lane_to_write": "repair/ is shared."
+  },
+  "proposal_AF": {
+    "title": "_normalized() deletes a Markdown link's target, so the literal-value rule can never refute a finding that cites a link_target fact - and one such finding is all that stands between this candidate and ACCEPT.",
+    "file": "src/repository_presenter/components/readme/review/independent/review.py: _normalized() (its _LINK.sub(r'\\1', ...)) as read by _cited_literal() and therefore by cited_fact_defect() - G4-W17 arrival item 63's own rule.",
+    "repository_and_evidence": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java, second draw, finding F07.",
+    "measured_zero_provider_calls": {
+      "the_strip": "_normalized(quote) is 'code of conduct - the code of conduct outlines expected behavior for contributors and participants in the project's community spaces.' - the link target gone with the link syntax - while _normalized(value) is 'code_of_conduct.md'. The raw quote contains CODE_OF_CONDUCT.md verbatim.",
+      "todays_answer": "_cited_literal returns None, cited_fact_defect returns None, scope_defect returns None, and F07 - the only blocking finding - blocks.",
+      "the_counterfactual": "With the cited value also compared against the raw quote, scope_defect returns 'the quote contains the literal value of SUPPORTED fact link_target:023 ... which the finding itself cites as its evidence', F07 folds to advisory, and review_document's own rule (verdict = returned if findings else ACCEPT) makes the verdict ACCEPT with 0 blocking findings and 13 advisories."
+    },
+    "fix": "Compare a cited fact's value against the quote's raw text as well as its normalized form (or normalize the value under the same rules that rewrote the quote), so a link_target's value counts as present where the document actually renders it.",
+    "alternative_rejected": "Dropping normalization, which item 63's rule needs - a reviewer quotes what it reads, and code spans and typography must still be folded away.",
+    "second_alternative_rejected": "Exempting the documentation_resources section, which would hide every other finding there.",
+    "mutation_test": "A presentation finding citing a SUPPORTED link_target whose value the quote renders inside link syntax must be recorded a reviewer-scope defect; one citing a fact the quote does not carry must still stand.",
+    "not_this_lane_to_write": "review/ is shared."
+  },
+  "proposal_AE_recurrence_in_draw_2": "Two of the three repair attempts changed nothing: F07/S6/documentation_resources returned 1 change with before == after, was recorded 'repaired', and re-raised; F05/S6/scope_limitations did the same and happened not to re-raise; only F06/S6/development_testing returned a real edit.",
+  "proposal_AC_recurrence": {
+    "claim": "PROPOSAL AC (RERUN11) recurs live in a second Java repository, on today's main, after e947573.",
+    "draw_1": "api_hubs are public_symbol:org (symbol_kind module) and public_symbol:relationship; the candidate renders '#### Detailed Member Reference' (line 437) over '### org' (line 439, a bare path segment with a blurb and zero members) and '### Relationship' (443) - the group heading a level deeper than its own children.",
+    "draw_2": "Five hubs, three modules (org, org.aspose, org.aspose.slides) and one METHOD (public_symbol:getfontname).",
+    "portfolio": "Re-measured over all 11 bundle directories on the current tree: 86 planned hubs, 33 non-type, 35 rendering zero members, in 9 of 11 - unchanged by e947573, which fixed BC-07's reading of the heading, not the planner's admission of a memberless symbol."
+  },
+  "item_65_reach": {
+    "claim": "NOT exercised, for the third draw running.",
+    "measured_zero_provider_calls": "Replaying each draw's own plan and dispositions through the production placements(), with rendered_example_ids returning {} and then as shipped: 0 of 15 outcomes change on the first draw and 0 of 32 on the second, although the second plan renders 8 examples. The preserved paragraphs already overlap through planned_fact_ids.",
+    "standing": "Landed and unit-tested on main; its live confirmation is still owed."
+  },
+  "proposal_X_and_item_47": {
+    "claim": "PROPOSAL X stays latent for the second run running, and item 47 (78555bc) was therefore not exercised either.",
+    "measured": "inherited_unit:014.paragraph, the unit carrying '[build from source](#building-from-source)', was OMIT_UNSUPPORTED on the first draw and SUPERSEDE_REDUNDANT on the second - never placed - so #building-from-source occurs 0 times and BC-06 PASSes. An anchor failure is what item 47 routes, and this repository produced none."
+  },
+  "rerun9_F06_settled": {
+    "claim": "RERUN9's F06 did not recur, and the question that disposition left open is settled: the finding was substantively right.",
+    "measured": "The note it said the candidate omitted - '-Dgpg.skip=true skips artifact signing, which is part of verify and needs the release key' - is genuine upstream text (original README lines 432-436) carried verbatim by the SUPPORTED fact inherited_unit:070.paragraph. It was neither invented nor unfixable, only unmeasurable: the finding named no absent string and cited no fact, and factuality_defect's item-39 rule reaches that shape only under criterion 'factuality'. This run's first draw renders it at candidate line 493 ('...skipping GPG signing...') beside line 500 'mvn verify -Dgpg.skip=true', written by section authoring - unit 070's own placement is 'overlap'."
+  },
+  "operational_note": {
+    "what_happened": "The first re-composition after the fix died at 15:31:34 local, mid section-authoring, with exit code 1 and no output at all, while a full `pytest -n auto` run of the same worktree was in flight (started 15:31:3x).",
+    "conclusion": "Recorded as an observation, not a diagnosis: no traceback was produced and no cause was established. The composition was restarted alone and resumed from the transaction's own call store (S3, S4, S5 and three section jobs reused). Operationally: do not run the full suite in the worktree a composition is using."
+  },
+  "disposition": {
+    "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-Java",
+    "state": "BLOCKED_VALIDATION at BC-10",
+    "resume_predicate": "PROPOSAL AF (the link-target normalization half). PROPOSAL AE is the independent repair-record half; PROPOSAL AD is latent on this repository after the lane-owned fix.",
+    "nothing_forced": "BC-11 was never judged, candidates/ holds no directory for this repository, and project/state.yaml was not opened.",
+    "no_third_composition": "loop-prompt.md section 5: the mechanism was changed once inside this run (the lane-owned example verifier) and the second draw's rejection was diagnosed deterministically rather than redrawn."
+  },
+  "local_ci_equivalent": {
+    "ruff check .": "All checks passed!",
+    "ruff format --check .": "236 files already formatted",
+    "mypy src": "Success: no issues found in 126 source files",
+    "pytest -n auto": "exit 0, no failures, 11 xfailed; run once immediately before the commit (105 s for the four together).",
+    "note": "Focused suites were run while the composition waited on the provider (extractors, composition, review, validation, reconciliation, bundle, governance, core, investigation, evidence) - all green. One earlier full run was started in this worktree WHILE a composition was in flight and was stopped after the composition died; it is not counted as a completed run."
+  },
+  "state_yaml_touched": "Not touched. Nothing sealed, so the named exception in loop-prompt-lane section 0 does not apply.",
+  "java_cohort_state": "3 of 4 landed - PDF (099e70a8), 3D (e308de58), Cells (779c9640). repository-presenter status reads 10/34 before and after this run."
+}
