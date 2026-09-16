@@ -4,13 +4,13 @@
  "gate": "G4_MULTI_LANGUAGE_COHORTS",
  "work_item": "LANE-F-01",
  "work_item_status": "IN_PROGRESS",
- "recorded_at": "2026-09-16T16:05:00+05:00",
- "control_revision": "44b4690",
- "control_revision_note": "Run 3 of the item, from the single-use branch lane-f/LANE-F-01-R3 cut from origin/main at 4cd0219 (the post-dormancy resume commit) and rebased onto 44b4690 before landing. Worktree C:\\w\\f03 per loop-prompt-lane.md section 1.1; .venv built by the exact F6 recipe and verified to reproduce the primary's _presenter_site_manifest_hash f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411 before any candidate work. Runs 1 and 2 stand except where this record names them. This run follows a 4-day dormancy (machine restart 2026-09-11; nothing ran until 2026-09-16), so every upstream revision was re-measured rather than carried forward - 3D-.NET's had moved.",
+ "recorded_at": "2026-09-16T17:20:00+05:00",
+ "control_revision": "873af03",
+ "control_revision_note": "Run 3 landed in two PRs from worktree C:\\w\\f03. The first, PR #53 (merged 6181989), carried 3D-.NET's seal and Slides-.NET's disposition from branch lane-f/LANE-F-01-R3 (cut at 4cd0219, rebased onto 44b4690). The second carries Email-.NET's disposition from branch lane-f/LANE-F-01-R3B (cut at 873af03). The .venv was built by the exact section 1.3 recipe and verified to reproduce the primary's _presenter_site_manifest_hash f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411 before any candidate work and again before the Email-.NET run. Runs 1 and 2 stand except where this record names them. This run follows a 4-day dormancy (machine restart 2026-09-11), so every upstream revision was re-measured rather than carried forward - 3D-.NET's had moved.",
  "runs": {
   "run_1": "Halted at S4 by a binding reviewer instruction; nothing sealed, nothing dispositioned. Baseline in docs/RESEARCH_LANE_F.md F1-F5.",
   "run_2": "Two repositories run to a verdict and dispositioned, two measured facts-only. Nothing sealed. Three PROPOSALs (F8, F9, F10), all three since landed as G4-W17 arrival items 58, 57 and 59. docs/RESEARCH_LANE_F.md F6-F14.",
-  "run_3": "This record. One repository SEALED and no-op proven (3D-.NET), one dispositioned (Slides-.NET), two not run. The lane's first seal; the portfolio count moves 10/34 -> 11/34. docs/RESEARCH_LANE_F.md F15-F20."
+  "run_3": "This record. One repository SEALED and no-op proven (3D-.NET), two dispositioned (Slides-.NET BC-10 via placement, Email-.NET BC-10 via review), one not run (PDF-.NET). The lane's first seal; the portfolio count moves 10/34 -> 11/34. Every repository run cleared BC-01..BC-09, which no .NET run in this lane had done before items 57/58/59 landed. docs/RESEARCH_LANE_F.md F15-F25."
  },
  "environment": {
   "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
@@ -151,18 +151,52 @@
   {
    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
    "order": 3,
-   "outcome": "NOT RUN this run",
+   "source_revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+   "source_revision_note": "Unchanged since the 2026-09-06 G4 manifest row.",
+   "outcome": "DISPOSITION - BLOCKED_REVIEW (BC-10 FAIL, verdict REJECT_FACTUAL), causal stage COMPOSING",
+   "stage_reached": "S11 (two repair rounds); S10 verdict observed",
    "sealed": false,
-   "why_not_run": "The box was spent on Slides-.NET (35 min, 39 call records) and 3D-.NET (12 min run plus a 12-min no-op proof), and a seal in hand is landed before a fourth repository is started (loop-prompt section 1.1, PHASE1/F3: an unlanded green result is stranded work). Its G4 row stands unamended; run 2's facts-only reading (F12) is not a substitute for a run.",
-   "next_run_predicate": "First target of run 4. Item 59 removes the S5 defect that ended its run 2 ('presentation_planning: output rejected twice' on invented format:msg/eml/cfb IDs) and item 57 removes the BC-02 defect that would have stopped it at S9 (F13), so its 2026-09-06 BLOCKED_REVIEW predicate - a reviewer-hallucinated Development Dependencies heading - becomes testable for the first time. F12 measured it the cohort's cleanest repository: 341 facts all SUPPORTED, 4 of 4 examples EXECUTED, 0 BC-07 collisions."
+   "invocations": "Two `present` runs. The first aborted at S6 - 'section_authoring: output truncated at the manifest's max_output_tokens (8000); raise the budget or bound the output, never retry' (F23). The second re-asked the same request live, got a 431-token answer, and reached S10 (F24). Not an equivalent second attempt: the first ended on a transport-level truncation, not on a verdict.",
+   "provider_call_records": 53,
+   "provider_call_outcomes": "25 success, 22 cache_reuse, 6 response_invalid; cumulative over both invocations",
+   "provider_call_span_utc": "11:30:29 to 11:56:02",
+   "facts": 341,
+   "facts_polarity": "341 SUPPORTED, 0 UNRESOLVED, 0 CONTRADICTED",
+   "facts_digest": "33ed76bedc1ee18060f7fa89d52f7cc4f626f7fbf8f7912358b828b182a7a6c6",
+   "facts_digest_note": "Byte-identical to F12's facts-only reading of 2026-09-11, including install_command:dotnet SUPPORTED - so item 57 also removed the F9 divergence F13 measured between this repository's preflight and its full run.",
+   "source_digest": "e4df23d19e6a661592e668ed835bbf18d2461e95aba586ed4a235a17c2c1a65f",
+   "public_symbols": 220,
+   "examples": "4 candidates; executed 4, failed 0",
+   "composition": "72 units dispositioned (SUPERSEDE_REDUNDANT 49, VERIFIED_PRESERVE 17, VERIFIED_MOVE 4, VERIFIED_REWRITE 2); plan 17/18 sections, 5 capabilities, 1 hub, 1+2 examples, 4 links, 2 limitations; 48 content units across 9 sections; README 161 visible lines of 234",
+   "validation": {
+    "pass": 9,
+    "fail": 1,
+    "pending": 1,
+    "BC-01_to_BC-09": "ALL PASS - the second repository this run to clear every deterministic check",
+    "BC-10": "FAIL at COMPOSING - REJECT_FACTUAL with three blocking findings: F04 quick_start (a second Quick Start example belonging in Additional Examples) - repaired, then re-raised by the reviewer; F05 additional_examples (an extraneous 'dotnet run --project ...' command line) - unrepairable, 'targeted_repair: output rejected twice'; F08 development_testing (omits the three runnable example programs under examples/)",
+    "BC-11": "PENDING, judged at S12 - never reached"
+   },
+   "review": {
+    "verdict": "REJECT_FACTUAL",
+    "verdict_as_returned": "REJECT_FACTUAL",
+    "identity_separate": true,
+    "second_reader_read": 1,
+    "second_reader_note": "One read is correct here: the second read is triggered by an ACCEPT or by a prose judgment on a required row, and none of the three findings is either. The corroboration guard is not implicated in this block.",
+    "findings": 3,
+    "advisory": 5,
+    "advisory_note": "Advisory F03 is 'omits the Development Dependencies section entirely' - the exact heading the 2026-09-06 row records as the reviewer hallucination that blocked that run. It FOLDED TO ADVISORY this time, which is arrival item 28's fold-not-reject doing what it was landed for. The unlock worked; a different set of findings blocks instead."
+   },
+   "predicate_changes": "Its 2026-09-06 BLOCKED_VALIDATION-adjacent BC-02 risk is gone (item 57) and its run-2 BLOCKED_PLANNING is gone (item 59, partly - see F22). Its recorded BLOCKED_REVIEW class is confirmed by observation for the first time since 2026-09-06, on different findings.",
+   "resume_predicate": "F22 (material_limitations.unit_ids enum) and F18 (targeted_repair's revised_output enum) land, then re-run: F04 is already known repairable, and F05's repair has never been attempted with a usable schema. F23 removes the truncation that cost the first invocation.",
+   "g4_manifest_row_status": "The row's failure class (BLOCKED_REVIEW) is right; its detail and resume predicate are not, and its 'a fresh attempt reproduces this unless the reviewer prompt changes' prediction is falsified - the hallucinated heading recurred and no longer blocks. Left for the owner to fold; the manifest is not a lane-owned path."
   },
   {
    "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET",
    "order": 4,
    "outcome": "NOT RUN this run",
    "sealed": false,
-   "why_not_run": "As above; the box ended.",
-   "next_run_predicate": "Second target of run 4. It is the cohort's real test of item 58 (34 of its 899 verified types share a final segment, against 2 for 3D-.NET) and of lane E's E3 enum bound (12,270 public symbols, 3.2x 3D-.NET - F11 measured 3D-.NET's enums at 352 entries / 16.7 KB with every call http_status 200, which does not clear E3 for this repository). It is also the cohort's most expensive run at ~12,580 facts."
+   "why_not_run": "The box ended after three repositories (Slides-.NET 35 min, 3D-.NET 12 min plus a 12-min no-op proof, Email-.NET two invocations over 28 min) and two PRs. PDF-.NET is the cohort's most expensive run at ~12,580 facts and would not have fitted.",
+   "next_run_predicate": "FIRST target of run 4 (F25 corrects F20 here): it is now the only LANE-F-01 repository never run past a facts-only reading. It is the cohort's real test of item 58 (34 of its 899 verified types share a final segment, against 2 for 3D-.NET) and of lane E's E3 enum bound (12,270 public symbols, 3.2x 3D-.NET; F11 measured 3D-.NET's enums at 352 entries / 16.7 KB with every call http_status 200, which does not clear E3 here)."
   },
   {
    "repository": "aspose-words-foss/Aspose.Words-FOSS-for-.NET",
@@ -192,25 +226,49 @@
    "measured_on": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
    "proposed_shape": "Build revised_output's schema where the repair packet is built, with the unit IDs the packet actually shows as an enum - the treatment dispositions.py's unit_id and planning.py's five fact-ID arrays already get - plus a maxItems on changes[].fact_ids. Mutation test: a repair output naming a well-formed but unshown unit ID is refused at decode rather than at binding_errors.",
    "alternative_rejected": "Leaving it because the repair budget usually survives one waste; on this repository it did not."
+  },
+  {
+   "id": "F22",
+   "title": "item 59 enumerated the plan's five fact-ID arrays and left material_limitations.unit_ids unbounded",
+   "file": "src/repository_presenter/components/readme/composition/planning.py:260-266 (_FACT_ID_ARRAYS); prompts/presentation_planning.yaml v12",
+   "shared_code": true,
+   "defect": "material_limitations carries fact_ids and unit_ids side by side, holding different ID spaces, and only fact_ids is in _FACT_ID_ARRAYS - so unit_ids keeps no enum, no maxItems and no maxLength, and nothing in the schema says the two differ. Measured on Email-.NET S5 attempt 1: rejected for 'unknown inherited unit package:target_framework', a real SUPPORTED fact ID written into the unit array; one wasted call out of a budget of two.",
+   "measured_on": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+   "proposed_shape": "Add ('material_limitations', 'unit_ids') to the same mechanism with its own enum - the inherited-unit IDs the packet shows, which _selectable_dispositions already computes for citable_fact_ids - plus a maxItems. Mutation test: a plan citing a well-formed fact ID in unit_ids is refused at decode; a real unit ID still passes.",
+   "alternative_rejected": "Lane F patching planning.py (composition/ is shared); folding this into item 59's record rather than its own entry."
+  },
+  {
+   "id": "F23",
+   "title": "section_authoring's output is unbounded at every level, and a truncation aborts the run without storing what truncated",
+   "file": "prompts/section_authoring.yaml v14 (output.schema, sampling); src/repository_presenter/core/llm/jobs.py:471-482",
+   "shared_code": true,
+   "defect": "units has minItems 1 and no maxItems; each unit's text has minLength 1 and no maxLength; fact_ids is an unbounded array of unbounded strings with no enum; omitted is unbounded. Under constrained decoding nothing terminates the generation - the shape F2 diagnosed at S4 and item 59 fixed at S5, in the only remaining job whose output array is unbounded at both levels. jobs.py then fails closed on finish_reason == 'length' and, because store.put runs only after a successful parse, writes no calls/<id>.rejected-N.json, so the text that overran is not in the transaction. Measured on Email-.NET: one request hit the 8000-token cap and aborted the run while every other authoring call in that run returned 123-811 tokens, on the cohort's smallest surface (220 public symbols, 1 API hub, 2 limitations).",
+   "measured_on": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+   "proposed_shape": "Bound the output rather than raise the budget - raising 8000 only moves the cliff. units gets a maxItems (the plan knows the section's slot count), text a maxLength, fact_ids the citable_fact_ids enum this packet already computes plus a maxItems, omitted a maxItems. Separately and smaller: store the truncated text beside the other rejections. Mutation test: a stub reply whose units array runs past maxItems is refused at decode with the array named, not at the token cap.",
+   "alternative_rejected": "Raising max_output_tokens - the option the error message lists first and the one an unbounded array defeats at any budget."
   }
  ],
  "not_proposed_but_recorded": {
   "cold_cache_example_timeout": "F19. Slides-.NET was extracted twice 40 minutes apart on one machine at one revision. The facts-only preflight (the first .NET work after the 4-day dormancy and a machine restart) read 'executed 7, failed 1, timed_out 1' - example:001 'TIMED_OUT; no exit within 300s' - digest 5871d732683a6fa14c280f979cd610ebbc7604356e582fc8f509420f9a27a2fc; the full run read 'executed 8, failed 1', digest 88ecf857d738f50c9d30afb8a69f2cd8e3aa56f0aab12f047432462d93d73421. Every examples.json entry carries .NET's first-run banner in stderr, so the first extraction paid the cold SDK/NuGet restore. EcosystemSpec.example_timeout_seconds is 300.0 for .NET (core/ecosystems.py:156; default 120.0). A facts digest that moves feeds upstream_dependencies() and reopens EXTRACTING (bundle/seal.py:179-192), so a seal on the cold reading would have failed its own no-op proof. NO timeout change is proposed: one cold-cache straddle is a single sample and section 27.10 follow-up 3 forbids fitting a threshold to one. 3D-.NET sealed on a warm cache and its no-op proof was byte-identical.",
   "reviewer_invented_section_id": "Slides-.NET S10 attempt 1 was rejected for 'finding F16: section_id must be a shell section or 'structure'; got 'coherence''. Attempt 2 succeeded; one wasted call, one repository, one occurrence. Recorded, not proposed - a second occurrence would make it the same enum-at-decode class as F18.",
-  "no_op_repair_recorded_as_repaired": "Slides-.NET repairs.json records outcome 'repaired' for an attempt whose only change is before '[]' -> after '[]'. The record is honest overall (misrouted true, re_raised ['F10'], and the run's summary says the equivalent failure stands), so this is an observation rather than a proposal."
+  "no_op_repair_recorded_as_repaired": "Slides-.NET repairs.json records outcome 'repaired' for an attempt whose only change is before '[]' -> after '[]'. The record is honest overall (misrouted true, re_raised ['F10'], and the run's summary says the equivalent failure stands), so this is an observation rather than a proposal.",
+  "identical_request_three_lengths": "F24. request_sha256 f2d362be6d26ed33e968f856e80e87ae39444f094fc1bd553a22f42cff36f465 - one section_authoring request at temperature 0.0 and seed 1 - was asked live three times and answered three ways: 11:39:49 success at 8000 completion tokens (response_sha256 09cf5bcf88dcd82f...), 11:42:24 response_invalid TruncatedOutput, 11:50:10 success at 431 completion tokens (df824a2107179068...). RESEARCH_AND_GUIDELINES.md section 27.0 records 'seed is honoured by qwen3-next (two identical calls, identical bytes; catalog.json)'. This lane states only what the four calls.jsonl rows sharing that logical_call_id say; it did not reproduce the effect deliberately, and the 8000-token row being recorded success at exactly the cap is itself unexplained. NOT a claim that the seed is ignored - a claim that this transaction's record is inconsistent with the standing one, on a job that decides sealed bytes and is upstream of every no-op proof. 3D-.NET's no-op proof passed byte-identical in the same session, so whatever this is, it did not reach that bundle. A deliberate repetition through the production path settles it; that is a primary-side measurement.",
+  "f18_corroborated_on_email": "F18 (targeted_repair's unconstrained revised_output) is corroborated on a second repository and cost more there. On Slides-.NET it cost one of two attempts; on Email-.NET both targeted_repair attempts for finding F05 were rejected on revised_output - attempt 1 for 'unit preview: text contains a Markdown link' plus unaccepted identifiers, attempt 2 for 'identifiers that are not accepted fact values: README.md, create_msg_and_eml.cs, msg_reader, msg_reader.cs, msg_summar...' - so F05 was recorded unrepairable for that reason alone."
  },
  "checks": {
   "local_ci_equivalent": "recorded in the landing commit; see the PR",
   "canary_runs_this_iteration": 0,
-  "provider_calls_this_run": 56,
-  "provider_calls_note": "39 Slides-.NET call records (22 live) + 17 3D-.NET; the 3D-.NET no-op proof made 0."
+  "provider_calls_this_run": 99,
+  "provider_calls_note": "39 Slides-.NET call records (22 live) + 17 3D-.NET + 53 cumulative Email-.NET (25 live, 22 cache_reuse, 6 rejected); the 3D-.NET no-op proof made 0 provider calls, which is the point of it."
  },
  "measurement": {
   "candidates_before": "10/34",
   "candidates_after": "11/34",
   "status_line": "candidates: 11/34 current reviewable no-op-proven; 11 ever sealed, 11 integrity-valid, 8 current-code reproducible; examples 65/95 verified across counted candidates (repository-presenter status, worktree C:\\w\\f03 rebased onto 44b4690)",
   "lane_seals_to_date": 1,
-  "runs_to_first_seal": 3
+  "runs_to_first_seal": 3,
+  "repositories_run_this_run": 3,
+  "repositories_clearing_bc01_to_bc09": "3 of 3 - Slides-.NET, 3D-.NET and Email-.NET. No .NET run in this lane had cleared all nine before items 57, 58 and 59 landed."
  },
- "next_work_item": "LANE-F-01 run 4: Email-.NET first (items 57 and 59 remove both of its measured blockers, so its 2026-09-06 BLOCKED_REVIEW predicate is testable for the first time), then PDF-.NET (item 58's real test at 34 collisions, and lane E's E3 bound's real test at 12,270 symbols). Slides-.NET returns ahead of PDF-.NET once F17 lands. Words-.NET stays LANE-F-02, gated on arrival item 54."
+ "next_work_item": "LANE-F-01 run 4: PDF-.NET first - the only LANE-F-01 repository never run past a facts-only reading, the real test of item 58 (34 collisions) and of lane E's E3 bound (12,270 symbols). Then Slides-.NET once F17 lands, then Email-.NET once F22 and F18 land. Words-.NET stays LANE-F-02, gated on arrival item 54. (F25 corrects the order F20 recorded before Email-.NET was run.)"
 }
