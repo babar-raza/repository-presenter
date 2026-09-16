@@ -1636,6 +1636,42 @@ def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     assert list(validator.iter_errors(whole)) == []
 
 
+def test_a_unit_or_omission_reason_past_the_manifests_length_bound_is_unrepresentable() -> None:
+    # G4-W17 arrival item 75 (lane F F23, Email-.NET; lane B LANE-B-W14R2-F1, Cells-TS):
+    # section_authoring's units.text and omitted.reason carried no maxLength, so a runaway
+    # completion had no terminating condition of its own - only the call's whole token budget,
+    # which fails closed with no retry when it is hit (core/llm/jobs.py: finish_reason == "length"
+    # raises immediately). The bound lives on the manifest's own static schema, so every
+    # specialisation (authoring_schema's per-task calls, coherence_schema's whole-document call,
+    # and a repair whose causal stage is section_authoring) inherits it without its own edit.
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    static = loaded.manifest.output.schema_
+    assert static["properties"]["units"]["items"]["properties"]["text"]["maxLength"] == 2200
+    assert static["properties"]["omitted"]["items"]["properties"]["reason"]["maxLength"] == 500
+
+    task = SectionTask("opening", {}, frozenset({"identity:repository"}), ("opening",))
+    schema = authoring_schema(loaded, task)
+    validator = Draft202012Validator(schema)
+    short = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": "t",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert validator.is_valid(short)
+    too_long = {
+        **short,
+        "units": [{**short["units"][0], "text": "x" * 2201}],
+    }
+    assert not validator.is_valid(too_long)
+    assert validator.is_valid({**short, "units": [{**short["units"][0], "text": "x" * 2200}]})
+
+
 def test_the_canonical_abbreviations_cover_the_set_and_this_products_formats() -> None:
     # The renderer normalises to these forms and BC-07 judges against them, from one source
     # (RESEARCH_AND_GUIDELINES.md section 27.10).

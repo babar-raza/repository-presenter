@@ -31,6 +31,7 @@ from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
     coherence_checks,
     coherence_packet,
+    coherence_schema,
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.components.readme.composition.placement import placed_texts, placements
@@ -75,6 +76,7 @@ from repository_presenter.components.readme.repair.targeted import (
     merge_equivalent,
     repair_checks,
     repair_packet,
+    repair_schema,
     review_defects,
     validation_defects,
 )
@@ -260,10 +262,12 @@ def run_round(tx: TransactionInputs) -> Round:
         )
     units = merge_units([(task.section_id, authored[task.label].output) for task in tasks])
     readme = render_readme(entry, facts, planned.output, units, dispositions)
+    coherence_task_packet = coherence_packet(entry, readme, units, tasks, facts)
     coherent = run_job(
         loaded,
-        coherence_packet(entry, readme, units, tasks, facts),
+        coherence_task_packet,
         checks=functools.partial(coherence_checks, tasks=tasks, facts=facts, name=name),
+        call_schema=coherence_schema(loaded, coherence_task_packet["existing_units"]),
         **common,
     )
     units, revised = apply_coherence(units, coherent.output)
@@ -501,6 +505,7 @@ def repair_defect(
             ledger=tx.ledger,
             store=tx.store,
             context=tx.context,
+            call_schema=repair_schema(tx.prompts["targeted_repair"], contract),
             checks=functools.partial(
                 repair_checks,
                 defect=defect,

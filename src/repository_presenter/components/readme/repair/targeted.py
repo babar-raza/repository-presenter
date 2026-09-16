@@ -19,6 +19,7 @@ equivalent failure is reported, never retried, and the mechanism must change bef
 
 from __future__ import annotations
 
+import copy
 import json
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
@@ -30,6 +31,7 @@ from jsonschema import Draft202012Validator
 from repository_presenter.core.facts import FACT_KINDS, FactsDocument, bounded_records
 from repository_presenter.core.llm.binding import binding_errors
 from repository_presenter.core.llm.ledger import canonical_hash
+from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 REPAIRS_FILENAME = "repairs.json"
@@ -388,6 +390,27 @@ def repair_packet(
         "preserve": list(preserve),
         "output_contract": output_contract,
     }
+
+
+def repair_schema(manifest: LoadedManifest, output_contract: dict[str, Any]) -> dict[str, Any]:
+    """The targeted_repair schema specialised for one call: ``revised_output`` constrained to the
+    causal stage's own output contract - the exact schema ``repair_checks`` already validates a
+    reply against post-hoc (``Draft202012Validator(output_contract)`` below).
+
+    G4-W17 arrival item 75 (lane F F18/F23, lane B LANE-B-W14R2-F1): the static manifest leaves
+    ``revised_output`` as a bare ``{"type": "object"}`` - no bound of any kind, for any causal
+    stage - so under constrained decoding a repair reply has no terminating condition until the
+    call's own token budget cuts it off mid-object, the one class of reply
+    ``core/llm/jobs.py`` cannot retry (a length-truncated reply is unrepairable by design). Since
+    ``output_contract`` is already what the reply is judged against after the fact, embedding it
+    here makes the decoder and the judge agree from the start instead of a schema-valid-but-later-
+    rejected reply wasting the one repair attempt a fingerprint gets. This is stage-agnostic: S3,
+    S4, S5, and S6 causal stages each supply their own contract, and section_authoring's own fix
+    (``maxLength`` on unit ``text``) carries through automatically when S6 is the causal stage.
+    """
+    schema = copy.deepcopy(manifest.manifest.output.schema_)
+    schema["properties"]["revised_output"] = copy.deepcopy(output_contract)
+    return schema
 
 
 def repair_checks(

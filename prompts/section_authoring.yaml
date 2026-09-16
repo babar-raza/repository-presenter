@@ -1,5 +1,5 @@
 prompt_id: section_authoring
-version: "14"
+version: "15"
 stage: S6
 purpose: Author the plain-prose content units of one LLM-owned section from its accepted fact packet - the opening, capability titles and descriptions, lead-ins, limitation prose, resource prose, development summary, Enterprise Edition context - and, in coherence mode, revise LLM-owned units once so the document reads as one developer journey.
 model_route: qwen3-next
@@ -67,7 +67,15 @@ output:
           properties:
             section: { type: string, minLength: 1 }
             slot: { type: string, minLength: 1 }
-            text: { type: string, minLength: 1 }
+            # maxLength 2200: G4-W17 arrival item 75 (lane F F23, Email-.NET; lane B
+            # LANE-B-W14R2-F1, Cells-TS) - under constrained decoding an unbounded string has no
+            # terminating condition at any max_output_tokens, so a single runaway unit can consume
+            # the whole call's budget with no retry possible (core/llm/jobs.py fails closed on
+            # finish_reason == length by design). 2200 is measured headroom over the longest unit
+            # text on record across every sealed bundle (972 characters, the "opening" unit;
+            # scratchpad survey, 1070 units, 12 bundles) - well above any current portfolio unit,
+            # never fitted to the two truncating samples themselves.
+            text: { type: string, minLength: 1, maxLength: 2200 }
             fact_ids: { type: array, minItems: 1, items: { type: string } }
       omitted:
         type: array
@@ -77,7 +85,10 @@ output:
           additionalProperties: false
           properties:
             fact_id: { type: string, minLength: 1 }
-            reason: { type: string, minLength: 1 }
+            # maxLength 500: same item 75 shape, one field over; measured headroom over the
+            # longest omission reason on record (157 characters, 321 reasons across every sealed
+            # bundle).
+            reason: { type: string, minLength: 1, maxLength: 500 }
 system: |
   You author the plain-prose units of one README section for a real repository from a small,
   closed set of accepted facts. This is a narrow prose task, not a document: a deterministic

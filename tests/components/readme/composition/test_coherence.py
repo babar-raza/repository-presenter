@@ -4,14 +4,19 @@ from __future__ import annotations
 
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.composition.authoring import SectionTask
 from repository_presenter.components.readme.composition.coherence import (
     apply_coherence,
     coherence_checks,
     coherence_packet,
+    coherence_schema,
 )
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
+from repository_presenter.core.llm.prompts import load_manifests
 from repository_presenter.core.registry.models import RegistryEntry
+from support import REPO_ROOT
 
 ENTRY = RegistryEntry.model_validate(
     {
@@ -145,3 +150,33 @@ def test_apply_records_which_units_changed_and_keeps_the_rest() -> None:
     assert document["coherence"] == {"applied": True, "revised": ["opening/opening"]}
     unchanged, none = apply_coherence(UNITS, {"units": UNITS["units"], "omitted": []})
     assert none == [] and unchanged["units"] == UNITS["units"]
+
+
+def test_the_schema_binds_the_call_to_exactly_the_units_it_was_given() -> None:
+    # G4-W17 arrival item 75 (lane F F23, lane B LANE-B-W14R2-F1): the coherence call returns
+    # every LLM-owned unit in the document at once - the largest single section_authoring reply
+    # by construction - and had no maxItems of its own, unlike a per-task authoring call
+    # (authoring_schema already binds those to the plan's own slot count). A schema-valid reply
+    # can no longer drop, duplicate, or invent a unit; the manifest's own text/omitted length
+    # bounds (item 75's other half) come along unchanged since this deep-copies the same schema.
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    schema = coherence_schema(loaded, UNITS["units"])
+    units = schema["properties"]["units"]
+    assert units["minItems"] == units["maxItems"] == 2
+    assert units["items"]["properties"]["text"]["maxLength"] == 2200
+
+    validator = Draft202012Validator(schema)
+    assert validator.is_valid({"units": UNITS["units"], "omitted": []})
+    one_only = {"units": UNITS["units"][:1], "omitted": []}
+    assert not validator.is_valid(one_only)
+    too_long = {
+        "units": [{**UNITS["units"][0], "text": "x" * 2201}, UNITS["units"][1]],
+        "omitted": [],
+    }
+    assert not validator.is_valid(too_long)
+
+    # An empty document (nothing to revise) leaves the manifest's own minItems: 1 alone rather
+    # than asking for a schema no reply could ever satisfy.
+    empty_schema = coherence_schema(loaded, [])
+    assert empty_schema["properties"]["units"]["minItems"] == 1
+    assert "maxItems" not in empty_schema["properties"]["units"]

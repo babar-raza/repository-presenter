@@ -51,6 +51,10 @@ output:
       fingerprint: { type: string, minLength: 1 }
       causal_stage:
         enum: [S3, S4, S5, S6]
+      # G4-W17 arrival item 75: this bare {"type": "object"} is the fallback only; every real
+      # call replaces it with the causal stage's own output contract
+      # (repair/targeted.py::repair_schema), the same schema repair_checks already validates the
+      # reply against post-hoc, so the decoder and the judge agree from the start.
       revised_output:
         type: object
       changes:

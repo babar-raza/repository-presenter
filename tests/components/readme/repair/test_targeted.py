@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from repository_presenter.components.readme.repair.targeted import (
     EVIDENCE_REASON,
     Defect,
@@ -16,6 +18,7 @@ from repository_presenter.components.readme.repair.targeted import (
     merge_equivalent,
     repair_checks,
     repair_packet,
+    repair_schema,
     review_defects,
     validation_defects,
 )
@@ -504,6 +507,70 @@ def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_cont
     assert repair_checks({**good, "revised_output": "x"}, defect, contract, "fact_ids", FACTS) == [
         "revised_output must be the causal stage's output object"
     ]
+
+
+def test_the_schema_binds_revised_output_to_the_causal_stages_own_contract() -> None:
+    # G4-W17 arrival item 75 (lane F F18/F23, lane B LANE-B-W14R2-F1): the static manifest leaves
+    # revised_output a bare {"type": "object"} - unbounded for every causal stage - so a repair
+    # reply had no terminating condition under constrained decoding beyond the call's whole token
+    # budget, the one truncation class core/llm/jobs.py cannot retry. repair_schema embeds
+    # exactly the schema repair_checks already validates the reply against post-hoc, so a
+    # schema-valid reply can no longer fail that same validation afterwards.
+    repair_manifest = MANIFESTS["targeted_repair"]
+    authoring_contract = MANIFESTS["section_authoring"].manifest.output.schema_
+    schema = repair_schema(repair_manifest, authoring_contract)
+    assert schema["properties"]["revised_output"] == authoring_contract
+    # The rest of the static schema (fingerprint, causal_stage, changes) is untouched.
+    assert (
+        schema["properties"]["fingerprint"]
+        == repair_manifest.manifest.output.schema_["properties"]["fingerprint"]
+    )
+    assert schema["required"] == repair_manifest.manifest.output.schema_["required"]
+    # The manifest's own schema is untouched: the specialisation is per call.
+    assert repair_manifest.manifest.output.schema_["properties"]["revised_output"] == {
+        "type": "object"
+    }
+
+    validator = Draft202012Validator(schema)
+    good = {
+        "fingerprint": "f1",
+        "causal_stage": "S6",
+        "revised_output": {
+            "units": [
+                {
+                    "section": "opening",
+                    "slot": "opening",
+                    "text": "New.",
+                    "fact_ids": ["identity:repository"],
+                }
+            ],
+            "omitted": [],
+        },
+        "changes": [
+            {
+                "id": "R01",
+                "path": "$.units[0].text",
+                "before": "Old.",
+                "after": "New.",
+                "fact_ids": [],
+            }
+        ],
+    }
+    assert validator.is_valid(good)
+    # A revised_output missing the causal contract's own required field is now unrepresentable
+    # at decode time, not just rejected after the fact by repair_checks' Draft202012Validator.
+    missing_omitted = {**good, "revised_output": {"units": good["revised_output"]["units"]}}
+    assert not validator.is_valid(missing_omitted)
+    # And the same maxLength item 75 gives section_authoring's own schema applies here too, since
+    # S6 is a real causal stage a repair can target.
+    too_long = {
+        **good,
+        "revised_output": {
+            "units": [{**good["revised_output"]["units"][0], "text": "x" * 2201}],
+            "omitted": [],
+        },
+    }
+    assert not validator.is_valid(too_long)
 
 
 def test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision() -> None:

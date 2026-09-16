@@ -10,6 +10,7 @@ construction: the renderer is a pure function and only unit texts change.
 
 from __future__ import annotations
 
+import copy
 from typing import Any
 
 from repository_presenter.components.readme.composition.authoring import (
@@ -20,6 +21,7 @@ from repository_presenter.components.readme.composition.authoring import (
 )
 from repository_presenter.components.readme.composition.components.identity import product_name
 from repository_presenter.core.facts import FactsDocument, bounded_records
+from repository_presenter.core.llm.prompts import LoadedManifest
 from repository_presenter.core.registry.models import RegistryEntry
 
 COHERENCE_SECTION = "all"
@@ -80,6 +82,29 @@ def coherence_packet(
             if not str(unit.get("slot", "")).startswith("type:")
         ],
     }
+
+
+def coherence_schema(
+    manifest: LoadedManifest, existing_units: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """The section_authoring schema specialised for the one coherence call: exactly as many units
+    back as were given.
+
+    G4-W17 arrival item 75 (lane F F23, Email-.NET; lane B LANE-B-W14R2-F1, Cells-TS):
+    section_authoring's per-task calls already get an exact ``units`` count from
+    ``authoring_schema`` (the plan's own slot count), but the coherence call - one call returning
+    every LLM-owned unit in the document at once, the largest single section_authoring reply by
+    construction - used the bare manifest schema with no bound of its own beyond ``minItems: 1``.
+    Nothing here changes ``text``'s or ``omitted``'s bounds; those come from the manifest schema
+    this deep-copies, so the same ``maxLength`` fix covers this call too.
+    """
+    schema = copy.deepcopy(manifest.manifest.output.schema_)
+    count = len(existing_units)
+    if count:
+        units = schema["properties"]["units"]
+        units["minItems"] = count
+        units["maxItems"] = count
+    return schema
 
 
 def coherence_checks(
