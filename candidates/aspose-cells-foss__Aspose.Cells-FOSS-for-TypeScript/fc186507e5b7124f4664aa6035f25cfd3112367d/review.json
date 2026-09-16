@@ -1,0 +1,315 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Cells FOSS for TypeScript provides a TypeScript API for creating, editing, and converting Excel workbooks without requiring Microsoft Excel. Developers use it to programmatically build spreadsheets, apply formatting, insert formulas, and export to formats like HTML, CSV, JSON, and Markdown. The library supports common spreadsheet features such as cell styling, conditional formatting, data validation, hyperlinks, comments, and chart rendering. Users include software teams buildingReporting",
+      "repair": "Rewrite the opening to match the original README's factual, concise description: 'Aspose.Cells FOSS for TypeScript is a free, open-source TypeScript library for creating, loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks without requiring Microsoft Excel. It exposes an Aspose.Cells-compatible API surface — `Workbook`, `Worksheet`, `Cell`, `Style` — and此外 reads和",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate opens with a marketing-style description that overstates the library's capabilities and target users, claiming it 'provides a TypeScript API for creating, editing, and converting Excel workbooks' and listing features like 'chart rendering' and 'comments' without confirming these are supported in the FOSS edition."
+    },
+    {
+      "absent": [
+        "excel-cells"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:name",
+        "install_command:npm"
+      ],
+      "id": "F02",
+      "quote": "excel-cells is not yet published on npm; build it from a source checkout instead, verified against this revision:",
+      "repair": "Remove the package name 'excel-cells' from the installation section and use the original wording: 'A npm package has not been published yet. Install from source:'",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'excel-cells', which the candidate contains",
+      "section_id": "installation",
+      "text": "The candidate incorrectly states the package name is 'excel-cells' and claims it is 'not yet published on npm', but the original README says 'A npm package has not been published yet' without naming 'excel-cells' as the package name, and the fact 'package:name' confirms 'excel-cells' while the install command fact does not mention 'excel-cells' as the package name."
+    },
+    {
+      "absent": [
+        "### Required Package Dependencies",
+        "### Development Dependencies"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "dependency:adm-zip",
+        "dependency:xmldom-xmldom",
+        "dependency:zip.js-zip.js",
+        "dependency:development.types-node",
+        "dependency:development.ts-node",
+        "dependency:development.tsx",
+        "dependency:development.typescript"
+      ],
+      "id": "F03",
+      "quote": "### Required Package Dependencies",
+      "repair": "Restore the original dependency section headers and include version specifiers exactly as confirmed by the facts.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '### Development Dependencies', '### Required Package Dependencies', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The candidate lists dependencies without version specifiers (e.g., 'adm-zip ^0.5.16') but the facts confirm specific versions (e.g., 'adm-zip ^0.5.16'), and the candidate omits the required package dependencies section header and the development dependencies section header."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "The verified public surface has 31 types.",
+      "repair": "Remove the claim 'The verified public surface has 31 types' and replace it with the original phrasing: 'The library ships a real class surface centered on `Workbook`, `Worksheet`, `Cell`, and `Style`'",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 31 types, but the original README does not state a count and no fact confirms this number."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The package does not support advanced Excel features such as macros, pivot tables, or complex chart rendering, focusing instead on core data manipulation and export capabilities.",
+      "repair": "Remove the unsupported limitation about macros, pivot tables, and complex chart rendering, and retain only the original limitations about text export being string-returning and one-way.",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "scope_limitations",
+      "text": "The candidate adds a new limitation about 'advanced Excel features such as macros, pivot tables, or complex chart rendering' that is not present in the original README and is not supported by any fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version"
+      ],
+      "id": "F06",
+      "quote": "Aspose.Cells FOSS for TypeScript provides a lightweight, open-source API for reading and writing Excel files in the typescript ecosystem, supporting core workbook and worksheet operations through the excel-cells package at version 1.0.0.",
+      "repair": "Remove the unsupported description and use the original factual scope: 'Text export is available as a returned string, not as a direct file-write helper — pass the result of `toCsv()`, `toJson()`, or `toMarkdown()` to your own file-writing code, and text export is one-way — there is no corresponding import path back into a `Workbook`.'",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact identity:family ('cells'); literal fact text is supported",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states 'Aspose.Cells FOSS for TypeScript provides a lightweight, open-source API for reading and writing Excel files in the typescript ecosystem, supporting core workbook and worksheet operations through the excel-cells package at version 1.0.0', but the original README does not mention 'lightweight', 'typescript ecosystem', or 'excel-cells package at version 1.0.0'."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "install_command:npm",
+        "build_test_asset:examples"
+      ],
+      "id": "F07",
+      "quote": "Run npm install to fetch dependencies and npx tsc --noEmit to perform a type-check of the excel-cells package using the repository's own examples/ directory.",
+      "repair": "Remove the unsupported sentence and retain only the original build and type-check instructions: 'Build and type-check from the repository root: npm install && npx tsc --noEmit'",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:examples ('examples/'); literal fact text is supported",
+      "section_id": "development_testing",
+      "text": "The candidate adds an unnecessary sentence 'Run npm install to fetch dependencies and npx tsc --noEmit to perform a type-check of the excel-cells package using the repository's own examples/ directory' that is not in the original README and mentions 'excel-cells package' which is not confirmed as the package name in this context."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F01",
+      "quote": "Aspose.Cells FOSS for TypeScript provides a TypeScript API for creating, editing, and converting Excel workbooks without requiring Microsoft Excel. Developers use it to programmatically build spreadsheets, apply formatting, insert formulas, and export to formats like HTML, CSV, JSON, and Markdown. The library supports common spreadsheet features such as cell styling, conditional formatting, data validation, hyperlinks, comments, and chart rendering. Users include software teams buildingReporting",
+      "reader": 2,
+      "repair": "Replace the paragraph with the original factual description: 'Aspose.Cells FOSS for TypeScript is a free, open-source TypeScript library for creating, loading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks without requiring Microsoft Excel. It exposes an Aspose.Cells-compatible API surface — `Workbook`, `Worksheet`, `Cell`, `Style` — and additionally reads and write",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate opens with a product description that incorrectly states the library 'provides a TypeScript API for creating, editing, and converting Excel workbooks' and 'Users include software teams building reporting tools, data export services, and spreadsheet-based applications.' These are unsupported promotional claims."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository",
+        "package:name"
+      ],
+      "id": "F02",
+      "quote": "`excel-cells` is not yet published on npm; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Remove the reference to `excel-cells` and use the original installation text: 'A npm package has not been published yet. Install from source:'",
+      "reviewer_scope_defect": "the quote names public_symbol:cells, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "installation",
+      "text": "The candidate incorrectly states the package name as `excel-cells` in the installation instructions, while the repository identity and package facts confirm the package name is not published and the repository name is `Aspose.Cells-FOSS-for-TypeScript`."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:conditionalformat",
+        "public_symbol:conditionalformatcollection",
+        "public_symbol:autofilter",
+        "public_symbol:cell",
+        "public_symbol:cells",
+        "public_symbol:comment",
+        "public_symbol:commentcollection",
+        "public_symbol:hyperlink",
+        "public_symbol:hyperlinkcollection",
+        "public_symbol:style",
+        "public_symbol:cellvalue",
+        "public_symbol:cellcoordinates",
+        "public_symbol:cellrange",
+        "public_symbol:font",
+        "public_symbol:fill",
+        "public_symbol:border",
+        "public_symbol:borderline",
+        "public_symbol:alignment",
+        "public_symbol:protection",
+        "public_symbol:filtercolumn",
+        "public_symbol:conditionalformatrule",
+        "public_symbol:colorscalerule",
+        "public_symbol:iconsetrule",
+        "public_symbol:databarrule",
+        "public_symbol:saveformat",
+        "public_symbol:encryptiontype",
+        "public_symbol:coltoindex",
+        "public_symbol:indextocol",
+        "public_symbol:cellref",
+        "public_symbol:parsecellref",
+        "public_symbol:parserange",
+        "public_symbol:escapexml",
+        "public_symbol:unescapexml",
+        "public_symbol:generateuuid",
+        "public_symbol:datavalidation",
+        "public_symbol:datavalidationcollection",
+        "public_symbol:workbook",
+        "public_symbol:worksheet",
+        "public_symbol:worksheetcollection"
+      ],
+      "id": "F03",
+      "quote": "The verified public surface has 31 types.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim 'The verified public surface has 31 types.' and retain the original factual description.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 31 types, but the public_symbol facts count to 100+ symbols, and no fact supports the specific number 31."
+    },
+    {
+      "absent": [
+        "public_symbol:workbook.borderId",
+        "public_symbol:workbook.fillId",
+        "public_symbol:workbook.fontId",
+        "public_symbol:workbook.id",
+        "public_symbol:workbook.code",
+        "public_symbol:workbook.col",
+        "public_symbol:workbook.colOff",
+        "public_symbol:workbook.rowOff"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "public_symbol:workbook"
+      ],
+      "id": "F04",
+      "quote": "- `borderId`: Defined as `: number`.",
+      "reader": 2,
+      "repair": "Remove the unsupported detailed member reference section and retain the original API reference structure.",
+      "reviewer_scope_defect": "the finding asks for 'public_symbol:workbook.borderId', 'public_symbol:workbook.code', 'public_symbol:workbook.col', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "api_reference",
+      "text": "The candidate's detailed member reference for Workbook lists members like `borderId`, `fillId`, `fontId`, `id`, `code`, `col`, `colOff`, `row`, `rowOff`, `numFmtId`, `sheetName`, `cells`, `activeTab`, `saveFormat`, `isProtected`, `password` that are not supported by any public_symbol fact and appear to be internal implementation details not part of the verified public surface."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The package does not support advanced Excel features such as macros, pivot tables, or complex chart rendering, focusing instead on core data manipulation and export capabilities.",
+      "reader": 2,
+      "repair": "Remove the unsupported limitation about macros, pivot tables, and complex chart rendering.",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "scope_limitations",
+      "text": "The candidate adds a new limitation about 'advanced Excel features such as macros, pivot tables, or complex chart rendering' that is not supported by any fact and was not present in the original README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "package:version"
+      ],
+      "id": "F06",
+      "quote": "Aspose.Cells FOSS for TypeScript provides a lightweight, open-source API for reading and writing Excel files in the typescript ecosystem, supporting core workbook and worksheet operations through the excel-cells package at version 1.0.0.",
+      "reader": 2,
+      "repair": "Replace with the original factual scope: 'Text export is available as a returned string, not as a direct file-write helper — pass the result of `toCsv()`, `toJson()`, or `toMarkdown()` to your own file-writing code, and text export is one-way — there is no corresponding import path back into a `Workbook`.'",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact package:name ('excel-cells'); literal fact text is supported",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states 'Aspose.Cells FOSS for TypeScript provides a lightweight, open-source API for reading and writing Excel files in the typescript ecosystem, supporting core workbook and worksheet operations through the excel-cells package at version 1.0.0.' The package name is not `excel-cells` and version 1.0.0 is not confirmed in the context of this package."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "install_command:npm",
+        "build_test_asset:examples"
+      ],
+      "id": "F07",
+      "quote": "Run npm install to fetch dependencies and npx tsc --noEmit to perform a type-check of the excel-cells package using the repository's own examples/ directory.",
+      "reader": 2,
+      "repair": "Remove the unsupported sentence and retain the original development testing text: 'Build and type-check from the repository root:'",
+      "reviewer_scope_defect": "the quote contains the literal value of SUPPORTED fact build_test_asset:examples ('examples/'); literal fact text is supported",
+      "section_id": "development_testing",
+      "text": "The candidate incorrectly states 'Run npm install to fetch dependencies and npx tsc --noEmit to perform a type-check of the excel-cells package using the repository's own examples/ directory.' The package name is not `excel-cells` and the examples/ directory is not confirmed as the target for type-checking."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "e0298868fd78e4ec9db44e37ecb1eef5c3c1439853f4f9d2bd92cefe6379f451",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "2e56cbfb2bffa687f026e4e5",
+      "93e8e0debc1b43104a660288",
+      "aac3a3748135837a01d577d1",
+      "d6b338c08a90e6aacfe36bf1",
+      "ebf4b4254be6ba6d22495871"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_FACTUAL"
+}

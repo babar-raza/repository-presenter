@@ -1,0 +1,471 @@
+{
+  "additional_example_ids": [
+    "example:003"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:workbook",
+        "public_symbol:workbook.constructor",
+        "public_symbol:workbook.load",
+        "public_symbol:workbook.save",
+        "public_symbol:workbook.worksheets",
+        "public_symbol:workbook.tohtml",
+        "public_symbol:workbook.tocsv",
+        "public_symbol:workbook.tojson",
+        "public_symbol:workbook.tomarkdown"
+      ],
+      "symbol_fact_id": "public_symbol:workbook"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheet",
+        "public_symbol:worksheet.constructor",
+        "public_symbol:worksheet.cells",
+        "public_symbol:worksheet.putvalue",
+        "public_symbol:worksheet.getcell",
+        "public_symbol:worksheet.getcell2",
+        "public_symbol:worksheet.getcellbyref",
+        "public_symbol:worksheet.setcellstyle",
+        "public_symbol:worksheet.setcolumnwidth",
+        "public_symbol:worksheet.setrowheight",
+        "public_symbol:worksheet.mergecells",
+        "public_symbol:worksheet.setrowhidden",
+        "public_symbol:worksheet.setautofilter",
+        "public_symbol:worksheet.addconditionalformat",
+        "public_symbol:worksheet.adddatavalidation",
+        "public_symbol:worksheet.addhyperlink",
+        "public_symbol:worksheet.addcomment",
+        "public_symbol:worksheet.name",
+        "public_symbol:worksheet.index"
+      ],
+      "symbol_fact_id": "public_symbol:worksheet"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cell",
+        "public_symbol:cell.constructor",
+        "public_symbol:cell.putvalue",
+        "public_symbol:cell.setformula",
+        "public_symbol:cell.setstyle",
+        "public_symbol:cell.setstyleindex",
+        "public_symbol:cell.sethyperlink",
+        "public_symbol:cell.value",
+        "public_symbol:cell.formula",
+        "public_symbol:cell.style",
+        "public_symbol:cell.row",
+        "public_symbol:cell.col",
+        "public_symbol:cell.ref"
+      ],
+      "symbol_fact_id": "public_symbol:cell"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:style",
+        "public_symbol:style.constructor",
+        "public_symbol:style.getfont",
+        "public_symbol:style.setfont",
+        "public_symbol:style.getfill",
+        "public_symbol:style.setfill",
+        "public_symbol:style.getborder",
+        "public_symbol:style.setborder",
+        "public_symbol:style.getalignment",
+        "public_symbol:style.setalignment",
+        "public_symbol:style.setnumberformat",
+        "public_symbol:style.getnumberformat",
+        "public_symbol:style.setbold",
+        "public_symbol:style.setfontcolor",
+        "public_symbol:style.setforegroundcolor",
+        "public_symbol:style.setbackgroundcolor",
+        "public_symbol:style.sethorizontalalignment",
+        "public_symbol:style.setverticalalignment",
+        "public_symbol:style.setwraptext",
+        "public_symbol:style.setlocked",
+        "public_symbol:style.sethidden"
+      ],
+      "symbol_fact_id": "public_symbol:style"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:cells",
+        "public_symbol:cells.get",
+        "public_symbol:cells.set",
+        "public_symbol:cells.getorcreate",
+        "public_symbol:cells.values",
+        "public_symbol:cells.count"
+      ],
+      "symbol_fact_id": "public_symbol:cells"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:conditionalformat",
+        "public_symbol:conditionalformat.addarea",
+        "public_symbol:conditionalformat.addrule",
+        "public_symbol:conditionalformat.getranges",
+        "public_symbol:conditionalformat.getrules",
+        "public_symbol:conditionalformat.toxml"
+      ],
+      "symbol_fact_id": "public_symbol:conditionalformat"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:datavalidation",
+        "public_symbol:datavalidation.addarea",
+        "public_symbol:datavalidation.getranges",
+        "public_symbol:datavalidation.toxml",
+        "public_symbol:datavalidation.type",
+        "public_symbol:datavalidation.operator",
+        "public_symbol:datavalidation.formula1",
+        "public_symbol:datavalidation.formula2",
+        "public_symbol:datavalidation.allowblank",
+        "public_symbol:datavalidation.showdropdown",
+        "public_symbol:datavalidation.showinputmessage",
+        "public_symbol:datavalidation.inputtitle",
+        "public_symbol:datavalidation.inputmessage",
+        "public_symbol:datavalidation.errortitle",
+        "public_symbol:datavalidation.errormessage",
+        "public_symbol:datavalidation.errorstyle"
+      ],
+      "symbol_fact_id": "public_symbol:datavalidation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:hyperlink",
+        "public_symbol:hyperlink.constructor",
+        "public_symbol:hyperlink.toxml",
+        "public_symbol:hyperlink.row",
+        "public_symbol:hyperlink.col",
+        "public_symbol:hyperlink.ref",
+        "public_symbol:hyperlink.address",
+        "public_symbol:hyperlink.display",
+        "public_symbol:hyperlink.tooltip",
+        "public_symbol:hyperlink.type",
+        "public_symbol:hyperlink.target"
+      ],
+      "symbol_fact_id": "public_symbol:hyperlink"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:comment",
+        "public_symbol:comment.constructor",
+        "public_symbol:comment.toxml",
+        "public_symbol:comment.row",
+        "public_symbol:comment.col",
+        "public_symbol:comment.ref",
+        "public_symbol:comment.text",
+        "public_symbol:comment.author",
+        "public_symbol:comment.width",
+        "public_symbol:comment.height"
+      ],
+      "symbol_fact_id": "public_symbol:comment"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:autofilter",
+        "public_symbol:autofilter.constructor",
+        "public_symbol:autofilter.addfiltercolumn",
+        "public_symbol:autofilter.removefiltercolumn",
+        "public_symbol:autofilter.clear",
+        "public_symbol:autofilter.toxml",
+        "public_symbol:autofilter.range",
+        "public_symbol:autofilter.columns"
+      ],
+      "symbol_fact_id": "public_symbol:autofilter"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheetcollection",
+        "public_symbol:worksheetcollection.constructor",
+        "public_symbol:worksheetcollection.get",
+        "public_symbol:worksheetcollection.getbyname",
+        "public_symbol:worksheetcollection.addworksheet",
+        "public_symbol:worksheetcollection.removeworksheet",
+        "public_symbol:worksheetcollection.moveworksheet",
+        "public_symbol:worksheetcollection.clear",
+        "public_symbol:worksheetcollection.worksheetcount"
+      ],
+      "symbol_fact_id": "public_symbol:worksheetcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook.worksheets",
+        "public_symbol:worksheetcollection",
+        "public_symbol:worksheetcollection.constructor",
+        "public_symbol:worksheetcollection.get",
+        "public_symbol:worksheetcollection.getbyname",
+        "public_symbol:worksheetcollection.addworksheet",
+        "public_symbol:worksheetcollection.removeworksheet",
+        "public_symbol:worksheetcollection.moveworksheet",
+        "public_symbol:worksheetcollection.clear",
+        "public_symbol:worksheetcollection.worksheetcount"
+      ],
+      "symbol_fact_id": "public_symbol:workbook.worksheets"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and edit Excel workbooks",
+      "Apply comprehensive cell styling",
+      "Export to multiple formats",
+      "Configure worksheet features",
+      "Manage hyperlinks and comments",
+      "Access workbook metadata and structure"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:workbook.constructor",
+        "public_symbol:workbook.load",
+        "public_symbol:cell.putvalue",
+        "public_symbol:cell.setformula",
+        "public_symbol:cell.setstyle"
+      ],
+      "shared_fact_ids": [],
+      "title": "Create and edit Excel workbooks"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:style",
+        "public_symbol:style.setbold",
+        "public_symbol:style.setfontcolor",
+        "public_symbol:style.setforegroundcolor",
+        "public_symbol:style.setfont",
+        "public_symbol:style.setfill",
+        "public_symbol:style.setborder",
+        "public_symbol:style.setalignment",
+        "public_symbol:style.setnumberformat"
+      ],
+      "shared_fact_ids": [],
+      "title": "Apply comprehensive cell styling"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:workbook.tohtml",
+        "public_symbol:workbook.tocsv",
+        "public_symbol:workbook.tojson",
+        "public_symbol:workbook.tomarkdown"
+      ],
+      "shared_fact_ids": [],
+      "title": "Export to multiple formats"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:worksheet.setcolumnwidth",
+        "public_symbol:worksheet.setrowheight",
+        "public_symbol:worksheet.mergecells",
+        "public_symbol:worksheet.setrowhidden",
+        "public_symbol:worksheet.setautofilter",
+        "public_symbol:worksheet.addconditionalformat",
+        "public_symbol:worksheet.adddatavalidation"
+      ],
+      "shared_fact_ids": [],
+      "title": "Configure worksheet features"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:hyperlink",
+        "public_symbol:hyperlinkcollection.add",
+        "public_symbol:comment",
+        "public_symbol:commentcollection.add",
+        "public_symbol:worksheet.addhyperlink",
+        "public_symbol:worksheet.addcomment"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage hyperlinks and comments"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:workbook.worksheets",
+        "public_symbol:workbook.sharedstrings",
+        "public_symbol:workbook.charts",
+        "public_symbol:workbook.images",
+        "public_symbol:worksheet.cells",
+        "public_symbol:worksheet.shapes"
+      ],
+      "shared_fact_ids": [],
+      "title": "Access workbook metadata and structure"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:018.list"
+      ],
+      "section_id": "dependencies",
+      "text": "The inherited unit listing Node.js and TypeScript version requirements was omitted because no fact confirms the specific version numbers."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:030.html_block",
+        "inherited_unit:032.html_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The HTML details block opening and closing were omitted because no fact supports their inclusion."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:035.html_block",
+        "inherited_unit:038.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The HTML details block opening and closing were omitted because no fact supports their inclusion."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:043.paragraph",
+        "link_target:product.enterprise"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The paragraph about Aspose.Cells for .NET Enterprise Edition was moved from scope_limitations to this dedicated section per the disposition."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:047.paragraph",
+        "link_target:024"
+      ],
+      "section_id": "documentation_resources",
+      "text": "The reference to AGENTS.md was omitted because it is not a verified external link target."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:042.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:042.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:043.paragraph"
+      ],
+      "unit_ids": [
+        "inherited_unit:043.paragraph"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

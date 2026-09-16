@@ -1,0 +1,80 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W14-RERUN5",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-16T21:33:00+05:00",
+ "control_revision": "609207e",
+ "control_revision_note": "The single-use branch lane-b/G4-W14-RERUN5 was cut from origin/main at ffb485f in a fresh short-path worktree at C:\\w\\b11. The spawn instruction named this a genuine changed-input retry of Cells-TS's G4-W14-RERUN2 disposition (BLOCKED_COMPOSING, LANE-B-W14R2-F1: section_authoring's 8000-completion-token cap truncating its 31-type api_reference batch), now that ef7138c (arrival item 75, bounding section_authoring's output at every call site) landed on origin/main. Verified directly before drawing: git show ef7138c confirms the fix is double-corroborated 'lane B independently: Cells-TS' in its own commit message, and prompts/section_authoring.yaml carries maxLength 2200/500 on the text and omitted.reason fields it previously left unbounded. Mid-run, origin/main advanced again to 609207e (BC-07 canonical-abbreviation section routing, unrelated to this repository's own facts); the branch was rebased onto it before landing and the transaction re-invoked to confirm the seal survives the check-version bump (BC-07 v3 -> v4), per the RE-RUN5 precedent in project/lanes/lane-b.yaml.",
+ "time_box": {
+  "declared": "per-item box under RESEARCH_AND_GUIDELINES.md section 28.12; this draw closed on its own question, not the clock",
+  "started": "2026-09-16T21:11:27+05:00",
+  "closed": "2026-09-16T21:33:00+05:00",
+  "closed_by": "its own question, answered: Cells TypeScript was drawn once end to end, sealed, no-op proven, and survived a mid-run check-version bump on rebase. Not the clock."
+ },
+ "environment": {
+  "os": "Microsoft Windows 11 Pro 10.0.26200",
+  "python": "3.13",
+  "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+  "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "worktree": "C:\\w\\b11"
+ },
+ "premise_check": {
+  "spawn_framing": "Spawn instruction: PDF-Cpp and PDF-TS were this lane's last two runs (RERUN6/RERUN4, both accepted at 6f2161f/92a4c5f), and the section_authoring truncation fix (arrival item 75) has now landed as ef7138c and 23485bf.",
+  "verified_true": "Both commits confirmed present on origin/main by git log before drawing (ef7138c, 23485bf both ancestors of ffb485f). ef7138c's diff read directly: prompts/section_authoring.yaml gained maxLength 2200 (unit text) and 500 (omitted.reason), inherited by authoring_schema's per-call specialisation; composition/coherence.py gained a pinning coherence_schema(); repair/targeted.py gained a repair_schema(). This is exactly the class LANE-B-W14R2-F1 named (an unbounded field with no terminating condition short of the whole token budget) and the commit message names Cells-TS as one of its two corroborating findings.",
+  "correction": "None needed this run - the spawn framing matched project/lanes/lane-b.yaml's own G4-W14-RERUN2 entry exactly (resume_predicate (a): re-run once LANE-B-W14R2-F1 lands). Checked per the standing instruction to verify current blocker status directly before accepting any spawn framing; no discrepancy found."
+ },
+ "what_this_run_tested": "Whether aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript, blocked at S6 section_authoring TruncatedOutput on 2026-09-16 17:09 (G4-W14-RERUN2), can now complete composition and seal now that arrival item 75's schema-level bound replaces the unbounded field that truncated its 31-type api_reference batch.",
+ "answered": {
+  "item_75": "DELIVERED for this repository. The api_reference undocumented-type batch (same 31 types, same _TYPE_BATCH cap of 40, same facts.json digest 0078f1968b... as G4-W14-RERUN2's identical revision) completed section_authoring without truncation - the maxLength bound gives constrained decoding a terminating condition the raw 8000-token budget alone did not.",
+  "did_it_seal": "YES. The transaction ran end to end: S3 investigation, S4 dispositions (49 units), S5 planning (17/18 sections), S6 authoring (65 content units across 9 sections, 0 coherence revisions), S9 validation (BC-01..BC-09 all PASS), S10 independent review (verdict ACCEPT, 0 findings, 14 advisory, second_reader.read = 2 with 5 corroborated ids - review_verdict_as_returned was REJECT_FACTUAL on the first read, reversed to ACCEPT on corroboration, exactly the shape BC-10's own predicate names), S12 fresh-process rerun (byte-identical, zero provider calls, BC-11 PASS). candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript/fc186507e5b7124f4664aa6035f25cfd3112367d/manifest.json: state READY_FOR_PROPOSAL, no_op_proof {byte_identical: true, fresh_process: true, provider_calls: 0}.",
+  "post_rebase_check": "Re-invoked (not assumed) after the mid-run rebase onto 609207e, which bumped BC-07's Check version 3 -> 4 (unrelated defect class, canonical-abbreviation section routing). The transaction re-read the sealed bundle, recomputed validation at the new check version in the working transaction directory (pass 10, fail 0, pending 1 there too), and reported 'valid update available (presentation): dependencies.json, validation.json changed at VALIDATING; the proven candidate stays valid and the update waits in the transaction' - rule 2's own shape (a candidate is invalidated only through an input listed in its own dependencies.json, never a global control-plane hash). Bundle-directory digests confirmed identical before and after the rebase re-invocation except manifest.json itself (which records the update-available note); README.md, content_units.json, dispositions.json, plan.json, investigation.json, facts.json, dependencies.json, examples.json, review.json, validation.json inside candidates/ all unchanged. repository-presenter status read 14/34 both before and after the rebase re-invocation."
+ },
+ "cohort": [
+  {
+   "repository": "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript",
+   "revision": "fc186507e5b7124f4664aa6035f25cfd3112367d",
+   "disposition": "SEALED (state READY_FOR_PROPOSAL)",
+   "disposition_change": "MOVED from BLOCKED_COMPOSING (S6 section_authoring TruncatedOutput, G4-W14-RERUN2, 2026-09-16 17:09). Before that: BLOCKED_VALIDATION (BC-02) on 2026-09-06 19:28; BLOCKED_ENVIRONMENT (Windows MAX_PATH) on G4-W14's original 2026-09-06 draw. This is the repository's first seal across five attempts.",
+   "facts": "419 records (build_test_asset 1, dependency 7, example 3, identity 5, import_path 1, inherited_unit 49, install_command 1, license 2, link_target 27, package 2, public_symbol 321); digest 0078f1968b6188466fc33bc68421154a9cc749a7df0c7c9f3314644e9e3f75ca - identical to G4-W14-RERUN2's facts, confirming this is the same revision with only the composition-side fix changing the outcome",
+   "examples": "3 candidates, 3 EXECUTED",
+   "stages": "S3 6 capabilities, 6 workflows, 3 limitations (1 call). S4 49 of 49 units disposed (5 OMIT_UNSUPPORTED, 28 SUPERSEDE_REDUNDANT, 16 VERIFIED_PRESERVE; 2 calls). S5 17 of 18 sections, 12 api_hubs, 1+1 examples, 5 links, 2 limitations (1 call). S6 65 content units across 9 sections (opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing, enterprise_relationship; 11 calls) - the same api_reference 31-type batch that truncated at exactly 8000 completion tokens on G4-W14-RERUN2 completed cleanly under the new maxLength bound. Coherence: 0 of 65 units revised (1 call). S9 validation: BC-01..BC-09 all PASS (pass 10, fail 0, pending 1 - BC-10/BC-11 pending at this point). S10 review: verdict ACCEPT (verdict_as_returned REJECT_FACTUAL on the first read, reversed on corroboration), 0 findings, 14 advisory, second_reader.read=2, 5 corroborated ids (1 call). S11 repair: 0 repaired, 0 unrepairable, 1 round (no blocking failures to repair). S12: fresh-process rerun byte-identical, 0 provider calls, BC-11 PASS.",
+   "validation": "11 of 11 checks PASS after the S12 rerun (BC-01 through BC-11); readme_sha256 e0298868fd78e4ec9db44e37ecb1eef5c3c1439853f4f9d2bd92cefe6379f451; 189 visible lines of 504; required contract row without evidence: none",
+   "review": "verdict ACCEPT, findings 0, advisory 14, preserve 0, identity_separate true, second_reader.read 2, 5 corroborated finding ids",
+   "repair": "0 repaired, 0 unrepairable; 1 round run (no blocking failures presented to it)",
+   "provider_calls": "19 completed calls across the sealing draw (investigation 1, dispositions 2, plan 1, authoring 11, coherence 1, review 1, repair-round overhead 2), all HTTP 200 by the run's own report; the S12 no-op rerun added 0 further calls (seeded entirely from the sealed bundle's own call store)",
+   "resume_predicate": "CLOSED. Sealed and no-op proven; nothing further to resume."
+  }
+ ],
+ "not_drawn": {
+  "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "Out of scope for this item - already drawn and dispositioned separately at G4-W14-RERUN3 (BLOCKED_REVIEW, BC-10 REJECT_FACTUAL), unaffected by arrival item 75's section_authoring fix. Not attempted here."
+ },
+ "provider_calls": {
+  "total_completed": 19,
+  "output_rejections": 0,
+  "cache_reuse_on_rerun": "all jobs seeded from the sealed bundle on the S12 no-op rerun (provider_calls 0 for that invocation)",
+  "cache_stale": 0,
+  "note": "First draw of this exact revision under the fixed schema - no truncation, no rejected replies. Distinct from G4-W14-RERUN2's 18 calls with 2 response_invalid (1 recovered, 1 fatal TruncatedOutput) on the identical facts digest."
+ },
+ "progress": {
+  "sealed_by_lane": 1,
+  "candidates_after_run": "14/34 (repository-presenter status, read twice: once immediately after sealing at ffb485f-plus-local-commit, once again after the mid-run rebase onto origin/main 609207e - both reads 14/34)",
+  "dispositions_by_lane": 9,
+  "note": "sealed_by_lane rises 0 to 1 - this lane's first seal. dispositions_by_lane falls 10 to 9 because Cells-TS moves out of the disposition column into a real seal, not because a disposition was lost."
+ },
+ "state_yaml_exception": {
+  "field_touched": "progress.current_candidates",
+  "method": "git fetch origin && git rebase origin/main (to 609207e) performed first, then repository-presenter status re-run against the rebased tree; current_candidates set to 14, the fresh count read from that command against sealed bundles on disk in the just-rebased tree - never incremented by hand from the previously-read 13.",
+  "evidence": "repository-presenter status output, both before and after the rebase, printed 'candidates: 14/34 current reviewable no-op-proven' and stderr 'cursor records 13 current candidates but 14 sealed on disk' (the mismatch this edit closes)."
+ },
+ "local_ci_equivalent": {
+  "note": "Run once, after the seal and the post-rebase re-invocation both completed.",
+  "ruff_check": "All checks passed!",
+  "ruff_format": "236 files already formatted",
+  "mypy_src": "Success: no issues found in 126 source files",
+  "pytest_before_state_yaml_edit": "pytest -n auto: 1 failed (test_status_reports_this_repository_cursor - cursor/disk mismatch, the exact condition project/state.yaml's current_candidates edit closes), 1189 passed, 16 xfailed in 128.44s",
+  "pytest_after_state_yaml_edit": "recorded in the lane file's next commit; full run to be re-confirmed immediately before commit per loop-prompt section 3's one-full-run-per-commit rule",
+  "runs_this_iteration": "1 full run before the state.yaml fix (confirmed the cursor/disk mismatch as the only failure, caused by this run's own seal); 1 more full run immediately before commit"
+ }
+}

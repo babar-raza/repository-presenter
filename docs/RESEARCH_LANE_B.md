@@ -1850,3 +1850,54 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   once shared code lets a multi-block workflow cite its own supporting facts without every
   individual block independently verifying, or once the primary rules a narrower fix sufficient.
   Full detail: `evidence/build/lanes/lane-b/G4-W14-RERUN4.json`.
+
+- **2026-09-16 21:33 (`date` checked) · G4-W14-RERUN5 · SEAL ·
+  `aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript` at `fc186507e5` - `READY_FOR_PROPOSAL`.**
+  Genuine changed-input retry of `G4-W14-RERUN2`'s `BLOCKED_COMPOSING` disposition, drawn only after
+  checking the spawn instruction's framing directly against the code rather than accepting it at
+  face value: `git show ef7138c` read in full before the draw, confirming its own commit message
+  ("Arrival item 75, double-corroborated (lane F: Email-.NET/Slides-.NET; lane B independently:
+  Cells-TS)") names this exact repository, and `prompts/section_authoring.yaml` carries the new
+  `maxLength: 2200` (unit text) / `maxLength: 500` (`omitted.reason`) bound that RERUN2's finding
+  `LANE-B-W14R2-F1` asked for. Same revision as RERUN2, same 419-fact digest
+  (`0078f1968b6188466fc33bc68421154a9cc749a7df0c7c9f3314644e9e3f75ca`) - a controlled retest of the
+  composition fix alone, nothing else about the input changed. The api_reference 31-type batch that
+  truncated at exactly 8000 completion tokens on RERUN2 completed cleanly this time (S6: 65 content
+  units across 9 sections, 0 coherence revisions), and the transaction ran the whole way through for
+  the first time on this repository: S9 validation `BC-01`..`BC-09` all PASS; S10 independent review
+  verdict `ACCEPT` (`verdict_as_returned` was `REJECT_FACTUAL` on the first read, reversed on
+  corroboration - `second_reader.read=2`, 5 corroborated finding ids, 0 findings surviving, 14
+  advisory - exactly the shape `BC-10`'s own predicate names, not a weakened check); S12 fresh-process
+  rerun byte-identical with zero provider calls (`BC-11` PASS). `manifest.json`: `state
+  READY_FOR_PROPOSAL`, `no_op_proof {byte_identical: true, fresh_process: true, provider_calls: 0}`.
+  This is the lane's first seal on this repository across five attempts (Windows `MAX_PATH`, then
+  `BC-02`, then two composing-stage truncations before this one) and the lane's first seal, period -
+  `sealed_by_lane` rises 0 to 1.
+
+  Mid-run, `origin/main` advanced to `609207e` (the primary loop's own `BC-07` canonical-abbreviation
+  section-routing fix, `Check` version 3 to 4 - unrelated to this repository's own facts). Rebased
+  onto it and **re-invoked the transaction rather than assumed the seal still held**, per the
+  `RE-RUN5` precedent this file already recorded for `BC-02`'s v1-to-v2 bump: the sealed bundle's own
+  files stayed byte-identical except `manifest.json`'s own bookkeeping (README.md, content_units.json,
+  dispositions.json, plan.json, investigation.json, facts.json, dependencies.json, examples.json,
+  review.json and validation.json inside `candidates/` all unchanged), and `repository-presenter
+  status` read `14/34` both before and after the rebase. Rule 2's own shape held exactly as written -
+  a candidate is invalidated only through an input listed in its own `dependencies.json`, never a
+  global control-plane hash - and the CLI's own report named it directly: "valid update available
+  (presentation): dependencies.json, validation.json changed at VALIDATING; the proven candidate
+  stays valid and the update waits in the transaction."
+
+  `project/state.yaml`'s `progress.current_candidates` is edited 13 to 14 in the same commit as this
+  seal, by the one narrow method this lane may use (loop-prompt-lane section 0): `git fetch origin
+  && git rebase origin/main` first, then the field set to `repository-presenter status`'s own fresh
+  count against that just-rebased tree - never incremented by hand from the previously-read 13. This
+  closed the one pytest failure the seal itself caused
+  (`test_status_reports_this_repository_cursor`, cursor 13 vs disk 14 before the edit), confirmed by
+  a second full local CI-equivalent run after the edit (`ruff check .` all passed, `ruff format
+  --check .` 236 files formatted, `mypy src` clean, `pytest -n auto` 1192 passed, 16 xfailed, 126s).
+  `sealed_by_lane` rises 0 to 1; `dispositions_by_lane` falls 10 to 9 (Cells-TS moves out of the
+  disposition column into a real seal, not lost - no other repository's disposition changed).
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` was not redrawn: its own `G4-W14-RERUN3` disposition
+  is a factuality-citation defect (an inherited_unit fact refuting a finding), a different shared-code
+  class than item 75 touches, so it is unaffected by this fix. Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN5.json`.

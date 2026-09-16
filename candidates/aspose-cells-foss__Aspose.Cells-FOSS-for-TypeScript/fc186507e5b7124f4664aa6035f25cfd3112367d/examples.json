@@ -1,0 +1,35 @@
+[
+  {
+    "build_command": "npm install",
+    "build_verified": true,
+    "detail": "type-checked against aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript with Version 5.9.3 --noEmit; 12 in the package's own sources; the package's own npm build succeeded (`npm install` exited 0; the manifest declares no build script, so nothing was compiled)",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 2,
+    "stderr": "",
+    "stdout": "aspose_cells/chartLoader.ts(6,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(10,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(404,22): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/html/htmlDocument.ts(423,61): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/impDrawing.ts(3,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/types.ts(406,9): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(2,63): error TS2307: Cannot find module '@zip.js/zip.js' or its corresponding type declarations.\r\naspose_cells/util.ts(135,23): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(194,64): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(198,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(205,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/workbook.ts(4,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\n"
+  },
+  {
+    "build_command": "npm install",
+    "build_verified": true,
+    "detail": "type-checked against aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript with Version 5.9.3 --noEmit; 12 in the package's own sources; the package's own npm build succeeded (`npm install` exited 0; the manifest declares no build script, so nothing was compiled)",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 2,
+    "stderr": "",
+    "stdout": "aspose_cells/chartLoader.ts(6,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(10,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(404,22): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/html/htmlDocument.ts(423,61): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/impDrawing.ts(3,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/types.ts(406,9): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(2,63): error TS2307: Cannot find module '@zip.js/zip.js' or its corresponding type declarations.\r\naspose_cells/util.ts(135,23): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(194,64): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(198,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(205,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/workbook.ts(4,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\n"
+  },
+  {
+    "build_command": "npm install",
+    "build_verified": true,
+    "detail": "type-checked against aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript with Version 5.9.3 --noEmit; 12 in the package's own sources; the package's own npm build succeeded (`npm install` exited 0; the manifest declares no build script, so nothing was compiled)",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 2,
+    "stderr": "",
+    "stdout": "aspose_cells/chartLoader.ts(6,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(10,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/html/htmlDocument.ts(404,22): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/html/htmlDocument.ts(423,61): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/impDrawing.ts(3,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\naspose_cells/types.ts(406,9): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(2,63): error TS2307: Cannot find module '@zip.js/zip.js' or its corresponding type declarations.\r\naspose_cells/util.ts(135,23): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(194,64): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(198,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/util.ts(205,52): error TS2749: 'Buffer' refers to a value, but is being used as a type here. Did you mean 'typeof Buffer'?\r\naspose_cells/workbook.ts(4,27): error TS2307: Cannot find module '@xmldom/xmldom' or its corresponding type declarations.\r\n"
+  }
+]
