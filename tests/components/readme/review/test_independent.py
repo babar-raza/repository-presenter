@@ -1509,6 +1509,65 @@ def test_an_omission_finding_naming_excluded_evidence_is_the_reviewers_defect_to
     assert scope_defect(factuality, CANDIDATE, by_id) is None
 
 
+def test_a_finding_demanding_an_omit_unsupported_disposition_back_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 86 (lane E E17, Words-Python's S10 blocker). A `SUPPORTED`
+    inherited_unit (the maintainer really wrote it) that S4 reconciliation nonetheless, and
+    correctly, marked `OMIT_UNSUPPORTED` (nothing beyond the maintainer's own prose backs its
+    per-item claims) cannot be recognised by `excluded_evidence_defect`, which reads only
+    polarity. Measured shape: the finding's `absent` strings are literal substrings of the
+    excluded table's own text, so `absence_defect` calls them "not invented" and stands the
+    finding - only a disposition-aware check closes the gap, and only once its caller threads
+    `dispositions` through."""
+    table = (
+        "working_with_pdf_save_options.py | PDF export from all input formats using PdfSaveOptions."
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, Fact("inherited_unit:038.table", "inherited_unit", table, (Evidence("x"),))),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:038.table",
+                "disposition": "OMIT_UNSUPPORTED",
+                "destination_section": None,
+                "fact_ids": [],
+                "rationale": "The table is not supported by facts.",
+            }
+        ]
+    }
+    omission = {
+        **_finding("F08", "additional_examples", "S6", "Additional examples cover the basics."),
+        "criterion": "presentation",
+        "fact_ids": [],
+        "absent": ["PDF export from all input formats using PdfSaveOptions."],
+    }
+    # Without dispositions threaded, the new check is inert - today's exact behaviour: the fact
+    # is SUPPORTED so excluded_evidence_defect never fires, and the absent claim is "not invented"
+    # (it is, in evidence) so absence_defect never fires either. The finding stands, wrongly.
+    assert scope_defect(omission, CANDIDATE, by_id) is None
+    # With dispositions threaded, the omission is recognised as content S4 itself excluded.
+    assert scope_defect(omission, CANDIDATE, by_id, dispositions=dispositions) == (
+        "the omission it names is inherited_unit:038.table's own text, which reconciliation "
+        "excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, "
+        "so no stage the loop can reopen would restore it"
+    )
+    # The same rule reads a quote too, not only absent.
+    quoting = {**omission, "absent": [], "quote": table}
+    assert scope_defect(quoting, CANDIDATE, by_id, dispositions=dispositions) == (
+        "the quote is inherited_unit:038.table's own text, which reconciliation excluded "
+        "(OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no "
+        "stage the loop can reopen would restore it"
+    )
+    # Mutation: a unit reconciliation actually kept (any other disposition) is untouched.
+    kept = {
+        "dispositions": [{**dispositions["dispositions"][0], "disposition": "VERIFIED_PRESERVE"}]
+    }
+    assert scope_defect(omission, CANDIDATE, by_id, dispositions=kept) is None
+
+
 def test_a_presentation_finding_against_at_a_glance_is_the_reviewers_defect() -> None:
     # README_CONTRACT.md section 2.1: the renderer owns every node, edge, and label of the
     # diagram, so a reviewer asking for a group the facts do not verify is out of scope.

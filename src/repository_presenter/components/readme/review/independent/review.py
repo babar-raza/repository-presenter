@@ -58,7 +58,11 @@ ACCEPT = "ACCEPT"
 # finding's self-reported fact_ids - a finding can be refuted by evidence its own unit cited even
 # when the finding's own reply omitted it. The "cites at least one product fact" grounding gate
 # item 39 established is untouched.
-REVIEWER_LOGIC_VERSION = "6"
+# "7" (G4-W17 arrival item 86): a new excluded_disposition_defect, beside excluded_evidence_defect,
+# folds a finding demanding restoration of an inherited_unit S4 marked OMIT_UNSUPPORTED - inert
+# until its one caller (repair/rounds.py) also threads dispositions through, still owed as this
+# item's own resume predicate.
+REVIEWER_LOGIC_VERSION = "7"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -925,6 +929,68 @@ def excluded_evidence_defect(finding: Mapping[str, Any], by_id: Mapping[str, Fac
     return None
 
 
+def excluded_disposition_defect(
+    finding: Mapping[str, Any],
+    by_id: Mapping[str, Fact],
+    dispositions: Mapping[str, Any] | None,
+) -> str | None:
+    """Why a finding demanding restoration of an inherited_unit reconciliation deliberately
+    marked ``OMIT_UNSUPPORTED`` is the reviewer's own defect - the disposition-aware sibling of
+    ``excluded_evidence_defect``, which reads only a fact's polarity.
+
+    G4-W17 arrival item 86 (lane E E17, Words-Python's S10 blocker). Polarity answers "did the
+    maintainer write this" (``SUPPORTED`` - a real, verbatim ``inherited_unit`` fact); disposition
+    answers "may this be composed" (S4 reconciliation's own, separate judgment -
+    ``OMIT_UNSUPPORTED`` when nothing beyond the maintainer's own prose backs its per-item claims).
+
+    Measured on Words-Python: an original README table
+    (``inherited_unit:038.table``, ``SUPPORTED``) that S4
+    correctly refused to compose as unverified; the finding's own ``absent`` strings are literal
+    substrings of that table's text, so ``absence_defect`` calls them "not invented" (they are, in
+    evidence) and stands the finding, and ``excluded_evidence_defect`` never triggers either (the
+    fact's polarity is ``SUPPORTED``). No stage the repair loop can reopen would restore content S4
+    itself decided is unverified - a repair attempt proved this structural, not a missed retry:
+    with the excluded fact uncitable, its only move was a bare filename list, and the identical
+    finding re-raised.
+
+    ``dispositions`` is ``None`` until the one call site that has it in scope
+    (``repair/rounds.py``, which already threads it into ``renderer_sentences`` three lines before
+    its ``review_document`` call) also threads it here - this function then never fires, matching
+    today's behaviour exactly; wiring that one line is this item's own remaining step.
+    """
+    if not dispositions:
+        return None
+    excluded_ids = {
+        str(entry.get("unit_id"))
+        for entry in dispositions.get("dispositions", [])
+        if entry.get("disposition") == "OMIT_UNSUPPORTED"
+    }
+    if not excluded_ids:
+        return None
+    excluded_facts = [fact for fact in by_id.values() if fact.id in excluded_ids]
+    quote = _normalized(str(finding.get("quote", "")))
+    if len(quote) >= _EXCLUDED_QUOTE_LENGTH:
+        for fact in excluded_facts:
+            if quote in _normalized(fact.value):
+                return (
+                    f"the quote is {fact.id}'s own text, which reconciliation excluded "
+                    "(OMIT_UNSUPPORTED, not composed): the contract admits it only once "
+                    "verified, so no stage the loop can reopen would restore it"
+                )
+    for claim in _claimed_absent(finding):
+        claimed = _normalized(claim)
+        if len(claimed) < _EXCLUDED_QUOTE_LENGTH:
+            continue
+        for fact in excluded_facts:
+            if claimed in _normalized(fact.value):
+                return (
+                    f"the omission it names is {fact.id}'s own text, which reconciliation "
+                    "excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only "
+                    "once verified, so no stage the loop can reopen would restore it"
+                )
+    return None
+
+
 def scope_defect(
     finding: Mapping[str, Any],
     candidate_readme: str,
@@ -933,6 +999,7 @@ def scope_defect(
     rendered: Sequence[str] = (),
     unit_texts: Sequence[str] | None = None,
     units: Mapping[str, Any] | None = None,
+    dispositions: Mapping[str, Any] | None = None,
 ) -> str | None:
     """Why a finding is the reviewer's own defect, or None when it may stand.
 
@@ -944,7 +1011,9 @@ def scope_defect(
 
     An absence the candidate disproves is judged first, whatever the criterion: a finding that
     names text the candidate contains is refuted by the document itself, and no reading of its
-    criterion changes that. So is a quote the facts exclude, for the same reason from the other
+    criterion changes that. So is a quote the facts exclude by polarity, or by S4's own
+    ``OMIT_UNSUPPORTED`` disposition (item 86 - polarity and disposition answer different
+    questions, and a finding can be ungroundable by either), for the same reason from the other
     side - the document could not have carried it. Content the renderer owns rather than a unit
     is judged the same way, before the criterion is read at all: whether the finding calls the
     renderer's own text a presentation defect or a factual one, no stage the loop can reopen
@@ -954,7 +1023,9 @@ def scope_defect(
     caller has the content units, lets the renderer-owned rule tell a rendered row no unit wrote
     from a unit's own sentence (item 62). ``units``, the same content units document unreduced,
     lets the criterion-specific refutations also read the one reviewed unit's own fact_ids, not
-    only the finding's self-reported ones (item 83).
+    only the finding's self-reported ones (item 83). ``dispositions``, the round's own
+    ``dispositions.json``, is ``None`` until its one call site threads it through (item 86); the
+    new disposition-aware exclusion is then inert, exactly as today.
     """
     absence = absence_defect(finding, candidate_readme, evidence)
     if absence is not None:
@@ -962,6 +1033,9 @@ def scope_defect(
     excluded = excluded_evidence_defect(finding, by_id)
     if excluded is not None:
         return excluded
+    excluded_by_disposition = excluded_disposition_defect(finding, by_id, dispositions)
+    if excluded_by_disposition is not None:
+        return excluded_by_disposition
     written = rendered_defect(finding, rendered)
     if written is not None:
         return written
@@ -988,6 +1062,7 @@ def review_document(
     rendered: Sequence[str] = (),
     second: Mapping[str, Any] | None = None,
     units: Mapping[str, Any] | None = None,
+    dispositions: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """review.json: the verdict, blocking findings with their causal state, advisory findings,
     what a repair must preserve, and the two prompt identities.
@@ -999,6 +1074,12 @@ def review_document(
     ``units`` is the round's own ``content_units.json`` document when the caller has it: the
     fold stack then knows which quoted text a unit wrote and which the renderer did (G4-W17
     arrival item 62); without it, that one rule keeps its narrower presentation-only reach.
+
+    ``dispositions`` is the round's own ``dispositions.json`` document when the caller has it
+    (G4-W17 arrival item 86): the fold stack then also knows which inherited_unit reconciliation
+    itself, correctly, marked ``OMIT_UNSUPPORTED`` - unverified content no repair could restore
+    anyway - so a finding demanding it back is the reviewer's own defect rather than a doomed
+    block. Without it, that one rule stays inert, exactly as before this parameter existed.
 
     ``second`` is a second independent read of the same candidate under a different seed. When it
     is given (not ``None``), a prose judgment on a required row blocks only if that read raised a
@@ -1036,7 +1117,9 @@ def review_document(
     for finding in output.get("findings", []):
         record = dict(finding)
         reason = (
-            scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts, units)
+            scope_defect(
+                finding, candidate_readme, by_id, evidence, rendered, texts, units, dispositions
+            )
             if facts is not None
             else None
         )
@@ -1069,7 +1152,16 @@ def review_document(
         for finding in second.get("findings", []):
             record = {**dict(finding), "reader": 2}
             reason = (
-                scope_defect(finding, candidate_readme, by_id, evidence, rendered, texts, units)
+                scope_defect(
+                    finding,
+                    candidate_readme,
+                    by_id,
+                    evidence,
+                    rendered,
+                    texts,
+                    units,
+                    dispositions,
+                )
                 if facts is not None
                 else None
             )
