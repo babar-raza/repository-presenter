@@ -31,6 +31,9 @@ INSTALL_TIMEOUT_SECONDS = PYTHON.install_timeout_seconds
 _MAX_OUTPUT_CHARS = 4000
 _FILE_LITERAL = re.compile(r"^[\w./-]+\.[A-Za-z0-9]{1,5}$")
 _ERROR_LINE = re.compile(r"^(\w+(?:\.\w+)*(?:Error|Exception|Warning))(?::|$)", re.MULTILINE)
+# The path an example's own FileNotFoundError names (G4-W17 arrival item 53): `open()` reprs the
+# name it was handed, so the quotes are repr's and a Windows separator arrives doubled.
+_MISSING_PATH = re.compile(r"No such file or directory: (['\"])(.+?)\1\s*$", re.MULTILINE)
 
 
 def _venv_python(venv: Path) -> Path:
@@ -96,42 +99,67 @@ def stage_fixtures(
     tree_paths: Sequence[str],
     workspace: Path,
     produced: ProducedFiles | None = None,
+    opened: Sequence[str] = (),
 ) -> list[FixtureBinding]:
-    """Stage a file under each file-like literal the example names.
+    """Stage a file under each file-like literal the example names, then under each path in
+    ``opened``.
 
     A repository-owned file of that name, then one of that extension, then - only when the tree
     offers neither - the earliest output an executed example of this same README wrote with that
     extension. The receipt names which, so a reader sees a fixture is the product's own output
     and not something invented here.
+
+    ``opened`` (G4-W17 arrival item 53) is what the example was *measured* to open and never
+    spelled - the path its own FileNotFoundError named, read by `missing_input_path` - so an
+    example that builds its input path at run time is served under exactly that path, by the
+    same order of preference, and a static scan of its literals is no longer the only way in.
     """
     bindings: list[FixtureBinding] = []
     representative = [path for path in tree_paths if _representative(path)]
     by_name = {Path(path).name.lower(): path for path in sorted(representative)}
-    for literal in _string_literals(code):
-        if not _FILE_LITERAL.match(literal) or "/" in literal:
-            continue
-        target = workspace / literal
-        if target.exists():
-            continue
-        suffix = Path(literal).suffix.lower()
-        source = by_name.get(literal.lower())
-        if source is None:
-            same_suffix = sorted(
-                (path for path in representative if Path(path).suffix.lower() == suffix),
-                key=lambda path: ((root / path).stat().st_size, path),
-            )
-            source = same_suffix[0] if same_suffix else None
-        if source is not None:
-            shutil.copyfile(root / source, target)
-            bindings.append(FixtureBinding(literal, source))
-            continue
-        made = (produced or {}).get(suffix) or []
-        if not made:
-            continue
-        ordinal, path = made[0]
-        shutil.copyfile(path, target)
-        bindings.append(FixtureBinding(literal, path.name, produced_by=ordinal))
+    literals = [
+        literal
+        for literal in _string_literals(code)
+        if _FILE_LITERAL.match(literal) and "/" not in literal
+    ]
+    for wanted in [*literals, *opened]:
+        binding = _stage_one(wanted, root, representative, by_name, workspace, produced or {})
+        if binding is not None:
+            bindings.append(binding)
     return bindings
+
+
+def _stage_one(
+    wanted: str,
+    root: Path,
+    representative: Sequence[str],
+    by_name: dict[str, str],
+    workspace: Path,
+    produced: ProducedFiles,
+) -> FixtureBinding | None:
+    """One fixture under ``wanted`` from the tree by name, by suffix, or from the pool; or none."""
+    target = workspace / wanted
+    if target.exists():
+        return None
+    suffix = Path(wanted).suffix.lower()
+    source = by_name.get(Path(wanted).name.lower())
+    if source is None:
+        same_suffix = sorted(
+            (path for path in representative if Path(path).suffix.lower() == suffix),
+            key=lambda path: ((root / path).stat().st_size, path),
+        )
+        source = same_suffix[0] if same_suffix else None
+    if source is not None:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(root / source, target)
+        return FixtureBinding(wanted, source)
+    made = produced.get(suffix) or []
+    if not made:
+        return None
+    ordinal, path = made[0]
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(path, target)
+    return FixtureBinding(wanted, path.name, produced_by=ordinal)
 
 
 def _classify(result: ExecutionResult, code: str) -> tuple[str, str]:
@@ -148,6 +176,43 @@ def _classify(result: ExecutionResult, code: str) -> tuple[str, str]:
     ):
         return "NEEDS_INPUT", f"{last}: the example opens an input the repository does not provide"
     return "FAILED", last
+
+
+def missing_input_path(stderr: str, run_dir: Path) -> str | None:
+    """The path an example's own FileNotFoundError names, relative to its run directory.
+
+    G4-W17 arrival item 53, measured 2026-09-07 on Aspose.Font for Python (G3 second pass): three
+    of eight candidates spell no file literal at all and build the path they open at run time,
+    and five more open a second input they never spelled - a static scan of literals cannot see
+    either, while the traceback names the path exactly. An absolute path is admitted only inside
+    the run directory, and one that climbs out of it is never staged.
+    """
+    matches = _MISSING_PATH.findall(stderr)
+    if not matches:
+        return None
+    raw = matches[-1][1].replace("\\\\", "/").replace("\\", "/")
+    path = Path(raw)
+    if path.is_absolute():
+        try:
+            path = path.resolve().relative_to(run_dir.resolve())
+        except (ValueError, OSError):
+            return None
+    relative = path.as_posix()
+    if not relative or relative.startswith("/") or ".." in path.parts or relative == ".":
+        return None
+    return relative
+
+
+def _servable(wanted: str, tree_paths: Sequence[str], produced: ProducedFiles) -> bool:
+    """Whether `stage_fixtures` could serve ``wanted`` at all: a representative repository file of
+    that name or that suffix, or a produced file of that suffix."""
+    representative = [path for path in tree_paths if _representative(path)]
+    name, suffix = Path(wanted).name.lower(), Path(wanted).suffix.lower()
+    if any(Path(path).name.lower() == name for path in representative):
+        return True
+    if suffix and any(Path(path).suffix.lower() == suffix for path in representative):
+        return True
+    return bool(suffix and produced.get(suffix))
 
 
 def verify_python_examples(
@@ -236,15 +301,17 @@ def verify_python_examples(
         source_note = "ran against the repository source tree; the package would not build"
 
     def run(
-        candidate: ExampleCandidate, produced: ProducedFiles
-    ) -> tuple[ExampleReceipt, tuple[Path, ...]]:
+        candidate: ExampleCandidate, produced: ProducedFiles, opened: Sequence[str] = ()
+    ) -> tuple[ExampleReceipt, tuple[Path, ...], str | None]:
+        """The receipt, the files the example wrote, and - when it needed an input - the path its
+        own failure named, so the retry below can stage exactly that."""
         run_dir = workspace / f"example_{candidate.ordinal:03d}"
         if run_dir.exists():
             shutil.rmtree(run_dir)
         run_dir.mkdir()
         script = run_dir / "example.py"
         script.write_bytes(candidate.code.encode("utf-8"))
-        fixtures = stage_fixtures(candidate.code, root, tree_paths, run_dir, produced)
+        fixtures = stage_fixtures(candidate.code, root, tree_paths, run_dir, produced, opened)
         before = {path.name for path in run_dir.iterdir()}
         result = execute(
             [str(python), "-s", "-X", "utf8", str(script)],
@@ -281,13 +348,16 @@ def verify_python_examples(
         written = sorted(
             path for path in run_dir.iterdir() if path.is_file() and path.name not in before
         )
-        return receipt, tuple(written)
+        missing = missing_input_path(result.stderr, run_dir) if outcome == "NEEDS_INPUT" else None
+        return receipt, tuple(written), missing
 
     produced: ProducedFiles = {}
     receipts: list[ExampleReceipt] = []
+    unspelled: dict[int, str | None] = {}
     for candidate in candidates:
-        receipt, written = run(candidate, produced)
+        receipt, written, missing = run(candidate, produced)
         receipts.append(receipt)
+        unspelled[candidate.ordinal] = missing
         # Only an example that ran to completion has output worth handing on: a failed run may
         # have left a file half written, as this canary's ObjExporter does.
         if receipt.outcome == "EXECUTED":
@@ -295,15 +365,20 @@ def verify_python_examples(
                 produced.setdefault(path.suffix.lower(), []).append((candidate.ordinal, path))
     # A producer may appear after its consumer, so the examples that lacked an input are given
     # one more attempt against the complete pool. Order is the ordinals', so the pass is
-    # deterministic; an example the pool cannot serve is not run again.
+    # deterministic; an example the pool cannot serve is not run again. The same single attempt
+    # serves the path the example's own failure named (G4-W17 arrival item 53): an input it built
+    # at run time, or a second one it never spelled, staged only when the tree or the pool can
+    # actually provide it - never a third run, never a guess.
     by_ordinal = {candidate.ordinal: candidate for candidate in candidates}
     for index, receipt in enumerate(receipts):
         if receipt.outcome != "NEEDS_INPUT":
             continue
         candidate = by_ordinal[receipt.ordinal]
-        if not _serviceable(candidate.code, root, tree_paths, produced):
+        missing = unspelled.get(receipt.ordinal)
+        opened = (missing,) if missing and _servable(missing, tree_paths, produced) else ()
+        if not opened and not _serviceable(candidate.code, root, tree_paths, produced):
             continue
-        retried, _ = run(candidate, produced)
+        retried, _, _ = run(candidate, produced, opened)
         receipts[index] = retried
     return receipts
 
