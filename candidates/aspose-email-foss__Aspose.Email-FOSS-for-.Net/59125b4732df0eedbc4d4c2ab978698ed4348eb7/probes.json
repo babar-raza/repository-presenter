@@ -1,0 +1,106 @@
+[
+  {
+    "elapsed_ms": 845,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/email/net/"
+  },
+  {
+    "elapsed_ms": 1473,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1556,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/issues"
+  },
+  {
+    "elapsed_ms": 651,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1114,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-.Net.svg"
+  },
+  {
+    "elapsed_ms": 1476,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/nuget/v/Aspose.Email.Foss.svg"
+  },
+  {
+    "elapsed_ms": 820,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/email/net/"
+  },
+  {
+    "elapsed_ms": 863,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/email/net/"
+  },
+  {
+    "elapsed_ms": 714,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/email/net/"
+  },
+  {
+    "elapsed_ms": 845,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/email/net/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 858,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/email/net/"
+  },
+  {
+    "elapsed_ms": 2095,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://www.nuget.org/packages/Aspose.Email.Foss/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "nuget-flatcontainer-api",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "nuget:Aspose.Email.Foss"
+  }
+]

@@ -1,0 +1,5752 @@
+{
+  "facts": [
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "examples/README.md"
+        },
+        {
+          "detail": null,
+          "path": "examples/create_msg_and_eml.cs"
+        },
+        {
+          "detail": null,
+          "path": "examples/create_msg_and_eml/create_msg_and_eml.csproj"
+        },
+        {
+          "detail": null,
+          "path": "examples/msg_reader.cs"
+        },
+        {
+          "detail": null,
+          "path": "examples/msg_reader/msg_reader.csproj"
+        },
+        {
+          "detail": "7 files; example directory",
+          "path": "examples/"
+        }
+      ],
+      "id": "build_test_asset:examples",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "examples/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "tests/Aspose.Email.Foss.Tests/Aspose.Email.Foss.Tests.csproj"
+        },
+        {
+          "detail": null,
+          "path": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs"
+        },
+        {
+          "detail": null,
+          "path": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs"
+        },
+        {
+          "detail": null,
+          "path": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs"
+        },
+        {
+          "detail": null,
+          "path": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs"
+        },
+        {
+          "detail": "6 files; test suite",
+          "path": "tests/"
+        }
+      ],
+      "id": "build_test_asset:tests",
+      "kind": "build_test_asset",
+      "polarity": "SUPPORTED",
+      "value": "tests/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "no `PackageReference` a consumer would install is declared",
+          "path": "src/Aspose.Email.Foss/Aspose.Email.Foss.csproj"
+        }
+      ],
+      "id": "dependency:none",
+      "kind": "dependency",
+      "polarity": "SUPPORTED",
+      "value": "none"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 108-115; csharp fence; unit inherited_unit:027.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 1: EXECUTED; compiled against Aspose.Email.Foss.csproj; SDK 10.0.204",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:001",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "using System.IO;\nusing Aspose.Email.Foss.Msg;\n\nusing var stream = File.OpenRead(\"sample.msg\");\nvar message = MapiMessage.FromStream(stream);\nConsole.WriteLine(message.Subject);\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 123-135; csharp fence; unit inherited_unit:031.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 2: EXECUTED; compiled against Aspose.Email.Foss.csproj; SDK 10.0.204",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:002",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "using System.IO;\nusing Aspose.Email.Foss.Msg;\n\nvar message = MapiMessage.Create(\"Hello\", \"Body\");\nmessage.SenderName = \"Alice\";\nmessage.SenderEmailAddress = \"alice@example.com\";\nmessage.AddRecipient(\"bob@example.com\", \"Bob\");\nusing var attachmentStream = new MemoryStream(\"abc\"u8.ToArray());\nmessage.AddAttachment(\"note.txt\", attachmentStream, \"text/plain\");\nusing var output = File.Create(\"hello.msg\");\nmessage.Save(output);\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 142-152; csharp fence; unit inherited_unit:034.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 3: EXECUTED; compiled against Aspose.Email.Foss.csproj; SDK 10.0.204",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:003",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "using System.IO;\nusing Aspose.Email.Foss.Msg;\n\nusing var input = File.OpenRead(\"message.eml\");\nvar message = MapiMessage.LoadFromEml(input);\nusing var msgOutput = File.Create(\"message.msg\");\nmessage.Save(msgOutput);\nusing var emlOutput = File.Create(\"roundtrip.eml\");\nmessage.SaveToEml(emlOutput);\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 160-171; csharp fence; unit inherited_unit:037.code_block",
+          "path": "README.md"
+        },
+        {
+          "detail": "example 4: EXECUTED; compiled against Aspose.Email.Foss.csproj; SDK 10.0.204",
+          "path": "examples.json"
+        }
+      ],
+      "id": "example:004",
+      "kind": "example",
+      "polarity": "SUPPORTED",
+      "value": "using Aspose.Email.Foss.Cfb;\n\nusing var cfb = CfbReader.FromFile(\"sample.msg\");\nConsole.WriteLine($\"Sector size: {cfb.SectorSize}\");\nConsole.WriteLine($\"Directory entries: {cfb.DirectoryEntryCount}\");\n\nforeach (var (depth, entry) in cfb.IterTree())\n{\n    Console.WriteLine(new string(' ', depth * 2) + entry.Name);\n}\n"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:ecosystem",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "net"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:family",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "email"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:platform",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "net"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "admitted registry entry",
+          "path": "data/registry.json"
+        }
+      ],
+      "id": "identity:repository",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "aspose-email-foss/Aspose.Email-FOSS-for-.Net"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "pinned default-branch revision",
+          "path": "source/snapshot.json"
+        }
+      ],
+      "id": "identity:revision",
+      "kind": "identity",
+      "polarity": "SUPPORTED",
+      "value": "59125b4732df0eedbc4d4c2ab978698ed4348eb7"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 1-1; heading",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:001.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "# Aspose.Email FOSS for .NET"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 3-3; badge_row; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:002.badge_row",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![NuGet version](https://img.shields.io/nuget/v/Aspose.Email.Foss.svg)](https://www.nuget.org/packages/Aspose.Email.Foss/) [![Contributors](https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-.Net.svg)](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/graphs/contributors)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 5-5; badge_row; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:003.badge_row",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "[![Aspose.Email FOSS for .NET](https://products.aspose.org/media/email/net/banner-readme.png)](https://products.aspose.org/email/net/)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 7-12; paragraph; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:004.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email FOSS for .NET is a free, open source email library for .NET \u2014 a C# toolkit for\ndeterministic binary and message processing: reading, creating, and inspecting Outlook `.msg`\nfiles, Compound File Binary (CFB) containers, and EML message data. It ships with no required\nthird-party package dependencies and needs no Microsoft Outlook installation, making it a\nlightweight fit for services, desktop tools, and command-line utilities that work with mailbox\ndata directly."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 14-14; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:005.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Navigation"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Navigation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 16-26; list; under Aspose.Email FOSS for .NET > Navigation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:006.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- [At a Glance](#at-a-glance)\n- [Key Capabilities](#key-capabilities)\n- [Installation](#installation)\n- [Dependencies](#dependencies)\n- [Quick Start](#quick-start)\n- [Additional Examples](#additional-examples)\n- [API Reference](#api-reference)\n- [Documentation & Resources](#documentation--resources)\n- [Scope and Limitations](#scope-and-limitations)\n- [Development and Testing](#development-and-testing)\n- [License](#license)"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 28-28; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:007.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## At a Glance"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > At a Glance"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 30-51; code_block; under Aspose.Email FOSS for .NET > At a Glance",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:008.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```mermaid\nflowchart TD\n  subgraph StartingPoints[\"Starting Points\"]\n    direction TB\n    i1[\"An existing CFB container (file, stream, or byte array)\"]\n    i2[\"An existing MSG file (Outlook message)\"]\n  end\n  PRODUCT[\"Aspose.Email FOSS for .NET\"]\n  subgraph Capabilities[\"Core Capabilities\"]\n    direction TB\n    c1[\"CFB container read and write\"]\n    c2[\"MSG document read and write\"]\n    c3[\"High-level message creation, editing, and property access\"]\n    c4[\"EML and MSG conversion through a built-in MIME implementation\"]\n  end\n  subgraph Outputs[\"Outputs\"]\n    direction TB\n    o1[\"A CFB container (file or byte array)\"]\n    o2[\"An MSG file (Outlook message)\"]\n  end\n  StartingPoints --> PRODUCT --> Capabilities --> Outputs\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 53-53; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:009.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Key Capabilities"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Key Capabilities"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 55-62; list; under Aspose.Email FOSS for .NET > Key Capabilities",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:010.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- **Open and traverse CFB containers** from a file, stream, or byte array via `CfbReader.FromFile()`, `CfbReader.FromStream()`, or `new CfbReader(data)`, then walk the directory tree with `IterStorages()`, `IterStreams()`, `IterChildren()`, and `IterTree()`.\n- **Build CFB containers programmatically** with `CfbDocument`, `CfbStorage`, and `CfbStream`, and serialize them with `CfbWriter.ToBytes()` or `CfbWriter.WriteFile()`.\n- **Read and write Outlook `.msg` files at the MAPI level** through `MsgReader`, `MsgWriter`, and `MsgDocument`, exposing property streams, recipient storages, and attachment sub-storages directly \u2014 useful for forensic inspection or repair of a `.msg` file's raw structure.\n- **Create, edit, save, and reload complete, high-level mutable message objects** through `MapiMessage`: set `Subject`, `Body`, `HtmlBody`, `SenderName`, and `SenderEmailAddress`, then persist with `Save()` and reload with `FromFile()` or `FromStream()` \u2014 a free .NET API for building and processing email messages entirely in memory.\n- **Set and read arbitrary MAPI properties** with `SetProperty()` and `GetPropertyValue()`, beyond the strongly-typed properties `MapiMessage` exposes directly.\n- **Attach recipients and files** with `AddRecipient()` and `AddAttachment()`, including nested embedded messages via `AddEmbeddedMessageAttachment()`.\n- **Convert between MSG and EML with no external MIME parser**: `MapiMessage.LoadFromEml()` parses a standard `.eml` file (RFC 5322 / MIME) directly into a `MapiMessage`, and `SaveToEml()` serializes one back to MIME \u2014 both implemented natively within the library.\n- **Inspect parsing problems** on a loaded message or MSG document through the read-only `ValidationIssues` list, populated whenever strict parsing encounters a structural anomaly."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 64-64; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:011.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Installation"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 66-67; paragraph; under Aspose.Email FOSS for .NET > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:012.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The published NuGet package ID is `Aspose.Email.Foss` (confirmed against the library's own\n`.csproj`, which is what NuGet actually built and published from):"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 69-71; code_block; under Aspose.Email FOSS for .NET > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:013.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ndotnet add package Aspose.Email.Foss\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 73-73; paragraph; under Aspose.Email FOSS for .NET > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:014.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Or add it directly to a project file:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 75-77; code_block; under Aspose.Email FOSS for .NET > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:015.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```xml\n<PackageReference Include=\"Aspose.Email.Foss\" Version=\"26.7.0\" />\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Installation"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 79-81; paragraph; under Aspose.Email FOSS for .NET > Installation",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:016.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The library targets .NET 8.0 or later and runs on Windows, Linux, macOS, Docker containers, and\nserverless functions \u2014 see [Dependencies](#dependencies) below for the full required, native, and\ndevelopment-only breakdown."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 83-83; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:017.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Dependencies"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 85-85; heading; under Aspose.Email FOSS for .NET > Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:018.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Required Package Dependencies"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies > Required Package Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 87-89; paragraph; under Aspose.Email FOSS for .NET > Dependencies > Required Package Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:019.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "No required third-party package dependencies. The published `Aspose.Email.Foss` package builds\nfrom `src/Aspose.Email.Foss/Aspose.Email.Foss.csproj`, which declares zero `<PackageReference>`\nentries \u2014 CFB, MSG, and EML/MIME handling are all implemented natively within the library."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 91-91; heading; under Aspose.Email FOSS for .NET > Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:020.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Native and System Requirements"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies > Native and System Requirements"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 93-93; list; under Aspose.Email FOSS for .NET > Dependencies > Native and System Requirements",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:021.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- Requires the .NET 8.0 SDK (or later) to build, and the matching .NET 8.0 runtime (or later) to run."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 95-95; heading; under Aspose.Email FOSS for .NET > Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:022.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Development Dependencies"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies > Development Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 97-98; list; under Aspose.Email FOSS for .NET > Dependencies > Development Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:023.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `Microsoft.NET.Test.Sdk` 17.8.0, `xunit` 2.5.3, and `xunit.runner.visualstudio` 2.5.3 \u2014 the xUnit test host and adapter used only by the test project.\n- `coverlet.collector` 6.0.0 \u2014 code-coverage collection for the test suite."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Dependencies > Development Dependencies"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 100-102; paragraph; under Aspose.Email FOSS for .NET > Dependencies > Development Dependencies",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:024.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "None of these are referenced by the main library project; they apply only to\n`tests/Aspose.Email.Foss.Tests/Aspose.Email.Foss.Tests.csproj` and are never shipped with the\npublished package."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 104-104; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:025.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Quick Start"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 106-106; paragraph; under Aspose.Email FOSS for .NET > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:026.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Read a subject from an MSG file:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Quick Start"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 108-115; code_block; under Aspose.Email FOSS for .NET > Quick Start",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:027.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```csharp\nusing System.IO;\nusing Aspose.Email.Foss.Msg;\n\nusing var stream = File.OpenRead(\"sample.msg\");\nvar message = MapiMessage.FromStream(stream);\nConsole.WriteLine(message.Subject);\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 117-117; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:028.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Additional Examples"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 119-119; paragraph; under Aspose.Email FOSS for .NET > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:029.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "A few more real, runnable patterns beyond the Quick Start example above."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 121-121; heading; under Aspose.Email FOSS for .NET > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:030.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Create and Save an MSG Message"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Create and Save an MSG Message"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 123-135; code_block; under Aspose.Email FOSS for .NET > Additional Examples > Create and Save an MSG Message",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:031.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```csharp\nusing System.IO;\nusing Aspose.Email.Foss.Msg;\n\nvar message = MapiMessage.Create(\"Hello\", \"Body\");\nmessage.SenderName = \"Alice\";\nmessage.SenderEmailAddress = \"alice@example.com\";\nmessage.AddRecipient(\"bob@example.com\", \"Bob\");\nusing var attachmentStream = new MemoryStream(\"abc\"u8.ToArray());\nmessage.AddAttachment(\"note.txt\", attachmentStream, \"text/plain\");\nusing var output = File.Create(\"hello.msg\");\nmessage.Save(output);\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Create and Save an MSG Message"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 137-138; html_block; under Aspose.Email FOSS for .NET > Additional Examples > Create and Save an MSG Message",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:032.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "<details>\n<summary>View Additional Examples</summary>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 140-140; heading; under Aspose.Email FOSS for .NET > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:033.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Convert EML to MSG"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Convert EML to MSG"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 142-152; code_block; under Aspose.Email FOSS for .NET > Additional Examples > Convert EML to MSG",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:034.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```csharp\nusing System.IO;\nusing Aspose.Email.Foss.Msg;\n\nusing var input = File.OpenRead(\"message.eml\");\nvar message = MapiMessage.LoadFromEml(input);\nusing var msgOutput = File.Create(\"message.msg\");\nmessage.Save(msgOutput);\nusing var emlOutput = File.Create(\"roundtrip.eml\");\nmessage.SaveToEml(emlOutput);\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 154-154; heading; under Aspose.Email FOSS for .NET > Additional Examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:035.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Inspect a CFB Container's Structure"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 156-158; paragraph; under Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:036.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "`CfbReader` gives direct access to a `.msg` file's underlying CFB geometry \u2014 useful when\ndiagnosing a damaged or non-standard file, independently of the higher-level MSG or MapiMessage\nAPIs."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 160-171; code_block; under Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:037.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```csharp\nusing Aspose.Email.Foss.Cfb;\n\nusing var cfb = CfbReader.FromFile(\"sample.msg\");\nConsole.WriteLine($\"Sector size: {cfb.SectorSize}\");\nConsole.WriteLine($\"Directory entries: {cfb.DirectoryEntryCount}\");\n\nforeach (var (depth, entry) in cfb.IterTree())\n{\n    Console.WriteLine(new string(' ', depth * 2) + entry.Name);\n}\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 173-173; html_block; under Aspose.Email FOSS for .NET > Additional Examples > Inspect a CFB Container's Structure",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:038.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "</details>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 175-175; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:039.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## API Reference"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 177-181; paragraph; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:040.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "`MapiMessage` is the primary high-level entry point for creating, editing, and converting\nmessages; `CfbReader`/`CfbWriter` and `MsgReader`/`MsgWriter`/`MsgDocument` provide direct,\nlower-level access to the `Aspose.Email.Foss.Cfb` and `Aspose.Email.Foss.Msg` namespaces the\nhigh-level API is built on. The public surface spans 29 classes and enumerations in a single\nmodule, summarized below."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 183-184; html_block; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:041.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "<details>\n<summary>View the Supported Public API Surface</summary>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 186-186; heading; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:042.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### Aspose.Email.Foss"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 188-212; table; under Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:043.table",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "| Class | Description |\n|---|---|\n| `CfbConstants` | CfbConstants.ByteOrderLittleEndian identifies little-endian integer encoding in CFB files. |\n| `CfbDocument` | CfbDocument can be instantiated directly, or created from existing data using CfbDocument.FromFile(path), FromStream(stream), or FromReader(reader). |\n| `CfbException` | CfbException.CfbException creates an exception instance containing the provided error message. |\n| `CfbNode` | CfbNode provides metadata for each entry in a CFB container, including Name, Clsid, CreationTime, and ModifiedTime. |\n| `CfbReader` | CfbReader.FromFile(path) opens a CFB file and provides access to its header, FAT, MiniFAT, and directory entries via properties such as MajorVersion and SectorSize. |\n| `CfbStorage` | CfbStorage.CfbStorage initializes a new storage node with the specified name. |\n| `CfbStream` | CfbStream.CfbStream creates a new CfbStream with the specified name and optional byte array data. |\n| `CfbWriter` | CfbWriter.WriteFile(document, path) serializes a CfbDocument to a file, while ToBytes(document) returns the binary representation as a byte array. |\n| `DirectoryEntry` | DirectoryEntry methods IsStorage(), IsStream(), and IsRoot() let developers determine the type of a directory entry when traversing a CFB structure. |\n| `DirectoryEntryNameComparer` | DirectoryEntryNameComparer.Compare compares two name strings and returns an int indicating sort order. |\n| `Header` | Header.SectorSize represents the size of a regular sector in bytes. |\n| `MapiAttachment` | MapiAttachment.FromBytes(filename, data, mimeType, contentId) creates an attachment object that can be added to a message; its properties Filename, MimeType, and Data expose the attachment metadata and content. |\n| `MapiMessage` | MapiMessage.Create(subject, body, unicodeStrings) constructs a new mutable message with the given subject and body. |\n| `MapiProperty` | MapiProperty.MapiProperty constructs a property with given id, type, value, and flags. |\n| `MapiPropertyCollection` | MapiPropertyCollection.Set(property:MapiProperty) adds or updates the specified MapiProperty in the collection. |\n| `MapiRecipient` | MapiRecipient.DisplayName gets or sets the recipient's display name. |\n| `MsgConstants` | MsgConstants.PropertyStreamName provides the standard name of the top\u2011level property stream used in MSG files. |\n| `MsgDocument` | MsgDocument.FromFile(path, strict) loads an MSG file into a MsgDocument object for inspection or modification. |\n| `MsgException` | MsgException.MsgException creates a new exception with the given message. |\n| `MsgReader` | MsgReader.FromFile(path, strict) creates a MsgReader that reads an Outlook MSG file from the specified file path. |\n| `MsgStorage` | MsgStorage.AddStream(stream) adds a MsgStream to the storage, allowing custom binary data to be embedded in the MSG file. |\n| `MsgStream` | MsgStream.MsgStream initializes a new stream with a name and optional data bytes. |\n| `MsgWriter` | MsgWriter.WriteFile(document, path) writes a MsgDocument to the given file path in MSG format. |"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 214-214; heading; under Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:044.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "#### Enumerations"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss > Enumerations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 216-223; table; under Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss > Enumerations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:045.table",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "| Enumeration | Description |\n|---|---|\n| `CommonMessagePropertyId` | Common MAPI property identifiers used by the MSG reader and writer for core message semantics, body fields, transport headers, and attachments. |\n| `DirectoryColorFlag` | Stores the red-black tree color used by directory sibling links. |\n| `DirectoryObjectType` | Classifies the directory entry payload as unallocated, storage, stream, or root storage. |\n| `MsgStorageRole` | MsgStorageRole.Generic represents a generic storage role not specific to other categories. |\n| `PropertyTypeCode` | MAPI property type codes that appear in property tags and stream names in MSG files. |\n| `SectorMarker` | Special FAT marker values reserved for sector allocation metadata. |"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 227-227; heading; under Aspose.Email FOSS for .NET > API Reference > Aspose.Email.Foss",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:046.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "#### Detailed Member Reference"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 229-229; heading; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:047.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### CFB Container Access"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > CFB Container Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 231-235; list; under Aspose.Email FOSS for .NET > API Reference > CFB Container Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:048.001.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CfbReader` (implements `IDisposable`)\n  - `FromFile(path)`, `FromStream(stream)`, `CfbReader(data)`\n  - `IterStorages()`, `IterStreams()`, `IterChildren(storageStreamId)`, `IterTree(startStreamId = 0)`, `FindChildByName(storageStreamId, name)`, `ResolvePath(names, startStreamId)`\n  - `GetEntry(streamId)`, `GetStreamData(streamId)`\n  - Properties: `Header`, `Difat`, `Fat`, `MiniFat`, `DirectoryEntries`, `RootEntry`, `MajorVersion`, `SectorSize`, `MiniSectorSize`, `DirectoryEntryCount`, `FileSize`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > CFB Container Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 236-237; list; under Aspose.Email FOSS for .NET > API Reference > CFB Container Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:048.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CfbWriter` (static)\n  - `ToBytes(document)`, `WriteFile(document, path)`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > CFB Container Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 238-239; list; under Aspose.Email FOSS for .NET > API Reference > CFB Container Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:048.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `CfbDocument` / `CfbStorage` / `CfbStream`\n  - Build a document in memory with `CfbStorage.AddStorage()`/`AddStream()`, then hand the root `CfbDocument` to `CfbWriter`."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 241-241; heading; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:049.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### MSG Document Access"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > MSG Document Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 243-245; list; under Aspose.Email FOSS for .NET > API Reference > MSG Document Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:050.001.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgReader` (implements `IDisposable`)\n  - `FromFile(path, strict)`, `FromStream(stream, strict)`\n  - `ValidationIssues: IReadOnlyList<string>`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > MSG Document Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 246-247; list; under Aspose.Email FOSS for .NET > API Reference > MSG Document Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:050.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgWriter` (static)\n  - `ToBytes(document)`, `WriteFile(document, path)`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > MSG Document Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 248-250; list; under Aspose.Email FOSS for .NET > API Reference > MSG Document Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:050.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgDocument`\n  - `FromFile(path, strict)`, `FromStream(stream, strict)`, `ToCfbDocument()`\n  - `Root: MsgStorage`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > MSG Document Access"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 251-253; list; under Aspose.Email FOSS for .NET > API Reference > MSG Document Access",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:050.004.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MsgStorage`\n  - `AddStream(stream)`, `AddStorage(storage)`, `FindStream(name)`, `FindStorage(name)`\n  - Properties: `Role: MsgStorageRole`, `Streams: IList<MsgStream>`, `Storages: IList<MsgStorage>`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 255-255; heading; under Aspose.Email FOSS for .NET > API Reference",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:051.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "### High-Level Message API"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 257-264; list; under Aspose.Email FOSS for .NET > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:052.001.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiMessage` (implements `IDisposable`)\n  - `Create(subject, body, unicodeStrings)`, `FromFile(path, strict)`, `FromStream(stream, strict)`, `FromMsgDocument(document)`\n  - `LoadFromEml(path)` / `LoadFromEml(stream)` / `LoadFromEml(data)`\n  - `Save()`, `Save(path)`, `Save(stream)`\n  - `SaveToEml()`, `SaveToEml(path)`, `SaveToEml(stream)`\n  - `AddRecipient(emailAddress, displayName, recipientType)`, `AddAttachment(filename, data, mimeType, contentId)`, `AddAttachment(filename, stream, mimeType, contentId)`, `AddEmbeddedMessageAttachment(message, filename, mimeType)`\n  - `SetProperty(propertyId, propertyType, value, flags)`, `GetPropertyValue(propertyId, propertyType, decode)`, `IterProperties()`, `IterPropertyKeys()`\n  - Properties: `Subject`, `Body`, `HtmlBody`, `SenderName`, `SenderEmailAddress`, `MessageClass`, `InternetMessageId`, `MessageDeliveryTime`, `Recipients`, `Attachments`, `ValidationIssues`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 265-267; list; under Aspose.Email FOSS for .NET > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:052.002.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiAttachment`\n  - `FromBytes(filename, data, mimeType, contentId)`, `FromStream(filename, stream, mimeType, contentId)`, `OpenRead()`\n  - Properties: `Filename`, `Data`, `MimeType`, `ContentId`, `IsEmbeddedMessage`, `EmbeddedMessage: MapiMessage?`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 268-269; list; under Aspose.Email FOSS for .NET > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:052.003.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- `MapiPropertyCollection`\n  - `Set(property)`, `Add(propertyId, propertyType, value, flags)`, `Get(propertyId, propertyType)`, `Remove(propertyId, propertyType)`, `IterProperties()`"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > API Reference > High-Level Message API"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 271-271; html_block; under Aspose.Email FOSS for .NET > API Reference > High-Level Message API",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:053.html_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "</details>"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 273-273; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:054.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Documentation & Resources"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Documentation & Resources"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 275-280; list; under Aspose.Email FOSS for .NET > Documentation & Resources",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:055.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- **[Getting started guide](https://docs.aspose.org/email/net/)** \u2014 installation, walkthroughs, and feature guides for this library.\n- **[How-to guides & FAQ](https://kb.aspose.org/email/net/)** \u2014 task-focused answers for common MSG, CFB, and EML questions.\n- **[Full API reference](https://reference.aspose.org/email/net/)** \u2014 the complete, browsable reference for all 29 public types (the [API reference](#api-reference) section above covers the essentials).\n- **[Public API summary](PUBLIC_API.md)** \u2014 the repository's own stable-namespace and primary-type list.\n- **[Changelog](CHANGELOG.md)** \u2014 release history.\n- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/issues) on GitHub."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 282-282; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:056.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Scope and Limitations"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Scope and Limitations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 284-287; list; under Aspose.Email FOSS for .NET > Scope and Limitations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:057.list",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "- **No IMAP, SMTP, or POP3 support** \u2014 this library reads and writes local files only; it does not connect to mail servers.\n- **No TNEF support** \u2014 Transport Neutral Encapsulation Format (`winmail.dat`) is not parsed or generated.\n- **No calendar or appointment support** \u2014 calendar-specific MAPI properties can be accessed generically via `SetProperty()`/`GetPropertyValue()`, but there is no dedicated calendar API.\n- **No .NET Framework support** \u2014 requires .NET 8.0 or later; classic .NET Framework (4.x) is not supported."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Scope and Limitations"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 289-293; paragraph; under Aspose.Email FOSS for .NET > Scope and Limitations",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:058.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "These limitations don't apply to\n[Aspose.Email for .NET \u2014 Enterprise Edition](https://products.aspose.com/email/net/), which adds\nbroader format and protocol coverage: direct IMAP/SMTP/POP3 mail-server connectivity, TNEF\n(`winmail.dat`) support, calendar and appointment APIs, and classic .NET Framework support\nalongside this edition's MSG, CFB, and EML processing."
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 295-295; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:059.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## Development and Testing"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 297-297; paragraph; under Aspose.Email FOSS for .NET > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:060.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "Clone the repository and run the xUnit test suite:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 299-304; code_block; under Aspose.Email FOSS for .NET > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:061.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ngit clone https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net.git\ncd Aspose.Email-FOSS-for-.Net\ndotnet build src/Aspose.Email.Foss/Aspose.Email.Foss.csproj -c Release\ndotnet test tests/Aspose.Email.Foss.Tests/Aspose.Email.Foss.Tests.csproj\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 306-310; paragraph; under Aspose.Email FOSS for .NET > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:062.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "The test project covers CFB round-trips, MSG reading, and EML round-trip conversion\n(`CfbRoundTripTests`, `MsgReaderTests`, `MapiMessageTests`, `MapiMessageEmlTests`,\n`MetadataSmokeTests`). Three runnable example programs \u2014 `create_msg_and_eml.cs`, `msg_reader.cs`,\nand `msg_summary.cs` \u2014 live under [`examples/`](examples/), each with its own project file and\nlisted in [examples/README.md](examples/README.md); run one directly, for example:"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > Development and Testing"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 312-314; code_block; under Aspose.Email FOSS for .NET > Development and Testing",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:063.code_block",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "```bash\ndotnet run --project examples/create_msg_and_eml/create_msg_and_eml.csproj\n```"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 316-316; heading; under Aspose.Email FOSS for .NET",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:064.heading",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "## License"
+    },
+    {
+      "attributes": {
+        "section": "Aspose.Email FOSS for .NET > License"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lines 318-320; paragraph; under Aspose.Email FOSS for .NET > License",
+          "path": "README.md"
+        }
+      ],
+      "id": "inherited_unit:065.paragraph",
+      "kind": "inherited_unit",
+      "polarity": "SUPPORTED",
+      "value": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty."
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "install command for the package id declared by the manifest",
+          "path": "src/Aspose.Email.Foss/Aspose.Email.Foss.csproj"
+        },
+        {
+          "detail": "package registry: found on nuget",
+          "path": "https://api.nuget.org/v3-flatcontainer/aspose.email.foss/index.json"
+        }
+      ],
+      "id": "install_command:dotnet",
+      "kind": "install_command",
+      "polarity": "SUPPORTED",
+      "value": "dotnet add package Aspose.Email.Foss"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": null,
+          "path": "LICENSE"
+        }
+      ],
+      "id": "license:file",
+      "kind": "license",
+      "polarity": "SUPPORTED",
+      "value": "LICENSE"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "license text states this license",
+          "path": "LICENSE"
+        }
+      ],
+      "id": "license:spdx",
+      "kind": "license",
+      "polarity": "SUPPORTED",
+      "value": "MIT"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'License: MIT'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/badge/License-MIT-blue.svg"
+        }
+      ],
+      "id": "link_target:001",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/badge/License-MIT-blue.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; relative; text 'License: MIT'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains LICENSE",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:002",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "LICENSE"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'NuGet version'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/nuget/v/Aspose.Email.Foss.svg"
+        }
+      ],
+      "id": "link_target:003",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/nuget/v/Aspose.Email.Foss.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'NuGet version'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://www.nuget.org/packages/Aspose.Email.Foss/"
+        }
+      ],
+      "id": "link_target:004",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://www.nuget.org/packages/Aspose.Email.Foss/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Contributors'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-.Net.svg"
+        }
+      ],
+      "id": "link_target:005",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://img.shields.io/github/contributors/aspose-email-foss/Aspose.Email-FOSS-for-.Net.svg"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; external; text 'Contributors'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/graphs/contributors"
+        }
+      ],
+      "id": "link_target:006",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/graphs/contributors"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; external; text 'Aspose.Email FOSS for .NET'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.org/media/email/net/banner-readme.png"
+        }
+      ],
+      "id": "link_target:007",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/media/email/net/banner-readme.png"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; external; text 'Aspose.Email FOSS for .NET'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.org/email/net/"
+        }
+      ],
+      "id": "link_target:008",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; anchor; text 'At a Glance'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #at-a-glance exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:009",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#at-a-glance"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; anchor; text 'Key Capabilities'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #key-capabilities exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:010",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#key-capabilities"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; anchor; text 'Installation'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #installation exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:011",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#installation"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; anchor; text 'Dependencies'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #dependencies exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:012",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#dependencies"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 20; anchor; text 'Quick Start'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #quick-start exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:013",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#quick-start"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; anchor; text 'Additional Examples'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #additional-examples exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:014",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#additional-examples"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 22; anchor; text 'API Reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #api-reference exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:015",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#api-reference"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; anchor; text 'Documentation & Resources'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #documentation--resources exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:016",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#documentation--resources"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; anchor; text 'Scope and Limitations'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #scope-and-limitations exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:017",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#scope-and-limitations"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; anchor; text 'Development and Testing'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #development-and-testing exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:018",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#development-and-testing"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 26; anchor; text 'License'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: heading #license exists",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:019",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "#license"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 275; external; text 'Getting started guide'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://docs.aspose.org/email/net/"
+        }
+      ],
+      "id": "link_target:020",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://docs.aspose.org/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 276; external; text 'How-to guides & FAQ'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://kb.aspose.org/email/net/"
+        }
+      ],
+      "id": "link_target:021",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://kb.aspose.org/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 277; external; text 'Full API reference'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://reference.aspose.org/email/net/"
+        }
+      ],
+      "id": "link_target:022",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://reference.aspose.org/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 278; relative; text 'Public API summary'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains PUBLIC_API.md",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:023",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "PUBLIC_API.md"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 279; relative; text 'Changelog'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains CHANGELOG.md",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:024",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "CHANGELOG.md"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 280; external; text 'Open an issue'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/issues"
+        }
+      ],
+      "id": "link_target:025",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net/issues"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 289; external; text 'Aspose.Email for .NET \u2014 Enterprise Edition'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: HTTP 200",
+          "path": "https://products.aspose.com/email/net/"
+        }
+      ],
+      "id": "link_target:026",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.com/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 306; relative; text 'examples/'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains examples",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:027",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "examples/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 306; relative; text 'examples/README.md'",
+          "path": "README.md"
+        },
+        {
+          "detail": "RESOLVED: tree contains examples/README.md",
+          "path": "README.md"
+        }
+      ],
+      "id": "link_target:028",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "examples/README.md"
+    },
+    {
+      "attributes": {
+        "role": "banner illustration"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; banner illustration; resolved to https://products.aspose.org/media/email/net/banner-readme.png",
+          "path": "https://products.aspose.org/media/email/net/banner-readme.png"
+        }
+      ],
+      "id": "link_target:product.banner",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/media/email/net/banner-readme.png"
+    },
+    {
+      "attributes": {
+        "level": "platform",
+        "platform": "net",
+        "role": "enterprise"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; enterprise target; platform level; slug net",
+          "path": "https://products.aspose.com/email/net/"
+        }
+      ],
+      "id": "link_target:product.enterprise",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.com/email/net/"
+    },
+    {
+      "attributes": {
+        "role": "product homepage"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "HTTP 200; product homepage; resolved to https://products.aspose.org/email/net/",
+          "path": "https://products.aspose.org/email/net/"
+        }
+      ],
+      "id": "link_target:product.homepage",
+      "kind": "link_target",
+      "polarity": "SUPPORTED",
+      "value": "https://products.aspose.org/email/net/"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "package id declared by the project file",
+          "path": "src/Aspose.Email.Foss/Aspose.Email.Foss.csproj"
+        }
+      ],
+      "id": "package:name",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "lowest target framework the project declares",
+          "path": "src/Aspose.Email.Foss/Aspose.Email.Foss.csproj"
+        }
+      ],
+      "id": "package:target_framework",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "net8.0"
+    },
+    {
+      "attributes": null,
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "version declared by the project file",
+          "path": "src/Aspose.Email.Foss/Aspose.Email.Foss.csproj"
+        }
+      ],
+      "id": "package:version",
+      "kind": "package",
+      "polarity": "SUPPORTED",
+      "value": "0.1.0"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "module"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; module; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "module"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; module; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "module"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; module; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "module"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; module; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants"
+    },
+    {
+      "attributes": {
+        "docstring": "Byte order marker value that identifies little-endian encoding for integer fields in CFB structures.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 6; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.byteorderlittleendian",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.ByteOrderLittleEndian"
+    },
+    {
+      "attributes": {
+        "docstring": "Maximum regular sector number (0xFFFFFFFA).",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.maxregsect",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.MAXREGSECT"
+    },
+    {
+      "attributes": {
+        "docstring": "Maximum regular stream ID (0xFFFFFFFA).",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.maxregsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.MAXREGSID"
+    },
+    {
+      "attributes": {
+        "docstring": "Maximum stream size allocated from the mini FAT and mini stream.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.ministreamcutoffsize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.MiniStreamCutoffSize"
+    },
+    {
+      "attributes": {
+        "docstring": "Terminator or empty pointer (0xFFFFFFFF).",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.nostream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.NOSTREAM"
+    },
+    {
+      "attributes": {
+        "docstring": "Required UTF-16 null-terminated name for the root storage directory entry.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.rootentryname",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.RootEntryName"
+    },
+    {
+      "attributes": {
+        "docstring": "Stream ID of the root directory entry in the first directory sector.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbconstants.rootstreamid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbConstants.RootStreamId"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument"
+    },
+    {
+      "attributes": {
+        "signature": "CfbDocument()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.cfbdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.CfbDocument"
+    },
+    {
+      "attributes": {
+        "signature": "FromFile(string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 37; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.fromfile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.FromFile"
+    },
+    {
+      "attributes": {
+        "signature": "FromReader(CfbReader reader)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 26; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.fromreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.FromReader"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(Stream stream)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 43; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 20; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.majorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.MajorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 22; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.minorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.MinorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "CfbStorage",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.root",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.Root"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbdocument.transactionsignaturenumber",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbDocument.TransactionSignatureNumber"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbException.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbexception",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbException"
+    },
+    {
+      "attributes": {
+        "signature": "CfbException(string message)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbException.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbexception.cfbexception",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbException.CfbException"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode.clsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode.Clsid"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode.creationtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode.CreationTime"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode.modifiedtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode.ModifiedTime"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode.Name"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbnode.statebits",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbNode.StateBits"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader"
+    },
+    {
+      "attributes": {
+        "signature": "CfbReader(byte[] data)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 51; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.cfbreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.CfbReader"
+    },
+    {
+      "attributes": {
+        "signature": "ReadOnlyCollection<uint>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 67; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.difat",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.Difat"
+    },
+    {
+      "attributes": {
+        "signature": "ReadOnlyCollection<DirectoryEntry>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 73; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.directoryentries",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.DirectoryEntries"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 85; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.directoryentrycount",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.DirectoryEntryCount"
+    },
+    {
+      "attributes": {
+        "signature": "Dispose()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 101; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.dispose",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.Dispose"
+    },
+    {
+      "attributes": {
+        "signature": "ReadOnlyCollection<uint>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 69; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.fat",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.Fat"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 89; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.filesize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.FileSize"
+    },
+    {
+      "attributes": {
+        "signature": "FindChildByName(uint storageStreamId, string name)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 190; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.findchildbyname",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.FindChildByName"
+    },
+    {
+      "attributes": {
+        "signature": "FromFile(string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 91; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.fromfile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.FromFile"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(Stream stream)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 93; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "GetEntry(uint streamId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 105; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.getentry",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.GetEntry"
+    },
+    {
+      "attributes": {
+        "signature": "GetStreamData(uint streamId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 115; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.getstreamdata",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.GetStreamData"
+    },
+    {
+      "attributes": {
+        "signature": "Header",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 65; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.header",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.Header"
+    },
+    {
+      "attributes": {
+        "signature": "IterChildren(uint storageStreamId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 155; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.iterchildren",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.IterChildren"
+    },
+    {
+      "attributes": {
+        "signature": "IterStorages()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 133; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.iterstorages",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.IterStorages"
+    },
+    {
+      "attributes": {
+        "signature": "IterStreams()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 144; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.iterstreams",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.IterStreams"
+    },
+    {
+      "attributes": {
+        "signature": "IterTree(uint startStreamId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 169; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.itertree",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.IterTree"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 79; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.majorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.MajorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 87; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.materializedstreamcount",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.MaterializedStreamCount"
+    },
+    {
+      "attributes": {
+        "signature": "ReadOnlyCollection<uint>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 71; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.minifat",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.MiniFat"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 83; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.minisectorsize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.MiniSectorSize"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 77; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.ministream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.MiniStream"
+    },
+    {
+      "attributes": {
+        "signature": "ResolvePath(IEnumerable<string> names, uint startStreamId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 195; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.resolvepath",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.ResolvePath"
+    },
+    {
+      "attributes": {
+        "signature": "DirectoryEntry",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 75; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.rootentry",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.RootEntry"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 81; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbreader.sectorsize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbReader.SectorSize"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage"
+    },
+    {
+      "attributes": {
+        "signature": "AddStorage(CfbStorage storage)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.addstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.AddStorage"
+    },
+    {
+      "attributes": {
+        "signature": "AddStream(CfbStream stream)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.addstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.AddStream"
+    },
+    {
+      "attributes": {
+        "signature": "CfbStorage(string name)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.cfbstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.CfbStorage"
+    },
+    {
+      "attributes": {
+        "signature": "IList<CfbNode>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.children",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.Children"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.clsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.Clsid"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.creationtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.CreationTime"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.modifiedtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.ModifiedTime"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.Name"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstorage.statebits",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStorage.StateBits"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream"
+    },
+    {
+      "attributes": {
+        "signature": "CfbStream(string name, byte[]? data)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.cfbstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.CfbStream"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.clsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.Clsid"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 16; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.creationtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.CreationTime"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 11; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.data",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.Data"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.modifiedtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.ModifiedTime"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.Name"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbNode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbstream.statebits",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbStream.StateBits"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbwriter",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbWriter"
+    },
+    {
+      "attributes": {
+        "signature": "ToBytes(CfbDocument document)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbwriter.tobytes",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbWriter.ToBytes"
+    },
+    {
+      "attributes": {
+        "signature": "WriteFile(CfbDocument document, string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.cfbwriter.writefile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.CfbWriter.WriteFile"
+    },
+    {
+      "attributes": {
+        "docstring": "Stores the red-black tree color used by directory sibling links.",
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 4; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryColorFlag.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directorycolorflag",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryColorFlag"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentry",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntry"
+    },
+    {
+      "attributes": {
+        "signature": "IsRoot()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentry.isroot",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntry.IsRoot"
+    },
+    {
+      "attributes": {
+        "signature": "IsStorage()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentry.isstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntry.IsStorage"
+    },
+    {
+      "attributes": {
+        "signature": "IsStream()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntry.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentry.isstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntry.IsStream"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntryNameComparer.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentrynamecomparer",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntryNameComparer"
+    },
+    {
+      "attributes": {
+        "signature": "Compare(string left, string right)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryEntryNameComparer.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryentrynamecomparer.compare",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryEntryNameComparer.Compare"
+    },
+    {
+      "attributes": {
+        "docstring": "Classifies the directory entry payload as unallocated, storage, stream, or root storage.",
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 4; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/DirectoryObjectType.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.directoryobjecttype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.DirectoryObjectType"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/Header.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.header",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.Header"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/Header.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.header.minisectorsize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.Header.MiniSectorSize"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/Header.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.header.sectorsize",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.Header.SectorSize"
+    },
+    {
+      "attributes": {
+        "docstring": "Special FAT marker values reserved for sector allocation metadata.",
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 4; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Cfb/SectorMarker.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.cfb.sectormarker",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Cfb.SectorMarker"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "module"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; module; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg"
+    },
+    {
+      "attributes": {
+        "docstring": "Common MAPI property identifiers used by the MSG reader and writer for core message semantics, body fields, transport headers, and attachments.",
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 4; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/CommonMessagePropertyId.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.commonmessagepropertyid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.CommonMessagePropertyId"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 33; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.contentid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.ContentId"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 29; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.data",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.Data"
+    },
+    {
+      "attributes": {
+        "signature": "MapiMessage?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 35; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.embeddedmessage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.EmbeddedMessage"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.filename",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.Filename"
+    },
+    {
+      "attributes": {
+        "signature": "FromBytes(string filename, byte[] data, string? mimeType, string? contentId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.frombytes",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.FromBytes"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(string filename, Stream stream, string? mimeType, string? contentId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 39; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.isembeddedmessage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.IsEmbeddedMessage"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.isstorageattachment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.IsStorageAttachment"
+    },
+    {
+      "attributes": {
+        "signature": "LoadData(Stream stream)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 53; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.loaddata",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.LoadData"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 31; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.mimetype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.MimeType"
+    },
+    {
+      "attributes": {
+        "signature": "OpenRead()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 61; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.openread",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.OpenRead"
+    },
+    {
+      "attributes": {
+        "signature": "MapiPropertyCollection",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 37; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiAttachment.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiattachment.properties",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiAttachment.Properties"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 10; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage"
+    },
+    {
+      "attributes": {
+        "signature": "AddAttachment(string filename, byte[] data, string? mimeType, string? contentId)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 286; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.addattachment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AddAttachment"
+    },
+    {
+      "attributes": {
+        "signature": "AddEmbeddedMessageAttachment(MapiMessage message, string? filename, string? mimeType)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 300; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.addembeddedmessageattachment",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AddEmbeddedMessageAttachment"
+    },
+    {
+      "attributes": {
+        "signature": "AddRecipient(string emailAddress, string? displayName, int recipientType)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 274; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.addrecipient",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AddRecipient"
+    },
+    {
+      "attributes": {
+        "signature": "IList<MapiAttachment>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 62; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.attachments",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Attachments"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 52; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.attachmethodbyvalue",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AttachMethodByValue"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 53; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.attachmethodembedded",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AttachMethodEmbedded"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 54; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.attachmethodstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.AttachMethodStorage"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 78; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.body",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Body"
+    },
+    {
+      "attributes": {
+        "signature": "Create(string subject, string body, bool unicodeStrings)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 157; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.create",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Create"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 48; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.defaultpropertyflags",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.DefaultPropertyFlags"
+    },
+    {
+      "attributes": {
+        "signature": "Dispose()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 270; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.dispose",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Dispose"
+    },
+    {
+      "attributes": {
+        "signature": "FromFile(string path, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 173; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.fromfile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.FromFile"
+    },
+    {
+      "attributes": {
+        "signature": "FromMsgDocument(MsgDocument document)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 190; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.frommsgdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.FromMsgDocument"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(Stream stream, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 181; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "GetPropertyValue(ushort propertyId, ushort? propertyType, bool decode)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 318; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.getpropertyvalue",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.GetPropertyValue"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 84; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.htmlbody",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.HtmlBody"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 114; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.internetmessageid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.InternetMessageId"
+    },
+    {
+      "attributes": {
+        "signature": "IterAttachmentsInfo()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 354; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.iterattachmentsinfo",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.IterAttachmentsInfo"
+    },
+    {
+      "attributes": {
+        "signature": "IterProperties()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 352; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.iterproperties",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.IterProperties"
+    },
+    {
+      "attributes": {
+        "signature": "IterPropertyKeys()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 344; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.iterpropertykeys",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.IterPropertyKeys"
+    },
+    {
+      "attributes": {
+        "signature": "LoadFromEml(string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 249; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.loadfromeml",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.LoadFromEml"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 64; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.majorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.MajorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 90; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.messageclass",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.MessageClass"
+    },
+    {
+      "attributes": {
+        "signature": "DateTime?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 120; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.messagedeliverytime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.MessageDeliveryTime"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 66; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.minorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.MinorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "MapiPropertyCollection",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 58; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.properties",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Properties"
+    },
+    {
+      "attributes": {
+        "signature": "IList<MapiRecipient>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 60; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.recipients",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Recipients"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 51; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.recipienttypebcc",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.RecipientTypeBcc"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 50; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.recipienttypecc",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.RecipientTypeCc"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 49; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.recipienttypeto",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.RecipientTypeTo"
+    },
+    {
+      "attributes": {
+        "signature": "Save()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 415; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.save",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Save"
+    },
+    {
+      "attributes": {
+        "signature": "SaveToEml()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 432; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.savetoeml",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.SaveToEml"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 108; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.senderaddresstype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.SenderAddressType"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 102; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.senderemailaddress",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.SenderEmailAddress"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 96; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.sendername",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.SenderName"
+    },
+    {
+      "attributes": {
+        "signature": "SetProperty(ushort propertyId, ushort propertyType, object? value, uint flags)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 313; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.setproperty",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.SetProperty"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 72; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.subject",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.Subject"
+    },
+    {
+      "attributes": {
+        "signature": "ToMsgDocument()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 356; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.tomsgdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.ToMsgDocument"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 68; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.transactionsignaturenumber",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.TransactionSignatureNumber"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 56; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.unicodestrings",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.UnicodeStrings"
+    },
+    {
+      "attributes": {
+        "signature": "IReadOnlyList<string>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 70; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapimessage.validationissues",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiMessage.ValidationIssues"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.flags",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.Flags"
+    },
+    {
+      "attributes": {
+        "signature": "MapiProperty(ushort propertyId, ushort propertyType, object? value, uint flags)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.mapiproperty",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.MapiProperty"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.propertyid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.PropertyId"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.propertytag",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.PropertyTag"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.propertytype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.PropertyType"
+    },
+    {
+      "attributes": {
+        "signature": "object?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiProperty.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapiproperty.value",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiProperty.Value"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection"
+    },
+    {
+      "attributes": {
+        "signature": "Add(ushort propertyId, ushort propertyType, object? value, uint flags)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 14; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection.add",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection.Add"
+    },
+    {
+      "attributes": {
+        "signature": "Get(ushort propertyId, ushort? propertyType)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection.get",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection.Get"
+    },
+    {
+      "attributes": {
+        "signature": "IterProperties()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 48; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection.iterproperties",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection.IterProperties"
+    },
+    {
+      "attributes": {
+        "signature": "Remove(ushort propertyId, ushort? propertyType)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 34; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection.remove",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection.Remove"
+    },
+    {
+      "attributes": {
+        "signature": "Set(MapiProperty property)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiPropertyCollection.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapipropertycollection.set",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiPropertyCollection.Set"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 11; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient.addresstype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient.AddressType"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient.displayname",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient.DisplayName"
+    },
+    {
+      "attributes": {
+        "signature": "string?",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient.emailaddress",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient.EmailAddress"
+    },
+    {
+      "attributes": {
+        "signature": "MapiPropertyCollection",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient.properties",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient.Properties"
+    },
+    {
+      "attributes": {
+        "signature": "int",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MapiRecipient.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.mapirecipient.recipienttype",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MapiRecipient.RecipientType"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants"
+    },
+    {
+      "attributes": {
+        "docstring": "Prefix for attachment object storage names; suffix is 8-digit hexadecimal index.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 6; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.attachmentstorageprefix",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.AttachmentStoragePrefix"
+    },
+    {
+      "attributes": {
+        "docstring": "Substorage name under attachment storage that contains an embedded message object.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.embeddedmessagestoragename",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.EmbeddedMessageStorageName"
+    },
+    {
+      "attributes": {
+        "docstring": "Maximum number of attachment object storages in one MSG file.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 12; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.maxattachmentstorages",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.MaxAttachmentStorages"
+    },
+    {
+      "attributes": {
+        "docstring": "Maximum number of recipient object storages in one MSG file.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.maxrecipientstorages",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.MaxRecipientStorages"
+    },
+    {
+      "attributes": {
+        "docstring": "Required storage name for named property mapping streams.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 18; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.namedpropertymappingstoragename",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.NamedPropertyMappingStorageName"
+    },
+    {
+      "attributes": {
+        "docstring": "Property must not be deleted from MSG file.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.propattr_mandatory",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.PROPATTR_MANDATORY"
+    },
+    {
+      "attributes": {
+        "docstring": "If clear, property must not be read.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 24; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.propattr_readable",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.PROPATTR_READABLE"
+    },
+    {
+      "attributes": {
+        "docstring": "If clear, property must not be modified or deleted.",
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.propattr_writable",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.PROPATTR_WRITABLE"
+    },
+    {
+      "attributes": {
+        "docstring": "Required name for the property stream in all MSG storages except Named Property Mapping storage.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 30; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.propertystreamname",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.PropertyStreamName"
+    },
+    {
+      "attributes": {
+        "docstring": "Prefix used to form stream names that store values of variable-length and multi-valued properties.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 33; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.propertyvaluestreamprefix",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.PropertyValueStreamPrefix"
+    },
+    {
+      "attributes": {
+        "docstring": "Prefix for recipient object storage names; suffix is 8-digit hexadecimal index.",
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 36; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgConstants.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgconstants.recipientstorageprefix",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgConstants.RecipientStoragePrefix"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 6; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument"
+    },
+    {
+      "attributes": {
+        "signature": "FromFile(string path, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 40; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.fromfile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.FromFile"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(Stream stream, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 46; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.majorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.MajorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "ushort",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.minorversion",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.MinorVersion"
+    },
+    {
+      "attributes": {
+        "signature": "MsgDocument(MsgStorage root, ushort majorVersion, ushort minorVersion, uint transactionSignatureNumber, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 8; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.msgdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.MsgDocument"
+    },
+    {
+      "attributes": {
+        "signature": "MsgStorage",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.root",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.Root"
+    },
+    {
+      "attributes": {
+        "signature": "bool",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.strict",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.Strict"
+    },
+    {
+      "attributes": {
+        "signature": "ToCfbDocument()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 52; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.tocfbdocument",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.ToCfbDocument"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgDocument.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgdocument.transactionsignaturenumber",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgDocument.TransactionSignatureNumber"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgException.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgexception",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgException"
+    },
+    {
+      "attributes": {
+        "signature": "MsgException(string message)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgException.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgexception.msgexception",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgException.MsgException"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 9; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgreader",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgReader"
+    },
+    {
+      "attributes": {
+        "signature": "Dispose()",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 49; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgreader.dispose",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgReader.Dispose"
+    },
+    {
+      "attributes": {
+        "signature": "FromFile(string path, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 45; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgreader.fromfile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgReader.FromFile"
+    },
+    {
+      "attributes": {
+        "signature": "FromStream(Stream stream, bool strict)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 47; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgreader.fromstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgReader.FromStream"
+    },
+    {
+      "attributes": {
+        "signature": "IReadOnlyList<string>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 43; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgReader.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgreader.validationissues",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgReader.ValidationIssues"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage"
+    },
+    {
+      "attributes": {
+        "signature": "AddStorage(MsgStorage storage)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 34; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.addstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.AddStorage"
+    },
+    {
+      "attributes": {
+        "signature": "AddStream(MsgStream stream)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 27; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.addstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.AddStream"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.clsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.Clsid"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.creationtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.CreationTime"
+    },
+    {
+      "attributes": {
+        "signature": "FindStorage(string name)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 43; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.findstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.FindStorage"
+    },
+    {
+      "attributes": {
+        "signature": "FindStream(string name)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 41; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.findstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.FindStream"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.modifiedtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.ModifiedTime"
+    },
+    {
+      "attributes": {
+        "signature": "MsgStorage(string name, MsgStorageRole role)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.msgstorage",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.MsgStorage"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 11; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.Name"
+    },
+    {
+      "attributes": {
+        "signature": "MsgStorageRole",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.role",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.Role"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.statebits",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.StateBits"
+    },
+    {
+      "attributes": {
+        "signature": "IList<MsgStorage>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 25; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.storages",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.Storages"
+    },
+    {
+      "attributes": {
+        "signature": "IList<MsgStream>",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 23; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorage.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstorage.streams",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorage.Streams"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStorageRole.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstoragerole",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStorageRole"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 3; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 15; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.clsid",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.Clsid"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 19; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.creationtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.CreationTime"
+    },
+    {
+      "attributes": {
+        "signature": "byte[]",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.data",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.Data"
+    },
+    {
+      "attributes": {
+        "signature": "ulong",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 21; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.modifiedtime",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.ModifiedTime"
+    },
+    {
+      "attributes": {
+        "signature": "MsgStream(string name, byte[]? data)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.msgstream",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.MsgStream"
+    },
+    {
+      "attributes": {
+        "signature": "string",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 11; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.name",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.Name"
+    },
+    {
+      "attributes": {
+        "signature": "uint",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 17; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgStream.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgstream.statebits",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgStream.StateBits"
+    },
+    {
+      "attributes": {
+        "symbol_kind": "class"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 5; class; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgwriter",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgWriter"
+    },
+    {
+      "attributes": {
+        "signature": "ToBytes(MsgDocument document)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 7; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgwriter.tobytes",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgWriter.ToBytes"
+    },
+    {
+      "attributes": {
+        "signature": "WriteFile(MsgDocument document, string path)",
+        "symbol_kind": "method"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 13; method; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/MsgWriter.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.msgwriter.writefile",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.MsgWriter.WriteFile"
+    },
+    {
+      "attributes": {
+        "docstring": "MAPI property type codes that appear in property tags and stream names in MSG files.",
+        "symbol_kind": "enum"
+      },
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "detail": "line 4; enum; public by declaration",
+          "path": "src/Aspose.Email.Foss/Msg/PropertyTypeCode.cs"
+        }
+      ],
+      "id": "public_symbol:aspose.email.foss.msg.propertytypecode",
+      "kind": "public_symbol",
+      "polarity": "SUPPORTED",
+      "value": "Aspose.Email.Foss.Msg.PropertyTypeCode"
+    }
+  ],
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+  "schema_version": 1,
+  "source_revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7"
+}

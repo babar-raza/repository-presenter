@@ -1,0 +1,111 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "b3d31f19bc7aa9ffb4d58019cbae890ab66fbc985b368a1b9de689991532310d",
+        "efdd0642c4d2a29b25e2f5ff3589f7c4b50163c161316be159bfdfd0356f1530"
+      ]
+    },
+    {
+      "distinct_responses": 12,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "07789e54411d6138e597212d07bcd20f2db4dae1dbd986fcff0a7aea3ca206aa",
+        "166b1b6df90d615d78aec2441b24429405983dbde34d19dc160f872f0bd12d55",
+        "615bc3ddc2647ffa8418c608841369567aec0be264b96196c548af968122f604",
+        "6274a666e19c83facf76e3b983362425940112477b224852aca81667c76f47a2",
+        "64270c1cd4bb559fe047c52cea2d82f7fb0c8d46f3dbf5e9f7ccaa528d150005",
+        "7415f2545a57705d209a0fd89a9394bc13a99c9f64cbe6af7980ceae8f0fff9d",
+        "745e1d7fc91eb8534024c6d40163491595087e5d2a172c1e8f0c9cc0fc52bfba",
+        "7603d48d8c7ec58c7eb22daa8c851a128f47ab2c6737f75b5a4431d1f812b720",
+        "7c6d88fa860273043fc5afe5349d57bb7380c24297b7d9619c736c497c9035b2",
+        "b30f9d54dade5c6aee8f30bb59a28487b6a41e6da28e4d26102668501de5c24c",
+        "c7fb8f736e848f34e10eb1fbc1addcf1836e760cf55d1f35d97c4a440f820362",
+        "cb2794e4bb738a292f7b22aefad10d2f86f7887b9514169deb773629de8aec47"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "00b42c0f5534caa1360dcc0f59ca9497ca1cc4ed0c0ea18b4ea77d56ff6d5587",
+        "4a8f00cbd21ca538483c89a88af8a9fced29aad188e93ea3078e4e983b8085fb"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 16,
+    "blocking_failures": [],
+    "coverage_advisories": 2,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 14524,
+      "sha256": "e6b01f8f3401f27ffdccca7d563082c1600eecb0bba57603abbf85b41727992c"
+    },
+    "README.patch": {
+      "bytes": 27918,
+      "sha256": "899234ea5db522c814397025b378b0e09651a1ce9ede45e787e25ea3472932af"
+    },
+    "calls.jsonl": {
+      "bytes": 34763,
+      "sha256": "04ab1f8c06425a23d75da529ea59188ce6aa96b356cfc48339f9df2b4a049b96"
+    },
+    "content_units.json": {
+      "bytes": 22787,
+      "sha256": "7349b195ed8ecefed45d9f769f0d38c8f75ed8fc147cae4b2ea5c89ed71eb76e"
+    },
+    "dependencies.json": {
+      "bytes": 43448,
+      "sha256": "0ebddbe204f9cbc9eebbac8a0a92d58488620a8e72cd127c290cc7f19ddaf3b7"
+    },
+    "dispositions.json": {
+      "bytes": 29566,
+      "sha256": "31e161b83bd2554cb18c74aa9f1fe0651867e3208998ebd0a34beacac2073c6c"
+    },
+    "examples.json": {
+      "bytes": 5755,
+      "sha256": "ffbaf28858feb75fccaff15f89033f845555dc4d583c366678c536c3e0a0bdf4"
+    },
+    "facts.json": {
+      "bytes": 187044,
+      "sha256": "33ed76bedc1ee18060f7fa89d52f7cc4f626f7fbf8f7912358b828b182a7a6c6"
+    },
+    "investigation.json": {
+      "bytes": 4983,
+      "sha256": "44f132ce59ebcfabcb4a15fdc5f55e5e28aa96238938066beb7565807d2103e0"
+    },
+    "plan.json": {
+      "bytes": 6656,
+      "sha256": "5abd482e9c348a1917e8ed2bf9829880f4e65a64c42cfdb9600de264eba03341"
+    },
+    "probes.json": {
+      "bytes": 2512,
+      "sha256": "9aa722892fcc28a16170330c85a095ad1bb710a21d3d33417a29a4408ba09a4e"
+    },
+    "review.json": {
+      "bytes": 16518,
+      "sha256": "61f2eb7666d78472ced8747d19659ef3c4b9820c8657a7f2c9752cb3bc0720f8"
+    },
+    "validation.json": {
+      "bytes": 10446,
+      "sha256": "1e7cd89d0013feb7a281f77cd3f8e0cdb0ca5043175881ecd678689730a21334"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-16T17:55:57Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
+  "revision": "59125b4732df0eedbc4d4c2ab978698ed4348eb7",
+  "schema_version": 1,
+  "sealed_at": "2026-09-16T17:55:57Z",
+  "state": "READY_FOR_PROPOSAL"
+}

@@ -1,0 +1,260 @@
+{
+  "additional_example_ids": [
+    "example:003",
+    "example:004"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapimessage",
+        "public_symbol:aspose.email.foss.cfb.cfbreader"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.email.foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Read and write MSG files",
+      "Traverse and build CFB containers",
+      "Convert between MSG and EML",
+      "Set and read MAPI properties",
+      "Attach recipients and files",
+      "Validate parsing issues"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "example:003",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "title": "Read and write MSG files"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.email.foss.cfb.cfbreader",
+        "public_symbol:aspose.email.foss.cfb.cfbwriter"
+      ],
+      "shared_fact_ids": [],
+      "title": "Traverse and build CFB containers"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "shared_fact_ids": [
+        "example:003",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "title": "Convert between MSG and EML"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email.foss.msg.mapimessage",
+        "public_symbol:aspose.email.foss.msg.mapiproperty"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "title": "Set and read MAPI properties"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "title": "Attach recipients and files"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.email.foss.msg.mapimessage"
+      ],
+      "title": "Validate parsing issues"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:041.html_block",
+        "inherited_unit:043.table",
+        "inherited_unit:044.heading",
+        "inherited_unit:045.table",
+        "inherited_unit:046.heading",
+        "inherited_unit:047.heading",
+        "inherited_unit:048.001.list",
+        "inherited_unit:048.002.list",
+        "inherited_unit:048.003.list",
+        "inherited_unit:049.heading",
+        "inherited_unit:050.001.list",
+        "inherited_unit:050.002.list",
+        "inherited_unit:050.003.list",
+        "inherited_unit:050.004.list",
+        "inherited_unit:051.heading",
+        "inherited_unit:052.001.list",
+        "inherited_unit:052.002.list",
+        "inherited_unit:052.003.list",
+        "inherited_unit:053.html_block"
+      ],
+      "section_id": "api_reference",
+      "text": "The detailed member reference tables and HTML summary blocks were omitted in favor of a concise public API summary."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:023.list",
+        "inherited_unit:024.paragraph"
+      ],
+      "section_id": "dependencies",
+      "text": "Development dependencies list and related paragraph were omitted due to lack of supporting facts for the main library."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:057.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:057.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

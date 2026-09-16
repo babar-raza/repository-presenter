@@ -1,0 +1,281 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "26.7.0"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Email FOSS for .Net is a free and open-source library...",
+      "repair": "Use consistent casing ('Aspose.Email FOSS for .NET') and include the official NuGet package version (26.7.0) in the installation section.",
+      "reviewer_scope_defect": "the finding asks for '26.7.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "identity",
+      "text": "The candidate uses inconsistent casing in the product name ('Aspose.Email FOSS for .Net' vs 'Aspose.Email FOSS for .NET') and omits the official NuGet package version (26.7.0) from the installation section."
+    },
+    {
+      "absent": [
+        "StartingPoints",
+        "Outputs",
+        "i1",
+        "i2",
+        "o1",
+        "o2"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "PRODUCT[...]",
+      "repair": "Restore the original Mermaid diagram structure with StartingPoints and Outputs subgraphs to clearly show data flow from input formats to outputs.",
+      "reviewer_scope_defect": "section at_a_glance renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in 'At a Glance' is simplified and omits key input/output nodes present in the original, reducing clarity about the library's data flow."
+    },
+    {
+      "absent": [
+        "26.7.0"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F03",
+      "quote": "Install the published package from NuGet (`Aspose.Email.Foss`, version 0.1.0):",
+      "repair": "Correct the NuGet package version to 26.7.0 to match the official package version.",
+      "reviewer_scope_defect": "the finding asks for '26.7.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "installation",
+      "text": "The installation section incorrectly states the NuGet package version as 0.1.0, contradicting the official version 26.7.0 confirmed in the original README and package facts."
+    },
+    {
+      "absent": [
+        "Microsoft.NET.Test.Sdk",
+        "xunit",
+        "xunit.runner.visualstudio",
+        "coverlet.collector"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "### Required Package Dependencies",
+      "repair": "Include the development dependencies list with versions to provide a complete picture of the build and test environment.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The dependencies section omits the development dependencies (Microsoft.NET.Test.Sdk, xunit, xunit.runner.visualstudio, coverlet.collector) that are essential for contributors to understand the full build and test environment."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "Create a new MSG file with a sender, recipient, attachment, and body, then save it to disk using `Aspose.Email.Foss`.",
+      "repair": "Remove the duplicate example from Additional Examples to preserve the Quick Start as the single minimal path for new users.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "quick_start",
+      "text": "The Quick Start example is duplicated in the Additional Examples section, creating redundancy and confusing the intended minimal path for new users."
+    },
+    {
+      "absent": [
+        "Detailed Member Reference",
+        "CFB Container Access",
+        "MSG Document Access",
+        "High-Level Message API"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "### Core API",
+      "repair": "Restore the detailed member reference sections to provide complete low-level API information for advanced users.",
+      "reviewer_scope_defect": "the quote is the heading 'Core API', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section's detailed member reference is omitted, removing critical low-level API details that were present in the original README and are valuable for advanced users."
+    },
+    {
+      "absent": [
+        "OST"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Email FOSS for .Net is a .NET 8.0 library for reading and writing email-related file formats locally, including MSG, EML, MHTML, and OST files...",
+      "repair": "Remove 'OST files' from the supported formats list to match the original README and avoid unsupported claims.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'OST', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section incorrectly states that the library supports 'OST files', which is not mentioned anywhere in the original README or supported by any facts."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "These limitations don't apply to [Aspose.Email for .Net — Enterprise Edition](https://products.aspose.com/email/net/). Aspose.Email FOSS for .Net is the open-source foundation...",
+      "repair": "Integrate the Enterprise Edition reference back into the Scope and Limitations section to maintain logical flow and clear distinction between editions.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition relationship paragraph is moved to a separate section, breaking the logical flow and making it harder for users to understand the distinction between FOSS and commercial editions."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "Install the published package from NuGet (`Aspose.Email.Foss`, version 0.1.0):",
+      "reader": 2,
+      "repair": "Remove the version number from the installation text or update it to match the latest published version (26.7.0) as confirmed by the NuGet badge and the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "installation",
+      "text": "Install the published package from NuGet (`Aspose.Email.Foss`, version 0.1.0):"
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "No required third-party package dependencies; in `src/Aspose.Email.Foss/Aspose.Email.Foss.csproj`, no `PackageReference` a consumer would install is declared.",
+      "reader": 2,
+      "repair": "Remove the claim about PackageReference in the csproj file since no fact supports it; instead, state that the library has zero required third-party package dependencies as confirmed by the dependency:none fact.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies, and no content unit carries the quoted text: it is the renderer's own rendering of that verified fact, which no unit wrote and no stage the loop can reopen would rewrite",
+      "section_id": "dependencies",
+      "text": "No required third-party package dependencies; in `src/Aspose.Email.Foss/Aspose.Email.Foss.csproj`, no `PackageReference` a consumer would install is declared."
+    },
+    {
+      "absent": [
+        "OST",
+        "MHTML"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F03",
+      "quote": "Aspose.Email FOSS for .Net is a .NET 8.0 library for reading and writing email-related file formats locally, including MSG, EML, MHTML, and OST files, without connecting to mail servers or providing high-level abstractions for calendar or transport-neutral formats.",
+      "reader": 2,
+      "repair": "Remove OST and MHTML from the list of supported formats since no fact supports their inclusion; the original README only mentions MSG, CFB, and EML.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'MHTML', 'OST', which the candidate contains",
+      "section_id": "scope_limitations",
+      "text": "Aspose.Email FOSS for .Net is a .NET 8.0 library for reading and writing email-related file formats locally, including MSG, EML, MHTML, and OST files, without connecting to mail servers or providing high-level abstractions for calendar or transport-neutral formats."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F04",
+      "quote": "The library does not support IMAP, SMTP, or POP3 protocols and operates only on local files without connecting to mail servers.",
+      "reader": 2,
+      "repair": "Remove the claim about IMAP, SMTP, and POP3 protocols since no fact supports it; the original README states 'No IMAP, SMTP, or POP3 support' but the candidate's phrasing implies protocol support is missing rather than unimplemented, which is factually different.",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "scope_limitations",
+      "text": "The library does not support IMAP, SMTP, or POP3 protocols and operates only on local files without connecting to mail servers."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 29 types.",
+      "reader": 2,
+      "repair": "Remove the claim about 29 types since no fact supports it; the original README states 'The public surface spans 29 classes and enumerations in a single module' but the candidate's phrasing is imprecise and unsupported.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The verified public surface has 29 types."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "`Aspose.Email.Foss.Msg.MapiMessage` serves as the main entry point for working with email messages, offering methods such as Create, `FromFile`, `FromStream`, and Save to load and persist messages in various formats, while properties like Subject, Body, `HtmlBody`, Recipients, and Attachments provide access to core message components; `Aspose.Email.Foss.Cfb.CfbReader` provides low-level access to Compound File Binary structures, supporting operations like `FromFile`, `FromStream`, `FindChildById",
+      "reader": 2,
+      "repair": "Remove the incomplete and truncated sentence since no fact supports it; instead, use the concise summary from the original README that accurately describes the public API surface.",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "api_reference",
+      "text": "`Aspose.Email.Foss.Msg.MapiMessage` serves as the main entry point for working with email messages, offering methods such as Create, `FromFile`, `FromStream`, and Save to load and persist messages in various formats, while properties like Subject, Body, `HtmlBody`, Recipients, and Attachments provide access to core message components; `Aspose.Email.Foss.Cfb.CfbReader` provides low-level access to Compound File Binary structures, supporting operations like `FromFile`, `FromStream`, `FindChildByName`, and `GetStreamData` to inspect and extract data from message containers."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "The suite covers 6 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the claim about 6 test files since no fact supports it; the original README lists specific test file names but the candidate's phrasing is unsupported.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The suite covers 6 test files under `tests/`."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "factuality",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "The following examples demonstrate converting EML to MSG and inspecting a CFB container's internal structure.",
+      "reader": 2,
+      "repair": "Remove the claim about demonstrating EML to MSG conversion since no fact supports it; the original README's Additional Examples section includes the EML to MSG conversion example but the candidate's phrasing implies it is the only example, which is misleading.",
+      "reviewer_scope_defect": "a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it",
+      "section_id": "additional_examples",
+      "text": "The following examples demonstrate converting EML to MSG and inspecting a CFB container's internal structure."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "e6b01f8f3401f27ffdccca7d563082c1600eecb0bba57603abbf85b41727992c",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "2ff79593f7408870b8bfb439",
+      "93e8e0debc1b43104a660288",
+      "aac3a3748135837a01d577d1",
+      "d6b338c08a90e6aacfe36bf1",
+      "ebf4b4254be6ba6d22495871",
+      "f1cc2a8ca81cb46936718f21"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
