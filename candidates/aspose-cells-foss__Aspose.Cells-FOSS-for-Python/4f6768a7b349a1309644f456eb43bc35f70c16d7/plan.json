@@ -1,0 +1,465 @@
+{
+  "additional_example_ids": [
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.workbook-2",
+        "public_symbol:aspose.cells_foss.workbook_hash_password",
+        "public_symbol:aspose.cells_foss.workbook_properties",
+        "public_symbol:aspose.cells_foss.workbook_properties.workbookproperties",
+        "public_symbol:aspose.cells_foss.workbook_properties.workbookpr",
+        "public_symbol:aspose.cells_foss.workbook_properties.workbookview",
+        "public_symbol:aspose.cells_foss.workbook_properties.workbookprotection",
+        "public_symbol:aspose.cells_foss.workbook_properties.definedname",
+        "public_symbol:aspose.cells_foss.workbook_properties.definednamecollection",
+        "public_symbol:aspose.cells_foss.workbook_properties.fileversion",
+        "public_symbol:aspose.cells_foss.workbook_properties.calculationproperties",
+        "public_symbol:aspose.cells_foss.xml_properties_loader",
+        "public_symbol:aspose.cells_foss.xml_properties_loader.workbookpropertiesxmlloader",
+        "public_symbol:aspose.cells_foss.xml_properties_saver",
+        "public_symbol:aspose.cells_foss.xml_properties_saver.workbookpropertiesxmlwriter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.workbook"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.worksheet-2",
+        "public_symbol:aspose.cells_foss.worksheet_properties",
+        "public_symbol:aspose.cells_foss.worksheet_properties.worksheetproperties",
+        "public_symbol:aspose.cells_foss.worksheet_properties.worksheetproperties",
+        "public_symbol:aspose.cells_foss.worksheet_properties.sheetview",
+        "public_symbol:aspose.cells_foss.worksheet_properties.selection",
+        "public_symbol:aspose.cells_foss.worksheet_properties.pane",
+        "public_symbol:aspose.cells_foss.worksheet_properties.printoptions",
+        "public_symbol:aspose.cells_foss.worksheet_properties.pagemargins",
+        "public_symbol:aspose.cells_foss.worksheet_properties.pagesetup",
+        "public_symbol:aspose.cells_foss.worksheet_properties.headerfooter",
+        "public_symbol:aspose.cells_foss.worksheet_properties.sheetformatproperties",
+        "public_symbol:aspose.cells_foss.worksheet_properties.sheetprotection",
+        "public_symbol:aspose.cells_foss.worksheet.sheetprotectiondictwrapper",
+        "public_symbol:aspose.cells_foss.xml_properties_loader",
+        "public_symbol:aspose.cells_foss.xml_properties_loader.worksheetpropertiesxmlloader",
+        "public_symbol:aspose.cells_foss.xml_properties_saver",
+        "public_symbol:aspose.cells_foss.xml_properties_saver.worksheetpropertiesxmlwriter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.worksheet"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.cells-2",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cell-2",
+        "public_symbol:aspose.cells_foss.cell_value_handler",
+        "public_symbol:aspose.cells_foss.cell_value_handler.cellvaluehandler",
+        "public_symbol:aspose.cells_foss.shared_strings",
+        "public_symbol:aspose.cells_foss.shared_strings.sharedstringtable",
+        "public_symbol:aspose.cells_foss.xml_loader",
+        "public_symbol:aspose.cells_foss.xml_loader.xmlloader",
+        "public_symbol:aspose.cells_foss.xml_saver",
+        "public_symbol:aspose.cells_foss.xml_saver.xmlsaver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.cells"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.chart-2",
+        "public_symbol:aspose.cells_foss.charttype",
+        "public_symbol:aspose.cells_foss.chartcollection",
+        "public_symbol:aspose.cells_foss.chartaxis",
+        "public_symbol:aspose.cells_foss.chartseries",
+        "public_symbol:aspose.cells_foss.charterrorbars",
+        "public_symbol:aspose.cells_foss.chartview3d",
+        "public_symbol:aspose.cells_foss.nseries",
+        "public_symbol:aspose.cells_foss.xml_chart_loader",
+        "public_symbol:aspose.cells_foss.xml_chart_loader.chartxmlloader",
+        "public_symbol:aspose.cells_foss.xml_chart_saver",
+        "public_symbol:aspose.cells_foss.xml_chart_saver.chartxmlsaver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.chart"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.datavalidationcollection",
+        "public_symbol:aspose.cells_foss.datavalidationtype",
+        "public_symbol:aspose.cells_foss.datavalidationoperator",
+        "public_symbol:aspose.cells_foss.datavalidationalertstyle",
+        "public_symbol:aspose.cells_foss.datavalidationimemode",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_loader",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.datavalidationxmlloader",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_loader.load_data_validations_from_worksheet_xml",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_saver",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.datavalidationxmlsaver",
+        "public_symbol:aspose.cells_foss.xml_datavalidation_saver.save_data_validations_to_worksheet_xml"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.datavalidation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.style-2",
+        "public_symbol:aspose.cells_foss.style.alignment",
+        "public_symbol:aspose.cells_foss.style.border",
+        "public_symbol:aspose.cells_foss.style.borders",
+        "public_symbol:aspose.cells_foss.style.fill",
+        "public_symbol:aspose.cells_foss.style.protection",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.numberformat",
+        "public_symbol:aspose.cells_foss.textalignmenttype",
+        "public_symbol:aspose.cells_foss.textanchortype"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.style"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.shape-2",
+        "public_symbol:aspose.cells_foss.shapecollection",
+        "public_symbol:aspose.cells_foss.shapefont",
+        "public_symbol:aspose.cells_foss.msodrawingtype",
+        "public_symbol:aspose.cells_foss.msofillformat",
+        "public_symbol:aspose.cells_foss.msolineformat",
+        "public_symbol:aspose.cells_foss.msolinedashstyle",
+        "public_symbol:aspose.cells_foss.xml_shape_loader",
+        "public_symbol:aspose.cells_foss.xml_shape_loader.shapexmlloader",
+        "public_symbol:aspose.cells_foss.xml_shape_saver",
+        "public_symbol:aspose.cells_foss.xml_shape_saver.shapexmlsaver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.shape"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.table-2",
+        "public_symbol:aspose.cells_foss.tablecollection",
+        "public_symbol:aspose.cells_foss.tablecolumn",
+        "public_symbol:aspose.cells_foss.tablestyleinfo",
+        "public_symbol:aspose.cells_foss.xml_table_loader",
+        "public_symbol:aspose.cells_foss.xml_table_loader.tablexmlloader",
+        "public_symbol:aspose.cells_foss.xml_table_saver",
+        "public_symbol:aspose.cells_foss.xml_table_saver.tablexmlsaver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.table"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.sparkline-2",
+        "public_symbol:aspose.cells_foss.sparklinegroup",
+        "public_symbol:aspose.cells_foss.sparklinegroupcollection",
+        "public_symbol:aspose.cells_foss.sparklinetype",
+        "public_symbol:aspose.cells_foss.sparklineemptycells",
+        "public_symbol:aspose.cells_foss.xml_sparkline_loader",
+        "public_symbol:aspose.cells_foss.xml_sparkline_loader.sparklinexmlloader",
+        "public_symbol:aspose.cells_foss.xml_sparkline_saver",
+        "public_symbol:aspose.cells_foss.xml_sparkline_saver.sparklinexmlsaver"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.sparkline"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.comment_xml",
+        "public_symbol:aspose.cells_foss.comment_xml.commentxmlreader",
+        "public_symbol:aspose.cells_foss.comment_xml.commentxmlwriter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.comment_xml"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cfb_handler",
+        "public_symbol:aspose.cells_foss.cfb_handler.cfbreader",
+        "public_symbol:aspose.cells_foss.cfb_handler.cfbwriter",
+        "public_symbol:aspose.cells_foss.cfb_handler.is_encrypted_file",
+        "public_symbol:aspose.cells_foss.cfb_writer",
+        "public_symbol:aspose.cells_foss.cfb_writer.cfbwriter",
+        "public_symbol:aspose.cells_foss.cfb_writer_minimal",
+        "public_symbol:aspose.cells_foss.cfb_writer_minimal.minimalcfbwriter"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.cfb_handler"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.encryption_crypto",
+        "public_symbol:aspose.cells_foss.encryption_crypto.encryptionverifier",
+        "public_symbol:aspose.cells_foss.encryption_crypto.packageencryption",
+        "public_symbol:aspose.cells_foss.encryption_crypto.passwordderivation",
+        "public_symbol:aspose.cells_foss.encryption_params",
+        "public_symbol:aspose.cells_foss.encryption_params.encryptionparameters",
+        "public_symbol:aspose.cells_foss.encryption_params.encryptiontype",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.standardencryptionparameters",
+        "public_symbol:aspose.cells_foss.get_default_encryption_params",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxencryptor",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxdecryptor",
+        "public_symbol:aspose.cells_foss.encrypt_xlsx",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.cipheralgorithm",
+        "public_symbol:aspose.cells_foss.hashalgorithm"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.cells_foss.encryption_crypto"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and edit Excel workbooks",
+      "Apply cell styling and formatting",
+      "Add data validation and conditional formatting",
+      "Generate charts and sparklines",
+      "Export to text formats",
+      "Encrypt and protect workbooks",
+      "Embed shapes, tables, and comments",
+      "Configure print layout and page breaks"
+    ],
+    "input_format_ids": [
+      "format:input.xlsx"
+    ],
+    "output_format_ids": [
+      "format:output.csv",
+      "format:output.xlsx"
+    ]
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells"
+      ],
+      "shared_fact_ids": [],
+      "title": "Create and edit Excel workbooks"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.font"
+      ],
+      "shared_fact_ids": [],
+      "title": "Apply cell styling and formatting"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.conditional_format"
+      ],
+      "shared_fact_ids": [],
+      "title": "Add data validation and conditional formatting"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.charttype"
+      ],
+      "shared_fact_ids": [],
+      "title": "Generate charts and sparklines"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "format:output.csv",
+        "public_symbol:aspose.cells_foss.save_workbook_as_csv",
+        "public_symbol:aspose.cells_foss.save_workbook_as_json",
+        "public_symbol:aspose.cells_foss.save_workbook_as_markdown"
+      ],
+      "shared_fact_ids": [],
+      "title": "Export to text formats"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters"
+      ],
+      "shared_fact_ids": [],
+      "title": "Encrypt and protect workbooks"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.comment_xml"
+      ],
+      "shared_fact_ids": [],
+      "title": "Embed shapes, tables, and comments"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
+        "public_symbol:aspose.cells_foss.verticalpagebreakcollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Configure print layout and page breaks"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "link_target:027"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition paragraph was deferred to this section per the disposition rationale, but the section is omitted because the aspose.com product target does not exist in policy."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "format:input.xlsx",
+        "format:output.xlsx"
+      ],
+      "unit_ids": [
+        "inherited_unit:048.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.standardencryptionparameters"
+      ],
+      "unit_ids": [
+        "inherited_unit:048.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.formula_evaluator"
+      ],
+      "unit_ids": [
+        "inherited_unit:048.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

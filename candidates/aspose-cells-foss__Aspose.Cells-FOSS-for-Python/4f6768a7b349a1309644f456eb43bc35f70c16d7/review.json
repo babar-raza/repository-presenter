@@ -1,0 +1,404 @@
+{
+  "advisory": [
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:name",
+        "format:input.xlsx",
+        "format:output.xlsx",
+        "format:output.csv",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.datavalidation",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and manipulating Excel files in the `.xlsx` format. It enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license.",
+      "repair": "Rewrite to match the original's factual, concise description: 'Aspose.Cells FOSS for Python is a free, open-source, pure-Python library for creating, reading, and modifying Excel `.xlsx` workbooks without requiring Microsoft Excel.'",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The opening paragraph introduces the library with vague marketing language ('enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license') instead of the precise, fact-based description found in the original README."
+    },
+    {
+      "absent": [
+        "add_worksheet()",
+        "remove_worksheet()",
+        "copy_worksheet()",
+        "get_active_worksheet()",
+        "Worksheet.rename()",
+        "FormulaEvaluator"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells"
+      ],
+      "id": "F02",
+      "quote": "- **Create and edit Excel workbooks.** Create new workbooks from scratch or load existing Excel files, then read or write cell values using the `Cells` collection on a `Worksheet` obtained by index, name, or active sheet.",
+      "repair": "Restore the original's specificity by including the exact methods and classes listed in the Key Capabilities section of the original README, such as `add_worksheet()`, `remove_worksheet()`, `copy_worksheet()`, `get_active_worksheet()`, `Worksheet.rename()`, and `FormulaEvaluator`.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section replaces the original's detailed, fact-based bullet points with generic, vague statements that omit critical implementation details (e.g., 'Apply cell styling and formatting' instead of specifying `Style`, `Font`, `get_style()`, `apply_style()`)."
+    },
+    {
+      "absent": [
+        "XLSXEncryptor",
+        "XLSXDecryptor"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx"
+      ],
+      "id": "F03",
+      "quote": "- **Encrypt and protect workbooks.** Secure workbooks by saving them with a password using `xlsx_encryptor` and `AgileEncryptionParameters`, or open encrypted files by providing the correct password.",
+      "repair": "Correct the class names to `XLSXEncryptor` and `XLSXDecryptor` and reference `AgileEncryptionParameters` as the correct parameter class, matching the public API surface.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.agileencryptionparameters, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The encryption capability description incorrectly references `xlsx_encryptor` and `decrypt_xlsx` as class names, while the facts show the correct public symbols are `xlsx_encryptor` (module) and `XLSXEncryptor` (class), and `decrypt_xlsx` (function)."
+    },
+    {
+      "absent": [
+        "Cell.set_comment()",
+        "PictureCollection"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.comment_xml"
+      ],
+      "id": "F04",
+      "quote": "- **Embed shapes, tables, and comments.** Enhance spreadsheets by embedding `Shape` objects, creating `Table` structures from cell ranges, and adding `comment_xml` content to cells.",
+      "repair": "Add the missing methods and classes: `Cell.set_comment()` for comments and `PictureCollection` for embedded pictures, as specified in the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.shape, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The embedding shapes, tables, and comments capability incorrectly references `comment_xml` as a module name in the description, while the facts show the correct module name is `comment_xml` but the example uses `Cell.set_comment()` which is not mentioned."
+    },
+    {
+      "absent": [
+        "version 26.7.0",
+        "git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip",
+        "package:name"
+      ],
+      "id": "F05",
+      "quote": "Install the published package from PyPI (`aspose-cells-foss`, version 26.7.0):",
+      "repair": "Remove the unsupported version number and the source checkout instructions, sticking to the simple `pip install aspose-cells-foss` command from the original.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git', 'version 26.7.0', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section adds an unnecessary source checkout example that is not in the original README and includes a version number (26.7.0) that is not supported by any fact."
+    },
+    {
+      "absent": [
+        "Workbook.add_worksheet",
+        "Workbook.copy_worksheet",
+        "Workbook.remove_worksheet",
+        "Workbook.get_active_worksheet",
+        "Worksheet.rename"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells"
+      ],
+      "id": "F06",
+      "quote": "#### Detailed Member Reference",
+      "repair": "Remove the 'Detailed Member Reference' subsection entirely and restore the original's concise class list format without method signatures.",
+      "reviewer_scope_defect": "the quote is the heading 'Detailed Member Reference', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section adds a 'Detailed Member Reference' subsection with method signatures that are not supported by any fact and significantly deviate from the original's concise class list."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.standardencryptionparameters"
+      ],
+      "id": "F07",
+      "quote": "- Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading, and the `aspose.cells_foss.StandardEncryptionParameters` class is not available for use.",
+      "repair": "Correct the statement to reflect that `StandardEncryptionParameters` is available as a public symbol, even if its usage for reading is not yet supported.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section incorrectly states that `StandardEncryptionParameters` is not available for use, while the facts explicitly list `public_symbol:aspose.cells_foss.standardencryptionparameters` as supported."
+    },
+    {
+      "absent": [
+        "cfb_writer.CFBWriter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.cfb_handler",
+        "public_symbol:aspose.cells_foss.cfb_writer_minimal"
+      ],
+      "id": "F08",
+      "quote": "| `cfb_writer.CFBWriter` | Writes CFB (Compound File Binary) files according to MS-CFB specification. |",
+      "repair": "Replace `cfb_writer.CFBWriter` with the correct public symbols `cfb_handler.CFBWriter` and `MinimalCFBWriter` as listed in the facts.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cfb_writer.CFBWriter', which the candidate contains",
+      "section_id": "api_reference",
+      "text": "The API Reference section includes a class `cfb_writer.CFBWriter` that is not listed in the facts, while the facts show `cfb_handler.CFBWriter` and `MinimalCFBWriter` as the correct public symbols."
+    },
+    {
+      "absent": [
+        "pure-Python",
+        "depends only on `pycryptodome` (AES encryption) and `olefile` (Compound File Binary handling)",
+        "It covers cell values and formulas, styling, data validation, conditional formatting, auto filters, charts, drawing shap"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "package:name",
+        "package:python_requires",
+        "dependency:pycryptodome-3.15.0",
+        "dependency:olefile-0.46",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "format:input.xlsx",
+        "format:output.xlsx",
+        "format:output.csv"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Cells FOSS for Python provides a free, open-source Python library for creating, reading, and manipulating Excel files in the `.xlsx` format. It enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license.",
+      "reader": 2,
+      "repair": "Rewrite to match the original's factual, technical description: 'Aspose.Cells FOSS for Python is a free, open-source, pure-Python library for creating, reading, and modifying Excel `.xlsx` workbooks without requiring Microsoft Excel. It runs on Python 3.7 or later and depends only on `pycryptodome` (AES encryption) and `olefile` (Compound File Binary handling). It covers cell values and formulas,",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "opening",
+      "text": "The opening paragraph introduces the library with vague marketing language ('enables developers to work with worksheets, cells, styles, data validation, charts, and encryption without requiring Microsoft Excel or a commercial license') instead of the specific, fact-based description present in the original README."
+    },
+    {
+      "absent": [
+        "16 chart types (line, bar, pie, area, box-and-whisker, waterfall, combo, scatter, stock, surface, radar, treemap, sunbur",
+        "Agile encryption per ECMA-376 Part 2 §4",
+        "XLSXEncryptor",
+        "XLSXDecryptor",
+        "CFBReader",
+        "CFBWriter",
+        "Workbook.save(password=...)",
+        "Workbook(path, password=...)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.charttype",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters"
+      ],
+      "id": "F02",
+      "quote": "- **Create and edit Excel workbooks.** Create new workbooks from scratch or load existing Excel files, then read or write cell values using the `Cells` collection on a `Worksheet` obtained by index, name, or active sheet.",
+      "reader": 2,
+      "repair": "Restore the original's detailed, fact-based bullet points that specify 16 chart types, Agile encryption per ECMA-376 Part 2 §4, XLSXEncryptor/XLSXDecryptor, CFBReader/CFBWriter, and the exact API usage (e.g., Workbook.save(password=...)).",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.cells, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section replaces the original's detailed, fact-based bullet points with generic, vague statements that omit critical technical details (e.g., specific chart types, encryption standards, and API class names)."
+    },
+    {
+      "absent": [
+        "XLSXEncryptor",
+        "XLSXDecryptor"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxencryptor",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor.xlsxdecryptor",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters"
+      ],
+      "id": "F03",
+      "quote": "- **Encrypt and protect workbooks.** Secure workbooks by saving them with a password using `xlsx_encryptor` and `AgileEncryptionParameters`, or open encrypted files by providing the correct password.",
+      "reader": 2,
+      "repair": "Replace `xlsx_encryptor` with `XLSXEncryptor` and add `XLSXDecryptor` to match the verified public symbols.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.agileencryptionparameters, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The 'Encrypt and protect workbooks' bullet uses incorrect class names (`xlsx_encryptor` and `decrypt_xlsx`) instead of the verified public symbols `XLSXEncryptor` and `XLSXDecryptor`."
+    },
+    {
+      "absent": [
+        "CommentXMLReader",
+        "CommentXMLWriter"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.comment_xml",
+        "public_symbol:aspose.cells_foss.comment_xml.commentxmlreader",
+        "public_symbol:aspose.cells_foss.comment_xml.commentxmlwriter"
+      ],
+      "id": "F04",
+      "quote": "- **Embed shapes, tables, and comments.** Enhance spreadsheets by embedding `Shape` objects, creating `Table` structures from cell ranges, and adding `comment_xml` content to cells.",
+      "reader": 2,
+      "repair": "Replace `comment_xml` with `CommentXMLReader`/`CommentXMLWriter` to match the verified public symbols.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.cells_foss.shape, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The 'Embed shapes, tables, and comments' bullet uses incorrect class names (`comment_xml`) instead of the verified public symbol `CommentXMLReader`/`CommentXMLWriter`."
+    },
+    {
+      "absent": [
+        "git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git",
+        "cd Aspose.Cells-FOSS-for-Python",
+        "pip install ."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F05",
+      "quote": "To work from a source checkout instead, install the clone with pip: ```bash git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git cd Aspose.Cells-FOSS-for-Python pip install . ```",
+      "reader": 2,
+      "repair": "Remove the unsupported source checkout example and keep only the verified `pip install aspose-cells-foss` command.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'cd Aspose.Cells-FOSS-for-Python', 'git clone https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git', 'pip install .', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section adds an unsupported source checkout example that is not present in the original README or supported by any fact."
+    },
+    {
+      "absent": [
+        "AgileEncryptionParameters",
+        "AutoFilter",
+        "AutoFilterXMLLoader",
+        "AutoFilterXMLWriter",
+        "Border",
+        "Borders",
+        "CFBReader",
+        "CFBWriter-cfb_handler"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.cells_foss",
+        "public_symbol:aspose.cells_foss.agileencryptionparameters",
+        "public_symbol:aspose.cells_foss.auto_filter",
+        "public_symbol:aspose.cells_foss.cell",
+        "public_symbol:aspose.cells_foss.cells",
+        "public_symbol:aspose.cells_foss.chart",
+        "public_symbol:aspose.cells_foss.charttype",
+        "public_symbol:aspose.cells_foss.cfb_handler",
+        "public_symbol:aspose.cells_foss.comment_xml",
+        "public_symbol:aspose.cells_foss.conditional_format",
+        "public_symbol:aspose.cells_foss.data_validation",
+        "public_symbol:aspose.cells_foss.decrypt_xlsx",
+        "public_symbol:aspose.cells_foss.encryption_crypto",
+        "public_symbol:aspose.cells_foss.font",
+        "public_symbol:aspose.cells_foss.formula_evaluator",
+        "public_symbol:aspose.cells_foss.horizontalpagebreakcollection",
+        "public_symbol:aspose.cells_foss.json_handler",
+        "public_symbol:aspose.cells_foss.markdown_handler",
+        "public_symbol:aspose.cells_foss.msodrawingtype",
+        "public_symbol:aspose.cells_foss.nseries",
+        "public_symbol:aspose.cells_foss.numberformat",
+        "public_symbol:aspose.cells_foss.picture",
+        "public_symbol:aspose.cells_foss.saveformat",
+        "public_symbol:aspose.cells_foss.shape",
+        "public_symbol:aspose.cells_foss.sparkline",
+        "public_symbol:aspose.cells_foss.standardencryptionparameters",
+        "public_symbol:aspose.cells_foss.style",
+        "public_symbol:aspose.cells_foss.table",
+        "public_symbol:aspose.cells_foss.verticalpagebreakcollection",
+        "public_symbol:aspose.cells_foss.workbook",
+        "public_symbol:aspose.cells_foss.worksheet",
+        "public_symbol:aspose.cells_foss.xlsx_encryptor",
+        "public_symbol:aspose.cells_foss.xml_loader",
+        "public_symbol:aspose.cells_foss.xml_saver"
+      ],
+      "id": "F06",
+      "quote": "The verified public surface has 130 types.",
+      "reader": 2,
+      "repair": "Restore the original's comprehensive table of 130 public types, including all verified public symbols such as AgileEncryptionParameters, AutoFilter, AutoFilterXMLLoader, AutoFilterXMLWriter, Border, Borders, CFBReader, CFBWriter-cfb_handler, etc.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section replaces the original's comprehensive table of 130 public types with a truncated, incomplete list that omits many verified public symbols."
+    },
+    {
+      "absent": [
+        "StandardEncryptionParameters is available for use"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.cells_foss.standardencryptionparameters"
+      ],
+      "id": "F07",
+      "quote": "- Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading, and the `aspose.cells_foss.StandardEncryptionParameters` class is not available for use.",
+      "reader": 2,
+      "repair": "Correct the limitation to state: 'Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading.' Remove the false claim about StandardEncryptionParameters.",
+      "reviewer_scope_defect": "the finding asks for 'StandardEncryptionParameters is available for use', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section omits the critical fact that Standard encryption (ECMA-376 Part 2, Section 3) is not supported for reading, and incorrectly states that `aspose.cells_foss.StandardEncryptionParameters` is not available for use when the fact `public_symbol:aspose.cells_foss.standardencryptionparameters` proves it is available."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "5ffb978d30731774d36ee753153f62ef072fa6d49c20d49af88af9c39906c22f",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "fa2093a6c35a24a724feae1c0a93713661e8260620a05d516830b02e833ebcc2",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "5b4af6802e28f2886ef081a2",
+      "7bf2dd6eda183d6293dbc405",
+      "8e354b15b1c1dbf784765257",
+      "dcdff0a647163c5adef33c0b"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

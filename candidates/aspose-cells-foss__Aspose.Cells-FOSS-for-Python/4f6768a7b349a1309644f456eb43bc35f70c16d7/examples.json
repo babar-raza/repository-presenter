@@ -1,0 +1,92 @@
+[
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.xlsx",
+        "produced_by": 1,
+        "source_path": "output.xlsx"
+      }
+    ],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": "Cell A1 contains: Hello\r\n"
+  },
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "styled.xlsx",
+        "produced_by": 1,
+        "source_path": "output.xlsx"
+      }
+    ],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "validation.xlsx",
+        "produced_by": 1,
+        "source_path": "output.xlsx"
+      }
+    ],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "input.xlsx",
+        "produced_by": 1,
+        "source_path": "output.xlsx"
+      }
+    ],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_verified": true,
+    "detail": "exit 0",
+    "fixtures": [
+      {
+        "literal": "protected.xlsx",
+        "produced_by": 1,
+        "source_path": "output.xlsx"
+      }
+    ],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]
