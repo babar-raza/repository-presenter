@@ -4,7 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from repository_presenter.core.ecosystems import NET, PYTHON, SPECS, EcosystemSpec, spec_for
+from repository_presenter.core.ecosystems import (
+    CLONE_PREFIX,
+    NET,
+    PYTHON,
+    SPECS,
+    EcosystemSpec,
+    spec_for,
+)
 from repository_presenter.core.errors import ConfigError
 from repository_presenter.core.execution import MAX_TIMEOUT_SECONDS
 
@@ -159,3 +166,26 @@ def test_the_source_checkout_command_is_the_ecosystems_own() -> None:
         install_fact_id="install_command:cmake",
     )
     assert silent.clone_and_build("org/Widget-CPP", "Widget-CPP") == ""
+
+
+def test_measured_build_steps_follow_the_checkout_every_template_spells() -> None:
+    """G4-W17 arrival item 50: a verifier that drove the manifest's own build hands the exact
+    steps it proved to the fact, and they follow the one checkout prefix the templates spell -
+    so a measured command and a templated one read the same to a reader and to BC-02."""
+    assert NET.clone_and_run("org/Widget-NET", "Widget-NET", "npm install\nnpm run build") == (
+        "git clone https://github.com/org/Widget-NET.git\ncd Widget-NET\nnpm install\nnpm run build"
+    )
+    # A spec that declares no template can still carry a measured command: the prefix is shared.
+    silent = EcosystemSpec(
+        ecosystem="typescript",
+        language="TypeScript",
+        fence="typescript",
+        registry="npm",
+        install_fact_id="install_command:npm",
+    )
+    assert (
+        silent.clone_and_run("org/W", "W", "npm install")
+        == CLONE_PREFIX.format(repository="org/W", name="W") + "npm install"
+    )
+    for spec in (PYTHON, NET):
+        assert spec.source_install.startswith(CLONE_PREFIX), spec.ecosystem

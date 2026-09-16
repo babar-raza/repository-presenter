@@ -1142,3 +1142,40 @@ def test_a_verified_source_build_satisfies_bc_02_without_a_registry_reading() ->
         "install_command:dotnet lacks manifest, package-registry, or source-build evidence: "
         "install command for the package id declared by the manifest"
     )
+
+
+def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_prove() -> None:
+    """G4-W17 arrival item 50: BC-02 consults the per-repository receipt for the exact command
+    it names. A source-kind fact whose receipt proved `npm install` may advertise exactly that;
+    one that renders `npm run build` on top advertises a compile nobody measured - the
+    fabricated-claim shape lane B refused to write for Aspose.Cells for TypeScript."""
+    prefix = "git clone https://github.com/org/Widget.git\ncd Widget\n"
+
+    def source_fact(value: str) -> Fact:
+        return Fact(
+            "install_command:npm",
+            "install_command",
+            value,
+            (
+                Evidence("package.json", "install command for the name declared by the manifest"),
+                Evidence(
+                    "examples.json",
+                    "verified source build: the verifier ran `npm install` against this "
+                    "revision, every step exiting 0; the advertised steps are exactly the ones "
+                    "it ran",
+                ),
+            ),
+            attributes={"install_kind": "source", "build_command": "npm install"},
+        )
+
+    honest = source_fact(prefix + "npm install")
+    assert _check_install(_install_candidate(honest, f"```bash\n{honest.value}\n```")) == []
+    inflated = source_fact(prefix + "npm install\nnpm run build")
+    failures = _check_install(_install_candidate(inflated, f"```bash\n{inflated.value}\n```"))
+    assert [failure.detail for failure in failures] == [
+        "install_command:npm advertises build steps its receipt did not prove: the receipt "
+        "names 'npm install', the command ends 'npm install\\nnpm run build'"
+    ]
+    # The template path (no receipt attribute) is judged exactly as before this item.
+    templated = dataclasses.replace(honest, attributes={"install_kind": "source"})
+    assert _check_install(_install_candidate(templated, f"```bash\n{templated.value}\n```")) == []

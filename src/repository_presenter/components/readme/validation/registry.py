@@ -124,8 +124,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-02",
-        "1",
-        "Install command verified against the manifest and the package-registry observation",
+        # 2 (G4-W17 arrival item 50): a source-kind command must end with exactly the steps its
+        # receipt proved - a rendered step nobody measured is a fabricated compile claim.
+        "2",
+        "Install command verified against the manifest and the package-registry observation, or "
+        "against the source-build receipt naming exactly the steps it proved",
         ("installation",),
         "S9",
     ),
@@ -482,6 +485,7 @@ def _check_install(candidate: Candidate) -> list[Failure]:
     failures: list[Failure] = []
     for fact in installs:
         details = " ".join(evidence.detail or "" for evidence in fact.evidence)
+        proved = (fact.attributes or {}).get("build_command", "")
         if fact.polarity != "SUPPORTED":
             last = fact.evidence[-1].detail or "" if fact.evidence else ""
             failures.append(Failure("EXTRACTING", f"{fact.id} is {fact.polarity}: {last}"))
@@ -496,6 +500,19 @@ def _check_install(candidate: Candidate) -> list[Failure]:
                     "EXTRACTING",
                     f"{fact.id} lacks manifest, package-registry, or source-build evidence: "
                     f"{details}",
+                )
+            )
+        elif proved and not (fact.value == proved or fact.value.endswith("\n" + proved)):
+            # G4-W17 arrival item 50: the receipt names the exact steps the verifier proved for
+            # this repository; the command a reader is told to run ends with those and no other.
+            # A rendered `npm run build` nobody measured is the fabricated compile claim lane B
+            # refused to write for Aspose.Cells for TypeScript.
+            tail = "\n".join(fact.value.splitlines()[-(len(proved.splitlines()) + 1) :])
+            failures.append(
+                Failure(
+                    "EXTRACTING",
+                    f"{fact.id} advertises build steps its receipt did not prove: the receipt "
+                    f"names {proved!r}, the command ends {tail!r}",
                 )
             )
         elif f"```bash\n{fact.value}\n```" not in candidate.readme:

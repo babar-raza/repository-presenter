@@ -447,6 +447,7 @@ class TypeScriptPlugin:
             candidates,
             workspace,
             TYPESCRIPT.example_timeout_seconds,
+            TYPESCRIPT.install_timeout_seconds,
         )
 
     def format_claims(self, code: str) -> Sequence[FormatClaim]:

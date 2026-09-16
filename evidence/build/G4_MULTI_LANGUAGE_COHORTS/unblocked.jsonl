@@ -23,3 +23,4 @@
 {"item": 43, "landed_at": "2026-09-11T18:02:33Z", "unlocks": [["lane-e", "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python"]]}
 {"item": 26, "landed_at": "2026-09-11T18:37:26Z", "unlocks": [["lane-b", "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"]]}
 {"item": 47, "landed_at": "2026-09-11T18:50:12Z", "unlocks": [["lane-d", "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"]]}
+{"item": 50, "landed_at": "2026-09-16T10:40:12Z", "unlocks": [["lane-b", "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript"], ["lane-b", "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript"]]}

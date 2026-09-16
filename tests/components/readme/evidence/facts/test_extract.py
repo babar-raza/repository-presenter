@@ -248,6 +248,84 @@ def test_an_executed_receipt_that_did_not_verify_the_build_admits_nothing() -> N
     assert admitted.polarity == "SUPPORTED"
 
 
+TS_ENTRY = RegistryEntry.model_validate(
+    {
+        **ENTRY.model_dump(mode="json"),
+        "repository": "aspose-widget-foss/Aspose.Widget-FOSS-for-TypeScript",
+        "family": "widget",
+        "platform": "typescript",
+        "ecosystem": "typescript",
+    }
+)
+
+
+def _built(command: str, build_verified: bool = True) -> ExampleReceipt:
+    return ExampleReceipt(
+        1, "EXECUTED", 0, "", "", "d", build_verified=build_verified, build_command=command
+    )
+
+
+def _npm_install() -> Fact:
+    return Fact(
+        "install_command:npm",
+        "install_command",
+        "npm install @aspose/widget",
+        (
+            Evidence("package.json", "install command for the name declared by the manifest"),
+            Evidence("https://registry.npmjs.org/@aspose%2Fwidget", "not found on npm"),
+        ),
+        polarity="CONTRADICTED",
+    )
+
+
+def test_a_receipt_naming_the_steps_it_proved_outranks_the_ecosystems_template() -> None:
+    """G4-W17 arrival item 50 (lane B, RESEARCH_LANE_B 617-645). Item 0's gate consulted an
+    example receipt and the ecosystem's one template; TypeScript declares none, because no
+    single command is verified for both its repositories - Aspose.3D builds (`npm run build`
+    exit 0), Aspose.Cells has nothing to build and does not compile - so writing item 0's
+    sentence for either would be a fabricated claim. A verifier that drove the manifest's own
+    build names the exact steps that exited 0 on the receipt, per repository; the fact
+    advertises those steps and states exactly what was proven, and nothing else."""
+    plugin_for("typescript")  # imports platforms/typescript.py, which registers its own spec
+    fact = _npm_install()
+    # Before a receipt names a step: nothing to admit, exactly as before this item.
+    assert _source_build_fact(fact, TS_ENTRY, [_receipt("EXECUTED")]) is fact
+    admitted = _source_build_fact(fact, TS_ENTRY, [_built("npm install\nnpm run build")])
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.value == (
+        "git clone https://github.com/aspose-widget-foss/Aspose.Widget-FOSS-for-TypeScript.git\n"
+        "cd Aspose.Widget-FOSS-for-TypeScript\nnpm install\nnpm run build"
+    )
+    assert admitted.attributes == {
+        "install_kind": "source",
+        "build_command": "npm install\nnpm run build",
+    }
+    assert admitted.evidence[-1].path == "examples.json"
+    assert admitted.evidence[-1].detail == (
+        "verified source build: the verifier ran `npm install` and `npm run build` against "
+        "this revision, every step exiting 0; the advertised steps are exactly the ones it ran"
+    )
+    # Aspose.Cells' shape: only the install proved. The fact says that much and no more.
+    install_only = _source_build_fact(fact, TS_ENTRY, [_built("npm install")])
+    assert install_only.value.endswith("\nnpm install") and "run build" not in install_only.value
+    assert install_only.evidence[-1].detail.startswith(
+        "verified source build: the verifier ran `npm install` against this revision"
+    )
+    # A receipt naming steps it did not verify admits nothing (TB-01 still gates).
+    assert _source_build_fact(fact, TS_ENTRY, [_built("npm install", build_verified=False)]) is fact
+    # Where a template exists too, the measured steps outrank it - the receipt is per repository.
+    measured = _source_build_fact(_install(), NET_ENTRY, [_built("dotnet build -c Release")])
+    assert measured.value.endswith("\ndotnet build -c Release")
+    assert measured.attributes == {
+        "install_kind": "source",
+        "build_command": "dotnet build -c Release",
+    }
+    # A verifier that drove no build leaves the template path exactly as before, receipt-less.
+    templated = _source_build_fact(_install(), NET_ENTRY, [_receipt("EXECUTED")])
+    assert templated.value.endswith("\ndotnet build")
+    assert templated.attributes == {"install_kind": "source"}
+
+
 def test_a_registry_having_ecosystems_unresolved_install_stays_unresolved() -> None:
     """G4-W17 arrival item 24's own mutation test. UNRESOLVED for a registry-having ecosystem
     means the probe could not be read this time - a transient reading, never "not published" -

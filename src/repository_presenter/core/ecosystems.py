@@ -17,6 +17,11 @@ from typing import Final
 
 from repository_presenter.core.errors import ConfigError
 
+# The checkout every source install starts from. An ecosystem's own build steps follow it, whether
+# a spec's ``source_install`` template spells them or a verifier's receipt names the exact steps it
+# proved for one repository (G4-W17 arrival item 50); the templates below spell this same prefix.
+CLONE_PREFIX: Final = "git clone https://github.com/{repository}.git\ncd {name}\n"
+
 
 @dataclass(frozen=True)
 class EcosystemSpec:
@@ -110,6 +115,19 @@ class EcosystemSpec:
         if not self.source_install:
             return ""
         return self.source_install.format(repository=repository, name=name)
+
+    def clone_and_run(self, repository: str, name: str, steps: str) -> str:
+        """The checkout, then the ``steps`` a verifier drove and proved for this repository.
+
+        G4-W17 arrival item 50: a receipt names the exact steps that exited 0 against one
+        repository (`npm install`, or `npm install` then `npm run build`), and those outrank the
+        ecosystem-wide template - which TypeScript does not even declare, because no one command
+        is true for both of its repositories. The same prefix as every template, so a measured
+        command and a templated one read alike to a reader and to BC-02.
+        """
+        if not steps:
+            raise ValueError("a measured source build names at least one step")
+        return CLONE_PREFIX.format(repository=repository, name=name) + steps
 
 
 PYTHON: Final = EcosystemSpec(

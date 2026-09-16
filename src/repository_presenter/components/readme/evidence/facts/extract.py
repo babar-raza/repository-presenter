@@ -82,26 +82,44 @@ def _source_build_fact(
     # -fsyntax-only check never links the library, and a Python example that ran against the
     # repository's own source tree after a failed install proves the code, never the command
     # this fact is about to advertise as "verified against this revision".
-    if not any(receipt.outcome == "EXECUTED" and receipt.build_verified for receipt in receipts):
+    proven = [r for r in receipts if r.outcome == "EXECUTED" and r.build_verified]
+    if not proven:
         return fact
     spec = spec_for(entry.ecosystem)
-    command = spec.clone_and_build(entry.repository, entry.repository.split("/")[-1])
-    if not command:
-        return fact
+    name = entry.repository.split("/")[-1]
+    # G4-W17 arrival item 50 (lane B, RESEARCH_LANE_B 617-645): a verifier that drove the
+    # manifest's own build names the exact steps it proved on the receipt, per repository, and
+    # those outrank the ecosystem-wide template. TypeScript declares no template because no one
+    # command is true for both of its repositories (Aspose.3D: `npm install` then `npm run build`
+    # exit 0; Aspose.Cells: no build script, its own sources do not compile), and this sentence's
+    # older form - "an example executed ... proving the source compiles" - was false for a
+    # type-checked snippet. The evidence states exactly the steps that exited 0, and BC-02 holds
+    # the rendered command to them. A verifier that drove none leaves the template path as it was.
+    measured = next((r.build_command for r in proven if r.build_command), "")
+    if measured:
+        command = spec.clone_and_run(entry.repository, name, measured)
+        steps = " and ".join(f"`{step}`" for step in measured.splitlines())
+        detail = (
+            f"verified source build: the verifier ran {steps} against this revision, every step "
+            "exiting 0; the advertised steps are exactly the ones it ran"
+        )
+        admitted = {"install_kind": "source", "build_command": measured}
+    else:
+        command = spec.clone_and_build(entry.repository, name)
+        if not command:
+            return fact
+        detail = (
+            "verified source build: an example executed against this revision, proving "
+            "the source compiles even though the registry does not yet list the package"
+        )
+        admitted = {"install_kind": "source"}
     return replace(
         fact,
         value=command,
         polarity="SUPPORTED",
         confidence=1.0,
-        attributes={**(fact.attributes or {}), "install_kind": "source"},
-        evidence=(
-            *fact.evidence,
-            Evidence(
-                RECEIPTS_FILENAME,
-                "verified source build: an example executed against this revision, proving "
-                "the source compiles even though the registry does not yet list the package",
-            ),
-        ),
+        attributes={**(fact.attributes or {}), **admitted},
+        evidence=(*fact.evidence, Evidence(RECEIPTS_FILENAME, detail)),
     )
 
 

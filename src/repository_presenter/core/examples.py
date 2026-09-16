@@ -80,6 +80,14 @@ class ExampleReceipt:
     ``extract.py::_source_build_fact`` reads this before promoting an install command to
     SUPPORTED, so a syntax-only or fallback run is never rendered as "verified against this
     revision" for a build that was never actually proven to succeed.
+
+    ``build_command`` says *which* build ``build_verified`` reports on (G4-W17 arrival item 50):
+    the exact steps the verifier drove against the manifest's own build, newline-joined in the
+    order a reader runs them from a checkout, and empty when it drove none. A verifier that
+    records them hands ``_source_build_fact`` a per-repository command to advertise in place of
+    the ecosystem's one template - lane B measured why: Aspose.3D for TypeScript builds with
+    ``npm install`` then ``npm run build``, Aspose.Cells declares no build script and its own
+    sources do not compile, so no single TypeScript template is true for both.
     """
 
     ordinal: int
@@ -90,6 +98,7 @@ class ExampleReceipt:
     detail: str
     fixtures: tuple[FixtureBinding, ...] = ()
     build_verified: bool = True
+    build_command: str = ""
 
 
 def write_receipts(receipts: list[ExampleReceipt], path: Path) -> None:

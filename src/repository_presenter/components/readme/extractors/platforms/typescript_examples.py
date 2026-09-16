@@ -23,18 +23,25 @@ import os
 import re
 import shutil
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from repository_presenter.components.readme.extractors.platforms.typescript_barrel import (
     IGNORED_DIRECTORIES,
     compiler_options,
+    read_json,
 )
 from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.execution import ExecutionResult, execute, profile_environment
 
 _MAX_OUTPUT_CHARS = 4000
 _WORKSPACE_ATTEMPTS = 5
+# Where the package's own build is driven: a copy of the checkout under the run workspace, because
+# the clone is read-only and `npm install` writes a lockfile and `node_modules` into the tree.
+_PRODUCT_DIRECTORY = "rp_product_build"
+# What the copy leaves behind: version control, and whatever an earlier install put there.
+_NOT_COPIED = (".git", "node_modules")
 # `<file>(<line>,<column>): error TSxxxx: <message>` is the only diagnostic shape tsc prints
 # without `--pretty`, which is off by default when stdout is not a terminal.
 _DIAGNOSTIC = re.compile(r"^(?P<file>[^(]+)\((?P<line>\d+),(?P<column>\d+)\): error (?P<rest>.+)$")
@@ -304,14 +311,117 @@ def _version(compiler: str, workspace: Path) -> str:
     return result.stdout.strip() if result.return_code == 0 else ""
 
 
+@dataclass(frozen=True)
+class ProductBuild:
+    """What driving the package's own manifest build proved (G4-W17 arrival item 50).
+
+    ``command`` is the exact steps that exited 0, newline-joined in the order a reader runs them
+    from a checkout, and empty unless every step did: it is what a receipt hands
+    `_source_build_fact` to advertise, so it never names a step that was not proven. ``summary``
+    is the phrase every receipt carries - exit codes only, never a duration: a wall-clock cannot
+    repeat between two runs of one revision, and a receipt that carried one withdrew a seal's
+    no-op proof (net_examples.py, measured 2026-09-06 on Aspose.Cells for .NET).
+    """
+
+    verified: bool
+    command: str
+    summary: str
+
+
+def npm_executable() -> str | None:
+    """`npm` as this machine offers it, or None when it offers none.
+
+    Resolved the way `typescript_compiler` resolves `tsc`: by `which` (the `.cmd` shim first on
+    Windows, where the bare `npm` is a shell script CreateProcess cannot run), then by the
+    toolchain registry, then beside whichever `node` is found - nothing is added to `PATH`.
+    """
+    names = ("npm.cmd", "npm") if os.name == "nt" else ("npm",)
+    for candidate in names:
+        found = shutil.which(candidate)
+        if found:
+            return found
+    recorded = recorded_tool("npm")
+    if recorded:
+        return recorded
+    node = shutil.which("node")
+    if node:
+        for candidate in names:
+            sibling = Path(node).with_name(candidate)
+            if sibling.is_file():
+                return str(sibling)
+    return None
+
+
+def build_product(
+    root: Path, workspace: Path, npm: str | None, timeout_seconds: float
+) -> ProductBuild:
+    """Drive the manifest's own build in a copy of the checkout and say exactly what exited 0.
+
+    Lane B's measurement (RESEARCH_LANE_B 617-645) is why nothing here is a template: `npm
+    install`, then `npm run build` only when `package.json` declares `scripts.build`. Aspose.3D
+    for TypeScript declares one and both steps exit 0; Aspose.Cells declares none and its own
+    sources do not compile (`npx tsc --noEmit` exits 2), so the honest command for it is the
+    install alone and the receipt says nothing was compiled. A type-checked example proves none
+    of this - the snippet is checked against the sources, not against a build - which is why the
+    receipt's `build_verified` and `build_command` are read from here (cpp_examples.py's
+    `build_product` is the same shape for CMake).
+    """
+    if npm is None:
+        return ProductBuild(False, "", "not attempted (no npm on this machine)")
+    copy = workspace / _PRODUCT_DIRECTORY
+    try:
+        shutil.copytree(root, copy, ignore=shutil.ignore_patterns(*_NOT_COPIED), dirs_exist_ok=True)
+    except OSError as error:
+        # The error's text would carry this machine's paths into a receipt; its class does not.
+        return ProductBuild(
+            False, "", f"not attempted (the sources would not copy: {type(error).__name__})"
+        )
+    scripts = read_json(copy / "package.json").get("scripts")
+    declares_build = isinstance(scripts, dict) and bool(scripts.get("build"))
+    steps: list[tuple[str, ...]] = [("install",)]
+    if declares_build:
+        steps.append(("run", "build"))
+    environment = profile_environment(workspace)
+    ran: list[str] = []
+    for step in steps:
+        spelled = " ".join(("npm", *step))
+        result = execute(
+            [npm, *step],
+            workspace=copy,
+            timeout_seconds=timeout_seconds,
+            extra_environment=environment,
+        )
+        after = f" after {' and '.join(f'`{done}` exited 0' for done in ran)}" if ran else ""
+        if result.timed_out:
+            return ProductBuild(
+                False, "", f"failed (`{spelled}` did not exit within {timeout_seconds:g}s{after})"
+            )
+        if result.return_code != 0:
+            return ProductBuild(
+                False, "", f"failed (`{spelled}` exited {result.return_code}{after})"
+            )
+        ran.append(spelled)
+    proven = "; ".join(f"`{done}` exited 0" for done in ran)
+    aside = (
+        "" if declares_build else "; the manifest declares no build script, so nothing was compiled"
+    )
+    return ProductBuild(True, "\n".join(ran), f"succeeded ({proven}{aside})")
+
+
 def verify_typescript_examples(
     root: Path,
     barrel: Path | None,
     candidates: Sequence[ExampleCandidate],
     workspace: Path,
     timeout_seconds: float,
+    install_timeout_seconds: float = 300.0,
 ) -> list[ExampleReceipt]:
-    """One receipt per candidate: type-checked, failed to type-check, or not verified at all."""
+    """One receipt per candidate: type-checked, failed to type-check, or not verified at all.
+
+    Every receipt also carries what the package's own build proved (`build_product`), because a
+    type-checked snippet proves nothing about that and `_source_build_fact` must not read it as
+    if it did (G4-W17 arrival item 50).
+    """
     if not candidates:
         return []
     if barrel is None:
@@ -337,6 +447,7 @@ def verify_typescript_examples(
         return _blocked(
             candidates, f"BLOCKED_TOOLCHAIN: this tsc refuses these options - {refusal}"
         )
+    product = build_product(root, workspace, npm_executable(), install_timeout_seconds)
     receipts: list[ExampleReceipt] = []
     for candidate in candidates:
         name = f"example_{candidate.ordinal:03d}.ts"
@@ -368,7 +479,10 @@ def verify_typescript_examples(
             )
         else:
             outcome = "EXECUTED"
-            detail = f"type-checked against {root.name} with {version.strip()} --noEmit{aside}"
+            detail = (
+                f"type-checked against {root.name} with {version.strip()} --noEmit{aside}; "
+                f"the package's own npm build {product.summary}"
+            )
         receipts.append(
             ExampleReceipt(
                 ordinal=candidate.ordinal,
@@ -378,6 +492,8 @@ def verify_typescript_examples(
                 stderr=_clip(stderr),
                 detail=detail,
                 fixtures=(),
+                build_verified=product.verified,
+                build_command=product.command,
             )
         )
     return receipts
