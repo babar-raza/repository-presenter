@@ -59,10 +59,14 @@ ACCEPT = "ACCEPT"
 # when the finding's own reply omitted it. The "cites at least one product fact" grounding gate
 # item 39 established is untouched.
 # "7" (G4-W17 arrival item 86): a new excluded_disposition_defect, beside excluded_evidence_defect,
-# folds a finding demanding restoration of an inherited_unit S4 marked OMIT_UNSUPPORTED - inert
-# until its one caller (repair/rounds.py) also threads dispositions through, still owed as this
-# item's own resume predicate.
-REVIEWER_LOGIC_VERSION = "7"
+# folds a finding demanding restoration of an inherited_unit S4 marked OMIT_UNSUPPORTED - now live,
+# repair/rounds.py's own review_document call threads dispositions through as of this version.
+# "8" (G4-W17 arrival items 79/96): cited_fact_defect now also folds a presentation-criterion
+# finding that names neither a fact_id nor an absent claim, when the reviewed unit's own product
+# fact citations literally back the quote - the same "nothing checkable" shape factuality_defect
+# already closed for criterion=='factuality', narrowed here to the unit's own bounded evidence so
+# a genuine style complaint citing nothing (the two-reader rule's own reason to exist) still stands.
+REVIEWER_LOGIC_VERSION = "8"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -345,17 +349,46 @@ def cited_fact_defect(
     A cited CONTRADICTED fact leaves the finding standing, exactly as in ``factuality_defect``:
     the reviewer then names a fact that disproves the quote, which is a real finding.
 
-    ``unit_fact_ids`` (G4-W17 arrival item 83) widens the literal-value check the identical way
-    ``factuality_defect`` above is widened, and for the identical reason: the reviewed unit's own
-    ``inherited_unit`` citations, not only the finding's self-reported ones. Still bounded to one
-    unit's own small citation set, never the whole fact set item 45's own collision measured -
-    the gate above is untouched, so a finding citing no product fact of its own still stands.
+    ``unit_fact_ids`` (G4-W17 arrival item 83) widens the literal-value check once a finding
+    already clears the gate below with a product fact of its own, and for the identical reason
+    ``factuality_defect`` above is widened: the reviewed unit's own ``inherited_unit`` citations,
+    not only the finding's self-reported ones. Still bounded to one unit's own small citation
+    set, never the whole fact set item 45's own collision measured.
+
+    G4-W17 arrival items 79/96 (lane E E8, Cells-Python; lane E bcpy LANE-E-07, BarCode-Python):
+    a finding naming NEITHER a fact_id NOR an absent claim is exactly item 39's own "nothing
+    checkable" shape, one criterion over - ``factuality_defect`` above already folds that shape
+    unconditionally, but doing the identical thing here unconditionally would refold a genuine,
+    corroborated presentation judgment that legitimately cites nothing
+    (``test_a_prose_judgment_on_a_required_row_blocks_only_when_a_second_reader_agrees`` - the
+    owner's own two-reader rule exists precisely because a real style complaint need not cite
+    evidence). The safe, narrower version below: only when the REVIEWED UNIT's own *product*-fact
+    citations (never the whole fact set, and never merely its inherited_unit ones - those alone
+    proved nothing above either) literally back the quote is such a finding refuted. Measured on
+    BarCode-Python (F06): a false "this is missing" claim filed under presentation with neither
+    field populated, whose own quote was the reviewed unit's own fact-bound text verbatim - a
+    real style complaint has no reviewed-unit product fact to coincide with its quote by
+    definition, since it is not making a factual claim at all.
     """
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     product = [fact for fact in cited if fact.kind != "inherited_unit"]
-    if not product or any(fact.polarity == "CONTRADICTED" for fact in product):
+    if any(fact.polarity == "CONTRADICTED" for fact in product):
         return None
-    reviewed = [by_id[i] for i in unit_fact_ids if i in by_id and by_id[i].kind == "inherited_unit"]
+    reviewed_cited = [by_id[i] for i in unit_fact_ids if i in by_id]
+    reviewed = [fact for fact in reviewed_cited if fact.kind == "inherited_unit"]
+    if not product:
+        if finding.get("fact_ids") or _claimed_absent(finding):
+            return None  # cites only an inherited_unit, or claims an absence: not this shape
+        reviewed_product = [fact for fact in reviewed_cited if fact.kind != "inherited_unit"]
+        literal = _cited_literal(reviewed_product, quote)
+        if literal is None:
+            return None
+        return (
+            "the finding names neither a fact_id nor an absent claim, and the quote contains "
+            f"the literal value of SUPPORTED fact {literal.id} ({literal.value!r}) which the "
+            "reviewed unit cites as its own evidence: nothing in evidence supports judging it, "
+            "and what evidence exists contradicts it"
+        )
     literal = _cited_literal([*product, *reviewed], quote)
     if literal is None:
         return None

@@ -360,6 +360,56 @@ def test_the_reviewed_units_own_inherited_citation_refutes_a_finding_that_omits_
     assert scope_defect(ungrounded, CANDIDATE, by_id, units=units) is not None
 
 
+def test_a_presentation_finding_naming_nothing_is_refuted_by_its_units_own_product_fact() -> None:
+    """G4-W17 arrival items 79/96 (lane E E8, Cells-Python; lane E bcpy LANE-E-07, BarCode-
+    Python): a presentation finding naming neither a fact_id nor an absent claim used to stand
+    unconditionally - the identical "nothing checkable" shape item 39 already closed for
+    criterion=='factuality', left open one criterion over. Measured on BarCode-Python (F06): a
+    false claim, filed under presentation with neither field populated, whose own quote was
+    verbatim the reviewed unit's own fact-bound text."""
+    quote = "It writes `.glb` files."
+    units: dict[str, Any] = {
+        "units": [
+            {
+                "section": "opening",
+                "slot": "opening",
+                "text": quote,
+                "fact_ids": ["format:output.glb"],
+            }
+        ],
+        "omitted": [],
+    }
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    ungrounded = {
+        **_finding("F06", "opening", "S6", quote),
+        "criterion": "presentation",
+        "fact_ids": [],
+        "absent": [],
+    }
+    # Without the reviewed unit's own citations in scope, nothing here is checkable and the
+    # finding stands - exactly today's behaviour.
+    assert scope_defect(ungrounded, CANDIDATE, by_id) is None
+    # With them, the reviewed unit's own product fact literally backs the quote: refuted.
+    assert scope_defect(ungrounded, CANDIDATE, by_id, units=units) == (
+        "the finding names neither a fact_id nor an absent claim, and the quote contains the "
+        "literal value of SUPPORTED fact format:output.glb ('.glb') which the reviewed unit "
+        "cites as its own evidence: nothing in evidence supports judging it, and what evidence "
+        "exists contradicts it"
+    )
+    # A finding citing an inherited_unit alone - still no product fact anywhere - is untouched:
+    # item 39's own grounding gate ("cites at least one product fact") is not relaxed by this.
+    inherited_only = {**ungrounded, "fact_ids": ["inherited_unit:001.paragraph"]}
+    assert scope_defect(inherited_only, CANDIDATE, by_id, units=units) is None
+    # A finding that DOES claim an absence is absence_defect's shape, never this one's - it has
+    # a real, unrefuted remainder here, so it stands on that ground, untouched by this rule.
+    claims_absence = {**ungrounded, "absent": ["Something else entirely"]}
+    assert scope_defect(claims_absence, CANDIDATE, by_id, units=units) is None
+    # The owner's own two-reader precedent is exactly preserved: a genuine style complaint citing
+    # nothing, with no reviewed-unit product fact in scope, still stands - this is why the fix is
+    # narrower than a blanket generalisation of item 39's factuality rule.
+    assert scope_defect(_judgment("F01", "opening"), CANDIDATE, by_id) is None
+
+
 def test_one_unlocatable_quote_is_folded_out_and_the_other_findings_are_kept() -> None:
     """G4-W17 arrival item 28 (lane D PROPOSAL). Same shape as items 16 and 17, ``d707693``.
 
