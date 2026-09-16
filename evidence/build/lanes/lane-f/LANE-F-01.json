@@ -4,14 +4,15 @@
  "gate": "G4_MULTI_LANGUAGE_COHORTS",
  "work_item": "LANE-F-01",
  "work_item_status": "IN_PROGRESS",
- "recorded_at": "2026-09-16T18:55:00+05:00",
- "control_revision": "ed9b67e",
- "control_revision_note": "Run 4 from worktree C:\\w\\f04, branch lane-f/LANE-F-01-R4 off origin/main at ed9b67e (PR #62 merged: G4-W17 arrival item 53). Arrival items 75-77 (docs/DECISION_LOG.md, admitted from this lane's run 3 F18/F23/F17/F22) are proposals awaiting the primary's shared-code slot, not yet landed as code. The .venv was built by the exact section 1.3 recipe and verified to reproduce the primary's _presenter_site_manifest_hash f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411 before any candidate work. Runs 1-3 stand except where this record names them.",
+ "recorded_at": "2026-09-16T23:00:00+05:00",
+ "control_revision": "1a0173a",
+ "control_revision_note": "Run 5 from worktree C:\\w\f05, branch lane-f/LANE-F-01-R5 off origin/main at 1a0173a (includes 67f4418, arrival item 76 / F17's own fix). Confirms F17 fixed and exposes a second, sibling gap in the same file (F29).",
  "runs": {
   "run_1": "Halted at S4 by a binding reviewer instruction; nothing sealed, nothing dispositioned. Baseline in docs/RESEARCH_LANE_F.md F1-F5.",
   "run_2": "Two repositories run to a verdict and dispositioned, two measured facts-only. Nothing sealed. Three PROPOSALs (F8, F9, F10), all three since landed as G4-W17 arrival items 58, 57 and 59. docs/RESEARCH_LANE_F.md F6-F14.",
   "run_3": "One repository SEALED and no-op proven (3D-.NET), two dispositioned (Slides-.NET BC-10 via placement, Email-.NET BC-10 via review), one not run (PDF-.NET). The lane's first seal; the portfolio count moved 10/34 -> 11/34. Every repository run cleared BC-01..BC-09, which no .NET run in this lane had done before items 57/58/59 landed. docs/RESEARCH_LANE_F.md F15-F25.",
-  "run_4": "This record. PDF-.NET, the only LANE-F-01 repository never run past a facts-only reading, run to a verdict and SEALED and no-op proven on the second composition attempt (the first aborted at S4 on a source_reconciliation truncation, F27). Portfolio count moved 12/34 -> 13/34 (item 53 landed between runs 3 and 4, raising the run-3-end count from 11 to 12 first). docs/RESEARCH_LANE_F.md F26-F27."
+  "run_4": "This record. PDF-.NET, the only LANE-F-01 repository never run past a facts-only reading, run to a verdict and SEALED and no-op proven on the second composition attempt (the first aborted at S4 on a source_reconciliation truncation, F27). Portfolio count moved 12/34 -> 13/34 (item 53 landed between runs 3 and 4, raising the run-3-end count from 11 to 12 first). docs/RESEARCH_LANE_F.md F26-F27.",
+  "run_5": "This record. Slides-.NET re-drawn against 67f4418 (F17). Confirmed fixed; a second, sibling placement gap (F29) now blocks at BC-08 instead. Portfolio count unchanged by this lane (14/34, the rise from 13/34 since run 4 is another lane's PR). docs/RESEARCH_LANE_F.md F28-F29."
  },
  "environment": {
   "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
@@ -25,7 +26,8 @@
  "landed_items_under_test": {
   "57_registry_retry": "CONFIRMED a fourth time. PDF-.NET's preflight and full run both read install_command:dotnet SUPPORTED, evidence 'package registry: found on nuget', and BC-02 PASS.",
   "58_bc07_heading_model": "RE-EXERCISED AND CONFIRMED at real scale. Run 3 could not exercise this (3D-.NET's planner avoided the colliding heading; Slides-.NET has 0 collisions). PDF-.NET measures 34 of 899 verified types sharing a final segment with another (Aspose.Pdf.Color vs Aspose.Pdf.Drawing.Color, etc, F16/F25) - 17x 3D-.NET's 2 - and BC-07 PASSES on the first composition pass. Item 58's own mutation test predicted this; this is the first live corroboration on the cohort's actual worst case.",
-  "59_planning_fact_ids_enum": "CONFIRMED. presentation_planning succeeded on its first live attempt on PDF-.NET despite 12,270 public_symbol facts, 3.2x 3D-.NET's count."
+  "59_planning_fact_ids_enum": "CONFIRMED. presentation_planning succeeded on its first live attempt on PDF-.NET despite 12,270 public_symbol facts, 3.2x 3D-.NET's count.",
+  "76_placement_adjacency_scoping": "CONFIRMED FIXED on real data. Slides-.NET run 5's placements() replay shows _adjacent_rendered_examples correctly returning nothing for inherited_unit:035/036 (their cited examples sit at ordinal distances 2/5/11, none adjacent) - F16's original 46-part round-trip table drop cannot be re-observed on this disposition round because review never ran (blocked earlier, at BC-08), but item 76's own regression test passes in the full suite and the fix visibly does nothing wrong here."
  },
  "repositories": [
   {
@@ -86,68 +88,53 @@
    "repository": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
    "order": 1,
    "source_revision": "9f2d871026829b5bc2ce80e571b1813f5b762ce5",
-   "source_revision_note": "Unchanged from run 2's facts-only reading five days earlier; the G4 manifest row's 622cd5ede213ff1af1c8ff282fdcb300729c6d85 is long gone.",
-   "outcome": "DISPOSITION - BLOCKED_VALIDATION (BC-10), causal stage COMPOSING",
-   "stage_reached": "S11 (one repair round); S10 verdict observed",
+   "source_revision_note": "Unchanged from runs 2 and 3's readings; facts digest byte-identical to run 3's, confirming this run's difference is code-only (F17 landed since).",
+   "outcome": "DISPOSITION - BLOCKED_VALIDATION (BC-08), causal stage COMPOSING",
+   "stage_reached": "S9 (validation); S10/S12 never reached",
    "sealed": false,
-   "provider_call_records": 39,
-   "provider_call_outcomes": "20 success, 17 cache_reuse, 2 response_invalid; every live call http_status 200",
-   "provider_call_span_utc": "10:19:09 to 10:34:22",
+   "provider_call_records": 31,
+   "provider_call_outcomes": "17 success, 14 cache_reuse, 0 errors; every live call http_status 200",
+   "provider_call_span_utc": "17:50:40 to 17:58:33",
    "facts": 2734,
    "facts_polarity": "2733 SUPPORTED, 0 UNRESOLVED, 1 CONTRADICTED",
    "facts_digest": "88ecf857d738f50c9d30afb8a69f2cd8e3aa56f0aab12f047432462d93d73421",
    "source_digest": "d311976a8b3470af5a9e819b4e0e4d5e98efdaa2af31ef3d429f090987cfaaa8",
    "public_symbols": 2589,
-   "examples": "9 candidates; executed 8, failed 1 - example:002, upstream 'CSC : error CS5001: Program does not contain a static Main method suitable for an entry point'",
-   "install_command": "install_command:dotnet SUPPORTED, 'package registry: found on nuget' at https://api.nuget.org/v3-flatcontainer/aspose.slides.foss/index.json. The G4 row's 'Aspose.Slides.FOSS is genuinely not published on NuGet at this revision; no repository fix and no code fix changes that fact' is false today, and EcosystemSpec.source_install was never needed. BC-02 PASS.",
-   "composition": "95 units dispositioned (VERIFIED_PRESERVE 51, SUPERSEDE_REDUNDANT 16, OMIT_UNSUPPORTED 15, VERIFIED_MOVE 11, DEFER_UNRESOLVED 1, VERIFIED_REWRITE 1); plan 17/18 sections, 8 capabilities, 3 hubs, 1+7 examples, 7 links, 6 limitations; 36 content units across 9 sections; README 236 visible lines of 644",
+   "examples": "9 candidates; executed 8, failed 1 - example:002, upstream 'CSC : error CS5001: Program does not contain a static Main method suitable for an entry point' (unchanged from run 3)",
+   "install_command": "install_command:dotnet SUPPORTED, 'package registry: found on nuget'. BC-02 PASS (unchanged from run 3).",
+   "composition": "95 units dispositioned (OMIT_UNSUPPORTED 15, SUPERSEDE_REDUNDANT 36, VERIFIED_MOVE 18, VERIFIED_PRESERVE 25, VERIFIED_REWRITE 1) - a materially different shape from run 3's (VERIFIED_PRESERVE 51, SUPERSEDE_REDUNDANT 16, VERIFIED_MOVE 11) despite identical facts, consistent with F24's flagged source_reconciliation non-reproducibility; plan 17/18 sections, 6 capabilities, 3 hubs, 1+7 examples, 9 links, 6 limitations; 32 content units across 9 sections; README 189 visible lines of 578",
    "validation": {
-    "pass": 9,
+    "pass": 8,
     "fail": 1,
-    "pending": 1,
-    "BC-01_to_BC-09": "ALL PASS - the first .NET run in this lane to clear every deterministic check, BC-02 and BC-07 included",
-    "BC-10": "FAIL at COMPOSING - REJECT_PRESENTATION; F10 scope_limitations: \"The candidate's 'Scope and Limitations' section omits the 'What round-trip does and does not mean' subsection and 'Text language' subsection present in the original.\" One repair attempt, then the equivalent failure stands.",
+    "pending": 2,
+    "BC-01_to_BC-07_and_BC-09": "ALL PASS, BC-02 and BC-07 included",
+    "BC-08": "FAIL at COMPOSING - \"inherited_unit:036.paragraph: VERIFIED_PRESERVE keeps the command 'dotnet new console' but the candidate does not render it\". One repair attempt (S6, additional_examples), then the equivalent failure stands.",
+    "BC-10": "PENDING, judged at S10 - never reached (validation stopped the run at S9 first)",
     "BC-11": "PENDING, judged at S12 - never reached"
    },
-   "review": {
-    "verdict": "REJECT_PRESENTATION",
-    "verdict_as_returned": "REJECT_PRESENTATION",
-    "identity_separate": true,
-    "second_reader_read": 2,
-    "second_reader_corroborated": 8,
-    "findings": 1,
-    "advisory": 13,
-    "note": "The corroboration guard did its job in the blocking direction: the second read raised the same class, so F10 survived the fold stack while 13 other findings folded to advisory."
-   },
-   "finding_adjudicated": "F10 is half right. 'Text language' is a false alarm: inherited_unit:078.paragraph is cited by the plan's own material_limitations and the candidate carries it as a bullet ('A deck written by this library contains no language attribute...'). The round-trip half is real and substantive: inherited_unit:074.paragraph, :075.table and :076.paragraph - the measured 46-part fidelity table ('Parts in / out 46 / 46 ... Parts byte-identical afterwards 42 of 46') - are dispositioned VERIFIED_PRESERVE to scope_limitations and then dropped by composition/placement.py. Nothing else in the candidate renders that measurement, and no content revision at any LLM-owned stage can restore it.",
-   "repair": "1 attempt, misrouted: true, routed to S4. The dispositions are already correct, so the attempt returned a literal no-op change ({\"path\": \"dispositions\", \"before\": \"[]\", \"after\": \"[]\"}), was recorded outcome 'repaired', and F10 was re-raised. Recording a no-op as 'repaired' is noted as an observation, not proposed as a defect: the run's own summary line is honest ('the equivalent failure stands').",
+   "review": null,
+   "finding_adjudicated": "inherited_unit:036.paragraph (README lines 184-188) explains that <ImplicitUsings> defaults on in a `dotnet new console` project, citing example:003/004/006 only as evidence that the claim holds across those samples - not as their lead-in. It is dropped by placement.py's planned_fact_ids(\"additional_examples\"), which returns the section's whole additional_example_ids list unconditionally, with no adjacency scoping (the scoping item 76/F17 added applies only to the separate rendered_examples variable). inherited_unit:035.paragraph is dropped the same way, same cause, but trips no BC check on its own text. No content revision at any LLM-owned stage can restore either unit - the drop is deterministic code, confirmed by one repair round re-raising the identical failure.",
+   "repair": "1 attempt, S6/additional_examples, request_sha256 a0f57b04..., outcome 'repaired' (revised_output.omitted rewritten from [] to non-empty), re_raised: [\"BC-08\"] on re-validation - the equivalent failure stands.",
    "placement_replay": {
     "method": "composition.placement.placements() run offline over this run's own plan.json, dispositions.json and facts.json; zero provider calls",
-    "document_totals": "17 placed, 24 owned_elsewhere, 21 overlap",
     "dropped_units": [
      {
-      "unit": "inherited_unit:074.paragraph",
-      "readme_lines": "432-435",
+      "unit": "inherited_unit:035.paragraph",
+      "readme_lines": "181-183",
       "outcome": "overlap",
-      "overlap_on": "example:009"
+      "overlap_on": "example:003, example:004, example:006"
      },
      {
-      "unit": "inherited_unit:075.table",
-      "readme_lines": "437-444",
+      "unit": "inherited_unit:036.paragraph",
+      "readme_lines": "184-188",
       "outcome": "overlap",
-      "overlap_on": "example:009"
-     },
-     {
-      "unit": "inherited_unit:076.paragraph",
-      "readme_lines": "446-450",
-      "outcome": "overlap",
-      "overlap_on": "example:009"
+      "overlap_on": "example:003, example:004, example:006"
      }
     ],
-    "distance_from_the_example": "example:009's own inherited code block is inherited_unit:056.code_block at README lines 313-322 - 110 lines and three headings away, under a different parent. The three dropped units sit under '### What \"round-trip\" does and does not mean' and cite example:009 as the proof of a measurement; they introduce nothing."
+    "distance_from_the_examples": "example:003's own code block is inherited_unit:038.code_block (distance 2 from unit 036); example:004's is inherited_unit:041.code_block (distance 5); example:006's is inherited_unit:047.code_block (distance 11). None adjacent (distance 1) - _adjacent_rendered_examples correctly excludes all three; the drop is planned_fact_ids's doing, not F17's fix."
    },
-   "resume_predicate": "PROPOSAL F17 lands (placement's rendered_examples coverage is scoped to the unit adjacent to the example's own code block, the shape arrival item 65 was actually measured on), then re-run this repository first: it is the cohort's cleanest candidate on every other axis and stops on one rule.",
-   "g4_manifest_row_status": "The row records BLOCKED_VALIDATION (BC-02) with resume predicate 'arrival item (0) lands, or the package is published to NuGet'. Both halves are now satisfied and the failure class has moved to BC-10; the row is left for the owner to fold rather than amended from this lane."
+   "resume_predicate": "PROPOSAL F29 lands (placement.py's planned_fact_ids scoped for additional_examples/quick_start the same way item 76 scoped rendered_examples), then re-run this repository next: BC-01 through BC-07 and BC-09 all pass, F17's own class does not recur, and review has never yet run against a disposition round this clean.",
+   "g4_manifest_row_status": "The row still records BLOCKED_VALIDATION (BC-02) - stale since run 2 (F12) and run 3 (F16) already established this; left for the owner to fold rather than amended from this lane."
   },
   {
    "repository": "aspose-email-foss/Aspose.Email-FOSS-for-.Net",
@@ -263,7 +250,8 @@
    "defect": "placements() unions rendered_examples - every example the plan renders, in any section - into every destination's covered set, so any preserved unit anywhere that cites a rendered example's fact ID is dropped, including a unit whose relation to the example is evidentiary rather than introductory. Arrival item 65's own measured shape was adjacency (Cells-.NET's inherited_unit:018.paragraph immediately before inherited_unit:019.code_block); the rule as written is scoped by neither destination, position, nor unit kind.",
    "measured_on": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET (BC-10 FAIL)",
    "proposed_shape": "Scope rendered_examples to the inherited unit adjacent to that example's own code block in the source document - the example fact's evidence already names its unit ('unit inherited_unit:056.code_block') and every inherited unit carries its source line range, so adjacency is deterministic with no new input. A narrower variant that also closes the measured defect: exempt units of kind table or list, which no lead-in ever is. Mutation test: a preserved paragraph immediately before an example's code block still drops, a preserved table three units later citing the same example places, and the Cells-.NET line-155 shape still drops.",
-   "alternative_rejected": "Lane F patching placement.py (composition/ is shared code); reverting item 65 (its defect is real and this proposal keeps it)."
+   "alternative_rejected": "Lane F patching placement.py (composition/ is shared code); reverting item 65 (its defect is real and this proposal keeps it).",
+   "status": "LANDED as 67f4418 (arrival item 76, admitted G4-W17). Confirmed fixed on real data by this run (run 5) - see repositories[1].placement_replay: no unit drops via _adjacent_rendered_examples on this disposition round."
   },
   {
    "id": "F18",
@@ -273,7 +261,8 @@
    "defect": "revised_output is typed {\"type\": \"object\"} with no properties, enum or bound, and changes[].fact_ids is an unbounded array of unbounded strings with no enum. Measured on Slides-.NET S11 attempt 1: rejected for 'revised_output: unknown inherited unit inherited_unit:041.heading, :042.heading, :043.table, :044.table' - four IDs naming no unit in the packet - and the whole call was spent. The retry budget is two, so it cost this repository its only usable repair attempt. Separately observed, not proposed: changes[].id uses 'pattern', the keyword section 27.0 D1 rules out by name; it returned HTTP 200 here.",
    "measured_on": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET",
    "proposed_shape": "Build revised_output's schema where the repair packet is built, with the unit IDs the packet actually shows as an enum - the treatment dispositions.py's unit_id and planning.py's five fact-ID arrays already get - plus a maxItems on changes[].fact_ids. Mutation test: a repair output naming a well-formed but unshown unit ID is refused at decode rather than at binding_errors.",
-   "alternative_rejected": "Leaving it because the repair budget usually survives one waste; on this repository it did not."
+   "alternative_rejected": "Leaving it because the repair budget usually survives one waste; on this repository it did not.",
+   "status": "LANDED as 8b10f59 (\"bound repair changes[]\"), confirmed by this file's own git history on origin/main at 1a0173a. Not independently re-exercised by this lane this run (Slides-.NET never reached S11 this round)."
   },
   {
    "id": "F22",
@@ -305,6 +294,17 @@
    "proposed_shape": "Give fact_ids a maxItems beside the existing .items enum assignment at dispositions.py:239, sized from a measured per-unit citation ceiling (this run's six batches cited at most a handful of fact IDs per unit). Mutation test: a stub batch whose fact_ids array runs past maxItems is refused at decode with the array named, not at the token cap.",
    "alternative_rejected": "Raising max_output_tokens past 32000 - defeated by the same unbounded array at any budget. Lane F patching dispositions.py - reconciliation/ is shared code.",
    "measured_detail": "request_sha256 4db383bbc59f5d4a1dbe0ecaec8c5a8ccb03b369eb6d77fc6d86a1e328faebc0, prompt_tokens 73860 both times (byte-identical request). Attempt 1 (2026-09-16T13:02:06Z, latency_ms 644670): completion_tokens exactly 32000, http_status 200, then response_invalid/TruncatedOutput for the same logical_call_id; no calls/<id>.json was ever written (the same absence F23 documented). Attempt 2, 21 minutes later, a genuinely live call: completion_tokens 3016, success - a second concrete instance of F24's flagged same-digest-different-length shape, on a different job and repository than F24's original Email-.NET/section_authoring observation."
+  },
+  {
+   "id": "F29",
+   "title": "placement.py's planned_fact_ids(\"additional_examples\") overlap is unscoped by adjacency - the same defect class as item 76, in a second code path",
+   "file": "src/repository_presenter/components/readme/composition/placement.py:112-113 (planned_fact_ids) and ~:335 (the covered union in placements())",
+   "shared_code": true,
+   "defect": "planned_fact_ids()'s additional_examples branch returns plan.get(\"additional_example_ids\", []) unconditionally - every example ID the plan renders in that section - and placements() folds it straight into covered with no adjacency check. Item 76/F17 scoped the separate rendered_examples variable to _adjacent_rendered_examples; this sibling source was never touched, so a preserved unit destined for additional_examples that cites any example ID the section renders is dropped as overlap regardless of position, including a unit whose relation to the example is evidentiary rather than introductory - the exact class item 76 already fixed once, reproduced in a second place.",
+   "measured_on": "aspose-slides-foss/Aspose.Slides-FOSS-for-.NET (BC-08 FAIL, run 5)",
+   "proposed_shape": "Scope additional_examples' (and, by the same reasoning, quick_start's) contribution to covered through the same _adjacent_rendered_examples ordinal-adjacency test item 76 already built, instead of the raw plan.get(\"additional_example_ids\", [])/quick_start_example_id lookup. Mutation test: a stub unit two ordinals from an additional_examples-bound example's code block, citing that example only as evidence, must be placed, not overlap; a true one-ordinal lead-in must still be owned_elsewhere/dropped (item 76's own existing test must keep passing).",
+   "alternative_rejected": "Lane F patching placement.py (composition/ is shared code, same reasoning as F17). Recording this under F17's own predicate - F17 is landed and independently confirmed fixed; conflating the two would misstate what actually blocks Slides-.NET now.",
+   "measured_detail": "Offline placements() replay (zero provider calls): inherited_unit:035.paragraph and inherited_unit:036.paragraph both drop as overlap on (example:003, example:004, example:006), whose own code blocks sit at ordinal distances 2, 5 and 11 from unit 036 - none adjacent, so _adjacent_rendered_examples correctly contributes nothing; planned_fact_ids is the sole source of the drop."
   }
  ],
  "not_proposed_but_recorded": {
@@ -316,19 +316,19 @@
   "f24_second_instance": "F27's measured_detail (above) is a second concrete instance of F24's flagged same-digest-different-length shape: PDF-.NET's source_reconciliation batch 3, request_sha256 4db383bbc59f5d4a..., 32000 completion tokens (truncated) then 3016 (complete) 21 minutes apart, temperature 0.0 / seed 1. Still not proposed as a mechanism change - F24's own reversal path (a deliberate, controlled repetition) is a primary-side measurement - but the count of independent observations is now two, a different job and repository than F24's original Email-.NET/section_authoring reading."
  },
  "checks": {
-  "local_ci_equivalent": "recorded in the landing commit; see the PR",
+  "local_ci_equivalent": "ruff check ., ruff format --check . (236 files), mypy src (126 files, no issues), pytest -n auto (1202 passed, 16 xfailed, 0 failed) - all green in this worktree before landing; no src/ change this run (lane F owns no shared-code paths), run to confirm the environment and as the Land step's own required check.",
   "canary_runs_this_iteration": 0,
-  "provider_calls_this_run": 53,
-  "provider_calls_note": "53 cumulative PDF-.NET call records across two live present invocations (25 success, 27 cache_reuse, 1 response_invalid); the no-op rerun (third invocation) made 0 live provider calls, which is the point of it."
+  "provider_calls_this_run": 31,
+  "provider_calls_note": "31 call records for Slides-.NET's run 5 present invocation (17 success, all http_status 200; 14 cache_reuse; 0 errors). The run stopped at S9 validation (BC-08 FAIL) before reaching review (S10) or no-op proof (S12)."
  },
  "measurement": {
-  "candidates_before": "12/34",
-  "candidates_after": "13/34",
-  "status_line": "candidates: 13/34 current reviewable no-op-proven; 13 ever sealed, 13 integrity-valid, 10 current-code reproducible, 1 independently accepted (stale-excluded); examples 82/113 verified across counted candidates (repository-presenter status, worktree C:\\w\\f04 rebased onto ed9b67e)",
+  "candidates_before": "14/34",
+  "candidates_after": "14/34",
+  "status_line": "candidates: 14/34 current reviewable no-op-proven; 14 ever sealed, 14 integrity-valid, 11 current-code reproducible, 0 independently accepted (stale-excluded); examples 85/116 verified across counted candidates (repository-presenter status, worktree C:\\w\f05 off origin/main at 1a0173a)",
   "lane_seals_to_date": 2,
   "runs_to_second_seal": 1,
   "repositories_run_this_run": 1,
-  "repositories_clearing_bc01_to_bc09": "1 of 1 - PDF-.NET, including BC-07 against the cohort's real worst-case collision rate (34 of 899), the first live corroboration of item 58 at that scale."
+  "repositories_clearing_bc01_to_bc09": "0 of 1 - Slides-.NET clears BC-01 through BC-07 and BC-09 but fails BC-08 (a different check than run 3's BC-10; F17's own class is confirmed fixed, not recurring)."
  },
- "next_work_item": "LANE-F-01: Slides-.NET once F17 lands, then Email-.NET once F22 and F18 land. Words-.NET stays LANE-F-02, gated on arrival item 54. All four LANE-F-01 repositories have now been run past facts-only at least once; none remain unrun."
+ "next_work_item": "LANE-F-01: Slides-.NET once F29 lands, then Email-.NET once F22 and F18 land (both landed as of 1a0173a - Email-.NET is unblocked but was not drawn this run; flagged as concurrently owned by a separate worker at run 5's start). Words-.NET stays LANE-F-02, gated on arrival item 54. All four LANE-F-01 repositories have now been run past facts-only at least once; none remain unrun."
 }
