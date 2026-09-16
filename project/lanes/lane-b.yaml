@@ -189,7 +189,11 @@ progress:
     except validation.json, which records the new version, the table stayed 9 PASS / 1 FAIL / 1
     PENDING, and the re-invocation cost ZERO provider calls across 23 new cache_reuse rows. Six findings, three PROPOSALs and both dispositions are in docs/RESEARCH_LANE_B.md and
     evidence/build/lanes/lane-b/G4-W13-RERUN5.json, which is the live source. repository-presenter
-    status after the run: 10/34, unchanged.'
+    status after the run: 10/34, unchanged. Post-merge check (loop-prompt-lane section 4) from
+    origin/main at 873af03, after PR #52 landed as 45e9af8: 11/34. The rise is lane F''s
+    Aspose.3D for .NET seal at 6181989, not this lane''s - lane B still has sealed_by_lane 0,
+    and the observed number is recorded here rather than the 10 this run measured in its own
+    tree.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
