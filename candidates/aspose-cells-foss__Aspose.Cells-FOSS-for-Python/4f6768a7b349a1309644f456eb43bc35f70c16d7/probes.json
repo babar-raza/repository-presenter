@@ -1,0 +1,114 @@
+[
+  {
+    "elapsed_ms": 1387,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/python/"
+  },
+  {
+    "elapsed_ms": 4601,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 1752,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 799,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1766,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.svg"
+  },
+  {
+    "elapsed_ms": 728,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/pyversions/aspose-cells-foss.svg"
+  },
+  {
+    "elapsed_ms": 808,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/pypi/v/aspose-cells-foss.svg"
+  },
+  {
+    "elapsed_ms": 1227,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/python/"
+  },
+  {
+    "elapsed_ms": 1088,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/python-net/"
+  },
+  {
+    "elapsed_ms": 908,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/python/"
+  },
+  {
+    "elapsed_ms": 3253,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1194,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://pypi.org/project/aspose-cells-foss/"
+  },
+  {
+    "elapsed_ms": 1320,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/python/"
+  },
+  {
+    "elapsed_ms": 1889,
+    "kind": "package_registry",
+    "observation": "latest 26.7.0",
+    "outcome": "FOUND",
+    "status": 200,
+    "target": "https://pypi.org/pypi/aspose-cells-foss/json"
+  }
+]
