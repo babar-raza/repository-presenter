@@ -103,6 +103,16 @@ def test_cursor_schema_rejects_drift() -> None:
     direct_push["publication"]["direct_default_branch_push_allowed"] = True
     assert errors(validator, direct_push)
 
+    # PHASE1/F9: a queued entry may read COMPLETE (its evidence is a gate manifest's acceptance
+    # record, tied by test_queue_agreement.py); any other invented status is still refused.
+    completed_entry = copy.deepcopy(cursor)
+    completed_entry["next_ready_items"][0]["status"] = "COMPLETE"
+    assert errors(validator, completed_entry) == []
+
+    unknown_queue_status = copy.deepcopy(cursor)
+    unknown_queue_status["next_ready_items"][0]["status"] = "DONE"
+    assert errors(validator, unknown_queue_status)
+
 
 def test_cursor_schema_ties_blockers_to_blocked_statuses() -> None:
     validator = load_schema("state.schema.json")

@@ -1,6 +1,6 @@
 schema_version: 1
 project: repository-presenter
-updated_at: "2026-09-11T07:28:14+05:00"
+updated_at: "2026-09-16T14:59:19+05:00"
 
 authority:
   product: plans/idea.md
@@ -64,7 +64,7 @@ next_ready_items:
   status: PENDING
   purpose: 'Facts-stage cache and stage timings (30.9 B; owner admission, section 31; order per 30.9 decision 7). A present whose source tree hash, extractor version, and environment fingerprint (Python version, OS, resolved site manifest - the RC7 record of 27.5 D4) match a stored result reuses facts.json, examples.json, and the probe records from runs/facts-cache under that key and skips venv creation, pip install, example execution, and the live probes; any mismatch runs the stage and stores the result. pip installs use a per-revision wheel cache and preinstalled build dependencies rather than fetching them from PyPI on every run. The CLI prints per-stage wall-clock (S1 snapshot; S2 facts with venv, install, examples, probes; S3 to S12) and the sealed manifest records them. Runs after G3-W01''s step-one preflight and only if the preflight''s measured median facts stage exceeds 90 seconds per repository; otherwise it is deferred behind G3-W02, recorded in section 31. Acceptance: the no-op rerun of the sealed canary completes in under 30 seconds with zero provider calls and identical bytes; a changed tree or fingerprint invalidates the cache, proven by test; timings appear in present output and the manifest; hosted CI green.'
 - id: G3-W04
-  status: PENDING
+  status: COMPLETE
   purpose: 'Python cohort, second pass (owner, 2026-09-06 07:45; section 28.12 revision; section 31). The ten dispositioned Python repositories re-run against everything that landed since 03:05, with the two blockers the first pass recorded removed: (1) prompt changes no longer cost a seal - dependency evaluation routes a prompt, template or model-route change to VALID_UPDATE_AVAILABLE (ESM G2 work item 2), so a sealed bundle stays current and counted and its re-seal is G5-W02''s; edit the composition prompts the dispositions of BarCode, Email and Note name, with the re-ask and rejection rates measured (27.10); (2) fact coverage: measure the vendored surface reader (G4-W09 facade) against the native Python reader on BarCode, Cells and PDF - public symbols found, and whether each identifier a rejected unit named appears; where the facade finds what the native reader missed, Python reads surface through the facade and parity becomes a recorded measurement. Then every failure class the re-run exposes is fixed in the same iteration it is found (loop-prompt section 6 rule 4 limits mechanism churn, not the number of deterministic fixes with a mutation test each). Yield order: Words, PDF, Cells, Note, Email, BarCode, Font, HTML, TeX, Page. Time box 3 hours from promotion; at the box, seal what passes, dispositions with the new failure class for the rest, accept. Acceptance: second-pass cohort report in the G3 gate manifest; status prints the sealed count; every sealed bundle zero-call proven; no check weakened; hosted CI green.'
 - id: G3-W02
   status: PENDING

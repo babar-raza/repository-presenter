@@ -103,7 +103,7 @@
         "required": ["id", "status", "purpose"],
         "properties": {
           "id": { "$ref": "#/$defs/work_item_id" },
-          "status": { "enum": ["PENDING", "BLOCKED_BY_GATE"] },
+          "status": { "enum": ["PENDING", "BLOCKED_BY_GATE", "COMPLETE"] },
           "owner": { "$ref": "#/$defs/text" },
           "blocked_by": { "$ref": "#/$defs/gate_id" },
           "purpose": { "$ref": "#/$defs/text" }
