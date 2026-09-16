@@ -1,0 +1,90 @@
+[
+  {
+    "elapsed_ms": 777,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/cells/typescript/"
+  },
+  {
+    "elapsed_ms": 2458,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 2322,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/issues"
+  },
+  {
+    "elapsed_ms": 556,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1018,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.svg"
+  },
+  {
+    "elapsed_ms": 914,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/cells/typescript/"
+  },
+  {
+    "elapsed_ms": 775,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/cells/"
+  },
+  {
+    "elapsed_ms": 559,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/cells/typescript/"
+  },
+  {
+    "elapsed_ms": 601,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/cells/typescript/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 883,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/cells/typescript/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "npm-registry-api",
+    "outcome": "CONTRADICTED",
+    "status": null,
+    "target": "npm:excel-cells"
+  }
+]

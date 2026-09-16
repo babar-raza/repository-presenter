@@ -34,8 +34,8 @@ repositories:
 - aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
-  sealed_by_lane: 0
-  dispositions_by_lane: 10
+  sealed_by_lane: 1
+  dispositions_by_lane: 9
   note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
     and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
     symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
@@ -276,7 +276,38 @@ progress:
     correctly and is shared code the lane may not edit. Disposition BLOCKED_INVESTIGATION (S3),
     a new repository for this lane. sealed_by_lane stays 0, dispositions_by_lane rises 9 to 10.
     Full detail in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14-RERUN4.json,
-    the live source. repository-presenter status after the run: 13/34, unchanged by this draw.'
+    the live source. repository-presenter status after the run: 13/34, unchanged by this draw.
+    G4-W14-RERUN5 2026-09-16 21:33 against origin/main at ffb485f, rebased onto 609207e mid-run
+    (branch lane-b/G4-W14-RERUN5, fresh worktree C:/w/b11): genuine changed-input retry of Cells-TS''s
+    G4-W14-RERUN2 disposition, verified before drawing rather than accepted on the spawn instruction''s
+    word alone - git show ef7138c read directly, confirming its own commit message names Cells-TS as
+    one of two corroborating findings for arrival item 75 (a maxLength bound on section_authoring''s
+    previously-unbounded text/omitted.reason fields). Same revision, same 419-fact digest
+    (0078f1968b...) as RERUN2''s identical draw. The api_reference 31-type batch that truncated at
+    exactly 8000 completion tokens on RERUN2 completed cleanly this time - S6 produced 65 content
+    units across 9 sections with zero truncation - and the transaction ran the whole way through:
+    S9 validation BC-01..BC-09 all PASS, S10 independent review verdict ACCEPT (verdict_as_returned
+    REJECT_FACTUAL on the first read, reversed on corroboration - second_reader.read=2, 5
+    corroborated ids, 0 surviving findings, 14 advisory), S12 fresh-process rerun byte-identical
+    with zero provider calls. SEALED: candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript/fc186507e5b7124f4664aa6035f25cfd3112367d,
+    manifest state READY_FOR_PROPOSAL, no_op_proof.byte_identical true. This lane''s first seal
+    across five attempts on this repository (Windows MAX_PATH, then BC-02, then two composing
+    truncations before this one). Mid-run, origin/main advanced to 609207e (BC-07''s canonical-
+    abbreviation section-routing fix, Check version 3 to 4, unrelated to this repository''s own
+    facts); rebased and the transaction re-invoked rather than assumed - the sealed bundle''s own
+    files stayed byte-identical (only manifest.json''s own bookkeeping changed) and
+    repository-presenter status read 14/34 both before and after the rebase, so the seal survives
+    the version bump exactly as RE-RUN5''s BC-02 v1-to-v2 precedent predicted. project/state.yaml''s
+    progress.current_candidates is edited from 13 to 14 in this same commit, by the one narrow
+    method this lane may use: computed fresh from repository-presenter status against the
+    just-rebased tree, not incremented by hand - this closed the one pytest failure the seal itself
+    caused (test_status_reports_this_repository_cursor, cursor 13 vs disk 14), confirmed by a second
+    full local CI-equivalent run after the edit (1192 passed, 16 xfailed, 126s). sealed_by_lane
+    rises 0 to 1; dispositions_by_lane falls 10 to 9 (Cells-TS moves out of disposition into a real
+    seal, not lost). Aspose.3D-FOSS-for-TypeScript is unaffected by this fix (its own RERUN3
+    disposition is a factuality-citation defect, a different shared-code class) and was not
+    redrawn. Full detail in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14-RERUN5.json,
+    the live source. repository-presenter status after the run: 14/34, risen by this draw.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -541,4 +572,25 @@ items:
     corroborating measurement. Re-run once shared code addresses this class, or once the primary
     rules a narrower fix sufficient.'
   run_2026_09_16_r9: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN4.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W14-RERUN5
+  status: ACCEPTED
+  accepted_at: '2026-09-16T21:33:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN5.json
+  purpose: 'Spawn instruction 2026-09-16: re-draw aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript,
+    a genuine changed-input retry of G4-W14-RERUN2''s BLOCKED_COMPOSING disposition (LANE-B-W14R2-F1,
+    the section_authoring 8000-token truncation on its 31-type api_reference batch) now that arrival
+    item 75 (commit ef7138c, bounding section_authoring''s output at every call site with a schema
+    maxLength) has landed on origin/main. Verified directly against the code before drawing, per the
+    standing instruction to check spawn framing rather than accept it at face value: git show ef7138c
+    confirms the fix and that its own commit message names Cells-TS as a corroborating finding. Never
+    force a seal, never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: Cells TypeScript was drawn once, end to end, on the same
+    facts digest as G4-W14-RERUN2, and sealed - BC-01 through BC-11 all PASS, independent review
+    verdict ACCEPT (second_reader.read=2, 5 corroborated ids, 0 findings), a fresh-process rerun
+    byte-identical with zero provider calls. candidates/aspose-cells-foss__Aspose.Cells-FOSS-for-TypeScript/fc186507e5b7124f4664aa6035f25cfd3112367d
+    is READY_FOR_PROPOSAL. Re-invoked (not assumed) after a mid-run rebase onto origin/main 609207e
+    bumped BC-07''s check version 3 to 4; the seal survived unchanged. Nothing remains open for this
+    repository.'
+  run_2026_09_16_r10: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN5.json, which
     is the live source for this run rather than a copy.
