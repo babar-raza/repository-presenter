@@ -20,7 +20,7 @@ import shutil
 import sys
 import tomllib
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
@@ -40,6 +40,12 @@ _ERROR_LINE = re.compile(r"^(\w+(?:\.\w+)*(?:Error|Exception|Warning))(?::|$)", 
 # The path an example's own FileNotFoundError names (G4-W17 arrival item 53): `open()` reprs the
 # name it was handed, so the quotes are repr's and a Windows separator arrives doubled.
 _MISSING_PATH = re.compile(r"No such file or directory: (['\"])(.+?)\1\s*$", re.MULTILINE)
+# The top-level module an example's own ModuleNotFoundError names (G4-W17 arrival item 70).
+_MISSING_MODULE = re.compile(r"No module named ['\"]([\w.]+)['\"]")
+# A requirement string's own package name, the part pip resolves against (`reportlab` from
+# `reportlab>=3.6`, `some-pkg` from `some-pkg[extra]>=1`); stops at the first specifier, marker,
+# or extras-bracket character.
+_REQUIREMENT_NAME = re.compile(r"^[A-Za-z0-9_.-]+")
 # Where the pinned interpreters live when not beside the workspace (G4-W17 arrival item 52): the
 # same override shape typescript_examples gives its toolchain registry, never a PATH edit.
 PYTHON_TOOLCHAINS_VARIABLE = "RP_PYTHON_TOOLCHAINS"
@@ -212,6 +218,60 @@ def missing_input_path(stderr: str, run_dir: Path) -> str | None:
     if not relative or relative.startswith("/") or ".." in path.parts or relative == ".":
         return None
     return relative
+
+
+def missing_module_name(stderr: str) -> str | None:
+    """The top-level module an example's own ``ModuleNotFoundError`` names, or None.
+
+    G4-W17 arrival item 70, measured on Aspose.Note for Python: two examples that exercise PDF
+    export fail with ``ModuleNotFoundError: No module named 'reportlab'`` - a declared
+    ``[project.optional-dependencies] pdf`` extra ``_declared_dependencies`` never reads (it reads
+    ``project.dependencies`` only), so the extra is never installed and ``format:output.pdf`` goes
+    UNRESOLVED for a reason unrelated to whether the format is genuinely supported. A dotted
+    submodule (``a.b.c``) names its own top-level package, the one an extra's requirement installs.
+    """
+    match = _MISSING_MODULE.search(stderr)
+    return match.group(1).split(".", 1)[0] if match else None
+
+
+def _declared_extras(root: Path) -> dict[str, list[str]]:
+    """The manifest's ``[project.optional-dependencies]`` extras, by name, each a list of
+    requirement strings - read without building anything, the same shape
+    ``_declared_dependencies`` reads the required list in."""
+    manifest = root / "pyproject.toml"
+    if not manifest.is_file():
+        return {}
+    try:
+        data = tomllib.loads(manifest.read_text(encoding="utf-8-sig", errors="replace"))
+    except tomllib.TOMLDecodeError:
+        return {}
+    project = data.get("project")
+    extras = project.get("optional-dependencies", {}) if isinstance(project, dict) else {}
+    if not isinstance(extras, dict):
+        return {}
+    return {
+        str(name): [item for item in reqs if isinstance(item, str) and item.strip()]
+        for name, reqs in extras.items()
+        if isinstance(reqs, list)
+    }
+
+
+def _extra_requirements_for(module: str, extras: dict[str, list[str]]) -> list[str] | None:
+    """The declared extra's own requirements that plausibly provide ``module``: a case-insensitive,
+    hyphen/underscore-normalised match of a requirement's package name against the module name -
+    the shape pip's own import name usually takes (``reportlab`` provides ``reportlab``). Not a
+    general import-name resolver (a mismatched pair such as ``Pillow``/``PIL`` is not served) -
+    item 70's own measured case is narrower and better-precedented than that: the same
+    fold-not-reject retry ``verify_python_examples`` already runs for ``NEEDS_INPUT``, applied to
+    the one concrete shape lane E measured, not a speculative general one.
+    """
+    wanted = module.lower().replace("_", "-")
+    for requirements in extras.values():
+        for requirement in requirements:
+            match = _REQUIREMENT_NAME.match(requirement)
+            if match and match.group(0).lower().replace("_", "-") == wanted:
+                return requirements
+    return None
 
 
 def _servable(wanted: str, tree_paths: Sequence[str], produced: ProducedFiles) -> bool:
@@ -496,6 +556,47 @@ def verify_python_examples(
             continue
         retried, _, _ = run(candidate, produced, opened)
         receipts[index] = retried
+    # G4-W17 arrival item 70: an example that FAILED on a ModuleNotFoundError the manifest's own
+    # optional-dependency extras would resolve is given the same one-more-attempt discipline as a
+    # NEEDS_INPUT retry above - the extra that names the missing module installed once, then every
+    # example it could serve retried once. An extra with no matching module is never installed
+    # (this manifest's other extras, `test-pdf` and `dev`, are never touched by this repository's
+    # own PDF examples); a module no extra names is left FAILED exactly as before this item.
+    extras = _declared_extras(root)
+    installed_extras: set[str] = set()
+    for index, receipt in enumerate(receipts):
+        if receipt.outcome != "FAILED":
+            continue
+        module = missing_module_name(receipt.stderr)
+        extra_requirements = _extra_requirements_for(module, extras) if module else None
+        if module is None or extra_requirements is None:
+            continue
+        if module not in installed_extras:
+            execute(
+                [
+                    *pip,
+                    "install",
+                    "--disable-pip-version-check",
+                    "--quiet",
+                    "--target",
+                    str(site),
+                    *extra_requirements,
+                ],
+                workspace=workspace,
+                timeout_seconds=INSTALL_TIMEOUT_SECONDS,
+                extra_environment=install_environment,
+            )
+            installed_extras.add(module)
+        candidate = by_ordinal[receipt.ordinal]
+        retried, written, _ = run(candidate, produced)
+        receipts[index] = replace(
+            retried,
+            detail=f"{retried.detail}; retried after installing declared extra "
+            f"providing {module!r} ({', '.join(extra_requirements)})",
+        )
+        if retried.outcome == "EXECUTED":
+            for path in written:
+                produced.setdefault(path.suffix.lower(), []).append((candidate.ordinal, path))
     return receipts
 
 

@@ -436,6 +436,115 @@ def test_an_example_that_builds_the_path_it_opens_is_served_from_its_own_failure
     assert by_ordinal[3].fixtures == ()
 
 
+def test_the_missing_module_is_read_off_the_examples_own_failure() -> None:
+    """The traceback names the module `import` could not find; a dotted submodule names its own
+    top-level package, the one an extra's requirement actually installs."""
+    trace = (
+        'Traceback (most recent call last):\n  File "example.py", line 1, in <module>\n'
+        "    from reportlab.lib.utils import ImageReader\n"
+        "ModuleNotFoundError: No module named 'reportlab'\n"
+    )
+    assert python_examples.missing_module_name(trace) == "reportlab"
+    submodule = "ModuleNotFoundError: No module named 'widget.saving.pdf_writer'\n"
+    assert python_examples.missing_module_name(submodule) == "widget"
+    assert python_examples.missing_module_name("ValueError: bad input\n") is None
+
+
+def test_a_module_not_found_failure_is_retried_after_installing_its_declared_extra(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 70 (Aspose.Note-FOSS-for-Python): `pdf_writer.py` imports `reportlab`,
+    a declared `[project.optional-dependencies] pdf` extra `_declared_dependencies` never installs
+    (it reads `project.dependencies` only) - so the example fails before proving PDF export and
+    `format:output.pdf` goes UNRESOLVED for a reason unrelated to whether the format is genuinely
+    supported. Retried once, after installing exactly the extra that names the missing module -
+    never the whole extras set (`dev` here is never touched), never a second retry."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "widget"\nversion = "1.0"\n'
+        '[project.optional-dependencies]\npdf = ["reportlab>=3.6"]\ndev = ["pytest"]\n',
+        encoding="utf-8",
+    )
+    tree.append("pyproject.toml")
+    installs: list[list[str]] = []
+    run_count = {"n": 0}
+
+    def fake(argv: list[str], **kwargs: object) -> ExecutionResult:
+        text = [str(a) for a in argv]
+        if "install" in text:
+            installs.append(text)
+            return ExecutionResult(tuple(argv), 0, "", "", False, ())
+        if text and text[-1].endswith("example.py"):
+            run_count["n"] += 1
+            if run_count["n"] == 1:
+                return ExecutionResult(
+                    tuple(argv),
+                    1,
+                    "",
+                    "Traceback (most recent call last):\n"
+                    "ModuleNotFoundError: No module named 'reportlab'\n",
+                    False,
+                    (),
+                )
+            return ExecutionResult(tuple(argv), 0, "ok\n", "", False, ())
+        return ExecutionResult(tuple(argv), 0, "", "", False, ())
+
+    monkeypatch.setattr(python_examples, "execute", fake)
+    receipts = verify_python_examples(
+        root, tree, [_candidate(1, "import reportlab\nprint('ok')\n")], tmp_path / "run"
+    )
+    assert len(receipts) == 1
+    assert receipts[0].outcome == "EXECUTED"
+    assert receipts[0].stdout.strip() == "ok"
+    assert run_count["n"] == 2  # exactly one retry, never a third run
+    assert "retried after installing declared extra providing 'reportlab'" in receipts[0].detail
+    extra_installs = [argv for argv in installs if "reportlab>=3.6" in argv]
+    assert len(extra_installs) == 1  # installed once, not once per example
+    assert not any("pytest" in argv for argv in installs)  # the dev extra is never touched
+
+
+def test_a_module_not_found_failure_with_no_matching_extra_stays_failed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A module no declared extra names (a genuinely missing or misspelled import) is left FAILED
+    exactly as before this item - never a guess, never a second retry attempt."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    tree = _package(root)
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "widget"\nversion = "1.0"\n'
+        '[project.optional-dependencies]\npdf = ["reportlab>=3.6"]\n',
+        encoding="utf-8",
+    )
+    tree.append("pyproject.toml")
+    run_count = {"n": 0}
+
+    def fake(argv: list[str], **kwargs: object) -> ExecutionResult:
+        text = [str(a) for a in argv]
+        if "install" in text:
+            return ExecutionResult(tuple(argv), 0, "", "", False, ())
+        if text and text[-1].endswith("example.py"):
+            run_count["n"] += 1
+            return ExecutionResult(
+                tuple(argv),
+                1,
+                "",
+                "ModuleNotFoundError: No module named 'nosuchpackage'\n",
+                False,
+                (),
+            )
+        return ExecutionResult(tuple(argv), 0, "", "", False, ())
+
+    monkeypatch.setattr(python_examples, "execute", fake)
+    receipts = verify_python_examples(
+        root, tree, [_candidate(1, "import nosuchpackage\n")], tmp_path / "run"
+    )
+    assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "FAILED")]
+    assert run_count["n"] == 1  # never retried
+
+
 def _fake_pinned(root: Path, name: str, version: str) -> Path:
     """A uv-shaped pinned venv: pyvenv.cfg naming its version, an interpreter file beside it."""
     venv = root / name
