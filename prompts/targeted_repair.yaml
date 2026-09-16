@@ -57,19 +57,33 @@ output:
       # reply against post-hoc, so the decoder and the judge agree from the start.
       revised_output:
         type: object
+      # G4-W17 arrival item 75 bounded revised_output; F18's own proposal (lane F, referenced in
+      # item 75's admission text) named a second, still-open gap in this same "unconstrained
+      # object" family - changes[] itself had no bound at any level, so a runaway or malformed
+      # reply could still exhaust the call's token budget past this array before revised_output
+      # even started, costing the fingerprint's one repair attempt on a reply nothing about the
+      # defect required. maxItems 12 and the per-field maxLength/maxItems below are measured
+      # headroom (loop-prompt.md section 3's "least three compositions" rule) over the widest
+      # values recorded across every sealed candidate's repairs.json ledger, 2026-09-16: 2 changes
+      # in one repair, before/after 823/953 chars, path 29 chars, 11 fact_ids at up to 60 chars
+      # each - none of that is a fitted-to-one-sample guess.
       changes:
         type: array
         minItems: 1
+        maxItems: 12
         items:
           type: object
           required: [id, path, before, after, fact_ids]
           additionalProperties: false
           properties:
             id: { type: string, pattern: "^R[0-9]{2}$" }
-            path: { type: string, minLength: 1 }
-            before: { type: string }
-            after: { type: string }
-            fact_ids: { type: array, items: { type: string } }
+            path: { type: string, minLength: 1, maxLength: 120 }
+            before: { type: string, maxLength: 2000 }
+            after: { type: string, maxLength: 2000 }
+            fact_ids:
+              type: array
+              maxItems: 24
+              items: { type: string, maxLength: 150 }
 system: |
   You repair exactly one typed defect in a generated README pipeline for a real repository. The
   defect names a causal stage; you revise that stage's output and nothing else. Deterministic

@@ -316,6 +316,143 @@ def test_validation_failures_route_by_causal_state_and_named_section() -> None:
     assert defects["BC-04"].record["details"] == ["opening/opening cites unknown fact f", "other"]
 
 
+def test_a_check_failing_across_two_llm_owned_sections_yields_two_repairable_defects() -> None:
+    """G4-W17 arrival item 87 (lane B/primary-loop LANE-B-R4-F1). Reproduces PDF-Cpp's BC-08:
+    one blocking check whose failures name two different LLM-owned sections. The old shape
+    (``section = named[0] if named else None``) made every section but the first structurally
+    unrepairable no matter how many rounds ran; the fix returns one Defect per distinct (check,
+    section) pair, each with its own fingerprint and only that section's own failures."""
+    validation = {
+        "checks": [
+            {
+                "id": "BC-08",
+                "verdict": "FAIL",
+                "causal_stage": "COMPOSING",
+                "details": [
+                    "additional_examples/inherited_unit:007.command keeps the command 'foo'",
+                    "development_testing/inherited_unit:008.command keeps the command 'bar'",
+                    "development_testing/inherited_unit:009.command keeps the command 'baz'",
+                ],
+                "failures": [
+                    {
+                        "section_id": "additional_examples",
+                        "causal_stage": "COMPOSING",
+                        "detail": (
+                            "inherited_unit:007.command: VERIFIED_PRESERVE keeps the command "
+                            "'foo' but the candidate does not render it"
+                        ),
+                    },
+                    {
+                        "section_id": "development_testing",
+                        "causal_stage": "COMPOSING",
+                        "detail": (
+                            "inherited_unit:008.command: VERIFIED_PRESERVE keeps the command "
+                            "'bar' but the candidate does not render it"
+                        ),
+                    },
+                    {
+                        "section_id": "development_testing",
+                        "causal_stage": "COMPOSING",
+                        "detail": (
+                            "inherited_unit:009.command: VERIFIED_PRESERVE keeps the command "
+                            "'baz' but the candidate does not render it"
+                        ),
+                    },
+                ],
+            }
+        ]
+    }
+    sections = LLM_SECTIONS | {"additional_examples", "development_testing"}
+    defects = validation_defects(validation, sections)
+    assert [(d.section_id, d.stage) for d in defects] == [
+        ("additional_examples", "S6"),
+        ("development_testing", "S6"),
+    ]
+    # Two distinct, independently attemptable targets - never merged, never re-using one attempt.
+    assert defects[0].fingerprint != defects[1].fingerprint
+    assert (
+        len(defects[0].record["failures"]) == 1
+        and defects[0].record["failures"][0]["section_id"] == "additional_examples"
+    )
+    # development_testing's own defect carries both of its failures, not just the first.
+    assert len(defects[1].record["failures"]) == 2
+    assert {f["detail"] for f in defects[1].record["failures"]} == {
+        "inherited_unit:008.command: VERIFIED_PRESERVE keeps the command 'bar' but the "
+        "candidate does not render it",
+        "inherited_unit:009.command: VERIFIED_PRESERVE keeps the command 'baz' but the "
+        "candidate does not render it",
+    }
+    # Every defect still carries the check's full details list for human-readable context.
+    assert (
+        defects[0].record["details"]
+        == defects[1].record["details"]
+        == validation["checks"][0]["details"]
+    )
+
+
+def test_a_bc08_repair_packet_carries_the_protected_inherited_unit_its_own_defect_names() -> None:
+    """G4-W17 arrival item 88 (lane B/primary-loop LANE-B-R4-F2). ``repair_packet`` excludes every
+    ``inherited_unit``-kind fact by default (RC1), but a BC-08 protected-content defect's entire
+    subject is a specific inherited_unit's own text - the check's own ``detail`` string is built
+    from that exact fact ID. Without the fix the packet has zero facts for what it is asked to
+    restore; with it, exactly the named record is present, never the rest of the corpus."""
+    facts_with_inherited = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact(
+                "inherited_unit:007.command",
+                "inherited_unit",
+                "pip install aspose-pdf-cpp",
+                (Evidence("x"),),
+            ),
+            Fact(
+                "inherited_unit:099.command",
+                "inherited_unit",
+                "an unrelated preserved command nothing here names",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    validation = {
+        "checks": [
+            {
+                "id": "BC-08",
+                "verdict": "FAIL",
+                "causal_stage": "COMPOSING",
+                "details": [],
+                "failures": [
+                    {
+                        "section_id": "additional_examples",
+                        "causal_stage": "COMPOSING",
+                        "detail": (
+                            "inherited_unit:007.command: VERIFIED_PRESERVE keeps the command "
+                            "'pip install aspose-pdf-cpp' but the candidate does not render it"
+                        ),
+                    }
+                ],
+            }
+        ]
+    }
+    defect = validation_defects(validation, LLM_SECTIONS | {"additional_examples"})[0]
+    packet = repair_packet(
+        ENTRY, defect, {"units": []}, facts_with_inherited, [], {"type": "object"}
+    )
+    fact_ids = {record["id"] for record in packet["facts"]}
+    assert "inherited_unit:007.command" in fact_ids
+    assert "inherited_unit:099.command" not in fact_ids  # not named by this defect - not carried
+    named = next(r for r in packet["facts"] if r["id"] == "inherited_unit:007.command")
+    assert named["value"] == "pip install aspose-pdf-cpp"
+    # A defect that names nothing carries no inherited_unit records, exactly as before.
+    plain_review = {"findings": [_finding("F01", "opening", "S6")]}
+    plain_defect = review_defects(plain_review, FACTS, LLM_SECTIONS)[0]
+    plain_packet = repair_packet(
+        ENTRY, plain_defect, {"units": []}, facts_with_inherited, [], {"type": "object"}
+    )
+    assert all(record["kind"] != "inherited_unit" for record in plain_packet["facts"])
+
+
 def test_detail_prose_that_looks_like_a_section_prefix_routes_nothing() -> None:
     # The retired shape read the section off the front of the first detail string, so rewording a
     # message moved the defect (RESEARCH_AND_GUIDELINES.md section 27.2 RC8). Only the field
@@ -573,6 +710,54 @@ def test_the_schema_binds_revised_output_to_the_causal_stages_own_contract() -> 
     assert not validator.is_valid(too_long)
 
 
+def test_changes_are_bounded_so_a_malformed_reply_cannot_exhaust_the_repair_budget() -> None:
+    """F18 (lane F; docs/RESEARCH_LANE_F.md "F18", referenced in G4-W17 arrival item 75's own
+    admission text). Item 75 bounded ``revised_output`` to the causal stage's own contract, but
+    left ``changes[]`` - the array its own commit never touched - with no bound at any level
+    beyond ``minItems: 1``, so a runaway or malformed reply could still exhaust
+    ``max_output_tokens`` inside ``changes`` before ``revised_output`` was ever reached (measured
+    on Slides-.NET and, independently, Email-.NET: a repair attempt was rejected on
+    ``revised_output`` after the model had already spent its budget elsewhere in the same reply).
+    The bounds below are measured headroom over the widest ``changes[]`` ever recorded across
+    every sealed candidate's repairs.json ledger, 2026-09-16 (2 entries; before/after 823/953
+    chars; path 29 chars; 11 fact_ids up to 60 chars each) - not a fitted-to-one-sample guess.
+    """
+    schema = MANIFESTS["targeted_repair"].manifest.output.schema_
+    validator = Draft202012Validator(schema)
+
+    def reply(**change: Any) -> dict[str, Any]:
+        return {
+            "fingerprint": "f1",
+            "causal_stage": "S6",
+            "revised_output": {},
+            "changes": [
+                {
+                    "id": "R01",
+                    "path": "$.units[0].text",
+                    "before": "Old.",
+                    "after": "New.",
+                    "fact_ids": [],
+                    **change,
+                }
+            ],
+        }
+
+    assert validator.is_valid(reply())
+    assert not validator.is_valid(reply(path="x" * 121))
+    assert not validator.is_valid(reply(before="x" * 2001))
+    assert not validator.is_valid(reply(after="x" * 2001))
+    assert not validator.is_valid(reply(fact_ids=[f"id{i}" for i in range(25)]))
+    assert not validator.is_valid(reply(fact_ids=["x" * 151]))
+    too_many_changes = {
+        **reply(),
+        "changes": [
+            {"id": f"R{i:02d}", "path": "p", "before": "b", "after": "a", "fact_ids": []}
+            for i in range(13)
+        ],
+    }
+    assert not validator.is_valid(too_many_changes)
+
+
 def test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision() -> None:
     # RESEARCH_AND_GUIDELINES.md section 27.2, the 2026-09-05 decision: S6's per-task schema
     # requires exactly the plan's slots, so a fix that adds, drops, or re-chooses one belongs to
@@ -586,3 +771,26 @@ def test_a_revision_that_would_change_the_plans_slot_set_is_a_planning_decision(
         probe = SlotSetProbe(frozenset({"lead_in", "lead_in:2"}))
         probe.returned = frozenset(str(u["slot"]) for u in revised["units"])
         assert probe.conflicts is conflicts
+
+
+def test_a_slot_conflict_latches_across_a_repair_calls_own_attempts() -> None:
+    """G4-W17 arrival item 80 (lane E E13). ``rounds.py``'s ``repair_defect`` builds one
+    ``SlotSetProbe`` per repair call and passes the SAME instance to every attempt ``run_job``
+    makes, reading ``conflicts`` only after every attempt is exhausted (``except JobError``).
+    Measured on BarCode-Python: attempt 1 correctly dropped three slots (a real conflict, routed
+    to escalation); attempt 2 complied by emptying those slots' text instead - keeping the plan's
+    own slot set - and tripped ``minLength``. The old comparison recomputed from whichever
+    ``returned`` was set last, so attempt 2's own non-conflicting set silently erased attempt 1's
+    real signal and the finding was wrongly recorded unrepairable instead of escalated."""
+    probe = SlotSetProbe(frozenset({"lead_in", "lead_in:2", "lead_in:3"}))
+    # Attempt 1: the model drops a slot - a real, correctly-routed planning conflict.
+    probe.returned = frozenset({"lead_in", "lead_in:2"})
+    assert probe.conflicts
+    # Attempt 2, same probe instance: the model keeps every slot this time (no conflict of its
+    # own) but the reply is rejected for an unrelated reason (e.g. minLength on the emptied text).
+    probe.returned = frozenset({"lead_in", "lead_in:2", "lead_in:3"})
+    # A fresh comparison against only this last reply would say "no conflict" - the bug. The
+    # latch must still report the conflict attempt 1 actually found.
+    assert probe.conflicts
+    # The last reply's own slot set remains available for the escalation message.
+    assert probe.returned == frozenset({"lead_in", "lead_in:2", "lead_in:3"})

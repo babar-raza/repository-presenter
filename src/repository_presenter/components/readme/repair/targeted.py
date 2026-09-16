@@ -81,14 +81,36 @@ class SlotSetProbe:
     escalation reads this comparison of two sets of slot names - the plan's, and the revision's -
     and never the rejection's prose (docs/RESEARCH_AND_GUIDELINES.md section 27.2, the 2026-09-05
     decision; RC8's rule that routing reads fields).
+
+    One probe instance is shared across every attempt a repair call makes (``repair_defect`` in
+    rounds.py builds it once and passes the same object to every ``checks`` invocation, reading
+    ``conflicts`` only after every attempt is exhausted), so ``conflicts`` latches the first real
+    conflict any attempt observed rather than recomputing from whichever reply happened to arrive
+    last (G4-W17 arrival item 80, lane E E13: on BarCode-Python attempt 1 correctly dropped three
+    slots per a legitimate planning decision - conflicts True - but attempt 2 complied by emptying
+    those slots' text instead, keeping the plan's own slot set and tripping ``minLength``; with
+    the old last-reply-only comparison that second, non-conflicting ``returned`` overwrote the
+    first, so the post-``JobError`` read in rounds.py saw no conflict and recorded the finding
+    unrepairable instead of escalating the correctly-routed planning decision attempt 1 found).
     """
 
     required: frozenset[str]
-    returned: frozenset[str] | None = None
+    _returned: frozenset[str] | None = field(default=None, repr=False)
+    _conflicted: bool = field(default=False, repr=False)
+
+    @property
+    def returned(self) -> frozenset[str] | None:
+        return self._returned
+
+    @returned.setter
+    def returned(self, value: frozenset[str]) -> None:
+        self._returned = value
+        if value != self.required:
+            self._conflicted = True
 
     @property
     def conflicts(self) -> bool:
-        return self.returned is not None and self.returned != self.required
+        return self._conflicted
 
 
 def defect_fingerprint(
@@ -191,7 +213,18 @@ def review_defects(
 def validation_defects(
     validation: dict[str, Any], llm_sections: set[str], repairer: str = ""
 ) -> list[Defect]:
-    """The failing blocking checks routed to the stage a repair may revise."""
+    """The failing blocking checks routed to the stage a repair may revise.
+
+    A COMPOSING check whose failures name more than one LLM-owned section is more than one
+    repairable target: each section's own repair is judged by that section's own checks, so this
+    returns one Defect per distinct (check, section) pair, each with its own fingerprint and its
+    own ``failures`` narrowed to that section alone (G4-W17 arrival item 87, lane B/primary-loop
+    LANE-B-R4-F1: PDF-Cpp's BC-08 raised three failures across two LLM-owned sections -
+    additional_examples and development_testing - and the prior shape named only the first
+    section as ``section = named[0] if named else None``, so development_testing's identical
+    failure was structurally unrepairable by construction and the transaction failed closed on
+    it once the first section was fixed).
+    """
     defects: list[Defect] = []
     context = f"{validation.get('validator_version', '')}|{repairer}"
     for check in validation.get("checks", []):
@@ -201,39 +234,48 @@ def validation_defects(
         stage = STATE_STAGES.get(str(state))
         details = list(check.get("details", []))
         failures = list(check.get("failures", []))
-        section: str | None = None
+        sections: list[str | None] = [None]
         reason: str | None = None
         if stage == "S6":
-            named = [
-                str(failure.get("section_id"))
-                for failure in failures
-                if failure.get("section_id") in llm_sections
-            ]
-            section = named[0] if named else None
-            if section is None:
+            named = list(
+                dict.fromkeys(
+                    str(failure.get("section_id"))
+                    for failure in failures
+                    if failure.get("section_id") in llm_sections
+                )
+            )
+            if named:
+                sections = list(named)
+            else:
                 stage, reason = None, "no failing check names an LLM-owned section"
         elif stage is None:
             reason = f"{state or 'the bundle'} is not repairable by revision"
-        record = {
-            "id": check.get("id"),
-            "name": check.get("name"),
-            "causal_stage": state,
-            "details": details,
-            "failures": failures,
-        }
-        defects.append(
-            Defect(
-                defect_fingerprint(
-                    "validation", section, stage or str(state), str(check.get("id")), context
-                ),
-                "validation",
-                str(check.get("id", "?")),
-                section,
-                stage,
-                record,
-                reason,
+        for section in sections:
+            own_failures = (
+                failures
+                if section is None
+                else [f for f in failures if f.get("section_id") == section]
             )
-        )
+            record = {
+                "id": check.get("id"),
+                "name": check.get("name"),
+                "causal_stage": state,
+                "details": details,
+                "failures": own_failures,
+            }
+            defects.append(
+                Defect(
+                    defect_fingerprint(
+                        "validation", section, stage or str(state), str(check.get("id")), context
+                    ),
+                    "validation",
+                    str(check.get("id", "?")),
+                    section,
+                    stage,
+                    record,
+                    reason,
+                )
+            )
     return defects
 
 
@@ -380,6 +422,7 @@ def repair_packet(
     if allowed is not None:
         permitted = set(allowed)
         records = [record for record in records if record["id"] in permitted]
+    records = [*records, *_named_inherited_units(defect, facts)]
     return {
         "repository": entry.repository,
         "defect": {**defect.record, "fingerprint": defect.fingerprint, "source": defect.source},
@@ -390,6 +433,38 @@ def repair_packet(
         "preserve": list(preserve),
         "output_contract": output_contract,
     }
+
+
+def _named_inherited_units(defect: Defect, facts: FactsDocument) -> list[dict[str, str]]:
+    """The protected ``inherited_unit`` records the defect's own failures/details name - never
+    the whole inherited corpus.
+
+    ``repair_packet`` excludes every ``inherited_unit``-kind fact by default: RC1 measured 69 of
+    76 repair rejections as citations outside the target section's own fact set, so a packet
+    holding evidence the defect is not about invites the same guess-and-reject failure. A BC-08
+    protected-content defect's entire subject is a specific inherited_unit's own text, though -
+    its ``detail`` string is built from that exact fact ID (``validation/registry.py``'s
+    ``_check_protected``, ``f"{unit_id}: {disposition} keeps ..."``) - so the blanket exclusion
+    left it with no citable fact for the wording it is asked to restore (G4-W17 arrival item 88,
+    lane B/primary-loop LANE-B-R4-F2: on PDF-Cpp the four facts naming the missing command were
+    all inherited_unit-kind, and two different prompts on two different request hashes returned
+    the identical no-op - a property of the packet, not one reply's fluke). This widens the
+    exclusion only for the exact records the defect's own ``details``/``failures`` text already
+    names by exact fact-ID match, so a defect naming none carries none, same as before.
+    """
+    haystack = " ".join(
+        [
+            *(str(item) for item in defect.record.get("details", [])),
+            *(str(failure.get("detail", "")) for failure in defect.record.get("failures", [])),
+        ]
+    )
+    if not haystack:
+        return []
+    return [
+        record
+        for record in bounded_records(facts, ["inherited_unit"], ("SUPPORTED",))
+        if record["id"] in haystack
+    ]
 
 
 def repair_schema(manifest: LoadedManifest, output_contract: dict[str, Any]) -> dict[str, Any]:
@@ -445,16 +520,17 @@ def repair_checks(
     errors.extend(f"revised_output: {error}" for error in binding_errors(revised, facts, binding))
     # Read before the stage's own checks, which normalise the units they judge.
     if slots is not None:
-        slots.returned = frozenset(
+        returned = frozenset(
             str(unit.get("slot"))
             for unit in revised.get("units", [])
             if isinstance(unit, dict) and unit.get("slot") is not None
         )
+        slots.returned = returned
         if slots.conflicts:
             errors.append(
                 "revised_output: the plan owns this section's slot set "
                 f"({', '.join(sorted(slots.required))}); a revision filling "
-                f"{', '.join(sorted(slots.returned)) or 'none of them'} would add, drop, or "
+                f"{', '.join(sorted(returned)) or 'none of them'} would add, drop, or "
                 "re-choose a slot, which is a planning decision, not an authoring one"
             )
     if not errors and stage_checks is not None:
