@@ -1,0 +1,76 @@
+{
+ "schema_version": 1,
+ "worker": "pdfpy (one-off, branch pdfpy/LANE-E-08, label primary)",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+ "recorded_at": "2026-09-16T18:01:00Z",
+ "control_revision": "1a0173a",
+ "control_revision_note": "Worktree C:\\w\\pdfpy1, single-use branch pdfpy/LANE-E-08, off origin/main at 1a0173a (contains 609207e). Task: re-draw this repository now that E4/item 78's BC-07 fix (609207e) has landed, per lane-e/LANE-E-01.json's recorded resume predicate for this repository.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\pdfpy1",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the first attempt (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .), confirmed before any candidate work."
+ },
+ "blocker_reverification_before_any_provider_call": {
+  "method": "git merge-base --is-ancestor 609207e origin/main (true), then git show 609207e's diff read in full against validation/registry.py.",
+  "result": "609207e is an ancestor of origin/main (tip 1a0173a at fetch time). registry.py BC-07's canonical-abbreviation loop now locates the first LLM-owned section whose own prose contains the offending word via _section_texts(), setting Failure.section instead of always leaving it None. Confirmed real, not merely claimed."
+ },
+ "present_run": {
+  "command": "repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "revision": "7c472f37e815193f0dc80923457054ed66e05aef",
+  "mode": "dry_run (push disabled, verified)",
+  "outcome": "NOT SEALED - review verdict REJECT_FACTUAL at BC-10; repair could not act on it",
+  "stages": {
+   "examples": "13 candidates; executed 8, failed 5",
+   "facts": "1600 records; digest 9f542106dc367ebc3ffc53e1bf5ee255f88d02f78885cb09834c6d6908c096c7",
+   "S9_validation": "pass 9, fail 1 (BC-10), pending 1 (BC-11, never reached)",
+   "S10_independent_review": "verdict_as_returned (first reader) REJECT_PRESENTATION, all 1st-reader findings folded to advisory; second reader (seed 2) raised its own survivor F05, so final verdict REJECT_FACTUAL per review_document's symmetric accept-path rule (review.py:1064-1089); findings 1, advisory 14",
+   "repair": "0 repaired, 1 unrepairable, 1 re-raised after repair; rounds 2; equivalent failure stands"
+  },
+  "bc07_confirmed_fixed_on_this_repository": "BC-07 version 4 verdict PASS, zero failures - the exact check E4/item 78 fixed. This is the first time this repository has cleared BC-07; it never reached this far before 609207e. No BC-07 abbreviation failure of any kind in this run's validation.json."
+ },
+ "root_cause_of_the_new_blocker": {
+  "check": "BC-10 (independent review), version 4",
+  "failing_finding": "F05, reader 2 (second independent read), causal_stage S6/COMPOSING, criterion factuality, section_id quick_start",
+  "finding_as_recorded": {
+   "quote": "The first example opens an existing PDF file and inspects its page count, version, and document info using the `Document` class from `aspose_pdf`.",
+   "text": "The candidate's first quick start example is omitted, but the facts show example:001 is CONTRADICTED and not citable, so this is correct.",
+   "repair": "No change needed; the first quick start example is correctly omitted as example:001 is CONTRADICTED.",
+   "fact_ids": ["example:001", "example:002"],
+   "absent": []
+  },
+  "ground_truth": "The quote is verbatim, byte-for-byte present in the candidate README's Quick Start section, as the lead-in sentence for example:002 (SUPPORTED, executed exit 0). example:001 (CONTRADICTED, FileExistsError) is correctly and silently omitted - exactly what the contract requires. The content_units.json unit that actually authored this quote (section quick_start, slot lead_in) cites fact_ids ['example:002'] ONLY - it never cites example:001 at all. BC-04 (every unit cites existing SUPPORTED facts) already PASSED on this unit. The finding's own text and repair fields explicitly concede the composition is correct and nothing should change.",
+  "why_it_still_blocked": "review.py's factuality_defect (lines 238-298) computes `cited` from the FINDING's own self-reported fact_ids (line 274: `finding.get('fact_ids', [])`), not from the reviewed unit's own citations. Because the second reader padded its own fact_ids with example:001 (CONTRADICTED) purely as context for why no creation example is shown, `product` at line 282 includes both example:001 and example:002, and the short-circuit at line 289 (`if any(fact.polarity == 'CONTRADICTED' for fact in product): return None`) fires and leaves the finding standing - even though the fact that actually backs the quote (example:002) is SUPPORTED, and the reviewed unit itself never cited the CONTRADICTED fact at all. `_reviewed_unit_fact_ids` (added by G4-W17 item 83, 7ea9c38) already exists and is already threaded into this same function at line 291, but only to widen the SUPPORTED-literal refutation path (`reviewed = [...]` feeding `_cited_literal`) - the CONTRADICTED-stands gate at line 289 was never scoped to it, so a reviewer can still make an otherwise-correct, unit-grounded, SUPPORTED-backed claim block indefinitely by citing an unrelated CONTRADICTED fact of its own choosing alongside it. `excluded_evidence_defect` (line 884) and `absence_defect` cannot catch this either: both key off the finding's `absent` list (line 916: `if _claimed_absent(finding):`), which this finding left empty - the model expressed the omission-justification through `fact_ids`, not `absent`, so no existing refutation path ever runs on it.",
+  "repair_loop_behaviour": "targeted_repair correctly refused to manufacture a change (repairs.json attempt 2a6670181e3e53536c97f875: 'revised_output: matches the causal stage's own output unchanged; a no-op cannot repair a defect this stage's content did not change' - the aee8d5d guard working exactly as designed), then the finding re-raised identically on the re-check. The composition is permanently unrepairable through no fault of the authoring unit - the defect is entirely upstream, in review's own fold logic, matching the E4/item-78 shape (a permanently unrepairable finding with a code-expressible cause) but in review.py rather than registry.py."
+ },
+ "proposal": {
+  "id": "PDFPY-01",
+  "for": "the primary/supervisor - needs arrival-list admission before any lane or worker may land it",
+  "file": "src/repository_presenter/components/readme/review/independent/review.py, factuality_defect, lines 238-298 (the CONTRADICTED short-circuit at lines 289-290)",
+  "proposed_shape": "Scope the CONTRADICTED-stands short-circuit to CONTRADICTED facts the REVIEWED UNIT itself cited (unit_fact_ids), the same source item 83 already threads into this function's SUPPORTED-literal path two lines below (line 291) - not the finding's own self-reported fact_ids alone. Concretely: a cited CONTRADICTED fact keeps a factuality finding standing only when that fact's id is also in unit_fact_ids (i.e. the unit whose text the quote actually is chose to cite it); a CONTRADICTED fact only the reviewer added, that the reviewed unit never cited, is the reviewer's own contextual gloss on an omission, not counter-evidence against the unit's claim, and belongs beside excluded_evidence_defect/absence_defect's reasoning rather than left unrefuted.",
+  "explicitly_not_proposed": "NO removal or weakening of the CONTRADICTED-stands rule for the case it was built for (a finding whose quote asserts something a fact directly contradicts) - every case items 39/63/83 measured had the CONTRADICTED fact among the reviewed unit's own citations, so this scoping changes nothing for them. NO change to absence_defect or excluded_evidence_defect's own absent-list gating - a complementary fix (recognizing an omission-justification finding even when absent is left empty) is a separate, larger change this entry does not propose. Needs its own mutation test (a finding shaped exactly like F05, red before/green after) before landing, per loop-prompt.md section 6 rule 14.",
+  "repository_and_finding": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python at 7c472f37e815193f0dc80923457054ed66e05aef; BC-10 FAIL, review verdict REJECT_FACTUAL, finding F05 (reader 2) as recorded above.",
+  "evidence_paths": [
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/review.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/validation.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/repairs.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/content_units.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/facts.json"
+  ],
+  "note_on_evidence_path_lifetime": "These paths are under runs/ (gitignored, disposable) in worktree C:\\w\\pdfpy1; they are not committed. This evidence file records their content inline so the finding is reproducible after the worktree is removed; a fresh present at the same upstream revision reproduces the identical result deterministically (S4-S10 use stored/cached completions, and the fold logic is a pure function of the finding plus the facts)."
+ },
+ "disposition": {
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "state": "NOT_SEALED",
+  "class": "REVIEW_FOLD_LOGIC_STANDS_ON_A_REVIEWER-ADDED_CONTRADICTED_FACT_THE_REVIEWED_UNIT_NEVER_CITED",
+  "resume_predicate": "PROPOSAL PDFPY-01 (review.py factuality_defect, lines 289-291) lands with its mutation test, then a fresh present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python. E4/item 78 (BC-07) is CLOSED for this repository - confirmed PASS, version 4, this run - and is not part of the resume predicate.",
+  "never_attempted_a_second_equivalent_run": "S4 through S10 all reused stored/cached provider completions (provider_calls 0 at every one of those stages) and the fold logic is deterministic code, so a second present at the same revision would reproduce the identical REJECT_FACTUAL verdict - the cause was narrowed by code-reading to a specific, cited line range instead, per loop-prompt.md section 5's prohibition on a second equivalent attempt."
+ },
+ "counted_unit": {
+  "before": "unchanged - no seal produced by this run",
+  "after": "unchanged",
+  "method": "no state.yaml edit made; nothing sealed"
+ }
+}
