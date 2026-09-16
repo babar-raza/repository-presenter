@@ -66,7 +66,11 @@ ACCEPT = "ACCEPT"
 # fact citations literally back the quote - the same "nothing checkable" shape factuality_defect
 # already closed for criterion=='factuality', narrowed here to the unit's own bounded evidence so
 # a genuine style complaint citing nothing (the two-reader rule's own reason to exist) still stands.
-REVIEWER_LOGIC_VERSION = "8"
+# "9" (G4-W17 arrival item 101, LANE-B-R8-F1): _quoted_chrome now also recognizes the bare
+# `<details>`/`</details>` tag lines the same renderer call sites emit beside the `<summary>` text
+# it already covered - a finding quoting the literal tag was falling through every exemption
+# branch and blocking on content no unit wrote and no repair could remove.
+REVIEWER_LOGIC_VERSION = "9"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -656,8 +660,9 @@ def renderer_owned_defect(
         )
     if _quoted_chrome(finding):
         return (
-            f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-summary "
-            "text; no unit wrote it and none can change it"
+            f"the quote is {_quoted_chrome(finding)!r}, the renderer's own collapsible-section "
+            "chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and "
+            "none can change it"
         )
     unwritten = unit_texts is not None and not _carried_by_units(
         str(finding.get("quote", "")), unit_texts
@@ -696,12 +701,17 @@ def _quoted_heading(finding: Mapping[str, Any]) -> str | None:
 
 # The renderer's own collapsible-details summary text (README_CONTRACT.md rows 12 and 14, the
 # "collapsible" visibility): unlike a heading it carries no leading '#', so it needs its own exact
-# match rather than _quoted_heading's.
-_RENDERED_CHROME = frozenset({ADDITIONAL_EXAMPLES_SUMMARY, API_SURFACE_SUMMARY})
+# match rather than _quoted_heading's. The bare `<details>`/`</details>` tag lines the same call
+# sites emit beside the `<summary>` text (renderer.py:519, 545, 815, 820 - item 101) are the same
+# renderer-owned chrome: no content unit writes them and no repair can remove them.
+_RENDERED_CHROME = frozenset(
+    {ADDITIONAL_EXAMPLES_SUMMARY, API_SURFACE_SUMMARY, "<details>", "</details>"}
+)
 
 
 def _quoted_chrome(finding: Mapping[str, Any]) -> str | None:
-    """The renderer's own collapsible-summary text a finding quotes and nothing else, or None."""
+    """The renderer's own collapsible chrome (summary text or bare tag) a finding quotes and
+    nothing else, or None."""
     quote = str(finding.get("quote", "")).strip()
     return quote if quote in _RENDERED_CHROME else None
 

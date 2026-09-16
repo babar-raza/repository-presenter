@@ -1154,8 +1154,9 @@ def test_a_presentation_finding_against_a_collapsible_sections_chrome_is_the_rev
         "criterion": "presentation",
     }
     assert scope_defect(chrome, CANDIDATE, by_id) == (
-        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-summary "
-        "text; no unit wrote it and none can change it"
+        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-section "
+        "chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and "
+        "none can change it"
     )
     # Mutation: the unit's own prose in the same section still stands.
     prose = {
@@ -1163,6 +1164,45 @@ def test_a_presentation_finding_against_a_collapsible_sections_chrome_is_the_rev
         "criterion": "presentation",
     }
     assert scope_defect(prose, CANDIDATE, by_id) is None
+
+
+def test_a_finding_quoting_the_bare_details_tag_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 101 (LANE-B-R8-F1). renderer.py emits the `<details>`/`</details>`
+    wrapper tags at the same call sites that emit the `<summary>` text the chrome exemption above
+    already covers (renderer.py:519, 545, 815, 820) - but the tag lines themselves carry no
+    leading `#` and are not the summary text, so before this fix neither `_quoted_heading` nor
+    `_quoted_chrome` recognized them and a finding quoting one fell through every exemption.
+
+    Measured on Aspose.PDF for C++: finding F08 (corroborated, second read) quoted exactly
+    `<details>`, mechanically confirmed absent from all 287 content units - a repair call
+    correctly returned a no-op (nothing in any unit's text names it) and was correctly rejected,
+    leaving the finding permanently unrepairable.
+    """
+    by_id = {fact.id: fact for fact in FACTS.facts}
+    for tag in ("<details>", "</details>"):
+        opening = {
+            **_finding("F08", "additional_examples", "S6", tag),
+            "criterion": "presentation",
+        }
+        assert scope_defect(opening, CANDIDATE, by_id) == (
+            f"the quote is {tag!r}, the renderer's own collapsible-section chrome (its summary "
+            "text or its <details>/</details> wrapper); no unit wrote it and none can change it"
+        )
+    # A factuality-labelled finding quoting the same tag is caught the same way - the chrome
+    # exemption is label-independent, exactly like the summary-text case beside it.
+    factuality = {
+        **_finding("F09", "api_reference", "S6", "<details>"),
+        "criterion": "factuality",
+    }
+    assert scope_defect(factuality, CANDIDATE, by_id) is not None
+    # Mutation: a quote that merely contains the tag as a substring, rather than being exactly
+    # the tag, is not chrome - _quoted_chrome is an exact match, same discipline as the summary
+    # text case.
+    substring = {
+        **_finding("F10", "additional_examples", "S6", "See <details> below for more."),
+        "criterion": "presentation",
+    }
+    assert scope_defect(substring, CANDIDATE, by_id) is None
 
 
 def test_a_presentation_finding_against_verified_surface_is_the_reviewers_defect() -> None:
@@ -1694,8 +1734,9 @@ def test_a_factuality_labelled_finding_against_renderer_owned_text_is_the_review
     )
     chrome = _finding("F05", "additional_examples", "S6", ADDITIONAL_EXAMPLES_SUMMARY)
     assert scope_defect(chrome, candidate, by_id) == (
-        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-summary "
-        "text; no unit wrote it and none can change it"
+        f"the quote is {ADDITIONAL_EXAMPLES_SUMMARY!r}, the renderer's own collapsible-section "
+        "chrome (its summary text or its <details>/</details> wrapper); no unit wrote it and "
+        "none can change it"
     )
     # The unblock this buys: a rejection whose findings are all the reviewer's own defect has
     # nothing the loop can act on, so BC-10 no longer holds the candidate on a required row.
