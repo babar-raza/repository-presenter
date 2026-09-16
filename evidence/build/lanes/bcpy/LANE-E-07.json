@@ -1,0 +1,106 @@
+{
+ "schema_version": 1,
+ "lane": "bcpy",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "LANE-E-07",
+ "work_item_status": "NOT_SEALED",
+ "recorded_at": "2026-09-16T18:02:00+00:00",
+ "control_revision": "1a0173a",
+ "control_revision_note": "One-off worker (not lane-e), spawned to re-draw aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python now that G4-W17 arrival item 80 (lane E E13, repair/targeted.py's SlotSetProbe latch) landed as commit 8b10f59. Worktree C:\\w\\bcpy1, branch bcpy/LANE-E-07, created fresh off origin/main at 1a0173a (which contains 8b10f59 as an ancestor - verified by `git log origin/main --oneline` and `git show --stat 8b10f59` before any work began). Owns no platform module; every defect below is a PROPOSAL for the primary, never an edit in this branch. No candidate sealed; this PR adds no candidates/ directory and project/state.yaml is not opened, so the lane prompt's narrow current_candidates exception does not apply.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\bcpy1",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt, verified before any candidate work. Built by project/loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e ."
+ },
+ "gateway": {
+  "command": "repository-presenter preflight",
+  "host": "llm.professionalize.com",
+  "models": 7,
+  "prompt_manifests": 6,
+  "route": "qwen3-next"
+ },
+ "item_80_verification_before_drawing": {
+  "method": "Read against origin/main directly, not assumed from the spawn message's summary.",
+  "commit": "8b10f59926e578189a9f4965b18f7c744a3544dc",
+  "confirmed": "git log origin/main --oneline -10 lists 8b10f59 as an ancestor of HEAD (1a0173a); git show --stat/patch 8b10f59 shows SlotSetProbe.returned replaced by a returned property/setter that latches _conflicted=True the first time any attempt's returned set differs from required, read by the unchanged conflicts property - exactly the fix lane E's own PROPOSAL E13 (evidence/build/lanes/lane-e/LANE-E-03.json) asked for. The commit's own body and the docstring it adds both name 'BarCode-Python' and 'lane E E13' explicitly. tests/components/readme/repair/test_targeted.py gained 208 new lines in the same commit.",
+  "docs_cross_check": "RESEARCH_AND_GUIDELINES.md's G4-W17 purpose (arrival item 80) independently describes the identical defect and fix, admitted 2026-09-16 by the PHASE1 supervisor, naming BarCode-Python as the blocked repository."
+ },
+ "repository": {
+  "name": "aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python",
+  "source_revision": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "outcome": "NOT_SEALED",
+  "previous_failure_class": "CORROBORATED_DUPLICATION_FINDING_WHOSE_ESCALATION_NEVER_FIRES (lane E LANE-E-03, item 80's own unfixed state)",
+  "previous_failure_class_status": "CLOSED - item 80 fixed the escalation path; this draw never hits repair/rounds.py's post-JobError unrepairable branch at all this time (the plan's slot set and the review's findings differ enough from LANE-E-03's draw, itself a consequence of every other G4-W17 fix landed since 2026-09-11, that the specific slot-conflict shape item 80 targeted did not recur - it is confirmed fixed by code reading, not because this draw exercised it)",
+  "failure_class": "UNGROUNDED_PRESENTATION_OMISSION_FINDING_SURVIVES_EVERY_REFUTATION_GATE",
+  "stage": "S10 independent_review / BC-10",
+  "stages_reached": "S1 through S10 and repair round 1; furthest this repository has ever reached",
+  "measured": {
+   "source": "3 files, 136 tree entries, readme README.md, digest 0ce1e023a0fef7f7cf9aede590fa12820bf107276953afb36df651cdccd888ef",
+   "examples": "6 candidates, 6 executed, 0 failed",
+   "facts": "178 records (public_symbol 70, inherited_unit 59, link_target 27, example 6, identity 5, package 4, build_test_asset 2, license 2, dependency 1, import_path 1, install_command 1); digest 77deed930e8dc4b10e805cef1dd60df7207dc0d3c01b46e0c74e1fd2ae191531",
+   "dispositions": "59 units: SUPERSEDE_REDUNDANT 27, VERIFIED_PRESERVE 22, VERIFIED_MOVE 5, OMIT_UNSUPPORTED 2, NON_CONTENT 2, DEFER_UNRESOLVED 1; provider calls 0, model stored output reused",
+   "plan": "sections 16/18, capabilities 6, hubs 12, examples 1+5, links 4, limitations 4; provider calls 0, model stored output reused",
+   "units": "87 units across 8 sections; provider calls 0, model stored output reused",
+   "coherence": "1 of 87 units revised; provider calls 1",
+   "readme": "142 visible lines of 312; digest aeda72d2dea18500f65c797f227898b8108428786fb64ee84f90e1b6f7388fd6",
+   "validation": "pass 9, fail 1 (BC-10); digest abb077cf48e66af1f65c49ce76b673cbc32e059dfb1937bc9defc0fcced6b5a6",
+   "review_round_1": "verdict REJECT_PRESENTATION, findings blocking incl. F02 key_capabilities and F05 scope_limitations",
+   "repair": "2 repaired (F02 S6 key_capabilities, F05 S6 scope_limitations), 0 unrepairable, 1 re-raised after repair (F06); rounds 2",
+   "review_round_2_final": "verdict REJECT_PRESENTATION, findings 1 (F06 scope_limitations), advisory 6 (F01, F02, F03, F05, F07, F08 - each folded with a recorded reviewer_scope_defect reason), preserve 0",
+   "second_reader": "read 2, F06's finding_class corroborated by the second independent read (computed and confirmed directly: finding_class({'section_id':'scope_limitations','causal_stage':'S7','criterion':'presentation'}) == '022197a2d4ecfc92d2341ccd', present in review.json's second_reader.corroborated list) - so this is NOT a single-reader-taste case PHASE1/F6's rule would already exclude; both independent reads raised the same shape of finding",
+   "provider_calls": "2 recorded in calls.jsonl this run (coherence 1, review-round-1 1); every other stage replayed a stored reply by request hash - the call store is machine-local under runs/ (gitignored) but this worktree's requests matched hashes already recorded from other sessions' identical-input calls on this machine, a legitimate cache hit, not a fabricated result (verified: request hashes are content-derived, not run-scoped)"
+  },
+  "the_blocking_finding_is_false": {
+   "claim": "F06 (id F06, criterion presentation, section_id scope_limitations, causal_stage S7/COMPOSING): 'The Scope and Limitations section in the candidate omits the critical detail that PDF rendering is not implemented and raises NotImplementedError, instead using vague phrasing ...'",
+   "read_against_the_bytes": "FALSE. runs/transactions/.../06eca5c.../README.md line 293 reads verbatim: '- PDF rendering is not implemented \u2014 `aspose_barcode_foss.Barcode.to_pdf` and `aspose_barcode_foss.PdfRenderer.render` both raise NotImplementedError.' - grepped directly from the rendered file, not inferred. content_units.json's scope_limitations slot 'limitation:2' carries this exact text, fact-bound to public_symbol:aspose_barcode_foss.barcode.to_pdf and public_symbol:aspose_barcode_foss.pdfrenderer. The 'critical detail' F06 says is omitted is present, correctly fact-bound, and more precise than F06's own suggested replacement (F06's own 'repair' field asks to restore 'Barcode.to_pdf()' and 'PdfRenderer.render()' - bare names - in place of the fully-qualified aspose_barcode_foss.Barcode.to_pdf / aspose_barcode_foss.PdfRenderer.render the candidate already carries; both name the identical fact).",
+   "why_no_existing_check_catches_it": "F06 carries fact_ids: [] and absent: [] (both empty). scope_defect()'s chain (src/repository_presenter/components/readme/review/independent/review.py) runs absence_defect() first (line 408) - it returns None immediately when _claimed_absent(finding) is empty (line 442-443), never checking the candidate's own bytes. Because criterion == 'presentation', the chain then reaches cited_fact_defect() (line 320) - it also returns None immediately when finding.get('fact_ids', []) resolves to no product facts (line 350-353), by the same design factuality_defect() uses. factuality_defect() (line 238) already closes this exact gap for criterion=='factuality' findings: G4-W17 arrival item 39 (2026-09-07, Aspose.Cells for Java finding F07 - byte-identical shape: empty fact_ids, empty absent, quote WAS the sentence called missing) made a factuality finding naming NEITHER a fact_id NOR an absent claim stand refuted, with the exact message 'a factuality finding names neither a product fact_id to contradict the quote nor an absent claim of missing text: nothing in evidence supports judging it' (lines 274-280). No equivalent gate exists for criterion=='presentation' - cited_fact_defect() only ever refutes a presentation finding that DOES cite a product fact whose literal value the quote already contains (item 63's fix); it has no branch for a presentation finding that cites nothing at all. F06 falls exactly into that gap: a required-row (scope_limitations, README_CONTRACT.md row 16) presentation finding, corroborated by two independent reads of the SAME shared bias, that names nothing any repair round could act on because repair_packet's records are drawn from the defect's own citations - item 39's own reasoning ('an assertion nothing could ever disprove or fix') applies verbatim, just under a different criterion value.",
+   "repair_could_not_fix_it": "repairs.json's round-1 F05 attempt DID correctly repair the section (removed the redundant version/license clause from the scope_limitations 'scope' slot, unit path units[0].text scoped to that section's own unit array - confirmed by content_units.json's current scope slot text matching the repair's 'after' value byte for byte). Round 2's review then raised F06 fresh, quoting that same now-repaired 'scope' slot text but complaining about the SEPARATE 'limitation:2' slot's wording. Nothing in the candidate needs to change; there is no second attempt because F06 gives repair_packet no fact_ids and no absent claim to act on - the same terminal shape item 39's docstring already measured once on Cells-Java."
+  },
+  "resume_predicate": "A groundedness gate parallel to factuality_defect's (item 39) lands for criterion=='presentation' findings - either widening cited_fact_defect's early return or adding a criterion-agnostic pre-check in scope_defect() before the criterion switch (src/repository_presenter/components/readme/review/independent/review.py) - then re-run present --repo aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python. No other finding blocks; every other round-2 finding is already correctly advisory with a recorded reviewer_scope_defect."
+ },
+ "proposals": [
+  {
+   "id": "BCPY-01",
+   "for": "the primary, through G4-W17",
+   "title": "cited_fact_defect (and absence_defect) leave a criterion=='presentation' omission finding standing when it cites neither a product fact_id nor a structured absent claim - the exact ungrounded-assertion shape item 39 already closed for criterion=='factuality', left open one criterion over",
+   "files": [
+    "src/repository_presenter/components/readme/review/independent/review.py:238-298 (factuality_defect, the precedent to mirror)",
+    "src/repository_presenter/components/readme/review/independent/review.py:320-366 (cited_fact_defect, the gap)",
+    "src/repository_presenter/components/readme/review/independent/review.py:408-458 (absence_defect, the sibling early return with the same shape)",
+    "src/repository_presenter/components/readme/review/independent/review.py:928-977 (scope_defect, the switch that routes by criterion)"
+   ],
+   "defect": "A finding whose fact_ids and absent are both empty carries nothing scope_defect's criterion-specific refutations can check. factuality_defect (item 39) already refuses to let such a finding stand for criterion=='factuality'. cited_fact_defect has no equivalent refusal for criterion=='presentation': it simply returns None (finding stands) the moment 'product' is empty (line 352-353), identically to how it stood before item 39 for factuality. absence_defect shares the same early-return shape for the same reason (line 442-443) but is criterion-agnostic and cannot alone close the gap, since a presentation finding routes to cited_fact_defect next regardless.",
+   "measured_on_this_repository": {
+    "finding": "F06, aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python, revision 06eca5c01e13ed6d59a640f1cf330c1c5a57d151, round 2 of runs/transactions/aspose-barcode-foss__Aspose.BarCode-FOSS-for-Python/06eca5c01e13ed6d59a640f1cf330c1c5a57d151/review.json",
+    "fact_ids": [],
+    "absent": [],
+    "claim": "scope_limitations omits the PDF-rendering-not-implemented detail",
+    "ground_truth": "README.md line 293 carries that exact detail, fact-bound to two SUPPORTED public_symbol facts",
+    "corroboration": "second independent read raised the identical finding_class (022197a2d4ecfc92d2341ccd) - both reads share whatever bias produced the false claim; corroboration by a second read of the same reviewer prompt under a different seed proves consistency, not truth, when neither read cites anything checkable",
+    "consequence": "review verdict REJECT_PRESENTATION, BC-10 FAIL, candidate NOT_SEALED; repair round 1 correctly fixed the two findings that did cite something (F02, F05) and had nothing to act on for F06"
+   },
+   "why_the_existing_test_misses_it": "tests/components/readme/review/test_independent.py:1653 tests exactly this shape for factuality_defect (item 39's own test, around line 1653-1671, asserting 'a factuality finding names neither a product fact_id ... nor an absent claim ... nothing in evidence supports judging it'). No equivalent test exists for cited_fact_defect with an empty fact_ids and criterion=='presentation' - the suite never constructs that input, so the gap is invisible until a live draw hits it (as this run did).",
+   "governance": "project/loop-prompt.md section 6 rule 5 (never leave a permanent unrepairable finding blocking a candidate) and section 5 (an advisory review finding's cause is decided by test - this one plainly can be: same fact_ids/absent shape, same criterion switch, same file, one criterion value later than item 39 already proved the pattern real).",
+   "not_proposed": [
+    "collapsing cited_fact_defect and factuality_defect into one function - the two already diverge in their literal-value refutation (cited_fact_defect never requires CONTRADICTED-fact handling identically, per item 63's own comment); a shared pre-check ahead of the switch is the narrower change",
+    "weakening BC-10 or the two-reader corroboration rule - both are working correctly; corroboration answers 'did two reads agree', never 'is the claim checkable', and this gap is squarely the second question"
+   ],
+   "reversal_path": "Revert the added gate; F06-shaped findings return to standing unconditionally whenever criterion=='presentation' and both citation fields are empty."
+  }
+ ],
+ "why_no_re_draw": "Repair already ran its one attempt (rounds 2, per project/loop-prompt.md section 5's prohibition on a third equivalent attempt and rounds.py's own two-round budget); F06 is corroborated by both independent reads and would recur identically on a fresh draw at this revision, since nothing in the candidate is wrong and repair has no fact-bound target to revise. Re-running until a composition happens to avoid raising a presentation finding on scope_limitations would be selecting for a seal, not earning one.",
+ "no_seal_and_the_counted_unit_does_not_move": {
+  "status_before": "14/34 current reviewable no-op-proven, on the tree at origin/main 1a0173a",
+  "status_after": "14/34 - this PR adds no candidates/ directory",
+  "note": "No no-op proof was attempted because no bundle was produced; a no-op proof requires a seal, and no seal was possible or forced. project/state.yaml was not opened."
+ },
+ "checks": {
+  "ruff_check": "pass",
+  "ruff_format_check": "pass",
+  "mypy_src": "pass",
+  "pytest_n_auto": "pass",
+  "note": "Documentation-and-evidence-only change (this file and a docs/DECISION_LOG.md append); the full local CI-equivalent was run once before the commit, on this exact tree apart from this note."
+ }
+}
