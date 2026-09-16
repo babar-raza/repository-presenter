@@ -175,11 +175,12 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "BC-07",
-        # "3" (G4-W17 arrival item 58, a meaning change per the increment rule): a level-three
-        # API Reference heading is judged against the name the renderer itself gives the type
-        # (api_reference_names), so a disambiguated `### ThreeD.Property` passes and a bare
-        # `### Property` the renderer never emits for an ambiguous type no longer does.
-        "3",
+        # "4" (G4-W17 arrival item 78, a meaning change per the increment rule): a canonical-
+        # abbreviation failure now names the LLM-owned section its offending word actually sits
+        # in (or None, honestly, when only a renderer-owned section spells it) instead of always
+        # leaving section_id unset - the same locate-by-section-prose treatment the narration
+        # check below it already had.
+        "4",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -936,12 +937,32 @@ def _check_structure(candidate: Candidate) -> list[Failure]:
                 )
     prose = _prose(outside)
     lower_forms = canonical_abbreviations(candidate.facts)
-    for word in sorted(set(_LOWER_WORD.findall(prose))):
-        if word in lower_forms:
+    offenders = sorted(word for word in set(_LOWER_WORD.findall(prose)) if word in lower_forms)
+    if offenders:
+        # G4-W17 arrival item 78 (lane E E4, PDF-Python): a failure with no section_id routes to
+        # section_id None, and repair/targeted.py records "no failing check names an LLM-owned
+        # section" - permanently unrepairable even when the offending word sits in an ordinary
+        # authored section, the same shape the narration check below already solves for itself.
+        # Located the same way: the first LLM-owned section whose own lowercased prose contains
+        # the word, never a deterministic (renderer-owned) section - an abbreviation the renderer
+        # itself spells (a heading, a table cell) is a renderer defect, not a repairable unit, and
+        # stays section_id None honestly rather than routed somewhere a repair cannot act.
+        llm_owned = {section.id for section in SEMANTIC_SHELL if section.owner != "D"}
+        section_prose = {
+            section_id: _prose(text.splitlines()).lower()
+            for section_id, text in _section_texts(candidate.readme).items()
+            if section_id in llm_owned
+        }
+        for word in offenders:
+            located = next(
+                (sid for sid, text in section_prose.items() if re.search(rf"\b{word}\b", text)),
+                None,
+            )
             failures.append(
                 Failure(
                     "COMPOSING",
                     f"abbreviation {word!r} is not in its canonical form {word.upper()}",
+                    located,
                 )
             )
     graphs = [body for language, body in _fences(candidate.readme) if language == "mermaid"]

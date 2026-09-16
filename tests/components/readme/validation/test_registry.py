@@ -384,6 +384,46 @@ def test_internal_narration_names_the_llm_owned_section_that_wrote_it(tmp_path: 
     assert located["section_id"] == "scope_limitations"
 
 
+def test_a_non_canonical_abbreviation_names_the_llm_owned_section_that_wrote_it(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 78 (lane E E4, PDF-Python). The canonical-abbreviation failure carried
+    no `section_id` either - the same unrepairable-by-construction gap item 18 already fixed for
+    internal narration, one check over: `repair/targeted.py` routes a failure with no `section_id`
+    to nothing, and records it unrepairable even though the offending word sits in an ordinary
+    authored section a repair could revise. Located the same way narration already is: the first
+    LLM-owned section whose own prose contains the word."""
+    readme = _candidate().readme
+    lowered = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nIt writes pdf files.\n\n",
+    )
+    assert lowered != readme, "the fixture's Scope and Limitations heading was not found"
+    document = validate_candidate(_candidate(lowered), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    detail = "abbreviation 'pdf' is not in its canonical form PDF"
+    assert detail in structure["details"]
+    located = next(f for f in structure["failures"] if f["detail"] == detail)
+    assert located["section_id"] == "scope_limitations"
+
+
+def test_an_abbreviation_only_a_deterministic_section_spells_names_no_section(
+    tmp_path: Path,
+) -> None:
+    """The other half of item 78: a word only the renderer itself spells (a heading, a table
+    cell - never authored prose) is a renderer defect, not a repairable unit, and stays honestly
+    unrouted rather than pointed at an LLM-owned section that never wrote it."""
+    readme = _candidate().readme
+    trailer = readme + "\nSee pdf output above.\n"
+    document = validate_candidate(_candidate(trailer), tmp_path, ())
+    structure = _failed(document, "BC-07")
+    detail = "abbreviation 'pdf' is not in its canonical form PDF"
+    assert detail in structure["details"]
+    located = next(f for f in structure["failures"] if f["detail"] == detail)
+    # Appended past the last real section's own text, so no LLM-owned section's prose has it.
+    assert located["section_id"] is None
+
+
 def test_narration_catches_a_claim_about_the_documents_own_verification(tmp_path: Path) -> None:
     """External review, 2026-09-07: measured twice, verbatim, in a sealed candidate's Additional
     Examples lead-in - "More real, verified snippets are collected below" - a claim about the
