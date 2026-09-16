@@ -1778,3 +1778,306 @@ It claims eleven passing checks, a proof reproduced twice, and 14 of 14 files st
 second rerun. It does not claim that items 28, 29 and 45 are individually attributable — this run
 did not separate them, as RERUN3 already said. It says nothing about `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`,
 which was not run. `sealed_by_lane` 1 → 2 and `dispositions_by_lane` 2 → 1.
+
+## 2026-09-16 15:45 — G4-W15-RERUN5, Aspose.PDF for Go, after arrival items 46 and 47
+
+`origin/main` at `4cd0219`, branch `lane-d/G4-W15-RERUN5`, worktree `C:\w\d15r5`. Receipt:
+`evidence/build/lanes/lane-d/G4-W15-RERUN5.json`. Scope: `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go`
+only — the lane's other two repositories were not run. This is the lane's first run after the
+four-day dormancy that began with the 2026-09-11 machine restart.
+
+Environment confirmed before any candidate work, as §1.3 requires:
+`_presenter_site_manifest_hash()` prints
+`f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411`, the reference value every
+sealed bundle carries. Toolchain resolved by `shutil.which("go")` to `C:\Program Files\Go\bin\go.EXE`,
+`go1.26.4 windows/amd64`. The repository is at a **new revision**,
+`6784921e711f00a26fb30a0be279965502d3ff34` ("ship as v0.9.0"), not the
+`2306eeb06216be4d9cb663adcb85155594572c11` every earlier run in this file used; its README has grown
+from 913 lines to 987 and its public surface from 1,467 symbols to 1,560.
+
+### Both named blockers landed, and both did what their proposals said
+
+The disposition's resume predicate was "PROPOSAL P19 and PROPOSAL P20 landed on `main`, then rerun".
+Both are confirmed by reading `main`'s code, not by trusting a ledger line — though the ledger agrees:
+`evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl` records
+`{"item": 47, "landed_at": "2026-09-11T18:50:12Z", "unlocks": [["lane-d",
+"aspose-pdf-foss/Aspose-PDF-FOSS-for-Go"]]}`.
+
+**PROPOSAL P19 / arrival item 46 (`dd7dc73`).** `composition/authoring.py::_bare_angle_bracket` now
+judges the `<` marker against the raw text with code spans removed, so a bracket inside a span is a
+command's own placeholder rather than an HTML tag opener. Measured directly, offline, on the exact
+string whose two `targeted_repair` attempts were rejected identically on 2026-09-07:
+
+    _bare_angle_bracket("Run it with `go run ./_examples/<name>` from the repository root.")  -> False
+    _bare_angle_bracket("Use a <div> here.")                                                  -> True
+
+**BC-08 PASSES** in runs 1 and 3 — the two of this item's three runs that reached validation at
+all. `BC08_PROTECTED_COMMAND_IS_UNWRITABLE_PROSE` is closed, measured.
+
+**PROPOSAL P20 / arrival item 47 (`78555bc`).** `validation/registry.py::_check_links` now builds the
+anchor failure with the shell section read off the link's own rendered line. Measured in this run's
+own `validation.json`, the anchor failure carries
+
+    {"causal_stage": "COMPOSING",
+     "detail": "#encryption-and-signing: no heading #encryption-and-signing",
+     "section_id": "additional_examples"}
+
+where every earlier run of this repository carried `section_id: null`. The field item 47 exists to
+set is set. The unit is `inherited_unit:025.paragraph`, `VERIFIED_PRESERVE` into
+`additional_examples`, whose own sentence is "encryption (RC4 / AES-128 / AES-256) is covered in
+[Encryption and Signing](#encryption-and-signing) below" — the upstream README still renders that
+heading at line 657, and the candidate's plan still renders no such heading.
+
+### Run 1 — 7 pass, 2 fail, 2 pending, and neither failure is the one that was blocking
+
+1,715 facts (1,560 public symbols, 92 inherited units, 43 link targets, 6 examples; 1,712 SUPPORTED),
+92 units dispositioned in one round, a 16-of-18-section plan, 42 units across 8 sections, README.md
+at 210 visible lines of 802. Six example candidates, five executed, one `NOT_VERIFIED`
+(`example:004`, a certificate-generation snippet whose imports the verifier cannot bind). Sixteen
+ledger records: fifteen successes, one S3 re-ask, every one HTTP 200, zero `cache_reuse`, zero
+`cache_stale`.
+
+S4 is worth recording on its own as the size control lane E's PROPOSAL E3 asked for. The enum
+`citable_fact_ids()` builds for this repository, computed offline from this run's own facts, is
+**512, 512 and 483 values — 15,571, 15,486 and 14,668 characters of IDs**. All three batches
+succeeded on attempt 1 (92,013 ms / 3,603 completion tokens; 105,455 ms / 4,019; 23,355 ms / 986),
+every call HTTP 200. Aspose.Cells for Go, the control RERUN3 recorded, ran at 139 and 125 values
+(3,604 characters). Nothing here speaks to 3,812, but the production path is now measured clean at
+512.
+
+BC-01 to BC-05, BC-08 and BC-09 pass. BC-10 and BC-11 were never judged. The two failures:
+
+    BC-06  EXTRACTING  https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go is
+                       UNRESOLVED: UNCHECKED: unreachable: ReadTimeout      section_id null
+    BC-06  COMPOSING   #encryption-and-signing: no heading                  section_id
+                       additional_examples
+    BC-07  COMPOSING   abbreviation 'pdf' is not in its canonical form PDF  section_id null
+
+### The link probe was transient, and it suppressed the repair item 47 had just enabled
+
+`validation.json` records BC-06's **check-level** `causal_stage` as `EXTRACTING` — the earlier of its
+two failures — and `repair/targeted.py::validation_defects` reads only that field. `repairs.json`:
+
+    {"label": "BC-06", "outcome": "unrepairable",
+     "reason": "EXTRACTING is not repairable by revision", "section_id": null}
+    {"label": "BC-07", "outcome": "unrepairable",
+     "reason": "no failing check names an LLM-owned section", "section_id": null}
+
+So the anchor failure that item 47 had correctly sectioned was never offered to a repair, and the
+run recorded `0 repaired, 2 unrepairable`. Item 47 is not at fault.
+
+The probe is transient, measured rather than asserted — the method the reviewer used to settle
+PROPOSAL P17's crates.io reading on 2026-09-07. Three independent live requests to the identical URL,
+minutes after the run: **200 in 2,362 ms, 200 in 701 ms, 200 in 764 ms**, against the run's own
+32,662 ms `ReadTimeout`. Run 2, below, then re-probed it on the production path and got
+**RESOLVED, 200 in 1,028 ms**, with zero non-resolved probes and only `example:004` left UNRESOLVED
+in the facts. The 2026-09-16 timeout was weather, not a defect in the link or the candidate.
+
+### Run 2 — the probe cleared, and the run died six stages earlier
+
+With the link answering normally the run was repeated, so that the anchor failure would stand alone
+in BC-06 and item 47's routing could be exercised end to end. It never got there. `S3` was
+`cache_reuse` with no provider call — the investigation packet does not carry the link fact that
+changed — and all three `S4` batches were live and clean on attempt 1 (87,267 / 53,953 / 23,525 ms).
+Then `S5` stopped the transaction:
+
+    presentation_planning: output truncated at the manifest's max_output_tokens (6000);
+    raise the budget or bound the output, never retry
+
+`presentation_planning` returned **exactly 6,000 completion tokens** on a 120,132-token prompt,
+`finish_reason length`, `error_class TruncatedOutput`. Run 1's `S5` had sampled **2,102** completion
+tokens on a prompt 947 tokens *larger* and succeeded. Same repository, same revision, same stage,
+twenty minutes apart. The stage raises rather than re-asking, which is right — a re-ask under the
+same budget cannot help — but it also means no plan, no units, no document and no checks. See
+PROPOSAL P29.
+
+### Run 3 — item 47's routing works end to end, and the repair is handed the wrong unit
+
+The same request digest that truncated at S5 in run 2 came back at 3,351 tokens, and the run went on
+to S9. `S3`, all three `S4` batches, `S5`, `S6` and the coherence pass were all served from the store
+with **zero provider calls** except the one live `S5` and the repair; the probe answered `RESOLVED`,
+200 in 3,081 ms. 17 of 18 sections, 43 units across 9 sections, README.md at 218 visible lines of 808.
+
+With the transient gone, BC-06 carried **one** failure and the check-level `causal_stage` was
+`COMPOSING`:
+
+    BC-06  COMPOSING  #encryption-and-signing: no heading   section_id additional_examples
+    BC-07  COMPOSING  abbreviation 'pdf' is not in its canonical form PDF   section_id null
+
+and `repairs.json` records what every earlier run of this repository could not:
+
+    {"label": "BC-06", "outcome": "repaired", "stage": "S6",
+     "section_id": "additional_examples", "re_raised": ["BC-06"],
+     "request_sha256": "8dea8962669335e1843ef6beb500015d0c4cffc8490c298e4323cdf9a6340d0e"}
+
+**Item 47 is confirmed end to end.** The failure was routed to its section and its stage and a real
+`targeted_repair` call was made, where run 1 — and 2026-09-07, and every run before it — recorded
+`unrepairable`. The routing half of `BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED` is
+closed, measured on the production path rather than inferred from a field.
+
+It still did not pass, and the reason is precise. See PROPOSAL P30.
+
+### PROPOSAL P30 — the anchor is in a preserved unit, and the repair may only edit authored ones
+
+The repair's one change was byte-identical:
+
+    "before": "Create encrypted documents, build tables with the Rectangle API, and render pages to images."
+    "after":  "Create encrypted documents, build tables with the Rectangle API, and render pages to images."
+    "path":   "units.0.text"
+
+`units.0` of `additional_examples` is the section's authored `preview` slot. It contains no anchor.
+The anchor is in `inherited_unit:025.paragraph` — `VERIFIED_PRESERVE` into the same section, copied
+verbatim, rendered at README.md line 223 — and a preserved inherited unit is not an authored unit, so
+no `section_authoring` task owns it and `targeted_repair` cannot touch it. The repairer was shown the
+section that contains the defect and handed the only units it is allowed to edit, none of which is the
+one that carries it, so it returned the text unchanged. The round was recorded as `repaired`, BC-06
+was re-raised on the identical detail, and the run stopped: "after one repair attempt the equivalent
+failure stands".
+
+This is exactly the **cause half** PROPOSAL P20 named on 2026-09-07 and item 47 did not claim to fix:
+"a preserved unit's intra-document anchor should be resolved against the planned headings when the
+unit is placed — rewritten to the heading that survived, or dropped to plain text — rather than
+carried into the document to fail at S9." Run 3 is the measurement that the routing fix alone cannot
+reach it. Placement is the right place: at S4/S5 the planned headings are known, the unit is being
+copied, and an anchor that resolves to no planned heading can be downgraded to its link text then,
+deterministically, with no provider call. Repairing it at S6 cannot work while preserved units are
+outside the repair's edit surface.
+
+**One corroboration, not a new class.** A repair that writes back byte-identical prose is still
+recorded as `repaired` with a re-raise rather than as a no-op. RERUN3 recorded the same shape on
+2026-09-06 and named lane C's item 34; this is a second, independent occurrence in a different
+ecosystem.
+
+
+
+### PROPOSAL P25 — BC-07 and the renderer disagree about hyphens, so the check demands a spelling the renderer is forbidden to write
+
+The two modules that decide what a lowercase abbreviation is use different patterns:
+
+    composition/renderer.py:59   _LOWER_WORD = (?<![.\w:-])[a-z]{3,}(?![\w:-])   hyphen-guarded, both sides
+    validation/registry.py:264   _LOWER_WORD = (?<![.\w])[a-z]{3,}\b            no hyphen guard
+
+`renderer.prose` calls `canonical()` first precisely so the code owns this spelling rather than
+re-asking the model (its own docstring says so). But its pattern refuses to touch a word continued
+by a hyphen on either side — correctly, because raising `pdf` inside `aspose-pdf-foss` to `PDF`
+would corrupt the module path. BC-07's pattern has no such guard, so it fails the document for
+exactly the spellings the renderer is forbidden to change, and the failure carries `section_id:
+null`, so no repair is even attempted. That is PROPOSAL P19's shape one check over: the check asks
+for text no component may write.
+
+Measured on run 1's own rendered README, outside fences and code spans:
+
+    validator pattern `(?<![.\w])[a-z]{3,}\b`         -> 'pdf' matched 7 times; violations ['pdf']
+    renderer pattern  `(?<![.\w:-])[a-z]{3,}(?![\w:-])` -> 'pdf' matched 0 times; violations []
+
+All seven sit inside hyphenated tokens: six in the module path
+`aspose-pdf-foss/aspose-pdf-foss-for-go`, one in the upstream tracking slug `(epic pdf-go-w4ht)`
+inside a verified API description. `"PDF"` is in the fixed `ABBREVIATIONS` set, not derived from
+`identity:family`, so this is not a Go-only or PDF-only defect in principle — but a Go module path
+for a PDF product spells the abbreviation in lowercase by necessity, which is why this lane met it
+first.
+
+**Fix, smallest first.** Give `validation/registry.py`'s `_LOWER_WORD` the hyphen guard the
+renderer's already has, so the check and the normaliser agree about what a word is. Proven on this
+candidate's bytes: seven matches to zero, one violation to none. This is the same reasoning arrival
+item 26 (`865eae7`) already landed for BC-08 — "a command word continued by a hyphen is a package
+name, never a protected shell command" — one check over.
+
+**The trade-off, stated plainly.** That guard also stops BC-07 seeing a genuine violation someone
+might write in ordinary prose, such as "the pdf-format output". The narrower alternative is to exempt
+only a lowercase abbreviation that falls inside a SUPPORTED fact value — the module path here, the
+API description carrying the upstream slug — and keep failing it everywhere else. That is more
+faithful to the check's purpose and more code. Either way the invariant is the same and it is the
+part that matters: **BC-07 must not demand a spelling `renderer.canonical()` is forbidden to
+write.** Whichever the reviewer picks, check and renderer should be built from one pattern, not two
+that drifted apart.
+
+### PROPOSAL P26 — a Go module path is one identifier, and the renderer splits it
+
+`composition/authoring.py::identifier_tokens` matches `_DOTTED`, `_SNAKE`, `_CAMEL`, `_CALL` and
+`_COORDINATE`. `_COORDINATE` exists because an external audit on 2026-09-07 found that a colon-bearing
+Maven coordinate is one token, not a dotted prefix that happens to sit next to a colon. Nothing makes
+a **slash**-bearing Go module path one token. Measured:
+
+    identifier_tokens("... and Save methods from github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.")
+      -> ['github.com']          whole import path tokenised: False
+
+So `renderer.prose` wraps the one token it recognises and leaves the rest of the path in running
+prose:
+
+    authored: "... and Save methods from github.com/aspose-pdf-foss/aspose-pdf-foss-for-go."
+    rendered: "... and Save methods from `github.com`/aspose-pdf-foss/aspose-pdf-foss-for-go."
+
+That is a split identifier in the visible README, which `loop-prompt.md` §6 rule 8 names a defect in
+its own right — "a split identifier ('A3 D Object') ... is, even if every check passes". Three units
+carry it here: the two Quick Start lead-ins and the `documentation_resources` link unit.
+
+**Not sufficient on its own, and measured as such.** Wrapping the whole path removes six of the seven
+`pdf` matches, because `_prose` strips code spans — but the seventh, `(epic pdf-go-w4ht)`, is ordinary
+prose and still fails BC-07:
+
+    as rendered                         -> pdf matched 7 times
+    with the module path wrapped (P26)  -> pdf matched 1 time   ("(epic pdf-go-w4ht)")
+    with the hyphen guard (P25)         -> pdf matched 0 times
+
+P25 is the necessary and sufficient fix for BC-07; P26 is the one that removes the split identifier.
+They are independent and both are real.
+
+### PROPOSAL P27 — a link probe that times out is never asked again
+
+`091e8bc` ("a transient registry answer is asked again for every ecosystem, not Python alone") gave
+**registry** probes a retry. **Link** probes have none. One `ReadTimeout` at 32,662 ms turned a link
+that answers 200 in about a second into `UNRESOLVED`, failed BC-06 at `EXTRACTING`, and — through the
+routing defect P28 records — suppressed the repair of the `COMPOSING` failure beside it. Two runs at
+the same revision twenty minutes apart, one `UNCHECKED` and one `RESOLVED` in 1,028 ms, with three
+independent 200s in between, is the whole evidence. The same retry the registry path already has
+would have cost one extra request.
+
+### PROPOSAL P28 — a check's repairability is decided by its worst failure, not per failure
+
+`repair/targeted.py::validation_defects` reads `check["causal_stage"]`, a single value for the whole
+check, and only then — and only for stage `S6` — looks at per-failure `section_id`. BC-06 carried an
+`EXTRACTING` failure and a `COMPOSING` failure together; the check-level value was `EXTRACTING`, so
+the `COMPOSING` failure carrying `section_id: "additional_examples"` was never considered. A check
+that can fail at two stages at once needs its failures routed one by one, each to its own stage and
+section, or a single unrepairable failure will keep masking every repairable one beside it. This is
+not hypothetical: it is exactly what stopped item 47 from being exercised in run 1, and item 47 was
+landed for this repository by name.
+
+### PROPOSAL P29 — S5 planning truncates at its 6,000-token budget on a coin flip, and the body that would explain it is discarded
+
+The same request, byte for byte, killed one transaction and passed the next. `calls.jsonl` records
+all three `presentation_planning` calls of this item:
+
+    10:10:19  success           req da3aac42f740  prompt 121,079  completion 2,102
+    10:26:51  success           req 8be652cfcbc2  prompt 120,132  completion 6,000
+    10:29:16  response_invalid  req 8be652cfcbc2  TruncatedOutput
+    10:35:01  success           req 8be652cfcbc2  prompt 120,132  completion 3,351
+
+`8be652cfcbc2` is one request digest. Run 2 sampled it to the 6,000-token ceiling and the stage
+raised, ending the transaction six stages before validation; run 3 sampled the identical request to
+3,351 tokens and went straight on to S6. Nothing about the packet changed — the digest is the proof,
+the same twelve characters this lane used to settle P24. The stage is right not to re-ask under the
+same budget, but the consequence is that a whole transaction is decided by sampling length.
+
+`prompts/presentation_planning.yaml` sets `max_output_tokens: 6000` and bounds `core_capabilities`
+(3–8), `api_hubs` (≤12) and `capability_titles` (3–8). It leaves `sections`,
+`additional_example_ids`, `material_limitations`, `links`, `deviations` and **every** nested
+`fact_ids`, `shared_fact_ids`, `unit_ids`, `input_format_ids` and `output_format_ids` array with no
+`maxItems`. `composition/planning.py` pins those arrays' *items* to `citable_fact_ids()` as one enum
+(`3e9b81f`), so an invented ID is refused at decode — but their *length* is unpinned, and this
+repository's citable set is 512 values. That is P23's residual one stage over: P23 fixed the items
+at S4 and recorded that `maxItems` made no measurable difference *there*, where the batch bounds the
+count. At S5 nothing bounds it.
+
+**What is not proven, and why it cannot be.** Nothing here shows this truncation *was* a runaway
+array rather than an ordinarily long plan — and that is the second half of the proposal.
+`core/llm/jobs.py`'s `finish_reason == "length"` branch calls `attempts.record_invalid(...)` and
+raises, and never calls `store.reject(...)`, so `reply.content` is discarded. `CallStore.reject`'s
+own docstring is "Keep a rejected reply beside the store, so a rejection can be read, never guessed."
+The one rejection class that can only be diagnosed by reading the body is the one class whose body is
+not kept.
+
+**Fix, smallest first.** Store the truncated body like any other rejection, so the next occurrence is
+readable. Then bound the five unbounded arrays, as `authoring_schema()` already bounds its slots.
+Raising the budget alone treats the symptom and moves the ceiling.
