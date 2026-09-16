@@ -385,3 +385,73 @@ def test_every_known_ceiling_residue_names_a_section_that_exists() -> None:
 def test_no_governance_prose_restates_the_portfolio_ceiling(chunk: str) -> None:
     ceiling, denominator = portfolio_ceiling()
     assert ceiling_restatements(chunk, ceiling, denominator) == []
+
+
+# --- lane spawn recipes name the model the owner ruled (PHASE1/F11, F12) ------------------------
+
+# The six literal substrings docs/DECISION_LOG.md section 31's PHASE1/F11 entry (2026-09-16 10:55
+# UTC) enumerates: the spawn-model key or the lane-agent-type phrase paired with Opus or Fable.
+# Literal substrings, never a blanket opus/fable absence check - tools/reviewer/procedure.md's own
+# historical sentence ("from Opus/Fable") and the prohibition sentence the three files now carry
+# ("Opus and Fable are both prohibited there") name both models and must keep passing.
+BANNED_SPAWN_PHRASES = (
+    "model: opus",
+    "model opus",
+    "Opus subagents",
+    "model: fable",
+    "model fable",
+    "Fable subagents",
+)
+SPAWN_RECIPE_DOCUMENTS = (
+    REPO_ROOT / "tools" / "reviewer" / "procedure.md",
+    REPO_ROOT / "docs" / "SUPERVISION.md",
+    REPO_ROOT / "plans" / "sprint" / "PHASE1-SPRINT-PLAN.md",
+)
+
+
+def banned_spawn_phrases(text: str) -> list[str]:
+    """Every banned phrase ``text`` carries, with the line it sits on."""
+    return [
+        f"{phrase!r} at line {number}"
+        for number, line in enumerate(text.splitlines(), 1)
+        for phrase in BANNED_SPAWN_PHRASES
+        if phrase in line
+    ]
+
+
+@pytest.mark.parametrize("path", SPAWN_RECIPE_DOCUMENTS, ids=lambda path: path.name)
+def test_lane_spawn_recipes_never_name_opus_or_fable(path: Path) -> None:
+    """The 2026-09-06 Opus-to-Sonnet cost ruling, extended to every spawned agent by PHASE1/F11:
+    the three documents that carry a spawn recipe never pair the model key or the lane-agent
+    phrase with Opus or Fable. Red against F11's pre-image (873af03: procedure.md:99 and
+    SUPERVISION.md:27 'Opus subagents', PHASE1-SPRINT-PLAN.md:188 'model opus'), green after."""
+    assert banned_spawn_phrases(path.read_text("utf-8")) == []
+
+
+def test_the_spawn_model_rule_flags_what_f11_removed_and_admits_its_prohibition() -> None:
+    """The exact lines fca7d0b (PHASE1/F11) replaced, before and after, plus the two sentences
+    that still name both models and must not be read as recipes."""
+    before = (
+        "Lanes are **Opus subagents in their own git worktrees**, one item per run\n"
+        "- **Lane agents** — Opus subagents in isolated worktrees\n"
+        "spawn Agent (general-purpose, model opus, isolation\n"
+    )
+    assert banned_spawn_phrases(before) == [
+        "'Opus subagents' at line 1",
+        "'Opus subagents' at line 2",
+        "'model opus' at line 3",
+    ]
+    after = (
+        "Lanes are **Sonnet subagents in their own git worktrees**, one item per run\n"
+        "spawn Agent (general-purpose, model sonnet, isolation\n"
+        "Never spawn a lane, or any background subagent, with the Agent tool's `model` parameter "
+        "set to anything other than Sonnet (Opus and Fable are both prohibited there)\n"
+        "moved the primary and the reviewer to a cheaper model (Sonnet, from Opus/Fable)\n"
+    )
+    assert banned_spawn_phrases(after) == []
+    # The Fable half of the six, and the colon spelling F11's first draft nearly reintroduced.
+    assert banned_spawn_phrases("model: fable\nFable subagents\n`model: opus`") == [
+        "'model: fable' at line 1",
+        "'Fable subagents' at line 2",
+        "'model: opus' at line 3",
+    ]
