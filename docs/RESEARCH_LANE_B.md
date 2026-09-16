@@ -1584,3 +1584,95 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   so the sprint plan's "Cells-TS + 3D-TS (50/51)" pair is now fully open. Recorded here rather than
   assumed: a draw of 3D-TS is a separate transaction, on its own branch, and gets its own item and
   evidence record if the box allows it this run.
+
+- **2026-09-16 17:59 (`date` checked) · G4-W14-RERUN3 · MEASUREMENT · both arrival items 50 and 51
+  confirmed working on `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript`, and the section_authoring
+  truncation `LANE-B-W14R2-F1` found on Cells-TS did NOT reproduce here despite a larger batch.**
+  First draw of 3D-TS since 2026-09-06. `install_command:npm` is SUPPORTED (item 50): value
+  `git clone ... && npm install && npm run build`, evidence "verified source build: the verifier
+  ran `npm install` and `npm run build` against this revision, every step exiting 0". `license:spdx`
+  is SUPPORTED (item 51, the repository this fix was written for): value `MIT`, evidence "license
+  declared by the manifest; no license file at this revision" - exactly item 51's mechanism, and its
+  first corroboration on a real draw since landing. Facts: 1190 records (1028 public symbols), 1188
+  SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED (`example:002` - the known `scene.save('model.stl', 'stl')`
+  README fragment recorded at G4-W14; `link_target:021`), no required contract row without evidence.
+  81 undocumented types (77 class, 4 enum) split into three `_TYPE_BATCH` calls of 40/40/1 - more
+  than double Cells-TS's 31-type single batch - and none of the three hit the 8000-completion-token
+  cap; `section_authoring` made 28 calls total across all its tasks with zero `TruncatedOutput`. This
+  does not close `LANE-B-W14R2-F1` (a batch's actual token cost is data-dependent - how verbose the
+  model's per-type prose runs for a given repository's identifiers and signatures - not purely a
+  function of batch size, so a 40-type batch can fit comfortably here while a 31-type one didn't for
+  Cells-TS), but it does mean the defect is not "every large TypeScript surface truncates," which
+  matters for how the shared-code owner prioritises the fix. Evidence: `facts.json`, `calls.jsonl`
+  (`by_job: section_authoring 28`, zero `TruncatedOutput` in `outcome`); full detail in
+  `evidence/build/lanes/lane-b/G4-W14-RERUN3.json`.
+
+- **2026-09-16 17:59 (`date` checked) · G4-W14-RERUN3 · FINDING `LANE-B-W14R3-F1` (shared code, the
+  lane may not edit) · `review/independent/review.py`'s `cited_fact_defect` structurally excludes
+  every `inherited_unit` fact from ever refuting a factuality finding, even when the unit under
+  review cites one whose own text states the claim almost verbatim.** 3D-TS reached S9/S10/S11 in
+  full - 9 PASS / 1 FAIL (BC-10) / 1 PENDING (BC-11), two repair rounds, `verdict REJECT_FACTUAL`,
+  `second_reader.read = 1`. The one finding that survives repair, F04 (`scope_limitations`,
+  `causal_stage COMPOSING`), reads: "The candidate claims 'Binary glTF export (binaryMode: true)
+  currently fails for any non-empty mesh' but the facts do not verify this limitation; `example:007`
+  shows `binaryMode = false` working, but no fact confirms `binaryMode = true` fails for all
+  non-empty meshes." F04 cites only `example:007` as its own `fact_ids`. But the content unit under
+  review (`content_units.json`, section `scope_limitations`, slot `limitation:2`) cites two facts,
+  `example:007` and `inherited_unit:046.paragraph` - and the second is SUPPORTED, sourced from the
+  original repository's own upstream README (lines 261-264), and its value is: "Binary glTF (`.glb`,
+  `binaryMode = true`) currently throws a `RangeError` for any non-empty mesh - see [Scope and
+  limitations](#scope-and-limitations). Use the JSON/ASCII form (`binaryMode = false`, the default)
+  shown above until that is fixed upstream." That is the library's own author documenting the exact
+  bug the unit restates, softened by an earlier repair round (R02, this run's own `repairs.json`)
+  from "throws a RangeError" to "fails", still citing `inherited_unit:046.paragraph` throughout. F04
+  faults the unit for a claim its own second citation already proves true as the source's own
+  words. Read mechanically against production: `cited_fact_defect` (review.py:301-333) builds
+  `product = [fact for fact in cited if fact.kind != "inherited_unit"]` from the finding's own
+  `fact_ids` before checking whether the quote is one of those facts' literal values - so even had
+  F04 cited `inherited_unit:046.paragraph` itself, this function would still discard it before the
+  literal-value check ever ran, because it excludes every `inherited_unit`-kind fact by construction.
+  Nothing in the function's docstring explains why an `inherited_unit` fact - a real, SUPPORTED fact
+  kind that IS this project's own protected/preserved original-README content, which a content unit
+  is fully entitled to cite as its evidentiary basis (as this very unit does) - can never satisfy a
+  factuality citation. `absence_defect`, `rendered_defect`, `renderer_owned_defect` and `scope_defect`
+  were also checked against this finding and none engages the unit's second citation at all; none
+  is scoped to ask "does any fact this UNIT (not just this finding) cites already support the quote."
+  Proposed, smallest first (the lane cannot land either): drop the `fact.kind != "inherited_unit"`
+  filter in `cited_fact_defect` so a finding citing an `inherited_unit` whose literal text matches the
+  quote is refuted the same way a `public_symbol` or `package` citation already is; or, more broadly,
+  a new refutation checks the reviewed unit's full `fact_ids` (not only the finding's) for a
+  SUPPORTED `inherited_unit` whose value contains the quote's substance, since a factuality finding
+  that never looks at what the candidate actually cited cannot be a defect in the candidate. Evidence:
+  `runs/transactions/aspose-3d-foss__Aspose.3D-FOSS-for-TypeScript/7b959706f2ad976db929f26ec079f43a07d578e1/`
+  (`review.json` F04, `content_units.json` the `limitation:2` unit, `facts.json`
+  `inherited_unit:046.paragraph` and `example:007`, `repairs.json` R02); full detail in
+  `evidence/build/lanes/lane-b/G4-W14-RERUN3.json`. Reversal: none; a measurement plus a proposal.
+
+- **2026-09-16 17:59 (`date` checked) · G4-W14-RERUN3 · DECISION · 3D TypeScript is not redrawn in
+  this box.** The verdict is reported literally: `REJECT_FACTUAL`, one finding surviving two repair
+  rounds, `second_reader.read = 1` (below the `>= 2` corroboration guard in any case, so ACCEPT was
+  never reachable here regardless of the finding's merits). The transaction is a genuine first draw
+  with a real, reproducible cause named mechanically above; redrawing without a code change would not
+  be a new attempt. The fix is shared code the lane may not land (`LANE-B-W14R3-F1`). Nothing here
+  weakens any check: BC-10 failed exactly as the check requires, and no candidate is forced past it.
+  Reversal: the resume predicate in the disposition below.
+
+- **2026-09-16 17:59 (`date` checked) · G4-W14-RERUN3 · DISPOSITION ·
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at `7b95970` - `BLOCKED_REVIEW` (BC-10,
+  `REJECT_FACTUAL`).** First draw since 2026-09-06, when it reached no rendering at all
+  (`BLOCKED_RECONCILIATION`). Both gating arrival items delivered: `install_command:npm` and
+  `license:spdx` are both SUPPORTED (items 50 and 51). 1190 facts (1028 public symbols), no required
+  contract row without evidence, 9 examples (8 EXECUTED, 1 CONTRADICTED - the documented `scene.save`
+  README-fragment class from G4-W14). S3 6 capabilities / 6 workflows / 4 limitations; S4 106 of 106
+  units, first attempt (53 SUPERSEDE_REDUNDANT, 18 OMIT_UNSUPPORTED, 25 VERIFIED_PRESERVE, 5
+  NON_CONTENT, 3 VERIFIED_MOVE, 2 CORRECT_WITH_EVIDENCE); S5 12 api_hubs, 17 of 18 sections; S6 122
+  units across 9 sections, coherence revised 0 of 122; 175 visible lines of 728. Validation 9 PASS /
+  1 FAIL / 1 PENDING: BC-01 through BC-09 all PASS (including BC-02 and BC-06, the two checks items
+  50/51 unlock), BC-10 FAIL at COMPOSING on `REJECT_FACTUAL`, BC-11 PENDING (S12 never reached).
+  Review: 2 rounds, 2 findings repaired (F04+F05+F06 combined, F07), 1 re-raised after repair
+  (relabelled F04 on the second read), 4 advisory. 42 ledger rows (25 provider calls, all HTTP 200,
+  17 cache_reuse, 1 response_invalid), 42,230 completion tokens. Resume predicate: re-run once
+  PROPOSAL `LANE-B-W14R3-F1` lands (a factuality finding refuted by a cited `inherited_unit` fact's
+  literal text, the same way a `public_symbol` or `package` citation already refutes one), or once
+  the primary rules it sealable on BC-01..BC-09 plus a corroborated second read - it does not yet
+  have either (`second_reader.read = 1`). Full detail: `evidence/build/lanes/lane-b/G4-W14-RERUN3.json`.

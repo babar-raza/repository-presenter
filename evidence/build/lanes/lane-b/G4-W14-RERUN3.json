@@ -1,0 +1,80 @@
+{
+ "schema_version": 1,
+ "lane": "lane-b",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "work_item": "G4-W14-RERUN3",
+ "work_item_status": "ACCEPTED",
+ "recorded_at": "2026-09-16T17:59:00+05:00",
+ "control_revision": "01a8334",
+ "control_revision_note": "The single-use branch lane-b/G4-W14-RERUN3 was cut from origin/main at 01a83346425d0339e92f27194857522cf709c3c3 in a fresh short-path worktree at C:\\w\\b07, then that worktree was removed by external housekeeping mid-run (a shared C:\\w\\ directory with other concurrent lane/primary sessions); a replacement worktree at C:\\w\\b08 reused the same local branch, rebased onto origin/main at ed9b67e82cd5e47a565d46c84589461018f63aaf (no work was lost - only a facts-only preflight, no code, had run in b07), and the draw itself ran from there. This is the second lane-b TypeScript draw this session, attempted after G4-W14-RERUN2 (Cells-TS) per the spawn instruction, now that both gating arrival items (50, 51) are confirmed landed.",
+ "time_box": {
+  "declared": "per-item box under RESEARCH_AND_GUIDELINES.md section 28.12; this draw closed on its own question, not the clock",
+  "started": "2026-09-16T17:40:46+05:00",
+  "closed": "2026-09-16T17:59:00+05:00",
+  "closed_by": "its own question, answered: 3D TypeScript was drawn once end to end and has a verdict, reported literally. Not the clock."
+ },
+ "environment": {
+  "os": "Microsoft Windows 11 Pro 10.0.26200",
+  "python": "3.13",
+  "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+  "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "worktree": "C:\\w\\b08 (replacing C:\\w\\b07, removed mid-run by external housekeeping)"
+ },
+ "what_this_run_tested": "Whether aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript can now progress past its 2026-09-06 blocker (BLOCKED_RECONCILIATION at S4, no rendering at all) now that arrival items 50 (verified source build) and 51 (license-from-spdx-alone, written for exactly this repository's MIT-declared-no-file case) have both landed. unblocked.jsonl confirms item 50 unlocks this repository and item 51 unlocks it too.",
+ "answered": {
+  "item_50": "DELIVERED. install_command:npm is SUPPORTED, value `git clone ... && npm install && npm run build`, evidence 'verified source build: the verifier ran npm install and npm run build against this revision, every step exiting 0'.",
+  "item_51": "DELIVERED, and this is its first corroboration on a real draw of the repository it was written for. license:spdx is SUPPORTED, value MIT, evidence 'license declared by the manifest; no license file at this revision'. BC-06 (the check item 51's own commit named as blocked by a licenseless Navigation anchor) PASSES.",
+  "did_it_seal": "NO. Validation is 9 PASS / 1 FAIL / 1 PENDING: BC-01 through BC-09 all PASS, BC-10 FAILs at COMPOSING on REJECT_FACTUAL after two repair rounds, BC-11 is PENDING because S12 was never reached.",
+  "bc_10_verdict_literally": "FAIL - REJECT_FACTUAL, reported as returned, second_reader.read = 1 (below the >= 2 corroboration guard in any case). One finding (F04, scope_limitations) survives two repair rounds; four earlier findings (F01, F02, F03, F05 on the second read's numbering) folded as reviewer scope defects or were resolved by repair.",
+  "cause": "Shared code the lane may not edit: review/independent/review.py's cited_fact_defect excludes every inherited_unit-kind fact from its literal-value refutation check, even though the content unit under review cites a SUPPORTED inherited_unit fact (the upstream README's own text, lines 261-264) that states the same claim almost verbatim. Full mechanical detail in docs/RESEARCH_LANE_B.md, finding LANE-B-W14R3-F1."
+ },
+ "findings": [
+  {
+   "id": "LANE-B-W14R3-F1",
+   "class": "PROPOSAL - shared code the lane may not edit",
+   "owner": "G4-W17",
+   "file": "src/repository_presenter/components/readme/review/independent/review.py (cited_fact_defect, lines 301-333)",
+   "title": "A factuality finding can never be refuted by a cited inherited_unit fact's literal text, even when the reviewed unit cites one whose value is the upstream README's own documentation of the exact claim.",
+   "detail": "The surviving finding F04 says the candidate's claim ('Binary glTF export (binaryMode: true) currently fails for any non-empty mesh') is unverified, citing only example:007 (a compile-checked example showing binaryMode=false working) as its own evidence. But the content unit under review (scope_limitations, slot limitation:2) cites TWO facts: example:007 AND inherited_unit:046.paragraph. The latter is SUPPORTED, sourced from the original repository's own upstream README at lines 261-264, and its value is 'Binary glTF (.glb, binaryMode = true) currently throws a RangeError for any non-empty mesh - see Scope and limitations. Use the JSON/ASCII form (binaryMode = false, the default) shown above until that is fixed upstream.' - the library author's own documented bug, which an earlier repair round (R02) had already softened from 'throws a RangeError' to 'fails' while still citing inherited_unit:046.paragraph. cited_fact_defect builds product = [fact for fact in cited if fact.kind != \"inherited_unit\"] from the FINDING's own fact_ids before the literal-value check runs, so even a finding that had cited inherited_unit:046.paragraph directly would have that citation discarded before it could refute anything - the function structurally cannot credit any inherited_unit fact. No other refutation function (absence_defect, rendered_defect, renderer_owned_defect, scope_defect) engages the reviewed UNIT's own second citation either; none asks whether any fact the candidate actually cited (as opposed to what the finding itself cites) already supports the quote. Proposed, smallest first: drop the inherited_unit exclusion in cited_fact_defect's product list; or, more broadly, add a refutation that checks the reviewed unit's full fact_ids for a SUPPORTED inherited_unit whose value contains the quote's substance.",
+   "evidence": "review.json finding F04 (fact_ids: [example:007]); content_units.json's scope_limitations/limitation:2 unit (fact_ids: [example:007, inherited_unit:046.paragraph]); facts.json inherited_unit:046.paragraph (SUPPORTED, evidence 'lines 261-264; paragraph; under ... Additional Examples > Convert STL to GLTF'); repairs.json attempt 2dc1fc7ad208253e9245b31b, change R02 (before/after text, fact_ids example:007 + inherited_unit:046.paragraph); src/repository_presenter/components/readme/review/independent/review.py:301-333 (cited_fact_defect)."
+  }
+ ],
+ "cohort": [
+  {
+   "repository": "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript",
+   "revision": "7b959706f2ad976db929f26ec079f43a07d578e1",
+   "disposition": "BLOCKED_REVIEW (BC-10, REJECT_FACTUAL)",
+   "disposition_change": "MOVED: the 2026-09-06 disposition was BLOCKED_RECONCILIATION at S4 (no rendering at all - install_command CONTRADICTED, no license fact existed). Both are gone (items 50 and 51), and the transaction now reaches full rendering, validation, review and two repair rounds before stopping on an unrelated, deterministic cause.",
+   "facts": "1190 records (build_test_asset 1, dependency 11, example 9, identity 5, import_path 1, inherited_unit 106, install_command 1, license 1, link_target 25, package 2, public_symbol 1028); digest 2257a892ca080c6e76c7f13201efef0a6be9311fc4d37219cdad018d2770a5c4; 1188 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED (example:002, link_target:021); required contract rows without evidence: none",
+   "examples": "9 candidates: 8 EXECUTED, 1 CONTRADICTED (example:002, the documented scene.save('model.stl', 'stl') README-fragment class recorded at G4-W14)",
+   "stages": "S3 6 capabilities, 6 workflows, 4 limitations. S4 106 of 106 units, first attempt (53 SUPERSEDE_REDUNDANT, 18 OMIT_UNSUPPORTED, 25 VERIFIED_PRESERVE, 5 NON_CONTENT, 3 VERIFIED_MOVE, 2 CORRECT_WITH_EVIDENCE). S5 12 api_hubs, 17 of 18 sections, examples 1+7, 6 links, 4 limitations. S6 122 units across 9 sections (opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing, enterprise_relationship); 28 section_authoring calls, zero truncation despite 81 undocumented types across 3 batches (40/40/1). Coherence revised 0 of 122. 175 visible lines of 728.",
+   "validation": "9 PASS / 1 FAIL / 1 PENDING. BC-01 through BC-09 all PASS, including BC-02 (install command, item 50) and BC-06 (license/navigation, item 51). BC-10 FAILs at COMPOSING on REJECT_FACTUAL. BC-11 is PENDING because S12 was never reached.",
+   "review": "2 rounds. Round 1: 4 findings (F04-F07 in that round's numbering) - F07 (enterprise_relationship) and F04+F05+F06 (scope_limitations, combined) all repaired. Round 2 (post-repair re-validation and re-review): verdict REJECT_FACTUAL, second_reader.read = 1, 1 finding blocking (F04: the binaryMode/glTF claim, PROPOSAL LANE-B-W14R3-F1), 4 advisory (F01, F02, F03, F05).",
+   "repair": "2 attempts, both outcome 'repaired' (0996c3923d465bce3d86b102 for F07; 2dc1fc7ad208253e9245b31b for F04+F05+F06), 0 unrepairable, 1 re-raised after repair (the equivalent failure stands on the glTF binaryMode claim); rounds 2.",
+   "provider_calls": "42 ledger rows: 25 provider calls (all HTTP 200), 17 cache_reuse, 1 response_invalid, 42,230 completion tokens; by job: repository_investigation 2, source_reconciliation 6, presentation_planning 2, section_authoring 28, independent_review 2, targeted_repair 2",
+   "resume_predicate": "Re-run present --repo aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript once PROPOSAL LANE-B-W14R3-F1 lands (a factuality finding refuted by a cited inherited_unit fact's literal text, the same way a public_symbol or package citation already refutes one), or once the primary rules it sealable on BC-01..BC-09 plus a corroborated second read - it does not yet have either (second_reader.read = 1)."
+  }
+ ],
+ "not_drawn": {},
+ "provider_calls": {
+  "total_completed": 25,
+  "output_rejections": 1,
+  "cache_reuse": 17,
+  "cache_stale": 0,
+  "completion_tokens": 42230,
+  "note": "First draw of this revision. cache_reuse rows are within-transaction reuse across the two repair-triggered passes (S3/S4/S5 unaffected by the S6-only repair, so their second pass reused the first pass's stored output rather than re-asking)."
+ },
+ "progress": {
+  "sealed_by_lane": 0,
+  "candidates_after_run": "12/34, unchanged by this draw (repository-presenter status reads 12/34 from this worktree's origin/main tree and this draw sealed nothing)",
+  "dispositions_by_lane": 9
+ },
+ "local_ci_equivalent": {
+  "note": "Run once, after the draw finished and failed closed (no composition was in progress while pytest ran).",
+  "ruff_check": "All checks passed!",
+  "ruff_format": "236 files already formatted",
+  "mypy_src": "Success: no issues found in 126 source files",
+  "pytest": "pytest -n auto: 1159 passed, 16 xfailed in 74.89s, exit 0",
+  "runs_this_iteration": "1 full run. No src/ or tests/ change this item - only docs/RESEARCH_LANE_B.md, project/lanes/lane-b.yaml, and this evidence file - so the full suite is run once to confirm nothing regressed, never to validate new code"
+ }
+}

@@ -35,7 +35,7 @@ repositories:
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
   sealed_by_lane: 0
-  dispositions_by_lane: 8
+  dispositions_by_lane: 9
   note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
     and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
     symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
@@ -207,6 +207,26 @@ progress:
     composition/authoring.py''s _TYPE_BATCH), is in docs/RESEARCH_LANE_B.md and
     evidence/build/lanes/lane-b/G4-W14-RERUN2.json, the live source. No lane-owned code changed
     this run. sealed_by_lane stays 0, dispositions_by_lane rises 7 to 8.
+    repository-presenter status after the run: 12/34, unchanged by this draw.
+    G4-W14-RERUN3 2026-09-16 17:59 against origin/main at 01a8334, rebased onto ed9b67e before the
+    draw (branch lane-b/G4-W14-RERUN3; worktree C:\w\b07 was removed mid-run by external
+    housekeeping in the shared C:\w\ directory, no work lost - only a facts-only preflight had run
+    there - replaced by C:\w\b08 on the same branch): first draw of 3D-TS since 2026-09-06. Both
+    gating arrival items delivered - install_command:npm SUPPORTED (item 50) and license:spdx
+    SUPPORTED (item 51, the repository it was written for; its first corroboration). The draw
+    reached full rendering, validation, review and two repair rounds - the 2026-09-06 disposition
+    was BLOCKED_RECONCILIATION with no rendering at all. It stopped at BLOCKED_REVIEW (BC-10,
+    REJECT_FACTUAL, second_reader.read = 1): one finding survives repair, faulting a claim
+    (binary glTF export fails for non-empty meshes) that the candidate''s own second citation, a
+    SUPPORTED inherited_unit fact quoting the upstream README''s own documented bug verbatim,
+    already substantiates. One PROPOSAL, LANE-B-W14R3-F1 (shared code:
+    review/independent/review.py''s cited_fact_defect structurally excludes every inherited_unit
+    fact from refuting a factuality finding), is in docs/RESEARCH_LANE_B.md and
+    evidence/build/lanes/lane-b/G4-W14-RERUN3.json, the live source. Also measured: the
+    section_authoring truncation from G4-W14-RERUN2 (LANE-B-W14R2-F1) did not reproduce here
+    despite a larger 81-type undocumented batch (40/40/1 split, zero truncation) - the defect is
+    data-dependent, not purely a function of batch size. No lane-owned code changed this run.
+    sealed_by_lane stays 0, dispositions_by_lane rises 8 to 9.
     repository-presenter status after the run: 12/34, unchanged by this draw.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
@@ -401,4 +421,24 @@ items:
     aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript: both gating arrival items (50, 51) are now landed;
     attempted next in this same session if the box allows, as its own item.'
   run_2026_09_16_r6: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN2.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W14-RERUN3
+  status: ACCEPTED
+  accepted_at: '2026-09-16T17:59:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN3.json
+  purpose: 'Spawn instruction 2026-09-16 (continuation of G4-W14-RERUN2): draw
+    aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript now that both gating arrival items, 50
+    (verified-source-build install facts) and 51 (license-from-spdx-alone, written for exactly
+    this repository), have landed and unblocked.jsonl names this repository as one of item 50''s
+    unlocks and item 51''s sole unlock. First draw since the 2026-09-06 BLOCKED_RECONCILIATION
+    disposition (no rendering at all). Never force a seal, never weaken a check, and report the
+    verdict literally.'
+  resume_predicate: 'CLOSED for this item: 3D TypeScript was drawn once, end to end, and has its
+    verdict, reported literally (BC-10 FAIL, REJECT_FACTUAL, second_reader.read = 1). What remains
+    open is shared code the lane may not land. aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript,
+    BLOCKED_REVIEW (BC-10): re-run once PROPOSAL LANE-B-W14R3-F1 lands (a factuality finding
+    refuted by a cited inherited_unit fact''s literal text, the same way a public_symbol or
+    package citation already refutes one), or once the primary rules it sealable on BC-01..BC-09
+    plus a corroborated second read - it does not yet have either.'
+  run_2026_09_16_r7: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN3.json, which
     is the live source for this run rather than a copy.
