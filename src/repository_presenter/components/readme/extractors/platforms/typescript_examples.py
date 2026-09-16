@@ -64,7 +64,16 @@ _DEFAULT_TARGET = "ES2020"
 # `module` setting governs how it emits, not how a consumer's script is checked.
 _DEFAULT_MODULE = "es2022"
 _DEFAULT_RESOLUTION = "node"
-_BUNDLER_MODULES = frozenset({"bundler", "node16", "nodenext"})
+# `bundler` resolution has no companion-module constraint - `--module esnext --moduleResolution
+# bundler` is a normal, accepted pairing (measured 2026-09-16). `node16` and `nodenext` do: tsc's
+# own TS5110 refuses any `module` value that is not exactly the resolution's own name when
+# `moduleResolution` is one of them - measured on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript,
+# whose tsconfig.json declares `moduleResolution: "NodeNext"`, where treating it like `bundler`
+# (emitting `--module esnext`) made every one of 96 examples fail closed with `error TS5110:
+# Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.`
+# - a configuration refusal, not a fact about any example's own code.
+_BUNDLER_RESOLUTION = "bundler"
+_NODE_PAIRED_RESOLUTIONS = frozenset({"node16", "nodenext"})
 # TypeScript ships these declarations; `DOM` is what declares `console`, `Element` and `Document`,
 # which a package targeting `lib: ["ES2020"]` alone does not have (measured 2026-09-06: three of
 # Aspose.3D for TypeScript's nine examples failed on `console` alone).
@@ -73,6 +82,11 @@ _HOST_DECLARATIONS = "rp_host_environment.d.ts"
 # A configuration file beside a file named on the command line is `error TS5112` on TypeScript 7,
 # and the compiler then reports nothing else at all. Its options are read from the clone instead.
 _CONFIG_FILES = frozenset({"tsconfig.json", "jsconfig.json"})
+# A repository's own `build` script commonly names a narrower config than its `typecheck` script
+# does - PDF's package.json runs `tsc -p tsconfig.build.json` for `build` but `tsc -p
+# tsconfig.json --noEmit` for `typecheck`, and only the former's `rootDir`/`outDir` describe what
+# `dist/` actually is.
+_BUILD_CONFIG = "tsconfig.build.json"
 # The runtime a README script runs in, and the modules it may import from it. Declared as a
 # shorthand ambient module - a name with no body, whose imports are `any` - so a missing
 # `@types/node` cannot make a true example look false. The claim the contract makes about an
@@ -182,6 +196,25 @@ def _fresh_workspace(workspace: Path) -> Path | None:
     return None
 
 
+def _staging_options(root: Path) -> dict[str, Any]:
+    """The compiler options that actually govern what `outDir` is built from.
+
+    `_flags` checks examples under `tsconfig.json` - the repository's own `typecheck` script's
+    config - but a repository whose `typecheck` config deliberately widens `rootDir` to check its
+    whole tree (tests, examples, scripts alongside `src`) does not thereby widen what its `build`
+    script actually emits. Measured 2026-09-16 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript:
+    `tsconfig.json` declares `rootDir: "."`, but `package.json`'s own `build` script runs `tsc -p
+    tsconfig.build.json`, which overrides `rootDir` to `"src"` - the config that actually produces
+    `dist/index.js`, the file `package.json`'s own `main` names. Staging from the typecheck
+    config's `rootDir: "."` would copy `test/`, `examples/` and `scripts/` into `dist/` alongside
+    `src/`, one directory level too deep for `dist/index.ts` to exist at all.
+    """
+    build = read_json(root / _BUILD_CONFIG).get("compilerOptions")
+    if isinstance(build, dict) and (build.get("rootDir") or build.get("outDir")):
+        return build
+    return compiler_options(root)
+
+
 def stage_sources(root: Path, workspace: Path) -> None:
     """Copy the repository's sources beside the examples, with the build output it declares.
 
@@ -210,27 +243,82 @@ def stage_sources(root: Path, workspace: Path) -> None:
             shutil.copytree(child, workspace / child.name, ignore=ignore, dirs_exist_ok=True)
         elif child.is_file():
             shutil.copy2(child, workspace / child.name)
-    options = compiler_options(root)
+    options = _staging_options(root)
     out_dir = str(options.get("outDir", "")).strip().lstrip("./").rstrip("/")
-    root_dir = str(options.get("rootDir", "")).strip().lstrip("./").rstrip("/")
-    source = workspace / root_dir if root_dir else None
+    root_dir_raw = str(options.get("rootDir", "")).strip()
+    # `str.lstrip("./")` strips a *character set*, not a prefix: on `rootDir: "."` - a real,
+    # measured convention (PDF-TS's own tsconfig maps its whole checkout to `outDir: "dist"` this
+    # way) - it stripped the lone `.` down to `""`, which the next line then read as "no rootDir
+    # declared" and skipped staging `dist` entirely, so no example - by name or by relative path -
+    # had anything to resolve against. `.` means the workspace itself, not "absent".
+    if root_dir_raw == ".":
+        source: Path | None = workspace
+    elif root_dir_raw:
+        source = workspace / root_dir_raw.lstrip("./").rstrip("/")
+    else:
+        source = None
     if out_dir and source is not None and source.is_dir() and not (workspace / out_dir).exists():
         shutil.copytree(source, workspace / out_dir)
+    _stage_self_reference(workspace, out_dir)
     (workspace / _HOST_DECLARATIONS).write_text(_HOST_SOURCE, encoding="utf-8", newline="\n")
+
+
+def _stage_self_reference(workspace: Path, out_dir: str) -> None:
+    """A `node_modules` entry mapping the package's own name to its staged build output.
+
+    A README example may import the package by its published name - `@asposefoss/pdf` on PDF, not
+    a relative path, exactly as a real consumer writes it after `npm install`. Node's own
+    self-referencing feature (resolving a package's own name from inside its source tree) needs an
+    `exports` field in `package.json`; PDF's declares only `main`/`types`, so `nodenext`/`node16`
+    resolution cannot find it that way. This mirrors what `npm install` actually gives a consumer -
+    a `node_modules/<name>` entry whose `main`/`types` resolve normally - rather than depending on
+    a Node feature the package opted out of.
+
+    Measured 2026-09-16 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript: all 96 examples import
+    `@asposefoss/pdf` by name, none by relative path, so without this every one reads `error
+    TS2307: Cannot find module '@asposefoss/pdf' or its corresponding type declarations.` Scoped
+    to the measured case - a manifest declaring `outDir` - because that is what staged a
+    resolvable build output to copy; a manifest with no build step is unchanged from before.
+    """
+    manifest = read_json(workspace / "package.json")
+    name = manifest.get("name")
+    if not out_dir or not isinstance(name, str) or not name.strip():
+        return
+    if not (workspace / out_dir).is_dir():
+        return
+    target = workspace / "node_modules"
+    for part in name.strip("/").split("/"):
+        target = target / part
+    if target.exists():
+        return
+    target.mkdir(parents=True)
+    shutil.copy2(workspace / "package.json", target / "package.json")
+    shutil.copytree(workspace / out_dir, target / out_dir)
 
 
 def _flags(root: Path) -> list[str]:
     """The compiler flags for this package: its own language level, an ES module, its resolution.
 
     `target` and `moduleResolution` are the package's own declarations, because a snippet is
-    checked against the library the way the library is built. `module` is not: a README snippet
-    may `await` at top level, which CommonJS forbids and every published consumer of these
-    packages is free to use.
+    checked against the library the way the library is built. `module` is mostly not: a README
+    snippet may `await` at top level, which CommonJS forbids and every published consumer of these
+    packages is free to use, so the default is an ES module regardless of what the package emits.
+    The one exception is forced by the compiler itself, not chosen here: `node16` and `nodenext`
+    resolution each refuse every `module` value except their own name (TS5110), so a package
+    declaring one of them gets `module` set to match it verbatim - never the ES-module default,
+    and never `bundler`'s `esnext` either, which is the one resolution this constraint does not
+    apply to.
     """
     options = compiler_options(root)
     target = str(options.get("target", "") or _DEFAULT_TARGET)
     resolution = str(options.get("moduleResolution", "") or _DEFAULT_RESOLUTION)
-    module = "esnext" if resolution.lower() in _BUNDLER_MODULES else _DEFAULT_MODULE
+    lowered = resolution.lower()
+    if lowered in _NODE_PAIRED_RESOLUTIONS:
+        module = resolution
+    elif lowered == _BUNDLER_RESOLUTION:
+        module = "esnext"
+    else:
+        module = _DEFAULT_MODULE
     flags = [*_BASE_FLAGS, "--target", target, "--module", module]
     flags.extend(["--moduleResolution", resolution])
     declared = options.get("lib")

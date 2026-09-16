@@ -1752,3 +1752,101 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `inherited_unit` records its defect names) lands, or once the primary rules it sealable on
   BC-01..BC-09 plus a corroborated second read. Full detail:
   `evidence/build/lanes/lane-b/G4-W13-RERUN6.json`.
+
+- **2026-09-16 20:36 (`date` checked) · G4-W14-RERUN4 · DECISION · a second correction: PDF-TS was
+  attempted once before, by the primary loop, not "never".** Following the same box's second target
+  (`aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript`), checked against `docs/DECISION_LOG.md` before
+  drawing rather than trusted from the spawn instruction: the primary loop drew it once, 2026-09-06
+  21:11, right after arrival item 31 re-enabled it (`data/registry.json` `mode: disabled` ->
+  `dry_run`). That draw admitted and extracted cleanly (2,922 facts) but died on
+  `RetryableOperationError: timeout` inside S4 `source_reconciliation`, twice, against the then
+  `DEFAULT_TIMEOUT_SECONDS` of 360s (`core/config.py`), and named a PROPOSAL to raise it. Checked
+  directly against `origin/main` before this draw: `b6b0232` (2026-09-06 22:39, PR #16, "set the
+  gateway timeout from measured call duration, not a guess") already raised it to 900s - the exact
+  proposed fix, landed roughly ninety minutes after the primary's attempt and never re-drawn since.
+  So the repository is genuinely untested against its own named blocker's fix, which is close
+  enough to "never attempted under conditions that could succeed" to draw it, while the literal
+  "never attempted" claim is corrected here rather than repeated. `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript
+  (disabled: disposition only)` in `project/lanes/lane-b.yaml`'s `repositories:` list is now stale
+  documentation, superseded by item 31; left as-is here since correcting stale prose outside an
+  active item's own predicate is not this item's scope. Reversal: none; a correction plus a
+  decision.
+
+- **2026-09-16 20:36 (`date` checked) · G4-W14-RERUN4 · three lane-owned defects, one composition
+  round: a config `.` stripped to nothing, a compiler flag pairing tsc itself refuses, and a
+  self-import no `exports` field can satisfy - all in `typescript_examples.py`, all fixed with a
+  mutation test each.** Facts-only against `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript` at
+  `09e3d13` (3,133 facts, 437 inherited units, 2,544 public symbols, 96 examples) first read `96
+  candidates; not_verified 96`, every one `BLOCKED_TOOLCHAIN: error TS5110: Option 'module' must be
+  set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.` **F1 (TS5110):**
+  `_flags`'s `_BUNDLER_MODULES = frozenset({"bundler", "node16", "nodenext"})` treated all three
+  resolutions alike and always emitted `--module esnext`; measured directly against this machine's
+  tsc (5.9.3): `--module esnext --moduleResolution bundler` raises nothing, but the same pairing
+  under `nodenext` or `node16` raises exactly TS5110 - only `bundler` has no companion-module
+  constraint. Fixed: `node16`/`nodenext` now get `module` set to their own resolution value
+  verbatim; `bundler` is unchanged. Mutation tests
+  `test_node_paired_resolution_gets_a_matching_module` (4 params) and
+  `test_node_paired_flags_actually_compile` (2 params, real tsc) - red (TS5110, both parametrizations)
+  before, green after; `test_bundler_resolution_keeps_the_es_module_default` guards the unaffected
+  case. **F2 (self-import, no `exports`):** with F1 fixed, all 96 still failed, now `error TS2307:
+  Cannot find module '@asposefoss/pdf'` - every one of this repository's examples imports the
+  package by its own published name, not a relative path (the only style `stage_sources`'s docstring
+  names, from Cells/3D), and Node's self-referencing-by-name resolution requires an `exports` field
+  in `package.json` that this manifest does not declare (only `main`/`types`). Fixed: a
+  `node_modules/<name>` entry staged from the build output, mirroring what `npm install` gives a
+  real consumer rather than depending on a Node feature the package opted out of. Mutation tests
+  `test_the_packages_own_name_resolves_like_a_real_consumers_install` and
+  `test_an_example_importing_the_package_by_its_own_name_type_checks` (real tsc) - red (TS2307)
+  before, green after. **F3 (`rootDir: "."` and the wrong config file):** with F1+F2 alone, `dist/`
+  was never staged at all - `str.lstrip("./")` strips a *character set*, not a prefix, so PDF-TS's
+  own `rootDir: "."` (its `tsconfig.json`, used only by its `typecheck` script) was reduced to `""`
+  and read as "no rootDir", silently skipping the whole `dist` staging step; separately, the
+  authoritative mapping for what `dist/` actually contains is a *different* file,
+  `tsconfig.build.json` (`rootDir: "src"`, what `package.json`'s `build` script actually runs via
+  `tsc -p tsconfig.build.json`), which `stage_sources` never read. Fixed both: `_staging_options`
+  prefers `tsconfig.build.json` when it declares its own `rootDir`/`outDir`, falling back to
+  `tsconfig.json` with `"."` now correctly read as "the workspace itself" rather than "absent" (the
+  fallback path a repository with only one config would hit). Mutation tests
+  `test_a_narrower_build_config_wins_over_a_whole_tree_typecheck_config` and
+  `test_a_bare_dot_root_dir_stages_the_whole_workspace` - red (no `dist/index.ts` staged, or staged
+  one level too deep under `dist/src/`) before, green after. Combined effect on the real repository:
+  `96 candidates; failed 96` (every one a real per-example diagnostic now, not a configuration
+  refusal) moved to **`96 candidates; executed 9, failed 87`** - `required rows without evidence:
+  none` throughout. Full ruff/mypy/pytest (`-n auto`, 1,180 passed, 16 xfailed) green after all
+  three. Alternative rejected for F3: reading only `tsconfig.build.json` unconditionally - rejected
+  because a repository with no separate build config (Cells, 3D) has nothing there, and the
+  fallback to `tsconfig.json` must still work correctly for them, which is what the mutation test
+  for the bare `"."` case guards. Reversal: revert `typescript_examples.py`'s three edits and their
+  tests; `_flags`, `stage_sources` and the module-level constants return to their prior form.
+
+- **2026-09-16 20:36 (`date` checked) · G4-W14-RERUN4 · DISPOSITION · `aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript`
+  at `09e3d13` - `BLOCKED_INVESTIGATION` (S3).** First draw past facts extraction for this
+  repository since the 2026-09-06 21:11 S4-timeout attempt, and the first ever by lane-b. With all
+  three verifier fixes above in place, the full transaction (`present`, no `--facts-only`) ran S3
+  `repository_investigation` and failed closed there: `output rejected twice; last rejection: fact
+  example:008 is CONTRADICTED, not SUPPORTED; fact example:009 is CONTRADICTED, not SUPPORTED; fact
+  example:010 is CONTRADICTED, not SUPPORTED`. Both attempts (identical rejection both times, per
+  `calls.jsonl`) cited the same three CONTRADICTED examples as evidence for one workflow claim,
+  "Parse HTML or Markdown text into a structured document model and render it into a PDF flow or
+  page" (`calls/907ca9e172c9.rejected-1.json`, `workflows[3]`). The three examples' own failures are
+  real, not verifier artifacts: `example:009` is `error TS2339: Property 'OpenFile' does not exist
+  on type '{ new (): Document; ...}'` (a genuine API-name mismatch, `OpenFile` vs whatever this
+  revision actually exports); `example:008` and `example:010` are `error TS2304: Cannot find name
+  'doc'`/`'page'` - the documented cross-block-fragment class this project has already named
+  elsewhere (3D-TS's `scene.save`, Slides-C++'s incomplete fence): README code blocks that flow
+  from one to the next, each individually unresolvable in isolation though the workflow they
+  together document is real. `core/llm/binding.py`'s SUPPORTED-only citation rule
+  (`errors.append(f"fact {fact_id} is {fact.polarity}, not SUPPORTED")`) is doing exactly its job -
+  refusing a claim's only cited evidence when that evidence did not itself verify - and is not
+  weakened here. What it exposes is shared code this lane may not edit: `core/llm/binding.py`
+  (the SUPPORTED-only rule itself) and `prompts/repository_investigation.yaml` (the packet gives
+  the model no way to express "this workflow is real across these blocks together, even though no
+  single block verifies alone" other than citing blocks that individually fail the rule). Not a new
+  discovery in kind - the identical structural tension is already named for 3D-TS and Slides-C++ -
+  so recorded as a corroborating measurement rather than a fresh PROPOSAL: three more repositories
+  now show the same shape (`example:xxx` cross-referencing another block) tripping the same
+  citation rule at three different stages (S3 investigation here; S6 authoring/S9 validation on the
+  other two). sealed_by_lane stays 0, dispositions_by_lane rises 9 to 10. Resume predicate: re-run
+  once shared code lets a multi-block workflow cite its own supporting facts without every
+  individual block independently verifying, or once the primary rules a narrower fix sufficient.
+  Full detail: `evidence/build/lanes/lane-b/G4-W14-RERUN4.json`.
