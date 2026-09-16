@@ -1654,6 +1654,86 @@ def test_the_enterprise_context_never_repeats_the_edition_name() -> None:
     assert other["units"][0]["text"] == "The Enterprise Edition adds FBX export."
 
 
+def test_a_unit_never_restates_its_own_slots_title() -> None:
+    """G4-W17 arrival item 99 (E19). A slot's title is printed immediately before its unit
+    (the packet's own ``title_rule`` already tells the model this - authoring.py's
+    ``_tasks_for``), but before this fix nothing deterministic enforced it: a restating unit
+    passed every existing check. Measured on Words-Python: S8's coherence pass silently
+    regenerated six already-repaired ``key_capabilities`` units back to their pre-repair,
+    title-restating text, and ``coherence.revised`` recorded exactly those six slots - the
+    repair was real and then invisibly undone. ``coherence_checks`` calls this same
+    ``unit_checks`` function per task (composition/coherence.py), so the rule holds at both
+    call sites through the one shared function, closing the gap E19 measured at either.
+    """
+    # An ordinary-prose title (no CamelCase/dotted/format token) so only the new rule, never
+    # the unsupported-title-terms check beside it, is exercised by this test.
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"identity:repository"}),
+        ("capability:1",),
+        slot_facts={"capability:1": frozenset({"identity:repository"})},
+        slot_titles={"capability:1": "Export Files to Disk"},
+    )
+
+    def unit(text: str) -> dict[str, object]:
+        return {
+            "section": "key_capabilities",
+            "slot": "capability:1",
+            "text": text,
+            "fact_ids": ["identity:repository"],
+        }
+
+    # Genuinely new content, no restatement: stands.
+    assert (
+        unit_checks(
+            {"units": [unit("It writes a scene straight to a local path.")], "omitted": []},
+            task,
+            FACTS,
+            NAME,
+        )
+        == []
+    )
+    # Restates the title verbatim, mid-sentence, not only when opening the unit.
+    restated = {
+        "units": [unit("Export Files to Disk with one call, no extra setup required.")],
+        "omitted": [],
+    }
+    assert unit_checks(restated, task, FACTS, NAME) == [
+        "unit capability:1: restates its own title 'Export Files to Disk'; the title is "
+        "printed immediately before the unit, so its text adds what the title does not "
+        "already say"
+    ]
+    # Case-insensitive: the same stutter with different casing is still caught.
+    shouted = {"units": [unit("EXPORT FILES TO DISK in one call.")], "omitted": []}
+    assert unit_checks(shouted, task, FACTS, NAME) == [
+        "unit capability:1: restates its own title 'Export Files to Disk'; the title is "
+        "printed immediately before the unit, so its text adds what the title does not "
+        "already say"
+    ]
+    # A section whose slots carry no title (the ordinary case today, everywhere but
+    # key_capabilities) is untouched - slot_titles defaults to {}, so the rule is inert.
+    untitled = SectionTask(
+        "scope_limitations",
+        {},
+        frozenset({"identity:repository"}),
+        ("limitation:1",),
+        slot_facts={"limitation:1": frozenset({"identity:repository"})},
+    )
+    same_text = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "Export Files to Disk is not supported for read-only mounts.",
+                "fact_ids": ["identity:repository"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(same_text, untitled, FACTS, NAME) == []
+
+
 def test_the_schema_names_this_tasks_section_and_exactly_its_slots() -> None:
     # The canary's rejected replies name this failure exactly: "units must fill exactly these
     # slots once each: scope, limitation:1 .. limitation:6; got scope, limitation:1 ..

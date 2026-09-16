@@ -92,7 +92,12 @@ _TYPE_OBJECTIVE = (
 # spelled verbatim inside a SUPPORTED inherited_unit fact the unit itself cites, scope_limitations
 # only (cited_inherited_identifiers) - a real meaning change to what allowed_identifiers' three
 # consumers accept.
-NORMALISATION_VERSION = "4"
+# "4" -> "5" (G4-W17 arrival item 99/E19): unit_checks now rejects a unit whose own text restates
+# its slot's title (today, key_capabilities only - the one section with titles) - a new rejection
+# class shared by both call sites (S6 authoring and S8 coherence_checks), closing a gap where the
+# prompt's own title_rule was advisory only and coherence could silently revert an already-fixed
+# unit back to a title-restating one.
+NORMALISATION_VERSION = "5"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -1161,6 +1166,24 @@ def unit_checks(
             errors.append(
                 f"unit {unit.get('slot')}: names the Enterprise Edition; the shell's closing "
                 "sentence names it exactly once"
+            )
+    # G4-W17 arrival item 99 (E19): a slot's title is printed immediately before its unit
+    # (the packet's own title_rule already tells the model this), so a unit's own text
+    # restating it reads as a stutter no reader chose - the same "printed once already"
+    # shape as the Enterprise Edition check just above, mirrored here for any slot with a
+    # title (today, only key_capabilities: capability_titles() is section-scoped). This one
+    # function is shared by both call sites (S6 original composition, and S8's coherence
+    # pass through coherence_checks), so a coherence regeneration is held to the same rule a
+    # fresh authoring reply already was - measured on Words-Python: coherence silently
+    # reverted six already-repaired key_capabilities units back to their pre-repair,
+    # title-restating text, because unit_checks had no rule to catch it either time.
+    for unit in output.get("units", []):
+        title = task.slot_titles.get(str(unit.get("slot")))
+        if title and title.lower() in str(unit.get("text", "")).lower():
+            errors.append(
+                f"unit {unit.get('slot')}: restates its own title {title!r}; the title is "
+                "printed immediately before the unit, so its text adds what the title does "
+                "not already say"
             )
     # README_CONTRACT.md check 4: a unit's facts lie within the set the plan assigned to its
     # slot; identity and package facts belong to no slot and may support any unit.
