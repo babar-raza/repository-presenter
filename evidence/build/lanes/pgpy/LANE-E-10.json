@@ -1,0 +1,82 @@
+{
+ "schema_version": 1,
+ "worker": "pgpy (one-off, branch pgpy/LANE-E-10, label primary)",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+ "recorded_at": "2026-09-16T20:20:00Z",
+ "control_revision": "25aae12",
+ "control_revision_note": "Worktree C:\\w\\pgpy2, single-use branch pgpy/LANE-E-10, off origin/main at 25aae12 (origin/main's own tip, verified by `git rev-parse HEAD origin/main` before any work). Task: re-draw this repository now that G4-W17 arrival item 95 (PROPOSAL PGPY-01's own fix, recorded 2026-09-16 19:41 UTC in docs/DECISION_LOG.md) has landed, per evidence/build/lanes/pgpy/LANE-E-06.json's resume predicate for this repository.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\pgpy2",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the first attempt (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .), confirmed before any candidate work."
+ },
+ "blocker_reverification_before_any_provider_call": {
+  "method": "git fetch origin; git worktree add C:/w/pgpy2 -b pgpy/LANE-E-10 origin/main resolved to 25aae12 directly (tip commit, HEAD == origin/main). `git show 25aae12` read in full against composition/planning.py and composition/authoring.py, plus its test diffs and docs/DECISION_LOG.md's own item-95 entry, independently, not merely trusting the commit message or the task's own summary.",
+  "result": "25aae12 adds authoring.py::supporting_fact_ids(term, facts, limit=3) - up to three SUPPORTED fact IDs whose value literally carries the term, sorted - and both plan_checks (planning.py ~666-689) and unit_checks (authoring.py ~1148-1168) now build a per-term candidates map and fold it into the rejection string via `f\"{term!r} is carried by {...}\" if ids else f\"{term!r} by no SUPPORTED fact\"`. NORMALISATION_VERSION bumped 2 -> 3 (authoring.py is version-bump-governed). Confirmed working on this run's own live output, not merely present in the diff: see item_95_pgpy01_confirmed_closed_for_this_repository below, which quotes this run's own rejection text naming real candidate fact IDs."
+ },
+ "present_run": {
+  "command": "repository-presenter present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "revision": "ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e",
+  "mode": "dry_run (push disabled, verified)",
+  "facts_only_preflight": "Run first, before any provider call: facts digest 22c9e2a4c6c9fabd41f29fb76762d3f413ba0393e68e01dac39bb9c74edec16c, 735 records - byte-identical to the 2026-09-16 18:04 UTC LANE-E-06 draw at the same revision. Nothing about the repository or the extractor changed; only composition changed (item 95).",
+  "outcome": "NOT SEALED across two independent live draws, each ending in JobError before S6 - draw 1 at S3 (repository_investigation), draw 2 at S5 (presentation_planning), for two different and unrelated causes. Full detail below.",
+  "draw_1": {
+   "clone": "1.1 GB / 2430 tree entries, succeeded on this attempt.",
+   "stages": {
+    "S3_repository_investigation": "REJECTED TWICE, JobError - run ends here, S4-S12 never reached this draw. Attempt 1 rejection: unknown fact ID inherited_unit:084.list.0/.1/.2/.3/.4 (5 IDs). Attempt 2 rejection: unknown fact ID inherited_unit:084.paragraph.0/.1/.2/.3/.4 (5 different, still-invented IDs). The real fact is inherited_unit:084.list (singular, no numeric suffix) - confirmed by grepping facts.json for 'inherited_unit:084' and finding exactly one match."
+   },
+   "assessment": "A citation hallucination at S3, not reproduced by draw 2 (which passed S3 on attempt 2, rejected for a DIFFERENT single fact ID 'public_symbol:aspose.page.common' on attempt 1 first). Two live draws produced two different, non-repeating S3 hallucinations, each cleared or not cleared unpredictably by the one re-ask - ordinary live-model variance on a job with no prior ACCEPTED reply to seed from (no sealed bundle exists for this revision), not attributed to any code defect and not generalised into a proposal from one (two non-matching) observation(s)."
+  },
+  "draw_2": {
+   "stages": {
+    "S3_repository_investigation": "attempt 1 rejected (unknown fact ID public_symbol:aspose.page.common), attempt 2 succeeded - 2 provider calls total.",
+    "S4_source_reconciliation": "3 provider calls, success - dispositions.json written.",
+    "S5_presentation_planning": "REJECTED TWICE, JobError - run ends here, S6-S12 never reached this draw either."
+   }
+  }
+ },
+ "item_95_pgpy01_confirmed_closed_for_this_repository": {
+  "old_class": "PLAN_S5_REASK_BUDGET_EXHAUSTED_BY_TWO_SIMULTANEOUS_TITLE_VIOLATIONS (LANE-E-06, 2026-09-16 18:04 UTC): the rejection stated the rule but named no candidate fact, so the model reworded a title rather than searched hundreds of facts for a citation.",
+  "does_it_recur": "NO, the message defect itself does not recur - proven directly from this run's own rejection text, not by reading the commit. Draw 2's final S5 rejection reads verbatim: \"core_capabilities 1 is titled 'Read and parse PS/EPS documents', which names .eps, which the facts it cites do not carry ('.eps' is carried by example:004, format:input.eps, inherited_unit:004.paragraph); cite one of the named facts that supports this title, or title the capability by what it cites\" - exactly PGPY-01's proposed shape, landed and working: three real candidate fact IDs named per unsupported term.",
+  "why_the_repository_still_did_not_seal": "A different, deeper mechanism (below, PGPY-02) kept the informative message from ever reaching the model within its one-re-ask budget for this specific attempt."
+ },
+ "the_new_class_measured_and_reproduced": {
+  "class": "BINDING_ERRORS_SHORT_CIRCUIT_DOMAIN_CHECKS_HIDING_A_SIMULTANEOUS_DEFECT_FROM_THE_SOLE_REASK",
+  "mechanism": "core/llm/jobs.py::_parse (line 368): `if not errors and checks is not None: errors.extend(checks(output))` - the job-specific domain checks (plan_checks for presentation_planning) run ONLY when core/llm/binding.py::binding_errors already returned an empty list for that attempt. When an attempt's output carries both a binding-level defect (a hallucinated/invalid fact or inherited-unit ID cited anywhere in the payload) and a domain-level defect (plan_checks' title-terms rule), only the binding defect is reported; the domain defect is never computed and never appears in that attempt's rejection text at all.",
+  "reproduction": "Draw 2, calls/b7ba992f5816.rejected-1.json (attempt 1): core_capabilities 1 and 3 already cite only ['public_symbol:aspose.page.ps'] / ['public_symbol:aspose.page.ps','public_symbol:aspose.page.xps'] - the identical uncited-'.eps' defect item 95 targets - but the attempt's sole rejection is 'unknown inherited unit install_command:pip' (a binding.py::binding_errors finding, unrelated to titles). The model's one universal re-ask (core/llm/jobs.py, out of scope, unchanged by this proposal) is spent on the only thing it was told about. calls/b7ba992f5816.rejected-2.json (attempt 2): core_capabilities 1 and 3's title and fact_ids are BYTE-IDENTICAL to attempt 1's - confirmed by direct field comparison of both stored payloads, not inferred - because the model was never informed they needed to change. Attempt 2's binding check now passes (the install_command citation was fixed elsewhere in the payload), so plan_checks finally runs for the first time and immediately rejects on the same uncited titles it would have flagged, with informative content, on attempt 1 - but the job's only re-ask is already spent, so run_job raises OutputRejected and the present invocation ends.",
+  "is_this_a_real_defect_or_working_as_designed": "A real defect in the check-ordering, not the message content item 95 already fixed. planning.py's own plan_checks is already defensive against an unresolvable fact_id it is asked to score a title against: line 668 builds `cited` via `values.get(i, \"\")` (silent empty-string default for any fact_id not in `values`), so running plan_checks even when binding_errors is non-empty would not crash or need binding-clean input as a precondition - it already tolerates exactly this input shape.",
+  "no_third_attempt_made": "loop-prompt.md section 5: 15 minutes without materially narrowing a cause prohibits a third equivalent attempt; here the cause IS materially narrowed, by direct call-record field comparison (attempt 1 vs attempt 2's core_capabilities, byte-identical) plus reading the exact line of source (_parse, jobs.py:368) that explains why - not by repeating the same live draw a third time hoping for a different outcome. A third `present` would cost another full clone-then-provider-calls cycle for no additional diagnostic value the code and the two already-completed independent draws (one reaching S3 only, one reaching S5) have not already supplied."
+ },
+ "proposal": {
+  "id": "PGPY-02",
+  "for": "the primary/supervisor - needs arrival-list admission before any lane or worker may land it",
+  "file": "src/repository_presenter/core/llm/jobs.py::_parse (line ~368, the `if not errors and checks is not None:` guard)",
+  "root_cause": "Domain checks (plan_checks, unit_checks, and any other job's `checks` callable) only ever run when core/llm/binding.py::binding_errors already found nothing wrong with that attempt's citations. An attempt that has both kinds of defect at once reports only the binding one; the domain defect stays invisible until a later attempt happens to clear the binding defect - by which point core/llm/jobs.py's universal one-re-ask budget (unchanged by PGPY-01/item 95, and not proposed for change here either) is already spent, so a defect the improved message (item 95) could have let the model fix in one shot is never shown to it in time.",
+  "proposed_shape": "Run `checks(output)` unconditionally whenever `checks is not None` (in addition to, not instead of, `binding_errors`), and merge both lists into one rejection, so a single re-ask attempt can see and address every defect the attempt actually has, not just whichever check family happened to be evaluated. planning.py's plan_checks is already safe to call on a payload with an unresolvable fact_id (its citation lookups default silently via `.get(i, \"\")`, verified by reading lines 664-668 this session); authoring.py's unit_checks was not read line-by-line this session and should be confirmed equally defensive before landing this - flagged for whoever lands it, not assumed. No new blocking check (rule 14) and no relaxation of any existing one - the change only affects which attempt's rejection text a defect's message appears in, never whether the defect is eventually enforced.",
+  "explicitly_not_proposed": "NO increase to the one-re-ask budget in core/llm/jobs.py (PGPY-01's own scoping reasoning applies unchanged: a materially bigger, costlier, more universal lever, not measured necessary here - a well-informed single re-ask may already be enough once it can see the whole picture). NO change to binding_errors' own rules or to what plan_checks/unit_checks consider a title-terms violation - only to the order in which the two check families run relative to each other.",
+  "repository_and_finding": "aspose-page-foss/Aspose.Page-FOSS-for-Python at ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e; presentation_planning (S5) rejected twice on draw 2 of this run, as recorded in the_new_class_measured_and_reproduced above.",
+  "evidence_paths": [
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls.jsonl",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls/b7ba992f5816.rejected-1.json",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/calls/b7ba992f5816.rejected-2.json",
+   "runs/transactions/aspose-page-foss__Aspose.Page-FOSS-for-Python/ca4fb3d76f9a3bdac34fc0f96801efd1cd31eb9e/facts.json"
+  ],
+  "note_on_evidence_path_lifetime": "These paths are under runs/ (gitignored, disposable) in worktree C:\\w\\pgpy2; not committed. This evidence file records their content inline so the finding is reproducible after the worktree is removed."
+ },
+ "disposition": {
+  "repository": "aspose-page-foss/Aspose.Page-FOSS-for-Python",
+  "state": "NOT_SEALED",
+  "class": "BINDING_ERRORS_SHORT_CIRCUIT_DOMAIN_CHECKS_HIDING_A_SIMULTANEOUS_DEFECT_FROM_THE_SOLE_REASK",
+  "previous_class_closed": "PLAN_S5_REASK_BUDGET_EXHAUSTED_BY_TWO_SIMULTANEOUS_TITLE_VIOLATIONS (PGPY-01 / item 95) is CLOSED for this repository - confirmed by this run's own rejection text naming real candidate fact IDs, not by reading the commit. See item_95_pgpy01_confirmed_closed_for_this_repository above.",
+  "resume_predicate": "PROPOSAL PGPY-02 lands with its own verification (including confirming unit_checks is equally safe to call unconditionally), then a fresh present --repo aspose-page-foss/Aspose.Page-FOSS-for-Python. S6 through S12 remain unmeasured for this repository, which has still never rendered a README.",
+  "no_seal_forced_no_check_weakened": "Verdict reported literally. No check was edited, relaxed, or bypassed. No re-draw was attempted a third time; the cause was narrowed by direct call-record field comparison and reading jobs.py/planning.py, per loop-prompt.md section 5."
+ },
+ "counted_unit": {
+  "before": "15/34 (repository-presenter status, worktree at origin/main 25aae12, before this run)",
+  "after": "unchanged - no seal produced by this run",
+  "method": "no state.yaml edit made; nothing sealed; project/state.yaml not opened by this worker"
+ }
+}
