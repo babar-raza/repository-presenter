@@ -477,6 +477,50 @@ def normalize(
             continue
         entry["disposition"] = "SUPERSEDE_REDUNDANT"
         entry["fact_ids"] = sorted(cited | set(ids))
+    # G4-W17 arrival item 98 (BCPY-02): a placeable section (never folded above - that branch
+    # is deterministic sections only) can still receive two independent PLACING dispositions
+    # for the same subject, one preserved and one moved in from elsewhere, each citing the
+    # same non-trivial fact - a real, repair-unreachable duplication once composed, since
+    # neither repair/rounds.py nor repair/targeted.py has any awareness of a VERIFIED_MOVE or
+    # VERIFIED_PRESERVE disposition to act on. Measured on BarCode-Python: two adjacent
+    # sentences both pointing at the same examples/ directory, one VERIFIED_PRESERVE'd in
+    # additional_examples and one VERIFIED_MOVE'd there from a separate section, both citing
+    # the same build_test_asset fact. Mirrors this file's own Core-API-table dedup precedent
+    # just above (a structural shape rather than a citation, but the same "the first claim on
+    # a destination stands, a later one is superseded by it" policy) - a second run over the
+    # now-final destination_section of every entry (including one this loop itself just moved,
+    # such as the OMIT_UNSUPPORTED-command branch's VERIFIED_PRESERVE into development_testing
+    # above), in document order, so the first PLACING claim on a (section, fact) pair always
+    # wins and is never itself downgraded.
+    fact_kinds = {fact.id: fact.kind for fact in facts.facts}
+    claimed: dict[tuple[str, str], str] = {}
+    for entry in output.get("dispositions", []):
+        destination = entry.get("destination_section")
+        if entry.get("disposition") not in PLACING or destination not in placeable_section_ids():
+            continue
+        unit = str(entry.get("unit_id", "?"))
+        # identity/package facts are cited by nearly every unit (unit_checks' own `neutral`
+        # set treats them the same way) and would flag every co-located pair as duplicates;
+        # a shared citation is only evidence of real subject overlap when it names something
+        # narrower than "this is the same repository".
+        narrow_citations = sorted(
+            fact_id
+            for fact_id in entry.get("fact_ids") or []
+            if fact_kinds.get(fact_id) not in {"identity", "package"}
+        )
+        shared_with = next(
+            (
+                claimed[destination, fact_id]
+                for fact_id in narrow_citations
+                if (destination, fact_id) in claimed
+            ),
+            None,
+        )
+        if shared_with is not None:
+            entry["disposition"] = "SUPERSEDE_REDUNDANT"
+            continue
+        for fact_id in narrow_citations:
+            claimed.setdefault((destination, fact_id), unit)
     return errors
 
 

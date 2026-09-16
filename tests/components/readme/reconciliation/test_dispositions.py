@@ -337,6 +337,122 @@ def test_two_deterministic_sections_rendering_nothing_both_fold_in_one_pass() ->
     assert [d["destination_section"] for d in output["dispositions"]] == [None, None]
 
 
+def test_a_duplicate_subject_placed_into_the_same_section_twice_is_superseded_by_the_first() -> (
+    None
+):
+    """G4-W17 arrival item 98 (BCPY-02). Measured on BarCode-Python after items 79/96 confirmed
+    fixed: two adjacent sentences both pointed the reader at the same examples/ directory, one
+    correctly VERIFIED_PRESERVE'd in additional_examples and one VERIFIED_MOVE'd there from a
+    separate Development-and-Testing section, both citing the same build_test_asset fact -
+    repair has no path to a VERIFIED_MOVE/VERIFIED_PRESERVE disposition at all (neither
+    repair/rounds.py nor repair/targeted.py reads either value), so composing both would have
+    produced a permanent, repair-unreachable duplication.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("build_test_asset:examples", "build_test_asset", "examples/"),
+            # additional_examples' own condition needs 2+ SUPPORTED examples; FACTS carries
+            # exactly one (example:001) plus one CONTRADICTED - a second SUPPORTED example is
+            # added purely to keep the section present, unrelated to what this test measures.
+            _fact("example:003", "example", "print(3)"),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:001.paragraph",
+                "VERIFIED_PRESERVE",
+                "additional_examples",
+                "build_test_asset:examples",
+            ),
+            _entry(
+                "inherited_unit:002.paragraph",
+                "VERIFIED_MOVE",
+                "additional_examples",
+                "build_test_asset:examples",
+            ),
+        ]
+    }
+    assert normalize(output, facts) == []
+    folded = output["dispositions"]
+    # The first claim on (additional_examples, build_test_asset:examples) stands untouched.
+    assert folded[0]["disposition"] == "VERIFIED_PRESERVE"
+    assert folded[0]["destination_section"] == "additional_examples"
+    # The second, sharing the identical non-trivial citation, is superseded by the first rather
+    # than composed again.
+    assert folded[1]["disposition"] == "SUPERSEDE_REDUNDANT"
+    assert folded[1]["destination_section"] == "additional_examples"
+    assert placement_errors(output, facts) == []
+
+
+def test_the_duplicate_subject_guard_ignores_identity_citations_and_different_sections() -> None:
+    """Mutation controls for item 98's guard: an identity/package citation is too common to be
+    evidence of real subject overlap (composition/authoring.py's own ``unit_checks`` treats the
+    same two kinds as neutral, for the identical reason), and two units placed into different
+    sections are never in competition even when they happen to share a citation."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact("build_test_asset:examples", "build_test_asset", "examples/"),
+            # additional_examples' own condition needs 2+ SUPPORTED examples; FACTS carries
+            # exactly one (example:001) plus one CONTRADICTED - a second SUPPORTED example is
+            # added purely to keep the section present, unrelated to what this test measures.
+            _fact("example:003", "example", "print(3)"),
+        ),
+    )
+    # Two units sharing only identity:repository, both placed in additional_examples: neither
+    # is downgraded - a citation every unit could plausibly carry proves nothing about overlap.
+    trivial = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:001.paragraph",
+                "VERIFIED_PRESERVE",
+                "additional_examples",
+                "identity:repository",
+            ),
+            _entry(
+                "inherited_unit:002.paragraph",
+                "VERIFIED_MOVE",
+                "additional_examples",
+                "identity:repository",
+            ),
+        ]
+    }
+    assert normalize(trivial, facts) == []
+    assert [d["disposition"] for d in trivial["dispositions"]] == [
+        "VERIFIED_PRESERVE",
+        "VERIFIED_MOVE",
+    ]
+    # The identical non-trivial fact, but two different destination sections: no overlap to
+    # guard against - each section covers its own subject.
+    different_sections = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:001.paragraph",
+                "VERIFIED_PRESERVE",
+                "additional_examples",
+                "build_test_asset:examples",
+            ),
+            _entry(
+                "inherited_unit:002.paragraph",
+                "VERIFIED_MOVE",
+                "scope_limitations",
+                "build_test_asset:examples",
+            ),
+        ]
+    }
+    assert normalize(different_sections, facts) == []
+    assert [d["disposition"] for d in different_sections["dispositions"]] == [
+        "VERIFIED_PRESERVE",
+        "VERIFIED_MOVE",
+    ]
+
+
 def test_placement_rules_are_checked_before_use() -> None:
     assert contradicted_code_units(FACTS) == {"inherited_unit:004.code_block"}
     good = {
