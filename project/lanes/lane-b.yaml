@@ -35,7 +35,7 @@ repositories:
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
   sealed_by_lane: 0
-  dispositions_by_lane: 9
+  dispositions_by_lane: 10
   note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
     and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
     symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
@@ -250,7 +250,33 @@ progress:
     not moved: BLOCKED_COMPOSING (BC-08), same check and stage as draw 4. sealed_by_lane stays 0,
     dispositions_by_lane stays 9 (restated, not a new repository). Full findings and the premise
     correction are in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN6.json,
-    the live source. repository-presenter status after the run: 12/34, unchanged.'
+    the live source. repository-presenter status after the run: 12/34, unchanged.
+    G4-W14-RERUN4 2026-09-16 20:36 against origin/main at 92a4c5f, rebased onto ffef091 before
+    the PR (branch lane-b/G4-W14-RERUN4, fresh worktree C:/w/b10): second item of the box, PDF-TS.
+    The spawn instruction''s "never attempted" claim is corrected, not repeated - the primary loop
+    drew it once, 2026-09-06 21:11, and died on a 360s S4 timeout that b6b0232 (PR #16) already
+    raised to 900s ninety minutes later; never re-drawn since. Facts-only first exposed a lane-owned
+    defect: all 96 examples read BLOCKED_TOOLCHAIN, tsc''s own TS5110, because `_flags` emitted
+    `--module esnext` under `moduleResolution: NodeNext`, a pairing tsc itself refuses. Fixed
+    (node16/nodenext now get a matching module value). That exposed a second: all 96 then failed
+    TS2307, because every example imports the package by its own published name and the manifest
+    declares no `exports` field for Node''s self-reference resolution to use. Fixed (a
+    node_modules/<name> entry staged from the build output, mirroring `npm install`). That exposed
+    a third: `dist/` was never staged at all, because `"." .lstrip("./")` (a character-set strip,
+    not a prefix strip) reduced `rootDir: "."` to empty, AND the authoritative build mapping lives
+    in a separate tsconfig.build.json this code never read. Fixed both (a preference for
+    tsconfig.build.json, and "." correctly read as "the workspace itself"). Three lane-owned
+    defects, one composition round, each fixed with its own mutation test verified red before
+    green (reverted and re-ran each time). Combined: 96 candidates; failed 96 -> executed 9,
+    failed 87, required rows without evidence: none. The full transaction then ran past facts for
+    the first time ever for this repository and failed closed at S3 repository_investigation:
+    two identical rejections, both citing three CONTRADICTED examples (008/009/010) as evidence
+    for one workflow claim. Two of the three are the documented cross-block-fragment class already
+    named for 3D-TS and Slides-C++; the citation rule (core/llm/binding.py) is doing its job
+    correctly and is shared code the lane may not edit. Disposition BLOCKED_INVESTIGATION (S3),
+    a new repository for this lane. sealed_by_lane stays 0, dispositions_by_lane rises 9 to 10.
+    Full detail in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14-RERUN4.json,
+    the live source. repository-presenter status after the run: 13/34, unchanged by this draw.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -490,4 +516,29 @@ items:
     against origin/main 6f2161f before this draw, or once the primary rules it sealable on
     BC-01..BC-09 plus a corroborated second read.'
   run_2026_09_16_r8: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN6.json, which
+    is the live source for this run rather than a copy.
+- id: G4-W14-RERUN4
+  status: ACCEPTED
+  accepted_at: '2026-09-16T20:36:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN4.json
+  purpose: 'Spawn instruction 2026-09-16, second item of the box: draw
+    aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript. The spawn instruction called it "likewise
+    never-attempted"; corrected in docs/RESEARCH_LANE_B.md before acting - the primary loop drew
+    it once (2026-09-06 21:11) and hit a 360s S4 timeout that PR #16 already raised to 900s
+    ninety minutes later, never re-drawn since. Facts-only exposed three lane-owned defects in
+    typescript_examples.py in sequence (TS5110 module/moduleResolution pairing, a missing
+    node_modules self-reference entry, and rootDir "." mishandled together with the wrong config
+    file read for the build mapping); each fixed with its own mutation test per loop-prompt-lane
+    section 2. Never force a seal, never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF TypeScript was drawn once past facts extraction for
+    the first time ever, and has its verdict, reported literally (BLOCKED_INVESTIGATION at S3,
+    two identical output rejections citing three CONTRADICTED examples as evidence for one
+    workflow claim). What remains open is shared code the lane may not land: core/llm/binding.py''s
+    SUPPORTED-only citation rule and prompts/repository_investigation.yaml''s packet, which give a
+    multi-block workflow claim no way to cite its own supporting facts without every individual
+    block independently verifying. Not a fresh PROPOSAL - the identical structural tension is
+    already named for 3D-TS (scene.save) and Slides-C++ (incomplete fence) - recorded as a third
+    corroborating measurement. Re-run once shared code addresses this class, or once the primary
+    rules a narrower fix sufficient.'
+  run_2026_09_16_r9: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN4.json, which
     is the live source for this run rather than a copy.

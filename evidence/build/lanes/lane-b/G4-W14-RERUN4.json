@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W14-RERUN4",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-16T20:36:00+05:00",
+  "control_revision": "92a4c5f, rebased onto ffef091 before the PR",
+  "control_revision_note": "The single-use branch lane-b/G4-W14-RERUN4 was cut from origin/main at 92a4c5f in a fresh short-path worktree at C:\\w\\b10. origin/main moved to ffef091 while this item's work was in progress; rebased before landing, focused and full suites re-run on the rebased tree.",
+  "premise_correction": "The spawn instruction named aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript as a second, 'likewise never-attempted' item. Checked against docs/DECISION_LOG.md before drawing: the primary loop drew it once, 2026-09-06 21:11, right after arrival item 31 re-enabled it (data/registry.json mode: disabled -> dry_run). That draw extracted facts cleanly (2,922 facts) but died on RetryableOperationError: timeout inside S4 source_reconciliation, twice, against DEFAULT_TIMEOUT_SECONDS=360s, and named a PROPOSAL to raise it. Confirmed directly against origin/main before this draw: b6b0232 (2026-09-06 22:39, PR #16) already raised it to 900s - the named fix, landed ~90 minutes after that attempt and never re-drawn since. So 'never attempted under conditions that could succeed' holds; the literal 'never attempted' does not. Full reasoning: docs/RESEARCH_LANE_B.md, 2026-09-16 20:36 DECISION entry.",
+  "time_box": {
+    "declared": "Spawn instruction 2026-09-16: second item if the box allows, following G4-W13-RERUN6 (PDF-Cpp).",
+    "started": "2026-09-16T19:50:00+05:00",
+    "closed": "2026-09-16T20:36:00+05:00",
+    "closed_by": "Its own evidence: PDF-TS was drawn once past facts extraction and has a literal disposition (BLOCKED_INVESTIGATION, S3), with three lane-owned verifier defects found and fixed along the way, each with a mutation test."
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+    "python": "3.13.2",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "worktree": "C:\\w\\b10",
+    "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; node v24.13.1, npx 11.8.0, npm 11.8.0, tsc 5.9.3 in the disposable npm profile at C:/tools/rp-toolchains/npm"
+  },
+  "what_this_run_tested": "Whether aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, re-enabled since 2026-09-06 (arrival item 31) and last blocked on a 360s S4 timeout that b6b0232 already raised to 900s, can now be drawn past facts extraction. No assumption was made about what would block it next; the draw was run and every failure class it exposed in this lane's own paths was fixed in this iteration, per loop-prompt-lane section 2.",
+  "findings": [
+    {
+      "id": "LANE-B-W14R4-F1",
+      "class": "lane-owned defect, fixed this run with mutation tests",
+      "owner": "lane-b",
+      "file": "src/repository_presenter/components/readme/extractors/platforms/typescript_examples.py (_flags, _BUNDLER_MODULES)",
+      "title": "node16/nodenext resolution was treated the same as bundler, always emitting --module esnext, which tsc itself refuses (TS5110) under node16/nodenext.",
+      "detail": "_BUNDLER_MODULES = frozenset({\"bundler\", \"node16\", \"nodenext\"}) collapsed three resolutions with different constraints into one branch. Measured directly against this machine's tsc 5.9.3: `--module esnext --moduleResolution bundler` raises nothing; the identical pairing under `nodenext` or `node16` raises `error TS5110: Option 'module' must be set to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.` (and the Node16 equivalent). aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript's own tsconfig.json declares moduleResolution: \"NodeNext\", so before this fix all 96 examples read BLOCKED_TOOLCHAIN with this exact TS5110 message - a configuration refusal before any example's own code was read. Fix: node16/nodenext now get `module` set to their own resolution value verbatim (new constants _NODE_PAIRED_RESOLUTIONS, _BUNDLER_RESOLUTION); bundler is unchanged.",
+      "evidence": "Manual tsc probe: `tsc --noEmit --module esnext --moduleResolution nodenext a.ts` -> TS5110; `--module nodenext --moduleResolution nodenext` -> clean; `--module esnext --moduleResolution bundler` -> no TS5110. Mutation tests test_node_paired_resolution_gets_a_matching_module (4 params: NodeNext/Node16/nodenext/node16) and test_node_paired_flags_actually_compile (2 params, real tsc) - red before (verified by reverting the fix and re-running: 6 failures, exact TS5110 messages), green after. test_bundler_resolution_keeps_the_es_module_default guards the unaffected case."
+    },
+    {
+      "id": "LANE-B-W14R4-F2",
+      "class": "lane-owned defect, fixed this run with mutation tests",
+      "owner": "lane-b",
+      "file": "src/repository_presenter/components/readme/extractors/platforms/typescript_examples.py (stage_sources, new _stage_self_reference)",
+      "title": "A README example importing the package by its own published name (not a relative path) could never resolve: the package declares no `exports` field, which Node's self-referencing-by-name resolution requires.",
+      "detail": "stage_sources's own docstring names only the relative-import convention (Cells' `./aspose_cells`, 3D's `./dist/...`). All 96 of PDF-TS's examples import `@asposefoss/pdf` by name instead, exactly as a real npm consumer would after `npm install`. Node's self-reference feature (resolving a package's own name from inside its own source tree) requires an `exports` field in package.json; this manifest declares only `main`/`types`, so nodenext/node16 resolution cannot find it that way, and every example read `error TS2307: Cannot find module '@asposefoss/pdf' or its corresponding type declarations.` once F1 was fixed. Fix: stage a `node_modules/<name>` entry from the staged build output, mirroring what `npm install` actually gives a real consumer, rather than depending on a Node feature this package opted out of.",
+      "evidence": "Mutation tests test_the_packages_own_name_resolves_like_a_real_consumers_install (staging layout) and test_an_example_importing_the_package_by_its_own_name_type_checks (real tsc, EXECUTED) - red (TS2307) before, green after."
+    },
+    {
+      "id": "LANE-B-W14R4-F3",
+      "class": "lane-owned defect, fixed this run with mutation tests",
+      "owner": "lane-b",
+      "file": "src/repository_presenter/components/readme/extractors/platforms/typescript_examples.py (stage_sources rootDir handling, new _staging_options/_BUILD_CONFIG)",
+      "title": "`str.lstrip(\"./\")` strips a character set, not a prefix, so `rootDir: \".\"` was reduced to `\"\"` and read as \"no rootDir\", skipping dist staging entirely; separately, the authoritative build mapping lives in a different file this code never read.",
+      "detail": "PDF-TS's tsconfig.json (used by its `typecheck` script) declares `rootDir: \".\"` - a real, deliberate convention (typecheck the whole tree). `\".\".lstrip(\"./\")` strips the lone `.` character (lstrip treats its argument as a character set), leaving `\"\"`, which the next line read as `root_dir` falsy and skipped `dist` staging altogether - with F1+F2 fixed, all 96 examples still failed to resolve anything because `dist/` never existed. Separately, PDF-TS's `package.json` `build` script runs `tsc -p tsconfig.build.json`, a *different* config overriding `rootDir` to `\"src\"` - the mapping that actually produces `dist/index.js`, which `stage_sources` never read (it only ever read tsconfig.json). Fix: `_staging_options` prefers tsconfig.build.json when it declares its own rootDir/outDir, falling back to tsconfig.json with `\".\"` now correctly read as \"the workspace itself\" (source = workspace) rather than \"absent\" (source = None).",
+      "evidence": "Mutation tests test_a_narrower_build_config_wins_over_a_whole_tree_typecheck_config (dist/index.ts present, dist/src and dist/test absent) and test_a_bare_dot_root_dir_stages_the_whole_workspace (single-config fallback) - red (no dist/index.ts staged, or staged one level too deep) before, green after. Combined with F1+F2, the real repository moved from `96 candidates; failed 96` to `96 candidates; executed 9, failed 87`, `required rows without evidence: none`."
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+      "revision": "09e3d13fb61e05f45e48299f0488934d638ed6ce",
+      "disposition": "BLOCKED_INVESTIGATION (S3)",
+      "disposition_change": "First draw past facts extraction since 2026-09-06 21:11's S4 timeout (a different stage, before this repository's own timeout fix had landed); first ever by lane-b. sealed_by_lane stays 0.",
+      "facts": "3,133 records (public_symbol 2,544, inherited_unit 437, link_target 36, example 96, dependency 5, identity 5, package 3, build_test_asset 2, license 2, import_path 1, install_command 1, third_party_notices 1); digest d6b39088a8fbf68d22e662d53489084873219c5674a19590e71d7e1223483280; after all three fixes: 3,046 SUPPORTED, 87 CONTRADICTED, 0 UNRESOLVED; required contract rows without evidence: none",
+      "examples": "96 candidates: 9 EXECUTED, 87 FAILED (76 TS2304 'Cannot find name' - the documented cross-block-fragment class named elsewhere for 3D-TS and Slides-C++; 10 TS2339 property-does-not-exist, genuine API mismatches; 1 TS2724 no-such-export)",
+      "stages": "S3 repository_investigation: 2 attempts, both rejected identically - fact example:008/009/010 CONTRADICTED, cited as evidence for workflows[3] ('Parse HTML or Markdown text into a structured document model and render it into a PDF flow or page'). No further stage ran.",
+      "validation": "not reached",
+      "review": "not reached",
+      "repair": "not applicable - the rejection is at the LLM job's own output-binding layer (core/llm/binding.py), before any content unit exists to repair",
+      "provider_calls": "2 completed (both success at the transport level, both response_invalid at the binding-validation level), stage S3 only; see calls.jsonl for exact rows",
+      "resume_predicate": "Shared code the lane may not edit: core/llm/binding.py's SUPPORTED-only citation rule (correct on its own terms - it refused a claim whose only cited evidence did not itself verify) and prompts/repository_investigation.yaml (the packet gives the model no way to express a workflow claim spanning several individually-unverifiable blocks other than citing them). Re-run once shared code lets a multi-block workflow cite its own supporting facts without every individual block independently verifying, or once the primary rules a narrower fix sufficient. Not a fresh PROPOSAL: the identical structural tension is already named for 3D-TS (scene.save) and Slides-C++ (incomplete fence); recorded here as a third, corroborating measurement."
+    }
+  ],
+  "provider_calls": {
+    "total_completed": 2,
+    "output_rejections": 2,
+    "cache_reuse": 0,
+    "cache_stale": 0,
+    "by_stage": "S3 2 rows, both response_invalid",
+    "completion_tokens": 2394,
+    "note": "Both S3 repository_investigation attempts cited the identical three CONTRADICTED examples (008, 009, 010) for the identical workflow claim; the retry did not change the model's citation."
+  },
+  "progress": {
+    "sealed_by_lane": 0,
+    "candidates_after_run": "13/34, unchanged (repository-presenter status, run from this worktree before the draw)",
+    "dispositions_by_lane": 10
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. Three lane-owned files changed this item (typescript_examples.py and its test file, plus the standard evidence/RESEARCH/lane-file docs).",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "236 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest": "1,180 passed, 16 xfailed in 101.86s, exit 0 (-n auto)",
+    "focused_tests": "tests/components/readme/extractors/platforms/test_typescript_examples.py: 25 passed (11 new)",
+    "runs_this_iteration": "1 full pytest run for 1 commit, plus focused red/green verification of each of the three fixes in isolation (git checkout/apply against a saved patch, not a separate commit)"
+  }
+}

@@ -116,6 +116,143 @@ def test_the_build_output_the_manifest_declares_is_staged_from_the_sources_it_ma
     assert (workspace / typescript_examples._HOST_DECLARATIONS).is_file()
 
 
+def test_a_narrower_build_config_wins_over_a_whole_tree_typecheck_config(tmp_path: Path) -> None:
+    """The `build` script's own config describes `dist/`; a wider `typecheck` config does not.
+
+    Measured 2026-09-16 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript: `tsconfig.json`
+    declares `rootDir: "."` (used only by the `typecheck` script, which never emits), while
+    `tsconfig.build.json` - what `package.json`'s `build` script actually runs - overrides
+    `rootDir` to `"src"`. Staging from the wider config would put `dist/src/index.ts` one level
+    too deep for `dist/index.ts`, the file the package's own `main`/`types` name, to exist.
+    """
+    root = tmp_path / "repository"
+    root.mkdir()
+    (root / "package.json").write_text(json.dumps(MANIFEST), encoding="utf-8")
+    (root / "tsconfig.json").write_text(
+        json.dumps({"compilerOptions": {"target": "ES2020", "rootDir": ".", "outDir": "dist"}}),
+        encoding="utf-8",
+    )
+    (root / "tsconfig.build.json").write_text(
+        json.dumps(
+            {
+                "extends": "./tsconfig.json",
+                "compilerOptions": {"rootDir": "src", "outDir": "dist"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    source = root / "src"
+    source.mkdir()
+    (source / "index.ts").write_text(BARREL, encoding="utf-8")
+    (source / "Widget.ts").write_text(WIDGET, encoding="utf-8")
+    (root / "test").mkdir()
+    (root / "test" / "widget.test.ts").write_text("// not part of dist\n", encoding="utf-8")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    typescript_examples.stage_sources(root, workspace)
+    assert (workspace / "dist" / "index.ts").is_file()
+    assert not (workspace / "dist" / "src").exists()
+    assert not (workspace / "dist" / "test").exists()
+
+
+def test_a_bare_dot_root_dir_stages_the_whole_workspace(tmp_path: Path) -> None:
+    """`rootDir: "."` with no narrower `build` config means the workspace itself is the source.
+
+    `str.lstrip("./")` strips a character set, not a prefix, so the lone `"."` was reduced to
+    `""` and read as "no rootDir declared" - silently skipping `dist` staging entirely.
+    """
+    root = tmp_path / "repository"
+    root.mkdir()
+    (root / "package.json").write_text(json.dumps(MANIFEST), encoding="utf-8")
+    (root / "tsconfig.json").write_text(
+        json.dumps({"compilerOptions": {"target": "ES2020", "rootDir": ".", "outDir": "dist"}}),
+        encoding="utf-8",
+    )
+    (root / "index.ts").write_text(BARREL, encoding="utf-8")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    typescript_examples.stage_sources(root, workspace)
+    assert (workspace / "dist" / "index.ts").is_file()
+
+
+def test_the_packages_own_name_resolves_like_a_real_consumers_install(tmp_path: Path) -> None:
+    """Self-reference without an `exports` field: `node_modules/<name>` stands in for `npm install`.
+
+    Measured 2026-09-16 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, whose 96 examples all
+    import `@asposefoss/pdf` by its published name rather than a relative path, and whose
+    `package.json` declares no `exports` field - so Node's own self-referencing resolution (which
+    requires one) cannot find it from inside the package's own source tree, and every example read
+    `error TS2307: Cannot find module '@asposefoss/pdf' or its corresponding type declarations.`
+    before this fix. `_repository`'s manifest is already scoped (`@aspose/widget`), matching the
+    shape that broke.
+    """
+    root = tmp_path / "repository"
+    root.mkdir()
+    _repository(root)
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    typescript_examples.stage_sources(root, workspace)
+    package_dir = workspace / "node_modules" / "@aspose" / "widget"
+    assert (package_dir / "package.json").is_file()
+    assert (package_dir / "dist" / "index.ts").is_file()
+
+
+@needs_tsc
+def test_an_example_importing_the_package_by_its_own_name_type_checks(tmp_path: Path) -> None:
+    """The real compiler, not just the staged layout: a by-name import actually resolves."""
+    root = tmp_path / "repository"
+    root.mkdir()
+    barrel = _repository(root)
+    by_name = "import { Widget } from '@aspose/widget';\nconst w = new Widget();\nw.save('o');\n"
+    candidate = ExampleCandidate(1, "typescript", by_name, "README.md", 1, 3, "unit:001")
+    receipts = typescript_examples.verify_typescript_examples(
+        root, barrel, [candidate], tmp_path / "run", 180.0
+    )
+    assert [receipt.outcome for receipt in receipts] == ["EXECUTED"], receipts[0].detail
+
+
+@pytest.mark.parametrize("resolution", ["NodeNext", "Node16", "nodenext", "node16"])
+def test_node_paired_resolution_gets_a_matching_module(tmp_path: Path, resolution: str) -> None:
+    """TS5110: tsc refuses any `module` value but the resolution's own name under node16/nodenext.
+
+    Measured 2026-09-16 on aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript, whose own tsconfig.json
+    declares `moduleResolution: "NodeNext"`: before this fix, `_flags` treated `node16`/`nodenext`
+    the same as `bundler` and always emitted `--module esnext`, so all 96 examples read
+    `BLOCKED_TOOLCHAIN: this tsc refuses these options - error TS5110: Option 'module' must be set
+    to 'NodeNext' when option 'moduleResolution' is set to 'NodeNext'.` - a configuration refusal
+    before any example's own code was even read, not a fact about the library.
+    """
+    (tmp_path / "tsconfig.json").write_text(
+        json.dumps({"compilerOptions": {"moduleResolution": resolution}}), encoding="utf-8"
+    )
+    flags = typescript_examples._flags(tmp_path)
+    module = flags[flags.index("--module") + 1]
+    assert module == resolution, f"module must equal moduleResolution verbatim; got {module!r}"
+
+
+def test_bundler_resolution_keeps_the_es_module_default(tmp_path: Path) -> None:
+    """`bundler` carries no TS5110 constraint (measured 2026-09-16: tsc accepts `--module esnext
+    --moduleResolution bundler` cleanly), so it is not swept into the node16/nodenext special case.
+    """
+    (tmp_path / "tsconfig.json").write_text(
+        json.dumps({"compilerOptions": {"moduleResolution": "bundler"}}), encoding="utf-8"
+    )
+    flags = typescript_examples._flags(tmp_path)
+    assert flags[flags.index("--module") + 1] == "esnext"
+
+
+@needs_tsc
+@pytest.mark.parametrize("resolution", ["NodeNext", "Node16"])
+def test_node_paired_flags_actually_compile(tmp_path: Path, resolution: str) -> None:
+    """The real compiler, not just the believed rule: the fixed flags raise no TS5110."""
+    (tmp_path / "tsconfig.json").write_text(
+        json.dumps({"compilerOptions": {"moduleResolution": resolution}}), encoding="utf-8"
+    )
+    flags = typescript_examples._flags(tmp_path)
+    refusal = typescript_examples.probe_compiler(compiler, tmp_path, flags)
+    assert refusal == "", refusal
+
+
 def test_no_candidate_needs_no_workspace(tmp_path: Path) -> None:
     assert typescript_examples.verify_typescript_examples(tmp_path, None, [], tmp_path, 60.0) == []
 
