@@ -12,6 +12,10 @@ item 65). That coverage is scoped to the one shape it was ever measured on - the
 immediately beside the example's own code block in the source document
 (``_adjacent_rendered_examples``, G4-W17 arrival item 76, lane F F17): unscoped, it dropped a
 distant unit on Slides-.NET that cited a rendered example only as evidence, never as its lead-in.
+The same unscoped shape recurred in ``planned_fact_ids``'s own ``quick_start``/
+``additional_examples`` handling, a sibling path item 76 never touched (G4-W17 arrival item 92,
+lane F F29): fixed by removing that unconditional fold entirely, so ``_adjacent_rendered_examples``
+is the only source of example-ID overlap anywhere, for every section.
 A placed unit inherits its section's visibility: in a collapsible section it renders inside the
 details block, never appended outside it. A placed
 unit whose destination the plan excludes is never dropped silently: planning fails closed naming
@@ -104,6 +108,19 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
     landed). ``renderer_fact_ids`` (RC-02, RESEARCH_AND_GUIDELINES.md 27.2 RC2/SW2, 2026-09-08)
     adds the renderer's own, more complete class/enum/hub-method coverage on top of this, via the
     union `placements()` already takes - additive, not a replacement.
+
+    ``quick_start`` and ``additional_examples`` name no branch here on purpose (G4-W17 arrival
+    item 92, lane F F29): until this fix, this function unconditionally folded
+    ``quick_start_example_id``/``second_quick_start_example_id``/``additional_example_ids`` into
+    the result for those two sections, the same unscoped-by-adjacency shape item 76 fixed for
+    ``rendered_examples`` in ``_adjacent_rendered_examples`` below - but reproduced in this sibling
+    path, which item 76 never touched. Measured on Aspose.Slides for .NET: two preserved units
+    citing ``example:003``/``004``/``006`` only as evidence for an implicit-usings claim (ordinal
+    distance 2, 5 and 11 from each example's own code block - none adjacent) were dropped as
+    overlap regardless of position. Their only contribution was that unconditional fold, so
+    removing both branches - rather than threading unit/ordinal state into this section-only
+    function - leaves ``_adjacent_rendered_examples`` (already unioned into `placements()`'s
+    ``covered`` separately) as the one, already-correct source of example-ID overlap anywhere.
     """
     ids: set[str] = set()
     if section == "key_capabilities":
@@ -117,11 +134,6 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
         for hub in plan.get("api_hubs", []):
             ids.add(str(hub.get("symbol_fact_id", "")))
             ids.update(hub.get("fact_ids", []))
-    elif section == "quick_start":
-        ids.add(str(plan.get("quick_start_example_id") or ""))
-        ids.add(str(plan.get("second_quick_start_example_id") or ""))
-    elif section == "additional_examples":
-        ids.update(plan.get("additional_example_ids", []))
     elif section == "at_a_glance":
         glance = plan.get("at_a_glance") or {}
         ids.update(glance.get("input_format_ids", []))

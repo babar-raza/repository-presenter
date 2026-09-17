@@ -166,8 +166,13 @@ def test_planned_fact_ids_name_each_sections_own_content() -> None:
         "identity:repository",
         "example:001",
     }
-    assert planned_fact_ids(plan, "quick_start") == {"example:001"}
-    assert planned_fact_ids(plan, "additional_examples") == {"example:002"}
+    # G4-W17 arrival item 92 (lane F F29): quick_start and additional_examples used to fold their
+    # own example IDs in here unconditionally - the same unscoped-by-adjacency defect item 76
+    # fixed for rendered_examples, reproduced in this sibling path. Both branches are gone now;
+    # _adjacent_rendered_examples (tested separately below) is the only source of example-ID
+    # overlap for these two sections, and for every other section, everywhere.
+    assert planned_fact_ids(plan, "quick_start") == frozenset()
+    assert planned_fact_ids(plan, "additional_examples") == frozenset()
     # RC-02: kept, not replaced - renderer_fact_ids adds to this, tested separately below.
     assert planned_fact_ids(plan, "api_reference") == {"public_symbol:aspose.threed.scene"}
     assert planned_fact_ids(plan, "opening") == frozenset()
@@ -479,6 +484,90 @@ def test_rendered_example_coverage_is_scoped_to_the_unit_adjacent_to_its_code_bl
     assert placed_texts(list(decisions.values())) == {
         "scope_limitations": ["| in | out |\n|---|---|\n| 46 | 46 |"]
     }
+
+
+def test_additional_examples_coverage_is_scoped_to_adjacency_not_unconditional() -> None:
+    """G4-W17 arrival item 92 (lane F F29), measured on Aspose.Slides for .NET run 5:
+    ``planned_fact_ids``'s ``additional_examples`` branch folded every example ID the plan
+    renders in that section into ``covered`` unconditionally, the same unscoped-by-adjacency
+    shape item 76 fixed for ``rendered_examples`` in ``_adjacent_rendered_examples`` - reproduced
+    in this sibling code path item 76 never touched. Two preserved units on Slides-.NET cited
+    example:003/004/006 only as evidence for an implicit-usings claim, at ordinal distance 2, 5
+    and 11 from each example's own code block (none adjacent), and were dropped as overlap
+    regardless of position. Fixed by removing the branch entirely: ``_adjacent_rendered_examples``
+    (already unioned into ``covered`` separately) is now the only source of example-ID overlap
+    here, so a two-ordinal-distant evidentiary unit survives while a true one-ordinal lead-in is
+    still dropped, exactly as item 76 already proved for the general case.
+    """
+    example = _example("example:009", "print(9)", "inherited_unit:041.code_block")
+    lead_in = _fact("inherited_unit:040.paragraph", "inherited_unit", "Round-trip a scene:")
+    block = _fact("inherited_unit:041.code_block", "inherited_unit", "```python\nprint(9)\n```")
+    evidence_only = _fact(
+        "inherited_unit:043.paragraph",
+        "inherited_unit",
+        "This also relies on Console and DateTime from System, used across these samples.",
+    )
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (*FACTS.facts, example, lead_in, block, evidence_only)
+    )
+    plan = _plan(additional_example_ids=["example:002", "example:009"])
+    dispositions = {
+        "dispositions": [
+            # A true lead-in, one ordinal before the example's own code block: still dropped.
+            _entry("inherited_unit:040.paragraph", "additional_examples", "example:009"),
+            _entry("inherited_unit:041.code_block", "additional_examples", "example:009"),
+            # Two ordinals after the block, citing it only as evidence: never a lead-in.
+            _entry("inherited_unit:043.paragraph", "additional_examples", "example:009"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    assert decisions["inherited_unit:041.code_block"].outcome == "owned_elsewhere"
+    assert decisions["inherited_unit:040.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:040.paragraph"].overlap == ("example:009",)
+    # Before the fix: planned_fact_ids's additional_examples branch unconditionally folded
+    # example:009 into `covered`, so this distant evidentiary unit dropped as "overlap"
+    # regardless of position - the exact F29/item 92 defect (red before this fix, green after).
+    assert decisions["inherited_unit:043.paragraph"].outcome == "placed"
+    assert placed_texts(list(decisions.values())) == {"additional_examples": [evidence_only.value]}
+
+
+def test_quick_start_coverage_is_scoped_to_adjacency_not_unconditional() -> None:
+    """G4-W17 arrival item 92 (lane F F29): the proposal's "by the same reasoning" clause for
+    ``quick_start`` - its own ``quick_start_example_id``/``second_quick_start_example_id`` branch
+    carried the identical unscoped-by-adjacency defect as ``additional_examples``, fixed the same
+    way, by removing the branch and leaving ``_adjacent_rendered_examples`` as the sole source of
+    example-ID overlap.
+    """
+    example = _example("example:009", "print(9)", "inherited_unit:051.code_block")
+    lead_in = _fact("inherited_unit:050.paragraph", "inherited_unit", "Get started fast:")
+    block = _fact("inherited_unit:051.code_block", "inherited_unit", "```python\nprint(9)\n```")
+    evidence_only = _fact(
+        "inherited_unit:053.paragraph",
+        "inherited_unit",
+        "This relies on the same defaults shown above.",
+    )
+    facts = FactsDocument(
+        REPOSITORY, "a" * 40, (*FACTS.facts, example, lead_in, block, evidence_only)
+    )
+    plan = _plan(quick_start_example_id="example:009")
+    dispositions = {
+        "dispositions": [
+            # A true lead-in, one ordinal before the example's own code block: still dropped.
+            _entry("inherited_unit:050.paragraph", "quick_start", "example:009"),
+            _entry("inherited_unit:051.code_block", "quick_start", "example:009"),
+            # Two ordinals after the block, citing it only as evidence: never a lead-in.
+            _entry("inherited_unit:053.paragraph", "quick_start", "example:009"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    assert decisions["inherited_unit:051.code_block"].outcome == "owned_elsewhere"
+    assert decisions["inherited_unit:050.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:050.paragraph"].overlap == ("example:009",)
+    # Before the fix: planned_fact_ids's quick_start branch unconditionally folded example:009
+    # into `covered`, so this distant evidentiary unit dropped as "overlap" regardless of
+    # position (red before this fix, green after).
+    assert decisions["inherited_unit:053.paragraph"].outcome == "placed"
+    assert placed_texts(list(decisions.values())) == {"quick_start": [evidence_only.value]}
 
 
 def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:
