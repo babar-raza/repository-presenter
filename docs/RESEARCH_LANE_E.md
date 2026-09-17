@@ -2500,3 +2500,146 @@ own facts and source measure; whether it recurs elsewhere is for whoever runs th
 repository to measure. No seal is claimed and the counted unit does not move:
 `repository-presenter status` reads **17/34** both before and after this run's attempts, and
 `project/state.yaml` was not opened.
+
+## 2026-09-17 08:45 UTC (`date -u` checked) — LANE-E-05 run 5, Words for Python re-drawn against the landed E23 fix; a new S6 blocker on the very next unit
+
+Branch `lane-e/LANE-E-05-R5`, on `origin/main` at `0ced0a5` (no rebase needed), fresh short-path
+worktree `C:\w\e05r5` (`C:\w\e05r4` was already removed after run 4's merge). Receipt:
+`evidence/build/lanes/lane-e/LANE-E-05.json` (overwritten with this run's figures; runs 1-4's are in
+this file's dated entries above). Drawn per the supervisor's instruction: commit `3ff0784`
+(`G4_MULTI_LANGUAGE_COHORTS/G4-W17`, landed 2026-09-17T10:04:24+05:00) lands PROPOSAL E23's own named
+fix (arrival item 109) - `format_facts` now suppresses a fixture-staging `("input", extension)` claim
+when the same example's `claims_for` already asserts `("output", extension)` for that extension,
+closing the `format:input.md`/`format:output.md` contradiction on example 1. The environment matched
+`f4406f1b04d8…` on the first attempt (confirmed before any candidate work); `runs/verify/py311` and
+`runs/verify/py312` were provisioned fresh via `uv venv --python 3.1{1,2}` (a fresh worktree ships
+none).
+
+### E23 is closed, independently verified against origin/main before drawing, not taken on trust
+
+`git merge-base --is-ancestor 3ff0784 origin/main` (origin/main at `0ced0a5`) confirms the commit is
+landed. Reading the diff (`evidence/facts/formats.py` +10 lines) shows the exact mechanism the
+supervisor's message named: a `claimed_directions` dict tracks each `claims_for` direction per
+extension, and a fixture-staging claim is skipped when `"output" in
+claimed_directions.get(extension, ())`. `present --facts-only --fresh` against the unchanged revision
+`2d2efee2787cb9e56d071d17f8d7b740dce8b784` reproduced **838 facts** (down from runs 1-4's 839),
+matching the supervisor's own count exactly. Reading the produced `facts.json` directly:
+`format:input.md`'s only remaining evidence is `tests/data/input/test_markdown.md` staged as
+`notes.md`, read by **example 6** - a genuine, different `.md` input, unrelated to example 1's
+`report.md` save target; no evidence entry for example 1 remains under `format:input.md` at all.
+`format:output.md` still carries example 1's `README.md:138` evidence, unchanged. The contradiction is
+gone.
+
+### PROPOSAL E24 — `section_authoring`'s own rejection guidance for a unit that cites its fact IDs inside its visible text does not reliably fix the defect it names, even on the one re-ask the job budget allows
+
+**Decision.** Lane E writes no fix. The three candidate causes are all shared code:
+`prompts/section_authoring.yaml` (system prompt and `rejection_template`),
+`src/repository_presenter/components/readme/composition/authoring.py` (`unit_checks`,
+`identifier_tokens`/`identifier_allowed`), and `core/llm/jobs.py` (the one-re-ask-per-job budget).
+Words for Python takes a disposition naming this proposal as its resume predicate.
+
+**The defect, measured on this run's own artifacts.** With E23 closed, the pipeline reached S6
+`section_authoring` for `key_capabilities` for the first time with a materially different fact set
+than any prior run measured. The accepted plan's six capability slots each cite a correct, in-scope
+`fact_ids` array (`plan.json`, confirmed against `facts.json`'s own IDs - none outside the plan's set,
+so this is not E15's class). The model's **first live attempt**
+(`calls/b3f82a5dfd01.rejected-1.json`) wrote, for every one of the six `key_capabilities` slots, a
+plain-prose sentence describing the capability correctly - then appended a bracketed, comma-separated
+list of the unit's own `fact_ids` **inside the visible `text` field itself**, e.g. capability:1's text
+ends "... aspose.words_foss.text_reader **[format:input.doc, format:input.docx, format:input.rtf,
+format:input.md, public_symbol:aspose.words_foss.doc_reader, public_symbol:aspose.words_foss.docx_reader,
+public_symbol:aspose.words_foss.rtf_reader, public_symbol:aspose.words_foss.markdown_reader,
+public_symbol:aspose.words_foss.text_reader].**" `unit_checks` (`authoring.py:1385-1396`) correctly
+rejected all six via its `identifier_tokens`/`identifier_allowed` stray-token scan - this is exactly the
+mechanism working as designed, catching fact-ID-shaped tokens (`format:input.doc`,
+`public_symbol:aspose.words_foss.doc_reader`) that are provenance, never fact values, alongside the
+tokenizer's own overlapping sub-matches (`input.doc`, bare `public_symbol`). The **system prompt
+already states this exact rule** (`prompts/section_authoring.yaml:116-117`, "Fact IDs, fact kinds, and
+packet field names ... are provenance, never words in prose") and the **rejection_template already
+names this exact failure mode** (`:16`, "A rejected identifier that IS one of the unit's own cited
+fact_ids is not a spelling problem either: the citation belongs only in fact_ids, and the unit's text
+never lists, names, or says which facts support it"). Despite both, the model's **one re-ask**
+(`calls/b3f82a5dfd01.rejected-2.json`) reproduced five of six slots' text **byte-identical**, brackets
+intact, and for the sixth (`capability:1`) made the **wrong** edit: it removed the correct, allowed
+module names from the sentence body (`aspose.words_foss.doc_reader`, etc. - genuine fact *values*,
+exactly what the prompt asks for) while leaving the disallowed bracket citation in place.
+`calls.jsonl`'s two `response_invalid` records (call sequence `0008`, `0010`) show the identical
+stray-token list recurring for five of six slots; the job's one-re-ask budget (`core/llm/jobs.py`) was
+then exhausted and the CLI reported "output rejected twice", stopping the run before S7.
+
+**Why this is not the same finding as E15, E19, E22 or E23.** E15 (Page for Python) is a plan/unit
+fact-set mismatch; this plan's fact_ids are correct and in-scope. E19 (this repository, run 2) is
+coherence reverting an already-correct repair; this failure is at first composition, before any repair
+or coherence call runs. E22 (this repository, run 3) is an unpinned `fact_ids` schema at
+`repository_investigation` letting the model invent or miscite a fact ID; here every cited ID **is** a
+real, correctly-scoped fact ID - the defect is that the model also **echoes** the same IDs into the
+prose it is not supposed to touch. E23 (this repository, run 4) is a facts-extraction contradiction,
+now closed and independently reconfirmed above.
+
+**Alternative rejected.** A third live call on this identical request (same facts, same plan, same
+prompt, temperature 0.0/seed 1) is the "two equivalent attempts" `project/loop-prompt.md` §5 prohibits:
+the job's own re-ask already gave the model the precise, correctly-worded correction and it still
+reproduced the defect on five of six slots and mis-corrected the sixth - a third attempt remeasures the
+same class, not a fresh finding.
+
+**What the owner has to choose between, not lane E's to pick.** (1) `unit_checks` already has a
+precedent for silently stripping a formatting artifact the model adds rather than rejecting the whole
+unit - backticks (`authoring.py:1357-1361`, "The renderer owns every code span: a span the job wrote is
+dropped in place"). A trailing bracketed, comma/colon-shaped citation list at the end of a unit's
+`text` could be stripped the same way before the stray-token scan runs, rather than spending a re-ask
+on a pattern the model does not reliably self-correct. (2) Give `core/llm/jobs.py`'s
+`section_authoring` job a second re-ask specifically when the stray list is entirely composed of tokens
+that are themselves valid `fact_ids` the unit already cites (a narrower, more specific corrective
+signal than today's generic error string). (3) Add the literal wrong pattern (a worked bad example
+immediately followed by its fix) to the system prompt or rejection_template, since the existing prose
+rule alone did not prevent it even at first generation. Lane E has no standing to choose among these
+and records the evidence for whichever the owner picks.
+
+**Evidence.**
+`runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/2d2efee2787cb9e56d071d17f8d7b740dce8b784/calls/b3f82a5dfd01.rejected-1.json`
+and `.rejected-2.json` (both attempts' full content, directly diffed); `calls.jsonl` call sequence
+`0007`-`0010` (the logical call's two provider attempts and two `response_invalid` verdicts);
+`plan.json` (`key_capabilities` slots' `fact_ids`, confirmed in-scope); `facts.json` (838 records,
+confirming E23); `prompts/section_authoring.yaml:16,104-121` (rejection_template, system prompt's
+provenance rule); `composition/authoring.py:1356-1361` (backtick-strip precedent), `:1385-1396` (the
+stray-token check that correctly rejected this output).
+
+**Reversal path.** A live re-run of this identical job (same facts, same plan) that returns clean prose
+with fact IDs only in the `fact_ids` array would refute this being a reliably recurring failure mode
+rather than a one-off sampling excursion - no such run has been made, and none is proposed here per the
+"two equivalent attempts" rule above; the next repository or run whose `section_authoring` packet
+carries a similarly long `fact_ids` list per slot is the next data point.
+
+### F02 was not reached this run, and neither resurfaces nor is refuted
+
+The run stopped at S6 on `key_capabilities`; S10 review - where F02 (`opening`, dependency
+completeness) was originally found - never ran at all. Lane E does not claim F02 is fixed, superseded,
+or covered by E24: they are different units (`opening` vs. `key_capabilities`) and different mechanisms
+(a citation-completeness gap vs. a provenance-in-prose leak). A secondary, non-blocking observation from
+this run's own accepted `opening` unit (`calls/e490618968e7.json`, the one S6 call that succeeded this
+run): its author correctly listed `dependency:fpdf2-2.7.5` in `omitted` with a stated reason, but
+**`dependency:olefile-0.46` and `dependency:pydantic-2.0.0` appear in neither `fact_ids` nor
+`omitted`** - both present in `facts.json` as `SUPPORTED`, silently unaccounted for by this unit. This
+is consistent with F02's originally-named class but is **not** a claim that F02 resurfaced: no S10
+reviewer ever judged this run's `opening` unit, so whether an independent reviewer would flag it is
+unmeasured here. It is named so the next run that reaches S10 checks it directly rather than assuming
+the question already closed.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-words-foss/Aspose.Words-FOSS-for-Python` | NOT_SEALED, stage S6 `section_authoring` (`key_capabilities`, rejected twice, job re-ask budget exhausted) | `SECTION_AUTHORING_UNIT_TEXT_ECHOES_ITS_OWN_FACT_ID_CITATIONS` | PROPOSAL E24 lands, then re-run `present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python`. `FIXTURE_STAGING_AND_FORMAT_FACTS_DISAGREE_ON_ONE_EXAMPLES_DIRECTION_FOR_THE_SAME_EXTENSION` (PROPOSAL E23, item 109) is **closed**, independently reconfirmed this run, and is not a predicate for the re-run. F02 (`opening`, dependency completeness) was not reached this run, remains unrepaired from run 2, and is still a predicate for whichever run next reaches S10. |
+
+### What this run does not claim
+
+It does not claim E24 recurs on any other repository - it generalizes only as far as "a long,
+colon/dotted `fact_ids` list handed to `section_authoring` in one packet can lead the model to echo it
+into the unit's own prose," measured on this repository's `key_capabilities` packet alone. It does not
+claim the model would fail identically on a fresh live attempt - sampling variance across process
+boundaries has been measured before on this same repository (E22); this run only shows that the one
+re-ask the job budget already spends did not fix it, twice, in the same process. It does not claim F02
+is closed, refuted, or still open - S10 was never reached, so this run has no evidence either way beyond
+the secondary observation above. No seal is claimed and the counted unit does not move:
+`repository-presenter status` reads **18/34** both before and after, and `project/state.yaml` was not
+opened.

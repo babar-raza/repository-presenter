@@ -4,13 +4,13 @@
   "gate": "G4_MULTI_LANGUAGE_COHORTS",
   "work_item": "LANE-E-05",
   "work_item_status": "IN_PROGRESS",
-  "recorded_at": "2026-09-17T03:23:00+00:00",
-  "control_revision": "bec76ba",
-  "control_revision_note": "Run 4 of LANE-E-05 (branch lane-e/LANE-E-05-R4, worktree C:\\w\\e05r4), off origin/main at bec76ba - own git fetch origin then git worktree add off the fetched tip; fresh worktree, no rebase needed, main did not move during this run's own preflight and composition. Re-drawn: commit bec76ba (G4_MULTI_LANGUAGE_COHORTS/G4-W17, landed 2026-09-17T07:49:01+05:00) lands PROPOSAL E22's own named fix (investigation_schema, investigation/dossier.py), item 105, verified an ancestor of origin/main before drawing. Runs 1-3's own records (control_revision 6f2161f, 25aae12, 9cbd522) are preserved in docs/RESEARCH_LANE_E.md's dated entries; this file is overwritten with run 4's figures per the lane prompt.",
+  "recorded_at": "2026-09-17T08:45:00+00:00",
+  "control_revision": "0ced0a5",
+  "control_revision_note": "Run 5 of LANE-E-05 (branch lane-e/LANE-E-05-R5, worktree C:\\w\\e05r5), off origin/main at 0ced0a5 - own git fetch origin then git worktree add off the fetched tip; fresh worktree, no rebase needed. Re-drawn per the supervisor's instruction: commit 3ff0784 (G4_MULTI_LANGUAGE_COHORTS/G4-W17, landed 2026-09-17T10:04:24+05:00) lands PROPOSAL E23's own named fix, item 109 - independently confirmed an ancestor of origin/main by git merge-base --is-ancestor before drawing, not taken on trust. Runs 1-4's own records (control_revision f26a57f/6f2161f, 25aae12, 9cbd522, bec76ba) are preserved in docs/RESEARCH_LANE_E.md's dated entries; this file is overwritten with run 5's figures per the lane prompt.",
   "environment": {
     "os": "Windows 11 10.0.26200",
     "python": "3.13.2 (.venv from C:\\Python313)",
-    "worktree": "C:\\w\\e05r4",
+    "worktree": "C:\\w\\e05r5",
     "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
     "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the FIRST attempt - project/loop-prompt-lane.md section 1.3's recipe (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .). Verified before any candidate work."
   },
@@ -18,19 +18,19 @@
     {
       "tool": "python (presenter)",
       "resolved_by": "C:\\Python313\\python.exe -m venv .venv, then project/loop-prompt-lane.md section 1.3's recipe",
-      "path": "C:\\w\\e05r4\\.venv\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r5\\.venv\\Scripts\\python.exe",
       "version": "3.13.2"
     },
     {
       "tool": "python (pinned toolchain, requires-python <3.13)",
       "resolved_by": "uv venv --python 3.12 runs/verify/py312 (arrival item 52, G4-W17); a fresh worktree ships no pinned toolchains of its own",
-      "path": "C:\\w\\e05r4\\runs\\verify\\py312\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r5\\runs\\verify\\py312\\Scripts\\python.exe",
       "version": "3.12.14 (uv-provisioned)"
     },
     {
       "tool": "python (pinned toolchain)",
       "resolved_by": "uv venv --python 3.11 runs/verify/py311",
-      "path": "C:\\w\\e05r4\\runs\\verify\\py311\\Scripts\\python.exe",
+      "path": "C:\\w\\e05r5\\runs\\verify\\py311\\Scripts\\python.exe",
       "version": "3.11.16 (uv-provisioned)",
       "note": "provisioned alongside py312 for completeness; this repository's requires-python (>=3.10,<3.13) resolved to py312"
     },
@@ -46,56 +46,62 @@
     "models": 7,
     "prompt_manifests": 6,
     "route": "qwen3-next",
-    "catalog_digest": "65b7049796ff5e89ea56b06f46c7cd0a104c6b54396062dc4219640e4d610e19"
+    "catalog_digest": "39b77c16ed3a97b91879d5bfbc71bf91107e6f10f7b91338aa1cd8f44fde4ca6"
   },
   "blocker_reverification": {
-    "method": "present --facts-only against aspose-words-foss/Aspose.Words-FOSS-for-Python at the same revision runs 1-3 measured, before any provider call; then a genuine full-pipeline present invocation making live provider calls through S3-S6.",
-    "recorded_class": "INVESTIGATION_FACT_ID_ARRAYS_HAVE_NO_ENUM_PIN_SO_A_MISREMEMBERED_SYMBOL_PATH_COSTS_THE_WHOLE_JOB_BUDGET (PROPOSAL E22, item 105; run 3, source_revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, stage S3)",
-    "measured": "At 2d2efee2787cb9e56d071d17f8d7b740dce8b784 (unchanged - the repository did not move), facts-only reproduced 839 facts, examples 12 candidates executed 12, required rows without evidence none - matching runs 1-3 exactly. bec76ba (this worktree's own tree, an ancestor of origin/main) gives repository_investigation its own investigation_schema call_schema in investigation/dossier.py, wired into repair/rounds.py's run_job call for that stage.",
-    "verdict": "CLOSED, VERIFIED LIVE - the live S3 call (calls/c55209257fd0.json) succeeded on attempt 1 with zero rejections (calls.jsonl: outcome success, attempt 1, rejection []), where run 3 measured two independent live attempts against this identical revision each ending 'output rejected twice'. The pipeline then continued live through S4 (three calls, success attempt 1), S5 (success attempt 1), and into S6 - four full stages past run 3's S3 stall, the furthest lane E has ever driven this repository."
+    "method": "git merge-base --is-ancestor 3ff0784 origin/main (before drawing); then present --facts-only --fresh against aspose-words-foss/Aspose.Words-FOSS-for-Python at the same revision runs 1-4 measured, before any provider call; then a genuine full-pipeline present invocation making live provider calls through S3-S6.",
+    "recorded_class": "FIXTURE_STAGING_AND_FORMAT_FACTS_DISAGREE_ON_ONE_EXAMPLES_DIRECTION_FOR_THE_SAME_EXTENSION (PROPOSAL E23, item 109; run 4, source_revision 2d2efee2787cb9e56d071d17f8d7b740dce8b784, stage S6)",
+    "measured": "git merge-base --is-ancestor 3ff0784 origin/main confirmed. Reading the landed diff (evidence/facts/formats.py +10 lines) shows a claimed_directions dict tracking each claims_for direction per extension, suppressing a fixture-staging claim when the extension is already claimed as output for that example. present --facts-only --fresh at 2d2efee2787cb9e56d071d17f8d7b740dce8b784 (unchanged) reproduced 838 facts (down from runs 1-4's 839, matching the supervisor's own preflight count exactly).",
+    "verdict": "CLOSED, VERIFIED LIVE ON THIS RUN'S OWN facts.json - format:input.md's only remaining evidence is example 6's genuine, unrelated read of tests/data/input/test_markdown.md (staged as notes.md); no evidence entry for example 1 remains under format:input.md at all, and format:output.md still carries example 1's README.md:138 evidence unchanged. The contradiction is gone."
   },
   "composition": {
     "revision": "2d2efee2787cb9e56d071d17f8d7b740dce8b784",
     "transaction": "runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/2d2efee2787cb9e56d071d17f8d7b740dce8b784/",
-    "facts": "839 records: build_test_asset 1, dependency 5, example 12, format 9, identity 5, import_path 3, inherited_unit 119, install_command 1, license 2, link_target 30, package 4, public_symbol 648 (byte-identical to runs 1-3)",
+    "facts": "838 records: build_test_asset 1, dependency 5, example 12, format 8, identity 5, import_path 3, inherited_unit 119, install_command 1, license 2, link_target 30, package 4, public_symbol 648",
     "stages_reached": {
-      "S3_repository_investigation": "success, attempt 1, 0 rejections (calls/c55209257fd0.json)",
-      "S4_source_reconciliation": "success, attempt 1, three calls (calls/f5c2c8a6e9a9.json, calls/5832e6b7ddbd.json, calls/59039b0656f9.json)",
-      "S5_presentation_planning": "success, attempt 1 (calls/1c4978215563.json)",
-      "S6_section_authoring": "first logical call (6c551c7a5d3b) repaired past an unrelated rejection ('unit opening: text contains HTML (\"<\")') on attempt 2; second logical call (0f0c8e1510f5) rejected twice across three live attempts total (run 1 attempt 1, run 2 attempts 1 and 2) on the identical objection - JobError raised, pipeline stopped"
+      "S3_repository_investigation": "success, attempt 1, 0 rejections (calls/3abd315e5907.json)",
+      "S4_source_reconciliation": "success, attempt 1, three calls (calls/32fad15d0b9f.json, calls/91b6e605bc19.json, calls/4f72a97beac8.json)",
+      "S5_presentation_planning": "success, attempt 1 (calls/f84875e673da.json)",
+      "S6_section_authoring": "first logical call (e490618968e70a4d, opening) succeeded on attempt 1 with zero rejections; second logical call (b3f82a5dfd01b1f0, key_capabilities) rejected twice - attempt 1 wrote six correct, in-scope-cited units each with a bracketed list of its own fact_ids appended inside the visible text; the one re-ask (attempt 2) reproduced five of six byte-identical and wrongly edited the sixth; JobError raised, pipeline stopped"
     },
     "seal": "NOT SEALED - blocked at S6, before coherence, validation, review, or the no-op proof could run"
   },
   "proposals": [
     {
-      "id": "E22",
-      "shape": "PROPOSAL",
-      "status": "CLOSED (landed bec76ba, G4_MULTI_LANGUAGE_COHORTS/G4-W17, item 105, 2026-09-17T07:49:01+05:00), verified LIVE on this repository this run - not merely by reading the diff",
-      "headline": "repository_investigation now decodes through investigation_schema (investigation/dossier.py), an enum-pinned call_schema over the packet's own fact_dossier; the live S3 call this run made succeeded on attempt 1 with zero rejections, where run 3 measured two independent attempts each rejected twice on a hallucinated fact ID."
-    },
-    {
       "id": "E23",
       "shape": "PROPOSAL",
-      "headline": "stage_fixtures (extractors/platforms/python_examples.py) stages a fixture under every file-like literal in an example's code with no read/write distinction, and format_facts (evidence/facts/formats.py:60-71) then reports every staged-and-executed fixture as format:input.<ext> SUPPORTED evidence unconditionally, contradicting the same function's own claims_for-derived output direction for the same example.",
+      "status": "CLOSED (landed 3ff0784, G4_MULTI_LANGUAGE_COHORTS/G4-W17, item 109, 2026-09-17T10:04:24+05:00), verified LIVE on this repository this run - not merely by reading the diff",
+      "headline": "format_facts now tracks each example's claims_for direction per extension and suppresses a fixture-staging (\"input\", extension) claim once claims_for already asserts (\"output\", extension) for that same example; facts.json now carries 838 records (down from 839) with no remaining format:input.md evidence for example 1."
+    },
+    {
+      "id": "E24",
+      "shape": "PROPOSAL",
+      "headline": "section_authoring's own rejection guidance for a unit that cites its fact IDs inside its visible text does not reliably fix the defect it names, even on the one re-ask the job budget allows - the model appended a bracketed list of each unit's own fact_ids inside the text field itself for all six key_capabilities units, and the one re-ask reproduced five of six byte-identical and mis-corrected the sixth.",
       "sites": [
-        "src/repository_presenter/components/readme/extractors/platforms/python_examples.py:113-146 (stage_fixtures - stages a fixture under every file-like string literal via _string_literals, with no check for read vs. write argument position), :149-179 (_stage_one)",
-        "src/repository_presenter/components/readme/evidence/facts/formats.py:28-113 (format_facts - the claims_for-derived branch at :39-57 computes direction from the syntax tree; the fixture-staging branch at :60-71 unconditionally emits (\"input\", extension) for every executed example's staged binding, with no cross-check against the first branch's own result for the same example)",
-        "runs/clones/aspose-words-foss__Aspose.Words-FOSS-for-Python/README.md:131-138 (the Quick Start code: doc = aw.Document(\"report.docx\") then doc.save(\"report.md\", aw.SaveFormat.MARKDOWN) - report.md is written, never opened; the comment '# or .doc, .rtf, .txt, .md' on the Document(...) line is what makes '.md' a file-like literal stage_fixtures picks up at all)"
+        "prompts/section_authoring.yaml:16 (rejection_template, already names this exact failure mode: 'the citation belongs only in fact_ids, and the unit's text never lists, names, or says which facts support it'), :104-121 (system prompt's provenance rule: 'Fact IDs, fact kinds, and packet field names ... are provenance, never words in prose')",
+        "src/repository_presenter/components/readme/composition/authoring.py:1385-1396 (unit_checks's stray-token scan via identifier_tokens/identifier_allowed - correctly rejected all six units; working as designed)",
+        "src/repository_presenter/components/readme/composition/authoring.py:1356-1361 (the existing backtick-strip precedent: 'The renderer owns every code span: a span the job wrote is dropped in place' - the same silent-strip pattern could apply to a trailing bracket citation)",
+        "core/llm/jobs.py (the one-re-ask-per-job budget, exhausted by this logical call without success)"
       ],
-      "measured": "Three independent live attempts across two present invocations (run 1 attempt 1: calls/0f0c8e1510f5.rejected-1.json, listing both 'unit capability:1: names .md as input...' and a second, same-shape contradiction on capability:6/.docx/example 12; run 2 attempts 1 and 2, freshly re-asked since only accepted output is cached) all rejected on the identical capability:1/.md objection - it never cleared. facts.json carries both format:input.md (evidence 'staged as report.md; example 1 read it: EXECUTED') and format:output.md (evidence 'line 138; example 1: output .md'), both SUPPORTED, both citing example 1, for opposite directions of the same extension - a genuine self-contradiction format_facts produces from its own two branches.",
-      "owner_choice_or_lane_position": "Lane E proposes the minimal, most direct fix: when an executed example's fixture-staging evidence and its own claims_for evidence name opposite directions for the same example ordinal and extension, the syntax-tree-derived (claims_for) direction is the more precise source and should suppress the fixture-staging claim for that example - or, equivalently, stage_fixtures should skip staging a literal claims_for already resolved as an output argument for that same example. Lane E explicitly does not propose a general read/write call-site argument-position parser for stage_fixtures - a materially larger static-analysis change outside the class this proposal closes."
+      "measured": "calls/b3f82a5dfd01b1f0.rejected-1.json: all six key_capabilities units correct in prose, each ending with a bracketed, comma-separated list of its own fact_ids (e.g. capability:1 ends '... aspose.words_foss.text_reader [format:input.doc, format:input.docx, format:input.rtf, format:input.md, public_symbol:aspose.words_foss.doc_reader, ...].'). unit_checks rejected all six as stray, not-a-fact-value tokens. calls/b3f82a5dfd01b1f0.rejected-2.json (the one re-ask, given the exact corrective wording above): five of six units' text byte-identical to attempt 1, brackets intact; capability:1's text differs but wrongly - it removed the correct, allowed module names from the sentence body while leaving the disallowed bracket in place. Job re-ask budget exhausted; CLI reported 'output rejected twice'.",
+      "owner_choice_or_lane_position": "Lane E proposes no fix (shared code across prompts/section_authoring.yaml, composition/authoring.py, and core/llm/jobs.py) and names three owner choices: (1) strip a trailing bracketed citation list the same way authoring.py:1357-1361 already silently strips backticks, before the stray-token scan runs; (2) give this specific stray-shape (every stray token itself a valid fact_id the unit already cites) a second, more targeted re-ask; (3) add a worked bad-example/fix pair to the prompt, since the existing prose rule alone did not prevent the defect even at first generation. No third live attempt was made on this identical request: the job's one re-ask already gave the model the precise correction and it did not take, which is the 'two equivalent attempts' project/loop-prompt.md section 5 prohibits a third of."
     }
   ],
   "disposition": {
     "repository": "aspose-words-foss/Aspose.Words-FOSS-for-Python",
     "outcome": "NOT_SEALED",
-    "stage": "S6 section_authoring (second key_capabilities logical call rejected twice across three live attempts total; no repair round reached)",
-    "failure_class": "FIXTURE_STAGING_AND_FORMAT_FACTS_DISAGREE_ON_ONE_EXAMPLES_DIRECTION_FOR_THE_SAME_EXTENSION",
-    "resume_predicate": "PROPOSAL E23 lands, then re-run present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python. INVESTIGATION_FACT_ID_ARRAYS_HAVE_NO_ENUM_PIN... (PROPOSAL E22, item 105) is CLOSED, verified live on this repository this run, and is not a predicate for the re-run."
+    "stage": "S6 section_authoring (key_capabilities logical call rejected twice; job re-ask budget exhausted; no repair round reached)",
+    "failure_class": "SECTION_AUTHORING_UNIT_TEXT_ECHOES_ITS_OWN_FACT_ID_CITATIONS",
+    "resume_predicate": "PROPOSAL E24 lands, then re-run present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python. FIXTURE_STAGING_AND_FORMAT_FACTS_DISAGREE_ON_ONE_EXAMPLES_DIRECTION_FOR_THE_SAME_EXTENSION (PROPOSAL E23, item 109) is CLOSED, independently reconfirmed this run, and is not a predicate for the re-run. F02 (opening, dependency completeness) was not reached this run (S10 never ran), remains unrepaired from run 2, and is still a predicate for whichever run next reaches S10."
+  },
+  "f02_watch": {
+    "instruction": "Watch for F02 (an opening-section dependency-completeness gap noted in run 2 but never re-observed since); if it resurfaces at S10 review, give it its own PROPOSAL rather than assuming it's covered elsewhere.",
+    "outcome": "NOT OBSERVED EITHER WAY - S10 review never ran this run (the pipeline stopped at S6, before S7 coherence, S9 validation, or S10 review). No PROPOSAL is written for F02 this run because it did not resurface at S10; nothing resurfaced at a stage that never executed.",
+    "secondary_observation_non_blocking": "This run's own accepted opening unit (calls/e490618968e7.json, the one S6 call that succeeded) correctly lists dependency:fpdf2-2.7.5 in omitted with a stated reason, but dependency:olefile-0.46 and dependency:pydantic-2.0.0 - both SUPPORTED in facts.json - appear in neither fact_ids nor omitted. Consistent with F02's originally-named class but not proof of its recurrence, since no S10 reviewer judged this unit."
   },
   "counted_unit": {
-    "status_before": "17/34",
-    "status_after": "17/34",
-    "note": "No seal, no candidates/ directory added, project/state.yaml not opened (the narrow exception applies only to a seal). repository-presenter status confirmed 17/34 in this worktree both before and after this run's attempts."
+    "status_before": "18/34",
+    "status_after": "18/34",
+    "note": "No seal, no candidates/ directory added, project/state.yaml not opened (the narrow exception applies only to a seal). repository-presenter status confirmed 18/34 in this worktree both before and after this run's attempts."
   }
 }
