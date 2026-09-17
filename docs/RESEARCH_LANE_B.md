@@ -2156,3 +2156,46 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   `LANE-B-R9-F1` lands, or once the primary rules a narrower fix or an exception sufficient - not on
   `LANE-B-R8-F1` alone, since this draw never reached the stage `LANE-B-R8-F1` fixes. Full detail:
   `evidence/build/lanes/lane-b/G4-W13-RERUN9.json`, the live source.
+
+- **2026-09-17 07:51 (`date` checked) · G4-W13-RERUN10 · SEAL · `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`
+  at `888700a8e361d32df21d0810c2eb939345e0603e` - `READY_FOR_PROPOSAL`.** Genuine changed-input retry,
+  drawn once item 106 (`43bdb91`, `LANE-B-R9-F1`, "title-restatement guard tolerates real added detail")
+  was confirmed landed via `git show` against `origin/main` and named in
+  `evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl`'s last row as unlocking exactly this
+  repository. Facts unchanged (1,846 records, digest `bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb`,
+  same as every draw since 2026-09-11). The transaction reached S9 validation (10 PASS/0 FAIL/1 PENDING),
+  S10 independent review (verdict `ACCEPT`; `verdict_as_returned REJECT_PRESENTATION` on the first read,
+  reversed on corroboration - `second_reader.read=2`, 8 corroborated ids, 0 surviving findings, 15
+  advisory), one repair round (F04, S6 `quick_start`, repaired), and sealed on the first draw - 31 live
+  provider calls, 0 `cache_stale`. A second fresh-process invocation (no `--fresh`) reused every stage
+  with zero provider calls but found `examples.json` and `probes.json` bytes had shifted since the
+  initial seal (10195 to 10107 bytes on `examples.json`); the seal mechanism correctly treated this as
+  an unconfirmed proof and re-sealed rather than trusting the mismatch, exactly as designed. A third
+  fresh-process invocation reproduced the second byte-for-byte on every content file (`README.md`,
+  `content_units.json`, `dependencies.json`, `dispositions.json`, `examples.json`, `facts.json`,
+  `investigation.json`, `plan.json`, `repairs.json`, `review.json`) with zero provider calls;
+  `validation.json`'s only remaining difference was BC-11 itself moving `PENDING` to `PASS` (the no-op
+  proof's own record) and `probes.json`'s only difference was registry-probe `elapsed_ms` timing
+  telemetry, confirmed by a byte-for-byte diff to be the only changed field on every line. Final state:
+  `candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e`,
+  `READY_FOR_PROPOSAL`, `no_op_proof {byte_identical: true, fresh_process: true, provider_calls: 0}`.
+  Reported literally rather than claimed as more than it is: the one `response_invalid` row this draw
+  (job `section_authoring`, an `api_reference` unit citing `FitH, FitV` as identifiers outside its
+  accepted fact values) is unrelated to item 106's fix, and this draw's own S5 `presentation_planning`
+  output places the raster-image device facts into `capability:2` merged with text-extraction rather
+  than as draw 9's standalone `capability:3` - a materially different split, so the exact single-purpose-
+  capability scenario item 106 was written for did not recur here. This seal closes draw 9's resume
+  predicate by producing a seal; it does not itself corroborate item 106's guard-tolerance branch, which
+  went uncalled this draw. `sealed_by_lane` rises 1 to 2; `dispositions_by_lane` falls 9 to 8. One
+  observation recorded, not a defect: `LANE-B-R10-OBS1` (lane-owned `cpp_examples.py` - a one-time,
+  self-correcting byte drift between the first and second local build of the same revision in the same
+  fresh worktree, root cause not conclusively isolated in this item's box; not re-proposed since the
+  proof mechanism designed to catch exactly this kind of drift caught it, and the final sealed bytes are
+  independently reproducible across two further fresh-process runs). `repository-presenter status` from
+  this worktree after rebasing onto `origin/main` `1ed2416` (an unrelated bcpy seal landed mid-draw):
+  18/34, risen by this draw's own seal and the concurrent unrelated one. `project/state.yaml`'s
+  `progress.current_candidates` is edited from 17 to 18 in this same commit, by the one narrow method
+  this lane may use: computed fresh from `repository-presenter status` against the just-rebased tree,
+  confirmed by a second full local CI-equivalent run after the edit (1242 passed, 23 xfailed, 91s;
+  the one failure before the edit, `test_status_reports_this_repository_cursor`, resolved). Full detail:
+  `evidence/build/lanes/lane-b/G4-W13-RERUN10.json`, the live source.

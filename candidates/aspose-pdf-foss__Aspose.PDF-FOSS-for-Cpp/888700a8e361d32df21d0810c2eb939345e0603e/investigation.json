@@ -1,0 +1,224 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "package:cxx_standard",
+      "dependency:none"
+    ],
+    "text": "C++ developers building desktop, server, or embedded applications that require PDF document processing without external runtime dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "text": "Open existing PDF files, including password-protected ones, and inspect page count, metadata, and encryption status.",
+      "title": "Open and inspect PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices"
+      ],
+      "text": "Extract full-page text using TextAbsorber or render pages to PNG, JPEG, BMP, or TIFF images using dedicated devices.",
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "text": "Apply AES-256, AES-128, RC4-128, or RC4-40 encryption with granular permissions, and sign documents with detached PKCS#7 signatures.",
+      "title": "Encrypt and sign documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "text": "Build documents with positioned text, tables, vector shapes, watermarks, annotations, and interactive AcroForm fields.",
+      "title": "Create PDF content from scratch"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "inherited_unit:010.list"
+      ],
+      "text": "Add and manipulate annotations (Highlight, Text, Link, Stamp, etc.) and AcroForm fields (TextBox, Checkbox, ComboBox, etc.).",
+      "title": "Manage annotations and forms"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection",
+        "public_symbol:aspose.pdf.nameddestinationcollection"
+      ],
+      "text": "Create hierarchical bookmark trees and define reusable named destinations for navigation.",
+      "title": "Support outlines and named destinations"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.pdf.documentinfo",
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "text": "Read and write document info (title, author, subject, keywords, dates) and XMP metadata.",
+      "title": "Handle document metadata"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades",
+        "inherited_unit:010.list"
+      ],
+      "text": "Access procedural wrappers like PdfConverter, PdfExtractor, PdfFileEditor, PdfFileStamp, and PdfBookmarkEditor.",
+      "title": "Use legacy facades API"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "text": "Standard-14 font fallback covers 12 fonts (Helvetica, Times-Roman, Courier × 4 styles); Symbol and ZapfDingbats have no bundled fallback."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "text": "XmpValue type-checking helpers (IsDateTime, IsField, etc.) are stubs that always return false; use IsString/IsInteger/IsDouble/IsArray instead."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "text": "Setting metadata on a from-scratch document and saving throws because there is no existing /Info object to patch."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "text": "Permissions set via encryption are enforced by the consuming PDF viewer, not by the library itself — it is not a DRM mechanism."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:006"
+      ],
+      "text": "Enables reading, writing, and modifying PDF documents in C++ without relying on commercial or third-party PDF libraries."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices"
+      ],
+      "text": "Provides text extraction, page rendering, and metadata handling through a consistent, object-oriented API aligned with Aspose.PDF for .NET."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "text": "Supports encryption, signing, annotations, and form fields for secure and interactive PDF workflows."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "dependency:none",
+        "inherited_unit:004.paragraph"
+      ],
+      "text": "Delivers a self-contained implementation of PDF codecs (TIFF, JPEG, PNG) and rendering without external runtime dependencies."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "package:cxx_standard"
+    ],
+    "text": "Aspose.PDF FOSS for C++ is a free, open-source C++20 library for creating, editing, and processing PDF documents with no runtime dependencies."
+  },
+  "uncertainties": [
+    "The exact set of supported AcroForm field types beyond those explicitly listed in examples and public symbols is unclear.",
+    "The behavior of TiffDevice for multi-page TIFF output beyond the documented Process(Document, startPage, endPage, ostream) overload is not specified.",
+    "Whether the library supports PDF/A or PDF/UA conformance beyond basic PDF 1.7/2.0 features is not stated in the facts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "name": "Open and inspect PDF",
+      "text": "Load a PDF file, check encryption status, and read document metadata such as title and author."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices"
+      ],
+      "name": "Extract content",
+      "text": "Traverse pages to extract text using TextAbsorber or render pages to raster images using PngDevice, JpegDevice, or TiffDevice."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "name": "Encrypt and sign",
+      "text": "Apply AES-256 or RC4 encryption with granular permissions, or sign documents using Facades::PdfFileSignature."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "name": "Build from scratch",
+      "text": "Create new documents with text, tables, vector graphics, watermarks, annotations, and interactive form fields."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades",
+        "inherited_unit:010.list"
+      ],
+      "name": "Use legacy facades",
+      "text": "Leverage Facades such as PdfConverter, PdfExtractor, PdfFileSignature, PdfFileEditor, and PdfFileStamp for familiar procedural patterns."
+    },
+    {
+      "fact_ids": [
+        "install_command:cmake",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "dependency:none"
+      ],
+      "name": "Build and integrate",
+      "text": "Build the library as a static library using CMake 3.20+ and link it into C++20 projects with no runtime dependencies."
+    }
+  ]
+}

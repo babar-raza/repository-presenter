@@ -34,8 +34,8 @@ repositories:
 - aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
-  sealed_by_lane: 1
-  dispositions_by_lane: 9
+  sealed_by_lane: 2
+  dispositions_by_lane: 8
   note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
     and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
     symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
@@ -739,4 +739,33 @@ items:
     its facts, or composition/planning.py''s S5 title selection is revised for such a
     capability), or once the primary rules a narrower fix or an exception sufficient.'
   run_2026_09_17_r13: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN9.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W13-RERUN10
+  status: ACCEPTED
+  accepted_at: '2026-09-17T07:51:39+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN10.json
+  purpose: 'Spawn instruction 2026-09-17: re-draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that
+    item 106 (commit 43bdb91, LANE-B-R9-F1, "title-restatement guard tolerates real added
+    detail") has landed on origin/main, clearing draw 9''s resume predicate. Verified directly
+    against the checked-out source and evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl
+    before drawing rather than trusted from the spawn instruction alone: git show 43bdb91
+    confirms unit_checks now rejects a title restatement only when it adds no real detail
+    beyond the title (title_terms(text, facts) - title_terms(title, facts) empty),
+    NORMALISATION_VERSION 6 -> 7, and unblocked.jsonl''s last row names item 106 unlocking
+    exactly this repository for this lane. A genuine changed-input retry. Never force a seal,
+    never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: PDF C++ was drawn once, end to end, and sealed on the
+    first attempt - S9 validation 10 PASS/0 FAIL/1 PENDING then 11 PASS/0 FAIL/0 PENDING after
+    the no-op proof; S10 independent review verdict ACCEPT (second_reader.read=2, 8 corroborated,
+    0 findings, 15 advisory); one repair round (F04, S6 quick_start). A second fresh-process
+    invocation found examples.json/probes.json bytes had shifted since the initial seal (a
+    lane-owned cpp_examples.py measurement, not a defect - see finding LANE-B-R10-OBS1) and the
+    seal mechanism correctly withdrew the unconfirmed proof rather than trusting it; a third
+    fresh-process invocation reproduced the second byte-for-byte on every content file with zero
+    provider calls, and the bundle is READY_FOR_PROPOSAL. The specific title-restatement scenario
+    item 106 was written for did not recur this draw (S5''s capability split differs from draw
+    9''s), so this seal closes the resume predicate without itself serving as a corroborating
+    test of item 106''s mechanism - recorded literally, not claimed as proof. Nothing remains
+    open for this repository.'
+  run_2026_09_17_r14: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN10.json,
     which is the live source for this run rather than a copy.

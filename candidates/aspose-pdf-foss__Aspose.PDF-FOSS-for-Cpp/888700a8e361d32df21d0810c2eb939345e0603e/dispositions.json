@@ -1,0 +1,1339 @@
+{
+  "dispositions": [
+    {
+      "destination_section": "identity",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "rationale": "The H1 heading matches the canonical product name supported by identity and package facts.",
+      "unit_id": "inherited_unit:001.heading"
+    },
+    {
+      "destination_section": "badges",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "license:spdx",
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008",
+        "link_target:009",
+        "link_target:010",
+        "link_target:011",
+        "link_target:012",
+        "link_target:013",
+        "link_target:014",
+        "link_target:015",
+        "link_target:016",
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023",
+        "link_target:024",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027",
+        "link_target:028",
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:033",
+        "link_target:034",
+        "link_target:035",
+        "link_target:036",
+        "link_target:037",
+        "link_target:product.banner",
+        "link_target:product.enterprise",
+        "link_target:product.homepage",
+        "package:cmake_minimum",
+        "package:cxx_standard"
+      ],
+      "rationale": "The badge row contains CI, License-MIT, C++20, and CMake badges, all supported by facts.",
+      "unit_id": "inherited_unit:002.badge_row"
+    },
+    {
+      "destination_section": "banner",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "rationale": "The banner image link is supported by link_target facts and belongs in the banner section.",
+      "unit_id": "inherited_unit:003.badge_row"
+    },
+    {
+      "destination_section": "opening",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:cxx_standard",
+        "package:cmake_minimum",
+        "import_path:aspose_pdf_foss",
+        "dependency:none",
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.facades",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.text",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph's substance is covered by the product_summary and capabilities facts; it will be re-authored for the opening section.",
+      "unit_id": "inherited_unit:004.paragraph"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The 'Navigation' heading is rendered by the navigation section and is redundant.",
+      "unit_id": "inherited_unit:005.heading"
+    },
+    {
+      "destination_section": "navigation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision"
+      ],
+      "rationale": "The navigation list is rendered by the navigation section and is redundant.",
+      "unit_id": "inherited_unit:006.list"
+    },
+    {
+      "destination_section": "at_a_glance",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The 'At a Glance' heading is supported by the Mermaid flowchart example and public symbols.",
+      "unit_id": "inherited_unit:007.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The Mermaid code block is not supported by any fact; no Mermaid example fact exists.",
+      "unit_id": "inherited_unit:008.code_block"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:006",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.facades",
+        "public_symbol:aspose.pdf.cryptoalgorithm"
+      ],
+      "rationale": "The 'Key Capabilities' heading is supported by the capabilities facts and public symbols.",
+      "unit_id": "inherited_unit:009.heading"
+    },
+    {
+      "destination_section": "key_capabilities",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:006",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.facades",
+        "public_symbol:aspose.pdf.cryptoalgorithm"
+      ],
+      "rationale": "The list items are supported by capabilities facts but will be re-authored to match the concise style.",
+      "unit_id": "inherited_unit:010.list"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The 'Installation' heading is supported by the install_command fact.",
+      "unit_id": "inherited_unit:011.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.python3",
+        "install_command:cmake",
+        "package:cmake_minimum"
+      ],
+      "rationale": "The paragraph's substance is covered by the install_command and dependency facts; it will be re-authored.",
+      "unit_id": "inherited_unit:012.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The CMake code block is not supported by any fact; the install_command fact provides the command.",
+      "unit_id": "inherited_unit:013.code_block"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none",
+        "package:cmake_minimum"
+      ],
+      "rationale": "The 'Requirements' heading is supported by the package and dependency facts.",
+      "unit_id": "inherited_unit:014.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none",
+        "package:cmake_minimum"
+      ],
+      "rationale": "The list items are supported by the dependency facts but will be re-authored for the dependencies section.",
+      "unit_id": "inherited_unit:015.list"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none"
+      ],
+      "rationale": "The paragraph about runtime dependencies is supported by the dependency:none fact.",
+      "unit_id": "inherited_unit:016.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests",
+        "build_test_asset:examples"
+      ],
+      "rationale": "The 'Build From Source' heading is supported by the build_test_asset facts.",
+      "unit_id": "inherited_unit:017.heading"
+    },
+    {
+      "destination_section": "installation",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "rationale": "The build code block is not supported by any fact; the install_command fact provides the command.",
+      "unit_id": "inherited_unit:018.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about build output paths is not supported by any fact.",
+      "unit_id": "inherited_unit:019.paragraph"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none"
+      ],
+      "rationale": "The 'Dependencies' heading is supported by the dependency facts.",
+      "unit_id": "inherited_unit:020.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none"
+      ],
+      "rationale": "The 'Required Package Dependencies' heading is supported by the dependency facts.",
+      "unit_id": "inherited_unit:021.heading"
+    },
+    {
+      "destination_section": "dependencies",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "dependency:development.python3",
+        "dependency:none"
+      ],
+      "rationale": "The list item is supported by the dependency fact but will be re-authored for the dependencies section.",
+      "unit_id": "inherited_unit:022.list"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The 'Quick Start' heading is supported by the example:001 fact.",
+      "unit_id": "inherited_unit:023.heading"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The paragraph's substance is covered by the example:001 fact; it will be re-authored.",
+      "unit_id": "inherited_unit:024.paragraph"
+    },
+    {
+      "destination_section": "quick_start",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001"
+      ],
+      "rationale": "The code block matches the example:001 fact exactly.",
+      "unit_id": "inherited_unit:025.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about additional examples is not supported by any fact.",
+      "unit_id": "inherited_unit:026.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "build_test_asset:examples"
+      ],
+      "rationale": "The 'Additional Examples' heading is supported by the build_test_asset:examples fact.",
+      "unit_id": "inherited_unit:027.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:examples",
+        "link_target:026",
+        "link_target:027"
+      ],
+      "rationale": "The paragraph's substance is covered by the examples and link_target facts; it will be re-authored.",
+      "unit_id": "inherited_unit:028.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The paragraph about example 12_create_features is not supported by any fact.",
+      "unit_id": "inherited_unit:029.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block is CONTRADICTED by example:002.",
+      "unit_id": "inherited_unit:030.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The lifetime rule blockquote is not supported by any fact.",
+      "unit_id": "inherited_unit:031.blockquote"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The HTML block is not supported by any fact.",
+      "unit_id": "inherited_unit:032.html_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The table is not supported by any fact.",
+      "unit_id": "inherited_unit:033.table"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The 'Open a Password-Protected Document' heading is supported by the example:003 fact.",
+      "unit_id": "inherited_unit:034.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:003"
+      ],
+      "rationale": "The code block matches the example:003 fact exactly.",
+      "unit_id": "inherited_unit:035.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The 'Read and Update Document Metadata' heading is supported by the example:004 fact.",
+      "unit_id": "inherited_unit:036.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The paragraph's substance is covered by the example:004 fact; it will be re-authored.",
+      "unit_id": "inherited_unit:037.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:004"
+      ],
+      "rationale": "The code block matches the example:004 fact exactly.",
+      "unit_id": "inherited_unit:038.code_block"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The blockquote about /Info is not supported by any fact.",
+      "unit_id": "inherited_unit:039.blockquote"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The 'Render Every Page to a Multi-Page TIFF' heading is not supported by any fact.",
+      "unit_id": "inherited_unit:040.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The code block matches example:005, which is CONTRADICTED; no other fact supports this specific TIFF example.",
+      "unit_id": "inherited_unit:041.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "example:006"
+      ],
+      "rationale": "The heading 'Encrypt a Document With AES-256' matches the subject of example:006, which is SUPPORTED, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:042.heading"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:006"
+      ],
+      "rationale": "The code block is identical to example:006, which is SUPPORTED, and correctly placed under Additional Examples.",
+      "unit_id": "inherited_unit:043.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.permissions"
+      ],
+      "rationale": "The paragraph accurately describes CryptoAlgorithm and Permissions as per the public symbols and example:006, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:044.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The heading 'Sign a Document' matches the subject of example:006 and PdfFileSignature, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:045.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:006",
+        "example:007",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The code block describes PdfFileSignature usage, supported by example:006 and public_symbol:aspose.pdf.facades, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:046.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "link_target:028"
+      ],
+      "rationale": "The paragraph points to tests/facades_pdf_file_signature_smoke_test.cpp, a verified test asset, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:047.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The heading 'Add an Annotation' matches the subject of example:001 and public_symbol:aspose.pdf.annotations, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:048.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "example:008",
+        "public_symbol:aspose.pdf.annotations.highlightannotation"
+      ],
+      "rationale": "The code block matches the HighlightAnnotation example in example:001 and public_symbol:aspose.pdf.annotations.highlightannotation, and belongs under Additional",
+      "unit_id": "inherited_unit:049.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The paragraph lists annotation subtypes supported by the public symbols, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:050.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "rationale": "The heading 'Build an AcroForm Field' matches the subject of example:001 and public_symbol:aspose.pdf.forms, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:051.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "example:009",
+        "public_symbol:aspose.pdf.forms.textboxfield"
+      ],
+      "rationale": "The code block matches the TextBoxField example in example:001 and public_symbol:aspose.pdf.forms.textboxfield, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:052.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "rationale": "The paragraph lists form field types supported by the public symbols, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:053.paragraph"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.outlines"
+      ],
+      "rationale": "The heading 'Build an Outline (Bookmark) Tree' matches the subject of example:001 and public_symbol:aspose.pdf.outlines, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:054.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "example:010",
+        "public_symbol:aspose.pdf.annotations.xyzexplicitdestination",
+        "public_symbol:aspose.pdf.outlines"
+      ],
+      "rationale": "The code block matches the outline example in example:001 and public symbols, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:055.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The heading 'Use a Facade' matches the subject of example:001 and public_symbol:aspose.pdf.facades, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:056.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "DEFER_UNRESOLVED",
+      "fact_ids": [
+        "example:001",
+        "example:011",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The code block matches the facade example in example:001 and public symbols, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:057.code_block"
+    },
+    {
+      "destination_section": "additional_examples",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The paragraph describes PdfConverter features supported by public symbols, and belongs under Additional Examples.",
+      "unit_id": "inherited_unit:058.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML comment </details> is a non-content separator.",
+      "unit_id": "inherited_unit:059.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "VERIFIED_PRESERVE",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The heading 'Project Structure' is supported by the repository structure and belongs under API Reference.",
+      "unit_id": "inherited_unit:060.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The paragraph describes the project structure supported by the repository layout and belongs under API Reference.",
+      "unit_id": "inherited_unit:061.paragraph"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The code block shows the directory tree supported by the repository layout and belongs under API Reference.",
+      "unit_id": "inherited_unit:062.code_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The heading 'API Reference' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:063.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The paragraph describes the public API surface supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:064.paragraph"
+    },
+    {
+      "destination_section": null,
+      "disposition": "NON_CONTENT",
+      "fact_ids": [],
+      "rationale": "The HTML comment <details> is a non-content separator.",
+      "unit_id": "inherited_unit:065.html_block"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The heading 'Core API' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:066.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The table lists Core API classes supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:067.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The heading 'Enumerations' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:068.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "rationale": "The table lists Core API enumerations supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:069.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The heading 'Annotations' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:070.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The table lists Annotations classes supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:071.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The heading 'Enumerations' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:072.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "rationale": "The table lists Annotations enumerations supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:073.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.drawing"
+      ],
+      "rationale": "The heading 'Drawing' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:074.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.drawing"
+      ],
+      "rationale": "The table lists Drawing classes supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:075.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The heading 'Facades' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:076.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The table lists Facades classes supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:077.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The heading 'Enumerations' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:078.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "rationale": "The table lists Facades enumerations supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:079.table"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "rationale": "The heading 'Forms' is supported by the public symbols and belongs under API Reference.",
+      "unit_id": "inherited_unit:080.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.barcodefield",
+        "public_symbol:aspose.pdf.forms.buttonfield",
+        "public_symbol:aspose.pdf.forms.checkboxfield",
+        "public_symbol:aspose.pdf.forms.choicefield",
+        "public_symbol:aspose.pdf.forms.comboboxfield",
+        "public_symbol:aspose.pdf.forms.datefield",
+        "public_symbol:aspose.pdf.forms.docmdpsignature",
+        "public_symbol:aspose.pdf.forms.externalsignature",
+        "public_symbol:aspose.pdf.forms.field",
+        "public_symbol:aspose.pdf.forms.fileselectboxfield",
+        "public_symbol:aspose.pdf.forms.form",
+        "public_symbol:aspose.pdf.forms.iconfit",
+        "public_symbol:aspose.pdf.forms.listboxfield",
+        "public_symbol:aspose.pdf.forms.numberfield",
+        "public_symbol:aspose.pdf.forms.option",
+        "public_symbol:aspose.pdf.forms.optioncollection",
+        "public_symbol:aspose.pdf.forms.pkcs1",
+        "public_symbol:aspose.pdf.forms.pkcs7",
+        "public_symbol:aspose.pdf.forms.pkcs7detached",
+        "public_symbol:aspose.pdf.forms.passwordboxfield",
+        "public_symbol:aspose.pdf.forms.radiobuttonfield",
+        "public_symbol:aspose.pdf.forms.radiobuttonoptionfield",
+        "public_symbol:aspose.pdf.forms.richtextboxfield",
+        "public_symbol:aspose.pdf.forms.signature",
+        "public_symbol:aspose.pdf.forms.signaturecustomappearance",
+        "public_symbol:aspose.pdf.forms.signaturefield",
+        "public_symbol:aspose.pdf.forms.textboxfield",
+        "public_symbol:aspose.pdf.forms.xfa"
+      ],
+      "rationale": "The table of forms classes is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:081.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '#### Enumerations' is supported; enumerations are rendered inline under the API Reference section.",
+      "unit_id": "inherited_unit:082.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.boxstyle",
+        "public_symbol:aspose.pdf.forms.docmdpaccesspermissions",
+        "public_symbol:aspose.pdf.forms.formtype",
+        "public_symbol:aspose.pdf.forms.iconcaptionposition",
+        "public_symbol:aspose.pdf.forms.scalingmode",
+        "public_symbol:aspose.pdf.forms.scalingreason",
+        "public_symbol:aspose.pdf.forms.subjectnameelements",
+        "public_symbol:aspose.pdf.forms.symbology"
+      ],
+      "rationale": "The table of forms enumerations is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:083.table"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '#### Detailed Member Reference' is supported; member reference is integrated into the API Reference section.",
+      "unit_id": "inherited_unit:084.heading"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Documents and Pages' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:085.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.page",
+        "public_symbol:aspose.pdf.pagecollection"
+      ],
+      "rationale": "The list of Document, Page, and PageCollection methods is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:086.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.page"
+      ],
+      "rationale": "The Page methods listed are superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:086.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagecollection"
+      ],
+      "rationale": "The PageCollection methods listed are superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:086.003.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Text Extraction and Building' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:087.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textabsorber",
+        "public_symbol:aspose.pdf.text.textfragmentabsorber",
+        "public_symbol:aspose.pdf.text.textbuilder",
+        "public_symbol:aspose.pdf.text.textfragment",
+        "public_symbol:aspose.pdf.text.textparagraph",
+        "public_symbol:aspose.pdf.text.textstate",
+        "public_symbol:aspose.pdf.text.fontrepository"
+      ],
+      "rationale": "The text API list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:088.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Rendering Devices' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:089.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.pngdevice",
+        "public_symbol:aspose.pdf.devices.jpegdevice",
+        "public_symbol:aspose.pdf.devices.bmpdevice",
+        "public_symbol:aspose.pdf.devices.tiffdevice",
+        "public_symbol:aspose.pdf.devices.resolution"
+      ],
+      "rationale": "The rendering devices list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:090.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.resolution"
+      ],
+      "rationale": "The Resolution class is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:090.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.documentdevice",
+        "public_symbol:aspose.pdf.devices.pagedevice"
+      ],
+      "rationale": "The base device classes are superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:090.003.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Tables and Vector Graphics' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:091.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.table",
+        "public_symbol:aspose.pdf.row",
+        "public_symbol:aspose.pdf.cell",
+        "public_symbol:aspose.pdf.drawing.graph",
+        "public_symbol:aspose.pdf.watermarkartifact"
+      ],
+      "rationale": "The tables and vector graphics list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:092.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Annotations and Actions' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:093.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotation",
+        "public_symbol:aspose.pdf.annotations.annotationcollection",
+        "public_symbol:aspose.pdf.annotations.highlightannotation",
+        "public_symbol:aspose.pdf.annotations.textannotation",
+        "public_symbol:aspose.pdf.annotations.freetextannotation",
+        "public_symbol:aspose.pdf.annotations.stampannotation",
+        "public_symbol:aspose.pdf.annotations.linkannotation",
+        "public_symbol:aspose.pdf.annotations.inkannotation",
+        "public_symbol:aspose.pdf.annotations.redactionannotation",
+        "public_symbol:aspose.pdf.annotations.pdfaction",
+        "public_symbol:aspose.pdf.annotations.gotoaction",
+        "public_symbol:aspose.pdf.annotations.gotouriaction",
+        "public_symbol:aspose.pdf.annotations.namedaction",
+        "public_symbol:aspose.pdf.annotations.javascriptaction",
+        "public_symbol:aspose.pdf.annotations.submitformaction"
+      ],
+      "rationale": "The annotations and actions list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:094.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Forms (AcroForm)' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:095.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.form",
+        "public_symbol:aspose.pdf.forms.field",
+        "public_symbol:aspose.pdf.forms.textboxfield",
+        "public_symbol:aspose.pdf.forms.checkboxfield",
+        "public_symbol:aspose.pdf.forms.radiobuttonfield",
+        "public_symbol:aspose.pdf.forms.comboboxfield",
+        "public_symbol:aspose.pdf.forms.listboxfield",
+        "public_symbol:aspose.pdf.forms.buttonfield",
+        "public_symbol:aspose.pdf.forms.datefield",
+        "public_symbol:aspose.pdf.forms.numberfield",
+        "public_symbol:aspose.pdf.forms.passwordboxfield",
+        "public_symbol:aspose.pdf.forms.fileselectboxfield",
+        "public_symbol:aspose.pdf.forms.richtextboxfield",
+        "public_symbol:aspose.pdf.forms.barcodefield"
+      ],
+      "rationale": "The forms field list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:096.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Outlines, Named Destinations, and Metadata' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:097.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection",
+        "public_symbol:aspose.pdf.outlineitemcollection"
+      ],
+      "rationale": "The outline collections list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:098.001.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.nameddestinationcollection",
+        "public_symbol:aspose.pdf.annotations.explicitdestination"
+      ],
+      "rationale": "The named destinations list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:098.002.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "rationale": "The document info list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:098.003.list"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.metadata",
+        "public_symbol:aspose.pdf.xmpvalue"
+      ],
+      "rationale": "The metadata and XMP value list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:098.004.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Security and Signing' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:099.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.permissions",
+        "public_symbol:aspose.pdf.facades.pdffilesignature",
+        "public_symbol:aspose.pdf.facades.pdffilesecurity"
+      ],
+      "rationale": "The security and signing list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:100.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "No heading '### Facades (Aspose.Pdf.Facades)' is supported; its content is re-authored under Key Capabilities and API Reference.",
+      "unit_id": "inherited_unit:101.heading"
+    },
+    {
+      "destination_section": "api_reference",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.facade",
+        "public_symbol:aspose.pdf.facades.pdfconverter",
+        "public_symbol:aspose.pdf.facades.pdfextractor",
+        "public_symbol:aspose.pdf.facades.pdfbookmarkeditor",
+        "public_symbol:aspose.pdf.facades.pdffileeditor",
+        "public_symbol:aspose.pdf.facades.pdffilestamp"
+      ],
+      "rationale": "The facades list is superseded by the API Reference section, which renders the complete verified public symbol inventory.",
+      "unit_id": "inherited_unit:102.list"
+    },
+    {
+      "destination_section": null,
+      "disposition": "OMIT_UNSUPPORTED",
+      "fact_ids": [],
+      "rationale": "The closing </details> HTML block is not supported and has no place in the deterministic README.",
+      "unit_id": "inherited_unit:103.html_block"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:033"
+      ],
+      "rationale": "The 'Documentation & Resources' heading and its list items are supported by verified links and moved to the documentation_resources section.",
+      "unit_id": "inherited_unit:104.heading"
+    },
+    {
+      "destination_section": "documentation_resources",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:029",
+        "link_target:030",
+        "link_target:031",
+        "link_target:032",
+        "link_target:033"
+      ],
+      "rationale": "The list of documentation links is supported by verified targets and moved to the documentation_resources section.",
+      "unit_id": "inherited_unit:105.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "inherited_unit:107.paragraph",
+        "inherited_unit:108.list"
+      ],
+      "rationale": "The 'Scope and Limitations' heading and its content are supported by inherited units and moved to the scope_limitations section.",
+      "unit_id": "inherited_unit:106.heading"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "rationale": "The paragraph introducing limitations is supported by inherited units and moved to the scope_limitations section.",
+      "unit_id": "inherited_unit:107.paragraph"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "rationale": "The list of limitations is supported by inherited units and moved to the scope_limitations section.",
+      "unit_id": "inherited_unit:108.list"
+    },
+    {
+      "destination_section": "scope_limitations",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "rationale": "The paragraph linking to the Enterprise Edition is supported by a verified product target and moved to the enterprise_relationship section.",
+      "unit_id": "inherited_unit:109.paragraph"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "VERIFIED_MOVE",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "rationale": "The 'Development and Testing' heading is supported by build and test assets and moved to the development_testing section.",
+      "unit_id": "inherited_unit:110.heading"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "rationale": "The CMake and ctest commands are supported by build and test assets and preserved as written.",
+      "unit_id": "inherited_unit:111.code_block"
+    },
+    {
+      "destination_section": "development_testing",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "build_test_asset:tests"
+      ],
+      "rationale": "The GoogleTest description is supported by facts and preserved as written.",
+      "unit_id": "inherited_unit:112.paragraph"
+    },
+    {
+      "destination_section": "third_party_notices",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "third_party_notices:file"
+      ],
+      "rationale": "The 'Third-Party Notices' heading is supported by the existence of the file and moved to the third_party_notices section.",
+      "unit_id": "inherited_unit:113.heading"
+    },
+    {
+      "destination_section": "third_party_notices",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "dependency:development.googletest",
+        "third_party_notices:file"
+      ],
+      "rationale": "The paragraph's substance about third-party notices and GoogleTest is rendered by the Third-Party Notices section and the dependency fact.",
+      "unit_id": "inherited_unit:114.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The heading '## License' is redundant with the License section, which is rendered from the license facts.",
+      "unit_id": "inherited_unit:115.heading"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "rationale": "The paragraph's claim about the MIT License and its permissions is supported by the license facts and fits the License section.",
+      "unit_id": "inherited_unit:116.paragraph"
+    },
+    {
+      "destination_section": "license",
+      "disposition": "SUPERSEDE_REDUNDANT",
+      "fact_ids": [
+        "license:file",
+        "license:spdx",
+        "link_target:035"
+      ],
+      "rationale": "The paragraph correctly states the library is MIT-licensed and bundles Liberation fonts under OFL-1.1, but the SPDX identifier for the distribution is 'MIT' per",
+      "unit_id": "inherited_unit:117.paragraph"
+    }
+  ]
+}

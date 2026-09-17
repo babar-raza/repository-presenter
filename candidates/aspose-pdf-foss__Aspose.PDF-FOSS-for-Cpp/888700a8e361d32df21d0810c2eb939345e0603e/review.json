@@ -1,0 +1,329 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "Aspose.PDF FOSS for C++"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform"
+      ],
+      "id": "F01",
+      "quote": "# Aspose.PDF FOSS for Cpp",
+      "repair": "Change the H1 heading to '# Aspose.PDF FOSS for C++' to match the canonical product name.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate uses 'Aspose.PDF FOSS for Cpp' as the product name, but the repository identity and original README consistently use 'Aspose.PDF FOSS for C++'."
+    },
+    {
+      "absent": [
+        "cmake --build build"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "id": "F02",
+      "quote": "cmake -S . -B build",
+      "repair": "Add the build command 'cmake --build build' after the configure step to complete the installation instructions.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The installation section omits the critical build step 'cmake --build build' required to compile the library after configuration."
+    },
+    {
+      "absent": [
+        "C++20"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:cxx_standard"
+      ],
+      "id": "F03",
+      "quote": "- Requires C++ `20` (`CMAKE_CXX_STANDARD` in `CMakeLists.txt`).",
+      "repair": "Change 'C++ `20`' to 'C++20' to match the exact standard name used in the CMakeLists.txt and original README.",
+      "reviewer_scope_defect": "section dependencies renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "dependencies",
+      "text": "The 'Native and System Requirements' subsection incorrectly lists 'C++ 20' as a requirement, but the fact specifies 'C++20' (no space) and the original README uses 'C++20'."
+    },
+    {
+      "absent": [
+        "using Aspose_PDF_FOSS 1.0.0"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:006"
+      ],
+      "id": "F04",
+      "quote": "### Encrypt a document with AES-256 using Aspose_PDF_FOSS 1.0.0",
+      "repair": "Remove 'using Aspose_PDF_FOSS 1.0.0' from the example heading to match the original README's style.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'using Aspose_PDF_FOSS 1.0.0', which the candidate contains",
+      "section_id": "additional_examples",
+      "text": "The candidate adds 'using Aspose_PDF_FOSS 1.0.0' to example headings, which is not present in the original README and introduces promotional versioning where the product facts do not support it."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 248 types.",
+      "repair": "Change '248 types' to '244 public types' to match the original README and maintain factual accuracy.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate claims the verified public surface has 248 types, but the original README states 244 public types and no fact supports the higher count."
+    },
+    {
+      "absent": [
+        "Aspose.PDF FOSS for C++"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "Aspose.PDF FOSS for Cpp 1.0.0 is a C++20 library...",
+      "repair": "Change 'Aspose.PDF FOSS for Cpp 1.0.0' to 'Aspose.PDF FOSS for C++' to match the canonical product name.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate adds 'Aspose.PDF FOSS for Cpp 1.0.0' to the Scope and Limitations section, which is promotional versioning not supported by the facts."
+    },
+    {
+      "absent": [
+        "Aspose.PDF for C++ — Enterprise Edition"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "quote": "These limitations don't apply to [Aspose.PDF for Cpp — Enterprise Edition](https://products.aspose.com/pdf/cpp/).",
+      "repair": "Change 'Aspose.PDF for Cpp — Enterprise Edition' to 'Aspose.PDF for C++ — Enterprise Edition' to match the product link.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "enterprise_relationship",
+      "text": "The candidate uses 'Aspose.PDF for Cpp — Enterprise Edition' where the original README and product link use 'Aspose.PDF for C++ — Enterprise Edition'."
+    },
+    {
+      "absent": [
+        "Aspose.PDF FOSS for C++"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem"
+      ],
+      "id": "F01",
+      "quote": "# Aspose.PDF FOSS for Cpp",
+      "reader": 2,
+      "repair": "Change the H1 heading to '# Aspose.PDF FOSS for C++' to match the canonical product name.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate uses 'Aspose.PDF FOSS for Cpp' instead of the canonical product name 'Aspose.PDF FOSS for C++' supported by identity facts."
+    },
+    {
+      "absent": [
+        "### Requirements",
+        "### Build From Source",
+        "cmake --build build",
+        "build/libaspose_pdf_foss.a",
+        "aspose_pdf_foss.lib",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "CMakePresets.json"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:cmake",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "dependency:development.python3"
+      ],
+      "id": "F02",
+      "quote": "Aspose_PDF_FOSS is not yet published on any package registry; build it from a source checkout instead, verified against this revision:",
+      "reader": 2,
+      "repair": "Add a 'Requirements' subsection listing C++20, CMake 3.20+, and Python 3, and a 'Build From Source' subsection with the full build commands and output paths.",
+      "reviewer_scope_defect": "section installation renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "installation",
+      "text": "The candidate omits the 'Requirements' subsection and the 'Build From Source' steps present in the original README, which are critical for a source-only library."
+    },
+    {
+      "absent": [
+        "### Native and System Requirements",
+        "### Development Dependencies",
+        "Runtime dependencies: none."
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none",
+        "dependency:development.googletest",
+        "dependency:development.python3"
+      ],
+      "id": "F03",
+      "quote": "### Required Package Dependencies",
+      "reader": 2,
+      "repair": "Restore the original two-subsection structure: 'Native and System Requirements' for C++20 and CMake, and 'Development Dependencies' for Python3 and GoogleTest, with a clear 'Runtime dependencies: none.' statement.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate merges 'Native and System Requirements' and 'Development Dependencies' into a single list, losing the clear separation between runtime and build-time dependencies present in the original."
+    },
+    {
+      "absent": [
+        "Aspose_PDF_FOSS 1.0.0"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version",
+        "install_command:cmake"
+      ],
+      "id": "F04",
+      "quote": "This example opens a PDF, prints the page count, extracts all text, and renders the first page as a PNG image at 150 DPI using Aspose_PDF_FOSS.",
+      "reader": 2,
+      "repair": "Remove the version tag '1.0.0' from the Quick Start description to avoid implying a published package.",
+      "reviewer_scope_defect": "the finding asks for 'Aspose_PDF_FOSS 1.0.0', which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "quick_start",
+      "text": "The candidate adds an unsupported version tag 'Aspose_PDF_FOSS 1.0.0' to the Quick Start example, which is not present in the original and contradicts the 'no prebuilt package' fact."
+    },
+    {
+      "absent": [
+        "| Example | Shows |",
+        "12_create_features",
+        "examples/README.md"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002",
+        "link_target:025",
+        "link_target:026",
+        "link_target:027"
+      ],
+      "id": "F05",
+      "quote": "The Aspose.PDF FOSS for Cpp library supports opening encrypted documents, reading and updating document metadata, and applying AES-256 encryption to PDF files.",
+      "reader": 2,
+      "repair": "Restore the 'Additional Examples' table and the '12_create_features' example to provide a complete overview of the example programs.",
+      "reviewer_scope_defect": "the omission it names is backed by example:002, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "additional_examples",
+      "text": "The candidate omits the 'Additional Examples' table and the '12_create_features' example from the original README, which are key to understanding the library's capabilities."
+    },
+    {
+      "absent": [
+        "## Project Structure",
+        "├── include/",
+        "├── src/",
+        "├── tests/",
+        "├── examples/",
+        "├── pdfs/",
+        "└── CMakeLists.txt"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.pdf"
+      ],
+      "id": "F06",
+      "quote": "Aspose.PDF FOSS for Cpp exposes the `Aspose.Pdf.Document` class as the primary entry point for loading, creating, and manipulating PDF documents.",
+      "reader": 2,
+      "repair": "Restore the 'Project Structure' section with the directory tree and the detailed API tables to provide a complete reference.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "api_reference",
+      "text": "The candidate omits the 'Project Structure' section and the detailed API tables from the original README, which are critical for developers to understand the library's organization."
+    },
+    {
+      "absent": [
+        "Classic Aspose.Pdf.Facades API",
+        "Symbol and ZapfDingbats",
+        "incremental-update metadata writer"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "id": "F07",
+      "quote": "Aspose.PDF FOSS for Cpp 1.0.0 is a C++20 library for creating and manipulating PDF documents on Linux and Windows using CMake 3.20 or later; it supports text, tables, vector graphics, annotations, form fields, outlines, and digital signatures, and can convert PDFs to TIFF images.",
+      "reader": 2,
+      "repair": "Restore the original limitations list, including the 'Classic Aspose.Pdf.Facades API' and 'Standard-14 font fallback' details, to provide a complete picture of the library's boundaries.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The candidate omits the 'Classic Aspose.Pdf.Facades API' limitation and the 'Standard-14 font fallback' detail from the original README, which are important for developers to understand the library's boundaries."
+    },
+    {
+      "absent": [
+        "GoogleTest",
+        "976 test files",
+        "tests/",
+        "examples/",
+        ".github/workflows/"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "id": "F08",
+      "quote": "Build Aspose.PDF FOSS for Cpp using CMake 3.20 or later with C++20 support, then run tests from the tests/ directory or examples from the examples/ directory; CI workflows in .github/workflows/ validate the build and test pipeline.",
+      "reader": 2,
+      "repair": "Restore the 'GoogleTest' test suite description and the 'CI workflow' reference to provide a complete picture of the library's testing approach.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "development_testing",
+      "text": "The candidate omits the 'GoogleTest' test suite description and the 'CI workflow' reference from the original README, which are critical for understanding the library's testing approach."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "cb3986bca09dd1b8d118663a384a6dcd9502573778991475cfff830c22787ed5",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "1314fc4e818458fa4c23cb8d",
+      "26b9bd5d92e1edc2d1e162cb",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "573348ddd0e6b2ea5b590f8a",
+      "5a7b3d4f0db5c30bca2069e8",
+      "a3b6ba4d451861363f1cdb3d"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

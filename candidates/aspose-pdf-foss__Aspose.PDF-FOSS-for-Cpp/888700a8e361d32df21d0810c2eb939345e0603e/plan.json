@@ -1,0 +1,436 @@
+{
+  "additional_example_ids": [
+    "example:003",
+    "example:004",
+    "example:006"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.document",
+        "example:003",
+        "example:004"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.text"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.devices"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.annotations"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.forms"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "example:006"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.cryptoalgorithm"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades",
+        "example:006"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.facades"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.outlinecollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.nameddestinationcollection"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.nameddestinationcollection"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.documentinfo",
+        "example:004"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.documentinfo"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.metadata"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing",
+        "example:001"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.pdf.drawing"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Open and inspect PDF documents",
+      "Extract text and images",
+      "Encrypt and sign documents",
+      "Create PDF content from scratch",
+      "Manage annotations and forms",
+      "Support outlines and named destinations",
+      "Handle document metadata",
+      "Use legacy facades API"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "shared_fact_ids": [
+        "example:004",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "title": "Open and inspect PDF documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text"
+      ],
+      "title": "Extract text and images"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "title": "Encrypt and sign documents"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.text"
+      ],
+      "title": "Create PDF content from scratch"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "title": "Manage annotations and forms"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection",
+        "public_symbol:aspose.pdf.nameddestinationcollection"
+      ],
+      "shared_fact_ids": [],
+      "title": "Support outlines and named destinations"
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.pdf.documentinfo",
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "shared_fact_ids": [
+        "example:004",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "title": "Handle document metadata"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades",
+        "inherited_unit:010.list"
+      ],
+      "shared_fact_ids": [
+        "inherited_unit:010.list",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "title": "Use legacy facades API"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:008.code_block"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid flowchart from inherited_unit:008.code_block was omitted because no fact supports Mermaid rendering; the section instead renders a capability inventory."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:030.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The code block from inherited_unit:030.code_block was omitted because it is CONTRADICTED; no other fact supports this specific example."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:031.blockquote"
+      ],
+      "section_id": "additional_examples",
+      "text": "The blockquote from inherited_unit:031.blockquote was omitted because no fact supports its lifetime rule statement."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:033.table"
+      ],
+      "section_id": "additional_examples",
+      "text": "The table from inherited_unit:033.table was omitted because no fact supports its content."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:041.code_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The code block from inherited_unit:041.code_block was omitted because it is CONTRADICTED; no other fact supports this specific TIFF example."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:039.blockquote"
+      ],
+      "section_id": "additional_examples",
+      "text": "The blockquote from inherited_unit:039.blockquote was omitted because no fact supports its /Info gotcha statement."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:067.table",
+        "inherited_unit:069.table",
+        "inherited_unit:071.table",
+        "inherited_unit:073.table",
+        "inherited_unit:075.table",
+        "inherited_unit:077.table",
+        "inherited_unit:079.table",
+        "inherited_unit:081.table"
+      ],
+      "section_id": "api_reference",
+      "text": "The tables from inherited_unit:067.table, inherited_unit:069.table, inherited_unit:071.table, inherited_unit:073.table, inherited_unit:075.table, inherited_unit:077.table, inherited_unit:079.table, and inherited_unit:081.table were omitted because the API Reference section renders the complete verified public symbol inventory."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:085.heading",
+        "inherited_unit:086.001.list",
+        "inherited_unit:086.002.list",
+        "inherited_unit:086.003.list",
+        "inherited_unit:087.heading",
+        "inherited_unit:088.list",
+        "inherited_unit:089.heading",
+        "inherited_unit:090.001.list",
+        "inherited_unit:090.002.list",
+        "inherited_unit:090.003.list",
+        "inherited_unit:091.heading",
+        "inherited_unit:092.list",
+        "inherited_unit:093.heading",
+        "inherited_unit:094.list",
+        "inherited_unit:095.heading",
+        "inherited_unit:096.list",
+        "inherited_unit:097.heading",
+        "inherited_unit:098.001.list",
+        "inherited_unit:098.002.list",
+        "inherited_unit:098.003.list",
+        "inherited_unit:098.004.list",
+        "inherited_unit:099.heading",
+        "inherited_unit:100.list",
+        "inherited_unit:101.heading"
+      ],
+      "section_id": "api_reference",
+      "text": "The headings from inherited_unit:085.heading through inherited_unit:101.heading were omitted because their content is re-authored under Key Capabilities and API Reference."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:082.heading"
+      ],
+      "section_id": "api_reference",
+      "text": "The heading from inherited_unit:082.heading was omitted because enumerations are rendered inline under the API Reference section."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:084.heading"
+      ],
+      "section_id": "api_reference",
+      "text": "The heading from inherited_unit:084.heading was omitted because member reference is integrated into the API Reference section."
+    }
+  ],
+  "flagship_example_id": "example:006",
+  "links": [
+    {
+      "link_fact_id": "link_target:029",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:030",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:031",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:033",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:034",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "unit_ids": [
+        "inherited_unit:108.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
