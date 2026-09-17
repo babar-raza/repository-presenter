@@ -1,0 +1,446 @@
+{
+  "additional_example_ids": [
+    "example:002",
+    "example:003",
+    "example:004",
+    "example:005",
+    "example:006",
+    "example:007",
+    "example:008"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "symbol_fact_id": "public_symbol:org"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "symbol_fact_id": "public_symbol:org.aspose.slides"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:getfontname"
+      ],
+      "symbol_fact_id": "public_symbol:getfontname"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:relationship"
+      ],
+      "symbol_fact_id": "public_symbol:relationship"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Create and modify presentations",
+      "Add and format shapes",
+      "Format text and paragraphs",
+      "Add images and tables",
+      "Manage notes and comments",
+      "Apply fills, lines, and effects"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "example:008"
+      ],
+      "shared_fact_ids": [
+        "example:001"
+      ],
+      "title": "Create and modify presentations"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:005"
+      ],
+      "shared_fact_ids": [
+        "example:001",
+        "example:003",
+        "example:005"
+      ],
+      "title": "Add and format shapes"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:getfontname"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Format text and paragraphs"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:005"
+      ],
+      "shared_fact_ids": [
+        "example:003",
+        "example:005"
+      ],
+      "title": "Add images and tables"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:relationship"
+      ],
+      "shared_fact_ids": [],
+      "title": "Manage notes and comments"
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "shared_fact_ids": [
+        "example:002"
+      ],
+      "title": "Apply fills, lines, and effects"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:java_release"
+      ],
+      "section_id": "identity",
+      "text": "H1 heading matches canonical product name; identity facts supersede inherited heading unit."
+    },
+    {
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008"
+      ],
+      "section_id": "badges",
+      "text": "Badge row preserved; all links verified and point to valid targets."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform",
+        "identity:ecosystem",
+        "license:spdx",
+        "package:name",
+        "package:version",
+        "dependency:none"
+      ],
+      "section_id": "opening",
+      "text": "Two paragraphs describe library purpose, zero-dependency nature, and target audience."
+    },
+    {
+      "fact_ids": [
+        "install_command:maven",
+        "package:version",
+        "license:file"
+      ],
+      "section_id": "installation",
+      "text": "Maven and Gradle snippets preserved; version notes corrected to reflect 26.8.0 as current source version."
+    },
+    {
+      "fact_ids": [
+        "license:file",
+        "package:version"
+      ],
+      "section_id": "scope_limitations",
+      "text": "Save format limitations, master clone defect, missing lang attributes, and unsupported features documented."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "section_id": "development_testing",
+      "text": "Build and test instructions preserved; CI and deterministic build facts included."
+    },
+    {
+      "fact_ids": [
+        "link_target:017",
+        "link_target:018",
+        "link_target:019",
+        "link_target:020",
+        "link_target:021",
+        "link_target:022",
+        "link_target:023"
+      ],
+      "section_id": "documentation_resources",
+      "text": "Commercial product documentation links preserved; repository links verified."
+    },
+    {
+      "fact_ids": [
+        "license:file",
+        "license:spdx"
+      ],
+      "section_id": "license",
+      "text": "MIT license declaration preserved; LICENSE file and SPDX ID confirmed."
+    }
+  ],
+  "flagship_example_id": "example:002",
+  "links": [
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:006",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:007",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:008",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:010",
+      "section_id": "installation"
+    },
+    {
+      "link_fact_id": "link_target:011",
+      "section_id": "scope_limitations"
+    },
+    {
+      "link_fact_id": "link_target:012",
+      "section_id": "development_testing"
+    },
+    {
+      "link_fact_id": "link_target:013",
+      "section_id": "installation"
+    },
+    {
+      "link_fact_id": "link_target:017",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:018",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:019",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:020",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:021",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:022",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "unit_ids": [
+        "inherited_unit:050.heading",
+        "inherited_unit:051.paragraph",
+        "inherited_unit:052.table",
+        "inherited_unit:053.paragraph",
+        "inherited_unit:054.code_block",
+        "inherited_unit:055.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "unit_ids": [
+        "inherited_unit:048.heading",
+        "inherited_unit:049.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "unit_ids": [
+        "inherited_unit:061.heading",
+        "inherited_unit:062.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "unit_ids": [
+        "inherited_unit:046.heading",
+        "inherited_unit:047.table"
+      ]
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "unit_ids": [
+        "inherited_unit:056.heading",
+        "inherited_unit:057.paragraph",
+        "inherited_unit:058.table",
+        "inherited_unit:059.paragraph",
+        "inherited_unit:060.paragraph"
+      ]
+    },
+    {
+      "fact_ids": [
+        "package:version"
+      ],
+      "unit_ids": [
+        "inherited_unit:014.paragraph",
+        "inherited_unit:015.paragraph"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}

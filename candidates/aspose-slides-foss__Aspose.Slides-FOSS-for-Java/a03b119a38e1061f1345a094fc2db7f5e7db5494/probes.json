@@ -1,0 +1,130 @@
+[
+  {
+    "elapsed_ms": 1115,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://adoptium.net/"
+  },
+  {
+    "elapsed_ms": 1882,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://central.sonatype.com/artifact/org.aspose/aspose-slides-foss"
+  },
+  {
+    "elapsed_ms": 1165,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.com/slides/java/"
+  },
+  {
+    "elapsed_ms": 2617,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://forum.aspose.com/c/slides/11"
+  },
+  {
+    "elapsed_ms": 1935,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET"
+  },
+  {
+    "elapsed_ms": 2062,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp"
+  },
+  {
+    "elapsed_ms": 1830,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml"
+  },
+  {
+    "elapsed_ms": 1784,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1988,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/issues"
+  },
+  {
+    "elapsed_ms": 1882,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python"
+  },
+  {
+    "elapsed_ms": 920,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/Java-21%2B-orange.svg"
+  },
+  {
+    "elapsed_ms": 977,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/license-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1353,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/maven-central/v/org.aspose/aspose-slides-foss.svg"
+  },
+  {
+    "elapsed_ms": 1002,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/slides/java/"
+  },
+  {
+    "elapsed_ms": 1189,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.com/slides/java/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "maven-metadata-xml",
+    "outcome": "SUPPORTED",
+    "status": null,
+    "target": "maven:org.aspose:aspose-slides-foss"
+  }
+]

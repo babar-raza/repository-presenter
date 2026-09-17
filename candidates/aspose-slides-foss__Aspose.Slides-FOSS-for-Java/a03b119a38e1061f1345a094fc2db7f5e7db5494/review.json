@@ -1,0 +1,289 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "[![Build and test](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml/badge)]",
+        "[![Maven Central](https://img.shields.io/maven-central/v/org.aspose/aspose-slides-foss.svg)]",
+        "[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)]",
+        "[![Java 21+](https://img.shields.io/badge/Java-21%2B-orange.svg)]"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004",
+        "link_target:005",
+        "link_target:006",
+        "link_target:007",
+        "link_target:008"
+      ],
+      "id": "F01",
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Java)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/graphs/contributors)",
+      "repair": "Restore the original badge row with all badges: Build and test, Maven Central, License (MIT), and Java 21+.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate omits the build and test badges, Java version badge, and license badge that were present in the original README and are supported by the identity and license facts."
+    },
+    {
+      "absent": [
+        "convert",
+        "free",
+        "without requiring Microsoft PowerPoint"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform",
+        "identity:ecosystem",
+        "license:spdx",
+        "package:name",
+        "package:version",
+        "dependency:none"
+      ],
+      "id": "F02",
+      "quote": "Aspose.Slides FOSS for Java is a free, open-source library that enables Java developers to create, read, modify, and convert PowerPoint presentations programmatically without requiring Microsoft PowerPoint.",
+      "repair": "Remove the banner image and revise the description to match the original: 'An MIT-licensed Java library that creates, reads and edits PowerPoint .pptx presentations by building the Office Open XML package itself — no PowerPoint installation, no native code, and no runtime dependencies at all.'",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'convert', 'free', 'without requiring Microsoft PowerPoint', which the candidate contains",
+      "section_id": "opening",
+      "text": "The candidate adds a promotional banner image and text that misrepresents the library as 'free' and 'enables ... convert' when the facts specify it does not convert and the original README does not mention 'free' or 'convert'."
+    },
+    {
+      "absent": [
+        "mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.8.0",
+        "implementation 'org.aspose:aspose-slides-foss:26.8.0'",
+        "<groupId>org.aspose</groupId>",
+        "<artifactId>aspose-slides-foss</artifactId>",
+        "<version>26.8.0</version>"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:maven"
+      ],
+      "id": "F03",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+      "repair": "Restore the original Maven and Gradle dependency snippets exactly as in the original README, including the version notes about 26.7.0 and 26.8.0.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain '<artifactId>aspose-slides-foss</artifactId>', '<groupId>org.aspose</groupId>', '<version>26.8.0</version>', which the candidate contains; the finding asks for \"implementation 'org.aspose:aspose-slides-foss:26.8.0'\", which occurs in no fact value and nowhere in the original README: there is nothing to restore",
+      "section_id": "installation",
+      "text": "The candidate replaces the original Maven and Gradle dependency snippets with a single Maven CLI command, which is not supported by the install_command fact and omits the Gradle snippet."
+    },
+    {
+      "absent": [
+        "### Dependencies",
+        "Runtime dependencies | none"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F04",
+      "quote": "### Required Package Dependencies",
+      "repair": "Remove the 'Dependencies' section and keep the zero-dependency statement in the opening paragraph and requirements table.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate adds a 'Dependencies' section with development dependencies that were not present in the original README structure and misrepresents the 'no runtime dependencies' fact."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 238 types.",
+      "repair": "Remove the 'API Reference' section and the claim about 238 types, as no fact supports this detail.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate adds a detailed public API surface table that is not supported by any fact and was not in the original README, making the document promotional and unverified."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F06",
+      "quote": "These limitations don't apply to [Aspose.Slides for Java — Enterprise Edition](https://products.aspose.com/slides/java/).",
+      "repair": "Remove the 'Enterprise Relationship' section and the commercial product comparison, as it is promotional and not supported by facts about this specific repository.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "scope_limitations",
+      "text": "The candidate adds a promotional 'Enterprise Relationship' section that was not in the original README and misrepresents the commercial product relationship."
+    },
+    {
+      "absent": [
+        "Everything below was exercised through the public API and then confirmed by reading the XML inside the file that cameout",
+        "Presentations",
+        "Slides",
+        "Shapes",
+        "Text",
+        "Fill",
+        "Lines",
+        "Effects"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F08",
+      "quote": "### Key Capabilities",
+      "repair": "Restore the original 'What it can do' section structure and verification method explanation, and reorder capabilities to match the original list.",
+      "reviewer_scope_defect": "the quote is the heading 'Key Capabilities', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "key_capabilities",
+      "text": "The candidate's 'Key Capabilities' section is reordered and reworded compared to the original, and omits the 'What it can do' verification method explanation that was present in the original README."
+    },
+    {
+      "absent": [
+        "[![Build and test](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml/badge)]",
+        "[![Maven Central](https://img.shields.io/maven-central/v/org.aspose/aspose-slides-foss.svg)]"
+      ],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:001",
+        "link_target:002",
+        "link_target:003",
+        "link_target:004"
+      ],
+      "id": "F01",
+      "quote": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Java)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/graphs/contributors)",
+      "reader": 2,
+      "repair": "Restore the build status and Maven Central badges from the original README to the identity section.",
+      "reviewer_scope_defect": "section identity renders from facts under the contract's own checks; its presentation is the renderer's, and a factual error there is a factuality finding",
+      "section_id": "identity",
+      "text": "The candidate omits the build status and Maven Central badges present in the original README, which are critical for developers to assess project health and availability."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F02",
+      "quote": "[![Aspose.Slides FOSS for Java](https://products.aspose.org/media/slides/java/banner-readme.png)](https://products.aspose.org/slides/java/)",
+      "reader": 2,
+      "repair": "Remove the banner image link as it is promotional and not supported by any fact about this repository.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "identity",
+      "text": "The candidate includes a promotional banner image link that is not present in the original README, which introduces marketing content where factual project information belongs."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "package:version"
+      ],
+      "id": "F03",
+      "quote": "Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):",
+      "reader": 2,
+      "repair": "Correct the installation text to state that 26.8.0 is the current source version but not yet published, and 26.7.0 is the only version on Maven Central.",
+      "reviewer_scope_defect": "the quote names public_symbol:org, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "installation",
+      "text": "The candidate incorrectly states that version 26.8.0 is published on Maven Central, contradicting the facts that 26.7.0 is the only version on Maven Central and 26.8.0 is not yet published."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:development.org.junit.jupiter-junit-jupiter-api",
+        "dependency:development.org.junit.jupiter-junit-jupiter-engine",
+        "dependency:development.org.junit.jupiter-junit-jupiter-params",
+        "dependency:development.org.assertj-assertj-core",
+        "dependency:development.org.apache.poi-poi-ooxml"
+      ],
+      "id": "F04",
+      "quote": "### Development Dependencies",
+      "reader": 2,
+      "repair": "Remove the 'Development Dependencies' section and integrate dependency information into the installation or requirements section as in the original README.",
+      "reviewer_scope_defect": "the quote is the heading 'Development Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The candidate lists development dependencies in a dedicated section, but the original README does not separate them and the facts show they are only used for testing, not runtime."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F05",
+      "quote": "The verified public surface has 238 types.",
+      "reader": 2,
+      "repair": "Remove the detailed public API surface list and the 'API Reference' section as they are not present in the original README and are not supported by facts.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The candidate includes a detailed public API surface list that is not present in the original README, which is excessive and not supported by any fact about the intended scope of the README."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [],
+      "id": "F07",
+      "quote": "Aspose.Slides FOSS for Java provides core presentation processing capabilities; the commercial Aspose.Slides for Java adds advanced features such as PowerPoint file encryption, digital signing, and enhanced rendering options.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about 'enhanced rendering options' and keep only the supported features: encryption, digital signing, and rendering.",
+      "reviewer_scope_defect": "the finding names neither a fact_id nor an absent claim, and the quote contains the literal value of SUPPORTED fact identity:ecosystem ('java') which the reviewed unit cites as its own evidence: nothing in evidence supports judging it, and what evidence exists contradicts it",
+      "section_id": "scope_limitations",
+      "text": "The candidate incorrectly states that the commercial product adds 'enhanced rendering options' and 'enhanced rendering options' is not supported by any fact about the commercial product."
+    },
+    {
+      "absent": [],
+      "causal_stage": "S7",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "id": "F08",
+      "quote": "The suite covers 41 test files under `tests/`.",
+      "reader": 2,
+      "repair": "Remove the unsupported claim about 41 test files and state only that the project includes test assets and CI workflows as supported by the facts.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The candidate incorrectly states that the suite covers 41 test files under `tests/`, but the facts do not confirm the number of test files, only that CI workflows and test assets exist."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "486467c4432cb78630116924d0ba66e4e76df3aacd852d9687476e568f594d7d",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "04e3d6db3247a498fadd5f231fbdef66efcd075405eb739c8f78745c475dbb8b",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "022197a2d4ecfc92d2341ccd",
+      "2e3e72ea29414d0b61e310f7",
+      "3c3b7985b1f0977c7f120bba",
+      "573348ddd0e6b2ea5b590f8a",
+      "5a7b3d4f0db5c30bca2069e8",
+      "a3b6ba4d451861363f1cdb3d"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}

@@ -1,0 +1,457 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:026.paragraph",
+      "reason": "This inherited unit is not cited by any slot in the additional_examples section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository name is not mentioned in prose; only used for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is not used in prose; only used for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family name 'slides' is not used in prose; only used for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:platform",
+      "reason": "Platform name 'java' is not used in prose; only used for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem name 'java' is not used in prose; only used for provenance.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:java_release",
+        "license:spdx",
+        "dependency:none",
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "public_symbol:getfontname",
+        "public_symbol:relationship"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.Slides FOSS for Java is a free, open-source library that enables Java developers to create, read, modify, and convert PowerPoint presentations programmatically without requiring Microsoft PowerPoint. It supports common tasks such as adding shapes, tables, images, connectors, formatted text, speaker notes, and threaded comments to slides, and saving presentations in PPTX format. Built for Java 21 and higher, the library is distributed under the MIT license with no external dependencies. Developers working with presentation automation, reporting, or document generation workflows use this library to integrate robust slide manipulation directly into their Java applications."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "example:008"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Create new presentations from scratch or load existing ones from streams and files, then modify slides by adding, removing, or reordering them before saving to PPTX format."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:005"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Add rectangles, connectors, and other shapes to slides, connect shapes with lines, and position them precisely using coordinates and dimensions."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:getfontname"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Format text by setting font height, bold style, and solid fill color, and access font names through the getFontName method."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:005"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Insert images from byte arrays or input streams as picture frames and create tables with custom row heights and column widths."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:relationship"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Add speaker notes to slides, create comment authors, and add threaded comments with parent-child relationships using the Relationship class."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Apply solid fill colors to text and shapes, and configure line properties through fill format and line format objects."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "This example creates a new presentation, adds a rectangle shape with text to the first slide, saves it as a PPTX file, then reads the file back and prints the slide count, shape count, and text content."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006",
+        "example:007",
+        "example:008",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create slides with shapes and text, tables, connectors, images, notes, comments, and stream-based I/O, or extract specific slides."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Add formatted text to a rectangle shape."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Insert a table with two rows and three columns."
+    },
+    {
+      "fact_ids": [
+        "example:004"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Connect two rectangles with a bent connector."
+    },
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Embed a PNG image into a picture frame."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Add speaker notes and threaded comments to a slide."
+    },
+    {
+      "fact_ids": [
+        "example:007"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:007",
+      "text": "Load and save a presentation via streams."
+    },
+    {
+      "fact_ids": [
+        "example:008"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:008",
+      "text": "Export only the first and third slides."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version",
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.Slides FOSS for Java provides the org.aspose.slides namespace as the primary entry point for working with presentations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org",
+      "text": "The org package serves as the root namespace for all Aspose.Slides FOSS for Java classes and interfaces."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose",
+      "text": "The org.aspose namespace contains core utilities and base types shared across Aspose products for Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:org",
+        "public_symbol:org.aspose",
+        "public_symbol:org.aspose.slides"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:org.aspose.slides",
+      "text": "The org.aspose.slides namespace provides the complete API surface for creating, editing, and converting presentation documents in Java."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:getfontname"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:getfontname",
+      "text": "The getFontName method returns the name of the font used in a text portion."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:relationship"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:relationship",
+      "text": "The Relationship class represents a relationship between parts in a presentation package."
+    },
+    {
+      "fact_ids": [
+        "link_target:017"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:017",
+      "text": "The product page introduces Aspose.Slides for Java, the commercial offering that complements this FOSS library."
+    },
+    {
+      "fact_ids": [
+        "link_target:018"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:018",
+      "text": "The documentation provides step-by-step guides and examples for working with presentations using Aspose.Slides for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:019"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:019",
+      "text": "The API reference documents every class and method available in the org.aspose:aspose-slides-foss package version 26.8.0."
+    },
+    {
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "The free support forum hosts community discussions and official responses to questions about Aspose.Slides for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The issues repository allows users to report bugs, request features, and track progress for Aspose.Slides FOSS for Java."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "CONTRIBUTING.md outlines the process for submitting code changes and participating in development of the library."
+    },
+    {
+      "fact_ids": [
+        "link_target:023"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:023",
+      "text": "The Code of Conduct establishes expectations for respectful and inclusive behavior in community interactions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:008.table",
+        "inherited_unit:014.paragraph",
+        "inherited_unit:015.paragraph",
+        "inherited_unit:046.heading",
+        "inherited_unit:047.table",
+        "inherited_unit:048.heading",
+        "inherited_unit:049.paragraph",
+        "inherited_unit:050.heading",
+        "inherited_unit:051.paragraph",
+        "inherited_unit:052.table",
+        "inherited_unit:053.paragraph",
+        "inherited_unit:054.code_block",
+        "inherited_unit:055.paragraph",
+        "inherited_unit:056.heading",
+        "inherited_unit:057.paragraph",
+        "inherited_unit:058.table",
+        "inherited_unit:059.paragraph",
+        "inherited_unit:060.paragraph",
+        "inherited_unit:061.heading",
+        "inherited_unit:062.paragraph",
+        "license:file",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.Slides FOSS for Java provides a free, open-source library for creating and manipulating PowerPoint-compatible presentations in Java applications, targeting Java 21 or later with no runtime dependencies."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:050.heading",
+        "inherited_unit:051.paragraph",
+        "inherited_unit:052.table",
+        "inherited_unit:053.paragraph",
+        "inherited_unit:054.code_block",
+        "inherited_unit:055.paragraph",
+        "license:file"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The library supports writing only three presentation formats—PPTX, PPSX, and POTX—and raises UnsupportedOperationException for all other SaveFormat values, including PDF, XPS, TIFF, and image formats."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:048.heading",
+        "inherited_unit:049.paragraph",
+        "license:file"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Cloning a master slide using getMasters().addClone(...) incorrectly reports a size increase while failing to persist the clone to the saved package, leaving the output file unchanged."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:061.heading",
+        "inherited_unit:062.paragraph",
+        "license:file"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Text language metadata is not written to the presentation package, so PowerPoint applies the authoring machine's default language instead of any language specified in the source."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:046.heading",
+        "inherited_unit:047.table",
+        "license:file"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Many presentation features are not exposed in the public API, including charts, SmartArt, OLE objects, video, audio, group shapes, animations, hyperlinks, sections, slide backgrounds, themes, slide size control, rendering, and VBA macros."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:056.heading",
+        "inherited_unit:057.paragraph",
+        "inherited_unit:058.table",
+        "inherited_unit:059.paragraph",
+        "inherited_unit:060.paragraph",
+        "license:file"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Round-tripping preserves every part in the package but only guarantees byte-identical content for parts the library does not model; parts like docProps/app.xml and slide XML are rebuilt, and the measured fidelity on a 41-part Apache POI deck shows only 36 parts unchanged."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:014.paragraph",
+        "inherited_unit:015.paragraph",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Version 26.7.0, the only version available on Maven Central, lacks XML hardening and security fixes present in the current source tree, and users should build from source if they require the latest behaviour."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the Aspose.Slides FOSS for Java repository using the provided test assets in tests/ and CI workflows in .github/workflows/; the project targets Java 21 and publishes the org.aspose:aspose-slides-foss package at version 26.8.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:java_release",
+        "package:name",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.Slides FOSS for Java provides core presentation processing capabilities; the commercial Aspose.Slides for Java adds advanced features such as PowerPoint file encryption, digital signing, and enhanced rendering options."
+    }
+  ]
+}

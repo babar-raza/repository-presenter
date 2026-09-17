@@ -1,0 +1,181 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:platform",
+      "identity:ecosystem"
+    ],
+    "text": "Developers who generate or modify PowerPoint presentations on a server or in a build pipeline and need to work directly inside the .pptx file format without external dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "example:008"
+      ],
+      "text": "Create new presentations, open existing ones from file or stream, save to file or stream, and save subsets of slides by index.",
+      "title": "Create and modify presentations"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:003",
+        "example:004",
+        "example:005"
+      ],
+      "text": "Add 190 ShapeType auto shapes, picture frames, tables, and connectors bound to shapes via connection sites.",
+      "title": "Add and format shapes"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:getfontname"
+      ],
+      "text": "Set character formatting (bold, size, font, spacing, caps), paragraph formatting (alignment, indentation, bullets), and text frame properties.",
+      "title": "Format text and paragraphs"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:005"
+      ],
+      "text": "Embed images from byte arrays, InputStreams, or IImage objects, and create tables with rows, columns, merged cells, and cell formatting.",
+      "title": "Add images and tables"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:relationship"
+      ],
+      "text": "Add speaker notes slides per slide, create comment authors, add comments with position and timestamp, and support threaded comment replies.",
+      "title": "Manage notes and comments"
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "text": "Apply solid, gradient, pattern, picture, and no-fill formats; configure line width, dash style, cap, join, and arrowheads; add shadow, glow, reflection, and 3-D effects.",
+      "title": "Apply fills, lines, and effects"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "text": "Only three SaveFormat values (PPTX, POTX, PPSX) are supported; 22 other SaveFormat values raise UnsupportedOperationException."
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "text": "Cloning a master slide via getMasters().addClone(...) does not persist to the saved package despite the collection reporting a size increase."
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "text": "Generated presentations contain no lang= attribute in the package, so PowerPoint uses the authoring machine's default language instead of one declared in the file."
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "text": "The library does not support charts, animations, transitions, themes, backgrounds, group shapes, hyperlinks, sections, SmartArt, OLE objects, or macro-enabled files."
+    },
+    {
+      "fact_ids": [
+        "license:file"
+      ],
+      "text": "Unknown parts such as presProps, viewProps, tableStyles, themes, and unused layouts are preserved byte-for-byte during round-tripping but are not modeled or editable."
+    },
+    {
+      "fact_ids": [
+        "package:version"
+      ],
+      "text": "Version 26.7.0 is not supported for security reasons and lacks XML hardening; users must build from source or use 26.8.0."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:platform"
+      ],
+      "text": "Enables server-side PowerPoint presentation generation and modification without requiring a local PowerPoint installation or native libraries."
+    },
+    {
+      "fact_ids": [
+        "dependency:none",
+        "package:java_release"
+      ],
+      "text": "Provides a pure Java, dependency-free solution for .pptx manipulation with zero runtime dependencies as confirmed by the CycloneDX SBOM."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:ci",
+        "build_test_asset:tests"
+      ],
+      "text": "Supports deterministic, reproducible builds with byte-identical outputs across builds and platforms."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "license:spdx",
+      "package:name",
+      "package:version",
+      "package:java_release"
+    ],
+    "text": "Aspose.Slides FOSS for Java is an MIT-licensed Java library that creates, reads, and edits PowerPoint .pptx presentations by building the Office Open XML package directly, with no PowerPoint installation, native code, or runtime dependencies."
+  },
+  "uncertainties": [
+    "The exact set of public symbols beyond those listed is not fully enumerated in the facts.",
+    "Whether the library supports reading or writing custom XML parts beyond carrying them through unchanged is not confirmed.",
+    "The behavior when opening malformed or non-standard .pptx files is not specified.",
+    "Whether the library supports embedded fonts or font substitution is not stated.",
+    "The scope of 'unknown parts' that are carried through unchanged is not fully defined beyond presProps, viewProps, tableStyles, themes, and unused layouts."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:004",
+        "example:005",
+        "example:006"
+      ],
+      "name": "Create and save presentations",
+      "text": "Developers instantiate a Presentation object, add shapes, text, tables, images, notes, and comments, then save to a file path or output stream in PPTX format."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:007",
+        "example:008"
+      ],
+      "name": "Read and inspect presentations",
+      "text": "Developers open existing .pptx files via path or input stream, iterate slides and shapes, extract text and formatting, and access notes and comments."
+    },
+    {
+      "fact_ids": [
+        "example:007"
+      ],
+      "name": "Stream-based processing",
+      "text": "Developers use try-with-resources with InputStream and OutputStream to process presentations without writing intermediate files to disk."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:ci"
+      ],
+      "name": "Test-driven development",
+      "text": "Developers run 3,638 tests including 232 conformance tests that unzip and assert on the produced .pptx package structure directly."
+    }
+  ]
+}

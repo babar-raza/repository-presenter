@@ -1,0 +1,90 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.FillType, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IPortionFormat, org.aspose.slides.foss.NullableBool, org.aspose.slides.foss.Presentation, and 3 more",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.ITable, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.export.SaveFormat",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IAutoShape, org.aspose.slides.foss.IConnector, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType, and 1 more",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IPPImage, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.ShapeType, org.aspose.slides.foss.export.SaveFormat, java.nio.file.Files, and 1 more",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.IComment, org.aspose.slides.foss.ICommentAuthor, org.aspose.slides.foss.INotesSlide, org.aspose.slides.foss.ISlide, org.aspose.slides.foss.Presentation, and 3 more",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.export.SaveFormat, java.nio.file.Files, java.nio.file.Path",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "compiled against the product's own classes; javac 21.0.11; imports supplied: java.io.*, java.util.*, org.aspose.slides.foss.*, org.aspose.slides.foss.Presentation, org.aspose.slides.foss.export.SaveFormat",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]
