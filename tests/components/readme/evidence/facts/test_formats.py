@@ -59,9 +59,7 @@ def test_executed_examples_support_their_formats_and_unverified_ones_leave_them_
     assert format_facts(candidates, receipts, format_claims, "examples.json") == facts
 
 
-def test_a_fixture_staged_under_a_literal_the_example_only_ever_writes_never_contradicts_the_output_claim() -> (
-    None
-):
+def test_a_fixture_staged_under_a_write_only_literal_never_contradicts_the_output_claim() -> None:
     # G4-W17 item 109 (E23), measured on Aspose.Words for Python: a Quick Start example opens
     # "report.docx" and saves "report.md" (a comment mentioning ".doc, .rtf, .txt, .md" is what
     # makes stage_fixtures' pure text scan stage "report.md" too, as if it were read). Before the
@@ -73,7 +71,7 @@ def test_a_fixture_staged_under_a_literal_the_example_only_ever_writes_never_con
         _candidate(
             1,
             'doc = aw.Document("report.docx")\n'
-            '# or .doc, .rtf, .txt, .md\n'
+            "# or .doc, .rtf, .txt, .md\n"
             'doc.save("report.md", aw.SaveFormat.MARKDOWN)\n',
             130,
         )
