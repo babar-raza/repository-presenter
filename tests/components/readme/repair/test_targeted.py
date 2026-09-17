@@ -646,6 +646,141 @@ def test_the_packet_matches_the_manifest_and_a_repair_is_held_to_the_causal_cont
     ]
 
 
+def test_a_changes_entry_claiming_a_change_the_revision_never_made_is_refused() -> None:
+    """Item 93. Measured on Font-Python's second run: the repair's ledger claimed
+    additional_example_ids shrank 5 to 4, but the accepted final plan still carried all 5 - the
+    one change that could have closed the BC-07 length overage never happened, while an
+    unrelated, purely additive change (a capability title) is what actually shipped. Item 84's
+    own whole-object no-op refusal (_refuse_noop, rounds.py) lets this through unrefused: the
+    revision genuinely differs from the original somewhere else, so it is not a whole-object
+    no-op - but its own changes[] entry names a path that, in fact, never moved."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = {"core_capabilities": [{"title": "Old title"}]}
+    changes = [
+        {
+            "id": "R01",
+            "path": "core_capabilities[0].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    # The one change the ledger claims never actually shipped; an unrelated part of the object
+    # (which the ledger says nothing about) is what really differs from `original_output` - the
+    # exact shape of the Font-Python bug, not a byte-identical whole-object no-op.
+    revised_output = {
+        "core_capabilities": [{"title": "Old title"}, {"title": "Extra capability"}],
+    }
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": revised_output,
+        "changes": changes,
+    }
+    errors = repair_checks(
+        output, defect, contract, "selection_ids", FACTS, original=original_output
+    )
+    assert errors == [
+        "revised_output: change R01 claims 'core_capabilities[0].title' changed "
+        "('Old title' to 'New title'), but the causal stage's own input and this revision hold "
+        "the identical value there"
+    ]
+
+
+def test_a_changes_entry_the_revision_actually_corroborates_is_not_refused() -> None:
+    """Mutation control: the identical claim, but this time the revision really did change
+    core_capabilities[0].title - proves item 93's check fires on the untruthful ledger entry,
+    never on a legitimate, corroborated change."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output = {"core_capabilities": [{"title": "Old title"}]}
+    changes = [
+        {
+            "id": "R01",
+            "path": "core_capabilities[0].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    revised_output = {"core_capabilities": [{"title": "New title"}]}
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": revised_output,
+        "changes": changes,
+    }
+    assert (
+        repair_checks(output, defect, contract, "selection_ids", FACTS, original=original_output)
+        == []
+    )
+
+
+def test_a_changes_entry_naming_a_path_that_never_resolves_is_also_refused() -> None:
+    """A fabricated or mistyped path resolves to the same _UNRESOLVED sentinel in both the
+    original and the revised output, so a claimed change there is exactly as uncorroborated as
+    one that resolves but never moved - the same check, no special case for a bad path."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    original_output: dict[str, Any] = {"core_capabilities": []}
+    changes = [
+        {
+            "id": "R01",
+            "path": "$.no_such_field[3].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": {"core_capabilities": []},
+        "changes": changes,
+    }
+    errors = repair_checks(
+        output, defect, contract, "selection_ids", FACTS, original=original_output
+    )
+    assert errors == [
+        "revised_output: change R01 claims '$.no_such_field[3].title' changed "
+        "('Old title' to 'New title'), but the causal stage's own input and this revision hold "
+        "the identical value there"
+    ]
+
+
+def test_a_changes_entry_is_never_checked_when_the_causal_stages_original_is_not_given() -> None:
+    """Backward-compatible control: repair_checks is still called with no `original=` at all in
+    the existing tests above - the item 93 check is skipped, not a spurious error, whenever the
+    caller has no causal-stage input to corroborate against."""
+    defect = Defect(
+        defect_fingerprint("validation", None, "S5", "BC-07"), "validation", "BC-07", None, "S5", {}
+    )
+    contract: dict[str, Any] = {"type": "object"}
+    changes = [
+        {
+            "id": "R01",
+            "path": "core_capabilities[0].title",
+            "before": "Old title",
+            "after": "New title",
+            "fact_ids": [],
+        }
+    ]
+    output = {
+        "fingerprint": defect.fingerprint,
+        "causal_stage": "S5",
+        "revised_output": {"core_capabilities": [{"title": "Old title"}]},
+        "changes": changes,
+    }
+    assert repair_checks(output, defect, contract, "selection_ids", FACTS) == []
+
+
 def test_the_schema_binds_revised_output_to_the_causal_stages_own_contract() -> None:
     # G4-W17 arrival item 75 (lane F F18/F23, lane B LANE-B-W14R2-F1): the static manifest leaves
     # revised_output a bare {"type": "object"} - unbounded for every causal stage - so a repair

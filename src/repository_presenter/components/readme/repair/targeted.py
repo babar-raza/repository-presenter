@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -488,6 +489,79 @@ def repair_schema(manifest: LoadedManifest, output_contract: dict[str, Any]) -> 
     return schema
 
 
+# item 93: a change's own "path" as the repair itself writes it - $.units[0].text,
+# additional_example_ids, material_limitations[2].fact_ids - a leading "$." is optional and
+# every other segment is a dict key or a "[N]" list index, exactly what repair_packet/the
+# targeted_repair prompt ask the model to report, never a full JSONPath expression.
+_PATH_SEGMENT = re.compile(r"\[(\d+)\]|([^.\[\]]+)")
+
+
+class _Unresolved:
+    """Sentinel: a change's own path did not resolve in the document it was read against - not
+    equal to any real JSON value, including ``None`` or an empty string."""
+
+
+_UNRESOLVED = _Unresolved()
+
+
+def _resolve_change_path(document: Any, path: str) -> Any:
+    """The value ``path`` names inside ``document``, or ``_UNRESOLVED`` when any segment fails to
+    resolve - never raises, since ``path`` is the repair's own free-text claim about where it
+    edited, not a schema-checked field (item 93)."""
+    value: Any = document
+    trimmed = path.strip()
+    if trimmed.startswith("$."):
+        trimmed = trimmed[2:]
+    for match in _PATH_SEGMENT.finditer(trimmed):
+        index, key = match.groups()
+        if index is not None:
+            if not isinstance(value, list) or not 0 <= int(index) < len(value):
+                return _UNRESOLVED
+            value = value[int(index)]
+        else:
+            if not isinstance(value, dict) or key not in value:
+                return _UNRESOLVED
+            value = value[key]
+    return value
+
+
+def _uncorroborated_changes(
+    changes: Sequence[Mapping[str, Any]], original: Mapping[str, Any], revised: Mapping[str, Any]
+) -> list[str]:
+    """A ``changes[]`` entry claiming a value changed at its own ``path``, when the causal
+    stage's own stored input and this repair's revised output hold the identical value there
+    (item 93).
+
+    Measured on Font-Python's second run: the repair's ledger claimed ``additional_example_ids``
+    shrank 5 to 4, but the accepted final plan still carried all 5 - the one change that could
+    have closed the BC-07 length overage never happened, while an unrelated, purely additive
+    change (a capability title) is what actually shipped. `_refuse_noop` (rounds.py) already
+    refuses a revision proven identical to the causal stage's *whole* output; this catches the
+    narrower case a whole-object comparison cannot - a revision that differs somewhere, but whose
+    own ledger entry names a *different* path than where it actually changed anything. An entry
+    claiming no change at all (``before == after``) is not this check's concern.
+    """
+    errors: list[str] = []
+    for change in changes:
+        if not isinstance(change, dict):
+            continue
+        before, after = change.get("before"), change.get("after")
+        if before == after:
+            continue
+        path = str(change.get("path") or "")
+        if not path:
+            continue
+        actual_before = _resolve_change_path(original, path)
+        actual_after = _resolve_change_path(revised, path)
+        if actual_before == actual_after:
+            errors.append(
+                f"revised_output: change {change.get('id', '?')} claims {path!r} changed "
+                f"({before!r} to {after!r}), but the causal stage's own input and this revision "
+                "hold the identical value there"
+            )
+    return errors
+
+
 def repair_checks(
     output: dict[str, Any],
     defect: Defect,
@@ -510,8 +584,15 @@ def repair_checks(
     ``merge_partial_units`` fills the rest in from ``original`` before anything below judges
     completeness, so the merged, full object - not the reply's own partial one - is what schema,
     binding, and the stage's own checks see, and what ends up stored. Every other binding has no
-    completeness notion for ``merge_partial_units`` to matter to, so passing ``original`` for
-    those stages is harmless and, today, unused.
+    completeness notion for ``merge_partial_units`` to matter to.
+
+    ``original`` also lets every stage's own ``changes[]`` entries be checked for truthfulness
+    (item 93): each entry names a JSON path it claims changed, and if the value there is
+    identical in ``original`` and in the (possibly merged) revised output, the entry does not
+    corroborate what actually shipped and the revision is refused - `_refuse_noop` (rounds.py)
+    already refuses a revision proven identical to the causal stage's *whole* output, but a
+    revision that differs somewhere else while its ledger names an untouched path is not a
+    whole-object no-op and passed through unrefused before this.
     """
     errors: list[str] = []
     if output.get("causal_stage") != defect.stage:
@@ -545,6 +626,8 @@ def repair_checks(
                 f"{', '.join(sorted(returned)) or 'none of them'} would add, drop, or "
                 "re-choose a slot, which is a planning decision, not an authoring one"
             )
+    if original is not None:
+        errors.extend(_uncorroborated_changes(output.get("changes", []), original, revised))
     if not errors and stage_checks is not None:
         errors.extend(f"revised_output: {error}" for error in stage_checks(revised))
     return errors
