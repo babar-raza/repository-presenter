@@ -127,9 +127,14 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         "BC-02",
         # 2 (G4-W17 arrival item 50): a source-kind command must end with exactly the steps its
         # receipt proved - a rendered step nobody measured is a fabricated compile claim.
-        "2",
-        "Install command verified against the manifest and the package-registry observation, or "
-        "against the source-build receipt naming exactly the steps it proved",
+        # 3 (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation): a
+        # source-checkout-kind fact - no build/install command ever succeeds - is accepted by
+        # its own install_kind attribute, never the "verified source build" phrase it must not
+        # claim.
+        "3",
+        "Install command verified against the manifest and the package-registry observation, "
+        "against the source-build receipt naming exactly the steps it proved, or - when no "
+        "build/install command ever succeeds - against a source-checkout receipt",
         ("installation",),
         "S9",
     ),
@@ -547,11 +552,18 @@ def _check_install(candidate: Candidate) -> list[Failure]:
     for fact in installs:
         details = " ".join(evidence.detail or "" for evidence in fact.evidence)
         proved = (fact.attributes or {}).get("build_command", "")
+        # RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation: a
+        # source-checkout-kind fact never earns the "verified source build" phrase - it is
+        # honest about proving no build at all - so it is accepted by its `install_kind`
+        # attribute directly rather than by a phrase it must never claim.
+        checkout_kind = (fact.attributes or {}).get("install_kind") == "source_checkout"
         if fact.polarity != "SUPPORTED":
             last = fact.evidence[-1].detail or "" if fact.evidence else ""
             failures.append(Failure("EXTRACTING", f"{fact.id} is {fact.polarity}: {last}"))
         elif "manifest" not in details or (
-            "package registry" not in details and "verified source build" not in details
+            "package registry" not in details
+            and "verified source build" not in details
+            and not checkout_kind
         ):
             # G4-W17 arrival item 0: a verified source build is the alternate SUPPORTED path
             # for a package no registry lists yet - the fact still needs the manifest's own

@@ -17,7 +17,7 @@ from repository_presenter.components.readme.evidence.facts.extract import (
 )
 from repository_presenter.components.readme.extractors.platforms import python_registry
 from repository_presenter.components.readme.extractors.platforms.registry import plugin_for
-from repository_presenter.core.examples import ExampleReceipt
+from repository_presenter.core.examples import ExampleCandidate, ExampleReceipt
 from repository_presenter.core.facts import Evidence, Fact
 from repository_presenter.core.git_safety.clone import pinned_read_only_clone
 from repository_presenter.core.registry.models import RegistryEntry
@@ -374,4 +374,129 @@ def test_a_registry_having_ecosystems_unresolved_install_stays_unresolved() -> N
     assert (
         _source_build_fact(_install("UNRESOLVED"), NET_ENTRY, [_receipt("EXECUTED")]).polarity
         == "UNRESOLVED"
+    )
+
+
+def _pip_install(polarity: str = "CONTRADICTED") -> Fact:
+    return Fact(
+        "install_command:pip",
+        "install_command",
+        "pip install aspose-html-foss",
+        (
+            Evidence("pyproject.toml", "distribution name declared by the manifest"),
+            Evidence(
+                "https://pypi.org/pypi/aspose-html-foss/json",
+                "package registry: distribution not found",
+            ),
+        ),
+        polarity=polarity,  # type: ignore[arg-type]
+    )
+
+
+def _checkout_receipt(
+    ordinal: int = 1, outcome: str = "EXECUTED", source_roots: tuple[str, ...] = ("src", ".")
+) -> ExampleReceipt:
+    return ExampleReceipt(
+        ordinal, outcome, 0, "from source", "", "d", build_verified=False, source_roots=source_roots
+    )  # type: ignore[arg-type]
+
+
+def test_a_source_checkout_is_admitted_when_no_build_ever_succeeds() -> None:
+    """`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation, reproducing
+    `aspose-html-foss/Aspose.HTML-FOSS-for-Python`'s exact shape: its `pyproject.toml` declares
+    `build-backend = "setuptools.backends.legacy:build"`, a module in no setuptools release, so
+    `pip install .` fails identically for every invocation - every receipt's `build_verified` is
+    `False` - yet several examples still ran against the repository's own source tree with no
+    build step at all. RED: a receipt with no `source_roots` (the shape before this tier existed)
+    still leaves the fact CONTRADICTED, exactly as item (0)'s own gate did. GREEN: a receipt
+    carrying `source_roots` - proof the fallback both ran and executed - admits a strictly weaker
+    `install_kind`, whose value is honest PYTHONPATH instructions, never a pip command."""
+    # RED: no source_roots anywhere (a plain failed build, not the fallback shape) - nothing to
+    # admit, exactly item (0)'s own precedent for an unbuildable, unpublished package.
+    plain_failure = [ExampleReceipt(1, "FAILED", 1, "", "boom", "d", build_verified=False)]
+    assert _source_build_fact(_pip_install(), ENTRY, plain_failure).polarity == "CONTRADICTED"
+
+    # GREEN: the fallback ran and at least one example executed against it.
+    receipts = [
+        _checkout_receipt(1, "EXECUTED"),
+        _checkout_receipt(2, "FAILED"),  # not every example need succeed - one EXECUTED suffices
+    ]
+    admitted = _source_build_fact(_pip_install(), ENTRY, receipts)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source_checkout"}
+    assert admitted.value == (
+        "git clone https://github.com/example-org/Aspose.Example-FOSS-for-Python.git\n"
+        "cd Aspose.Example-FOSS-for-Python\n"
+        'export PYTHONPATH="src:.:$PYTHONPATH"'
+    )
+    assert "pip install" not in admitted.value and "build" not in admitted.value
+    assert admitted.evidence[-1].detail == (
+        "source checkout only: every build/install attempt failed identically for this "
+        "revision, but an example executed against the repository's own source tree with no "
+        "build step - the advertised step is adding that tree to the interpreter's path, never "
+        "a build or install command, which was never proven to succeed"
+    )
+    # The manifest's own evidence is kept, not replaced - it still justifies the value.
+    assert admitted.evidence[0].detail == "distribution name declared by the manifest"
+
+
+def test_a_genuine_verified_build_still_outranks_the_source_checkout_tier() -> None:
+    """The new, weaker `source_checkout` tier must never compete with or suppress the existing
+    verified-source-build tier (item (0)/(24)'s own precedent): a single genuine build receipt
+    always wins, even alongside fallback receipts that would otherwise admit the weaker kind."""
+    receipts = [
+        _checkout_receipt(1, "EXECUTED"),  # a fallback receipt, as from an earlier, broken run
+        _receipt("EXECUTED", build_verified=True),  # a genuine, verified build
+    ]
+    admitted = _source_build_fact(_pip_install(), ENTRY, receipts)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source"}
+    assert admitted.value.endswith("pip install .")
+
+
+def test_the_fallbacks_own_receipts_wire_into_the_source_checkout_fact_end_to_end(
+    tmp_path: Path,
+) -> None:
+    """The real `verify_python_examples` fallback path - not a hand-built receipt - reproduces
+    the wiring `aspose-html-foss/Aspose.HTML-FOSS-for-Python` needs: a broken build-backend, a
+    `src`-layout package `_source_roots` locates, and an example that only runs via the fallback.
+    Proves `ExampleReceipt.source_roots` actually reaches `_source_build_fact` through the real
+    extractor, not just through a test double."""
+    from repository_presenter.components.readme.extractors.platforms.python_examples import (
+        verify_python_examples,
+    )
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "src" / "aspose_html_foss").mkdir(parents=True)
+    (root / "src" / "aspose_html_foss" / "__init__.py").write_text(
+        "VALUE = 'from source'\n", encoding="utf-8"
+    )
+    (root / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["setuptools"]\n'
+        'build-backend = "setuptools.backends.legacy:build"\n'
+        '[project]\nname = "aspose-html-foss"\nversion = "1.0"\n',
+        encoding="utf-8",
+    )
+    tree = ["pyproject.toml", "src/aspose_html_foss/__init__.py"]
+    candidate = ExampleCandidate(
+        1,
+        "python",
+        "import aspose_html_foss\nprint(aspose_html_foss.VALUE)\n",
+        "README.md",
+        1,
+        2,
+        "inherited_unit:001.code_block",
+    )
+    receipts = verify_python_examples(root, tree, [candidate], tmp_path / "run")
+    assert [(r.outcome, r.build_verified) for r in receipts] == [("EXECUTED", False)]
+    assert receipts[0].source_roots == ("src", ".")
+
+    admitted = _source_build_fact(_pip_install(), ENTRY, receipts)
+    assert admitted.polarity == "SUPPORTED"
+    assert admitted.attributes == {"install_kind": "source_checkout"}
+    assert admitted.value == (
+        "git clone https://github.com/example-org/Aspose.Example-FOSS-for-Python.git\n"
+        "cd Aspose.Example-FOSS-for-Python\n"
+        'export PYTHONPATH="src:.:$PYTHONPATH"'
     )

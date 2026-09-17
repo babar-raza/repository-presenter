@@ -189,3 +189,18 @@ def test_measured_build_steps_follow_the_checkout_every_template_spells() -> Non
     )
     for spec in (PYTHON, NET):
         assert spec.source_install.startswith(CLONE_PREFIX), spec.ecosystem
+
+
+def test_the_reference_command_adds_source_roots_to_the_path_never_a_build_step() -> None:
+    """G4-W17 arrival item 126: a repository where no build/install command ever succeeds still
+    has an honest fallback - adding the directories an executed example already imported the
+    package from to the interpreter's path. Never a build command, since none was proven."""
+    assert PYTHON.clone_and_reference("org/Widget-Python", "Widget-Python", ("src", ".")) == (
+        "git clone https://github.com/org/Widget-Python.git\ncd Widget-Python\n"
+        'export PYTHONPATH="src:.:$PYTHONPATH"'
+    )
+    # No roots to name: nothing to admit, exactly like a spec with no source_install template.
+    assert PYTHON.clone_and_reference("org/Widget-Python", "Widget-Python", ()) == ""
+    # .NET declares no source_reference template - a build/install failure means something
+    # different for a compiled language - so it renders nothing even with roots in hand.
+    assert NET.clone_and_reference("org/Widget-NET", "Widget-NET", ("src",)) == ""

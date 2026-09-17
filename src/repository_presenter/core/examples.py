@@ -88,6 +88,16 @@ class ExampleReceipt:
     the ecosystem's one template - lane B measured why: Aspose.3D for TypeScript builds with
     ``npm install`` then ``npm run build``, Aspose.Cells declares no build script and its own
     sources do not compile, so no single TypeScript template is true for both.
+
+    ``source_roots`` names the directories a source-tree fallback imported the package from,
+    uninstalled - relative to the checkout, nearest first, ``"."`` meaning the checkout root
+    itself (`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation). Set only
+    alongside ``build_verified=False`` on the same fallback (currently Python's install-failure
+    path only), it is what proves the fallback ran at all rather than just that the build failed:
+    a repository where no build/install command can ever succeed - a broken build-backend, not
+    broken code - still has this to admit an honest, weaker install fact from, distinct from a
+    syntax-only check (C++) that proves nothing about where the code lives. Empty for every
+    receipt that is not this shape.
     """
 
     ordinal: int
@@ -99,6 +109,7 @@ class ExampleReceipt:
     fixtures: tuple[FixtureBinding, ...] = ()
     build_verified: bool = True
     build_command: str = ""
+    source_roots: tuple[str, ...] = ()
 
 
 def write_receipts(receipts: list[ExampleReceipt], path: Path) -> None:

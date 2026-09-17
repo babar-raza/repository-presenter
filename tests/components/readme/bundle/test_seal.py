@@ -195,7 +195,7 @@ def test_dependencies_name_exactly_the_consumed_inputs(tmp_path: Path) -> None:
     assert document["contract_version"] == "readme-contract-v1-draft"
     assert document["components"] == {
         "shell": "6",
-        "renderer": "23",
+        "renderer": "24",
         "normalisation": "11",
         "reviewer_logic": "11",
     }

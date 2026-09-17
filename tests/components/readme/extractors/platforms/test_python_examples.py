@@ -295,6 +295,11 @@ def test_a_package_that_will_not_build_still_runs_its_examples_from_source(
     # distribution - build_verified must be False so extract.py never promotes the registry
     # install command from this receipt as "verified against this revision".
     assert receipts[0].build_verified is False
+    # RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation: the directories
+    # `_source_roots` found - the `src` layout's own parent, nearest first, then the checkout
+    # root itself for a namespace package's sake - travel on the receipt so extract.py's weaker
+    # source_checkout tier can name them without recomputing anything from the tree itself.
+    assert receipts[0].source_roots == ("src", ".")
 
 
 def test_a_genuinely_successful_install_still_marks_the_receipt_verified(tmp_path: Path) -> None:
@@ -313,6 +318,9 @@ def test_a_genuinely_successful_install_still_marks_the_receipt_verified(tmp_pat
     )
     assert [(r.ordinal, r.outcome) for r in receipts] == [(1, "EXECUTED")]
     assert receipts[0].build_verified is True
+    # A genuine install never touches the fallback path, so it names no source roots at all -
+    # extract.py's weaker source_checkout tier must never fire for a receipt like this one.
+    assert receipts[0].source_roots == ()
 
 
 def test_the_source_fallback_installs_the_dependencies_the_manifest_declares(

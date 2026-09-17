@@ -1516,3 +1516,51 @@ def test_bc_02_refuses_a_source_build_advertising_a_step_its_receipt_did_not_pro
     # The template path (no receipt attribute) is judged exactly as before this item.
     templated = dataclasses.replace(honest, attributes={"install_kind": "source"})
     assert _check_install(_install_candidate(templated, f"```bash\n{templated.value}\n```")) == []
+
+
+def test_bc_02_accepts_a_source_checkout_fact_that_never_claims_a_verified_build() -> None:
+    """`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation, reproducing
+    `aspose-html-foss/Aspose.HTML-FOSS-for-Python`'s exact shape: a `source_checkout`-kind fact
+    is honest that no build/install command ever succeeded, so it never earns the "verified
+    source build" phrase the other tiers use - BC-02 accepts it by its own `install_kind`
+    attribute instead, extending the same acceptance rather than a parallel check."""
+    command = (
+        "git clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git\n"
+        "cd Aspose.HTML-FOSS-for-Python\n"
+        'export PYTHONPATH="src:.:$PYTHONPATH"'
+    )
+    checkout = Fact(
+        "install_command:pip",
+        "install_command",
+        command,
+        (
+            Evidence("pyproject.toml", "distribution name declared by the manifest"),
+            Evidence(
+                "https://pypi.org/pypi/aspose-html-foss/json",
+                "package registry: distribution not found",
+            ),
+            Evidence(
+                "examples.json",
+                "source checkout only: every build/install attempt failed identically for this "
+                "revision, but an example executed against the repository's own source tree "
+                "with no build step - the advertised step is adding that tree to the "
+                "interpreter's path, never a build or install command, which was never proven "
+                "to succeed",
+            ),
+        ),
+        attributes={"install_kind": "source_checkout"},
+    )
+    assert _check_install(_install_candidate(checkout, f"```bash\n{command}\n```")) == []
+
+    # Mutation: strip the manifest evidence away - the checkout kind alone never substitutes
+    # for it, exactly like the existing "source" and registry paths still require it.
+    bare = dataclasses.replace(
+        checkout, evidence=(Evidence("examples.json", "source checkout only: x"),)
+    )
+    failures = _check_install(_install_candidate(bare, f"```bash\n{command}\n```"))
+    assert failures and "lacks manifest" in failures[0].detail
+
+    # Mutation: the rendered README drops the command - COMPOSING still catches it even though
+    # EXTRACTING's acceptance passed.
+    missing_render = _check_install(_install_candidate(checkout, "nothing here"))
+    assert missing_render and "does not render" in missing_render[0].detail

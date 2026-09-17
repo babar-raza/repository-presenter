@@ -69,6 +69,22 @@ def _source_build_fact(
     registry-having ecosystem, UNRESOLVED means the probe could not be read this time - a
     transient reading, not a "not published" one - so it must keep failing closed rather than being
     treated as if the registry had spoken.
+
+    `RESEARCH_LANE_E.md`'s "documented PYTHONPATH source install" secondary observation
+    (LANE-E-06, corroborated a second time by LANE-E-14/LANE-E-17), supervisor-directed
+    2026-09-17: some repositories have no admissible build/install command at all - every
+    invocation of the ecosystem's own build backend fails identically, a fact about the packaging,
+    not the code (`aspose-html-foss/Aspose.HTML-FOSS-for-Python`'s `pyproject.toml` names a
+    `setuptools.backends.legacy` build backend no setuptools release ever provided, so `pip
+    install .` fails the same way regardless of isolation flags). An example that only ran via the
+    source-tree fallback still proves the code imports and runs; it proves nothing about any
+    build/install command, so it is never admitted through the verified-build branch above (a
+    fallback receipt's `build_verified` is `False`). It is instead admitted through a strictly
+    weaker tier, `install_kind: "source_checkout"`, whose value is honest clone-and-reference
+    instructions - adding the source directories the fallback already ran from to the
+    interpreter's path - never a pip or build command nobody proved. This tier fires only when no
+    receipt anywhere reports `build_verified=True`, so it can never compete with or weaken the
+    verified-source-build tier above; a single genuine build receipt always wins.
     """
     if fact.kind != "install_command":
         return fact
@@ -85,7 +101,7 @@ def _source_build_fact(
     # this fact is about to advertise as "verified against this revision".
     proven = [r for r in receipts if r.outcome == "EXECUTED" and r.build_verified]
     if not proven:
-        return fact
+        return _source_checkout_fact(fact, entry, receipts)
     spec = spec_for(entry.ecosystem)
     name = entry.repository.split("/")[-1]
     # G4-W17 arrival item 50 (lane B, RESEARCH_LANE_B 617-645): a verifier that drove the
@@ -120,6 +136,46 @@ def _source_build_fact(
         polarity="SUPPORTED",
         confidence=1.0,
         attributes={**(fact.attributes or {}), **admitted},
+        evidence=(*fact.evidence, Evidence(RECEIPTS_FILENAME, detail)),
+    )
+
+
+def _source_checkout_fact(
+    fact: Fact, entry: RegistryEntry, receipts: Sequence[ExampleReceipt]
+) -> Fact:
+    """`RESEARCH_LANE_E.md`'s PYTHONPATH-source-install observation: the weaker admission tier
+    `_source_build_fact` falls back to when nothing proved a build.
+
+    Called only once the caller has already confirmed no receipt reports `outcome == "EXECUTED"
+    and build_verified`; this re-checks the stronger condition the docstring above promises -
+    `build_verified` is `True` by default on every receipt an ecosystem's weaker-EXECUTED path
+    never touches, including a non-EXECUTED one, so this tier fires only when nothing anywhere
+    reports it, never merely when nothing EXECUTED did. A receipt with `source_roots` is the
+    positive proof the source-tree fallback both ran and executed - never a syntax-only check
+    (C++), which proves nothing about where the code lives and sets no such paths.
+    """
+    if any(r.build_verified for r in receipts):
+        return fact
+    checkout = next((r for r in receipts if r.outcome == "EXECUTED" and r.source_roots), None)
+    if checkout is None:
+        return fact
+    spec = spec_for(entry.ecosystem)
+    name = entry.repository.split("/")[-1]
+    command = spec.clone_and_reference(entry.repository, name, checkout.source_roots)
+    if not command:
+        return fact
+    detail = (
+        "source checkout only: every build/install attempt failed identically for this "
+        "revision, but an example executed against the repository's own source tree with no "
+        "build step - the advertised step is adding that tree to the interpreter's path, never "
+        "a build or install command, which was never proven to succeed"
+    )
+    return replace(
+        fact,
+        value=command,
+        polarity="SUPPORTED",
+        confidence=1.0,
+        attributes={**(fact.attributes or {}), "install_kind": "source_checkout"},
         evidence=(*fact.evidence, Evidence(RECEIPTS_FILENAME, detail)),
     )
 

@@ -12,6 +12,7 @@ imports only `core/` and its own module, and no stage after facts imports an ext
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Final
 
@@ -42,6 +43,15 @@ class EcosystemSpec:
     # The verb phrase that completes "To work from a source checkout instead, {...}:" - carried
     # apart from the command itself only so Python's sealed wording never moves a single byte.
     source_install_lead: str = ""
+    # A template over {repository}, {name} and {paths} for an ecosystem where a build/install
+    # command can fail identically for every possible invocation (RESEARCH_LANE_E.md's
+    # documented-PYTHONPATH-source-install observation, LANE-E-06/LANE-E-14/LANE-E-17):
+    # `clone_and_reference` fills it with the checkout and the source directories `_source_roots`
+    # already found an executed example import from, uninstalled - never a build step, since by
+    # definition none succeeded. Empty means the ecosystem has no such fallback vocabulary (a
+    # compiled language proves nothing by adding a directory to an interpreter's path); only
+    # Python declares one today.
+    source_reference: str = ""
     verify_command: str = ""
     # Whether an executed example's own source actually names a given import_path fact, so the
     # renderer knows which module to plug into verify_command - a template over {module}, matched
@@ -129,6 +139,24 @@ class EcosystemSpec:
             raise ValueError("a measured source build names at least one step")
         return CLONE_PREFIX.format(repository=repository, name=name) + steps
 
+    def clone_and_reference(self, repository: str, name: str, roots: Sequence[str]) -> str:
+        """The checkout, then adding its own source directories to the interpreter's path -
+        never a build command (`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install
+        observation).
+
+        For a repository where every build/install attempt fails identically - a broken
+        build-backend, not broken code - an example that ran via the source-tree fallback still
+        proves the code imports and runs. ``roots`` are the paths `_source_roots` already found
+        it running from, uninstalled: relative to the checkout, nearest first, ``"."`` meaning
+        the checkout root itself. An ecosystem that declares no ``source_reference`` template (a
+        build/install failure means something different for a compiled language) or a caller
+        with no roots to name returns an empty string, so the fact this backs stays untouched
+        rather than admitting a placeholder nobody measured.
+        """
+        if not self.source_reference or not roots:
+            return ""
+        return self.source_reference.format(repository=repository, name=name, paths=":".join(roots))
+
 
 PYTHON: Final = EcosystemSpec(
     ecosystem="python",
@@ -142,6 +170,15 @@ PYTHON: Final = EcosystemSpec(
     ),
     source_install="git clone https://github.com/{repository}.git\ncd {name}\npip install .",
     source_install_lead="install the clone with pip",
+    # PYTHONPATH is the honest fallback when no build/install command ever succeeds
+    # (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation): a colon-joined
+    # list of the directories an executed example already imported the package from, uninstalled
+    # - never a build step, since none was proven.
+    source_reference=(
+        "git clone https://github.com/{repository}.git\n"
+        "cd {name}\n"
+        'export PYTHONPATH="{paths}:$PYTHONPATH"'
+    ),
     verify_command='python -c "import {module}"',
     fence_aliases=frozenset({"python", "py", "python3"}),
     floor_fact_id="package:python_requires",

@@ -432,6 +432,7 @@ def verify_python_examples(
     )
     import_roots = [site]
     source_note = ""
+    source_roots: tuple[str, ...] = ()
     if install.return_code != 0:
         # A package that will not build is not a repository whose code does not work, and the
         # two were being conflated: every example went NOT_VERIFIED, the Quick Start row lost
@@ -468,6 +469,14 @@ def verify_python_examples(
             )
         import_roots = [*fallback, site]
         source_note = "ran against the repository source tree; the package would not build"
+        # RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation: named relative
+        # to the checkout, never as an absolute path a sealed receipt must not carry (same rule
+        # the interpreter label follows below) - "." for the checkout root itself, exactly what a
+        # reader would type after `cd` into it.
+        source_roots = tuple(
+            "." if candidate == root else candidate.relative_to(root).as_posix()
+            for candidate in fallback
+        )
 
     def run(
         candidate: ExampleCandidate, produced: ProducedFiles, opened: Sequence[str] = ()
@@ -520,6 +529,7 @@ def verify_python_examples(
             # 2026-09-08): the example running proves the code, never the distribution, so an
             # EXECUTED outcome here must not promote the registry install command as verified.
             build_verified=not source_note,
+            source_roots=source_roots,
         )
         written = sorted(
             path for path in run_dir.iterdir() if path.is_file() and path.name not in before

@@ -1035,6 +1035,61 @@ def test_a_verified_source_build_never_badges_a_registry_page_that_does_not_exis
     assert "img.shields.io/nuget" not in readme
 
 
+def test_a_source_checkout_install_renders_honest_pythonpath_prose_never_pip() -> None:
+    """`RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation, reproducing
+    `aspose-html-foss/Aspose.HTML-FOSS-for-Python`'s exact shape: no build/install command ever
+    succeeds, so `extract.py` admits `install_kind: "source_checkout"` with clone-and-reference
+    instructions as the value. The Installation section states plainly that no command succeeds
+    and prints exactly that value - never a `pip install` command, never the ordinary "To work
+    from a source checkout instead" suggestion beside it, and never a PyPI version badge for a
+    package that was never confirmed published."""
+    command = (
+        "git clone https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git\n"
+        "cd Aspose.HTML-FOSS-for-Python\n"
+        'export PYTHONPATH="src:.:$PYTHONPATH"'
+    )
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *(f for f in FACTS.facts if f.id != "install_command:pip"),
+            Fact(
+                "install_command:pip",
+                "install_command",
+                command,
+                (
+                    Evidence("pyproject.toml", "distribution name declared by the manifest"),
+                    Evidence(
+                        "https://pypi.org/pypi/aspose-3d-foss/json",
+                        "package registry: distribution not found",
+                    ),
+                    Evidence(
+                        "examples.json",
+                        "source checkout only: every build/install attempt failed identically "
+                        "for this revision, but an example executed against the repository's "
+                        "own source tree with no build step - the advertised step is adding "
+                        "that tree to the interpreter's path, never a build or install command, "
+                        "which was never proven to succeed",
+                    ),
+                ),
+                attributes={"install_kind": "source_checkout"},
+            ),
+        ),
+    )
+    readme = render_readme(ENTRY, facts, PLAN, UNITS, DISPOSITIONS)
+    installation = readme.split("## Installation\n\n", 1)[1].split("\n## ", 1)[0]
+    assert installation.startswith(
+        "`aspose-3d-foss` is not yet published on PyPI, and no build or install command "
+        f"succeeds for this revision; work from the source checkout instead, verified against "
+        f"this revision:\n\n```bash\n{command}\n```"
+    )
+    assert installation.count("git clone") == 1
+    assert "pip install" not in installation
+    assert "To work from a source checkout instead" not in installation
+    assert "img.shields.io/pypi" not in readme
+    assert "pypi.org/project" not in readme
+
+
 def test_a_package_registry_name_stays_plain_in_prose() -> None:
     context = RenderContext(ENTRY, FACTS, PLAN, UNITS, DISPOSITIONS)
     assert context.prose("Published to PyPI from Scene.") == "Published to PyPI from `Scene`."

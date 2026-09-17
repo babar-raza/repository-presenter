@@ -60,8 +60,11 @@ from repository_presenter.core.registry.models import RegistryEntry
 # sentence with no code block after it (placement.rendered_example_ids, arrival item 65). 23: a
 # unit's own text may wrap an identifier spelled verbatim inside a SUPPORTED inherited_unit fact
 # it cites, not only a fact value or verified member (prose() now takes the unit's fact_ids,
-# G4-W17 arrival item 69).
-RENDERER_VERSION = "23"
+# G4-W17 arrival item 69). 24: a source_checkout-kind install (no build/install command ever
+# succeeds) gets its own honest, non-pip Installation prose and never the ordinary "To work from
+# a source checkout instead" suggestion or the registry version badge beside it
+# (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install observation).
+RENDERER_VERSION = "24"
 ADDITIONAL_EXAMPLES_SUMMARY = "View Additional Examples"
 API_SURFACE_SUMMARY = "View the Complete Public API Surface"
 README_FILENAME = "README.md"
@@ -239,7 +242,13 @@ def _badges(context: RenderContext) -> list[str]:
     # A source-kind install (G4-W17 arrival item 0) is SUPPORTED because an executed example
     # proved the source compiles, not because the registry confirmed the package - the version
     # badge links straight to a registry package page that, for this package, does not exist.
-    source_kind = install is not None and (install.attributes or {}).get("install_kind") == "source"
+    # A source-checkout-kind install (RESEARCH_LANE_E.md's documented-PYTHONPATH-source-install
+    # observation) is weaker still - no build/install command ever succeeded at all - so the same
+    # suppression applies a fortiori.
+    source_kind = install is not None and (install.attributes or {}).get("install_kind") in (
+        "source",
+        "source_checkout",
+    )
     if (
         install is not None
         and install.polarity == "SUPPORTED"
@@ -588,13 +597,36 @@ def _installation(context: RenderContext) -> list[str]:
     command). The plain source-checkout suggestion below is for a reader who could use the
     registry package but prefers a clone; it never repeats what a source-kind install already
     said.
+
+    `RESEARCH_LANE_E.md`'s documented-PYTHONPATH-source-install observation: a `source_checkout`-
+    kind install is weaker still - no build/install command ever succeeded at all, not merely that
+    the registry has nothing - so its own sentence says that plainly and its value is
+    clone-and-reference instructions, never the `pip install .` (or equivalent) `clone_and_build`
+    prints for the ordinary suggestion below, which would repeat a command this tier has already
+    proven never works.
     """
     lines: list[str] = []
     install = context.fact(context.spec.install_fact_id)
     package = context.fact("package:name")
     version = context.fact("package:version")
-    source_kind = install is not None and (install.attributes or {}).get("install_kind") == "source"
+    kind = (install.attributes or {}).get("install_kind") if install is not None else None
+    source_kind = kind == "source"
+    checkout_kind = kind == "source_checkout"
     if (
+        install is not None
+        and install.polarity == "SUPPORTED"
+        and checkout_kind
+        and package is not None
+    ):
+        registry = context.spec.registry
+        lines.append(
+            f"`{package.value}` is not yet published on {registry}, and no build or install "
+            "command succeeds for this revision; work from the source checkout instead, "
+            "verified against this revision:"
+        )
+        lines.append("")
+        lines.extend(_code_block("bash", install.value))
+    elif (
         install is not None
         and install.polarity == "SUPPORTED"
         and source_kind
@@ -625,7 +657,7 @@ def _installation(context: RenderContext) -> list[str]:
         lines.append(f"The package `{package.value}` {state} ({detail}).")
     executed = context.supported("example")
     repository = context.fact("identity:repository")
-    if executed and repository is not None and not source_kind:
+    if executed and repository is not None and not source_kind and not checkout_kind:
         name = repository.value.split("/")[-1]
         command = context.spec.clone_and_build(repository.value, name)
         if command and context.spec.source_install_lead:
