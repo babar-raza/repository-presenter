@@ -130,7 +130,12 @@ _TYPE_OBJECTIVE = (
 # a slash-delimited module path pattern (same shape _COORDINATE already established for a
 # colon-delimited one) - a real meaning change to what the renderer treats as one identifier
 # (a Go module path spelled bare in prose no longer splits at its first dotted segment).
-NORMALISATION_VERSION = "9"
+# "9" -> "10" (G4-W17 arrival item 119, PDFPY-02): _type_batches now binds each undocumented
+# type's slot to a slot_facts entry naming only its own fact id, the same shape
+# authoring_tasks()'s own main loop already passes for every other section - a real meaning
+# change to citable()'s fallback (every type slot's schema enum used to carry the whole batch's
+# accepted_ids instead of that one type's single fact, measured 4.6x larger than scoped).
+NORMALISATION_VERSION = "10"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -564,6 +569,12 @@ def _type_batches(
         batch = types[index : index + _TYPE_BATCH]
         ids = [fact.id for fact in batch]
         slots = tuple(f"type:{fact.id}" for fact in batch)
+        # Each type slot cites only its own fact, never a sibling's (RESEARCH_AND_GUIDELINES.md
+        # section 29 arrival item 119, docs/DECISION_LOG.md PDFPY-02): without this, citable()
+        # falls back to the whole batch's accepted_ids as every slot's enum, an O(n^2) schema
+        # measured at 66,130 characters for one batch versus 14,360 once scoped (4.6x). The same
+        # shape authoring_tasks()'s own main loop already passes for every other section.
+        slot_facts = {f"type:{fact.id}": frozenset({fact.id}) for fact in batch}
         accepted = [
             {
                 "id": fact.id,
@@ -588,7 +599,7 @@ def _type_batches(
                 f"Identifiers the prose may spell, exactly as written: {', '.join(spellings)}; "
                 "any other API name, member, attribute, or parameter is rejected."
             ),
-            "slots": slot_records(slots, {}, {}),
+            "slots": slot_records(slots, slot_facts, {}),
             "accepted_facts": accepted,
             "do_not_claim": do_not_claim,
             "length_budget": "one unit per type, one sentence each",
@@ -598,7 +609,12 @@ def _type_batches(
         number = index // _TYPE_BATCH + 1
         tasks.append(
             SectionTask(
-                "api_reference", packet, frozenset(ids), slots, key=f"api_reference#types-{number}"
+                "api_reference",
+                packet,
+                frozenset(ids),
+                slots,
+                key=f"api_reference#types-{number}",
+                slot_facts=slot_facts,
             )
         )
     return tasks

@@ -1296,6 +1296,54 @@ def test_undocumented_types_are_authored_in_bounded_batches_bound_to_their_signa
     assert len(merged["units"]) == len(tasks[0].slots) + 81
 
 
+def test_a_type_batch_slot_cites_only_its_own_fact_not_the_whole_batch() -> None:
+    """Docs/DECISION_LOG.md arrival item 119 (PDFPY-02): _type_batches used to build each
+    undocumented type's SectionTask with no slot_facts binding, unlike authoring_tasks()'s own
+    main loop, which always passes one. citable() then fell back to the whole batch's
+    accepted_ids as every slot's citable fact_ids enum, instead of that type's own single fact -
+    an O(n^2) schema (measured 66,130 characters on PDF-Python's api_reference#types-1 batch,
+    shrinking 4.6x once scoped). Mutation control: this is red against the pre-fix shape (no
+    slot_facts on the SectionTask _type_batches built, so citable() returns the whole batch for
+    every slot) and green only once each slot is bound to exactly its own fact id."""
+
+    def _type(index: int) -> Fact:
+        return Fact(
+            f"public_symbol:pkg.t{index}",
+            "public_symbol",
+            f"pkg.T{index}",
+            (Evidence("pkg/t.py", f"line {index}; class; public by name"),),
+            attributes={"symbol_kind": "class", "signature": f"class T{index}(Base)"},
+        )
+
+    facts = FactsDocument(
+        FACTS.repository, FACTS.source_revision, (*FACTS.facts, *(_type(i) for i in range(1, 4)))
+    )
+    plan = {"sections": [{"section_id": "api_reference", "include": True, "reason": "r"}]}
+    tasks = authoring_tasks(ENTRY, facts, {}, {"dispositions": []}, plan)
+    batch = next(task for task in tasks if task.is_batch)
+    assert batch.slots == (
+        "type:public_symbol:pkg.t1",
+        "type:public_symbol:pkg.t2",
+        "type:public_symbol:pkg.t3",
+    )
+    loaded = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
+    schema = authoring_schema(loaded, batch)
+    enums = {
+        entry["properties"]["slot"]["const"]: set(entry["properties"]["fact_ids"]["items"]["enum"])
+        for entry in schema["properties"]["units"]["prefixItems"]
+    }
+    for slot in batch.slots:
+        own_id = slot.removeprefix("type:")
+        assert own_id in enums[slot]
+        for other_slot in batch.slots:
+            if other_slot == slot:
+                continue
+            other_id = other_slot.removeprefix("type:")
+            assert other_id not in enums[slot], (
+                f"{slot}'s citable enum wrongly carries {other_slot}'s own fact id {other_id}"
+            )
+
+
 def _undocumented_types_facts(count: int) -> FactsDocument:
     def _type(index: int) -> Fact:
         return Fact(
