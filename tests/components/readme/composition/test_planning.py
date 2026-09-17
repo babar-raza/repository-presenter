@@ -784,6 +784,45 @@ def test_a_verified_rewrite_disposition_names_link_targets_the_plan_must_carry()
     ]
 
 
+def test_a_placement_only_this_plans_own_recomputation_excludes_is_deferred_not_rejected() -> None:
+    """G4-W17 arrival item 25 (lane B, Email C++, BLOCKED_PLANNING): `additional_examples`'s
+    condition above is recomputed from this exact plan's own quick starts (facts alone say the
+    section holds, since two examples are verified), so a plan that spends every verified example
+    on its quick starts - Email C++ has exactly two, both examples, both quick starts - excludes
+    the destination the reconciliation already placed a unit into, before this plan even existed.
+    No plan can leave an example unconsumed when there is none to leave, and no re-ask can
+    withdraw a placement it never made, so failing the transaction closed on it (the old behavior)
+    rejected the same, unfixable plan every time. `dispositions.normalize` already folds the
+    identical shape - a placement into a section absent at reconciliation time - to
+    DEFER_UNRESOLVED rather than an error; this is that same fold for the shape only planning's
+    own recomputation can produce."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (*FACTS.facts, _fact("inherited_unit:900.paragraph", "inherited_unit", "See example 2.")),
+    )
+    dispositions = {
+        "dispositions": [
+            {
+                "unit_id": "inherited_unit:900.paragraph",
+                "disposition": "VERIFIED_PRESERVE",
+                "destination_section": "additional_examples",
+                "fact_ids": ["example:002"],
+                "rationale": "kept verbatim",
+            }
+        ]
+    }
+    plan = _plan(
+        quick_start_example_id="example:001",
+        second_quick_start_example_id="example:002",
+        additional_example_ids=[],
+    )
+    assert plan_checks(plan, facts, dispositions=dispositions, ecosystem="python") == []
+    entry = dispositions["dispositions"][0]
+    assert entry["disposition"] == "DEFER_UNRESOLVED"
+    assert entry["destination_section"] is None
+
+
 def test_a_further_verified_example_is_appended_to_additional_examples() -> None:
     """RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08: no existing test actually
     exercised the append branch of this backstop (the shared fixtures always already carried

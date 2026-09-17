@@ -350,19 +350,22 @@ def test_a_csharp_example_is_owned_by_the_plan_not_placed_beside_it() -> None:
     assert placed_texts(list(decisions.values())) == {}
 
 
-def test_planning_includes_every_verified_example_and_refuses_an_excluded_destination() -> None:
+def test_planning_includes_every_verified_example_and_defers_an_excluded_destination() -> None:
     plan = _plan(additional_example_ids=[])
     errors = plan_checks(plan, FACTS, dispositions=DISPOSITIONS, ecosystem="python")
     assert plan["additional_example_ids"] == ["example:002"]  # the contradicted one stays out
     # At a Glance's condition holds, so code includes it whatever the plan said and the
     # placement stands; only a destination the facts exclude is a defect.
     assert errors == []
-    excluded = {"dispositions": [_entry("inherited_unit:014.paragraph", "enterprise_relationship")]}
-    assert plan_checks(_plan(), FACTS, dispositions=excluded, ecosystem="python") == [
-        "section enterprise_relationship is excluded at this revision but the reconciliation "
-        "placed inherited_unit:014.paragraph there; place the unit in an included section or "
-        "defer it, or the transaction fails closed naming it"
-    ]
+    # G4-W17 arrival item 25: a destination only this plan's own recomputation excludes is
+    # deferred (DEFER_UNRESOLVED, in place, mirroring dispositions.normalize's identical fold)
+    # rather than failing the transaction closed - no plan can honour or withdraw a placement
+    # reconciliation made before this plan existed.
+    excluded_entry = _entry("inherited_unit:014.paragraph", "enterprise_relationship")
+    excluded = {"dispositions": [excluded_entry]}
+    assert plan_checks(_plan(), FACTS, dispositions=excluded, ecosystem="python") == []
+    assert excluded_entry["disposition"] == "DEFER_UNRESOLVED"
+    assert excluded_entry["destination_section"] is None
     omitted = _plan(additional_example_ids=[])
     for entry in omitted["sections"]:
         if entry["section_id"] == "additional_examples":

@@ -584,9 +584,15 @@ def plan_checks(
     The shell's inclusion decisions are composed here, not asked for: deterministic code already
     evaluates every condition from the facts, so asking the model to restate the decision list and
     then rejecting it for restating it wrongly is RESEARCH_AND_GUIDELINES.md section 27.2's RC1
-    (section 27.5 D1). Beyond that, one rule fails closed and a small, explicit table of backstops
-    normalises: a placed inherited unit whose destination is excluded at this revision is never
-    dropped silently (section 3), so the transaction fails closed naming the unit; and every field
+    (section 27.5 D1). Beyond that, a small, explicit table of backstops normalises: a placed
+    inherited unit whose destination this plan excludes is never dropped silently (section 3) -
+    it is deferred (``DEFER_UNRESOLVED``, the same fold ``dispositions.normalize`` already applies
+    to a placement into a section absent at reconciliation time), because ``additional_examples``'s
+    condition just above is recomputed from this exact plan's own quick starts, which the
+    reconciliation could not have known when it placed the unit: a plan that spends every verified
+    example on its quick starts (Aspose.Email for C++, exactly two) excludes the destination no
+    matter what the plan writes, so failing the transaction closed on it rejected the same,
+    unfixable plan forever (G4-W17 arrival item 25, lane B, `BLOCKED_PLANNING`). And every field
     named in ``_BACKSTOPS`` (RC-01, RESEARCH_AND_GUIDELINES.md 27.2 RC1/SW1, 2026-09-08) gets
     whatever a deterministic source says it must carry appended when the plan omitted it - today,
     every further verified example belonging in Additional Examples (README_CONTRACT.md section 2
@@ -622,13 +628,23 @@ def plan_checks(
     # reserve headroom for what is already committed to render, the only lever planning has.
     preserved_aspose = 0
     if dispositions is not None:
+        by_unit_id = {
+            str(entry.get("unit_id")): entry for entry in dispositions.get("dispositions", [])
+        }
         for placement in placements(output, dispositions, facts, ecosystem):
             if placement.outcome == "excluded":
-                errors.append(
-                    f"section {placement.destination} is excluded at this revision but the "
-                    f"reconciliation placed {placement.unit_id} there; place the unit in an "
-                    "included section or defer it, or the transaction fails closed naming it"
-                )
+                # G4-W17 arrival item 25 (lane B, Email C++, BLOCKED_PLANNING): this placement
+                # was valid when the reconciliation made it; only this plan's own recomputation
+                # of additional_examples (from its own quick starts, above) excludes the
+                # destination, so no plan can honour it and none can withdraw it either - failing
+                # closed here rejected the same, unfixable plan on every re-ask. Deferred exactly
+                # as dispositions.normalize folds the identical shape (a placement into a section
+                # absent at reconciliation time) to DEFER_UNRESOLVED, in place, on the same
+                # dispositions object the caller holds.
+                entry = by_unit_id.get(placement.unit_id)
+                if entry is not None:
+                    entry["disposition"] = "DEFER_UNRESOLVED"
+                    entry["destination_section"] = None
             elif placement.outcome == "placed":
                 preserved_aspose += sum(
                     1
