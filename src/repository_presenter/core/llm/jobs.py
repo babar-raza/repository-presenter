@@ -407,6 +407,7 @@ def run_job(
     context: JobContext,
     checks: Checks | None = None,
     call_schema: dict[str, Any] | None = None,
+    recover: Callable[[dict[str, Any]], dict[str, Any] | None] | None = None,
 ) -> JobResult:
     """The accepted output of one job, from the store when the same request was accepted before.
 
@@ -414,6 +415,17 @@ def run_job(
     in place before judging it, and their errors are quoted back in the one re-ask exactly like
     the others. What the checks accept is what is stored - the folded output, which is why a
     stored output is re-judged without ``call_schema`` (below).
+
+    ``recover`` is a last-resort, job-specific correction (G4-W17 arrival item 111, PGPY-04): it
+    runs only after the FINAL attempt is still rejected, on that exact raw reply, and only when
+    the reply parsed as a JSON object (a schema- or JSON-shape failure has nothing safe to
+    correct). Its return, if not ``None``, is re-validated from scratch through the same schema,
+    binding and ``checks`` every other attempt goes through before it can be accepted - never
+    accepted on ``recover``'s own say-so - so an incomplete or wrong correction changes nothing:
+    the job fails exactly as it would have without ``recover`` at all. This exists because the
+    generic one-universal-reask budget below cannot distinguish an informed rejection (one whose
+    own message already named a real, citable fix) from a blind one; a job with no such narrow,
+    verifiable correction passes nothing here and this parameter is inert for it.
     """
     job = manifest.manifest.prompt_id
     messages = render_messages(manifest, packet, call_schema)
@@ -510,6 +522,32 @@ def run_job(
         store.reject(request_sha256, ask, job, reply.content, rejection)
         if ask == 1:
             current = _re_ask(manifest, payload, reply.content, rejection)
+        elif recover is not None:
+            # Last resort (G4-W17 arrival item 111): only after the final attempt is still
+            # rejected, and only on that exact raw reply - never on the first attempt, so the
+            # model's own re-ask is always tried before any deterministic correction.
+            try:
+                raw = json.loads(reply.content)
+            except json.JSONDecodeError:
+                raw = None
+            corrected = recover(raw) if isinstance(raw, dict) else None
+            if corrected is not None:
+                fixed, fixed_rejection = _parse(
+                    manifest, json.dumps(corrected), facts, checks, call_schema
+                )
+                if fixed is not None:
+                    store.put(request_sha256, job, reply.model, fixed)
+                    return JobResult(
+                        job,
+                        fixed,
+                        request_sha256,
+                        attempts.count,
+                        attempts.count,
+                        False,
+                        reply.model,
+                        attempts.last_tokens,
+                    )
+                rejection = fixed_rejection
     raise JobError(f"{job}: output rejected twice; last rejection: {'; '.join(rejection)}")
 
 

@@ -885,6 +885,61 @@ def plan_checks(
     return errors
 
 
+def recover_uncited_capability_titles(
+    output: dict[str, Any], facts: FactsDocument
+) -> dict[str, Any] | None:
+    """Last-resort correction for ``run_job``'s final rejected attempt only (``recover=``,
+    ``core/llm/jobs.py``) - never called on a first attempt, so the model's own one universal
+    re-ask is always tried first exactly as before; a capability that plan_checks would still
+    reject for an unrelated reason is unaffected, since ``run_job`` re-validates the corrected
+    output through the real ``plan_checks`` before ever accepting it.
+
+    G4-W17 arrival item 111 (PGPY-04): item 95's own ``supporting_fact_ids`` hint above already
+    names real, on-topic candidate facts in the rejection message, but ``core/llm/jobs.py``'s one
+    universal re-ask per job cannot tell an informed rejection (a citation to add) from a blind
+    one - measured on Page-Python, two independent live re-asks each retitled the capability
+    instead of citing one of the three facts already named, exhausting the budget without curing
+    the defect. When a still-rejected final reply's capability has at least one unsupported term
+    AND every one of its unsupported terms already has a real named candidate, the fix is
+    unambiguous: the first (sorted, deterministic) candidate per term is spliced into that
+    capability's own ``fact_ids``. A capability with no unsupported term, or with one no
+    ``SUPPORTED`` fact carries at all (the title genuinely needs a rename, not a citation, exactly
+    as ``supporting_fact_ids``' own docstring says), is left untouched.
+
+    Returns ``None`` when nothing was spliced (nothing to try), never a no-op copy of ``output``.
+    """
+    capabilities = output.get("core_capabilities")
+    if not isinstance(capabilities, list):
+        return None
+    name = _product_name(facts)
+    nouns = prose_nouns(facts, name)
+    neutral = {fact.id for fact in facts.facts if fact.kind in {"identity", "package"}}
+    values = {fact.id: fact.value for fact in facts.facts}
+    common = " ".join([*(values[i] for i in sorted(neutral) if i in values), name]).lower()
+    changed = False
+    for item in capabilities:
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title", ""))
+        cited_ids = list(item.get("fact_ids", []))
+        cited = " ".join(values.get(i, "") for i in cited_ids).lower()
+        unsupported = sorted(
+            term
+            for term in title_terms(title, facts)
+            if term not in nouns
+            and term.lstrip(".").lower() not in cited
+            and term.lstrip(".").lower() not in common
+        )
+        if not unsupported:
+            continue
+        candidates = [supporting_fact_ids(term, facts) for term in unsupported]
+        if not all(candidates):
+            continue  # at least one term has no real fact to cite; a citation cannot fix this
+        item["fact_ids"] = sorted({*cited_ids, *(ids[0] for ids in candidates)})
+        changed = True
+    return output if changed else None
+
+
 def summarize_plan(output: dict[str, Any]) -> str:
     included = [entry["section_id"] for entry in output.get("sections", []) if entry.get("include")]
     return (

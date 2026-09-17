@@ -402,6 +402,106 @@ def test_a_second_rejection_fails_the_job_closed(
     assert all("rejected" in name for name in kept)  # no accepted output was stored
 
 
+def test_recover_is_never_consulted_while_a_re_ask_can_still_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 111 (PGPY-04): ``recover`` is a genuine last resort - a job that
+    reaches a valid second attempt never even shows ``recover`` its output, so the model's own
+    re-ask is always given the first (and, here, only needed) chance."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),  # rejected
+        _completion(_investigation("package:name", "example:001", "identity:repository")),
+    )
+    seen: list[dict[str, Any]] = []
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        recover=seen.append,  # type: ignore[arg-type]
+    )
+    assert result.attempts == 2
+    assert seen == []
+
+
+def test_a_last_resort_recover_saves_a_final_rejection_it_can_actually_fix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 111 (PGPY-04). Measured on Page-Python (docs/DECISION_LOG.md
+    2026-09-17 03:27 UTC): composition/planning.py's own supporting_fact_ids hint (item 95)
+    already named real candidate facts in the rejection message, but the model's sole re-ask
+    sometimes retitles rather than cites one, exhausting core/llm/jobs.py's one universal re-ask
+    per job without curing the defect. Here, both live attempts reject identically (an unknown and
+    a CONTRADICTED citation); ``recover`` deterministically substitutes real SUPPORTED facts - the
+    same shape composition/planning.py's own ``recover_uncited_capability_titles`` performs - and
+    the corrected output is accepted with no third provider call."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+    )
+
+    def recover(output: dict[str, Any]) -> dict[str, Any]:
+        for item in output["capabilities"]:
+            if item["fact_ids"] == ["example:002"]:
+                item["fact_ids"] = ["example:001"]
+            elif item["fact_ids"] == ["nope:1"]:
+                item["fact_ids"] = ["identity:repository"]
+        return output
+
+    result = run_job(
+        MANIFEST,
+        PACKET,
+        config=CONFIG,
+        facts=FACTS,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        recover=recover,
+    )
+    assert (result.attempts, result.provider_calls) == (2, 2)
+    fixed_ids = sorted(
+        fact_id for item in result.output["capabilities"] for fact_id in item["fact_ids"]
+    )
+    assert fixed_ids == sorted(["package:name", "example:001", "identity:repository"])
+
+
+def test_recover_that_cannot_fully_fix_the_output_changes_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A partial or wrong ``recover`` correction is re-validated from scratch, exactly like any
+    other candidate output - it never passes on its own say-so, so the job fails closed identically
+    to a job with no ``recover`` at all."""
+    _Gateway(
+        monkeypatch,
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+        _completion(_investigation("package:name", "example:002", "nope:1")),
+    )
+
+    def half_fix(output: dict[str, Any]) -> dict[str, Any]:
+        for item in output["capabilities"]:
+            if item["fact_ids"] == ["example:002"]:
+                item["fact_ids"] = ["example:001"]
+            # "nope:1" is deliberately left unfixed - still an unknown fact ID.
+        return output
+
+    with pytest.raises(JobError, match="output rejected twice"):
+        run_job(
+            MANIFEST,
+            PACKET,
+            config=CONFIG,
+            facts=FACTS,
+            ledger=Ledger(tmp_path / "calls.jsonl"),
+            store=CallStore(tmp_path / "calls"),
+            context=CONTEXT,
+            recover=half_fix,
+        )
+
+
 def test_transient_failures_are_retried_and_accounted_and_refusals_are_not(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

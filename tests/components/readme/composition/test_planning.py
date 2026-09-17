@@ -17,6 +17,7 @@ from repository_presenter.components.readme.composition.planning import (
     plan_checks,
     planning_packet,
     planning_schema,
+    recover_uncited_capability_titles,
     section_conditions,
     summarize_plan,
     write_plan,
@@ -1037,6 +1038,59 @@ def test_a_capability_title_is_judged_by_its_own_citations_not_the_whole_documen
     ]
     glance = {**glance, "capability_titles": [item["title"] for item in cited_format]}
     assert plan_checks(_plan(core_capabilities=cited_format, at_a_glance=glance), FACTS) == []
+
+
+def test_recover_uncited_capability_titles_splices_a_real_named_candidate() -> None:
+    """G4-W17 arrival item 111 (PGPY-04), the deterministic last-resort correction
+    ``core/llm/jobs.py``'s ``recover=`` parameter calls only after a final rejection. Mirrors the
+    exact shape of ``test_a_capability_title_is_judged_by_its_own_citations_not_the_whole_document``
+    above: a title names ``.stl``, which is SUPPORTED (``format:output.stl``, FACTS) but not cited
+    by this capability - ``recover`` splices that one real candidate in, and the corrected output
+    passes the same ``plan_checks`` rule that rejected it."""
+    uncited_format = [
+        {"title": "Export STL files", "fact_ids": ["public_symbol:widget.scene"]},
+        {"title": "Build scenes", "fact_ids": ["public_symbol:widget.scene", "example:001"]},
+        {"title": "Run examples", "fact_ids": ["example:002"]},
+    ]
+    glance = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in uncited_format],
+    }
+    plan = _plan(core_capabilities=uncited_format, at_a_glance=glance)
+    assert plan_checks(plan, FACTS) != []  # confirms the fixture still reproduces the rejection
+    recovered = recover_uncited_capability_titles(plan, FACTS)
+    assert recovered is not None
+    assert recovered["core_capabilities"][0]["fact_ids"] == [
+        "format:output.stl",
+        "public_symbol:widget.scene",
+    ]
+    # Re-verified against the real rule, exactly as run_job does before ever accepting it.
+    assert plan_checks(recovered, FACTS) == []
+    # Untouched: a capability that already cites everything its title names.
+    assert recovered["core_capabilities"][1] == uncited_format[1]
+
+
+def test_recover_uncited_capability_titles_never_invents_a_citation_with_no_real_candidate() -> (
+    None
+):
+    """Mutation control: a title naming a term no SUPPORTED fact carries at all genuinely needs a
+    rename, not a citation (``supporting_fact_ids``' own docstring) - ``recover`` must not invent
+    one, and returns ``None`` (nothing to try) rather than a no-op copy."""
+    unverified = [
+        {"title": "Import OBJ meshes", "fact_ids": ["public_symbol:widget.scene"]},
+        {"title": "Export STL", "fact_ids": ["format:output.stl"]},
+        {"title": "Run examples", "fact_ids": ["example:001"]},
+    ]
+    glance = {
+        "input_format_ids": [],
+        "output_format_ids": ["format:output.stl"],
+        "capability_titles": [item["title"] for item in unverified],
+    }
+    plan = _plan(core_capabilities=unverified, at_a_glance=glance)
+    assert recover_uncited_capability_titles(plan, FACTS) is None
+    # A plan with nothing unsupported at all: also None, never a copy of a plan needing no fix.
+    assert recover_uncited_capability_titles(_plan(), FACTS) is None
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
