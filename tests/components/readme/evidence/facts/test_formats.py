@@ -59,6 +59,59 @@ def test_executed_examples_support_their_formats_and_unverified_ones_leave_them_
     assert format_facts(candidates, receipts, format_claims, "examples.json") == facts
 
 
+def test_a_fixture_staged_under_a_literal_the_example_only_ever_writes_never_contradicts_the_output_claim() -> (
+    None
+):
+    # G4-W17 item 109 (E23), measured on Aspose.Words for Python: a Quick Start example opens
+    # "report.docx" and saves "report.md" (a comment mentioning ".doc, .rtf, .txt, .md" is what
+    # makes stage_fixtures' pure text scan stage "report.md" too, as if it were read). Before the
+    # fix, format_facts emitted both format:output.md (from claims_for's syntax-tree read of the
+    # save() call, correct) AND format:input.md (from the fixture-staging loop, contradicting it
+    # for the identical example) - two opposite-direction SUPPORTED facts about one extension from
+    # one example. The syntax-tree claim is more precise and must suppress the fixture claim.
+    candidates = [
+        _candidate(
+            1,
+            'doc = aw.Document("report.docx")\n'
+            '# or .doc, .rtf, .txt, .md\n'
+            'doc.save("report.md", aw.SaveFormat.MARKDOWN)\n',
+            130,
+        )
+    ]
+    receipts = [
+        _receipt(
+            1,
+            "EXECUTED",
+            fixtures=(
+                FixtureBinding("report.docx", "tests/data/report.docx"),
+                FixtureBinding("report.md", "tests/data/report.md"),
+            ),
+        )
+    ]
+    facts = format_facts(candidates, receipts, format_claims, "examples.json")
+    by_id = {f.id: f for f in facts}
+    assert "format:input.md" not in by_id, (
+        "the fixture-staging claim for .md must be suppressed once the same example's own"
+        " claims_for evidence already names .md as output"
+    )
+    assert (by_id["format:output.md"].polarity, by_id["format:output.md"].confidence) == (
+        "SUPPORTED",
+        1.0,
+    )
+    assert [e.detail for e in by_id["format:output.md"].evidence] == [
+        "line 133; example 1: output .md",
+        "example 1: EXECUTED; exit 0",
+    ]
+    # Mutation control: the legitimate case (a fixture whose extension the same example's own
+    # claims_for never names as output, e.g. the genuinely-read .docx) still contributes its
+    # fixture evidence exactly as before - the suppression is scoped to the contradiction only.
+    assert by_id["format:input.docx"].polarity == "SUPPORTED"
+    assert any(
+        e.detail == "staged as report.docx; example 1 read it: EXECUTED"
+        for e in by_id["format:input.docx"].evidence
+    )
+
+
 def test_no_receipt_means_not_verified_and_no_examples_mean_no_facts() -> None:
     candidates = [_candidate(1, 'scene.save("out.stl")\n', 1)]
     facts = format_facts(candidates, [], format_claims, "examples.json")

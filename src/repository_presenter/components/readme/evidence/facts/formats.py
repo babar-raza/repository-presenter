@@ -40,6 +40,7 @@ def format_facts(
         receipt = by_ordinal.get(candidate.ordinal)
         outcome: ExampleOutcome = receipt.outcome if receipt else "NOT_VERIFIED"
         detail = receipt.detail if receipt else "no verification receipt"
+        claimed_directions: dict[str, set[str]] = {}
         for claim in claims_for(candidate.code):
             key: tuple[str, str] = (claim.direction, claim.extension)
             line = candidate.start_line + claim.line
@@ -55,11 +56,20 @@ def format_facts(
             )
             if outcome == "EXECUTED":
                 executed.add(key)
+            claimed_directions.setdefault(claim.extension, set()).add(claim.direction)
         if receipt is None or outcome != "EXECUTED":
             continue
         for binding in receipt.fixtures:
             extension = Path(binding.literal).suffix.lower()
             if not extension:
+                continue
+            if "output" in claimed_directions.get(extension, ()):
+                # The same example's own syntax tree already claims this extension as output
+                # (claims_for, computed above from an actual save()-style call site); a
+                # fixture-staging literal match is a pure text scan with no read/write
+                # distinction (G4-W17 item 109/E23) and would otherwise assert the
+                # contradictory input direction for the identical example. The syntax-tree
+                # claim is more precise and wins; the fixture-staging claim is suppressed.
                 continue
             key = ("input", extension)
             evidence.setdefault(key, []).append(
