@@ -2441,3 +2441,117 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   around by performing every edit in this item (this entry included) through a Python script invoked
   via `Bash` instead of the `Edit`/`Write` tools, for every path under this worktree. Full detail:
   `evidence/build/lanes/lane-b/G4-W13-RERUN11.json`, the live source.
+
+- **2026-09-17 15:32 · G4-W14-RERUN8 · did not seal: `LANE-B-W14R7-F1` is CLOSED, two new, distinct
+  findings block.** Genuine changed-input retry of `G4-W14-RERUN7`'s `BLOCKED_REVIEW` (BC-10)
+  disposition, verified against `origin/main` before drawing: `git merge-base --is-ancestor 8b03b34
+  origin/main` true, and `git show 8b03b34` confirms the commit adds `_cited_paraphrase`/
+  `_cited_grounding` to `review/independent/review.py` (`REVIEWER_LOGIC_VERSION` 10 to 11) and its
+  own text names item 116/`LANE-B-W14R7-F1`/3D-TS. Redrew
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` end to end (same revision
+  `7b959706f2ad976db929f26ec079f43a07d578e1` and 1190-fact digest `2257a892...` as `RERUN6`/`RERUN7`,
+  not a cache replay - 54 ledger rows, 35 live provider calls (27 success, 8 `response_invalid`), 19
+  `cache_reuse`, 0 `cache_stale`, 44,813 completion tokens). `LANE-B-W14R7-F1` is CLOSED, confirmed by
+  measurement: this draw's own S4/S6 sampling produced a materially different `scope_limitations`
+  split than `RERUN7`'s (`CORRECT_WITH_EVIDENCE` 1, `NON_CONTENT` 5, `OMIT_UNSUPPORTED` 2,
+  `SUPERSEDE_REDUNDANT` 81, `VERIFIED_MOVE` 1, `VERIFIED_PRESERVE` 15, `VERIFIED_REWRITE` 1, versus
+  `RERUN7`'s 2/5/17/46/12/24), so `RERUN7`'s exact F03 unit was never re-authored the same way - but
+  this draw's own `limitation:3` unit paraphrases the identical `inherited_unit:046.paragraph` fact
+  ("Binary glTF export with binaryMode set to true currently fails, while JSON/ASCII glTF export
+  remains functional and unaffected.") and raised no finding at all, positive, direct confirmation
+  the fix grounds this exact shape in production. It did not seal: validation is again 9 PASS / 1
+  FAIL / 1 PENDING, BC-10 FAILs at COMPOSING on `REJECT_FACTUAL` after one repair round (2 attempts,
+  both correctly refused as `unrepairable` by item 93's changes-ledger-corroboration guard - both
+  proposed revisions were byte-identical to their inputs), on two new, distinct, genuine findings
+  (F04 `scope_limitations`, F06 `additional_examples` - both claim a fact absent that a DIFFERENT
+  unit of the same candidate already states correctly). Root-caused to shared review code - new
+  PROPOSAL `LANE-B-W14R8-F1`, the lane may not edit it. A second, independent, non-blocking gap
+  (`LANE-B-W14R8-F2`, `composition/authoring.py`) was found while tracing F04 and recorded
+  separately. Disposition RESTATED (same check, cause changed): `BLOCKED_REVIEW` (BC-10). Full
+  mechanical detail in `evidence/build/lanes/lane-b/G4-W14-RERUN8.json`, the live source.
+
+- **2026-09-17 15:32 · G4-W14-RERUN8 · PROPOSAL `LANE-B-W14R8-F1` (shared code:
+  `review/independent/review.py`'s `absence_defect`/`factuality_defect`/`scope_defect` fold stack,
+  version 11) · a finding whose claimed-absent fact is genuinely present in a DIFFERENT unit of the
+  same candidate gets no fold, because every existing check evaluates only the finding's own unit
+  and section-slice text, never the candidate as a whole.** Measured on 3D-TS, same revision: finding
+  F06 (`additional_examples`, criterion factuality, `fact_ids: [example:007]`) quotes the
+  workflow-preview bullet "Convert an STL file to GLTF text format" and claims the candidate omits
+  the binary-glTF-export-failure caveat - but `scope_limitations`/`limitation:3` (`fact_ids:
+  [example:008, inherited_unit:077.list]`), a different unit in a different section of the identical
+  candidate, states exactly that caveat verbatim. Finding F04 (`scope_limitations`) makes the same
+  shape of claim about the same missing caveat, alongside a separate, distinct complaint (six SUPPORTED
+  `Mesh.*` boolean-operation facts are cited on the unit but named only generically as "mesh boolean
+  operations" in its prose, not individually - a content/prose completeness question left to the
+  owner to characterize, not asserted here as code-caused). `absence_defect` requires the
+  claimed-absent string inside the candidate's OWN section slice; `factuality_defect`/
+  `cited_fact_defect` check only the finding's own reviewed unit's `fact_ids` and citations (item
+  83/116/118's own widenings). None of the three checks in the fold stack ever look at a sibling
+  unit's or sibling section's own SUPPORTED, cited text to see whether the document as a whole
+  already states the claimed-absent fact - so F04 and F06 never receive a `reviewer_scope_defect` tag
+  (unlike five of this same draw's other findings, which correctly folded to advisory) and stand as a
+  hard block. One repair attempt per finding was correctly refused as `unrepairable` (item 93's
+  guard: both attempted revisions were byte-identical to their inputs, since there was nothing wrong
+  to fix - the candidate is already factually complete; the reviewer's own claim is what is
+  inaccurate). Proposed, smallest first, not attempted: widen the fold stack's own lookup (or add a
+  sibling check reachable from `absence_defect`/`factuality_defect`) to also search the candidate's
+  own already-composed `content_units.json` for a SUPPORTED, cited unit whose text carries the
+  claimed-absent value, before refusing to fold - scoped to the candidate's own units only, never
+  invented text, the same discipline item 116/118 already apply to their own widened lookups. Full
+  detail: `evidence/build/lanes/lane-b/G4-W14-RERUN8.json`.
+
+- **2026-09-17 15:32 · G4-W14-RERUN8 · PROPOSAL `LANE-B-W14R8-F2` (shared code:
+  `composition/authoring.py`'s `identifier_tokens`/`_CAMEL` pattern; not itself blocking this draw) ·
+  a bare lowerCamelCase method name named verbatim in an inherited unit's own prose never becomes a
+  token item 110's deterministic symbol top-up can match, because `_CAMEL` requires an uppercase
+  first letter.** Traced while diagnosing F04/`LANE-B-W14R8-F1` above (not itself the cause of any
+  finding this draw - the reviewer never names the affected methods).
+  `inherited_unit:077.list`'s own text names five `FileSystem`-related members verbatim in one
+  parenthetical: "the standalone `FileSystem` helpers (`createZipFileSystem`, `readFile`,
+  `writeFile`, `createLocalFileSystem`, `createDummyFileSystem`)". Reproduced directly against the
+  exact committed fact value at this revision (`python -c` calling
+  `composition.authoring._inherited_unit_tokens`): the resulting token set contains bare
+  `FileSystem` (via `_CAMEL`, PascalCase) and every dotted `Mesh.*`/`Watermark.*`/`Node.*`/`Scene.*`
+  symbol in the same sentence (via `_DOTTED`, which requires a literal `.`), but none of
+  `createZipFileSystem`, `readFile`, `writeFile`, `createLocalFileSystem`, `createDummyFileSystem` in
+  any form. `_CAMEL` is `\b[A-Z][a-z0-9]+(?:[A-Z][a-z0-9]*)+\b`, requiring an uppercase first letter;
+  a bare lowerCamelCase method name matches none of `identifier_tokens`'s five patterns (`_DOTTED`
+  needs a dot, `_SNAKE` needs an underscore, `_CALL` needs an immediately trailing `()` which this
+  parenthetical's members do not carry, `_CAMEL` needs an uppercase first letter, `_COORDINATE`/
+  `_MODULE_PATH` need a colon or a path). This draw's `inherited_unit:077.list` disposition
+  (`VERIFIED_REWRITE`) accordingly carries `public_symbol:filesystem` (bare) and
+  `public_symbol:filesystem.createzipfilesystem` (the latter from the S4 model's own live sampling
+  this draw, not the deterministic top-up, confirmed by cross-checking `repairs.json`'s pre-repair
+  `fact_ids` snapshot), but never `filesystem.readfile`/`writefile`/`createlocalfilesystem`/
+  `createdummyfilesystem`, even though all four are SUPPORTED and named verbatim in the identical
+  sentence the other two citations came from - the same shape of gap item 110's own docstring already
+  measured for six other symbols on this exact unit, now confirmed to persist for four specific ones
+  with a precisely identified regex cause. Proposed, smallest first, not attempted: widen `_CAMEL`
+  (or add a sibling pattern) to also match a bare lowercase-initial camelCase identifier of at least
+  two humps, scoped exactly as `identifier_tokens`'s other four patterns already are - deterministic,
+  no LLM call, no change to which facts are SUPPORTED. Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN8.json`.
+
+- **2026-09-17 15:32 · G4-W14-RERUN8 · DISPOSITION (RESTATED, cause changed) ·
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at `7b959706f2ad976db929f26ec079f43a07d578e1` -
+  `BLOCKED_REVIEW (BC-10, REJECT_FACTUAL)`.** Same check and stage as `RERUN7`, different cause:
+  `LANE-B-W14R7-F1` is CLOSED (see above); the standing finding is now `LANE-B-W14R8-F1`'s class.
+  1190 facts unchanged (digest `2257a892...`); examples unchanged (8 EXECUTED, 1 CONTRADICTED,
+  example:002). 54 ledger rows this draw: 35 live provider calls (27 success, 8 `response_invalid`),
+  19 `cache_reuse`, 0 `cache_stale`, 44,813 completion tokens; by job, `repository_investigation` 1
+  live/1 reused, `source_reconciliation` 3 live/3 reused, `presentation_planning` 3 live (1 invalid)/1
+  reused, `section_authoring` 17 live (2 invalid)/13 reused, `independent_review` 3 live (1 invalid)/1
+  reused, `targeted_repair` 8 live (4 invalid)/0 reused - a genuine re-run, not a byte-identical
+  replay of any prior draw. All 7 review findings (2 blocking F04/F06, 5 advisory F01/F02/F03/F05/F07)
+  are read fresh from this draw's own `review.json`; the deterministic fold logic (current on
+  `origin/main` at `e5efae1`, item 116/118's `REVIEWER_LOGIC_VERSION` 11) decided which stand. Cut
+  from `origin/main` at `e5efae1` in a fresh short-path worktree (`C:\w\b19`) rather than a rebase of
+  an existing worktree, because the `.claude` worktree this task was spawned into was removed by the
+  harness before this item started; `origin/main` advanced further (to `9e1ebdd`) by other concurrent
+  pushes while this item ran, e5efae1 remaining an ancestor throughout. `lane-b.yaml`'s own
+  `sealed_by_lane` counter (2, set by `RERUN10`) is unchanged by this draw - 3D-TS's disposition is
+  restated, not a new repository, and nothing sealed; `project/state.yaml` is not touched (no field
+  of it changes when nothing seals). Resume predicate: re-run once PROPOSAL `LANE-B-W14R8-F1` lands,
+  or once the primary rules a narrower fix or an exception sufficient - not on `LANE-B-W14R7-F1`
+  alone, since that class no longer appears in this transaction at all. Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN8.json`, the live source.

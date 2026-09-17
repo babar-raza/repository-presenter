@@ -945,3 +945,37 @@ items:
     repository.'
   run_2026_09_17_r17: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN11.json,
     which is the live source for this run rather than a copy.
+- id: G4-W14-RERUN8
+  status: ACCEPTED
+  accepted_at: '2026-09-17T15:32:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN8.json
+  purpose: 'Task instruction 2026-09-17: 3D-TS''s blocker (arrival item 116, LANE-B-W14R7-F1)
+    landed as commit 8b03b34, "recognize a faithful paraphrase and a chrome-prefixed quote";
+    verify against origin/main before drawing, then re-draw
+    aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript as a genuine changed-input retry of
+    G4-W14-RERUN7''s BLOCKED_REVIEW (BC-10) disposition. Verified directly against the checked-out
+    source before drawing rather than trusted at face value: git merge-base --is-ancestor 8b03b34
+    origin/main and git show 8b03b34 confirm new _cited_paraphrase/_cited_grounding in
+    review/independent/review.py, REVIEWER_LOGIC_VERSION 10 to 11, and the commit''s own text
+    names item 116/LANE-B-W14R7-F1/3D-TS. Never force a seal, never weaken a check, report the
+    verdict literally.'
+  resume_predicate: 'CLOSED for this item, in two parts. LANE-B-W14R7-F1 itself is CLOSED,
+    confirmed by measurement: this draw''s own S4/S6 sampling produced a materially different
+    scope_limitations composition than RERUN7''s, so RERUN7''s exact F03 unit was never
+    re-authored the same way - but this draw''s own paraphrase of the identical
+    inherited_unit:046.paragraph fact (limitation:3, the binary glTF RangeError workaround) raised
+    no finding at all, positive confirmation the fix grounds this exact shape in production. The
+    repository itself did not seal: validation is again 9 PASS / 1 FAIL / 1 PENDING, BC-10 FAILs
+    at COMPOSING on REJECT_FACTUAL after one repair round (2 attempts, both correctly refused as
+    unrepairable per item 93''s changes-ledger-corroboration guard), on two new, distinct, genuine
+    findings (F04 scope_limitations, F06 additional_examples - both claim a fact is absent that a
+    DIFFERENT unit of the same candidate already states correctly). What remains open is shared
+    code the lane may not land: aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript, BLOCKED_REVIEW
+    (BC-10) - re-run once PROPOSAL LANE-B-W14R8-F1 lands (review/independent/review.py''s fold
+    stack gains a cross-unit lookup so a claimed-absent fact genuinely present in a sibling unit
+    of the same candidate folds instead of blocking), or once the primary rules a narrower fix or
+    an exception sufficient. A second, independent, non-blocking gap (LANE-B-W14R8-F2,
+    composition/authoring.py''s identifier_tokens _CAMEL pattern cannot match a bare lowerCamelCase
+    method name) was found while tracing F04 and does not gate this repository''s own resume.'
+  run_2026_09_17_r18: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN8.json,
+    which is the live source for this run rather than a copy.
