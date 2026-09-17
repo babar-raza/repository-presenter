@@ -1,0 +1,932 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "opening/opening"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "inherited_unit:026.paragraph",
+      "reason": "Inherited unit providing directory and script references; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:027.paragraph",
+      "reason": "Inherited unit describing the generate function; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:030.paragraph",
+      "reason": "Inherited unit describing QR options; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:032.paragraph",
+      "reason": "Inherited unit describing Code 39 check digit; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:034.paragraph",
+      "reason": "Inherited unit describing RenderOptions; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:036.paragraph",
+      "reason": "Inherited unit describing Renderer usage; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:057.paragraph",
+      "reason": "Inherited unit pointing to examples README; not a capability or task description for this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "identity:repository",
+      "reason": "Repository name is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:revision",
+      "reason": "Revision hash is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:family",
+      "reason": "Family name is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "identity:ecosystem",
+      "reason": "Ecosystem name is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:name",
+      "reason": "Package name is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:version",
+      "reason": "Version is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "package:license",
+      "reason": "License is not mentioned in the summary unit; it is used only for provenance.",
+      "section": "development_testing"
+    },
+    {
+      "fact_id": "inherited_unit:054.heading",
+      "reason": "Heading text is rendered by the deterministic renderer and not included in prose.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:python_requires",
+        "package:license",
+        "license:spdx",
+        "dependency:pillow-10.1.0",
+        "public_symbol:aspose_barcode_foss",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.code39ext",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png",
+        "public_symbol:aspose_barcode_foss.generate",
+        "public_symbol:aspose_barcode_foss.renderoptions",
+        "public_symbol:aspose_barcode_foss.renderer",
+        "public_symbol:aspose_barcode_foss.qroptions",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.qrencodemode",
+        "public_symbol:aspose_barcode_foss.svgrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer",
+        "public_symbol:aspose_barcode_foss.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.barcode.render"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.BarCode FOSS for Python generates and renders barcodes in Python applications, supporting common symbologies such as code128, code39, code39ext, ean13, ean8, upca, upce, and qr. Developers use it to convert data into scannable barcodes and export them as SVG or PNG using methods like to_svg, to_png, and render with renderers such as SvgRenderer, PngRenderer, and PdfRenderer. The library provides fine-grained control over rendering through RenderOptions and QR-specific settings via QrOptions, QrErrorCorrectionLevel, and QrEncodeMode. It is designed for Python 3.12 and above, is distributed under the MIT license, and depends on Pillow>=10.1.0."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.code39ext",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Generate linear barcodes using code128, code39, code39ext, ean13, ean8, upca, and upce symbologies with built-in support for encoding options and check digits."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.qrencodemode",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.qroptions"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Generate QR codes with configurable error correction levels, encoding modes, and options through the QrOptions class."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose_barcode_foss.barcode.to_png",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Render barcodes directly to SVG strings or PNG bytes using the to_svg and to_png methods on the Barcode class."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_barcode_foss.renderoptions"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Adjust scale, DPI, module width, and text visibility in generated output via the RenderOptions class."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose_barcode_foss.barcode.render",
+        "public_symbol:aspose_barcode_foss.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer",
+        "public_symbol:aspose_barcode_foss.svgrenderer"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Use custom renderers like SvgRenderer, PngRenderer, and PdfRenderer with the render method to produce output artifacts with structured data access."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcodeerror",
+        "public_symbol:aspose_barcode_foss.encodingerror",
+        "public_symbol:aspose_barcode_foss.invalidinputerror",
+        "public_symbol:aspose_barcode_foss.renderingerror",
+        "public_symbol:aspose_barcode_foss.symbologynotfounderror",
+        "public_symbol:aspose_barcode_foss.unsupportedcapabilityerror",
+        "public_symbol:aspose_barcode_foss.unsupportedfeatureerror"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Handle errors with structured exception types including BarcodeError, EncodingError, RenderingError, InvalidInputError, SymbologyNotFoundError, UnsupportedCapabilityError, and UnsupportedFeatureError."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "Create a Code 128 barcode for the text Hello-World and render it to both SVG and PNG formats."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create barcodes with generic and symbology-specific entry points, configure encoding options, and render to PNG or SVG formats."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:002",
+      "text": "Generate a QR barcode and render it to PNG."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Configure QR encoding with error correction and mode settings."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Generate a Code 39 barcode with an added check digit."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Render a Code 128 barcode to SVG and PNG with custom options."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Render a Code 128 barcode using a dedicated SVG renderer."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:040.paragraph"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.BarCode FOSS for Python provides barcode generation and rendering through the aspose_barcode_foss.Barcode class, which serves as the main entry point and is returned by the generate() function and per-symbology helpers. The Barcode class exposes to_png(), to_svg(), and to_pdf() methods to produce rendered output in those formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss",
+        "public_symbol:aspose_barcode_foss.api",
+        "public_symbol:aspose_barcode_foss.barcode",
+        "public_symbol:aspose_barcode_foss.generate"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss",
+      "text": "The aspose_barcode_foss package exposes the generate() function to create barcodes and the aspose_barcode_foss.Barcode class that holds the generated data and rendering methods."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcode",
+        "public_symbol:aspose_barcode_foss.barcode.render",
+        "public_symbol:aspose_barcode_foss.barcode.to_pdf",
+        "public_symbol:aspose_barcode_foss.barcode.to_png",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.barcode",
+      "text": "The aspose_barcode_foss.Barcode class provides render(), to_png(), to_svg(), and to_pdf() methods to produce rendered output in PNG, SVG, and PDF formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code128encodemode",
+        "public_symbol:aspose_barcode_foss.code128options"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.code128",
+      "text": "The aspose_barcode_foss.code128 module provides the code128() helper to generate Code 128 barcodes, along with Code128EncodeMode and Code128Options to control encoding behavior and options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.code39encodemode",
+        "public_symbol:aspose_barcode_foss.code39ext",
+        "public_symbol:aspose_barcode_foss.code39options"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.code39",
+      "text": "The aspose_barcode_foss.code39 module provides the code39() helper to generate Code 39 barcodes, with Code39EncodeMode and Code39Options for encoding control, plus code39ext for extended Code 39 support."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean13options"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.ean13",
+      "text": "The aspose_barcode_foss.ean13 module provides the ean13() helper to generate EAN-13 barcodes, with Ean13Options to configure rendering parameters."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.ean8options"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.ean8",
+      "text": "The aspose_barcode_foss.ean8 module provides the ean8() helper to generate EAN-8 barcodes, with Ean8Options to configure rendering parameters."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.qrencodemode",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.qroptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.qr",
+      "text": "The aspose_barcode_foss.qr module provides the qr() helper to generate QR codes, with QrEncodeMode, QrErrorCorrectionLevel, and QrOptions to control encoding and error correction."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers",
+        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.pngrenderer",
+        "public_symbol:aspose_barcode_foss.renderers.renderer",
+        "public_symbol:aspose_barcode_foss.renderers.svgrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.renderers",
+      "text": "The aspose_barcode_foss.renderers module exposes Renderer as the base class and PngRenderer, SvgRenderer, and PdfRenderer as concrete renderers for their respective output formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options",
+        "public_symbol:aspose_barcode_foss.options.code128encodemode",
+        "public_symbol:aspose_barcode_foss.options.code128options",
+        "public_symbol:aspose_barcode_foss.options.code39encodemode",
+        "public_symbol:aspose_barcode_foss.options.code39options",
+        "public_symbol:aspose_barcode_foss.options.ean13options",
+        "public_symbol:aspose_barcode_foss.options.ean8options",
+        "public_symbol:aspose_barcode_foss.options.encodeoptions",
+        "public_symbol:aspose_barcode_foss.options.qrencodemode",
+        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.options.qroptions",
+        "public_symbol:aspose_barcode_foss.options.renderoptions",
+        "public_symbol:aspose_barcode_foss.options.resolvedrenderoptions",
+        "public_symbol:aspose_barcode_foss.options.upcaoptions",
+        "public_symbol:aspose_barcode_foss.options.upceoptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.options",
+      "text": "The aspose_barcode_foss.options module provides EncodeOptions, RenderOptions, and ResolvedRenderOptions base classes, plus per-symbology options such as Code128EncodeMode, Code128Options, Code39EncodeMode, Code39Options, Ean13Options, Ean8Options, QrEncodeMode, QrErrorCorrectionLevel, QrOptions, UpcaOptions, and UpceOptions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions",
+        "public_symbol:aspose_barcode_foss.exceptions.barcodeerror",
+        "public_symbol:aspose_barcode_foss.exceptions.encodingerror",
+        "public_symbol:aspose_barcode_foss.exceptions.invalidinputerror",
+        "public_symbol:aspose_barcode_foss.exceptions.renderingerror",
+        "public_symbol:aspose_barcode_foss.exceptions.symbologynotfounderror",
+        "public_symbol:aspose_barcode_foss.exceptions.unsupportedcapabilityerror",
+        "public_symbol:aspose_barcode_foss.exceptions.unsupportedfeatureerror"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose_barcode_foss.exceptions",
+      "text": "The aspose_barcode_foss.exceptions module defines BarcodeError, EncodingError, RenderingError, InvalidInputError, SymbologyNotFoundError, UnsupportedCapabilityError, and UnsupportedFeatureError to represent errors during barcode generation and rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcodeerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.barcodeerror",
+      "text": "The aspose_barcode_foss.BarcodeError class represents an error that occurs during barcode processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code128encodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.code128encodemode",
+      "text": "The aspose_barcode_foss.Code128EncodeMode class specifies the encoding mode for Code 128 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code128options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.code128options",
+      "text": "The aspose_barcode_foss.Code128Options class provides configuration options for generating Code 128 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code39encodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.code39encodemode",
+      "text": "The aspose_barcode_foss.Code39EncodeMode class specifies the encoding mode for Code 39 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.code39options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.code39options",
+      "text": "The aspose_barcode_foss.Code39Options class provides configuration options for generating Code 39 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean13options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.ean13options",
+      "text": "The aspose_barcode_foss.Ean13Options class provides configuration options for generating EAN-13 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.ean8options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.ean8options",
+      "text": "The aspose_barcode_foss.Ean8Options class provides configuration options for generating EAN-8 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.encodeoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.encodeoptions",
+      "text": "The aspose_barcode_foss.EncodeOptions class provides common configuration options for barcode encoding."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.encodingerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.encodingerror",
+      "text": "The aspose_barcode_foss.EncodingError class represents an error that occurs during barcode encoding."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.invalidinputerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.invalidinputerror",
+      "text": "The aspose_barcode_foss.InvalidInputError class represents an error that occurs when input data is invalid."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.pdfrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.pdfrenderer",
+      "text": "The aspose_barcode_foss.PdfRenderer class renders barcodes to PDF format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.pngrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.pngrenderer",
+      "text": "The aspose_barcode_foss.PngRenderer class renders barcodes to PNG image format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.qrencodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.qrencodemode",
+      "text": "The aspose_barcode_foss.QrEncodeMode class specifies the encoding mode for QR barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+      "text": "The aspose_barcode_foss.QrErrorCorrectionLevel class specifies the error correction level for QR barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.qroptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.qroptions",
+      "text": "The aspose_barcode_foss.QrOptions class provides configuration options for generating QR barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderoptions",
+      "text": "The aspose_barcode_foss.RenderOptions class provides common configuration options for rendering barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderer",
+      "text": "The aspose_barcode_foss.Renderer class serves as the base class for barcode rendering implementations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderingerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderingerror",
+      "text": "The aspose_barcode_foss.RenderingError class represents an error that occurs during barcode rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.resolvedrenderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.resolvedrenderoptions",
+      "text": "The aspose_barcode_foss.ResolvedRenderOptions class holds resolved rendering configuration options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.svgrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.svgrenderer",
+      "text": "The aspose_barcode_foss.SvgRenderer class renders barcodes to SVG format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.symbologynotfounderror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.symbologynotfounderror",
+      "text": "The aspose_barcode_foss.SymbologyNotFoundError class represents an error when a symbology is not found."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.unsupportedcapabilityerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.unsupportedcapabilityerror",
+      "text": "The aspose_barcode_foss.UnsupportedCapabilityError class represents an error for unsupported capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.unsupportedfeatureerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.unsupportedfeatureerror",
+      "text": "The aspose_barcode_foss.UnsupportedFeatureError class represents an error for unsupported features."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.upcaoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.upcaoptions",
+      "text": "The aspose_barcode_foss.UpcaOptions class provides configuration options for generating UPC-A barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.upceoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.upceoptions",
+      "text": "The aspose_barcode_foss.UpceOptions class provides configuration options for generating UPC-E barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.barcodeerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.barcodeerror",
+      "text": "The aspose_barcode_foss.exceptions.BarcodeError class represents an error that occurs during barcode processing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.encodingerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.encodingerror",
+      "text": "The aspose_barcode_foss.exceptions.EncodingError class represents an error that occurs during barcode encoding."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.invalidinputerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.invalidinputerror",
+      "text": "The aspose_barcode_foss.exceptions.InvalidInputError class represents an error when input data is invalid."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.renderingerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.renderingerror",
+      "text": "The aspose_barcode_foss.exceptions.RenderingError class represents an error that occurs during barcode rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.symbologynotfounderror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.symbologynotfounderror",
+      "text": "The aspose_barcode_foss.exceptions.SymbologyNotFoundError class represents an error when a symbology is not found."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.unsupportedcapabilityerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.unsupportedcapabilityerror",
+      "text": "The aspose_barcode_foss.exceptions.UnsupportedCapabilityError class represents an error for unsupported capabilities."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.exceptions.unsupportedfeatureerror"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.exceptions.unsupportedfeatureerror",
+      "text": "The aspose_barcode_foss.exceptions.UnsupportedFeatureError class represents an error for unsupported features."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.code128encodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.code128encodemode",
+      "text": "The aspose_barcode_foss.options.Code128EncodeMode class specifies the encoding mode for Code 128 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.code128options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.code128options",
+      "text": "The aspose_barcode_foss.options.Code128Options class provides configuration options for generating Code 128 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.code39encodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.code39encodemode",
+      "text": "The aspose_barcode_foss.options.Code39EncodeMode class specifies the encoding mode for Code 39 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.code39options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.code39options",
+      "text": "The aspose_barcode_foss.options.Code39Options class provides configuration options for generating Code 39 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.ean13options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.ean13options",
+      "text": "The aspose_barcode_foss.options.Ean13Options class provides configuration options for generating EAN-13 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.ean8options"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.ean8options",
+      "text": "The aspose_barcode_foss.options.Ean8Options class provides configuration options for generating EAN-8 barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.encodeoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.encodeoptions",
+      "text": "The aspose_barcode_foss.options.EncodeOptions class provides common configuration options for barcode encoding."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.qrencodemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.qrencodemode",
+      "text": "The aspose_barcode_foss.options.QrEncodeMode class specifies the encoding mode for QR barcodes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.qrerrorcorrectionlevel",
+      "text": "QrErrorCorrectionLevel represents the error correction level for QR codes, supporting AUTO and H levels."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.qroptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.qroptions",
+      "text": "QrOptions provides configuration settings specific to QR barcode generation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.renderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.renderoptions",
+      "text": "RenderOptions defines common rendering parameters used when generating barcode images."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.resolvedrenderoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.resolvedrenderoptions",
+      "text": "ResolvedRenderOptions holds the final resolved rendering settings after applying all configuration layers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.upcaoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.upcaoptions",
+      "text": "UpcaOptions provides configuration settings specific to UPCA barcode generation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.options.upceoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.options.upceoptions",
+      "text": "UpceOptions provides configuration settings specific to UPCE barcode generation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers.pdfrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderers.pdfrenderer",
+      "text": "PdfRenderer enables rendering barcodes directly into PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers.pngrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderers.pngrenderer",
+      "text": "PngRenderer enables rendering barcodes as PNG image files."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers.renderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderers.renderer",
+      "text": "Renderer is the base class for all barcode rendering backends in Aspose.BarCode FOSS for Python."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.renderers.svgrenderer"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose_barcode_foss.renderers.svgrenderer",
+      "text": "SvgRenderer enables rendering barcodes as SVG vector images."
+    },
+    {
+      "fact_ids": [
+        "link_target:019"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:019",
+      "text": "The getting started guide introduces core concepts and walks through basic usage of Aspose.BarCode FOSS for Python, including creating barcodes and saving them in common formats."
+    },
+    {
+      "fact_ids": [
+        "link_target:020"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:020",
+      "text": "How-to articles and the FAQ provide practical examples and answers for common tasks such as barcode recognition, format selection, and handling edge cases."
+    },
+    {
+      "fact_ids": [
+        "link_target:021"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:021",
+      "text": "The full API reference documents all classes, methods, and properties available in aspose-barcode-foss, including AUTO, H, data, render, to_png, and to_svg."
+    },
+    {
+      "fact_ids": [
+        "link_target:022"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:022",
+      "text": "The issues and feature requests page allows users to report bugs, suggest enhancements, and track progress for the aspose-barcode-foss repository."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:051.heading",
+        "inherited_unit:052.list",
+        "package:license",
+        "package:name",
+        "package:python_requires",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.BarCode FOSS for Python version 0.1.0 provides barcode generation capabilities for Python 3.12 and later under the MIT license, supporting PNG and SVG output formats for all symbologies."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "The library does not support reading or decoding existing barcode images for any symbology."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "PDF rendering is not implemented; calling Barcode.to_pdf() or PdfRenderer.render() raises NotImplementedError."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "ECI normalization and validation are not implemented despite EncodeOptions exposing an eci_assignment_number field."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "GS1 data parsing and validation are not implemented despite EncodeOptions exposing a gs1_enabled field."
+    },
+    {
+      "fact_ids": [
+        "build_test_asset:tests",
+        "build_test_asset:examples",
+        "package:python_requires",
+        "identity:platform"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the package using the assets in the tests/ and examples/ directories, ensuring compatibility with Python 3.12 or later, and verify functionality with the AUTO, H, data, render, to_png, and to_svg members."
+    }
+  ]
+}
