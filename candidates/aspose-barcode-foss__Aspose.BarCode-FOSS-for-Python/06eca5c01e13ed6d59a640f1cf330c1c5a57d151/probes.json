@@ -1,0 +1,90 @@
+[
+  {
+    "elapsed_ms": 1560,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/barcode/python/"
+  },
+  {
+    "elapsed_ms": 2354,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python/graphs/contributors"
+  },
+  {
+    "elapsed_ms": 2433,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python/issues"
+  },
+  {
+    "elapsed_ms": 1082,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-blue.svg"
+  },
+  {
+    "elapsed_ms": 1850,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/github/contributors/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.svg"
+  },
+  {
+    "elapsed_ms": 1313,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/barcode/python/"
+  },
+  {
+    "elapsed_ms": 1156,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/barcode/python-net/"
+  },
+  {
+    "elapsed_ms": 1444,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/barcode/python/"
+  },
+  {
+    "elapsed_ms": 1178,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/barcode/python/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 1108,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/barcode/python/"
+  },
+  {
+    "elapsed_ms": 1888,
+    "kind": "package_registry",
+    "observation": null,
+    "outcome": "NOT_FOUND",
+    "status": 404,
+    "target": "https://pypi.org/pypi/aspose-barcode-foss/json"
+  }
+]

@@ -1,0 +1,219 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:ecosystem",
+      "package:python_requires",
+      "dependency:pillow-10.1.0",
+      "public_symbol:aspose_barcode_foss"
+    ],
+    "text": "Python developers building applications that require generating Code 128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E, and QR Code barcodes without system-level dependencies beyond Pillow."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:004",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.code39ext",
+        "public_symbol:aspose_barcode_foss.ean13",
+        "public_symbol:aspose_barcode_foss.ean8",
+        "public_symbol:aspose_barcode_foss.upca",
+        "public_symbol:aspose_barcode_foss.upce"
+      ],
+      "text": "Supports Code 128 (with automatic or forced encode mode), Code 39/Code 39 Extended, EAN-13, EAN-8, UPC-A, and UPC-E.",
+      "title": "Generate multiple linear symbologies"
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.qroptions",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.qrencodemode"
+      ],
+      "text": "Encodes QR Code Model 2 versions 1–40 with selectable error correction level and encoding mode.",
+      "title": "Generate QR Code with configurable options"
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png"
+      ],
+      "text": "Produces SVG via `to_svg()` returning a string, and PNG via `to_png()` returning bytes.",
+      "title": "Render barcodes to SVG and PNG"
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_barcode_foss.renderoptions"
+      ],
+      "text": "Uses `RenderOptions` to configure scale, DPI, module width/height, quiet zone, colors, text display, and font.",
+      "title": "Control rendering appearance"
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose_barcode_foss.svgrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer",
+        "public_symbol:aspose_barcode_foss.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.barcode.render"
+      ],
+      "text": "Allows rendering through `SvgRenderer`, `PngRenderer`, or `PdfRenderer` instances via `Barcode.render()`.",
+      "title": "Support custom renderers"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose_barcode_foss.barcodeerror",
+        "public_symbol:aspose_barcode_foss.encodingerror",
+        "public_symbol:aspose_barcode_foss.renderingerror",
+        "public_symbol:aspose_barcode_foss.invalidinputerror",
+        "public_symbol:aspose_barcode_foss.symbologynotfounderror",
+        "public_symbol:aspose_barcode_foss.unsupportedcapabilityerror",
+        "public_symbol:aspose_barcode_foss.unsupportedfeatureerror"
+      ],
+      "text": "Defines `BarcodeError`, `EncodingError`, `RenderingError`, `InvalidInputError`, `SymbologyNotFoundError`, and other exception types.",
+      "title": "Provide structured error handling"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "text": "PDF rendering is not implemented; `Barcode.to_pdf()` and `PdfRenderer.render()` raise `NotImplementedError`."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "text": "The library only generates barcodes and does not read or decode existing barcode images."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "text": "ECI normalization and validation are not implemented despite `EncodeOptions.eci_assignment_number` being exposed."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:052.list"
+      ],
+      "text": "GS1 data parsing and validation are not implemented despite `EncodeOptions.gs1_enabled` being exposed."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "package:python_requires",
+        "dependency:pillow-10.1.0"
+      ],
+      "text": "Provides a pure-Python, dependency-light solution for generating multiple barcode symbologies with deterministic output."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "example:005",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png"
+      ],
+      "text": "Enables flexible barcode rendering to SVG and PNG formats with configurable options."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose_barcode_foss.generate"
+      ],
+      "text": "Supports both dedicated helper functions and a generic `generate()` entry point for selecting symbologies."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "example:006",
+        "public_symbol:aspose_barcode_foss.renderoptions",
+        "public_symbol:aspose_barcode_foss.renderer"
+      ],
+      "text": "Allows fine-grained control over rendering through `RenderOptions` and custom `Renderer` subclasses."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "package:version",
+      "license:spdx"
+    ],
+    "text": "Aspose.BarCode FOSS for Python is a pure-Python, open-source library for generating deterministic, standards-compliant linear and 2D barcodes."
+  },
+  "uncertainties": [
+    "The exact set of symbology aliases supported by `generate()` is not explicitly listed in the facts.",
+    "Whether `Ean13Options`, `Ean8Options`, `UpcaOptions`, and `UpceOptions` support explicit check-digit input beyond automatic computation is not confirmed by examples.",
+    "The behavior of `ResolvedRenderOptions` and how it differs from `RenderOptions` is not demonstrated.",
+    "The scope of `aspose_barcode_foss.api` and `aspose_barcode_foss.result` modules is not shown in examples or public symbols."
+  ],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose_barcode_foss.code128",
+        "public_symbol:aspose_barcode_foss.barcode.to_svg",
+        "public_symbol:aspose_barcode_foss.barcode.to_png"
+      ],
+      "name": "Generate and render a Code 128 barcode",
+      "text": "Import `code128`, create a barcode with `code128(payload)`, then call `to_svg()` or `to_png()` to produce output."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose_barcode_foss.generate"
+      ],
+      "name": "Select symbology generically",
+      "text": "Use `generate(symbology_name, payload)` to create a barcode for any supported symbology by name."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:aspose_barcode_foss.qr",
+        "public_symbol:aspose_barcode_foss.qroptions",
+        "public_symbol:aspose_barcode_foss.qrerrorcorrectionlevel",
+        "public_symbol:aspose_barcode_foss.qrencodemode"
+      ],
+      "name": "Configure QR Code encoding options",
+      "text": "Pass a `QrOptions` instance to `qr()` to set error correction level and encoding mode."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose_barcode_foss.code39",
+        "public_symbol:aspose_barcode_foss.code39ext",
+        "public_symbol:aspose_barcode_foss.code39options"
+      ],
+      "name": "Add check digits or extended encoding",
+      "text": "Use `Code39Options(add_check_digit=True)` or `code39ext()` to encode extended character sets."
+    },
+    {
+      "fact_ids": [
+        "example:005",
+        "public_symbol:aspose_barcode_foss.renderoptions"
+      ],
+      "name": "Customize rendering appearance",
+      "text": "Pass `RenderOptions` to `to_svg()` or `to_png()` to control scale, DPI, module width, text display, and colors."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose_barcode_foss.svgrenderer",
+        "public_symbol:aspose_barcode_foss.pngrenderer",
+        "public_symbol:aspose_barcode_foss.pdfrenderer",
+        "public_symbol:aspose_barcode_foss.barcode.render"
+      ],
+      "name": "Render using a specific renderer",
+      "text": "Instantiate a `SvgRenderer`, `PngRenderer`, or `PdfRenderer`, then call `barcode.render(renderer, options=...)`."
+    }
+  ]
+}
