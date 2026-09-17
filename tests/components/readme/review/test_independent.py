@@ -1619,6 +1619,138 @@ def test_a_finding_quoting_a_rendered_links_own_target_is_the_reviewers_defect()
     assert scope_defect(label_only, CANDIDATE, by_id) is None
 
 
+def test_a_finding_whose_quote_paraphrases_a_cited_supported_fact_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 116 (LANE-B-W14R7-F1). ``_cited_literal`` only recognizes a quote that
+    contains a cited fact's own value as a contiguous substring, so a unit that faithfully
+    paraphrases - never quotes verbatim - a SUPPORTED ``inherited_unit`` fact its own reviewed
+    unit correctly cites gets no refutation from either fold path. Measured on 3D-TS:
+    ``inherited_unit:046.paragraph`` states the upstream README's own verbatim workaround for the
+    binary glTF ``RangeError`` bug; the composed unit restates it faithfully, sharing every
+    distinctive technical term but not one contiguous run of text, and a factuality finding
+    misreading the paraphrase as unsupported survived every existing check.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("example:007", "example", "doc.save('scene.gltf')", (Evidence("x"),)),
+            Fact(
+                "inherited_unit:046.paragraph",
+                "inherited_unit",
+                "Binary glTF (.glb, binaryMode = true) currently throws a RangeError for any "
+                "non-empty mesh. Use the JSON/ASCII form (binaryMode = false, the default) shown "
+                "above until that is fixed upstream.",
+                (Evidence("x"),),
+            ),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    paraphrase = (
+        "Binary glTF export using binaryMode: true currently fails and throws a RangeError for "
+        "any non-empty mesh, so only JSON/ASCII glTF export (the default, binaryMode: false) is "
+        "supported."
+    )
+    unit = {
+        "section": "scope_limitations",
+        "slot": "limitation:2",
+        "text": paraphrase,
+        "fact_ids": [
+            "example:007",
+            "inherited_unit:046.paragraph",
+            "public_symbol:globaltransform",
+        ],
+    }
+    units = {"units": [unit]}
+    f03 = {
+        **_finding("F03", "scope_limitations", "S6", paraphrase),
+        "criterion": "factuality",
+        "fact_ids": ["example:007"],
+    }
+    assert scope_defect(f03, CANDIDATE, by_id, units=units) == (
+        "the quote substantially restates SUPPORTED fact inherited_unit:046.paragraph "
+        f"({facts.facts[-1].value!r}) in different words; a faithful paraphrase of cited "
+        "evidence is supported exactly as a literal quote is (G4-W17 item 116)"
+    )
+    # Its presentation-labelled twin answers through the identical, shared _cited_grounding path.
+    assert scope_defect({**f03, "criterion": "presentation"}, CANDIDATE, by_id, units=units) == (
+        "the quote substantially restates SUPPORTED fact inherited_unit:046.paragraph "
+        f"({facts.facts[-1].value!r}), which the reviewed unit cites as its own evidence; a "
+        "faithful paraphrase (G4-W17 item 116) is supported whatever criterion the finding files "
+        "itself under"
+    )
+    # Mutation control: a quote that shares only a few ordinary words with the fact - not a real
+    # restatement - never folds; the overlap threshold guards against a coincidental collision
+    # the same way item 45's literal-value scoping does.
+    weak = {**f03, "quote": "The default export uses the JSON form.", "text": "unrelated"}
+    weak_unit = {**unit, "text": "The default export uses the JSON form."}
+    assert scope_defect(weak, CANDIDATE, by_id, units={"units": [weak_unit]}) is None
+
+
+def test_a_chrome_prefixed_quote_still_finds_its_unit_via_a_closing_anchor() -> None:
+    """G4-W17 arrival item 118 (PROPOSAL AG). ``_reviewed_unit_fact_ids``/``_carried_by_units``
+    (both built on ``quote_located``'s opening-anchor rule) cannot locate the content unit that
+    wrote a bullet's trailing sentence when a reviewer's quote is the whole rendered line - the
+    renderer's own chrome (a bullet's label and link) PREFIXED onto the unit's own sentence - since
+    both the whole-quote containment check and the opening-anchor tolerance anchor to the quote's
+    OPENING characters, which are the renderer's, never the unit's. Measured on Slides-Java: the
+    identical Code-of-Conduct complaint item 71/PROPOSAL AF was written to close recurs, this time
+    without the finding self-citing the fact, and the gate in front of item 71's own (already
+    correct) fold mechanism fails for this one shape.
+    """
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("link_target:023", "link_target", "CODE_OF_CONDUCT.md", (Evidence("x"),)),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    sentence = (
+        "The Code of Conduct outlines expected behavior for participants contributing to or "
+        "engaging with the Aspose.Slides FOSS for Java community."
+    )
+    unit = {
+        "section": "documentation_resources",
+        "slot": "link:link_target:023",
+        "text": sentence,
+        "fact_ids": ["link_target:023"],
+    }
+    chrome_prefixed = f"- **[Code of Conduct](CODE_OF_CONDUCT.md)** - {sentence}"
+    f06 = {
+        **_finding("F06", "documentation_resources", "S6", chrome_prefixed),
+        "criterion": "presentation",
+        "fact_ids": [],
+    }
+    assert scope_defect(f06, CANDIDATE, by_id, units={"units": [unit]}) == (
+        "the finding names neither a fact_id nor an absent claim, and the quote contains the "
+        "literal value of SUPPORTED fact link_target:023 ('CODE_OF_CONDUCT.md') which the "
+        "reviewed unit cites as its own evidence: nothing in evidence supports judging it, and "
+        "what evidence exists contradicts it"
+    )
+    # Mutation control: an otherwise identical quote whose trailing sentence no unit wrote at all
+    # (a different sentence, still well past the anchor length) must still stand - the closing
+    # anchor only ever recognizes a unit's own real text, never any long enough tail.
+    unrelated_unit = {
+        **unit,
+        "text": (
+            "An unrelated sentence explaining something else entirely so it shares no tail with "
+            "the quote above and cannot close-anchor by coincidence, past the same length too."
+        ),
+    }
+    assert scope_defect(f06, CANDIDATE, by_id, units={"units": [unrelated_unit]}) is None
+    # Mutation control: a short unit sentence is never close-anchored, even though it is
+    # textually a real trailing substring of its own chrome-prefixed quote - the same length gate
+    # quote_located's own opening anchor already applies, so a short, generic sentence cannot
+    # close-anchor by coincidence.
+    short_sentence = "Conduct policy applies."
+    short_unit = {**unit, "text": short_sentence}
+    short_quote = f"- **[Code of Conduct](CODE_OF_CONDUCT.md)** - {short_sentence}"
+    short_finding = {**f06, "quote": short_quote}
+    assert scope_defect(short_finding, CANDIDATE, by_id, units={"units": [short_unit]}) is None
+
+
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:
     """Asking for an example that did not execute asks the contract to break its own check 3.
 

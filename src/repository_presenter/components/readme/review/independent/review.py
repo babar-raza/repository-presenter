@@ -78,7 +78,17 @@ ACCEPT = "ACCEPT"
 # unit_fact_ids (the reviewed unit's own citations), so a CONTRADICTED fact the finding's own
 # self-report merely lists as unrelated context can no longer keep an otherwise unit-grounded,
 # SUPPORTED-backed, verbatim-correct claim blocking.
-REVIEWER_LOGIC_VERSION = "10"
+# "11" (G4-W17 arrival items 116/LANE-B-W14R7-F1 and 118/PROPOSAL AG, landed together - both
+# widen a grounding lookup with no shared mechanism between them beyond the file): (a) new
+# _cited_paraphrase/_cited_grounding let factuality_defect and cited_fact_defect recognize a cited
+# SUPPORTED fact as grounding a claim its own quote substantially restates in different words, not
+# only one it quotes as a contiguous substring - scoped exactly as _cited_literal already was, to
+# the finding's own and the reviewed unit's own citations; (b) new _closing_anchor_carries lets
+# _carried_by_units/_reviewed_unit_fact_ids locate the content unit whose own sentence a quote
+# carries even when the renderer's own chrome is prefixed onto it in the quote - a closing anchor
+# symmetric to quote_located's existing opening one, scoped to exactly these two functions;
+# quote_located's own general contract (absence_defect, review_checks) is untouched by either.
+REVIEWER_LOGIC_VERSION = "11"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -341,11 +351,18 @@ def factuality_defect(
     if any(fact.polarity == "CONTRADICTED" and fact.id in unit_fact_ids for fact in product):
         return None
     reviewed = [by_id[i] for i in unit_fact_ids if i in by_id and by_id[i].kind == "inherited_unit"]
-    literal = _cited_literal([*product, *reviewed], quote)
-    if literal is not None:
+    grounded = _cited_grounding([*product, *reviewed], quote)
+    if grounded is not None:
+        fact, literal = grounded
+        if literal:
+            return (
+                f"the quote contains the literal value of SUPPORTED fact {fact.id} "
+                f"({fact.value!r}); literal fact text is supported"
+            )
         return (
-            f"the quote contains the literal value of SUPPORTED fact {literal.id} "
-            f"({literal.value!r}); literal fact text is supported"
+            f"the quote substantially restates SUPPORTED fact {fact.id} ({fact.value!r}) in "
+            "different words; a faithful paraphrase of cited evidence is supported exactly as "
+            "a literal quote is (G4-W17 item 116)"
         )
     return None
 
@@ -378,6 +395,147 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
             continue
         if value in wanted or value in wanted_with_targets:
             return fact
+    return None
+
+
+# A restated fact must contribute at least this many of its own distinctive tokens before a
+# quote's overlap with it counts as a paraphrase - a fact with fewer is too little text to say a
+# quote restates it on purpose, the same reasoning _LITERAL_VALUE_LENGTH already applies to a
+# literal substring.
+_PARAPHRASE_MIN_TOKENS = 4
+# The share of the fact's own distinctive tokens that must also occur in the quote. Set from the
+# one measured case (3D-TS, 14 of 18 tokens shared, ratio 0.78) with headroom - one composition is
+# a measurement, not a gate.
+_PARAPHRASE_MIN_OVERLAP = 0.6
+_TOKEN = re.compile(r"[a-z0-9]{3,}")
+# Ordinary connective words common enough that sharing them proves nothing about whether a quote
+# restates a fact's own distinctive content - excluded so the overlap ratio measures shared
+# subject matter, not shared grammar.
+_PARAPHRASE_STOPWORDS = frozenset(
+    {
+        "the",
+        "and",
+        "for",
+        "are",
+        "but",
+        "not",
+        "you",
+        "this",
+        "that",
+        "with",
+        "from",
+        "into",
+        "than",
+        "then",
+        "when",
+        "where",
+        "while",
+        "via",
+        "per",
+        "own",
+        "one",
+        "two",
+        "three",
+        "first",
+        "second",
+        "third",
+        "new",
+        "any",
+        "all",
+        "its",
+        "was",
+        "were",
+        "use",
+        "using",
+        "used",
+        "shown",
+        "above",
+        "until",
+        "only",
+        "also",
+        "may",
+        "can",
+        "will",
+        "has",
+        "have",
+        "had",
+        "does",
+        "did",
+        "such",
+        "each",
+        "both",
+        "other",
+        "another",
+        "same",
+        "these",
+        "those",
+        "here",
+        "there",
+        "currently",
+    }
+)
+
+
+def _content_tokens(normalized_text: str) -> frozenset[str]:
+    """The distinctive (non-stopword, three-plus character) words in an already-normalized text."""
+    return frozenset(
+        token for token in _TOKEN.findall(normalized_text) if token not in _PARAPHRASE_STOPWORDS
+    )
+
+
+def _cited_paraphrase(product: Sequence[Fact], quote: str) -> Fact | None:
+    """The first cited SUPPORTED product fact the quote substantially restates in different
+    words, or None.
+
+    G4-W17 arrival item 116 (LANE-B-W14R7-F1): ``_cited_literal`` only recognizes a quote that
+    contains a cited fact's own value as a contiguous substring, so a unit that faithfully
+    paraphrases - never quotes verbatim - a SUPPORTED fact its own ``fact_ids`` correctly cite
+    gets no refutation from either fold path, even though the right evidence is genuinely among
+    its citations. Measured on 3D-TS: ``content_units.json``'s ``scope_limitations`` unit ("Binary
+    glTF export using binaryMode: true currently fails and throws a RangeError for any non-empty
+    mesh, so only JSON/ASCII glTF export (the default, binaryMode: false) is supported.")
+    faithfully restates ``inherited_unit:046.paragraph``'s own upstream sentence ("Binary glTF
+    (.glb, binaryMode = true) currently throws a RangeError for any non-empty mesh ... Use the
+    JSON/ASCII form (binaryMode = false, the default) shown above until that is fixed
+    upstream.") - the same fact, correctly cited, sharing every distinctive technical term, but
+    not one contiguous run of text.
+
+    Scoped identically to ``_cited_literal``: only the facts already passed in (the finding's own
+    and the reviewed unit's own citations, per each caller's own scoping), never the whole fact set
+    (item 45's collision). To avoid folding a coincidental overlap of ordinary words rather than a
+    genuine restatement, a fact only grounds a quote when a strong majority of the fact's OWN
+    distinctive tokens also occur in the quote, and there are enough of them that the overlap could
+    not be chance (``_PARAPHRASE_MIN_TOKENS``/``_PARAPHRASE_MIN_OVERLAP``).
+    """
+    wanted = _content_tokens(_normalized(quote))
+    wanted_with_targets = _content_tokens(_normalized_with_targets(quote))
+    for fact in product:
+        if fact.polarity != "SUPPORTED":
+            continue
+        value_tokens = _content_tokens(_normalized(fact.value))
+        if len(value_tokens) < _PARAPHRASE_MIN_TOKENS:
+            continue
+        overlap = max(len(value_tokens & wanted), len(value_tokens & wanted_with_targets))
+        if overlap / len(value_tokens) >= _PARAPHRASE_MIN_OVERLAP:
+            return fact
+    return None
+
+
+def _cited_grounding(product: Sequence[Fact], quote: str) -> tuple[Fact, bool] | None:
+    """The first cited SUPPORTED fact that grounds ``quote``, and whether that grounding is a
+    literal quote (``True``) or a faithful paraphrase (``False``, G4-W17 item 116) - or ``None``.
+
+    A thin dispatcher over ``_cited_literal`` and ``_cited_paraphrase`` so both of
+    ``factuality_defect``'s and ``cited_fact_defect``'s call sites share one place that tries the
+    stronger (literal) claim first and only falls back to the paraphrase test when no fact's
+    literal value is present - keeping each caller's own reason text honest about which is true.
+    """
+    literal = _cited_literal(product, quote)
+    if literal is not None:
+        return literal, True
+    paraphrase = _cited_paraphrase(product, quote)
+    if paraphrase is not None:
+        return paraphrase, False
     return None
 
 
@@ -436,25 +594,30 @@ def cited_fact_defect(
         if finding.get("fact_ids") or _claimed_absent(finding):
             return None  # cites only an inherited_unit, or claims an absence: not this shape
         reviewed_product = [fact for fact in reviewed_cited if fact.kind != "inherited_unit"]
-        literal = _cited_literal(reviewed_product, quote)
-        if literal is None:
+        grounded = _cited_grounding(reviewed_product, quote)
+        if grounded is None:
             return None
+        fact, literal = grounded
+        contains = "contains the literal value of" if literal else "substantially restates"
         return (
-            "the finding names neither a fact_id nor an absent claim, and the quote contains "
-            f"the literal value of SUPPORTED fact {literal.id} ({literal.value!r}) which the "
+            "the finding names neither a fact_id nor an absent claim, and the quote "
+            f"{contains} SUPPORTED fact {fact.id} ({fact.value!r}) which the "
             "reviewed unit cites as its own evidence: nothing in evidence supports judging it, "
             "and what evidence exists contradicts it"
         )
-    literal = _cited_literal([*product, *reviewed], quote)
-    if literal is None:
+    grounded = _cited_grounding([*product, *reviewed], quote)
+    if grounded is None:
         return None
-    if literal.id in finding.get("fact_ids", []):
+    fact, literal = grounded
+    if fact.id in finding.get("fact_ids", []):
         source = "which the finding itself cites as its evidence"
     else:
         source = "which the reviewed unit cites as its own evidence"  # item 83
+    contains = "contains the literal value of" if literal else "substantially restates"
+    supported = "literal fact text" if literal else "a faithful paraphrase (G4-W17 item 116)"
     return (
-        f"the quote contains the literal value of SUPPORTED fact {literal.id} "
-        f"({literal.value!r}), {source}; literal fact text is supported whatever criterion the "
+        f"the quote {contains} SUPPORTED fact {fact.id} "
+        f"({fact.value!r}), {source}; {supported} is supported whatever criterion the "
         "finding files itself under"
     )
 
@@ -826,6 +989,34 @@ def _quoted_verified_fact(finding: Mapping[str, Any], by_id: Mapping[str, Fact])
 _CARRIED_FRAGMENT_LENGTH = 12
 
 
+def _closing_anchor_carries(quote: str, text: str) -> bool:
+    """Whether one content unit's own ``text`` is carried at the CLOSE of ``quote`` - the mirror
+    image of ``quote_located``'s own opening-anchor tolerance for a long quote's tail drift
+    (G4-W17 arrival item 118, PROPOSAL AG).
+
+    ``quote_located`` anchors a long quote by its first eighty normalized characters, so a
+    reviewer that copies a whole block and drifts in its tail still locates real candidate text.
+    The mirror-image drift is the renderer's own chrome (a rendered bullet's label and link)
+    PREFIXED onto a unit's own trailing sentence in the reviewer's quote: both the whole-quote
+    containment check and the opening-anchor check anchor to the quote's OPENING characters -
+    exactly the renderer's prefix, absent from the unit's own text - so neither ever locates it.
+    Measured on Slides-Java: the unit for ``link_target:023`` writes only "The Code of Conduct
+    outlines expected behavior for participants contributing to or engaging with the
+    Aspose.Slides FOSS for Java community." - the renderer composes the visible bullet as its own
+    ``"- **[Code of Conduct](CODE_OF_CONDUCT.md)** - "`` prefix followed by that exact sentence,
+    and the reviewer's finding quotes the whole rendered line.
+
+    Scoped to exactly the two functions that call this, never ``quote_located`` itself, which
+    ``absence_defect`` and ``review_checks`` also depend on for an unrelated question (a short
+    absence claim, where this same tolerance would risk a false positive). The unit's own text
+    must exceed ``_ANCHOR_LENGTH`` characters normalized - the same length gate ``quote_located``
+    applies to its own opening anchor - so a short, generic sentence cannot close-anchor by
+    coincidence.
+    """
+    haystack = _normalized(text)
+    return len(haystack) > _ANCHOR_LENGTH and _normalized(quote).endswith(haystack)
+
+
 def _carried_by_units(quote: str, unit_texts: Sequence[str]) -> bool:
     """Whether any content unit's own prose carries the quote, or any exact fragment of it.
 
@@ -841,10 +1032,15 @@ def _carried_by_units(quote: str, unit_texts: Sequence[str]) -> bool:
     if quote_located(quote, haystack):
         return True
     fragments = [part.strip() for part in _ELLIPSIS.split(quote) if part.strip()]
-    return len(fragments) > 1 and any(
+    if len(fragments) > 1 and any(
         len(_normalized(part)) >= _CARRIED_FRAGMENT_LENGTH and quote_located(part, haystack)
         for part in fragments
-    )
+    ):
+        return True
+    # G4-W17 item 118: a closing anchor against each unit's own text individually - the combined
+    # haystack above joins every unit, which would let one unit's tail satisfy another unit's own
+    # chrome-prefixed quote by coincidence; the closing anchor is one unit's own text alone.
+    return any(_closing_anchor_carries(quote, text) for text in unit_texts)
 
 
 def unit_texts(units: Mapping[str, Any] | None) -> list[str] | None:
@@ -878,7 +1074,7 @@ def _reviewed_unit_fact_ids(quote: str, units: Mapping[str, Any] | None) -> tupl
         if not isinstance(unit, Mapping):
             continue
         text = str(unit.get("text", ""))
-        if quote_located(quote, text):
+        if quote_located(quote, text) or _closing_anchor_carries(quote, text):
             return tuple(str(i) for i in unit.get("fact_ids", []))
         fragments = [part.strip() for part in _ELLIPSIS.split(quote) if part.strip()]
         if len(fragments) > 1 and any(
