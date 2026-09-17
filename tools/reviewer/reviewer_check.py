@@ -758,12 +758,22 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
     # (supervisor + primary + lanes) concurrently live whenever ready, unblocked lane work exists
     # and no usage cap is active. Reuses metrics["lanes"] (built above) and reviewer_state.json's
     # own lanes.<lane>.live_run — the first reader of that field outside the supervisor's own
-    # eyeballing (PHASE1 diagnosis (C): "prose copies with no reader").
+    # eyeballing (PHASE1 diagnosis (C): "prose copies with no reader"). `live_run` alone is bare
+    # truthiness of an unbounded-age timestamp: entries can outlive a session/machine restart that
+    # never got a chance to clear them (found stale from before 2026-09-11 19:18Z, still truthy
+    # 2026-09-17 — §31 PHASE1/F13 follow-up), which would overcount active_roles and let the floor
+    # report "met" while real capacity is idle. So a `live_run` only counts here when corroborated
+    # by this wake's own lane PR count (metrics["lanes"][name]["prs"], already queried above) —
+    # a lane with no open/recent PRs is treated as not actually live regardless of live_run.
     idle_min_now = (now - parse_ts(t["last_ts"]).astimezone()).total_seconds() / 60 if t["last_ts"] else None
     primary_live = idle_min_now is not None and idle_min_now < 45
     state_lanes = state.get("lanes", {}) or {}
-    active_roles = 1 + (1 if primary_live else 0) + sum(1 for name in metrics["lanes"] if state_lanes.get(name, {}).get("live_run"))
-    ready_lanes = [name for name, li in metrics["lanes"].items() if li["open"] and not state_lanes.get(name, {}).get("live_run")]
+
+    def lane_live_corroborated(name: str) -> bool:
+        return bool(state_lanes.get(name, {}).get("live_run")) and bool(metrics["lanes"][name]["prs"])
+
+    active_roles = 1 + (1 if primary_live else 0) + sum(1 for name in metrics["lanes"] if lane_live_corroborated(name))
+    ready_lanes = [name for name, li in metrics["lanes"].items() if li["open"] and not lane_live_corroborated(name)]
     capped = bool(t["limit_hit"])
     cf_msg = concurrency_floor_flag(active_roles, ready_lanes, capped)
     out.append(flag(cf_msg) if cf_msg else ok(f"active roles {active_roles}/4 (primary live: {primary_live}; ready lanes: {ready_lanes or 'none'}; capped: {capped})"))

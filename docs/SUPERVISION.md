@@ -107,6 +107,13 @@ parallel capacity sat idle even when independent ready work and machine headroom
 because nothing forced the supervisor to notice ready work promptly. Mechanical reader:
 `tools/reviewer/reviewer_check.py`'s `concurrency_floor_flag` (§31 PHASE1/F13).
 
+`lanes.<lane>.live_run` alone is a timestamp with no expiry, so a stale entry left behind by a
+session/machine restart reads as "live" forever and can make the floor look met while the lane is
+actually idle (found and fixed 2026-09-17, §31 PHASE1/F13 follow-up). `reviewer_check.py` now only
+counts a `live_run` toward the floor when it is corroborated by that lane's own PR count this wake
+(`metrics["lanes"][name]["prs"]`) — `live_run` truthy with zero open/recent PRs is treated as not
+live.
+
 ## Wakeup policy
 
 The executor self-schedules every iteration, productive or not (`loop-prompt.md` §7) — that is the
