@@ -409,7 +409,40 @@ progress:
     lane-owned code changed this run. sealed_by_lane stays 1, dispositions_by_lane stays 9
     (restated, not a new repository). repository-presenter status after the run: 17/34,
     unchanged by this draw - the rise since RERUN9''s 15/34 is other lanes'' work, recorded
-    as observed rather than assumed.'
+    as observed rather than assumed.
+    G4-W14-RERUN7 2026-09-17 11:31 against origin/main at ec33096, rebased onto 5e5db67 before
+    landing (branch lane-b/G4-W14-RERUN7, fresh worktree C:/w/b17): task instruction named commit
+    af795f3 as landing item 110/LANE-B-W14R6-F1; verified directly - git show af795f3 confirms
+    inherited_unit_named_symbols() in composition/authoring.py, called from
+    reconciliation/dispositions.py''s normalize(), NORMALISATION_VERSION 7 to 8, and the commit''s
+    own text names item 110/LANE-B-W14R6-F1/3D-TS. A genuine changed-input retry: same revision
+    and 1190-fact digest (2257a892...) as RERUN6, not a cache replay - 41 ledger rows, 25 live
+    provider calls, 15 cache_reuse, 1 response_invalid, 0 cache_stale. LANE-B-W14R6-F1 is CLOSED,
+    confirmed by measurement: RERUN6''s surviving finding (F05, Scene.render/selectSingleObject/
+    selectObjects omitted) does not appear anywhere in this draw''s review.json - content_units.json''s
+    scope_limitations unit limitation:1 now carries all nine not-implemented symbols
+    inherited_unit:077.list''s sentence names, the fix functioning exactly as landed. It did not
+    seal: validation is again 9 PASS / 1 FAIL / 1 PENDING, BC-10 FAILs at COMPOSING on
+    REJECT_FACTUAL after one repair round, on a third, distinct, genuine finding (F03:
+    scope_limitations''s limitation:2 unit cites inherited_unit:046.paragraph - SUPPORTED, the
+    upstream README''s own verbatim workaround text for the binary glTF RangeError bug - but
+    paraphrases it rather than quoting it verbatim, and review.py''s absence_defect/
+    factuality_defect fold stack cannot recognize a faithful paraphrase as grounded since
+    _cited_literal requires the quote to contain a cited fact''s literal value as a contiguous
+    substring). repairs.json confirms this is not fixable by rephrasing: the one repair attempt
+    revised the neighbouring limitation:4 unit for F04 but left limitation:2 unchanged for F03 -
+    nothing to correct, since the statement is already accurate - and the re-review re-raised F03
+    identically. New PROPOSAL LANE-B-W14R7-F1 (shared code:
+    review/independent/review.py''s factuality_defect/cited_fact_defect literal-value refutation,
+    _cited_literal; secondarily absence_defect''s section-slice text lookup) is in
+    docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W14-RERUN7.json, the live source.
+    Disposition RESTATED, not moved: BLOCKED_REVIEW (BC-10), same check and stage as RERUN6, cause
+    changed. No lane-owned code changed this run. sealed_by_lane stays 2, dispositions_by_lane
+    stays 8 (restated, not a new repository). Rebased onto origin/main''s new head (5e5db67, two
+    docs-only commits unrelated to this repository''s own facts) before landing;
+    repository-presenter status reads 18/34 in the just-rebased tree, unchanged by this draw - the
+    rise since RERUN9''s 15/34 is RERUN10''s own concurrent PDF-Cpp seal, recorded as observed
+    rather than assumed.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -828,4 +861,37 @@ items:
     secondarily repair/targeted.py''s repair for this finding shape), or once the primary rules
     a narrower fix or an exception sufficient.'
   run_2026_09_17_r15: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN6.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W14-RERUN7
+  status: ACCEPTED
+  accepted_at: '2026-09-17T11:31:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN7.json
+  purpose: 'Task instruction 2026-09-17: 3D-TS''s blocker (LANE-B-W14R6-F1/item 110) landed as
+    commit af795f3, "give a placed inherited unit''s disposition every symbol its own sentence
+    names"; verify against origin/main before drawing, then re-draw
+    aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript as a genuine changed-input retry of
+    G4-W14-RERUN6''s BLOCKED_REVIEW (BC-10) disposition. Verified directly against the checked-out
+    source before drawing rather than trusted at face value: git show af795f3 confirms
+    inherited_unit_named_symbols() in composition/authoring.py, called from
+    reconciliation/dispositions.py''s normalize(), NORMALISATION_VERSION 7 to 8, and the commit''s
+    own text names item 110/LANE-B-W14R6-F1/3D-TS. Never force a seal, never weaken a check,
+    report the verdict literally.'
+  resume_predicate: 'CLOSED for this item, in two parts. LANE-B-W14R6-F1 itself is CLOSED: 3D
+    TypeScript was redrawn end to end (same revision and 1190-fact digest as RERUN6, but not a
+    cache replay - 41 ledger rows, 25 live provider calls, 15 cache_reuse, 1 response_invalid, 0
+    cache_stale), and RERUN6''s surviving finding (the three omitted not-implemented methods) does
+    not appear anywhere in this draw''s review.json, blocking or advisory - the fix functions as
+    measured at landing. The repository itself did not seal: validation is again 9 PASS / 1 FAIL /
+    1 PENDING, BC-10 FAILs at COMPOSING on REJECT_FACTUAL after one repair round, on a third,
+    distinct, genuine finding (F03: scope_limitations''s limitation:2 unit cites
+    inherited_unit:046.paragraph - SUPPORTED, the upstream README''s own verbatim text for the
+    binary glTF RangeError bug and its workaround - but paraphrases rather than quotes it, and
+    neither absence_defect nor factuality_defect''s literal-substring matching recognizes the
+    paraphrase as grounded). What remains open is shared code the lane may not land:
+    aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript, BLOCKED_REVIEW (BC-10) - re-run once PROPOSAL
+    LANE-B-W14R7-F1 lands (review/independent/review.py''s _cited_literal, or a sibling check
+    reachable from absence_defect and factuality_defect/cited_fact_defect, recognizes a cited
+    SUPPORTED fact as grounding a claim that substantially restates it, not only one it quotes
+    verbatim), or once the primary rules a narrower fix or an exception sufficient.'
+  run_2026_09_17_r16: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN7.json,
     which is the live source for this run rather than a copy.
