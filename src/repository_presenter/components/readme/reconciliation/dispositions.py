@@ -243,6 +243,14 @@ def reconciliation_schema(
     lane D replayed the identical request with that one change: ``finish_reason stop``, 3,560
     tokens, 40 of 40 dispositions. A ``unit_id`` came back well-formed in every runaway reply -
     the one field that already had the enum.
+
+    Item 40 bounded only the enum of the array's *items*; the array itself stayed unbounded, and
+    G4-W17 arrival item 121 (lane F PROPOSAL F27) measured the same risk class still live on
+    PDF-.NET - the identical request hash answered 32,000 tokens truncated on one attempt and a
+    normal 3,016 tokens on an otherwise-identical retry, rescued only by chance. ``fact_ids`` now
+    also gets a ``maxItems`` equal to this batch's own citable-set size: no single disposition can
+    legitimately cite more distinct facts than exist in its own packet, and that size is already
+    computed above as ``citable``, so the bound never drifts from the enum it accompanies.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
     dispositions = schema["properties"]["dispositions"]
@@ -252,6 +260,15 @@ def reconciliation_schema(
             "type": "string",
             "enum": citable,
         }
+        # item 121 (F27's own resume predicate): item 40 bounded each *entry* to a citable ID but
+        # left the *array* itself open, so a runaway completion could still repeat enum-valid IDs
+        # past any real need and exhaust the token budget by sheer repetition - measured live on
+        # PDF-.NET (32,000-token TruncatedOutput on one attempt, 3,016 tokens on an identical
+        # retry of the same request hash; DECISION_LOG.md, RESEARCH_LANE_F.md F27). No disposition
+        # can legitimately cite more distinct facts than this batch's own citable set holds, so
+        # that set's own size - already computed above, no separate measurement to keep in sync -
+        # is the bound.
+        dispositions["items"]["properties"]["fact_ids"]["maxItems"] = len(citable)
     else:
         dispositions["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     units = [fact.id for fact in batch_units]

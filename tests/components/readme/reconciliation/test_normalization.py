@@ -658,3 +658,49 @@ def test_a_batch_with_nothing_citable_pins_fact_ids_empty_rather_than_an_empty_e
     fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
     assert fact_ids == {"type": "array", "maxItems": 0}
     assert "pattern" not in json.dumps(schema)
+
+
+def test_fact_ids_array_itself_is_bounded_so_repeating_valid_ids_cannot_run_away() -> None:
+    """G4-W17 arrival item 121 (lane F PROPOSAL F27, RESEARCH_LANE_F.md). Item 40 (e2a1a83) bounded
+    each `fact_ids` *entry* to a citable ID but left the *array* itself unbounded, so a decoder can
+    still exhaust the stage's token budget by repeating one valid ID over and over rather than by
+    citing an invalid one - measured live on PDF-.NET: the identical request hash (same
+    `temperature 0.0`, `seed 1`, `prompt_tokens`) answered 32,000 tokens truncated on one attempt
+    and a normal 3,016 tokens on the very next retry, rescued only by chance. Before this fix, the
+    schema `reconciliation_schema()` builds narrows the array's *items* to the citable enum but
+    sets no `maxItems` on the array itself, so a `fact_ids` array of any length still validates as
+    long as every entry is enum-valid - measured directly below: a wildly oversized array of one
+    repeated, real, enum-valid ID validated with zero errors against the un-fixed schema. The fix
+    gives `fact_ids` a `maxItems` equal to this batch's own citable-set size
+    (`citable_fact_ids()`'s own return value, already computed to build the enum) - no single
+    disposition can legitimately cite more distinct facts than exist in its own packet, so an
+    array longer than that set is refused at the array, not the token cap, and a normal citation
+    count still passes."""
+    loaded = load_manifests(REPO_ROOT / "prompts")["source_reconciliation"]
+    batch = list(FACTS.by_kind("inherited_unit"))
+    schema = reconciliation_schema(loaded, batch, FACTS, {})
+    fact_ids = schema["properties"]["dispositions"]["items"]["properties"]["fact_ids"]
+    citable = fact_ids["items"]["enum"]
+    assert citable  # this fixture has real citable facts; the empty-citable case is tested above
+    assert fact_ids["maxItems"] == len(citable)
+    # The base manifest schema itself carries no such bound - this is a per-call specialisation,
+    # like the enum beside it, never a shared mutation (the sibling assertion at line ~576 above).
+    assert (
+        "maxItems"
+        not in loaded.manifest.output.schema_["properties"]["dispositions"]["items"]["properties"][
+            "fact_ids"
+        ]
+    )
+
+    validator = Draft202012Validator(schema)
+    # No real disposition ever needs more citations than the batch's own citable set holds - a
+    # runaway array that repeats one real, enum-valid ID far past that count (many more than any
+    # of the six real PDF-.NET batches ever cited per unit) is refused at the array itself.
+    runaway = _cite(*([citable[0]] * (len(citable) + 50)))
+    assert [error.json_path for error in validator.iter_errors(runaway)] == [
+        "$.dispositions[0].fact_ids"
+    ]
+    # A normal handful of real citations, and even the full citable set cited once each, still
+    # validates clean - the bound never rejects a legitimate reply.
+    assert list(validator.iter_errors(_cite(citable[0]))) == []
+    assert list(validator.iter_errors(_cite(*citable))) == []
