@@ -1,0 +1,332 @@
+{
+  "advisory": [
+    {
+      "absent": [
+        "version 26.3.2",
+        "enables Python developers to read and convert",
+        "without requiring Microsoft OneNote",
+        "allowing developers to inspect and extract content programmatically"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Note FOSS for Python version 26.3.2 enables Python developers to read and convert Microsoft OneNote files (`.one`) to PDF without requiring Microsoft OneNote. It supports core document elements such as pages, outlines, rich text, images, tables, attached files, and note tags, allowing developers to inspect and extract content programmatically.",
+      "repair": "Remove the version number and promotional phrasing; use neutral, factual language consistent with the original README's opening paragraph.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'allowing developers to inspect and extract content programmatically', 'enables Python developers to read and convert', 'version 26.3.2', which the candidate contains",
+      "section_id": "opening",
+      "text": "The opening paragraph introduces a specific version number (26.3.2) and promotional phrasing ('enables Python developers to read and convert') that is not present in the original README and adds marketing language where factual description is expected."
+    },
+    {
+      "absent": [
+        "Parse the MS-ONE/OneStore binary container",
+        "Traverse the Document/Page/Outline DOM",
+        "Extract rich text and hyperlinks"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002",
+        "format:input.one"
+      ],
+      "id": "F02",
+      "quote": "Parse OneNote documents",
+      "repair": "Restore the original Mermaid diagram's technical specificity, including 'OneStore' and the precise node types and operations described in the original README.",
+      "reviewer_scope_defect": "the omission it names is inherited_unit:008.code_block's own text, which reconciliation excluded (OMIT_UNSUPPORTED, not composed): the contract admits it only once verified, so no stage the loop can reopen would restore it",
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram's layout and capability titles were restructured in a way that loses the original's precise technical hierarchy (e.g., 'Parse the MS-ONE/OneStore binary container' vs 'Parse OneNote documents') and omits key technical terms like 'OneStore' that appear in the original and facts."
+    },
+    {
+      "absent": [
+        "CompositeNode.GetChildNodes()",
+        "DocumentVisitor pattern"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.note.documentvisitor",
+        "public_symbol:aspose.note.node"
+      ],
+      "id": "F03",
+      "quote": "Traverse document structure. Traverse the document tree by subclassing `DocumentVisitor` and overriding methods such as `VisitPageStart`, `VisitRichTextStart`, and `VisitImageStart`, then invoke Accept on the root node.",
+      "repair": "Restore the original's precise technical descriptions, including 'DocumentVisitor pattern' and 'CompositeNode.GetChildNodes()', and maintain the original ordering of capabilities.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose.note.documentvisitor, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section reorders and rephrases capabilities in a way that obscures the original's logical grouping and omits critical technical details like 'DocumentVisitor pattern' and 'CompositeNode.GetChildNodes()'."
+    },
+    {
+      "absent": [
+        "version 26.3.2",
+        "To work from a source checkout instead, install the clone with pip:"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F04",
+      "quote": "Install the published package from PyPI (`aspose-note`, version 26.3.2):",
+      "repair": "Remove the version number and source checkout instructions; use only the deterministic pip install command from the original README.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'To work from a source checkout instead, install the clone with pip:', 'version 26.3.2', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation instructions introduce a source checkout example that is not present in the original README and adds a version-specific statement ('version 26.3.2') that is not in the original."
+    },
+    {
+      "absent": [
+        "No required third-party package dependencies.",
+        "No required third-party package dependencies; in `pyproject.toml`, the `project.dependencies` list is empty."
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:none"
+      ],
+      "id": "F05",
+      "quote": "### Required Package Dependencies",
+      "repair": "Restore the original's clear separation of dependency categories and use the exact phrasing from the original README for required and optional dependencies.",
+      "reviewer_scope_defect": "the quote is the heading 'Required Package Dependencies', which the renderer emits because the contract's shell requires it; no unit wrote it and none can change it",
+      "section_id": "dependencies",
+      "text": "The dependencies section reorders and rephrases dependency information in a way that obscures the original's clear separation of required, optional, native, and development dependencies."
+    },
+    {
+      "absent": [
+        "from aspose.note import Document",
+        "doc = Document('SimpleTable.one')",
+        "print(doc.DisplayName)",
+        "for page in doc:",
+        "    print(page.Title.TitleText.Text)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:001",
+        "example:002"
+      ],
+      "id": "F06",
+      "quote": "Convert a OneNote document to PDF by loading it and calling Save with Pdf format.",
+      "repair": "Restore the original's first Quick Start example (loading and printing display name and page titles) before the PDF export example to maintain logical progression.",
+      "reviewer_scope_defect": "the omission it names is backed by example:001, which is CONTRADICTED: the contract admits it only once the evidence supports it, so no stage the loop can reopen would write it",
+      "section_id": "quick_start",
+      "text": "The Quick Start section omits the original's first example (loading a document and printing its display name and page titles) that is supported by example:001 and replaces it with a different example, breaking the document's logical progression."
+    },
+    {
+      "absent": [
+        "39 public types",
+        "CompositeNode"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.note",
+        "public_symbol:aspose.note.model.compositenode"
+      ],
+      "id": "F07",
+      "quote": "The verified public surface has 37 types.",
+      "repair": "Correct the public surface count to 39 types and ensure all public types, including `CompositeNode`, are included in the API reference.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section's public surface count ('37 types') contradicts the original README's stated count of '39 public types' and omits key types like `CompositeNode` that are present in the original and supported by facts."
+    },
+    {
+      "absent": [
+        "Microsoft OneNote `.one` files",
+        "MS-ONE/OneStore binary container"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "format:input.one",
+        "format:output.pdf"
+      ],
+      "id": "F08",
+      "quote": "Aspose.Note FOSS for Python reads Microsoft `OneNote` `.one` files and exports them to PDF using the `aspose.note.SaveFormat.Pdf` option, supporting Python 3.10 and later.",
+      "repair": "Restore the original's precise technical language, including 'MS-ONE/OneStore' and the exact phrasing of limitations from the original README.",
+      "reviewer_scope_defect": "the quote names public_symbol:aspose, a SUPPORTED fact BC-04 already verifies; the candidate's own fact set is the standard of support, not the upstream README, and loop-prompt.md rule 8 requires the complete verified surface - absence from the original is never itself a presentation defect for content BC-04 already verified",
+      "section_id": "scope_limitations",
+      "text": "The Scope and Limitations section rephrases limitations in a way that obscures the original's precise technical language and omits the explicit mention of 'MS-ONE/OneStore' in the file format description."
+    },
+    {
+      "absent": [
+        "version 26.3.2",
+        "convert"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "identity:repository",
+        "package:version"
+      ],
+      "id": "F01",
+      "quote": "Aspose.Note FOSS for Python version 26.3.2 enables Python developers to read and convert Microsoft OneNote files (`.one`) to PDF without requiring Microsoft OneNote.",
+      "reader": 2,
+      "repair": "Remove the version number and replace 'convert' with 'export' to match the supported capabilities.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'convert', 'version 26.3.2', which the candidate contains",
+      "section_id": "opening",
+      "text": "The opening paragraph overstates capabilities by claiming 'version 26.3.2' and 'convert' when the facts only support reading and PDF export, not conversion, and version is not mentioned in the original README."
+    },
+    {
+      "absent": [
+        "Parse OneNote documents",
+        "Traverse document structure",
+        "Extract rich text with formatting",
+        "Extract images and attachments",
+        "Inspect tables and tags",
+        "Export to PDF",
+        "Inspect numbered lists",
+        "Handle exceptions"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "example:002",
+        "example:004"
+      ],
+      "id": "F02",
+      "quote": "- **Parse OneNote documents.** Load `.one` files directly from disk or as binary streams and access document metadata and pages without external parsers.",
+      "reader": 2,
+      "repair": "Use consistent, concise phrasing aligned with the original README's bullet style and avoid bold headings.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Export to PDF', 'Extract images and attachments', 'Extract rich text with formatting', which the candidate contains",
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities section uses inconsistent formatting (bold headings) and mixes capability descriptions with implementation details, reducing readability."
+    },
+    {
+      "absent": [
+        "To work from a source checkout instead, install the clone with pip:"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "install_command:pip"
+      ],
+      "id": "F03",
+      "quote": "To work from a source checkout instead, install the clone with pip: ...",
+      "reader": 2,
+      "repair": "Remove the source checkout installation example to match the original README's scope.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'To work from a source checkout instead, install the clone with pip:', which the candidate contains",
+      "section_id": "installation",
+      "text": "The installation section adds a source checkout example not present in the original README, which only mentions pip install."
+    },
+    {
+      "absent": [
+        "reportlab>=3.6 (extra `pdf`)"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "dependency:optional.pdf.reportlab-3.6"
+      ],
+      "id": "F04",
+      "quote": "- `reportlab>=3.6` (extra `pdf`)",
+      "reader": 2,
+      "repair": "Restore the original dependency ordering and phrasing to maintain clarity about extras and their purposes.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'reportlab>=3.6 (extra `pdf`)', which the candidate contains",
+      "section_id": "dependencies",
+      "text": "The dependencies section reorders and reformats optional dependencies in a way that obscures the relationship between extras and their purpose, compared to the original README."
+    },
+    {
+      "absent": [
+        "39 public types",
+        "CompositeNode",
+        "SaveOptions"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "public_symbol:aspose.note",
+        "public_symbol:aspose.note.saving"
+      ],
+      "id": "F05",
+      "quote": "The verified public surface has 37 types.",
+      "reader": 2,
+      "repair": "Correct the type count to 39 and ensure all verified public types are included in the summary.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "api_reference",
+      "text": "The API Reference section claims '37 types' but the original README states '39 public types', and the candidate omits key types like `CompositeNode` and `SaveOptions` from its summary."
+    },
+    {
+      "absent": [
+        "Enterprise Edition",
+        "Aspose.Note — Enterprise Edition"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "id": "F07",
+      "quote": "These limitations don't apply to [Aspose.Note — Enterprise Edition](https://products.aspose.com/note/). Aspose.Note FOSS for Python provides core document processing capabilities, while the commercial Aspose.Note for Python adds advanced features such as enhanced PDF export, batch processing, and support for additional file formats.",
+      "reader": 2,
+      "repair": "Add a clear heading like 'Enterprise Edition' before the reference to improve navigation and structure.",
+      "reviewer_scope_defect": "the finding claims the candidate does not contain 'Aspose.Note — Enterprise Edition', 'Enterprise Edition', which the candidate contains",
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition reference is moved to a dedicated section but lacks a clear heading, making it difficult to locate and identify."
+    },
+    {
+      "absent": [
+        "examples/README.md",
+        "publish-pypi.yml"
+      ],
+      "causal_stage": "S6",
+      "causal_state": null,
+      "criterion": "presentation",
+      "fact_ids": [
+        "build_test_asset:examples",
+        "build_test_asset:ci"
+      ],
+      "id": "F08",
+      "quote": "The suite covers 27 test files under `tests/`. Releases run through the [publish-pypi workflow](.github/workflows/publish-pypi.yml).",
+      "reader": 2,
+      "repair": "Restore references to `examples/README.md` and the `publish-pypi.yml` workflow to match the original README's completeness.",
+      "reviewer_scope_defect": "the quoted sentence is the renderer's own, written from the facts beside a unit that did not write it; no revision of that unit can change it",
+      "section_id": "development_testing",
+      "text": "The Development and Testing section omits the reference to `examples/README.md` and the `publish-pypi.yml` workflow, which are present in the original README and supported by facts."
+    }
+  ],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "c9c9810e0c5af0f4347dd655d54360147b662b285ef26d6753fd273cd796dbbe",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [
+      "012d630ea87dd4b2ed3b6aaa",
+      "7bf2dd6eda183d6293dbc405",
+      "8e354b15b1c1dbf784765257",
+      "949e03aa2a199c11ad781c51",
+      "d781ad532f35f6143cb672ef",
+      "dcdff0a647163c5adef33c0b",
+      "fda854a22f02daa23e26407a"
+    ],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "REJECT_PRESENTATION"
+}
