@@ -17,6 +17,15 @@ actionable step is simply: run the redraw. Everything else below is diagnosis of
 four prior blockers and two additional latent risks of the identical shape, found by reading the
 current source directly.
 
+**Update, while this document was being pushed:** `origin/main` advanced twice during the push
+(`9e1ebdd`, then `da9973a`) — a concurrent session independently found and formally admitted §4a's
+own F27 finding as arrival item 121 ("`reconciliation_schema()`'s `fact_ids` array is bounded
+per-entry (item 40's enum) but not by count... already caused one near-miss on PDF-.NET"), the exact
+gap this document names below, corroborating it in real time rather than only by this document's own
+reading. As of this push, item 121 is **admitted, not yet landed**: no commit past `68afadb` touches
+`reconciliation/dispositions.py` (verified directly, not assumed). §4a and §5 below are otherwise
+unchanged from before this admission; they described the gap correctly before it had a number.
+
 Primary evidence: `docs/DECISION_LOG.md` (§31-shaped entries, 2026-09-11 through 2026-09-17),
 `docs/RESEARCH_LANE_E.md` (lane E's own narrative, `LANE-E-01` runs 1-2 and the `pdfpy` worker's
 `LANE-E-08`/`LANE-E-09` entries cross-referenced from `DECISION_LOG.md`), `git log`/`git show`
