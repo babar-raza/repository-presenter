@@ -1,0 +1,123 @@
+[
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp with g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 1,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_002.cpp:20:38: error: cannot bind non-const lvalue reference of type 'Aspose::Pdf::Page&' to an rvalue of type 'Aspose::Pdf::Page'",
+    "fixtures": [],
+    "ordinal": 2,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_002.cpp: In function 'int main()':\nexample_002.cpp:20:38: error: cannot bind non-const lvalue reference of type 'Aspose::Pdf::Page&' to an rvalue of type 'Aspose::Pdf::Page'\n   20 |     pdf::Page& page = doc.Pages().Add();\n      |                       ~~~~~~~~~~~~~~~^~\nexample_002.cpp:36:20: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'\n   36 |     page.Paragraphs().Add(table);\n      |     ~~~~~~~~~~~~~~~^~\nIn file included from example_002.cpp:1:\naspose/pdf/document.hpp:60:7: note: forward declaration of 'class Aspose::Pdf::Paragraphs'\n   60 | class Paragraphs;\n      |       ^~~~~~~~~~\nexample_002.cpp:42:20: error: invalid use of incomplete type 'class Aspose::Pdf::Paragraphs'\n   42 |     page.Paragraphs().Add(g);\n      |     ~~~~~~~~~~~~~~~^~\naspose/pdf/document.hpp:60:7: note: forward declaration of 'class Aspose::Pdf::Paragraphs'\n   60 | class Paragraphs;\n      |       ^~~~~~~~~~\nexample_002.cpp:46:19: error: invalid use of incomplete type 'class Aspose::Pdf::ArtifactCollection'\n   46 |     page.Artifacts().Add(watermark);\n      |     ~~~~~~~~~~~~~~^~\naspose/pdf/document.hpp:64:7: note: forward declaration of 'class Aspose::Pdf::ArtifactCollection'\n   64 | class ArtifactCollection;\n      |       ^~~~~~~~~~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp with g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 3,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp with g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 4,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "example_005.cpp:15:52: error: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'",
+    "fixtures": [],
+    "ordinal": 5,
+    "outcome": "FAILED",
+    "return_code": 1,
+    "stderr": "example_005.cpp: In function 'int main()':\nexample_005.cpp:15:52: error: invalid use of incomplete type 'class Aspose::Pdf::PageCollection'\n   15 |     tiff.Process(doc, 1, static_cast<int>(doc.Pages().Count()), tiffOut);\n      |                                           ~~~~~~~~~^~\nIn file included from example_005.cpp:1:\naspose/pdf/document.hpp:66:7: note: forward declaration of 'class Aspose::Pdf::PageCollection'\n   66 | class PageCollection;\n      |       ^~~~~~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "syntax-checked against aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp with g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 -fsyntax-only; the library's own CMake build succeeded",
+    "fixtures": [],
+    "ordinal": 6,
+    "outcome": "EXECUTED",
+    "return_code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no diagnostic in the example itself; a header it includes stopped g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 first - include/c++/16.2.0/bits/unique_ptr.h:90:23: error: invalid application of 'sizeof' to incomplete type 'Aspose::Pdf::Document'",
+    "fixtures": [],
+    "ordinal": 7,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "stderr": "In file included from include/c++/16.2.0/memory:80,\n                 from aspose/pdf/facades/facade.hpp:12,\n                 from aspose/pdf/facades/saveable_facade.hpp:15,\n                 from aspose/pdf/facades/pdf_file_signature.hpp:35,\n                 from example_007.cpp:1:\ninclude/c++/16.2.0/bits/unique_ptr.h: In instantiation of 'void std::default_delete<_Tp>::operator()(_Tp*) const [with _Tp = Aspose::Pdf::Document]':\ninclude/c++/16.2.0/bits/unique_ptr.h:408:17:   required from 'std::unique_ptr<_Tp, _Dp>::~unique_ptr() [with _Tp = Aspose::Pdf::Document; _Dp = std::default_delete<Aspose::Pdf::Document>]'\n  408 |           get_deleter()(std::move(__ptr));\n      |           ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~\naspose/pdf/facades/facade.hpp:26:5:   required from here\n   26 |     ~Facade() override = default;\n      |     ^\ninclude/c++/16.2.0/bits/unique_ptr.h:90:23: error: invalid application of 'sizeof' to incomplete type 'Aspose::Pdf::Document'\n   90 |         static_assert(sizeof(_Tp)>0,\n      |                       ^~~~~~~~~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "the fence uses `page`, `pdf` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 8,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "stderr": "example_008.cpp: In function 'int main()':\nexample_008.cpp:6:32: error: 'page' was not declared in this scope\n    6 |     ann::HighlightAnnotation a(page, pdf::Rectangle(60, 700, 210, 716, true));  // keep alive until Save()\n      |                                ^~~~\nexample_008.cpp:6:38: error: 'pdf' has not been declared\n    6 |     ann::HighlightAnnotation a(page, pdf::Rectangle(60, 700, 210, 716, true));  // keep alive until Save()\n      |                                      ^~~\nexample_008.cpp:7:13: error: 'pdf' has not been declared\n    7 |     a.Color(pdf::Color::FromRgb(1.0, 0.95, 0.0));\n      |             ^~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "the fence uses `doc`, `pdf` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 9,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "stderr": "example_009.cpp: In function 'int main()':\nexample_009.cpp:6:28: error: 'doc' was not declared in this scope\n    6 |     frm::TextBoxField name(doc, pdf::Rectangle(190, 700, 470, 720, true));  // keep alive until Save()\n      |                            ^~~\nexample_009.cpp:6:33: error: 'pdf' has not been declared\n    6 |     frm::TextBoxField name(doc, pdf::Rectangle(190, 700, 470, 720, true));  // keep alive until Save()\n      |                                 ^~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "the fence uses `doc`, `pdf`, `item`, `ann`, `page` without binding it; the README establishes it in an earlier section",
+    "fixtures": [],
+    "ordinal": 10,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "stderr": "example_010.cpp: In function 'int main()':\nexample_010.cpp:7:18: error: 'doc' was not declared in this scope\n    7 |     auto& root = doc.Outlines();\n      |                  ^~~\nexample_010.cpp:8:5: error: 'pdf' has not been declared\n    8 |     pdf::OutlineItemCollection item(root);               // keep alive until Save()\n      |     ^~~\nexample_010.cpp:9:5: error: 'item' was not declared in this scope; did you mean 'tm'?\n    9 |     item.Title(\"Chapter 1\");\n      |     ^~~~\n      |     tm\nexample_010.cpp:11:22: error: 'ann' has not been declared\n   11 |     item.Destination(ann::XYZExplicitDestination(page, 0.0, 842.0, 0.0));\n      |                      ^~~\nexample_010.cpp:11:50: error: 'page' was not declared in this scope\n   11 |     item.Destination(ann::XYZExplicitDestination(page, 0.0, 842.0, 0.0));\n      |                                                  ^~~~\n",
+    "stdout": ""
+  },
+  {
+    "build_command": "",
+    "build_verified": true,
+    "detail": "BLOCKED_TOOLCHAIN: no diagnostic in the example itself; a header it includes stopped g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0 -std=c++20 first - include/c++/16.2.0/bits/unique_ptr.h:90:23: error: invalid application of 'sizeof' to incomplete type 'Aspose::Pdf::Document'",
+    "fixtures": [],
+    "ordinal": 11,
+    "outcome": "NOT_VERIFIED",
+    "return_code": 1,
+    "stderr": "In file included from include/c++/16.2.0/memory:80,\n                 from aspose/pdf/facades/facade.hpp:12,\n                 from aspose/pdf/facades/pdf_converter.hpp:27,\n                 from example_011.cpp:1:\ninclude/c++/16.2.0/bits/unique_ptr.h: In instantiation of 'void std::default_delete<_Tp>::operator()(_Tp*) const [with _Tp = Aspose::Pdf::Document]':\ninclude/c++/16.2.0/bits/unique_ptr.h:408:17:   required from 'std::unique_ptr<_Tp, _Dp>::~unique_ptr() [with _Tp = Aspose::Pdf::Document; _Dp = std::default_delete<Aspose::Pdf::Document>]'\n  408 |           get_deleter()(std::move(__ptr));\n      |           ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~\naspose/pdf/facades/facade.hpp:25:5:   required from here\n   25 |     Facade() noexcept = default;\n      |     ^~~~~~\ninclude/c++/16.2.0/bits/unique_ptr.h:90:23: error: invalid application of 'sizeof' to incomplete type 'Aspose::Pdf::Document'\n   90 |         static_assert(sizeof(_Tp)>0,\n      |                       ^~~~~~~~~~~\n",
+    "stdout": ""
+  }
+]

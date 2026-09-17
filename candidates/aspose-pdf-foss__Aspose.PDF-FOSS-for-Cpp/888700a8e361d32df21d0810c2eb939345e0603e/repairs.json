@@ -1,0 +1,27 @@
+{
+  "attempts": {
+    "84363a542e369feaf64c63bf": {
+      "changes": [
+        {
+          "after": "This example opens a PDF, prints the page count, extracts all text, and renders the first page as a PNG image at 150 DPI using Aspose_PDF_FOSS.",
+          "before": "This example opens a PDF, prints the page count, extracts all text, and renders the first page as a PNG image at 150 DPI using Aspose_PDF_FOSS version 1.0.0.",
+          "fact_ids": [
+            "example:001"
+          ],
+          "id": "R01",
+          "path": "revised_output.units[0].text"
+        }
+      ],
+      "label": "F04",
+      "misrouted": false,
+      "outcome": "repaired",
+      "reason": null,
+      "request_sha256": "38b25f042e5a675999a0ba803b326168e5cc79065ce4a5b799dbb824f93b9b6c",
+      "section_id": "quick_start",
+      "source": "review",
+      "stage": "S6"
+    }
+  },
+  "composition": "42b333fefb1301e7a7c9c76f3a71e3962d340ddd04659c217323338bc2503224",
+  "schema_version": 1
+}

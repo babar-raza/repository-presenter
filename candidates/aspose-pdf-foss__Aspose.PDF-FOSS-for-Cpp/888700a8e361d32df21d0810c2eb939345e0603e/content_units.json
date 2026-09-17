@@ -1,0 +1,2686 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": []
+  },
+  "omitted": [
+    {
+      "fact_id": "example:002",
+      "reason": "Example is contradicted and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "Example is contradicted and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "Example is unresolved and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "Example is unresolved and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "Example is unresolved and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:010",
+      "reason": "Example is unresolved and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "Example is unresolved and not used to support any claim in this section.",
+      "section": "opening"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "contradicted example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "contradicted example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "unresolved example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "unresolved example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "unresolved example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:010",
+      "reason": "unresolved example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "unresolved example, not used in any unit",
+      "section": "quick_start"
+    },
+    {
+      "fact_id": "inherited_unit:027.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:034.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:036.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:042.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:047.paragraph",
+      "reason": "Paragraph references a file outside the accepted examples and is not cited by any slot.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:048.heading",
+      "reason": "Heading is rendered by the deterministic renderer and must not be repeated in prose.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:053.paragraph",
+      "reason": "Paragraph describes field types not used in any accepted example cited by this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "inherited_unit:058.paragraph",
+      "reason": "Paragraph describes PdfConverter and PdfExtractor features not used in any accepted example cited by this section.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:002",
+      "reason": "Example is contradicted and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:005",
+      "reason": "Example is contradicted and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:007",
+      "reason": "Example is unresolved and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:008",
+      "reason": "Example is unresolved and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:009",
+      "reason": "Example is unresolved and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:010",
+      "reason": "Example is unresolved and must not be cited.",
+      "section": "additional_examples"
+    },
+    {
+      "fact_id": "example:011",
+      "reason": "Example is unresolved and must not be cited.",
+      "section": "additional_examples"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:cxx_standard",
+        "package:cmake_minimum",
+        "dependency:none",
+        "public_symbol:aspose.pdf.text",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentinfo",
+        "public_symbol:aspose.pdf.facades",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.outlinecollection",
+        "public_symbol:aspose.pdf.nameddestinationcollection",
+        "public_symbol:aspose.pdf.metadata",
+        "inherited_unit:004.paragraph",
+        "inherited_unit:010.list"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose.PDF FOSS for Cpp is a free, open-source C++20 library for creating, reading, editing, and converting PDF documents. It solves problems such as extracting text, rasterising pages to images, encrypting files with granular permissions, and building documents from scratch with text, tables, vector graphics, and interactive forms. Developers working in modern C++ use it to integrate robust PDF capabilities into applications without commercial licensing or external runtime dependencies. The library's public API mirrors the commercial Aspose.PDF for .NET library where natural, supporting migration and consistency."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "public_symbol:aspose.pdf.document",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Open existing PDF files with Aspose.Pdf.Document, including password-protected files by passing the user or owner password to the constructor, and inspect encryption status with IsEncrypted() before reading pages, extracting text, or saving changes."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.devices",
+        "public_symbol:aspose.pdf.text"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "Extract text from a Document or single Page using Aspose.Pdf.Text.TextAbsorber, and render individual pages or page ranges to raster images with Aspose.Pdf.Devices.PngDevice, JpegDevice, BmpDevice, or TiffDevice without external runtime dependencies."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:aspose.pdf.cryptoalgorithm",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Encrypt documents using Document.Encrypt with granular Permissions flags and algorithms including AES-256, and sign documents with Aspose.Pdf.Facades.PdfFileSignature to add a detached PKCS#7 signature with byte-exact /ByteRange."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.drawing",
+        "public_symbol:aspose.pdf.forms",
+        "public_symbol:aspose.pdf.text"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "Create PDF content from scratch using positioned text via Aspose.Pdf.Text.TextBuilder and TextFragment, tabular layout with Table/Row/Cell, vector shapes through Aspose.Pdf.Drawing.Graph, and rotated text overlays with WatermarkArtifact."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list",
+        "public_symbol:aspose.pdf.annotations",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Add and manage annotations such as Highlight, Underline, Squiggly, StrikeOut, Square, Circle, Line, Ink, Text, FreeText, Stamp, Link, and FileAttachment with pre-generated appearance streams, and add interactive AcroForm fields through Aspose.Pdf.Forms.Form."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.nameddestinationcollection",
+        "public_symbol:aspose.pdf.outlinecollection"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "Build hierarchical outlines with Aspose.Pdf.OutlineCollection and OutlineItemCollection using bold/italic styling and XYZExplicitDestination targets, define reusable named destinations via Aspose.Pdf.NamedDestinationCollection, and attach document-level companion files through Document.EmbeddedFiles."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "public_symbol:aspose.pdf.documentinfo",
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Read and write document metadata using typed Aspose.Pdf.DocumentInfo accessors for title, author, subject, keywords, creator, producer, and dates, plus Add, Remove, and ClearCustomData for arbitrary entries, and access XMP metadata through Aspose.Pdf.Metadata."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:010.list",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "Use the legacy Aspose.Pdf.Facades API classes including PdfConverter, PdfExtractor, PdfFileSecurity, PdfFileSignature, PdfBookmarkEditor, PdfFileEditor, and PdfFileStamp, each binding independently to a Document for rasterisation, extraction, encryption, signing, bookmark editing, document splitting and concatenation, and stamping."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "This example opens a PDF, prints the page count, extracts all text, and renders the first page as a PNG image at 150 DPI using Aspose_PDF_FOSS."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "The Aspose.PDF FOSS for Cpp library supports opening encrypted documents, reading and updating document metadata, and applying AES-256 encryption to PDF files."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Open a password-protected PDF using Aspose_PDF_FOSS 1.0.0."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:004",
+      "text": "Read and update document metadata in Aspose_PDF_FOSS 1.0.0."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Encrypt a document with AES-256 using Aspose_PDF_FOSS 1.0.0."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.document"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose.PDF FOSS for Cpp exposes the Aspose.Pdf.Document class as the primary entry point for loading, creating, and manipulating PDF documents. From Document, developers access core capabilities such as text extraction, rendering, annotation, form handling, encryption, and metadata management through dedicated sub-namespaces."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.document"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.document",
+      "text": "The Aspose.Pdf.Document class loads existing PDF files, supports opening encrypted documents with a password, and provides access to pages, outlines, named destinations, form fields, embedded files, and document information through its members such as Pages, Outlines, NamedDestinations, Form, Info, and Metadata."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.text"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.text",
+      "text": "Aspose.Pdf.Text provides the TextAbsorber class to extract text content from PDF pages, supporting full-document or page-specific extraction and returning the result as a string."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.devices"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.devices",
+      "text": "Aspose.Pdf.Devices includes rendering devices such as PngDevice that convert PDF pages to raster images, accepting resolution settings and writing output to streams."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.annotations"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.annotations",
+      "text": "Aspose.Pdf.Annotations enables adding and managing annotations on PDF pages, such as highlight annotations, through page-level annotation collections."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.forms"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.forms",
+      "text": "Aspose.Pdf.Forms provides access to interactive form fields in a PDF document through the Document.Form member, allowing field addition, value setting, and flattening."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.cryptoalgorithm"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.cryptoalgorithm",
+      "text": "Aspose.Pdf.CryptoAlgorithm specifies encryption algorithms such as AESx256 for securing PDF documents when calling Document.Encrypt."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.facades"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.facades",
+      "text": "Aspose.Pdf.Facades offers high-level convenience classes for common tasks such as PDF conversion and text extraction, built on top of the core Aspose.Pdf namespaces."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.outlinecollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.outlinecollection",
+      "text": "Aspose.Pdf.OutlineCollection represents the document outline tree and supports adding, removing, and enumerating outline items."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.nameddestinationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.nameddestinationcollection",
+      "text": "Aspose.Pdf.NamedDestinationCollection manages named destinations in a PDF document, supporting operations such as adding, removing, and counting destinations."
+    },
+    {
+      "fact_ids": [
+        "example:004",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.documentinfo",
+      "text": "Aspose.Pdf.DocumentInfo exposes standard document properties such as Title, Author, Subject, and Keywords, and allows modification and persistence of these values via Document.Info."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.metadata",
+      "text": "Aspose.Pdf.Metadata provides access to XMP metadata, supporting namespace registration, key-value operations, and enumeration of metadata entries."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version",
+        "public_symbol:aspose.pdf.drawing"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:aspose.pdf.drawing",
+      "text": "Aspose.Pdf.Drawing supports adding vector graphics such as circles and graphs to PDF pages, enabling custom illustrations alongside text and other content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.afrelationship"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.afrelationship",
+      "text": "Aspose.Pdf.AFRelationship represents the relationship type of an embedded file within a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotation",
+      "text": "Annotation represents a generic annotation object that can be added to a PDF page, providing properties for appearance, position, and behavior."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationcollection",
+      "text": "AnnotationCollection provides a container for managing a collection of annotations on a PDF page, supporting operations such as adding, removing, and iterating."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationflags"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationflags",
+      "text": "AnnotationFlags defines bit flags that control the appearance and behavior of annotations in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationselector"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationselector",
+      "text": "AnnotationSelector provides a visitor interface to traverse and process annotations based on their type."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationstate",
+      "text": "AnnotationState represents the current state of an annotation, such as whether it is marked or unmarked."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationstatemodel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationstatemodel",
+      "text": "AnnotationStateModel defines the model used to track the state changes of an annotation over time."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.annotationtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.annotationtype",
+      "text": "AnnotationType specifies the type of an annotation, such as text, link, or highlight, determining its visual representation and behavior."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.bleedmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.bleedmarkannotation",
+      "text": "BleedMarkAnnotation represents a bleed mark annotation used to indicate the trim area in printed output."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.border"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.border",
+      "text": "Border defines the visual characteristics of an annotation's border, including width, style, and corner radius."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.bordereffect"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.bordereffect",
+      "text": "BorderEffect specifies the visual effect applied to an annotation's border, such as cloudiness or shading."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.borderstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.borderstyle",
+      "text": "BorderStyle describes the line style used to draw an annotation's border, such as solid, dashed, or dotted."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.capstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.capstyle",
+      "text": "CapStyle defines the shape of the endpoints of lines used in annotation borders or other graphical elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.captionposition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.captionposition",
+      "text": "CaptionPosition indicates where a caption text is placed relative to an annotation's content area."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.caretannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.caretannotation",
+      "text": "CaretAnnotation represents a caret mark annotation used to indicate the insertion point of text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.caretsymbol"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.caretsymbol",
+      "text": "CaretSymbol specifies the symbol used to render a caret annotation, such as a checkmark or other marker."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.characteristics"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.characteristics",
+      "text": "Characteristics holds the visual and behavioral properties of an annotation, including rotation and opacity."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.circleannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.circleannotation",
+      "text": "CircleAnnotation represents a circular annotation that can be drawn on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.colorbarannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.colorbarannotation",
+      "text": "ColorBarAnnotation represents a color bar annotation used to display a gradient or color scale."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.colorsofcmyk"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.colorsofcmyk",
+      "text": "ColorsOfCMYK defines a color value using the CMYK color model for annotations and other graphical elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.commonfigureannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.commonfigureannotation",
+      "text": "CommonFigureAnnotation represents a generic geometric figure annotation, such as a rectangle or ellipse."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.cornerprintermarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.cornerprintermarkannotation",
+      "text": "CornerPrinterMarkAnnotation represents a printer mark placed at the corner of a page for alignment during printing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.defaultappearance"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.defaultappearance",
+      "text": "DefaultAppearance specifies the default font, size, and text color used for annotation text display."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.explicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.explicitdestination",
+      "text": "ExplicitDestination defines a specific location within a PDF document that can be targeted by a link or action."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.explicitdestinationtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.explicitdestinationtype",
+      "text": "ExplicitDestinationType specifies the view mode used when navigating to an explicit destination."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fileattachmentannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fileattachmentannotation",
+      "text": "FileAttachmentAnnotation represents an annotation that attaches a file to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fileicon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fileicon",
+      "text": "FileIcon specifies the icon used to represent a file attachment annotation in the PDF viewer."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitbexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitbexplicitdestination",
+      "text": "FitBExplicitDestination defines a destination that fits the bounding box of the page content to the viewer window."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitbhexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitbhexplicitdestination",
+      "text": "FitBHExplicitDestination defines a destination that fits the page width to the viewer window while holding the top Y coordinate."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitbvexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitbvexplicitdestination",
+      "text": "FitBVExplicitDestination defines a destination that fits the page height to the viewer window while holding the left X coordinate."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitexplicitdestination",
+      "text": "FitExplicitDestination defines a destination that fits the entire page to the viewer window."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fithexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fithexplicitdestination",
+      "text": "FitHExplicitDestination defines a destination that fits the page width to the viewer window at a specified Y coordinate."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitrexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitrexplicitdestination",
+      "text": "FitRExplicitDestination defines a destination that fits a specified rectangle to the viewer window."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.fitvexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.fitvexplicitdestination",
+      "text": "FitVExplicitDestination defines a destination that fits the page height to the viewer window at a specified X coordinate."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.freetextannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.freetextannotation",
+      "text": "FreeTextAnnotation represents a text annotation that displays text directly on the page without a callout."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.freetextintent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.freetextintent",
+      "text": "FreeTextIntent specifies the intended purpose of a free text annotation, such as a comment or popup."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.gotoaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.gotoaction",
+      "text": "GoToAction represents an action that navigates to a specified destination within the same PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.gotouriaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.gotouriaction",
+      "text": "GoToURIAction represents an action that opens a Uniform Resource Identifier, such as a web URL, in the default browser."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.highlightannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.highlightannotation",
+      "text": "HighlightAnnotation represents a text highlight annotation used to emphasize content on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.highlightingmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.highlightingmode",
+      "text": "HighlightingMode defines how the content of a highlight annotation is visually emphasized, such as by changing the background color."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.iappointment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.iappointment",
+      "text": "IAppointment represents an appointment annotation in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.inkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.inkannotation",
+      "text": "InkAnnotation represents an ink annotation that captures freehand drawing strokes on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.javascriptaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.javascriptaction",
+      "text": "JavascriptAction represents an action that executes a JavaScript script when triggered."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.justification"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.justification",
+      "text": "Justification specifies the horizontal alignment of text within an annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.lineannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.lineannotation",
+      "text": "LineAnnotation represents a line annotation that draws a straight line between two points on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.lineending"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.lineending",
+      "text": "LineEnding defines the style of the endpoint of a line annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.lineintent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.lineintent",
+      "text": "LineIntent specifies the intended purpose of a line annotation, such as a callout or dimension line."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.linkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.linkannotation",
+      "text": "LinkAnnotation represents a hyperlink annotation that navigates to a destination or action when clicked."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.markupannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.markupannotation",
+      "text": "MarkupAnnotation is a base class for annotations that mark up or highlight content in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.movieannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.movieannotation",
+      "text": "MovieAnnotation represents a movie annotation that embeds and plays a video clip in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.namedaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.namedaction",
+      "text": "NamedAction represents a predefined action identified by a standard name, such as printing or saving."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.nameddestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.nameddestination",
+      "text": "NamedDestination represents a named destination that can be referenced by a link annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.pageinformationannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.pageinformationannotation",
+      "text": "PageInformationAnnotation represents an annotation that stores page-level information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.pdfaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.pdfaction",
+      "text": "PdfAction is a base class for actions that can be executed in response to user interaction in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polyannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polyannotation",
+      "text": "PolyAnnotation is a base class for polygon and polyline annotations that draw multi-segment shapes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polyintent"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polyintent",
+      "text": "PolyIntent specifies the intended purpose of a polygon or polyline annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polygonannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polygonannotation",
+      "text": "PolygonAnnotation represents a polygon annotation that draws a closed multi-segment shape on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.polylineannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.polylineannotation",
+      "text": "PolylineAnnotation represents a polyline annotation that draws an open multi-segment shape on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.popupannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.popupannotation",
+      "text": "PopupAnnotation represents a popup window that can be opened to display additional information for another annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.predefinedaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.predefinedaction",
+      "text": "PredefinedAction represents an action with a predefined behavior, such as going to the first page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.printermarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.printermarkannotation",
+      "text": "PrinterMarkAnnotation represents a printer mark annotation used for professional printing workflows."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.printermarkcornerposition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.printermarkcornerposition",
+      "text": "PrinterMarkCornerPosition specifies the corner position of a printer mark annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.printermarksideposition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.printermarksideposition",
+      "text": "PrinterMarkSidePosition specifies the side position of a printer mark annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.printermarkskind"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.printermarkskind",
+      "text": "PrinterMarksKind specifies the type of printer mark, such as crop marks or registration marks."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.redactionannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.redactionannotation",
+      "text": "RedactionAnnotation represents a redaction annotation that hides or removes content from a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.registrationmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.registrationmarkannotation",
+      "text": "RegistrationMarkAnnotation represents a registration mark annotation used to align printed layers."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.replytype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.replytype",
+      "text": "ReplyType specifies the type of reply relationship between annotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.richmediaannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.richmediaannotation",
+      "text": "RichMediaAnnotation represents a rich media annotation that embeds interactive content such as Flash or 3D models."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.richtextfontstyles"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.richtextfontstyles",
+      "text": "RichTextFontStyles specifies the font styles for rich text content in an annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.screenannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.screenannotation",
+      "text": "ScreenAnnotation represents a screen annotation that can trigger actions when clicked, often used for interactive elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundannotation",
+      "text": "SoundAnnotation represents a sound annotation that embeds and plays an audio clip in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.soundicon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.soundicon",
+      "text": "SoundIcon specifies the icon used to represent a sound annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.squareannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.squareannotation",
+      "text": "SquareAnnotation represents a square annotation that draws a rectangle on a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.squigglyannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.squigglyannotation",
+      "text": "SquigglyAnnotation represents a squiggly underline annotation used to mark text."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.stampannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.stampannotation",
+      "text": "StampAnnotation represents a stamp annotation that applies a visual stamp to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.stampicon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.stampicon",
+      "text": "StampIcon specifies the icon used to represent a stamp annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.strikeoutannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.strikeoutannotation",
+      "text": "StrikeOutAnnotation represents a strikeout annotation that draws a line through text to mark it for deletion."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.submitformaction"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.submitformaction",
+      "text": "SubmitFormAction represents an action that submits form data to a specified URL."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.textalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.textalignment",
+      "text": "TextAlignment specifies the horizontal alignment of text within an annotation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.textannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.textannotation",
+      "text": "TextAnnotation represents a sticky note or text note annotation that displays a pop-up with text content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.texticon"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.texticon",
+      "text": "Represents a text icon annotation in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.textmarkupannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.textmarkupannotation",
+      "text": "Represents a text markup annotation such as highlight, underline, or strikeout."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.textstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.textstyle",
+      "text": "Defines the visual style for text, including alignment, font name, and font size."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.trimmarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.trimmarkannotation",
+      "text": "Represents a trim mark annotation used to indicate裁切 lines in a PDF."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.underlineannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.underlineannotation",
+      "text": "Represents an underline annotation that underlines a specified region in the document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.watermarkannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.watermarkannotation",
+      "text": "Represents a watermark annotation that overlays text or an image on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.widgetannotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.widgetannotation",
+      "text": "Represents a widget annotation, typically used for interactive form fields."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.annotations.xyzexplicitdestination"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.annotations.xyzexplicitdestination",
+      "text": "Represents an explicit destination that specifies a view position using X, Y, and zoom coordinates."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.artifact"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.artifact",
+      "text": "Represents an artifact, such as a watermark or background image, attached to a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.artifactcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.artifactcollection",
+      "text": "Manages a collection of artifacts associated with a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.baseparagraph"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.baseparagraph",
+      "text": "Serves as the base class for paragraph-like content with alignment, margin, and positioning properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.bitmapinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.bitmapinfo",
+      "text": "Describes the properties of a bitmap image, including its dimensions, format, and pixel data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.borderinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.borderinfo",
+      "text": "Encapsulates border properties such as thickness and rounded corner radius for table cells or other elements."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.borderside"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.borderside",
+      "text": "Specifies which side of a border is applied, such as top, bottom, left, or right."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.cell"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.cell",
+      "text": "Represents a single cell within a table, supporting alignment and background color settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.cells"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.cells",
+      "text": "Manages a collection of cells in a table row."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.color"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.color",
+      "text": "Represents a color value used throughout the API for fill, stroke, and text rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.cryptoalgorithm"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.cryptoalgorithm",
+      "text": "Specifies the cryptographic algorithm used for PDF encryption and decryption."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.bmpdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.bmpdevice",
+      "text": "Renders a PDF document or page to a BMP image file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.colordepth"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.colordepth",
+      "text": "Defines the color depth setting used when rendering images from a PDF."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.compressiontype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.compressiontype",
+      "text": "Specifies the compression algorithm applied to image output during rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.device"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.device",
+      "text": "Serves as the base class for all rendering devices that convert PDF content to images."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.documentdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.documentdevice",
+      "text": "Renders an entire PDF document to an image format supported by the device."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.formpresentationmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.formpresentationmode",
+      "text": "Controls how form fields are presented when rendering a PDF to an image."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.imagedevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.imagedevice",
+      "text": "Serves as the base class for image-specific rendering devices."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.jpegdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.jpegdevice",
+      "text": "Renders a PDF document or page to a JPEG image file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.margins"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.margins",
+      "text": "Represents the margin settings applied to the rendered output image."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.pagedevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.pagedevice",
+      "text": "Renders a single page of a PDF document to an image format supported by the device."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.pngdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.pngdevice",
+      "text": "Renders a PDF document or page to a PNG image file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.resolution"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.resolution",
+      "text": "Specifies the resolution in dots per inch used when rendering a PDF to an image."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.shapetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.shapetype",
+      "text": "Indicates the type of shape used in vector graphics rendering."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.textdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.textdevice",
+      "text": "Renders a PDF document or page to a text-based output format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.tiffdevice"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.tiffdevice",
+      "text": "Renders a PDF document or page to a TIFF image file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.devices.tiffsettings"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.devices.tiffsettings",
+      "text": "Configures settings such as compression and color depth for TIFF output."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.document"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.document",
+      "text": "Represents a PDF document and provides access to its pages, metadata, and structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.documentinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.documentinfo",
+      "text": "Stores document-level metadata such as title, author, and subject."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.circle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.circle",
+      "text": "Represents a circle shape in vector graphics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.ellipse"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.ellipse",
+      "text": "Represents an ellipse shape in vector graphics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.graph"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.graph",
+      "text": "Represents a container for vector graphics shapes such as circles, ellipses, and lines."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.line"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.line",
+      "text": "Represents a straight line segment in vector graphics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.rectangle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.rectangle",
+      "text": "Aspose.Pdf.Drawing.Rectangle represents a rectangular area defined by its lower-left and upper-right coordinates, supporting geometric operations such as intersection, containment checks, and transformations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.drawing.shape"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.drawing.shape",
+      "text": "Aspose.Pdf.Drawing.Shape provides a base class for vector graphics shapes with bounds checking and graph information access."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.embeddedfilecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.embeddedfilecollection",
+      "text": "Aspose.Pdf.EmbeddedFileCollection manages a collection of embedded files within a PDF document, allowing addition, deletion, and lookup by name or key."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.algorithm"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.algorithm",
+      "text": "Aspose.Pdf.Facades.Algorithm specifies the cryptographic algorithm used for PDF security operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.alignmenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.alignmenttype",
+      "text": "Aspose.Pdf.Facades.AlignmentType defines horizontal alignment options such as left, center, and right for text or content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.autorotatemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.autorotatemode",
+      "text": "Aspose.Pdf.Facades.AutoRotateMode controls automatic rotation of pages during conversion or rendering operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.blendingcolorspace"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.blendingcolorspace",
+      "text": "Aspose.Pdf.Facades.BlendingColorSpace specifies the color space used for blending operations in PDF content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.bookmark"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.bookmark",
+      "text": "Aspose.Pdf.Facades.Bookmark represents a navigational outline entry in a PDF document, supporting properties like title, page reference, and display options."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.bookmarks"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.bookmarks",
+      "text": "Aspose.Pdf.Facades.Bookmarks provides a collection interface for managing bookmark entries in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.datatype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.datatype",
+      "text": "Aspose.Pdf.Facades.DataType indicates the data type of a field or value within a PDF form or metadata structure."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.defaultmetadataproperties"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.defaultmetadataproperties",
+      "text": "Aspose.Pdf.Facades.DefaultMetadataProperties exposes standard metadata properties such as title, author, and subject for a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.documentprivilege"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.documentprivilege",
+      "text": "Aspose.Pdf.Facades.DocumentPrivilege defines permissions such as printing, copying, and editing that can be set on a secured PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.encodingtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.encodingtype",
+      "text": "Aspose.Pdf.Facades.EncodingType specifies the encoding scheme used for text within a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.facade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.facade",
+      "text": "Aspose.Pdf.Facades.Facade serves as a base class for high-level PDF manipulation operations, providing common functionality for document editing tasks."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.fieldtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.fieldtype",
+      "text": "Aspose.Pdf.Facades.FieldType identifies the type of a form field in a PDF document, such as text box or checkbox."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.fontstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.fontstyle",
+      "text": "Aspose.Pdf.Facades.FontStyle specifies visual styling options such as bold or italic for text in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.formeditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.formeditor",
+      "text": "Aspose.Pdf.Facades.FormEditor provides methods for editing form fields and their properties in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.formfieldfacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.formfieldfacade",
+      "text": "Aspose.Pdf.Facades.FormFieldFacade offers a unified interface for inspecting and modifying individual form field attributes."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.ifacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.ifacade",
+      "text": "Aspose.Pdf.Facades.IFacade defines a common interface for facade classes that perform PDF editing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.isaveablefacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.isaveablefacade",
+      "text": "Aspose.Pdf.Facades.ISaveableFacade represents a facade that can save its changes back to a PDF file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.imagemergemode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.imagemergemode",
+      "text": "Aspose.Pdf.Facades.ImageMergeMode controls how images are merged or overlaid during PDF processing operations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.keysize"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.keysize",
+      "text": "Aspose.Pdf.Facades.KeySize specifies the length of the encryption key used to secure a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfannotationeditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfannotationeditor",
+      "text": "Aspose.Pdf.Facades.PdfAnnotationEditor enables creation, modification, and deletion of annotations in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfbookmarkeditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfbookmarkeditor",
+      "text": "Aspose.Pdf.Facades.PdfBookmarkEditor provides functionality to manage bookmarks and outlines in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfcontenteditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfcontenteditor",
+      "text": "Aspose.Pdf.Facades.PdfContentEditor allows editing of text and other content directly within PDF pages."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfconverter",
+      "text": "Aspose.Pdf.Facades.PdfConverter converts PDF documents to other formats such as images or XPS."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfextractor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfextractor",
+      "text": "Aspose.Pdf.Facades.PdfExtractor retrieves text, images, or other content from PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdffileeditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdffileeditor",
+      "text": "Aspose.Pdf.Facades.PdfFileEditor provides operations for splitting, merging, and rearranging pages in a PDF file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdffileinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdffileinfo",
+      "text": "Aspose.Pdf.Facades.PdfFileInfo reads metadata and structural information from a PDF file without loading the full document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdffilesecurity"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdffilesecurity",
+      "text": "Aspose.Pdf.Facades.PdfFileSecurity applies encryption and permission settings to protect a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdffilesignature"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdffilesignature",
+      "text": "Aspose.Pdf.Facades.PdfFileSignature signs PDF documents using digital certificates and manages signature fields."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdffilestamp"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdffilestamp",
+      "text": "Aspose.Pdf.Facades.PdfFileStamp adds text or image stamps to pages in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfpageeditor"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfpageeditor",
+      "text": "Aspose.Pdf.Facades.PdfPageEditor supports editing individual page properties such as size, rotation, and content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.pdfxmpmetadata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.pdfxmpmetadata",
+      "text": "Aspose.Pdf.Facades.PdfXmpMetadata reads and writes XMP metadata embedded in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.positioningmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.positioningmode",
+      "text": "Aspose.Pdf.Facades.PositioningMode determines how content is positioned when added to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.propertyflag"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.propertyflag",
+      "text": "Aspose.Pdf.Facades.PropertyFlag specifies attributes such as read-only or required for form fields or annotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.saveablefacade"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.saveablefacade",
+      "text": "Aspose.Pdf.Facades.SaveableFacade provides a base implementation for facades that support saving changes to a PDF file."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.signaturename"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.signaturename",
+      "text": "Aspose.Pdf.Facades.SignatureName identifies the name of a digital signature field in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.stamptype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.stamptype",
+      "text": "Aspose.Pdf.Facades.StampType specifies whether a stamp is applied as text or an image when adding it to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.submitformflag"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.submitformflag",
+      "text": "Aspose.Pdf.Facades.SubmitFormFlag controls how form data is submitted when a PDF form is filled out."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.verticalalignmenttype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.verticalalignmenttype",
+      "text": "VerticalAlignmentType represents vertical alignment options for content, supporting Top, Center, and Bottom alignment."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.facades.wordwrapmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.facades.wordwrapmode",
+      "text": "WordWrapMode specifies how text should wrap within a text field or container."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.fileencoding"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.fileencoding",
+      "text": "FileEncoding defines the character encoding used for file names and metadata in PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.filespecification"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.filespecification",
+      "text": "FileSpecification describes an embedded file and its relationship to the PDF document, including name, description, encoding, and MIME type."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.floatingbox"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.floatingbox",
+      "text": "FloatingBox is a container that holds paragraphs and can be positioned freely on a page with configurable width, height, background color, and border."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.barcodefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.barcodefield",
+      "text": "BarcodeField represents a form field that displays a barcode with configurable symbology, dimensions, resolution, and caption."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.boxstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.boxstyle",
+      "text": "BoxStyle defines the visual appearance options for the border and background of a form field."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.buttonfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.buttonfield",
+      "text": "ButtonField is a push-button form field that can display different captions for normal, rollover, and alternate states."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.checkboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.checkboxfield",
+      "text": "CheckboxField is a form field that allows users to select or clear a single checkbox with configurable checked state and export value."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.choicefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.choicefield",
+      "text": "ChoiceField is a form field that lets users select one or multiple options from a list, supporting multi-select and export values."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.comboboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.comboboxfield",
+      "text": "ComboBoxField is a form field that combines a drop-down list with an editable text box for user input."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.datefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.datefield",
+      "text": "DateField is a form field that captures a date value with a configurable date format and initialization."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.docmdpaccesspermissions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.docmdpaccesspermissions",
+      "text": "DocMDPAccessPermissions defines the permission level granted to a document when it is signed with document modification detection and prevention."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.docmdpsignature"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.docmdpsignature",
+      "text": "DocMDPSignature represents a digital signature that applies document modification detection and prevention policies to a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.externalsignature"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.externalsignature",
+      "text": "ExternalSignature provides a mechanism to sign a PDF document using a signature created outside the Aspose.PDF library."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.field"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.field",
+      "text": "Field is the base class for all form fields in a PDF document, supporting properties like alternate name and annotation index."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.fileselectboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.fileselectboxfield",
+      "text": "FileSelectBoxField is a form field that allows users to select a file from their system to be embedded in the PDF."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.form"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.form",
+      "text": "Form provides access to all form fields in a PDF document and supports operations like flattening and field management."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.formtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.formtype",
+      "text": "FormType indicates whether a PDF document contains AcroForm or XFA form data."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.iconcaptionposition"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.iconcaptionposition",
+      "text": "IconCaptionPosition specifies the relative placement of an icon and caption on a button field."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.iconfit"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.iconfit",
+      "text": "IconFit defines how an icon is scaled and positioned within a button field."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.listboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.listboxfield",
+      "text": "ListBoxField is a form field that displays a list of options from which users can select one or multiple items."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.numberfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.numberfield",
+      "text": "NumberField is a form field that accepts numeric input and supports formatting and validation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.option"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.option",
+      "text": "Option represents a single selectable item within a choice-based form field such as a list box or combo box."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.optioncollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.optioncollection",
+      "text": "OptionCollection is a container that holds a collection of Option objects for use in choice-based form fields."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.pkcs1"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.pkcs1",
+      "text": "PKCS1 represents a PKCS#1 signature format used for signing PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.pkcs7"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.pkcs7",
+      "text": "PKCS7 represents a PKCS#7 signature format used for signing PDF documents."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.pkcs7detached"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.pkcs7detached",
+      "text": "PKCS7Detached represents a detached PKCS#7 signature where the signed data is not embedded in the signature itself."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.passwordboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.passwordboxfield",
+      "text": "PasswordBoxField is a form field that masks user input for secure password entry."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.radiobuttonfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.radiobuttonfield",
+      "text": "RadioButtonField is a form field that allows users to select only one option from a group of mutually exclusive choices."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.radiobuttonoptionfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.radiobuttonoptionfield",
+      "text": "RadioButtonOptionField represents an individual option within a radio button group."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.richtextboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.richtextboxfield",
+      "text": "RichTextBoxField is a form field that supports multi-line text input with rich text formatting."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.scalingmode"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.scalingmode",
+      "text": "ScalingMode determines how the content of a form field is scaled to fit its appearance rectangle."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.scalingreason"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.scalingreason",
+      "text": "ScalingReason indicates why scaling was applied to a form field's content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.signature"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.signature",
+      "text": "Signature represents a digital signature applied to a PDF document for authentication and integrity."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.signaturecustomappearance"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.signaturecustomappearance",
+      "text": "SignatureCustomAppearance allows customization of the visual appearance of a digital signature."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.signaturefield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.signaturefield",
+      "text": "SignatureField is a form field that holds a digital signature and its associated metadata."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.subjectnameelements"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.subjectnameelements",
+      "text": "SubjectNameElements specifies which components of a certificate's subject name should be displayed in a signature."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.symbology"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.symbology",
+      "text": "Symbology defines the barcode encoding standard used by a barcode field."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.textboxfield"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.textboxfield",
+      "text": "TextBoxField is a form field that accepts single-line or multi-line text input from users."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.forms.xfa"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.forms.xfa",
+      "text": "Aspose.Pdf.Forms.XFA represents XFA data associated with a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.graphinfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.graphinfo",
+      "text": "Aspose.Pdf.GraphInfo holds graphical attributes such as color, line width, rotation, and scaling for vector graphics."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.horizontalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.horizontalalignment",
+      "text": "Aspose.Pdf.HorizontalAlignment specifies horizontal alignment options for content on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.hyperlink"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.hyperlink",
+      "text": "Aspose.Pdf.Hyperlink represents a hyperlink annotation in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.iindexbitmapconverter"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.iindexbitmapconverter",
+      "text": "Aspose.Pdf.IIndexBitmapConverter provides methods to convert indexed bitmaps to 1-bpp, 4-bpp, and 8-bpp formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.loadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.loadoptions",
+      "text": "Aspose.Pdf.LoadOptions configures how a PDF document is loaded, including options to disable font license verifications."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.margininfo"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.margininfo",
+      "text": "Aspose.Pdf.MarginInfo defines margin sizes for the top, bottom, left, and right sides of a page or element."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.metadata"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.metadata",
+      "text": "Aspose.Pdf.Metadata stores and manages document metadata properties and namespace registrations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.nameddestinationcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.nameddestinationcollection",
+      "text": "Aspose.Pdf.NamedDestinationCollection holds named destinations that can be used to link to specific locations in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.numberingstyle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.numberingstyle",
+      "text": "Aspose.Pdf.NumberingStyle specifies the numbering format used for list items or page labels."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlinecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.outlinecollection",
+      "text": "Aspose.Pdf.OutlineCollection represents the top-level collection of outlines (bookmarks) in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlineitemcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.outlineitemcollection",
+      "text": "Aspose.Pdf.OutlineItemCollection represents a single outline item with properties such as title, bold, italic, and destination."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.outlines"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.outlines",
+      "text": "Aspose.Pdf.Outlines provides access to the hierarchical outline structure of a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.page"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.page",
+      "text": "Aspose.Pdf.Page represents a single page in a PDF document and contains its content and properties."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pagecollection",
+      "text": "Aspose.Pdf.PageCollection manages the ordered set of pages in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagecoordinatetype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pagecoordinatetype",
+      "text": "Aspose.Pdf.PageCoordinateType defines the coordinate system used for positioning elements on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagelabel"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pagelabel",
+      "text": "Aspose.Pdf.PageLabel specifies the label and numbering style for a range of pages in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagelabelcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pagelabelcollection",
+      "text": "Aspose.Pdf.PageLabelCollection holds page label definitions applied to ranges of pages in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pagesize"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pagesize",
+      "text": "Aspose.Pdf.PageSize defines the dimensions of a page in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.paragraphs"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.paragraphs",
+      "text": "Aspose.Pdf.Paragraphs manages the collection of paragraph-level elements on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.passwordtype"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.passwordtype",
+      "text": "Aspose.Pdf.PasswordType indicates the type of password used to secure a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.pdfformat"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.pdfformat",
+      "text": "Aspose.Pdf.PdfFormat specifies the PDF standard version used for a document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.permissions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.permissions",
+      "text": "Aspose.Pdf.Permissions controls the allowed operations on a PDF document, such as printing or editing."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.point"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.point",
+      "text": "Aspose.Pdf.Point represents a coordinate pair (X, Y) used for positioning elements on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.rectangle"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.rectangle",
+      "text": "Aspose.Pdf.Rectangle defines a rectangular area using coordinates and is used for layout and annotation bounds."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.renderingoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.renderingoptions",
+      "text": "Aspose.Pdf.RenderingOptions configures settings for rendering a PDF document to an image or other format."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.resources"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.resources",
+      "text": "Aspose.Pdf.Resources holds fonts, images, and other resources used within a PDF page or document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.rotation"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.rotation",
+      "text": "Aspose.Pdf.Rotation specifies the rotation angle applied to a page or element."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.row"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.row",
+      "text": "Aspose.Pdf.Row represents a single row in a table, containing a collection of cells."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.rows"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.rows",
+      "text": "Aspose.Pdf.Rows manages the collection of rows in a table."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.svgloadoptions"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.svgloadoptions",
+      "text": "Aspose.Pdf.SvgLoadOptions configures how an SVG document is loaded and converted into PDF content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.table"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.table",
+      "text": "Aspose.Pdf.Table represents a table structure that can be added to a PDF page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.font"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.font",
+      "text": "Aspose.Pdf.Text.Font represents a font used for rendering text in a PDF document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.fontrepository"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.fontrepository",
+      "text": "Aspose.Pdf.Text.FontRepository provides methods to search for and manage available fonts."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.position"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.position",
+      "text": "Aspose.Pdf.Text.Position specifies the X and Y coordinates for placing text on a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textabsorber"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textabsorber",
+      "text": "Aspose.Pdf.Text.TextAbsorber extracts text content from a PDF page or document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textbuilder"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textbuilder",
+      "text": "Aspose.Pdf.Text.TextBuilder appends text fragments to a page’s content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textfragment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textfragment",
+      "text": "Aspose.Pdf.Text.TextFragment represents a segment of text with its own formatting and position."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textfragmentabsorber"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textfragmentabsorber",
+      "text": "Aspose.Pdf.Text.TextFragmentAbsorber extracts text fragments from a PDF page with their formatting and position."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textfragmentcollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textfragmentcollection",
+      "text": "Aspose.Pdf.Text.TextFragmentCollection holds a collection of text fragments extracted from a page."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textfragmentstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textfragmentstate",
+      "text": "Aspose.Pdf.Text.TextFragmentState represents the visual formatting attributes applied to a text fragment, such as font, size, foreground and background colors, and text decorations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textparagraph"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textparagraph",
+      "text": "Aspose.Pdf.Text.TextParagraph encapsulates a block of text with layout properties including position, rectangle, horizontal and vertical alignment, margins, and indentation settings."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.text.textstate"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.text.textstate",
+      "text": "Aspose.Pdf.Text.TextState defines the text rendering attributes used when drawing text, including font, size, colors, spacing, and typographic effects like subscript and underline."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.verticalalignment"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.verticalalignment",
+      "text": "Aspose.Pdf.VerticalAlignment specifies the vertical positioning options for content relative to a reference line or container."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.watermarkartifact"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.watermarkartifact",
+      "text": "Aspose.Pdf.WatermarkArtifact represents a watermark object that can be added to a PDF page as a visual overlay."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.ximage"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.ximage",
+      "text": "Aspose.Pdf.XImage encapsulates an image resource with properties such as width, height, transparency, and raw image data access."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.ximagecollection"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.ximagecollection",
+      "text": "Aspose.Pdf.XImageCollection manages a collection of XImage objects with operations to add, remove, replace, and enumerate images."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.pdf.xmpvalue"
+      ],
+      "section": "api_reference",
+      "slot": "type:public_symbol:aspose.pdf.xmpvalue",
+      "text": "Aspose.Pdf.XmpValue provides typed access to XMP metadata values, supporting operations to determine the underlying type and convert to common data formats."
+    },
+    {
+      "fact_ids": [
+        "link_target:029"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:029",
+      "text": "The getting started guide introduces core concepts and walks through creating your first PDF document using Aspose_PDF_FOSS."
+    },
+    {
+      "fact_ids": [
+        "link_target:030"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:030",
+      "text": "The how-to guides and FAQ provide practical examples and answers to common questions for working with Aspose_PDF_FOSS."
+    },
+    {
+      "fact_ids": [
+        "link_target:031"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:031",
+      "text": "The full API reference documents every class, method, and type exposed by the Aspose_PDF_FOSS library."
+    },
+    {
+      "fact_ids": [
+        "link_target:032"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:032",
+      "text": "The contributing guide explains how to set up the development environment and submit changes to Aspose.PDF FOSS for Cpp."
+    },
+    {
+      "fact_ids": [
+        "link_target:033"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:033",
+      "text": "Open an issue to report bugs, request features, or ask questions about Aspose.PDF FOSS for Cpp on GitHub."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:106.heading",
+        "inherited_unit:108.list",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose.PDF FOSS for Cpp 1.0.0 is a C++20 library for creating and manipulating PDF documents on Linux and Windows using CMake 3.20 or later; it supports text, tables, vector graphics, annotations, form fields, outlines, and digital signatures, and can convert PDFs to TIFF images."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Some XmpValue type-checking helpers — IsDateTime, IsField, IsNamedValue, IsRaw, IsNamedValues, and IsStructure — always return false and should not be used; developers must rely on IsString, IsInteger, IsDouble, and IsArray instead."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "Standard-14 font fallback includes only Helvetica, Times-Roman, and Courier in regular, bold, italic, and bold-italic variants via bundled Liberation fonts; Symbol and ZapfDingbats have no fallback and will not render correctly."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Incremental-update metadata writing fails for new documents because it attempts to patch a non-existent /Info object, so setting metadata and saving a from-scratch document raises an error."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:108.list"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "Permissions configured via encryption are not enforced by the library itself; the encryption bitfield is written into the file, but the library does not act as a DRM mechanism and relies on the consuming PDF viewer to respect those permissions."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:revision",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "package:version",
+        "package:cxx_standard",
+        "package:cmake_minimum",
+        "build_test_asset:tests",
+        "build_test_asset:ci",
+        "build_test_asset:examples"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build Aspose.PDF FOSS for Cpp using CMake 3.20 or later with C++20 support, then run tests from the tests/ directory or examples from the examples/ directory; CI workflows in .github/workflows/ validate the build and test pipeline."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:cmake_minimum",
+        "package:cxx_standard",
+        "package:name",
+        "package:version"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose.PDF FOSS for Cpp provides a subset of capabilities from the commercial product, and Aspose.PDF commercial edition adds additional features such as advanced rendering, digital signing, and form handling not present in this open-source package."
+    }
+  ]
+}

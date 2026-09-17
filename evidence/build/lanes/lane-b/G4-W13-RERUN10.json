@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN10",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-17T07:51:39+05:00",
+  "control_revision": "1ed2416",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN10 was cut from origin/main at 78cda53 in a fresh short-path worktree at C:\\w\\b15 (07:16 +05:00). origin/main advanced to 1ed2416 (an unrelated bcpy lane seal, BarCode-Python) during the draw; rebased (fast-forward, zero commits of this item's own at the time) before recording progress and before the commit. No conflict: the new commits touch only a different repository's candidate bundle, docs/DECISION_LOG.md, docs/RESEARCH_AND_GUIDELINES.md and project/state.yaml's progress field, none of which this item's own paths intersect.",
+  "resume_predicate_verification": "Before drawing: confirmed item 106 (PROPOSAL LANE-B-R9-F1, 'title-restatement guard tolerates real added detail') actually landed as commit 43bdb91, read in full via git show against origin/main - composition/authoring.py's unit_checks now rejects a title restatement only when title_terms(text, facts) - title_terms(title, facts) is empty (no real added detail beyond the title), NORMALISATION_VERSION 6 -> 7, with its own mutation test (test unit checks tolerates a restatement carrying real member detail) and item 99's original fixture kept green. evidence/build/G4_MULTI_LANGUAGE_COHORTS/unblocked.jsonl's last row names item 106 unlocking exactly [\"lane-b\", \"aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp\"], landed_at 2026-09-17T01:46:52Z. A genuine changed-input retry, not a redraw of RERUN9's own unmet attempt.",
+  "time_box": {
+    "declared": "Spawn instruction 2026-09-17 ~07:15 (+05:00): re-draw aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp now that item 106 (commit 43bdb91, LANE-B-R9-F1) has landed, clearing draw 9's resume predicate.",
+    "started": "2026-09-17T07:16:00+05:00",
+    "closed": "2026-09-17T07:51:39+05:00",
+    "closed_by": "PDF C++ reached a full seal on the first draw of this item and the seal survived two independent fresh-process no-op-proof replays; the box closes on a sealed result, not a time limit."
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+    "python": "3.13.2",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "worktree": "C:\\w\\b15",
+    "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; g++ 16.2.0 / ninja 1.13.2 exercised for the C++ example verifier and build_product's CMake configure+build"
+  },
+  "what_this_run_tested": "Whether item 106's landing (unit_checks' title-restatement guard now tolerating a restatement that carries real member/format-level detail beyond the title) lets aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp actually reach a seal, now that its own S6-onward facts are unchanged (same revision 888700a8e361d32df21d0810c2eb939345e0603e, same facts digest bd8f4a983c... as every prior draw since 2026-09-11).",
+  "answered": {
+    "did_the_repository_seal": "YES, on the first draw. facts-only preflight confirmed the unchanged revision and facts digest before the full transaction ran. The full present transaction reached S9 validation (10 PASS, 0 FAIL, 1 PENDING - BC-11 the no-op proof, not yet run), S10 independent review (verdict ACCEPT; verdict_as_returned REJECT_PRESENTATION on the first read, reversed on corroboration - second_reader.read=2, 8 corroborated finding ids, 0 findings surviving, 15 advisory), one repair round (F04, S6 quick_start, repaired), and sealed: candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e, state ACCEPTED, 31 provider calls. A second fresh-process invocation (run 2) reproduced every stage's cached output with zero provider calls, but examples.json and probes.json byte-level content had shifted since run 1's seal (see finding below), so the system correctly withdrew the unconfirmed proof and re-sealed on run 2's bytes rather than trusting a mismatch. A third fresh-process invocation (run 3) reproduced run 2 byte-for-byte on every content file (README.md, content_units.json, dependencies.json, dispositions.json, examples.json, facts.json, investigation.json, plan.json, repairs.json, review.json) with zero provider calls; validation.json's only change was BC-11 itself moving PENDING to PASS (the no-op proof's own record) and probes.json's only change was registry-probe elapsed_ms timing telemetry (not content). Final state: READY_FOR_PROPOSAL, no_op_proof {byte_identical: true, fresh_process: true, provider_calls: 0}.",
+    "was_lane_b_r9_f1s_mechanism_exercised": "NOT DIRECTLY. calls.jsonl's single response_invalid row this draw (job section_authoring, request c52e24f9...) rejects an unrelated api_reference unit citing 'FitH, FitV' as identifiers outside its accepted fact values - not a title-restatement rejection. presentation_planning's S5 output this draw places the raster-image device facts (PngDevice/JpegDevice/BmpDevice/TiffDevice) into capability:2 merged with text-extraction ('Extract text from a Document or single Page ... and render individual pages or page ranges to raster images ...'), not as the standalone capability:3 RERUN9 measured ('Render pages to raster images' alone) - a materially different S5 split from RERUN9's, so the exact single-purpose-capability scenario item 106 was written for did not recur, and the guard's new tolerance branch (title_terms(text, facts) - title_terms(title, facts) non-empty) was never called on that scenario this draw. The seal is genuine and the resume predicate is closed by producing a seal, but this draw does not itself serve as a corroborating test of item 106's fix - recorded literally rather than claimed as proof, per the standing rule against reporting a result not directly observed."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R10-OBS1",
+      "kind": "OBSERVATION",
+      "files": [
+        "src/repository_presenter/components/readme/extractors/platforms/cpp_examples.py (verify_cpp_examples / _fresh_workspace / build_product - lane-owned)"
+      ],
+      "defect": "Not a failure: examples.json's bytes differed between run 1 (first-ever build in this fresh worktree, 10195 bytes, sha 27532dcf...) and run 2 (10107 bytes, sha 37b45bc5..., 88 bytes smaller, same EXECUTED/FAILED/NOT_VERIFIED counts both times), despite _fresh_workspace wiping and recreating the entire cmake-build workspace (including any FetchContent _deps cache) on every invocation - so this is not an ordinary cold-vs-warm cache effect, since run 2's workspace was just as freshly wiped as run 1's. Run 2 and run 3 (independent fresh processes) then reproduced examples.json byte-for-byte, and the seal/no-op-proof mechanism itself caught the run-1-to-run-2 drift correctly: it withdrew the unconfirmed proof and re-sealed rather than trusting a stale match. No sealed bytes are wrong; the check that exists to catch exactly this kind of drift worked as designed. Root cause of the one-time run-1/run-2 difference not conclusively isolated in this item's time box (most likely a Windows file-lock/suffix-fallback interaction in _fresh_workspace or fetched_includes' _deps glob ordering, given the facts-only preflight immediately preceding run 1 in the same worktree also invoked the same example verifier once already) - not re-proposed as a blocking defect since it never produced an incorrect seal and the mechanism designed to catch it did catch it; recorded as a measurement for anyone re-touching cpp_examples.py.",
+      "evidence": "candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e/manifest.json (run 1: examples.json sha 27532dcf08996ea558d0000f02e834da420e101a3b9630284da87c3635dd66d8, 10195 bytes; run 2/3: sha 37b45bc582ce6bfe4b46998b0dbcece4187780b6b888157915614a7d56697975, 10107 bytes). CLI transcripts /c/w/pdfcpp10-run1.log, run2.log, run3.log. probes.json's run-2-to-run-3 diff is confirmed pure elapsed_ms registry-probe timing (diffed byte-for-byte: every changed line is `\"elapsed_ms\": N` with the surrounding JSON identical); validation.json's only run-2-to-run-3 diff is BC-11's own PENDING-to-PASS transition and its judged-by text.",
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "landed": false
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp",
+      "revision": "888700a8e361d32df21d0810c2eb939345e0603e",
+      "disposition": "SEALED",
+      "disposition_change": "MOVES from BLOCKED_COMPOSING (S6, draw 9) to SEALED (READY_FOR_PROPOSAL) - item 106's landing let the transaction pass section_authoring for the first time since draw 7 reached S10, and this draw carried it all the way through validation, review and the no-op proof. sealed_by_lane rises 1 to 2; dispositions_by_lane falls 9 to 8 (PDF-Cpp moves out of disposition into a real seal, not lost).",
+      "facts": "1,846 records; digest bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb - unchanged from every prior draw since 2026-09-11 (deterministic facts stage, unchanged source and extractor); 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none",
+      "examples": "11 candidates: 4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED (unchanged)",
+      "stages": "S3 repository_investigation, S4 source_reconciliation, S5 presentation_planning: all reused/cache-consistent across the draw's own three fresh-process invocations after run 1's own live calls. S6 section_authoring: 287 units across 9 sections, one response_invalid (an unrelated api_reference identifier-value defect, FitH/FitV, not a title restatement) resolved on retry. S9 validation: 10 PASS/0 FAIL/1 PENDING (BC-11) after run 1, 11 PASS/0 FAIL/0 PENDING after the no-op proof. S10 independent review: verdict ACCEPT (verdict_as_returned REJECT_PRESENTATION on the first read, reversed on corroboration; second_reader.read=2, 8 corroborated ids, 0 surviving findings, 15 advisory). One repair round: F04 (S6 quick_start) repaired.",
+      "validation": "PASS 10/FAIL 0/PENDING 1 after the initial seal; PASS 11/FAIL 0/PENDING 0 after the no-op proof (BC-11 PASS).",
+      "review": "ACCEPT, 0 findings, 15 advisory, second_reader.read=2, 8 corroborated.",
+      "repair": "1 repaired (F04, S6 quick_start), 0 unrepairable, 1 round.",
+      "provider_calls": "31 live calls in run 1 (the only run that made any); 0 in run 2 and run 3, both fresh processes reusing run 1's own bundle history with zero cache_stale.",
+      "resume_predicate": "CLOSED. Nothing remains open for this repository: candidates/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e is READY_FOR_PROPOSAL with no_op_proof.byte_identical true."
+    }
+  ],
+  "not_drawn": {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "BLOCKED_REVIEW (BC-10) since G4-W14-RERUN3 (2026-09-16 17:59), resume predicate PROPOSAL LANE-B-W14R3-F1 (out of this item's named scope; not re-checked).",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript": "BLOCKED_INVESTIGATION (S3) since G4-W14-RERUN4 (2026-09-16 20:36) (disabled: disposition only per the lane file; not re-checked).",
+    "aspose-email-foss/Aspose.Email-FOSS-for-Cpp": "BLOCKED_PLANNING (S5), resume predicate arrival item (25) landing (out of this item's named scope; not re-checked).",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp": "BLOCKED_REVIEW (BC-10) since G4-W13-RERUN5 (2026-09-16 15:48) (out of this item's named scope; not re-checked).",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "SEALED at G4-W14-RERUN5 (2026-09-16 21:33); not applicable."
+  },
+  "provider_calls": {
+    "total_ledger_rows_this_bundle": 82,
+    "completed_live": 31,
+    "output_rejections": 1,
+    "cache_reuse": 50,
+    "cache_stale": 0,
+    "note": "All 31 live calls happened in run 1 (the draw's first, cold-of-a-bundle invocation); runs 2 and 3 each made zero live calls, another independent non-materialisation of lane E's PROPOSAL E3 on this repository's surface size."
+  },
+  "progress": {
+    "sealed_by_lane": 2,
+    "candidates_after_run": "18/34 (repository-presenter status, run from this worktree already rebased onto origin/main 1ed2416; risen by this draw's own seal plus one unrelated bcpy seal that landed during the draw)",
+    "dispositions_by_lane": 8
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this item (the repository sealed against unmodified lane-owned code); ruff/mypy/pytest are a control on the sealed bundle, evidence, lane-file, RESEARCH log and the one state.yaml progress field this item's narrow exception permits.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "236 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest_before_state_edit": "1 failed (test_status_reports_this_repository_cursor: cursor 17 vs disk 18, expected given the just-landed seal), 1235 passed, 23 xfailed in 99.69s (-n auto)",
+    "pytest_after_state_edit": "see commit; state.yaml's current_candidates set to 18 (computed fresh via repository-presenter status against the just-rebased origin/main 1ed2416 tree, never incremented by hand) resolves the one failure",
+    "runs_this_iteration": "1 full pytest run pre-edit; a second confirms green post-edit before the commit"
+  }
+}

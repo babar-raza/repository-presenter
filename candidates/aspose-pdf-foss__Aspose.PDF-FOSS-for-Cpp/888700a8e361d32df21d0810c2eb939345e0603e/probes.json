@@ -1,0 +1,138 @@
+[
+  {
+    "elapsed_ms": 1336,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://cmake.org/"
+  },
+  {
+    "elapsed_ms": 727,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://docs.aspose.org/pdf/cpp/"
+  },
+  {
+    "elapsed_ms": 526,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://en.cppreference.com/w/cpp/20"
+  },
+  {
+    "elapsed_ms": 1540,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/actions/workflows/ci.yml"
+  },
+  {
+    "elapsed_ms": 1277,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/actions/workflows/ci.yml/badge.svg"
+  },
+  {
+    "elapsed_ms": 1561,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/issues"
+  },
+  {
+    "elapsed_ms": 1516,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://github.com/google/googletest"
+  },
+  {
+    "elapsed_ms": 528,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/C%2B%2B-20-00599C?logo=cplusplus"
+  },
+  {
+    "elapsed_ms": 553,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/CMake-3.20+-064F8C?logo=cmake"
+  },
+  {
+    "elapsed_ms": 477,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://img.shields.io/badge/License-MIT-yellow.svg"
+  },
+  {
+    "elapsed_ms": 629,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://kb.aspose.org/pdf/cpp/"
+  },
+  {
+    "elapsed_ms": 890,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://opensource.org/licenses/MIT"
+  },
+  {
+    "elapsed_ms": 730,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.com/pdf/cpp/"
+  },
+  {
+    "elapsed_ms": 605,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/media/pdf/cpp/banner-readme.png"
+  },
+  {
+    "elapsed_ms": 578,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://products.aspose.org/pdf/cpp/"
+  },
+  {
+    "elapsed_ms": 630,
+    "kind": "link",
+    "observation": null,
+    "outcome": "RESOLVED",
+    "status": 200,
+    "target": "https://reference.aspose.org/pdf/cpp/"
+  },
+  {
+    "elapsed_ms": 0,
+    "kind": "registry",
+    "observation": "package_registry.json (offline)",
+    "outcome": "UNRESOLVED",
+    "status": null,
+    "target": "none:Aspose_PDF_FOSS"
+  }
+]
