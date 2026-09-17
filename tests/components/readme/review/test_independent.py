@@ -360,6 +360,65 @@ def test_the_reviewed_units_own_inherited_citation_refutes_a_finding_that_omits_
     assert scope_defect(ungrounded, CANDIDATE, by_id, units=units) is not None
 
 
+def test_a_contradicted_fact_the_finding_lists_as_unrelated_context_does_not_save_it() -> None:
+    """G4-W17 arrival item 91 (PDFPY-01, pdfpy worker LANE-E-08). `factuality_defect`'s
+    CONTRADICTED-stands gate read only the finding's own self-reported `fact_ids`, so a
+    reviewer-added CONTRADICTED fact the reviewed unit never cited kept an otherwise
+    unit-grounded, SUPPORTED-backed, verbatim-correct claim permanently blocking. Measured on
+    PDF-Python (F05): the finding's own text said no change was needed, its quote was verbatim in
+    the candidate and backed by the reviewed unit's own SUPPORTED inherited_unit citation, but it
+    also listed a CONTRADICTED fact as unrelated context - `excluded_evidence_defect` and
+    `absence_defect` cannot catch this either, since both key off an empty `absent`. Scoped to
+    `unit_fact_ids` (item 83's own source), the same source the SUPPORTED-literal path two lines
+    below already reads."""
+    upstream = Fact(
+        "inherited_unit:002.paragraph",
+        "inherited_unit",
+        "runs on windows and linux",
+        (Evidence("x"),),
+    )
+    stale = Fact("example:099", "example", "old_call()", (Evidence("x"),), polarity="CONTRADICTED")
+    by_id = {**{fact.id: fact for fact in FACTS.facts}, upstream.id: upstream, stale.id: stale}
+    units: dict[str, Any] = {
+        "units": [
+            {
+                "section": "scope_limitations",
+                "slot": "limitation:1",
+                "text": "It runs on windows and linux, per the upstream project.",
+                "fact_ids": [upstream.id],  # never cites stale.id
+            }
+        ],
+        "omitted": [],
+    }
+    f05 = {
+        **_finding(
+            "F05",
+            "scope_limitations",
+            "S6",
+            "It runs on windows and linux, per the upstream project.",
+        ),
+        "fact_ids": [stale.id],  # the reviewer's own unrelated CONTRADICTED citation
+        "text": "This claim is unverified.",
+    }
+    # Before item 91: the CONTRADICTED fact_id, present only in the finding's own self-report and
+    # never cited by the reviewed unit, would have saved the finding regardless of the unit's own
+    # (unrelated, refuting) evidence. After: the unit's own SUPPORTED citation refutes it.
+    assert scope_defect(f05, CANDIDATE, by_id, units=units) == (
+        "the quote contains the literal value of SUPPORTED fact inherited_unit:002.paragraph "
+        "('runs on windows and linux'); literal fact text is supported"
+    )
+    # Mutation control: every prior case this gate closed had its CONTRADICTED fact genuinely
+    # among the unit's own citations - that shape is unchanged, still stands.
+    genuinely_cited = {
+        **units,
+        "units": [{**units["units"][0], "fact_ids": [upstream.id, stale.id]}],
+    }
+    assert scope_defect(f05, CANDIDATE, by_id, units=genuinely_cited) is None
+    # Without any units document at all (unit_fact_ids empty), today's exact pre-item-91 behaviour
+    # for a finding-only CONTRADICTED citation is unchanged: nothing scopes it, so it still stands.
+    assert scope_defect(f05, CANDIDATE, by_id) is None
+
+
 def test_a_presentation_finding_naming_nothing_is_refuted_by_its_units_own_product_fact() -> None:
     """G4-W17 arrival items 79/96 (lane E E8, Cells-Python; lane E bcpy LANE-E-07, BarCode-
     Python): a presentation finding naming neither a fact_id nor an absent claim used to stand
@@ -1509,6 +1568,55 @@ def test_a_presentation_finding_contradicting_its_own_cited_fact_is_the_reviewer
     assert document["verdict"] == ACCEPT and document["findings"] == []
     assert document["advisory"][0]["reviewer_scope_defect"] == reason
     assert "single_reader_advisory" not in document["advisory"][0]
+
+
+def test_a_finding_quoting_a_rendered_links_own_target_is_the_reviewers_defect() -> None:
+    """G4-W17 arrival item 71 (PROPOSAL AF, lane C). `_normalized` strips a Markdown link down to
+    its visible label (`_LINK.sub(r"\\1", ...)`), so a `link_target` fact's own value - the
+    destination behind the link, never its label - could never literal-match through
+    `_cited_literal` at all. Measured on Slides Java, second draw, F07 (`presentation`,
+    `documentation_resources`): the finding quoted the candidate's own rendered line verbatim,
+    `[Code of Conduct](CODE_OF_CONDUCT.md)`, citing the exact SUPPORTED `link_target` fact whose
+    value is that target, and called the link "misplaced" - `_normalized(quote)` threw the target
+    away before comparison, so a quote that plainly carried the fact's own value could not be
+    recognised as carrying it."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            Fact("link_target:023", "link_target", "CODE_OF_CONDUCT.md", (Evidence("x"),)),
+        ),
+    )
+    by_id = {fact.id: fact for fact in facts.facts}
+    f07 = {
+        **_finding(
+            "F07",
+            "documentation_resources",
+            "S6",
+            "- **[Code of Conduct](CODE_OF_CONDUCT.md)** — The Code of Conduct outlines "
+            "expected behavior for contributors and participants in the project's community "
+            "spaces.",
+        ),
+        "criterion": "presentation",
+        "fact_ids": ["link_target:023"],
+        "text": "The Code of Conduct link is misplaced; it belongs in the Contributing section.",
+        "repair": "Move the Code of Conduct link.",
+    }
+    assert scope_defect(f07, CANDIDATE, by_id) == (
+        "the quote contains the literal value of SUPPORTED fact link_target:023 "
+        "('CODE_OF_CONDUCT.md'), which the finding itself cites as its evidence; literal fact "
+        "text is supported whatever criterion the finding files itself under"
+    )
+    # Its factuality-labelled twin answers through the identical, shared _cited_literal path.
+    assert scope_defect({**f07, "criterion": "factuality"}, CANDIDATE, by_id) == (
+        "the quote contains the literal value of SUPPORTED fact link_target:023 "
+        "('CODE_OF_CONDUCT.md'); literal fact text is supported"
+    )
+    # Mutation control: a quote that never carries the target at all - a reviewer describing the
+    # link only by its visible label - still stands; nothing here licenses a coincidental match.
+    label_only = {**f07, "quote": "Read the Code of Conduct before contributing."}
+    assert scope_defect(label_only, CANDIDATE, by_id) is None
 
 
 def test_a_finding_quoting_evidence_the_facts_exclude_is_the_reviewers_defect() -> None:

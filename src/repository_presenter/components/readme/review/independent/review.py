@@ -70,7 +70,15 @@ ACCEPT = "ACCEPT"
 # `<details>`/`</details>` tag lines the same renderer call sites emit beside the `<summary>` text
 # it already covered - a finding quoting the literal tag was falling through every exemption
 # branch and blocking on content no unit wrote and no repair could remove.
-REVIEWER_LOGIC_VERSION = "9"
+# "10" (G4-W17 arrival items 71/PROPOSAL AF and 91/PDFPY-01, landed together - both narrow
+# _cited_literal/factuality_defect's own existing refutation paths, no shared mechanism between
+# them beyond the file): (a) new _normalized_with_targets lets _cited_literal also match a cited
+# link_target fact's own value against a quote that embeds a Markdown link's raw target, which
+# _normalized alone always discards; (b) factuality_defect's CONTRADICTED-stands gate is scoped to
+# unit_fact_ids (the reviewed unit's own citations), so a CONTRADICTED fact the finding's own
+# self-report merely lists as unrelated context can no longer keep an otherwise unit-grounded,
+# SUPPORTED-backed, verbatim-correct claim blocking.
+REVIEWER_LOGIC_VERSION = "10"
 # The manifest's stage vocabulary mapped to the state the repair loop reopens
 # (docs/STATE_MACHINE.md section 7.5); a stage with no entry cannot be acted on.
 CAUSAL_STATES: dict[str, str] = {
@@ -129,6 +137,27 @@ def _normalized(text: str) -> str:
     quotes, single spaces. A reviewer quotes what it reads; the syntax around it is ours."""
     plain = _LINK.sub(r"\1", text.translate(_TYPOGRAPHY))
     for pattern in _MARKUP:  # fence lines first, while their backticks still mark them
+        plain = pattern.sub("", plain)
+    return re.sub(r"\s+", " ", plain.replace("`", "")).strip().lower()
+
+
+def _normalized_with_targets(text: str) -> str:
+    """Like ``_normalized``, but a Markdown link's own target survives beside its visible text
+    (G4-W17 arrival item 71, PROPOSAL AF, lane C): ``_normalized`` drops a link down to
+    ``\\1`` (the label alone), so a cited ``link_target`` fact's own value - a URL or filename,
+    never the label - can never literal-match a quote through that path at all, whatever the
+    quote actually contains. Measured on Slides-Java: a finding quoted the candidate's own
+    rendered line ``[Code of Conduct](CODE_OF_CONDUCT.md)`` verbatim, embedding the link's raw
+    Markdown syntax and its target in the same string the reviewer copied, and cited exactly the
+    SUPPORTED ``link_target`` fact whose value is that target - but ``_normalized`` had already
+    thrown the target away before ``_cited_literal`` ever compared anything, so a quote that
+    plainly carries the fact's own value could not be recognised as carrying it. This is not a
+    general widening of what a quote may spell: ``_LINK``'s substitution is simply skipped here,
+    so the brackets and parenthesis stay exactly as authored, and only an exact substring match on
+    the fact's own (already-normalized) value can ever succeed against it.
+    """
+    plain = text.translate(_TYPOGRAPHY)
+    for pattern in _MARKUP:
         plain = pattern.sub("", plain)
     return re.sub(r"\s+", " ", plain.replace("`", "")).strip().lower()
 
@@ -281,7 +310,10 @@ def factuality_defect(
     Once a finding clears that gate, though, its unit's own ``inherited_unit`` citations are a
     real refutation source the finding itself may simply not have repeated - measured on 3D-TS,
     Aspose.3D-FOSS-for-TypeScript's own upstream README already states, almost verbatim, the exact
-    limitation a surviving finding called unverified.
+    limitation a surviving finding called unverified. The same ``unit_fact_ids`` also narrows the
+    CONTRADICTED-stands gate below (G4-W17 arrival item 91, PDFPY-01): a CONTRADICTED fact
+    genuinely among the reviewed unit's own citations is real grounding, but one the finding's own
+    self-report merely lists beside a real, unit-grounded, SUPPORTED-backed claim is not.
     """
     cited = [by_id[i] for i in finding.get("fact_ids", []) if i in by_id]
     if not cited:
@@ -298,7 +330,15 @@ def factuality_defect(
             "or should have supported it; inherited README units are maintainer text, not "
             "evidence"
         )
-    if any(fact.polarity == "CONTRADICTED" for fact in product):
+    # G4-W17 arrival item 91 (PDFPY-01): scoped to unit_fact_ids, the same source the
+    # SUPPORTED-literal path two lines below already reads (item 83) - a CONTRADICTED fact the
+    # reviewed unit genuinely cited as its own evidence is real grounding for the finding, but a
+    # CONTRADICTED fact the finding's own self-report merely lists as unrelated context is not:
+    # measured on PDF-Python (F05), a verbatim, unit-grounded, SUPPORTED-backed claim was kept
+    # permanently blocking because its finding also named a CONTRADICTED fact the reviewed unit
+    # never cited at all. Every prior case this branch closed (items 39/63/83) had its CONTRADICTED
+    # fact among the unit's own citations, so this scoping changes nothing for them.
+    if any(fact.polarity == "CONTRADICTED" and fact.id in unit_fact_ids for fact in product):
         return None
     reviewed = [by_id[i] for i in unit_fact_ids if i in by_id and by_id[i].kind == "inherited_unit"]
     literal = _cited_literal([*product, *reviewed], quote)
@@ -320,11 +360,23 @@ def _cited_literal(product: Sequence[Fact], quote: str) -> Fact | None:
     Shared by ``factuality_defect`` and ``cited_fact_defect``: the prompt's own rule - "a quote
     that contains the literal value of a SUPPORTED fact you cite is supported by definition"
     (prompts/independent_review.yaml) - measured the same way whichever criterion files it.
+
+    Checked against both ``_normalized``'s reader-facing form and ``_normalized_with_targets``'s
+    link-preserving form (G4-W17 arrival item 71, PROPOSAL AF): most cited facts are prose a
+    reader would visibly read, but a ``link_target`` fact's own value is the destination behind a
+    link, not its label - the one shape ``_normalized`` alone can never match, since it exists
+    expressly to discard that destination. A quote that embeds the raw Markdown (as a reviewer's
+    own copy of the candidate's rendered line can) still carries it either way.
     """
     wanted = _normalized(quote)
+    wanted_with_targets = _normalized_with_targets(quote)
     for fact in product:
+        if fact.polarity != "SUPPORTED":
+            continue
         value = _normalized(fact.value)
-        if fact.polarity == "SUPPORTED" and len(value) >= _LITERAL_VALUE_LENGTH and value in wanted:
+        if len(value) < _LITERAL_VALUE_LENGTH:
+            continue
+        if value in wanted or value in wanted_with_targets:
             return fact
     return None
 
