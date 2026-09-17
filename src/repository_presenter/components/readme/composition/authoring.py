@@ -105,7 +105,12 @@ _TYPE_OBJECTIVE = (
 # names - a single-purpose capability whose plan-assigned title is the only accurate short
 # description of its facts has no compliant way to open the unit without echoing it. A real
 # meaning change to what unit_checks accepts (narrower rejection, not a removed check).
-NORMALISATION_VERSION = "7"
+# "7" -> "8" (G4-W17 arrival item 110/LANE-B-W14R6-F1): new inherited_unit_named_symbols(), the
+# deterministic counterpart of cited_inherited_identifiers - given an inherited unit's own text,
+# returns every SUPPORTED public_symbol/import_path fact it spells verbatim. Called from
+# reconciliation/dispositions.py's normalize() so a placed inherited unit's disposition always
+# carries every symbol its own sentence names, not only the subset one sampled S4 call cited.
+NORMALISATION_VERSION = "8"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -944,6 +949,38 @@ def cited_inherited_identifiers(facts: FactsDocument, fact_ids: Iterable[str]) -
         for fact in facts.by_kind("inherited_unit")
         if fact.polarity == "SUPPORTED" and fact.id in ids
         for token in _inherited_unit_tokens(fact.value)
+    )
+
+
+def inherited_unit_named_symbols(facts: FactsDocument, value: str) -> frozenset[str]:
+    """SUPPORTED ``public_symbol``/``import_path`` fact IDs spelled verbatim inside an inherited
+    unit's own text - the deterministic counterpart of ``cited_inherited_identifiers``: that
+    function goes from a unit's already-cited ``fact_ids`` to the identifiers its citations
+    license; this goes from an inherited unit's own source sentence to the facts it already names.
+
+    G4-W17 arrival item 110 (LANE-B-W14R6-F1): a single inherited unit's sentence can enumerate
+    many symbols at once ("mesh boolean operations (Mesh.union(), ... Mesh.doBoolean(),
+    Mesh.optimize(), Mesh.isManifold()), ... Scene.render()"), but the S4 reconciliation job's own
+    sampled ``fact_ids`` for that unit's disposition can cite only some of them - measured on
+    Aspose.3D for TypeScript: ``inherited_unit:077.list`` named a dozen not-implemented symbols in
+    one verbatim sentence, and its disposition cited exactly 7, omitting six (three of which
+    independent review correctly flagged as a factual omission; three more it never even reached).
+    ``content_units.json``'s own ``FileSystem`` bullet - citing ``public_symbol:filesystem``
+    alongside the same inherited unit even though that symbol was equally absent from the S4
+    disposition's ``fact_ids`` - proves S6 can already pull an unsampled symbol from this exact
+    sentence into its own bullet once one is offered it; this closes the gap one stage earlier,
+    deterministically, so a single sampled call's own coverage is never the ceiling on what a
+    sentence's own already-SUPPORTED facts can reach.
+    """
+    tokens = _inherited_unit_tokens(value)
+    if not tokens:
+        return frozenset()
+    return frozenset(
+        fact.id
+        for fact in facts.facts
+        if fact.polarity == "SUPPORTED"
+        and fact.kind in {"public_symbol", "import_path"}
+        and fact.value in tokens
     )
 
 

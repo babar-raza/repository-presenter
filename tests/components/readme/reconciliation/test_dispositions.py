@@ -453,6 +453,81 @@ def test_the_duplicate_subject_guard_ignores_identity_citations_and_different_se
     ]
 
 
+def test_a_placed_dispositions_fact_ids_gain_every_symbol_its_own_sentence_names() -> None:
+    """G4-W17 arrival item 110 (LANE-B-W14R6-F1). Measured on Aspose.3D for TypeScript:
+    inherited_unit:077.list named a dozen not-implemented symbols in one verbatim sentence, but
+    the S4 job's own sampled fact_ids cited only some of them, leaving the rest with no path into
+    S6's own citation set even though S6's split mechanism (the sentence's own FileSystem bullet)
+    is proven to work once offered a symbol. normalize() now adds every SUPPORTED
+    public_symbol/import_path fact the unit's own text spells, not only the sampled subset."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:005.list",
+                "inherited_unit",
+                "Widget.render(), Widget.save(), and Widget.optimize() all throw not "
+                "implemented errors.",
+            ),
+            _symbol("Widget.render", "method"),
+            _symbol("Widget.save", "method"),
+            # Named in the identical sentence but UNRESOLVED: never added - only a fact already
+            # SUPPORTED corroborates anything.
+            _fact(
+                "public_symbol:widget.optimize", "public_symbol", "Widget.optimize", "UNRESOLVED"
+            ),
+            # SUPPORTED but never spelled in this sentence: never added - scoped to this unit's
+            # own text, exactly as cited_inherited_identifiers is scoped to a unit's own citation.
+            _symbol("Widget.unused", "method"),
+        ),
+    )
+    output = {
+        "dispositions": [
+            # The S4 job's own sample cited only Widget.render - Widget.save is equally SUPPORTED
+            # and equally named in the identical sentence, but was never sampled.
+            _entry(
+                "inherited_unit:005.list",
+                "VERIFIED_PRESERVE",
+                "scope_limitations",
+                "public_symbol:widget.render",
+            )
+        ]
+    }
+    assert normalize(output, facts) == []
+    entry = output["dispositions"][0]
+    assert entry["disposition"] == "VERIFIED_PRESERVE"
+    assert set(entry["fact_ids"]) == {"public_symbol:widget.render", "public_symbol:widget.save"}
+
+
+def test_the_symbol_widening_pass_never_touches_a_disposition_that_will_not_be_composed() -> None:
+    """Mutation control: an OMIT_UNSUPPORTED unit (never composed) is left exactly as the job
+    wrote it - widening its fact_ids would only clutter a record nothing ever reads."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:005.list",
+                "inherited_unit",
+                "Widget.render() throws a not implemented error.",
+            ),
+            _symbol("Widget.render", "method"),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:005.list", "OMIT_UNSUPPORTED", None),
+        ]
+    }
+    assert normalize(output, facts) == []
+    entry = output["dispositions"][0]
+    assert entry["disposition"] == "OMIT_UNSUPPORTED"
+    assert entry["fact_ids"] == []
+
+
 def test_placement_rules_are_checked_before_use() -> None:
     assert contradicted_code_units(FACTS) == {"inherited_unit:004.code_block"}
     good = {

@@ -25,6 +25,7 @@ from repository_presenter.components.readme.composition.authoring import (
     forbidden_text_pattern,
     identifier_allowed,
     identifier_tokens,
+    inherited_unit_named_symbols,
     merge_repeated_slots,
     merge_units,
     proper_noun,
@@ -234,6 +235,24 @@ def test_identifier_tokens_and_the_allowed_set() -> None:
         "aspose-3d-foss",
     } <= allowed
     assert ".obj" not in allowed and "PbrMaterial" not in allowed
+
+
+def test_identifier_tokens_recognizes_a_slash_delimited_module_path() -> None:
+    # Item 113 (RESEARCH_AND_GUIDELINES.md section 29, lane D PROPOSAL P26, PHASE1
+    # supervisor-admitted 2026-09-17): measured on PDF-Go - identifier_tokens recognized
+    # _DOTTED/_SNAKE/_CAMEL/_CALL/_COORDINATE but nothing for a slash-delimited Go module path, so
+    # "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go" tokenized as just "github.com", splitting
+    # an identifier the renderer must treat as a single unit.
+    text = "Use the Open and Save methods from github.com/aspose-pdf-foss/aspose-pdf-foss-for-go."
+    assert "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go" in identifier_tokens(text)
+    # A Maven-style colon coordinate still tokenizes exactly as before - the new pattern is
+    # additive, not a replacement for _COORDINATE.
+    assert identifier_tokens("Uses org.aspose:aspose-pdf-foss internally.") == {
+        "org.aspose",
+        "org.aspose:aspose-pdf-foss",
+    }
+    # A bare dotted name with no slash is unaffected.
+    assert identifier_tokens("aspose.threed.Scene alone.") == {"aspose.threed.Scene"}
 
 
 def test_members_that_verified_examples_call_may_be_spelled_with_their_class() -> None:
@@ -1038,6 +1057,47 @@ def test_a_unit_may_spell_an_identifier_its_own_cited_inherited_unit_fact_spells
     }
     still_rejected = unit_checks(capability_output, capability_task, facts, name)
     assert len(still_rejected) == 1 and "CSSRule.css_text" in still_rejected[0]
+
+
+def test_inherited_unit_named_symbols_finds_every_supported_symbol_the_text_spells() -> None:
+    """G4-W17 arrival item 110 (LANE-B-W14R6-F1), the deterministic counterpart of
+    ``cited_inherited_identifiers`` above: given an inherited unit's own text (not its citations),
+    every SUPPORTED public_symbol/import_path fact it spells verbatim, whether backticked or bare.
+    Measured on Aspose.3D for TypeScript: inherited_unit:077.list named a dozen not-implemented
+    symbols in one sentence but the S4 job's own sampled fact_ids cited only some of them."""
+    facts = FactsDocument(
+        "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+        "h" * 40,
+        (
+            _fact(
+                "identity:repository",
+                "identity",
+                "aspose-html-foss/Aspose.HTML-FOSS-for-Python",
+            ),
+            _fact("public_symbol:cssrule.css_text", "public_symbol", "CSSRule.css_text"),
+            _fact(
+                "public_symbol:htmlimageelement.decode",
+                "public_symbol",
+                "HTMLImageElement.decode",
+            ),
+            # Named in the identical sentence but UNRESOLVED: never returned.
+            _fact(
+                "public_symbol:htmlimageelement.encode",
+                "public_symbol",
+                "HTMLImageElement.encode",
+                "UNRESOLVED",
+            ),
+            # SUPPORTED but never spelled in this text: never returned.
+            _fact("public_symbol:scene.render", "public_symbol", "Scene.render"),
+        ),
+    )
+    named = inherited_unit_named_symbols(
+        facts,
+        "- `CSSRule.css_text`, `HTMLImageElement.decode` and `HTMLImageElement.encode` are not "
+        "implemented.",
+    )
+    assert named == {"public_symbol:cssrule.css_text", "public_symbol:htmlimageelement.decode"}
+    assert inherited_unit_named_symbols(facts, "Nothing here names a symbol at all.") == frozenset()
 
 
 def test_the_hosting_site_a_verified_link_names_is_a_proper_noun_too() -> None:

@@ -23,6 +23,9 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from repository_presenter.components.readme.composition.authoring import (
+    inherited_unit_named_symbols,
+)
 from repository_presenter.components.readme.composition.components.shell import (
     placeable_section_ids,
     section_ids,
@@ -521,6 +524,26 @@ def normalize(
             continue
         for fact_id in narrow_citations:
             claimed.setdefault((destination, fact_id), unit)
+    # G4-W17 arrival item 110 (LANE-B-W14R6-F1): a placed inherited_unit's own sentence can name
+    # several symbols the S4 job's own sampled fact_ids never cited - measured on Aspose.3D for
+    # TypeScript, where inherited_unit:077.list named a dozen not-implemented symbols in one
+    # verbatim sentence and its disposition cited only 7, leaving the rest with no path into S6's
+    # own citation set even though composition/authoring.py's split mechanism (proven by that same
+    # sentence's own FileSystem bullet) can surface any of them once offered one. Every SUPPORTED
+    # public_symbol/import_path fact the unit's own text spells is added here, deterministically,
+    # after every fold and dedup above (so it can never influence which destination a unit landed
+    # on or trigger a spurious duplicate-subject fold) - the full set a single sampled call's own
+    # coverage should never have been the ceiling on.
+    for entry in output.get("dispositions", []):
+        if entry.get("disposition") not in PLACING:
+            continue
+        unit_fact = units_by_id.get(str(entry.get("unit_id", "?")))
+        if unit_fact is None or unit_fact.polarity != "SUPPORTED":
+            continue
+        named = inherited_unit_named_symbols(facts, unit_fact.value)
+        if not named:
+            continue
+        entry["fact_ids"] = sorted(set(entry.get("fact_ids") or []) | named)
     return errors
 
 
