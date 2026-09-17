@@ -126,7 +126,11 @@ _TYPE_OBJECTIVE = (
 # returns every SUPPORTED public_symbol/import_path fact it spells verbatim. Called from
 # reconciliation/dispositions.py's normalize() so a placed inherited unit's disposition always
 # carries every symbol its own sentence names, not only the subset one sampled S4 call cited.
-NORMALISATION_VERSION = "8"
+# "8" -> "9" (G4-W17 arrival item 113, lane D PROPOSAL P26): identifier_tokens gains _MODULE_PATH,
+# a slash-delimited module path pattern (same shape _COORDINATE already established for a
+# colon-delimited one) - a real meaning change to what the renderer treats as one identifier
+# (a Go module path spelled bare in prose no longer splits at its first dotted segment).
+NORMALISATION_VERSION = "9"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
