@@ -1,0 +1,821 @@
+--- a/README.md
++++ b/README.md
+@@ -1,109 +1,86 @@
+ # Aspose.Slides FOSS for Java
+ 
+-[![Build and test](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml/badge.svg)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/actions/workflows/build.yml)
+-[![Maven Central](https://img.shields.io/maven-central/v/org.aspose/aspose-slides-foss.svg)](https://central.sonatype.com/artifact/org.aspose/aspose-slides-foss)
+-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+-[![Java 21+](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://adoptium.net/)
+-
+-An MIT-licensed Java library that creates, reads and edits PowerPoint `.pptx` presentations by
+-building the Office Open XML package itself — no PowerPoint installation, no native code, and no
+-runtime dependencies at all. The CycloneDX SBOM the build produces lists zero components.
+-
+-It is for developers who generate or modify decks on a server or in a build, and who are working
+-*inside* the file format. It is not a renderer or a converter: there is no PDF, HTML, SVG or image
+-output, and everything it cannot do is listed under [Limitations](#limitations).
+-
+----
+-
+-## At a glance
++[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Contributors](https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Java)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/graphs/contributors)
++
++[![Aspose.Slides FOSS for Java](https://products.aspose.org/media/slides/java/banner-readme.png)](https://products.aspose.org/slides/java/)
++
++Aspose.Slides FOSS for Java is a free, open-source library that enables Java developers to create, read, modify, and convert PowerPoint presentations programmatically without requiring Microsoft PowerPoint. It supports common tasks such as adding shapes, tables, images, connectors, formatted text, speaker notes, and threaded comments to slides, and saving presentations in PPTX format. Built for Java 21 and higher, the library is distributed under the MIT license with no external dependencies. Developers working with presentation automation, reporting, or document generation workflows use this library to integrate robust slide manipulation directly into their Java applications.
++
++## Navigation
++
++- [At a Glance](#at-a-glance)
++- [Key Capabilities](#key-capabilities)
++- [Installation](#installation)
++- [Dependencies](#dependencies)
++- [Quick Start](#quick-start)
++- [Additional Examples](#additional-examples)
++- [API Reference](#api-reference)
++- [Documentation & Resources](#documentation--resources)
++- [Scope and Limitations](#scope-and-limitations)
++- [Development and Testing](#development-and-testing)
++- [License](#license)
++
++## At a Glance
+ 
+ ```mermaid
+ flowchart TD
+-  subgraph StartingPoints["Starting points"]
+-    direction TB
+-    i1["A new, empty presentation"]
+-    i2["An existing .pptx, from a path or an input stream"]
+-  end
+   PRODUCT["Aspose.Slides FOSS for Java"]
+-  subgraph Capabilities["What it does"]
++  subgraph Capabilities["Core Capabilities"]
+     direction LR
+     subgraph capl[" "]
+       direction TB
+-      c1["Slides: add, insert, remove, clone, hide"]
+-      c2["Shapes: AutoShape, Table, Connector, PictureFrame"]
+-      c3["Text: TextFrame, Paragraph, Portion, bullets"]
+-      c4["Fill, line and 3-D styling"]
++      c1["Create and modify presentations"]
++      c2["Add and format shapes"]
++      c3["Format text and paragraphs"]
+     end
+     subgraph capr[" "]
+       direction TB
+-      c5["Eight effects: outer and inner shadow, glow, soft edge, reflection, blur, preset shadow, fill overlay"]
+-      c6["Document properties: core, extended, custom"]
+-      c7["Speaker notes and comments"]
+-      c8["Images embedded from bytes, an IImage or a stream"]
++      c4["Add images and tables"]
++      c5["Manage notes and comments"]
++      c6["Apply fills, lines, and effects"]
+     end
+   end
+-  subgraph Outputs["Outputs"]
+-    direction TB
+-    o1[".pptx, .ppsx or .potx, to a path or an output stream"]
+-    o2["Parts the library does not model, carried through unchanged"]
+-    o3["No PDF, HTML, SVG or image export"]
+-  end
+-  StartingPoints --> PRODUCT --> Capabilities --> Outputs
+-```
+-
+----
+-
+-## Requirements
+-
+-| | |
+-|---|---|
+-| Java | **21 or later.** The sources use `List.getFirst()`, `List.removeLast()` and an unconditional `instanceof` pattern, so they do not compile below 21, and the build refuses to start on an older JDK. |
+-| Runtime dependencies | none |
+-| Tested on | Linux, Windows and macOS, on Java 21 and Java 25 — every push and every pull request |
+-
+----
++  PRODUCT --> Capabilities
++```
++
++## Key Capabilities
++
++- **Create and modify presentations.** Create new presentations from scratch or load existing ones from streams and files, then modify slides by adding, removing, or reordering them before saving to PPTX format.
++- **Add and format shapes.** Add rectangles, connectors, and other shapes to slides, connect shapes with lines, and position them precisely using coordinates and dimensions.
++- **Format text and paragraphs.** Format text by setting font height, bold style, and solid fill color, and access font names through the getFontName method.
++- **Add images and tables.** Insert images from byte arrays or input streams as picture frames and create tables with custom row heights and column widths.
++- **Manage notes and comments.** Add speaker notes to slides, create comment authors, and add threaded comments with parent-child relationships using the `Relationship` class.
++- **Apply fills, lines, and effects.** Apply solid fill colors to text and shapes, and configure line properties through fill format and line format objects.
+ 
+ ## Installation
+ 
+-Maven:
+-
+-```xml
+-<dependency>
+-    <groupId>org.aspose</groupId>
+-    <artifactId>aspose-slides-foss</artifactId>
+-    <version>26.7.0</version>
+-</dependency>
+-```
+-
+-Gradle:
+-
+-```groovy
+-implementation 'org.aspose:aspose-slides-foss:26.7.0'
+-```
+-
+-**Before you depend on `26.7.0`, read this.** It predates the XML hardening described under
+-*Security* in [CHANGELOG.md](CHANGELOG.md), and [SECURITY.md](SECURITY.md) lists it as not
+-supported for that reason. If your program opens `.pptx` files that come from somewhere you do not
+-control, [build from source](#building-from-source) rather than depending on `26.7.0`.
+-
+-`26.7.0`, published 2026-07-27, is the only version on Maven Central today —
+-`repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml` lists it as both
+-`<latest>` and `<release>`. **This source tree is `26.8.0` and is not published yet**, and the
+-behaviour changes at the top of [CHANGELOG.md](CHANGELOG.md) — above all the refusal to write a save
+-format it cannot produce — are in the source and not in `26.7.0`. Until `26.8.0` is released,
+-[build from source](#building-from-source) if you need them.
+-
+-Searching for the library on `search.maven.org` finds nothing, and that is a limitation of that
+-search index rather than of the release — the artifact resolves normally from `repo1.maven.org`.
+-[central.sonatype.com](https://central.sonatype.com/artifact/org.aspose/aspose-slides-foss) lists
+-it; [PUBLISHING.md](PUBLISHING.md) explains why the other one does not.
+-
+-The jar declares `Automatic-Module-Name: org.aspose.slides.foss`, so it can go on the module path
+-under a stable name.
+-
+----
+-
+-## Quick start
++Install the published package from Maven Central (`org.aspose:aspose-slides-foss`, version 26.8.0):
++
++```bash
++mvn dependency:get -Dartifact=org.aspose:aspose-slides-foss:26.8.0
++```
++
++## Dependencies
++
++### Required Package Dependencies
++
++No required third-party package dependencies; in `pom.xml`, every `<dependency>` the POM declares is `test`, `provided` or optional.
++
++### Native and System Requirements
++
++- Requires Java `21` (`maven.compiler.release` in `pom.xml`).
++
++### Development Dependencies
++
++- `org.apache.poi:poi-ooxml 5.4.1`
++- `org.assertj:assertj-core 3.27.3`
++- `org.junit.jupiter:junit-jupiter-api 5.11.4`
++- `org.junit.jupiter:junit-jupiter-engine 5.11.4`
++- `org.junit.jupiter:junit-jupiter-params 5.11.4`
++
++## Quick Start
++
++This example creates a new presentation, adds a rectangle shape with text to the first slide, saves it as a PPTX file, then reads the file back and prints the slide count, shape count, and text content.
+ 
+ ```java
+ import java.io.IOException;
+@@ -137,34 +114,11 @@
+ }
+ ```
+ 
+-Compiled against this tree and run, it prints
+-
+-```
+-slides: 1
+-shapes: 1
+-text:   Hello from Aspose.Slides FOSS
+-```
+-
+-and leaves a 5,458-byte `hello.pptx` behind.
+-
+-Three things worth knowing before the second program you write:
+-
+-- **`save` and the `Presentation(String)` constructor throw `IOException`.** `close()` does not, so
+-  try-with-resources needs nothing extra.
+-- **`IShapeCollection.get(int)` returns `IShape`.** Cast to `IAutoShape`, `ITable`, `IConnector` or
+-  `IPictureFrame` to reach the members only those have. `ISlideCollection` implements `Iterable`, so
+-  a for-each over `getSlides()` works; `IShapeCollection` does not, so iterate it with an index or
+-  with `getShapes().asIEnumerable()`.
+-- **Coordinates and sizes are points** — 1 point = 1/72 inch. Slide and shape indices are
+-  zero-based.
+-
+----
+-
+-## Examples
+-
+-Every example below was compiled against this tree and run.
+-
+-### Text formatting
++## Additional Examples
++
++Create slides with shapes and text, tables, connectors, images, notes, comments, and stream-based I/O, or extract specific slides.
++
++### Add formatted text to a rectangle shape
+ 
+ ```java
+ try (Presentation prs = new Presentation()) {
+@@ -181,7 +135,10 @@
+ }
+ ```
+ 
+-### Tables
++<details>
++<summary>View Additional Examples</summary>
++
++### Insert a table with two rows and three columns
+ 
+ ```java
+ try (Presentation prs = new Presentation()) {
+@@ -193,7 +150,7 @@
+ }
+ ```
+ 
+-### Connectors bound to shapes
++### Connect two rectangles with a bent connector
+ 
+ ```java
+ try (Presentation prs = new Presentation()) {
+@@ -209,7 +166,7 @@
+ }
+ ```
+ 
+-### Pictures
++### Embed a PNG image into a picture frame
+ 
+ ```java
+ try (Presentation prs = new Presentation()) {
+@@ -221,7 +178,7 @@
+ }
+ ```
+ 
+-### Notes and comments
++### Add speaker notes and threaded comments to a slide
+ 
+ ```java
+ try (Presentation prs = new Presentation()) {
+@@ -241,7 +198,7 @@
+ }
+ ```
+ 
+-### Streams
++### Load and save a presentation via streams
+ 
+ ```java
+ try (Presentation prs = new Presentation(Files.newInputStream(Path.of("in.pptx")));
+@@ -250,7 +207,7 @@
+ }
+ ```
+ 
+-### A subset of slides
++### Export only the first and third slides
+ 
+ ```java
+ try (Presentation prs = new Presentation("deck.pptx")) {
+@@ -259,230 +216,324 @@
+ }
+ ```
+ 
+----
+-
+-## What it can do
+-
+-Everything below was exercised through the public API and then confirmed by reading the XML inside
+-the file that came out — not by asking the library to read its own file back.
+-
+-- **Presentations** — create, open a path or a stream, save to a path or a stream, save a subset of
+-  slides; `Presentation` is `AutoCloseable`.
+-- **Slides** — add empty, insert, remove (the part, its relationship and its content-type override
+-  all go), clone, hide (`<p:sld show="0">`), enumerate; the masters and layouts of a loaded deck are
+-  enumerable.
+-- **Shapes** — AutoShapes for all **190** `ShapeType` values, writing **187** distinct
+-  `<a:prstGeom prst="…">` tokens between them. `NOT_DEFINED` and `CUSTOM` have no preset and come
+-  out as `rect`; `ROUND_RECTANGLE` and `ROUND_CORNER_RECTANGLE` both write `roundRect`. Also
+-  picture frames, tables, and connectors bound to shapes by connection site.
+-- **Text** — text frames, paragraphs, portions; character formatting (bold, italic, size, spacing,
+-  caps, latin and east-asian fonts), paragraph formatting (alignment, indent, margins, spacing, and
+-  symbol, numbered and picture bullets), text-frame formatting (margins, wrap, anchor, autofit,
+-  columns).
+-- **Fill** — solid, gradient, pattern, picture and no-fill, on shapes, lines, text portions and
+-  table cells alike.
+-- **Lines** — width, dash style, cap, join, compound style, alignment, arrowheads at both ends.
+-- **Effects** — outer shadow, inner shadow, glow, soft edge, reflection, blur, preset shadow and
+-  fill overlay, each landing inside `<a:effectLst>`.
+-- **3-D** — bevel top and bottom, extrusion, contour, material, a camera with a preset and a light
+-  rig, written where `CT_ShapeProperties` puts them.
+-- **Tables** — rows, columns, cells, cell merging, cell fill, borders, margins, and the
+-  `<a:graphicFrameLocks>` the schema requires on the frame.
+-- **Pictures** — embed from a byte array, an `IImage` or an `InputStream`, through a real
+-  relationship declared in the owning part's `.rels`.
+-- **Notes** — a notes slide per slide, with header/footer management.
+-- **Comments** — authors, and comments with position and timestamp, on the classic `ppt/comments/`
+-  list; a reply additionally writes `ppt/threadedComments/` and `ppt/authors.xml`.
+-- **Document properties** — core, extended and custom, with the extended counts recomputed from the
+-  document on save.
+-- **Unknown parts** — parts the library does not model are carried through a load and a save
+-  unchanged.
+-
+----
+-
+-## Limitations
+-
+-This section is the point of this file. Nothing here is a "coming soon"; it is what the API does not
+-contain today.
+-
+-### Not in the public API
++</details>
++
++## API Reference
++
++Aspose.Slides FOSS for Java provides the `org.aspose.slides` namespace as the primary entry point for working with presentations.
++
++The verified public surface has 238 types.
++
++<details>
++<summary>View the Complete Public API Surface</summary>
++
++### Core API
++
++| Class | Description |
++| --- | --- |
++| `AdjustValue` | Represents a single geometry adjustment value backed by an OOXML element. |
++| `AdjustValueCollection` | Represents a collection of shape's adjustments backed by an OOXML element. |
++| `AutoShape` | Represents an AutoShape. |
++| `BaseHandoutNotesSlideHeaderFooterManager` | Represents abstract base class for handout and notes slide header/footer managers. |
++| `BasePortionFormat` | Common text portion formatting properties. |
++| `BaseShapeLock` | Base class for shape locks. |
++| `BaseSlide` | Represents common data for all slide types. |
++| `BulletFormat` | Represents paragraph bullet formatting properties. |
++| `Camera` | Represents 3D camera settings. |
++| `Cell` | Represents a cell of a table. |
++| `CellCollection` | Represents a collection of cells. |
++| `CellFormat` | Represents format of a table cell. |
++| `ColorFormat` | Represents a color used in a presentation. |
++| `Column` | Represents a column in a table. |
++| `ColumnCollection` | Represents collection of columns in a table. |
++| `ColumnFormat` | Represents formatting properties of a table column. |
++| `Comment` | Represents a comment on a presentation slide. |
++| `CommentAuthor` | Represents an author of comments. |
++| `CommentAuthorCollection` | Represents a collection of comment authors in a presentation. |
++| `CommentCollection` | Represents a collection of comments of one author. |
++| `Connector` | Represents a connector shape. |
++| `ConnectorLock` | Represents the lock settings for a connector shape. |
++| `DocumentProperties` | Represents properties of a presentation. |
++| `EffectFormat` | Represents effect formatting properties of a shape. |
++| `FillFormat` | Represents fill formatting properties. |
++| `GeometryShape` | Base class for shapes with geometry, backed by an OOXML shape element. |
++| `GlobalLayoutSlideCollection` | Represents a collection of all layout slides in presentation. |
++| `GradientFormat` | Represents a gradient format. |
++| `GradientStop` | Represents a single gradient stop. |
++| `GradientStopCollection` | Represents a collection of gradient stops. |
++| `GraphicalObject` | Abstract base class for graphical objects on a slide. |
++| `GraphicalObjectLock` | Represents the lock settings for a graphical object shape. |
++| `GroupShape` | Represents a group of shapes on a slide. |
++| `HeadingPair` | Represents a heading pair indicating a grouping of document parts. |
++| `IAdjustValue` | Represents a geometry shape adjustment value. |
++| `IAdjustValueCollection` | Represents a collection of shape adjustment values. |
++| `IAutoShape` | Represents an AutoShape. |
++| `IBaseHandoutNotesSlideHeaderFooterManager` | Represents base interface for handout and notes slide header/footer managers. |
++| `IBaseHeaderFooterManager` | Represents base interface for header/footer managers. |
++| `IBasePortionFormat` | Represents common text portion formatting properties. |
++| `IBaseSlide` | Represents common data for all slide types. |
++| `IBaseSlideHeaderFooterManager` | Represents base interface for slide header/footer managers that manage footer, slide number, and date-time placeholders. |
++| `IBulkTextFormattable` | Represents an object with the possibility of bulk setting child text elements' formats. |
++| `IBulletFormat` | Represents paragraph bullet formatting properties. |
++| `ICamera` | Represents Camera. |
++| `ICell` | Represents a cell in a table. |
++| `ICellCollection` | Represents a collection of cells. |
++| `ICellFormat` | Represents format of a table cell. |
++| `IColorFormat` | Represents a color used in a presentation. |
++| `IColumn` | Represents a column in a table. |
++| `IColumnCollection` | Represents collection of columns in a table. |
++| `IColumnFormat` | Represents format of a table column. |
++| `IComment` | Represents a comment on a presentation slide. |
++| `ICommentAuthor` | Represents a comment author in a presentation. |
++| `ICommentAuthorCollection` | Represents a collection of comment authors in a presentation. |
++| `ICommentCollection` | Represents a collection of comments belonging to a single author. |
++| `IConnector` | Represents a connector. |
++| `IConnectorLock` | Determines which operations are disabled on the parent Connector. |
++| `ICustomData` | Represents custom data associated with a shape. |
++| `IDocumentProperties` | Represents properties of a presentation document. |
++| `IEffectFormat` | Represents effect formatting properties. |
++| `IEffectParamSource` | Marker interface for objects that serve as a source of effect parameters. |
++| `IFillFormat` | Represents fill formatting options. |
++| `IFillParamSource` | Marker interface for objects that serve as a source of fill parameters. |
++| `IFontData` | Represents a font definition. |
++| `IGeometryShape` | Represents a shape with geometry (preset or custom). |
++| `IGlobalLayoutSlideCollection` | Represents a collection of all layout slides in a presentation. |
++| `IGradientFormat` | Represents a gradient format. |
++| `IGradientStop` | Represents a gradient stop. |
++| `IGradientStopCollection` | Represents a collection of gradient stops. |
++| `IGraphicalObject` | Represents abstract graphical object. |
++| `IGraphicalObjectLock` | Determines which operations are disabled on the parent IGraphicalObject. |
++| `IGroupShape` | Represents a group of shapes on a slide. |
++| `IHeadingPair` | Represents a heading pair that indicates a grouping of document parts and the number of parts in each group. |
++| `IHyperlinkContainer` | Marker interface for objects that contain hyperlinks. |
++| `IImage` | Represents a raster or vector image. |
++| `IImageCollection` | Represents a collection of images in a presentation. |
++| `ILayoutSlide` | Represents a layout slide. |
++| `ILayoutSlideCollection` | Represents a base class for collection of a layout slides. |
++| `ILightRig` | Represents a light rig. |
++| `ILineFillFormat` | Represents properties for lines filling. |
++| `ILineFormat` | Represents format of a line. |
++| `ILineParamSource` | Marker interface for objects that serve as a source of line parameters. |
++| `ILoadOptions` | Represents options that can be used to configure how a presentation is loaded. |
++| `IMasterLayoutSlideCollection` | Represents a collection of layout slides belonging to a master slide. |
++| `IMasterSlide` | Represents a master slide in a presentation. |
++| `IMasterSlideCollection` | Represents a collection of master slides. |
++| `INotesSize` | Represents a size of notes slide. |
++| `INotesSlide` | Represents a notes slide in a presentation. |
++| `INotesSlideHeaderFooterManager` | Represents manager which holds behavior of the notes slide placeholders, including header placeholder. |
++| `INotesSlideManager` | Manages the notes slide for a given slide. |
++| `IPPImage` | Represents an image in a presentation. |
++| `IParagraph` | Represents a text paragraph. |
++| `IParagraphCollection` | Represents a collection of paragraphs. |
++| `IParagraphFormat` | Represents paragraph formatting properties. |
++| `IPatternFormat` | Represents a pattern fill format. |
++| `IPictureFillFormat` | Represents a picture fill style. |
++| `IPictureFrame` | Represents a frame with a picture inside. |
++| `IPictureFrameLock` | Determines which operations are disabled on the parent IPictureFrame. |
++| `IPlaceholder` | Represents a placeholder on a slide. |
++| `IPortion` | Represents a portion of text inside a text paragraph. |
++| `IPortionCollection` | Represents a collection of text portions. |
++| `IPortionFormat` | Represents formatting properties of a text portion with no inheritance applied. |
++| `IPresentation` | Represents a presentation document. |
++| `IPresentationComponent` | Represents a component of a presentation. |
++| `IRow` | Represents a row in a table. |
++| `IRowCollection` | Represents a collection of rows in a table. |
++| `IRowFormat` | Represents format of a table row. |
++| `ISection` | Represents a section in a presentation. |
++| `IShape` | Represents a shape on a slide. |
++| `IShapeBevel` | Represents properties of shape's main face relief. |
++| `IShapeCollection` | Represents a collection of shapes. |
++| `IShapeFrame` | Represents shape frame's properties. |
++| `IShapeStyle` | Represents a shape's style reference. |
++| `ISlide` | Represents a slide in a presentation. |
++| `ISlideCollection` | Represents a collection of slides in a presentation. |
++| `ISlideComponent` | Represents a component of a slide. |
++| `ISlidesPicture` | Represents a picture in a presentation. |
++| `ITable` | Represents a table on a slide. |
++| `ITableFormat` | Represents format of a table. |
++| `ITextFrame` | Represents a TextFrame. |
++| `ITextFrameFormat` | Represents format of a text frame. |
++| `IThreeDFormat` | Represents 3-D properties. |
++| `IThreeDParamSource` | Marker interface for objects that serve as a source of 3D parameters. |
++| `Image` | Represents a raster or vector image. |
++| `ImageCollection` | Represents a collection of images in a presentation. |
++| `Images` | Methods to instantiate and work with IImage. |
++| `LayoutSlide` | Represents a layout slide. |
++| `LayoutSlideCollection` | Represents a collection of layout slides. |
++| `LightRig` | Represents a light rig for 3D scene. |
++| `LineFillFormat` | Represents the fill format of a line. |
++| `LineFormat` | Represents format of a line. |
++| `MasterLayoutSlideCollection` | Represents a collection of all layout slides of the defined master slide. |
++| `MasterSlide` | Represents a master slide in a presentation. |
++| `MasterSlideCollection` | Represents a collection of master slides in a presentation. |
++| `NotesSize` | Represents the size of a notes slide. |
++| `NotesSlide` | Represents a notes slide in a presentation. |
++| `NotesSlideHeaderFooterManager` | Represents manager which holds behavior of the notes slide placeholders, including header placeholder. |
++| `NotesSlideManager` | Manages the notes slide for a given slide. |
++| `PPImage` | Represents an image in a presentation. |
++| `PVIObject` | Base class for property-value-inheritance (PVI) objects that are bound to a slide and presentation. |
++| `Paragraph` | Represents a text paragraph. |
++| `ParagraphCollection` | Represents a collection of paragraphs. |
++| `ParagraphFormat` | Represents paragraph formatting properties. |
++| `PatternFormat` | Represents a pattern fill format. |
++| `Picture` | Represents a picture in a presentation. |
++| `PictureFillFormat` | Represents a picture fill style. |
++| `PictureFrame` | Represents a frame with a picture inside. |
++| `PictureFrameLock` | Represents the locks for a PictureFrame. |
++| `Portion` | Represents a text portion (run) within a paragraph. |
++| `PortionCollection` | Represents a collection of text portions within a paragraph. |
++| `PortionFormat` | Represents text portion formatting properties. |
++| `PptCorruptFileException` | Exception thrown when a PPT file is corrupt and cannot be processed. |
++| `PptException` | Base exception for PPT-related errors. |
++| `PptReadException` | Exception thrown when a PPT file cannot be read. |
++| `Presentation` | Represents a PowerPoint presentation. |
++| `Row` | Represents a row in a table. |
++| `RowCollection` | Represents a collection of rows in a table. |
++| `RowFormat` | Represents formatting properties of a table row. |
++| `Shape` | Abstract base class for shapes on a slide. |
++| `ShapeBevel` | Contains the properties of shape's main face relief (bevel). |
++| `ShapeCollection` | Represents a collection of shapes on a slide. |
++| `ShapeFrame` | Represents an immutable shape frame with position, size, rotation, and flip properties. |
++| `ShapeStyle` | Represents a shape's style reference. |
++| `Slide` | Represents a slide in a presentation. |
++| `SlideCollection` | Represents a collection of slides in a presentation. |
++| `Table` | Represents a table shape on a slide. |
++| `TableFormat` | Represents format of a table. |
++| `TextFrame` | Represents a text frame containing paragraphs. |
++| `TextFrameFormat` | Contains the TextFrame's formatting properties. |
++| `ThreeDFormat` | Represents 3-D formatting properties for a shape. |
++| `Color` | Immutable value type representing an ARGB color. |
++| `PointF` | Represents a 2D point with float coordinates. |
++| `RectangleF` | Represents a rectangle defined by position and size using floating-point coordinates. |
++| `Size` | Represents a 2D size with integer dimensions. |
++| `SizeF` | Represents a 2D size with float dimensions. |
++| `Blur` | Represents a Blur effect that is applied to the entire shape, including its fill. |
++| `FillOverlay` | Represents a Fill Overlay effect. |
++| `Glow` | Represents a glow effect backed by an OOXML element. |
++| `IBlur` | Represents a Blur effect that is applied to the entire shape, including its fill. |
++| `IFillOverlay` | Represents a Fill Overlay effect. |
++| `IGlow` | Represents a glow effect applied to a shape. |
++| `IImageTransformOperation` | Represents an image-transform operation effect. |
++| `IInnerShadow` | Represents an inner shadow effect applied to a shape. |
++| `IOuterShadow` | Represents an Outer Shadow effect. |
++| `IPresetShadow` | Represents a Preset Shadow effect. |
++| `IReflection` | Represents a reflection effect applied to a shape. |
++| `ISoftEdge` | Represents a Soft Edge effect. |
++| `ImageTransformOperation` | Represents an image-transform operation applied to an image effect. |
++| `InnerShadow` | Represents an inner shadow effect backed by an OOXML element. |
++| `OuterShadow` | Represents an outer shadow effect backed by an OOXML element. |
++| `PresetShadow` | Represents a preset shadow effect backed by an OOXML element. |
++| `Reflection` | Represents a reflection effect backed by an OOXML element. |
++| `SoftEdge` | Represents a soft edge effect backed by an OOXML element. |
++| `ISaveOptions` | Options that control how a presentation is saved. |
++| `IThemeable` | Represents objects that can be themed. |
++
++#### Enumerations
++
++| Enumeration | Description |
++| --- | --- |
++| `BevelPresetType` | Constants which define 3D bevel of shape. |
++| `BulletType` | Represents the type of the extended bullets. |
++| `CameraPresetType` | Constants which define camera preset type. |
++| `ColorType` | Represents different color modes. |
++| `FillBlendMode` | Determines blend mode. |
++| `FillType` | Specifies the interior fill type of various visual objects. |
++| `FontAlignment` | Represents vertical font alignment. |
++| `GradientDirection` | Represents the gradient style. |
++| `GradientShape` | Represents the shape of gradient fill. |
++| `LightRigPresetType` | Constants which define light preset types. |
++| `LightingDirection` | Constants which define light directions. |
++| `LineAlignment` | Represents the lines alignment type. |
++| `LineArrowheadLength` | Represents the length of an arrowhead. |
++| `LineArrowheadStyle` | Represents the style of an arrowhead. |
++| `LineArrowheadWidth` | Represents the width of an arrowhead. |
++| `LineCapStyle` | Represents the line cap style. |
++| `LineDashStyle` | Represents the line dash style. |
++| `LineJoinStyle` | Represents the lines join style. |
++| `LineStyle` | Represents the style of a line. |
++| `MaterialPresetType` | Constants which define material of shape. |
++| `NullableBool` | Represents triple boolean values. |
++| `NumberedBulletStyle` | Represents the style of the numbered bullets. |
++| `PatternStyle` | Represents the pattern style. |
++| `PictureFillMode` | Determines how picture will fill area. |
++| `PresetColor` | Represents predefined color presets. |
++| `PresetShadowType` | Represents a preset for a shadow effect. |
++| `RectangleAlignment` | Defines 2-dimension alignment. |
++| `SchemeColor` | Represents colors in a color scheme. |
++| `ShapeType` | Represents preset geometry of geometry shapes. |
++| `SlideLayoutType` | Represents the slide layout type. |
++| `SourceFormat` | Represents source file format. |
++| `TableStylePreset` | Represents builtin table styles. |
++| `TextAlignment` | Represents different text alignment styles. |
++| `TextAnchorType` | text box alignment within a text area. |
++| `TextAutofitType` | Represents text autofit mode. |
++| `TextCapType` | Represents the type of text capitalisation. |
++| `TextShapeType` | Represents text wrapping shape. |
++| `TextStrikethroughType` | Represents the type of text strikethrough. |
++| `TextUnderlineType` | Represents the type of text underline. |
++| `TextVerticalType` | Determines vertical writing mode for a text. |
++| `TileFlip` | Defines tile flipping mode. |
++| `SaveFormat` | Constants which define the format of a saved presentation. |
++
++#### Detailed Member Reference
++
++### org
++
++The org package serves as the root namespace for all Aspose.Slides FOSS for Java classes and interfaces.
++
++### aspose
++
++The `org.aspose` namespace contains core utilities and base types shared across Aspose products for Java.
++
++### slides
++
++The `org.aspose.slides` namespace provides the complete API surface for creating, editing, and converting presentation documents in Java.
++
++### getFontName
++
++The getFontName method returns the name of the font used in a text portion.
++
++### Relationship
++
++The `Relationship` class represents a relationship between parts in a presentation package.
++
++</details>
++
++## Documentation & Resources
++
++- **[Aspose.Slides for Java — product page](https://products.aspose.com/slides/java/)** — The product page introduces Aspose.Slides for Java, the commercial offering that complements this FOSS library.
++- **[Documentation](https://docs.aspose.com/slides/java/)** — The documentation provides step-by-step guides and examples for working with presentations using Aspose.Slides for Java.
++- **[API reference](https://reference.aspose.com/slides/java/)** — The API reference documents every class and method available in the `org.aspose:aspose-slides-foss` package version 26.8.0. It covers all 238 verified public types; the [API Reference](#api-reference) section above covers the essentials.
++- **[Free support forum](https://forum.aspose.com/c/slides/11)** — The free support forum hosts community discussions and official responses to questions about Aspose.Slides for Java.
++- **[CONTRIBUTING.md](CONTRIBUTING.md)** — `CONTRIBUTING.md` outlines the process for submitting code changes and participating in development of the library.
++- **[Code of Conduct](CODE_OF_CONDUCT.md)** — The Code of Conduct establishes expectations for respectful and inclusive behavior in community interactions.
++- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/issues).
++
++## Scope and Limitations
++
++Aspose.Slides FOSS for Java provides a free, open-source library for creating and manipulating `PowerPoint`-compatible presentations in Java applications, targeting Java 21 or later with no runtime dependencies.
++
++- The library supports writing only three presentation formats—PPTX, PPSX, and POTX—and raises `UnsupportedOperationException` for all other `SaveFormat` values, including PDF, XPS, TIFF, and image formats.
++- Cloning a master slide using `getMasters()`.addClone(...) incorrectly reports a size increase while failing to persist the clone to the saved package, leaving the output file unchanged.
++- Text language metadata is not written to the presentation package, so `PowerPoint` applies the authoring machine's default language instead of any language specified in the source.
++- Many presentation features are not exposed in the public API, including charts, `SmartArt`, OLE objects, video, audio, group shapes, animations, hyperlinks, sections, slide backgrounds, themes, slide size control, rendering, and VBA macros.
++- Round-tripping preserves every part in the package but only guarantees byte-identical content for parts the library does not model; parts like docProps/`app.xml` and slide XML are rebuilt, and the measured fidelity on a 41-part Apache POI deck shows only 36 parts unchanged.
++- Version 26.7.0, the only version available on Maven Central, lacks XML hardening and security fixes present in the current source tree, and users should build from source if they require the latest behaviour.
+ 
+ | | |
+ |---|---|
+-| Charts | no `IShapeCollection.addChart` |
+-| SmartArt, OLE objects, video, audio | not modelled |
+-| Group shapes | no `IShapeCollection.addGroupShape` — no shape can hold child shapes |
+-| Animations and slide transitions | no `ISlide.getTimeline`, no `ISlide.getSlideShowTransition` |
+-| Hyperlinks | no `setHyperlinkClick` on a shape or on a text portion |
+-| Sections | no `IPresentation.getSections` |
+-| Slide backgrounds | no `ISlide.getBackground` |
+-| Themes | no `IPresentation.getMasterTheme` |
+-| Slide size | no `IPresentation.getSlideSize`. A new deck is 4:3 (`cx="9144000" cy="6858000" type="screen4x3"`) and there is no supported way to change it |
+-| Rendering and conversion | no PDF, HTML, SVG, image or text export of any kind |
+-| VBA macros, digital signatures, encryption | not modelled |
+-
+-### A known defect: cloning a master
+-
+-`getMasters().addClone(...)` returns, and the collection then reports a size of 2 — but the saved
+-package contains one `<p:sldMasterId>` and one `ppt/slideMasters/slideMaster1.xml`. The clone never
+-reaches the file, and nothing reports a problem. Do not rely on it.
+-
+-### Save formats
+-
+-`SaveFormat` declares **25** values. `save` writes **three** of them and raises
+-`UnsupportedOperationException` for the other **22**. It never writes a package under a name that
+-claims to be a format it did not produce, and nothing is left on disk when it refuses.
+-
+-| Written | Refused |
+-|---|---|
+-| `PPTX`, `PPSX`, `POTX` | `PPT`, `PDF`, `XPS`, `TIFF`, `ODP`, `PPTM`, `PPSM`, `POTM`, `HTML`, `HTML5`, `SWF`, `OTP`, `PPS`, `POT`, `FODP`, `GIF`, `MD`, `XML`, `SVG`, `JPEG`, `PNG`, `BMP` |
+-
+-The macro-enabled formats are refused because their content type declares a VBA project this library
+-does not write. The refusal names the alternatives:
+-
+-```
+-Export format 'Pdf' is not supported. Writable formats are: Pptx, Ppsx, Potx
+-```
+-
+-The three that are written are three genuinely different packages, each with its own main-part
+-content type, so a template saved as a template really is a template. **Give the file the extension
+-its format uses.** `save("deck.pptx", SaveFormat.POTX)` writes a correct template that PowerPoint
+-refuses to open: the content type says template, the name says presentation, and PowerPoint trusts
+-neither over the other. A template is `.potx`, a slideshow `.ppsx`, a presentation `.pptx`.
+-
+-### What round-tripping does and does not guarantee
+-
+-Opening a deck and saving it again preserves **every part**, and most of them byte for byte. It does
+-not rewrite nothing at all. Measured on a 41-part deck written by Apache POI — an independent
+-writer, not this library:
+-
+-| | |
+-|---|---|
+-| Parts in / out | 41 / 41 |
+-| Parts dropped | 0 |
+-| Parts added | 0 |
+-| Parts byte-identical afterwards | 36 of 41 |
+-| Parts rewritten | `docProps/app.xml`, `ppt/presentation.xml`, and the three slide parts |
+-
+-`docProps/app.xml` is regenerated from the presentation; the others are rebuilt from the package
+-model. Parts the library has no model for — `presProps`, `viewProps`, `tableStyles`, themes, unused
+-layouts — are among the 36 that come back unchanged. That is a specific, measured claim about one
+-real deck, and it is deliberately narrower than "full fidelity".
+-
+-Re-saving is stable as well: a save with nothing modified in between does not change the file size
+-or the slide XML, so a byte-length delta stays a usable "did anything actually change" signal.
+-
+-### Text language
+-
+-A deck written by this library contains no `lang=` attribute anywhere in the package, and a portion
+-that was never formatted gets no `<a:rPr>` at all. PowerPoint will apply the authoring machine's
+-default language rather than one the file states.
+-
+----
+-
+-## Choosing an edition
+-
+-There are four editions of this library and they are **not** interchangeable. Three of them — .NET,
+-Java and C++ — are the same design in three languages; Python is a larger and different one. The
+-table was measured on 2026-08-16 by running each edition and reading the XML in the file it
+-produced.
+-
+-| | .NET | **Java** | C++ | Python |
+-|---|---|---|---|---|
+-| Create, open, round-trip, save | yes | **yes** | yes | yes |
+-| Text, tables, connectors, fills, all 8 effects, 3-D | yes | **yes** | yes | yes |
+-| Notes and classic comments | yes | **yes** | yes | yes |
+-| Threaded comment part | no | **yes** | no | yes |
+-| Save to a stream | yes | **yes** | **no** | yes |
+-| Add a picture from a stream | yes | **yes** | **no** | yes |
+-| Clone a slide, with its text | yes | **yes** | **partial** | yes |
+-| Clone a master | yes | **no** | **no** | yes |
+-| Sections | **yes** | **no** | no | no |
+-| Charts | no | **no** | no | **yes** |
+-| Animations | no | **no** | no | **yes** |
+-| Slide transitions | no | **no** | no | **yes** |
+-| Themes | no | **no** | no | **yes** |
+-| Slide backgrounds | no | **no** | no | **yes** |
+-| Group shapes | no | **no** | no | **yes** |
+-| Hyperlinks | no | **no** | no | **yes** |
+-| Markdown export | no | **no** | no | **yes** |
+-| Formats `save` writes | 3 | **3** | 6 | 7 |
+-| Default slide size of a new deck | 4:3 | **4:3** | 4:3 | **16:9** |
+-| Layouts in a new deck | 1 | **1** | 1 | **11** |
+-
+-The short version: **if you need charts, animations, transitions, themes, backgrounds, group shapes
+-or hyperlinks, none of them exist in this edition — use the Python one.** If you need sections, only
+-the .NET edition has them. Code written against the Python examples does not port here, and a new
+-deck is not even the same shape.
+-
+-- [Aspose.Slides FOSS for .NET](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET)
+-- [Aspose.Slides FOSS for C++](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp)
+-- [Aspose.Slides FOSS for Python](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)
+-
+----
+-
+-## Building from source
+-
+-```bash
+-git clone https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java.git
+-cd Aspose.Slides-FOSS-for-Java
+-mvn verify -Dgpg.skip=true
+-```
+-
+-JDK 21 or later and Maven 3.9 or later are required; the build refuses to start otherwise. That one
+-command runs the whole test suite — **3,638 tests**, of which **232 are conformance tests** that
+-unzip the produced `.pptx` and assert on the package — and builds the jar, the sources jar, the
+-javadoc jar and a CycloneDX SBOM into `target/`. `-Dgpg.skip=true` skips artifact signing, which is
+-part of `verify` and needs the release key.
+-
+-Compiler warnings fail the build, and so does a javadoc error. Two builds of the same source produce
+-byte-identical jars; CI proves it by building twice and comparing the hashes.
+-
+-Every push and every pull request runs that build on Linux, Windows and macOS, on Java 21 and Java
+-25 (`.github/workflows/build.yml`). The jar, sources jar, javadoc jar and SBOM from each run are
+-downloadable from the run's page.
+-
+-Releases go to Maven Central through `.github/workflows/maven-central-release.yml`;
+-[PUBLISHING.md](PUBLISHING.md) documents how one is cut and what fails one.
+-
+----
+-
+-## Documentation and support
+-
+-This library mirrors the naming of the commercial **Aspose.Slides for Java** product, so that
+-product's documentation is often the fastest way to understand what a shared type name means. It
+-describes a much larger API: check the tables above before relying on anything you read there.
+-
+-- [Aspose.Slides for Java — product page](https://products.aspose.com/slides/java/)
+-- [Documentation](https://docs.aspose.com/slides/java/)
+-- [API reference](https://reference.aspose.com/slides/java/)
+-- [Free support forum](https://forum.aspose.com/c/slides/11)
+-
+-**When you want the commercial product instead of this one:** if you need to render or convert —
+-PDF, images, HTML, thumbnails — or need charts, SmartArt, animations, OLE objects or macro-enabled
+-files, or need a supported product with a licence behind it, none of that is here and none of it is
+-planned in this repository. This library is the right choice when you are reading and writing
+-`.pptx` and want an MIT-licensed dependency that brings nothing else with it.
+-
+-Bugs and feature requests for **this** library belong in
+-[this repository's issue tracker](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/issues),
+-not in the commercial product's forum.
+-
+----
+-
+-## Contributing
+-
+-Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first — it explains the build,
+-the test suites, and the one rule specific to this project: **a writer fix ships with a test that
+-asserts on the produced `.pptx` package, not on what the library reads back.**
+-
+-By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Changes between releases,
+-including behaviour changes and removed API, are in [CHANGELOG.md](CHANGELOG.md).
+-
+-## Security
+-
+-Do not report a vulnerability in a public issue. [SECURITY.md](SECURITY.md) has the reporting route.
++| Java | **21 or later.** The sources use `List.getFirst()`, `List.removeLast()` and an unconditional `instanceof` pattern, so they do not compile below 21, and the build refuses to start on an older JDK. |
++| Runtime dependencies | none |
++| Tested on | Linux, Windows and macOS, on Java 21 and Java 25 — every push and every pull request |
++
++These limitations don't apply to [Aspose.Slides for Java — Enterprise Edition](https://products.aspose.com/slides/java/). Aspose.Slides FOSS for Java provides core presentation processing capabilities; the commercial Aspose.Slides for Java adds advanced features such as PowerPoint file encryption, digital signing, and enhanced rendering options.
++
++## Development and Testing
++
++Build and test the Aspose.Slides FOSS for Java repository using the provided test assets in tests/ and CI workflows in .github/workflows/; the project targets Java 21 and publishes the `org.aspose:aspose-slides-foss` package at version 26.8.0.
++
++The suite covers 41 test files under `tests/`. Releases run through the [maven-central-release workflow](.github/workflows/maven-central-release.yml).
+ 
+ ## License
+ 
+-MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Aspose Pty Ltd.
++This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.
