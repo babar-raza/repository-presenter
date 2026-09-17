@@ -1,0 +1,112 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 4,
+      "job": "independent_review",
+      "response_sha256s": [
+        "2cd68829a93f7ae452a0abbdda3afd951146a8bdc7fce04db7a76e5820ae98f5",
+        "714042abc6c6a50e07f926bd94d32e271c560bc7ccb2de93f49cbec9feadfeb6",
+        "c27a0bb7c8910a47d982402f46ce241a10972f860b9216c30488379047ab21b5",
+        "c3efeaa3f6cff98693eadc2777965ff9d6418a75d761d59544a1de871aa42066"
+      ]
+    },
+    {
+      "distinct_responses": 11,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "0bb4ea23b76ccd49d12d3f528f016a4b69852092b86051b168e256f4fff3e442",
+        "1b32f6b7bcbba8ed89a157e1ee8d328e9e142dbf6dfdd83519a08c411bf6273d",
+        "526806a724aa76775908c743e3aa01b1e34bccf8e4d507ad5682c2e179405e52",
+        "58e69b3a7070736cfbd594711c7eb829ddb030c2be1d8bab8272cdaecb1d6953",
+        "a7221bef0052e912a30f82964d67be1d26248c95b2b3ee539c09c0fa7a91fe94",
+        "acecc74468ecba81a7043bf5d47e54ca0ddd656874cff7ef893143d3a18ec320",
+        "c7f2688a361c9552c6e3113d69b6a86288c6aec98ae8fc1342e7a092972c5320",
+        "ca00cc040ba9fe182b7c068539de3cb97b17dbbd9776ada284780a5eba2ff368",
+        "cc5e14c8718e53008f5f90ff035a1ad81536d45d436e45dbcc8ec1d6fc6dbc9f",
+        "df32ced3ffc8f6978dc5071efa1593a295f25de5ef90b40fac4dfdb359e3f94b",
+        "e1cc2ccc6280aeebce48b83f047ac819dd70a33f75860376f804f19dfa2d552f"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "6ec16ea8a97ab8185f0338c5b16790623d111c89bd6908dcca902d935470a71d",
+        "738da01e1a42d68d7f7b54309236cae541ffd2788af7df582a7b34943a44d8ef"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 17,
+    "blocking_failures": [],
+    "coverage_advisories": 1,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "REJECT_PRESENTATION"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 13516,
+      "sha256": "bdeba3c39175e9551310f20ce700fed4914089ae88d15dc652fbd6ec2663c87c"
+    },
+    "README.patch": {
+      "bytes": 34825,
+      "sha256": "e34f55488b6f94ed15e2f9eb2c07ea7464644128352ad44b4eaaf22b3e540dcd"
+    },
+    "calls.jsonl": {
+      "bytes": 52813,
+      "sha256": "5f7f0b6e22ab19242882b3c8004a2d84d29dd181f8913163f6178c7d139ca36a"
+    },
+    "content_units.json": {
+      "bytes": 28315,
+      "sha256": "1f94db3fa5b7354358efb80bbdb98ce361d420470f5c84a5f2e22272460a5bc2"
+    },
+    "dependencies.json": {
+      "bytes": 45562,
+      "sha256": "ba50e721371e6f3088d1d6f053d4e33a2b64e32dba2191e3f6c749210d7f4fde"
+    },
+    "dispositions.json": {
+      "bytes": 27825,
+      "sha256": "dacce0f84c0b4adb087c9d17ea69ee7b52d9f9e0f628ca5b8eb26bc6a7adb819"
+    },
+    "examples.json": {
+      "bytes": 7860,
+      "sha256": "2ec11091b24065df83cb3f5e1b5c2e8c75c01f09af8bd2753419e528a4dd2665"
+    },
+    "facts.json": {
+      "bytes": 210114,
+      "sha256": "c9fa65042ec489e7e4fd6a08834f12a8eb465c7a2f91b39b0b2e625e8b1fc05e"
+    },
+    "investigation.json": {
+      "bytes": 5073,
+      "sha256": "910383a5b25cbd5b5986d4f295c6210ff25b9888916ffef99c6eb536f372fe34"
+    },
+    "plan.json": {
+      "bytes": 7713,
+      "sha256": "14b5c51583e000c4de69c3e67478d1ec09cb21094721c0994b167aed75ce464a"
+    },
+    "probes.json": {
+      "bytes": 1879,
+      "sha256": "eb4ce57de91f4d2dc15968917bd0db235bc032cf5e32698caeeb9996c06a59b4"
+    },
+    "review.json": {
+      "bytes": 18078,
+      "sha256": "16699bd986a8186e1ea26a49f51c53d6e4d6d72c80290b4990765d97a88c1df3"
+    },
+    "validation.json": {
+      "bytes": 11075,
+      "sha256": "088254f01a544fb475648f8833b3091bd252bc23bc3da90b055406e59c1c6ba1"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-17T08:14:25Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+  "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+  "schema_version": 1,
+  "sealed_at": "2026-09-17T08:14:25Z",
+  "state": "READY_FOR_PROPOSAL"
+}

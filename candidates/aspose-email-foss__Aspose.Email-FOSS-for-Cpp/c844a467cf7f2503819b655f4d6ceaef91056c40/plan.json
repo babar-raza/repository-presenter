@@ -1,0 +1,304 @@
+{
+  "additional_example_ids": [
+    "example:002"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:aspose",
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email",
+        "public_symbol:aspose.email.foss"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.email"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email.foss",
+        "public_symbol:aspose.email.foss.msg.mapi_message",
+        "public_symbol:aspose.email.foss.msg.msg_reader",
+        "public_symbol:aspose.email.foss.cfb.cfb_reader"
+      ],
+      "symbol_fact_id": "public_symbol:aspose.email.foss"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "High-level message authoring",
+      "Low-level CFB access",
+      "MSG/EML interoperability",
+      "Recipient and attachment management"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "title": "High-level message authoring"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:aspose.email.foss"
+      ],
+      "shared_fact_ids": [
+        "public_symbol:aspose.email.foss"
+      ],
+      "title": "Low-level CFB access"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "title": "MSG/EML interoperability"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "shared_fact_ids": [
+        "example:002",
+        "public_symbol:aspose.email.foss"
+      ],
+      "title": "Recipient and attachment management"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:007.heading",
+        "inherited_unit:008.code_block"
+      ],
+      "section_id": "at_a_glance",
+      "text": "The Mermaid diagram in the inherited README is CONTRADICTED and omitted; the section is rendered without the diagram."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:031.heading",
+        "inherited_unit:032.paragraph",
+        "inherited_unit:033.heading",
+        "inherited_unit:034.code_block",
+        "inherited_unit:035.paragraph",
+        "inherited_unit:036.html_block",
+        "inherited_unit:037.heading",
+        "inherited_unit:038.code_block",
+        "inherited_unit:039.paragraph",
+        "inherited_unit:040.paragraph"
+      ],
+      "section_id": "additional_examples",
+      "text": "No further examples beyond the Quick Start are verified; the Additional Examples section is omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:014.heading",
+        "inherited_unit:015.code_block",
+        "inherited_unit:016.paragraph",
+        "inherited_unit:017.heading",
+        "inherited_unit:018.code_block",
+        "inherited_unit:019.paragraph"
+      ],
+      "section_id": "installation",
+      "text": "Build and install subsections are omitted as build/install details beyond the install command are not verified."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:023.heading",
+        "inherited_unit:024.list"
+      ],
+      "section_id": "dependencies",
+      "text": "Native and system requirements subsection is omitted as those facts are not verified."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:028.paragraph",
+        "inherited_unit:029.code_block"
+      ],
+      "section_id": "quick_start",
+      "text": "Only one example is verified; the second Quick Start example and its lead-in are omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:051.heading"
+      ],
+      "section_id": "api_reference",
+      "text": "The 'Detailed Member Reference' subsection is omitted as it is not supported by facts."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:069.paragraph"
+      ],
+      "section_id": "development_testing",
+      "text": "Example build instructions beyond the main build commands are omitted as they are not verified."
+    }
+  ],
+  "flagship_example_id": null,
+  "links": [
+    {
+      "link_fact_id": "link_target:023",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:024",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:025",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:026",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:027",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:028",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:001",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:002",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:003",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:004",
+      "section_id": "badges"
+    },
+    {
+      "link_fact_id": "link_target:005",
+      "section_id": "banner"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "install_command:cmake"
+      ],
+      "unit_ids": [
+        "inherited_unit:064.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": null,
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
