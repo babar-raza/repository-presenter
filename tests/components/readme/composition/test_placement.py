@@ -570,6 +570,63 @@ def test_quick_start_coverage_is_scoped_to_adjacency_not_unconditional() -> None
     assert placed_texts(list(decisions.values())) == {"quick_start": [evidence_only.value]}
 
 
+def test_a_section_opening_lead_in_is_covered_by_the_sections_own_heading_adjacency() -> None:
+    """G4-W17 arrival item 92: discovered by `test_sealed_bytes.py` on Aspose.Email FOSS for
+    .NET after removing ``planned_fact_ids``'s unconditional example-ID fold above. A genuine
+    ``additional_examples``-opening lead-in ("A few more real, runnable patterns beyond the Quick
+    Start example above.") sits one ordinal after the section's own original heading but far from
+    any of the two examples it cites (one of which the plan renders under Quick Start, not here,
+    the exact item 65 shape) - ``_adjacent_rendered_examples`` alone releases it, and it rendered
+    detached at the very end of the section, after every example's own code block, duplicating the
+    plan's own authored lead-in for the section. Scoped by heading adjacency
+    (``_adjacent_section_opening``) instead, it stays dropped, whatever example(s) it cites.
+    """
+    heading = _fact("inherited_unit:028.heading", "inherited_unit", "## Additional Examples")
+    lead_in = _fact(
+        "inherited_unit:029.paragraph",
+        "inherited_unit",
+        "A few more real, runnable patterns beyond the Quick Start example above.",
+    )
+    moved_example = _example("example:100", "print(100)", "inherited_unit:031.code_block")
+    kept_example = _example("example:101", "print(101)", "inherited_unit:034.code_block")
+    moved_block = _fact(
+        "inherited_unit:031.code_block", "inherited_unit", "```python\nprint(100)\n```"
+    )
+    kept_block = _fact(
+        "inherited_unit:034.code_block", "inherited_unit", "```python\nprint(101)\n```"
+    )
+    facts = FactsDocument(
+        REPOSITORY,
+        "a" * 40,
+        (*FACTS.facts, heading, lead_in, moved_example, kept_example, moved_block, kept_block),
+    )
+    # example:100 sits right where the old README put it, under additional_examples, but the
+    # plan actually renders it as the second Quick Start example (item 65's own shape).
+    plan = _plan(
+        second_quick_start_example_id="example:100", additional_example_ids=["example:101"]
+    )
+    dispositions = {
+        "dispositions": [
+            _entry("inherited_unit:028.heading", "additional_examples"),
+            _entry(
+                "inherited_unit:029.paragraph",
+                "additional_examples",
+                "example:100",
+                "example:101",
+            ),
+            _entry("inherited_unit:031.code_block", "additional_examples", "example:100"),
+            _entry("inherited_unit:034.code_block", "additional_examples", "example:101"),
+        ]
+    }
+    decisions = {p.unit_id: p for p in placements(plan, dispositions, facts, "python")}
+    # Before this fix: neither planned_fact_ids (item 92 removed its unconditional fold) nor
+    # _adjacent_rendered_examples (distance 2 and 5 from example:100/101's own code blocks) caught
+    # this - the lead-in rendered "placed", detached at the section's end (red before this fix).
+    assert decisions["inherited_unit:029.paragraph"].outcome == "overlap"
+    assert decisions["inherited_unit:029.paragraph"].overlap == ("example:100", "example:101")
+    assert placed_texts(list(decisions.values())) == {}
+
+
 def test_a_command_block_is_never_dropped_for_overlap_but_restating_prose_is() -> None:
     dispositions = {
         "dispositions": [

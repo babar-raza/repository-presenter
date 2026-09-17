@@ -14,8 +14,12 @@ immediately beside the example's own code block in the source document
 distant unit on Slides-.NET that cited a rendered example only as evidence, never as its lead-in.
 The same unscoped shape recurred in ``planned_fact_ids``'s own ``quick_start``/
 ``additional_examples`` handling, a sibling path item 76 never touched (G4-W17 arrival item 92,
-lane F F29): fixed by removing that unconditional fold entirely, so ``_adjacent_rendered_examples``
-is the only source of example-ID overlap anywhere, for every section.
+lane F F29): fixed by removing that unconditional fold entirely. A genuine duplicate lead-in for
+these two sections turned out to take a second shape adjacency-to-code-block alone does not
+reach - sitting immediately after the section's own original heading rather than beside any one
+example's code block (``_adjacent_section_opening``, the same item 92, measured on Aspose.Email
+FOSS for .NET) - so ``_adjacent_rendered_examples`` and ``_adjacent_section_opening`` together are
+now the only sources of example-ID overlap anywhere, for every section.
 A placed unit inherits its section's visibility: in a collapsible section it renders inside the
 details block, never appended outside it. A placed
 unit whose destination the plan excludes is never dropped silently: planning fails closed naming
@@ -119,8 +123,11 @@ def planned_fact_ids(plan: dict[str, Any], section: str) -> frozenset[str]:
     distance 2, 5 and 11 from each example's own code block - none adjacent) were dropped as
     overlap regardless of position. Their only contribution was that unconditional fold, so
     removing both branches - rather than threading unit/ordinal state into this section-only
-    function - leaves ``_adjacent_rendered_examples`` (already unioned into `placements()`'s
-    ``covered`` separately) as the one, already-correct source of example-ID overlap anywhere.
+    function - leaves ``_adjacent_rendered_examples`` and ``_adjacent_section_opening`` (both
+    already unioned into `placements()`'s ``covered`` separately, the latter added the same item
+    after a real duplicate lead-in adjacent to a section's own heading, not to any example's code
+    block, surfaced by `test_sealed_bytes.py` on Aspose.Email FOSS for .NET) as the two,
+    already-correct sources of example-ID overlap anywhere.
     """
     ids: set[str] = set()
     if section == "key_capabilities":
@@ -234,6 +241,59 @@ def _adjacent_rendered_examples(
         for example_id in rendered
         if example_id in example_ordinals and abs(example_ordinals[example_id] - ordinal) == 1
     )
+
+
+_SECTION_LEAD_IN_DESTINATIONS = frozenset({"quick_start", "additional_examples"})
+
+
+def _section_heading_ordinals(dispositions: Mapping[str, Any]) -> dict[str, int]:
+    """``quick_start``'s and ``additional_examples``' own smallest preserved-heading ordinal -
+    the position of the section's own original top-level heading, never a subsection's, since in
+    source order a subsection heading always ordinally follows the section heading that contains
+    it (measured on Aspose.Email FOSS for .NET: additional_examples' own ``## Additional
+    Examples`` sits at ordinal 28, three ``###`` example subsection headings it also owns sit at
+    30/33/35 - the minimum picks 28).
+    """
+    ordinals: dict[str, int] = {}
+    for entry in dispositions.get("dispositions", []):
+        destination = entry.get("destination_section")
+        unit_id = str(entry.get("unit_id", ""))
+        if destination not in _SECTION_LEAD_IN_DESTINATIONS or not unit_id.endswith(".heading"):
+            continue
+        ordinal = _unit_ordinal(unit_id)
+        if ordinal is None:
+            continue
+        if ordinal < ordinals.get(destination, ordinal + 1):
+            ordinals[destination] = ordinal
+    return ordinals
+
+
+def _adjacent_section_opening(
+    unit_id: str, destination: str, heading_ordinals: Mapping[str, int], rendered: frozenset[str]
+) -> frozenset[str]:
+    """Every example the plan renders, when ``unit_id`` sits immediately after ``quick_start``'s
+    or ``additional_examples``' own original heading - the section's own opening sentence, which
+    README_CONTRACT.md section 2 rows 10/12 guarantee the plan authors fresh for these two
+    sections regardless of which example(s) the sentence happens to cite.
+
+    G4-W17 arrival item 92 (lane F F29) removed ``planned_fact_ids``'s unconditional fold of
+    every plan-rendered example ID for these two sections - correct for a distant evidentiary
+    citation, but adjacency to the section's own heading is a second, independent shape a genuine
+    duplicate lead-in takes, one ``_adjacent_rendered_examples`` (item 76, adjacency to an
+    example's own code block) does not cover. Measured on Aspose.Email FOSS for .NET, discovered
+    by `test_sealed_bytes.py` before this landed: ``inherited_unit:029.paragraph`` ("A few more
+    real, runnable patterns beyond the Quick Start example above.") sits one ordinal after
+    ``inherited_unit:028.heading`` ("## Additional Examples") but 2-8 ordinals from any of the
+    three examples it cites (one of which the plan renders under Quick Start, not here) - released
+    by adjacency-to-code-block alone, it rendered detached at the very end of the section, after
+    every example's own code block, duplicating the section's own authored lead-in ("The following
+    examples demonstrate...").
+    """
+    ordinal = _unit_ordinal(unit_id)
+    heading_ordinal = heading_ordinals.get(destination)
+    if ordinal is None or heading_ordinal is None or ordinal - heading_ordinal != 1:
+        return frozenset()
+    return rendered
 
 
 _RENDERER_OWNED_ASSETS = ("build_test_asset:tests", "build_test_asset:ci")
@@ -392,6 +452,9 @@ def placements(
     # unit actually adjacent to it rather than any unit anywhere that cites the same ID
     # (arrival item 76).
     example_ordinals = _example_code_block_ordinals(facts)
+    # quick_start's/additional_examples' own original heading ordinal, so a section-opening
+    # lead-in immediately after it is covered too, whatever example(s) it cites (arrival item 92).
+    section_heading_ordinals = _section_heading_ordinals(dispositions)
     result: list[Placement] = []
     for entry in dispositions.get("dispositions", []):
         unit_id = str(entry.get("unit_id", ""))
@@ -411,6 +474,9 @@ def placements(
             planned_fact_ids(plan, destination)
             | renderer_fact_ids(destination, facts, plan)
             | _adjacent_rendered_examples(unit_id, rendered_examples, example_ordinals)
+            | _adjacent_section_opening(
+                unit_id, destination, section_heading_ordinals, rendered_examples
+            )
         )
         overlap = (
             ()
