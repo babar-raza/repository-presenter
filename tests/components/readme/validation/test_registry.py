@@ -27,6 +27,7 @@ from repository_presenter.components.readme.validation.registry import (
     _check_links,
     _check_structure,
     _fences,
+    _renderer_owned,
     blocking_failures,
     protected_fragments,
     summarize_validation,
@@ -577,6 +578,37 @@ def test_a_hyphenated_package_name_is_not_flagged_as_a_bare_abbreviation(
     )
 
 
+def test_a_word_starting_a_hyphenated_compound_is_not_flagged_as_a_bare_abbreviation(
+    tmp_path: Path,
+) -> None:
+    """G4-W17 arrival item 112 (lane D PROPOSAL P25, PDF-Go). Item 103 gave `_LOWER_WORD` a
+    negative lookbehind against a hyphen on its LEFT side only (`aspose-html-foss`); the matching
+    negative lookahead on the RIGHT side - the one `composition/renderer.py`'s own `_LOWER_WORD`
+    already carries - was never added, so a word that STARTS a hyphenated compound (a module
+    path's own trailing segment) still matched as a bare abbreviation use it is not. Measured on
+    PDF-Go: 7 of 7 `pdf` matches sat inside hyphenated tokens the renderer pattern already
+    excludes."""
+    readme = _candidate().readme
+    trailing_hyphen = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nBuilt as a thin wrapper around pdf-go bindings.\n\n",
+    )
+    assert trailing_hyphen != readme, "the fixture's Scope and Limitations heading was not found"
+    document = validate_candidate(_candidate(trailing_hyphen), tmp_path, ())
+    assert "BC-07" not in {f["id"] for f in blocking_failures(document)}
+    # Mutation: the identical word, hyphen-continued on NEITHER side, still blocks - never every
+    # word beside a hyphen is exempted, only one a hyphen actually continues.
+    bare = readme.replace(
+        "## Scope and Limitations\n\n",
+        "## Scope and Limitations\n\nParses pdf documents directly.\n\n",
+    )
+    document = validate_candidate(_candidate(bare), tmp_path, ())
+    assert (
+        "abbreviation 'pdf' is not in its canonical form PDF"
+        in _failed(document, "BC-07")["details"]
+    )
+
+
 def test_narration_catches_a_claim_about_the_documents_own_verification(tmp_path: Path) -> None:
     """External review, 2026-09-07: measured twice, verbatim, in a sealed candidate's Additional
     Examples lead-in - "More real, verified snippets are collected below" - a claim about the
@@ -861,6 +893,28 @@ def test_an_anchor_to_a_heading_the_candidate_dropped_names_the_section_it_rende
     )
     assert resolving != readme
     assert _verdicts(validate_candidate(_candidate(resolving), tmp_path, ()))["BC-06"] == "PASS"
+
+
+def test_renderer_owned_reads_a_registrys_click_through_target_off_ecosystemspec() -> None:
+    """G4-W17 arrival item 89 (words-net worker LANE-F-03, Words-.NET). `_renderer_owned`
+    special-cased pypi.org's own registry-page path and github.com's own repository path, but had
+    no case for nuget.org - so a .NET version badge's own href, built from
+    `core/ecosystems.py`'s `version_badge` template, could never be verified for a repository
+    whose README doesn't already carry that exact URL as a scraped `link_target` fact. Measured on
+    Words-.NET (never carried the badge) and cross-checked against three other sealed NuGet-based
+    .NET candidates, each of which had only ever passed by coincidence, not by guarantee. Fix:
+    read the registry's click-through target generically off `EcosystemSpec.badge` - the same
+    template `_badges` (composition/renderer.py) renders - rather than one more per-host
+    carve-out, closing the identical latent gap for Go/Rust/TypeScript at the same time."""
+    net_entry = ENTRY.model_copy(update={"ecosystem": "net"})
+    net_facts = FactsDocument(
+        ENTRY.repository, REVISION, (_fact("package:name", "package", "Aspose.Words.FOSS"),)
+    )
+    candidate = dataclasses.replace(_candidate(), entry=net_entry, facts=net_facts)
+    assert _renderer_owned(candidate, "https://www.nuget.org/packages/Aspose.Words.FOSS/")
+    # Mutation: a NuGet URL for a DIFFERENT package is not this repository's own badge target -
+    # never every nuget.org link is exempted, only this repository's own registry page.
+    assert not _renderer_owned(candidate, "https://www.nuget.org/packages/SomeOtherPackage/")
 
 
 def test_narration_is_matched_at_a_word_boundary_not_as_a_bare_substring(

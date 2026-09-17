@@ -171,7 +171,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # "2" (G4-W17 arrival item 47, a meaning change per the increment rule): an anchor to a
         # heading the candidate does not render fails naming the shell section the link renders
         # in, so the repair loop can route it; "1" recorded every such failure unrepairable.
-        "2",
+        # "3" (G4-W17 arrival item 89, words-net worker LANE-F-03): _renderer_owned now reads a
+        # registry's click-through target generically off EcosystemSpec.badge instead of only
+        # special-casing pypi.org and github.com, so a NuGet (and latently Go/Rust/TypeScript)
+        # version badge's href can be verified without needing a coincidental scraped fact.
+        "3",
         "Every link resolves; Aspose links are within the ceiling; Enterprise Edition is the "
         "only edition name",
         ("documentation_resources", "enterprise_relationship", "badges"),
@@ -193,7 +197,11 @@ BLOCKING_CHECKS: tuple[Check, ...] = (
         # items 102/107/108 each found a different miss in one session) to a closed blocklist of
         # genuinely self-referential continuations - a real technical claim of any shape is now
         # presumptively true rather than needing to be named in advance.
-        "6",
+        # "7" (G4-W17 arrival item 112, lane D PROPOSAL P25, PDF-Go): _LOWER_WORD gains the
+        # right-side negative lookahead composition/renderer.py's own pattern already has, so a
+        # word that STARTS a hyphenated compound (a module path's own trailing segment) is no
+        # longer a false-positive bare-abbreviation match.
+        "7",
         "Exactly one factual H1; one badge row; title-case headings; canonical abbreviations; "
         "At a Glance topology and column rules; no internal narration; within the length budget",
         ("structure",),
@@ -280,8 +288,12 @@ _EDITION = re.compile(r"\b([A-Z][A-Za-z]+) Edition\b")
 # A word after a dot is an extension spelling (.dae), not an abbreviation. G4-W17 arrival item
 # 103 (E21): a word immediately after a hyphen is a hyphen-continued name (aspose-html-foss),
 # not a bare abbreviation use either - the identical shape _COMMAND below is already hardened
-# against for python-pptx (item 26), never before extended to this pattern.
-_LOWER_WORD = re.compile(r"(?<![.\w-])[a-z]{3,}\b")
+# against for python-pptx (item 26), never before extended to this pattern. G4-W17 arrival item
+# 112 (lane D PROPOSAL P25, PDF-Go): item 103 guarded only the left side, so a word that STARTS a
+# hyphenated compound (a module path's own trailing segment, e.g. pdf-go) still matched - the
+# right-side negative lookahead now completes the two-sided guard composition/renderer.py's own
+# _LOWER_WORD already has, so the two patterns match exactly.
+_LOWER_WORD = re.compile(r"(?<![.\w:-])[a-z]{3,}(?![\w:-])")
 _LINK_DESTINATION = re.compile(r"\]\([^)]*\)")
 _URL = re.compile(r"https?://\S+")
 # G4-W17 arrival item 26 (lane B, Aspose.Slides for C++, measured 2026-09-06). `\b` alone let
@@ -763,19 +775,36 @@ def _is_aspose(host: str) -> bool:
 
 
 def _renderer_owned(candidate: Candidate, href: str) -> bool:
-    """A target the renderer derives from verified facts rather than from the README's links."""
+    """A target the renderer derives from verified facts rather than from the README's links.
+
+    G4-W17 arrival item 89 (words-net worker LANE-F-03, Words-.NET). This used to special-case
+    pypi.org's own registry-page path and nothing else, so a NuGet (or Go/Rust/TypeScript)
+    version badge's href could never be verified for a repository whose README doesn't already
+    carry that exact URL as a scraped `link_target` fact - measured on three sealed NuGet-based
+    .NET candidates, each of which had only ever passed by that coincidence. The registry page is
+    read generically off `EcosystemSpec.badge` - the identical template `_badges`
+    (composition/renderer.py) renders - rather than one more per-host carve-out, so every
+    ecosystem's own registry link is covered by the same code path.
+    """
     parts = urlsplit(href)
     host = (parts.hostname or "").lower()
     if host in _RENDERER_HOSTS:
         return True
+    if host == "github.com":
+        return parts.path.startswith(f"/{candidate.entry.repository}/")
     package = next(
         (f.value for f in candidate.facts.by_kind("package") if f.id == "package:name"), None
     )
-    if host == "pypi.org" and package is not None:
-        return parts.path.rstrip("/") == f"/project/{package}"
-    if host == "github.com":
-        return parts.path.startswith(f"/{candidate.entry.repository}/")
-    return False
+    if package is None:
+        return False
+    badge = spec_for(candidate.entry.ecosystem).badge(package)
+    destinations: list[str] = _LINK_DESTINATION.findall(badge)
+    if not destinations:
+        return False
+    # The badge markdown is `[![alt](img_url)](link_url)`; the last `](...)` is the click-through
+    # target - the one link a reader can actually follow, and the only one this check is about.
+    target = destinations[-1].removeprefix("](").removesuffix(")")
+    return href.rstrip("/") == target.rstrip("/")
 
 
 def _check_links(candidate: Candidate) -> list[Failure]:
