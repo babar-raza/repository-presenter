@@ -84,7 +84,13 @@ workstreams from this document alone — each needs its own investigation report
 - Workstream 1: `docs/investigations/01-ci-deployment-sustainability.md` (pending)
 - Workstream 2: `docs/investigations/02-repo-metadata-community-files.md` (pending)
 - Workstream 3: `docs/investigations/03-issue-tracking.md` (pending)
-- Workstream 4: `docs/investigations/04-portfolio-discovery.md` (pending)
+- Workstream 4: `docs/investigations/04-portfolio-discovery.md` (design analysis); a first live
+  enumeration pass and its reusable, read-only tool followed on 2026-09-17:
+  `docs/investigations/10-portfolio-discovery.md`, `tools/discovery/portfolio_discovery.py`. This
+  covers only the discover-and-report half of Gate C0 (org/repo enumeration, diff against
+  `data/registry.json`) — the staging/observation artifact, exclusions ledger, and reconciliation
+  step investigation 04 §4 recommends before any intake remain undone; the workstream's own
+  `not started` status above still stands for the gate as a whole.
 - Workstream 5: `docs/investigations/05-production-autonomy.md` (pending)
 
 ## Reverse by

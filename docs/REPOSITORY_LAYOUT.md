@@ -90,6 +90,7 @@ tests/                       mirrors src/repository_presenter/ package for packa
 tools/                        owner/reviewer tooling (tools/README.md) - supervises the loop and lanes from outside; never imported by src/, never touched by the loop or a lane, never read for an acceptance predicate
   reviewer/                   reviewer_check.py, stop_monitor.py, timestamp_monitor.py, unblock_monitor.py, research_edit.py (reusable governance-edit helpers), procedure.md; .local/ gitignored (state, never portfolio content)
   census/                     portfolio_census.py (planning-time only); .local/ gitignored (clone scratch space)
+  discovery/                  portfolio_discovery.py (read-only aspose-<family>-foss org/repo scan vs. data/registry.json, report-only, never writes the registry) and its tests
 runs/                        disposable clones and run output (gitignored, never committed)
 ```
 

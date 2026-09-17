@@ -60,6 +60,25 @@ governance tracks, two directories, no overlap.
     static census (manifest, deps, README shape, registry publication, toolchain probe). Output
     feeds `project/portfolio-census.json` (committed — that's owner planning data referenced by
     `docs/RESEARCH_AND_GUIDELINES.md` §28.11, distinct from this directory's *code*).
+- `discovery/` — one-shot planning data-gathering, same shape as `census/`, for the portfolio
+  itself rather than one repository's contents.
+  - `portfolio_discovery.py` — enumerates every `aspose-<family>-foss` GitHub organization
+    (search leg + a maintained/extensible probe leg over plausible family slugs, since GitHub has
+    no direct "list orgs by name pattern" API — see the module's own docstring for exactly how the
+    candidate list is assembled and its documented recall limitation), lists each org's public
+    repositories, and diffs them against `data/registry.json`. **Read-only and report-only: it
+    never writes `data/registry.json`** — admitting a discovered repository is a separate,
+    human-reviewed decision, always (owner standing rule, 2026-09-17). Run it with
+    `python tools/discovery/portfolio_discovery.py`; it writes
+    `docs/investigations/10-portfolio-discovery.md` by default (`--output` to change). Commissioned
+    by `docs/PRODUCTION_ROADMAP.md` workstream 4 / `plans/idea.md`'s Common Gate C0, following up
+    `docs/investigations/04-portfolio-discovery.md`'s design analysis with the first actual
+    enumeration pass.
+  - `test_portfolio_discovery.py` — regression tests for the search/probe/diff/render logic, run
+    directly (`pytest tools/discovery/test_portfolio_discovery.py`; outside `pyproject.toml`'s
+    `pythonpath`/collection scope, so it never runs as part of `pytest tests/`), same convention as
+    `tools/reviewer/test_research_edit.py`. Every test injects a fake fetch function — no test
+    makes a live network call.
 
 ## Environment variables
 
