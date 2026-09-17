@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
+
+from jsonschema import Draft202012Validator
 
 from repository_presenter.components.readme.investigation.dossier import (
     UNIT_CAP,
     investigation_packet,
+    investigation_schema,
     write_investigation,
 )
 from repository_presenter.core.facts import SYMBOL_CAP, Evidence, Fact, FactsDocument
@@ -27,7 +31,8 @@ ENTRY = RegistryEntry.model_validate(
         "provider_identity": {"provider": "github", "repository_id": 1, "node_id": "R_1"},
     }
 )
-MANIFEST = load_manifests(REPO_ROOT / "prompts")["repository_investigation"].manifest
+LOADED = load_manifests(REPO_ROOT / "prompts")["repository_investigation"]
+MANIFEST = LOADED.manifest
 
 
 def _fact(fact_id: str, kind: str, value: str, polarity: str = "SUPPORTED") -> Fact:
@@ -98,3 +103,68 @@ def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:
     assert raw == expected
     assert json.loads(raw) == output
     assert write_investigation(output, path) == digest
+
+
+def test_investigation_schema_pins_every_fact_ids_array_to_the_packets_own_dossier() -> None:
+    """G4-W17 arrival item 105 (E22). ``repository_investigation`` (S3) was the one fact-citing
+    job with no ``call_schema`` at all, unlike ``source_reconciliation``/``presentation_planning``/
+    ``section_authoring``, which all pin their ``fact_ids`` arrays via ``_pin_fact_id_arrays`` -
+    so a hallucinated fact ID cost a live provider call before ``core/llm/binding.py``'s post-hoc
+    ``binding_errors`` ever caught it. Measured on Words-Python: two live calls against a
+    byte-identical request (temperature 0, seed 1) produced two different hallucinations. This
+    proves the schema itself now refuses one at decode time, at all four sites -
+    ``product_summary``/``audience``/``problems_solved``/``limitations`` share the one
+    ``$defs.statement``, and ``workflows``/``capabilities`` carry their own inline field."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            _fact("identity:repository", "identity", ENTRY.repository),
+            _fact("example:001", "example", "print(1)"),
+        ),
+    )
+    schema = investigation_schema(LOADED, facts)
+    assert set(schema["$defs"]["citable_fact_id"]["enum"]) == {
+        "identity:repository",
+        "example:001",
+    }
+    validator = Draft202012Validator(schema)
+
+    def _output(fact_ids: list[str]) -> dict[str, Any]:
+        statement = {"text": "t", "fact_ids": fact_ids}
+        return {
+            "product_summary": statement,
+            "audience": statement,
+            "problems_solved": [statement],
+            "workflows": [{"name": "n", "text": "t", "fact_ids": fact_ids}],
+            "capabilities": [{"title": "t", "text": "t", "fact_ids": fact_ids} for _ in range(3)],
+            "limitations": [],
+            "uncertainties": [],
+        }
+
+    # A real, dossier-carried ID: valid everywhere it is cited.
+    assert list(validator.iter_errors(_output(["identity:repository"]))) == []
+    # A well-formed fact ID this packet never showed (a sibling repository's own ID, the exact
+    # measured Words-Python shape): refused at every one of the four sites, not silently accepted
+    # until a live call was already spent.
+    paths = {tuple(error.path) for error in validator.iter_errors(_output(["identity:revision"]))}
+    assert ("product_summary", "fact_ids", 0) in paths
+    assert ("audience", "fact_ids", 0) in paths
+    assert ("problems_solved", 0, "fact_ids", 0) in paths
+    assert ("workflows", 0, "fact_ids", 0) in paths
+    assert ("capabilities", 0, "fact_ids", 0) in paths
+    # Nothing citable pins every array empty, as S4/S5 already do, with no enum left to reference.
+    empty = investigation_schema(LOADED, FactsDocument(ENTRY.repository, "a" * 40, ()))
+    assert "citable_fact_id" not in empty.get("$defs", {})
+    assert empty["$defs"]["statement"]["properties"]["fact_ids"] == {
+        "type": "array",
+        "maxItems": 0,
+    }
+    assert empty["properties"]["workflows"]["items"]["properties"]["fact_ids"] == {
+        "type": "array",
+        "maxItems": 0,
+    }
+    assert empty["properties"]["capabilities"]["items"]["properties"]["fact_ids"] == {
+        "type": "array",
+        "maxItems": 0,
+    }

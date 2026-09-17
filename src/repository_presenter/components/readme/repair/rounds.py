@@ -53,6 +53,7 @@ from repository_presenter.components.readme.composition.renderer import (
 from repository_presenter.components.readme.investigation.dossier import (
     INVESTIGATION_FILENAME,
     investigation_packet,
+    investigation_schema,
     write_investigation,
 )
 from repository_presenter.components.readme.reconciliation.dispositions import (
@@ -188,7 +189,15 @@ def run_round(tx: TransactionInputs) -> Round:
     }
     digests: dict[str, str] = {}
     loaded = prompts["repository_investigation"]
-    investigation = run_job(loaded, investigation_packet(entry, facts, loaded.manifest), **common)
+    # G4-W17 arrival item 105 (E22): the one fact-citing job with no call_schema of its own,
+    # unlike the reconciliation/planning/authoring calls below - pinned to the packet's own
+    # fact_dossier so a hallucinated fact ID is refused at decode, not after a spent call.
+    investigation = run_job(
+        loaded,
+        investigation_packet(entry, facts, loaded.manifest),
+        call_schema=investigation_schema(loaded, facts),
+        **common,
+    )
     digests["investigation"] = write_investigation(
         investigation.output, tx.directory / INVESTIGATION_FILENAME
     )
