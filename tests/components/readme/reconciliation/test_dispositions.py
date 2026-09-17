@@ -5,8 +5,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from repository_presenter.components.readme.evidence.facts.product_pages import BANNER_FACT_ID
 from repository_presenter.components.readme.reconciliation.dispositions import (
     contradicted_code_units,
+    contradicted_embedded_links,
+    contradicted_link_hrefs,
     merge_dispositions,
     normalize,
     placement_errors,
@@ -574,6 +577,170 @@ def test_placement_rules_are_checked_before_use() -> None:
         "VERIFIED_PRESERVE": 1,
         "OMIT_UNSUPPORTED": 1,
     }
+
+
+def test_a_preserved_units_own_contradicted_link_folds_to_rewrite() -> None:
+    """Item 90. Measured on Words-.NET: inherited_unit:068.paragraph preserved a broken relative
+    ../../issues link verbatim - VERIFIED_PRESERVE renders a unit's raw markdown as written, so
+    reconciliation's own knowledge that the link is CONTRADICTED never reached the sealed README,
+    with no repair path three stages later. normalize() now folds the placement to
+    VERIFIED_REWRITE, so S6 re-authors the wording from facts instead of copying the dead link
+    through - but never cites the broken link itself, since composition/planning.py's own
+    _missing_links backstop would otherwise treat any such VERIFIED_REWRITE citation as a real,
+    renderable link and add it back into the plan (and then reject the plan outright, since that
+    backstop only ever adds a SUPPORTED link_facts target)."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:010.paragraph",
+                "inherited_unit",
+                "See our [issue tracker](../../issues) for open bugs.",
+            ),
+            _fact(
+                "link_target:001",
+                "link_target",
+                "../../issues",
+                "CONTRADICTED",
+                "line 1; relative; text 'issue tracker'",
+            ),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry(
+                "inherited_unit:010.paragraph",
+                "VERIFIED_PRESERVE",
+                "scope_limitations",
+                "identity:repository",
+            ),
+        ]
+    }
+    assert normalize(output, facts) == []
+    entry = output["dispositions"][0]
+    assert entry["disposition"] == "VERIFIED_REWRITE"
+    assert entry["destination_section"] == "scope_limitations"
+    assert "link_target:001" not in entry["fact_ids"]
+    assert entry["fact_ids"] == ["identity:repository"]
+
+
+def test_a_moved_units_own_contradicted_link_also_folds_to_rewrite() -> None:
+    """Item 90 covers VERIFIED_MOVE identically to VERIFIED_PRESERVE - both render the unit's raw
+    markdown verbatim in a different section, so both carry the identical repair gap."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:010.paragraph",
+                "inherited_unit",
+                "See our [issue tracker](../../issues) for open bugs.",
+            ),
+            _fact(
+                "link_target:001",
+                "link_target",
+                "../../issues",
+                "CONTRADICTED",
+                "line 1; relative; text 'issue tracker'",
+            ),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:010.paragraph", "VERIFIED_MOVE", "scope_limitations"),
+        ]
+    }
+    assert normalize(output, facts) == []
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_REWRITE"
+
+
+def test_a_preserved_unit_with_no_contradicted_link_is_left_alone() -> None:
+    """Mutation control: a VERIFIED_PRESERVE unit whose only embedded link is SUPPORTED is not
+    touched by the item 90 fold - proves the fold fires on the CONTRADICTED link, not on the mere
+    presence of a link."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:010.paragraph",
+                "inherited_unit",
+                "See our [issue tracker](../../issues) for open bugs.",
+            ),
+            _fact(
+                "link_target:001",
+                "link_target",
+                "../../issues",
+                "SUPPORTED",
+                "line 1; relative; text 'issue tracker'",
+            ),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:010.paragraph", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    assert normalize(output, facts) == []
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_badge_row_units_own_contradicted_link_is_not_folded() -> None:
+    """The shell owns badge_row/heading units entirely (_SHELL_OWNED); item 90's fold is scoped
+    to ordinary preserved/moved prose, never shell-owned chrome the banner fold below already
+    owns."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(
+                "inherited_unit:011.badge_row",
+                "inherited_unit",
+                "[![Build](../../broken.svg)](../../broken)",
+            ),
+            _fact(
+                "link_target:002",
+                "link_target",
+                "../../broken",
+                "CONTRADICTED",
+                "line 1; relative; text ''",
+            ),
+        ),
+    )
+    output = {
+        "dispositions": [
+            _entry("inherited_unit:011.badge_row", "VERIFIED_PRESERVE", "scope_limitations"),
+        ]
+    }
+    normalize(output, facts)
+    assert output["dispositions"][0]["disposition"] == "VERIFIED_PRESERVE"
+
+
+def test_a_renderer_owned_contradicted_link_is_excluded_from_the_fold() -> None:
+    """Item 90's "non-renderer-owned" qualifier: the banner/homepage/enterprise link_target facts
+    are the renderer's own live lookups (composition/planning.py's identical _SHELL_OWNED_LINKS
+    exclusion), never CONTRADICTED in practice, but excluded by fact ID here too so a future
+    change to product_pages.py could never make this fold fire on one of them - contradicted_
+    link_hrefs() (not normalize() directly, since the three IDs are never really CONTRADICTED)
+    proves the exclusion itself."""
+    facts = FactsDocument(
+        ENTRY.repository,
+        "a" * 40,
+        (
+            *FACTS.facts,
+            _fact(BANNER_FACT_ID, "link_target", "https://x/banner.png", "CONTRADICTED"),
+        ),
+    )
+    assert contradicted_link_hrefs(facts) == {}
+    assert contradicted_embedded_links(
+        "See ![banner](https://x/banner.png) here.",
+        {"https://x/banner.png": BANNER_FACT_ID},
+    ) == {BANNER_FACT_ID}
 
 
 def test_the_artifact_is_deterministic_json(tmp_path: Path) -> None:

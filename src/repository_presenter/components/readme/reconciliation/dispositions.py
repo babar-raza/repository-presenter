@@ -36,6 +36,7 @@ from repository_presenter.components.readme.composition.policy import (
     DEFAULT_POLICY,
     PlanningPolicy,
 )
+from repository_presenter.components.readme.evidence.facts.links import extract_links
 from repository_presenter.components.readme.evidence.facts.product_pages import (
     BANNER_FACT_ID,
     ENTERPRISE_FACT_ID,
@@ -59,6 +60,14 @@ PLACING = frozenset(
 )
 # The shell owns every heading and badge row; placing one anywhere renders nothing.
 _SHELL_OWNED = frozenset({"heading", "badge_row"})
+# item 90: these three link_target facts are the renderer's own - product_pages.py resolves each
+# from a live lookup independent of any inherited unit's own embedded copy, and the banner/
+# enterprise folds a few lines below already own deciding what happens when either is unresolved.
+# They are never CONTRADICTED in practice (product_pages.py records only SUPPORTED or UNRESOLVED),
+# so excluding them here just keeps the fold below scoped to a unit's own prose, never to a link
+# the renderer decides on its own - the same exclusion planning.py's _SHELL_OWNED_LINKS applies
+# before letting a VERIFIED_REWRITE citation reach its own links backstop.
+_RENDERER_OWNED_LINK_IDS = frozenset({BANNER_FACT_ID, HOMEPAGE_FACT_ID, ENTERPRISE_FACT_ID})
 # Fence languages that mark a block of commands the maintainers run, never a product claim.
 _COMMAND_FENCES = frozenset({"bash", "sh", "shell", "console", "zsh", "powershell", "pwsh", "cmd"})
 # A block that installs or fetches the package belongs to the Installation row, which renders
@@ -304,6 +313,41 @@ def contradicted_code_units(facts: FactsDocument) -> frozenset[str]:
     return frozenset(code_units_by_polarity(facts, "CONTRADICTED"))
 
 
+def contradicted_link_hrefs(facts: FactsDocument) -> dict[str, str]:
+    """CONTRADICTED, non-renderer-owned ``link_target`` facts, by href (item 90).
+
+    Keyed by ``fact.value`` - the href a ``link_target`` fact was extracted from - so a unit's
+    own embedded links (``contradicted_embedded_links`` below) can be matched by the exact string
+    a reader would click, the same identity ``extract_links`` already dedupes on. The three
+    renderer-owned IDs (banner, homepage, enterprise) are excluded: they are never CONTRADICTED in
+    practice, and citing one from this fold would misdirect ``composition/planning.py``'s
+    ``_missing_links`` backstop, which treats any other ``link_target`` fact a ``VERIFIED_REWRITE``
+    disposition cites as a real, renderable link it must add to the plan's own ``links``.
+    """
+    return {
+        fact.value: fact.id
+        for fact in facts.by_kind("link_target")
+        if fact.polarity == "CONTRADICTED" and fact.id not in _RENDERER_OWNED_LINK_IDS
+    }
+
+
+def contradicted_embedded_links(unit_text: str, contradicted: Mapping[str, str]) -> set[str]:
+    """Fact IDs of ``unit_text``'s own embedded links whose target is CONTRADICTED (item 90).
+
+    A VERIFIED_PRESERVE/VERIFIED_MOVE unit renders its raw markdown verbatim, embedded links
+    included, with no check of its own against what those links' own ``link_target`` facts say -
+    so a link reconciliation already knows is broken reaches the sealed README unchanged, with no
+    repair path. Matched by parsing the unit's own text with the same ``extract_links`` the
+    evidence extractor used on the whole README, so a href only counts when it is genuinely
+    embedded in this unit, never a substring coincidence.
+    """
+    if not contradicted:
+        return set()
+    return {
+        contradicted[link.href] for link in extract_links(unit_text) if link.href in contradicted
+    }
+
+
 def rendering_fact_ids(section: str, facts: FactsDocument) -> list[str]:
     """The SUPPORTED facts a deterministic section renders for this repository, by ID."""
     if section == "banner":
@@ -331,6 +375,7 @@ def normalize(
     deterministic = set(section_ids()) - placeable_section_ids()
     unresolved = code_units_by_polarity(facts, "UNRESOLVED")
     contradicted = code_units_by_polarity(facts, "CONTRADICTED")
+    contradicted_links = contradicted_link_hrefs(facts)
     commands = command_block_units(facts)
     units_by_id = {fact.id: fact for fact in facts.by_kind("inherited_unit")}
     install_ids = sorted(
@@ -381,6 +426,32 @@ def normalize(
             entry["destination_section"] = None
             entry["fact_ids"] = sorted(cited | {contradicted[unit]})
             continue
+        if (
+            disposition in {"VERIFIED_PRESERVE", "VERIFIED_MOVE"}
+            and unit.rsplit(".", 1)[-1] not in _SHELL_OWNED
+        ):
+            # item 90: a VERIFIED_PRESERVE/VERIFIED_MOVE unit renders its raw markdown verbatim,
+            # embedded links included, with no check of its own against those links' own
+            # link_target facts - so a link reconciliation already knows is CONTRADICTED reaches
+            # the sealed README with no repair path. Fold to VERIFIED_REWRITE (the existing
+            # fold-not-reject pattern, items 16/17): the unit's substance still stands, but S6
+            # re-authors the wording from facts instead of copying the broken link through.
+            # heading/badge_row units are excluded (the shell owns them entirely - the banner
+            # fold just below is their own dedicated path when they cite the banner). The
+            # CONTRADICTED fact itself is never added to fact_ids - composition/planning.py's
+            # _missing_links backstop treats any non-renderer-owned link_target citation on a
+            # VERIFIED_REWRITE disposition as a real link to surface, and this one is exactly the
+            # opposite of that.
+            unit_fact = units_by_id.get(unit)
+            bad_links = (
+                contradicted_embedded_links(unit_fact.value, contradicted_links)
+                if unit_fact is not None
+                else set()
+            )
+            if bad_links:
+                entry["disposition"] = "VERIFIED_REWRITE"
+                entry["fact_ids"] = sorted(cited - bad_links)
+                continue
         if disposition in PLACING and (
             destination == "banner" or (unit.endswith(".badge_row") and BANNER_FACT_ID in cited)
         ):
