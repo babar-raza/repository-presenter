@@ -150,6 +150,55 @@ Severity A.1). Protected-content mechanism (preventing automated updates from ov
 content with generic text) — **MET**. No genuine check-weakening was found anywhere in the decision
 log's history; every `REVERSES`-marked entry is a narrow, self-certified, non-weakening correction.
 
+## Post-publication corrections (owner re-check, 2026-09-17, same day)
+
+The owner directly challenged three findings from the standing-constraints research pass. Two were
+incomplete, not wrong; re-verified with direct evidence below.
+
+**"Ecosystem-truth extraction MET for Python, TypeScript, Rust" was too narrow.** `idea.md:358-360`
+does only name those three ecosystems for its specific "public consumer surface" sentence, so the
+original verdict was textually accurate to that one sentence — but the codebase's actual surface
+extraction is not limited to three ecosystems. `_vendor/aspose_extraction/lang/` has a real,
+language-specific module for **all seven** registry ecosystems (`python.py`, `typescript.py`,
+`rust.py`, `java.py`, `go.py`, `csharp.py`, `cpp.py`), each with genuine per-language handling
+(confirmed by reading `api_surface.py`: C++'s `internal/` private-header exclusion gated strictly
+to `language == "cpp"`; C#'s `Outer+Inner` nested-type separator mapping; Rust's `pub mod`
+visibility walk). Package-registry publication probing (`extractors/surface/registry.py::
+REGISTRY_TYPES`) covers six of seven — `python`→pypi, `net`→nuget, `java`→maven,
+`typescript`→npm, `go`→go_modules, `rust`→cargo — **`cpp` has no entry**, a real, structural
+asymmetry (C++ has no single canonical package registry the way the others do, not an oversight to
+silently fix). Test-coverage *depth* is genuinely uneven: Python has a dedicated cross-check against
+a trusted AST reader (`test_parity.py`) plus the largest test surface by far; TypeScript has its own
+dedicated re-export-semantics test; C#/C++ get generic extractor-mechanics tests
+(`test_extractor.py`); no dedicated per-language test file was found for Java, Go, or Rust surface
+extraction specifically in this pass (their vendored modules exist and are exercised by the shared
+`test_determinism.py`/`test_manifest.py` machinery, but not by a language-specific test the way
+Python/TypeScript have). Corrected verdict: **extraction code exists and is real for all 7
+ecosystems; test-coverage depth is not equal across them, and cpp is structurally excluded from
+one specific check (registry publication) for a legitimate reason.**
+
+**"Product Agents: no code, as expected" was incomplete.** The original grep was scoped to `src/`
+and `schemas/` only. `docs/RESEARCH_AND_GUIDELINES.md:1216` has a real, load-bearing "D —
+product-agent owned" row in the surface-ownership classification table ("releases, packages:
+Audit/handoff only, no writer, ever") — i.e., "product agent output" *is* represented in this
+project's governance model, as the class of content the maintainer/product team already owns and
+that this system may only audit, never author. The core verdict stands (no `ProductAgent` class or
+component needs to exist — idea.md describes an external human process, and `reconciliation/
+dispositions.py` already treats existing README/release/package content exactly as idea.md's
+"Trust and Repository-Grounded Reconciliation" section requires), but the original finding
+undersold how deliberately this is already modeled, not absent.
+
+**CS1929 seed example, independently re-verified live (not inferred from sealed-candidate evidence
+alone):** fetched `src/Aspose.Email.Foss/Msg/Mime/MultipartParser.cs` directly from
+`aspose-email-foss/Aspose.Email-FOSS-for-.Net`'s current default branch via the GitHub Contents
+API. `SequenceEqualAscii` is now defined as a `private static bool SequenceEqualAscii(this
+ReadOnlySpan<byte> value, string text)` extension method, and every call site
+(`line.SequenceEqualAscii(...)`) is type-consistent with it — the receiver-type mismatch (`byte[]`
+vs `ReadOnlySpan<byte>`) `idea.md:497-500` describes no longer exists. Confirmed fixed upstream, not
+merely "the pipeline didn't happen to hit it." `plans/idea.md`'s own authority-note table now
+carries this correction (new row, 2026-09-17) rather than rewriting the seed example's illustrative
+prose.
+
 ## Scope caveats (honest, not hedged)
 
 The decision-log archaeology pass was grep-anchored and sampled across ~6,980 combined lines, not
