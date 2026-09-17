@@ -1,0 +1,559 @@
+{
+  "coherence": {
+    "applied": true,
+    "revised": [
+      "key_capabilities/capability:1",
+      "key_capabilities/capability:8"
+    ]
+  },
+  "omitted": [
+    {
+      "fact_id": "build_test_asset:docs",
+      "reason": "The docs/ directory is not referenced in the summary sentence about building and testing; it is reserved for documentation assets and not part of the build or test commands.",
+      "section": "development_testing"
+    }
+  ],
+  "schema_version": 1,
+  "units": [
+    {
+      "fact_ids": [
+        "dependency:none",
+        "example:001",
+        "example:002",
+        "example:003",
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go",
+        "package:go_version",
+        "package:name",
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:annotation",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.info",
+        "public_symbol:document.reorder",
+        "public_symbol:document.rotate",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.savexlsx",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.sign",
+        "public_symbol:document.split",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:document.xmp",
+        "public_symbol:encryptionoptions",
+        "public_symbol:flow",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.render",
+        "public_symbol:form",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:form.addtextfield",
+        "public_symbol:formfieldtype",
+        "public_symbol:highlightannotation",
+        "public_symbol:lineargradient",
+        "public_symbol:linkannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:path",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport",
+        "public_symbol:radialgradient",
+        "public_symbol:redactannotation",
+        "public_symbol:signoptions",
+        "public_symbol:stampannotation",
+        "public_symbol:tableabsorber",
+        "public_symbol:tilingpattern"
+      ],
+      "section": "opening",
+      "slot": "opening",
+      "text": "Aspose PDF FOSS for Go is a Go library that enables developers to create, read, convert, and manipulate PDF documents programmatically. It solves problems related to document automation, such as splitting, merging, encrypting, signing, and exporting to formats like DOCX, XLSX, and EPUB, while supporting accessibility validation for PDF/A and PDF/UA standards. Developers working in Go 1.24 or later use this library to build server-side or CLI tools that generate reports, process scanned documents, or embed interactive forms and annotations. The library is available at github.com/aspose-pdf-foss/aspose-pdf-foss-for-go and has no external runtime dependencies."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.info",
+        "public_symbol:document.reorder",
+        "public_symbol:document.rotate",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.split",
+        "public_symbol:document.xmp"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:1",
+      "text": "Page operations and metadata are handled through Document.Split, Document.Append, Document.Extract, Document.Rotate, Document.Reorder, Document.SetPageLabels, Document.Info, and Document.XMP."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.render"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:2",
+      "text": "The Flow engine supports structured content authoring through Flow.AddParagraph, Flow.AddHeading, Flow.AddTable, Flow.AddList, and Flow.Render to generate formatted pages from high-level constructs."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:form.addtextfield",
+        "public_symbol:formfieldtype"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:3",
+      "text": "Form.AddTextField, Form.AddCheckbox, Form.AddComboBox, and Form.AddRadioGroup create interactive AcroForms fields using FormFieldType to define their behavior and appearance."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:highlightannotation",
+        "public_symbol:linkannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:stampannotation"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:4",
+      "text": "LinkAnnotation, HighlightAnnotation, StampAnnotation, and RedactAnnotation provide interactive and redaction capabilities, with NewLinkAnnotation and NewHighlightAnnotation simplifying their creation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:lineargradient",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:path",
+        "public_symbol:radialgradient",
+        "public_symbol:tilingpattern"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:5",
+      "text": "Path, LinearGradient, RadialGradient, and TilingPattern enable vector drawing, while Page.AddSVG and Page.AddSVGFromStream embed SVG graphics directly into pages."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.savexlsx",
+        "public_symbol:tableabsorber"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:6",
+      "text": "TableAbsorber detects tabular content, and Document.SaveDocx, Document.SaveXlsx, and Document.SaveEpub convert PDF documents to Office and EPUB formats."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:7",
+      "text": "Document.ValidatePDFA and Document.ValidatePDFUA check compliance with PDF/A and PDF/UA standards, returning PDFAValidationReport and PDFUAValidationReport with detailed results."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot"
+      ],
+      "section": "key_capabilities",
+      "slot": "capability:8",
+      "text": "The ai subpackage provides OcrCopilot for text recognition and searchable PDF generation, SummaryCopilot for document summarization, ChatCopilot for conversational queries, and ImageDescriptionCopilot for image description and alt-text generation."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in",
+      "text": "The first example opens an existing PDF, splits it into individual page files, and then merges two separate PDFs into a single document using the Aspose PDF FOSS for Go library."
+    },
+    {
+      "fact_ids": [
+        "example:002"
+      ],
+      "section": "quick_start",
+      "slot": "lead_in:2",
+      "text": "The second example creates a new PDF document from a standard page format, adds structured content such as headings, paragraphs, and lists, and renders it to pages using the Aspose PDF FOSS for Go library."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "additional_examples",
+      "slot": "preview",
+      "text": "Create encrypted documents, build tables with custom styling, and render pages to images using Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "example:003"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:003",
+      "text": "Encrypt a new document with AES-128 and verify access is restricted."
+    },
+    {
+      "fact_ids": [
+        "example:005"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:005",
+      "text": "Create a styled table with headers and flow it onto a page."
+    },
+    {
+      "fact_ids": [
+        "example:006"
+      ],
+      "section": "additional_examples",
+      "slot": "workflow:example:006",
+      "text": "Render a page with text to an image and confirm dimensions."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "package:go_version",
+        "package:name",
+        "public_symbol:document"
+      ],
+      "section": "api_reference",
+      "slot": "intro",
+      "text": "Aspose PDF FOSS for Go provides the Document class as the primary entry point for PDF operations, with supporting types like Flow, Form, Annotation, Path, TableAbsorber, and AI copilots in the ai subpackage. Each hub API offers focused capabilities for document manipulation, flow content, forms, annotations, vector graphics, table extraction, validation, AI features, encryption, page-level operations, and JavaScript actions."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.info",
+        "public_symbol:document.renderimage",
+        "public_symbol:document.reorder",
+        "public_symbol:document.replacetext",
+        "public_symbol:document.rotate",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savemarkdown",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.searchtext",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.split",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:document.xmp"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document",
+      "text": "The Document class supports opening PDFs via Open, OpenStream, OpenWithPassword, and OpenStreamWithPassword, and saving via WriteTo or format-specific methods like SaveHTML, SaveSVG, SaveMarkdown, and SaveDocx; it provides page manipulation through Split, Extract, Rotate, Reorder, SetPageLabels, and Info, and includes XMP metadata access and validation for PDF/A and PDF/UA standards."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:flow",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.render",
+        "public_symbol:flowoptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:flow",
+      "text": "Flow enables programmatic creation of structured content with paragraphs, headings, tables, and lists via AddParagraph, AddHeading, AddTable, and AddList, then renders the content to a Document using FlowOptions to control layout and styling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.exportjson",
+        "public_symbol:form.flatten",
+        "public_symbol:formfieldtype"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:form",
+      "text": "Form provides methods to add interactive form fields including text fields, checkboxes, combo boxes, and radio groups via AddTextField, AddCheckbox, AddComboBox, and AddRadioGroup, supports exporting form data as JSON or FDF/XFDF, and flattens fields into static content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:annotationcollection",
+        "public_symbol:annotationtype",
+        "public_symbol:highlightannotation",
+        "public_symbol:linkannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:page.annotations",
+        "public_symbol:redactannotation",
+        "public_symbol:stampannotation"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:annotation",
+      "text": "Annotation types including LinkAnnotation, HighlightAnnotation, StampAnnotation, and RedactAnnotation can be created via NewLinkAnnotation and NewHighlightAnnotation, managed through AnnotationCollection, and attached to pages via Page.Annotations."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:lineargradient",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:path",
+        "public_symbol:radialgradient",
+        "public_symbol:svgfontresolver",
+        "public_symbol:tilingpattern"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:path",
+      "text": "Path and its gradient types LinearGradient and RadialGradient, along with TilingPattern, enable vector drawing on pages, while Page.AddSVG and Page.AddSVGFromStream import SVG content using SVGFontResolver for custom font handling."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.savedocx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.savexlsx",
+        "public_symbol:tableabsorber"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:tableabsorber",
+      "text": "TableAbsorber extracts tabular data from PDF pages, and Document.SaveDocx, Document.SaveXlsx, and Document.SaveEpub export documents to Word, Excel, and EPUB formats respectively."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document.validatepdfa",
+      "text": "Document.ValidatePDFA and Document.ValidatePDFUA validate conformance to PDF/A and PDF/UA standards respectively, returning PDFAValidationReport and PDFUAValidationReport with detailed compliance information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:ai",
+      "text": "The ai subpackage provides OcrCopilot for text recognition and searchable PDF generation, SummaryCopilot for document summarization, ChatCopilot for conversational queries, and ImageDescriptionCopilot for image description and alt-text generation."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.verifysignatures",
+        "public_symbol:encryptionoptions",
+        "public_symbol:signoptions"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document.setencryption",
+      "text": "Document.SetEncryption applies password or certificate-based encryption using EncryptionOptions, Document.Sign signs documents with PKCS#7 signatures using SignOptions, and Document.VerifySignatures validates existing signatures."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:page",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:page.addtable",
+        "public_symbol:page.addtext",
+        "public_symbol:page.renderimage",
+        "public_symbol:page.replacetext",
+        "public_symbol:page.searchtext"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:page",
+      "text": "Page provides methods to add text, tables, and SVG content via AddText, AddTable, AddSVG, and AddSVGFromStream, render pages to images, and search or replace text content."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.javascript",
+        "public_symbol:document.openaction",
+        "public_symbol:document.removeopenaction",
+        "public_symbol:document.setopenaction",
+        "public_symbol:gotoaction",
+        "public_symbol:gotouriaction",
+        "public_symbol:javascriptaction",
+        "public_symbol:javascriptcollection"
+      ],
+      "section": "api_reference",
+      "slot": "hub:public_symbol:document.javascript",
+      "text": "Document.JavaScript manages document-level JavaScript, while Document.OpenAction, Document.SetOpenAction, and Document.RemoveOpenAction control the action executed when the document opens, supporting GoToAction, GoToURIAction, and JavaScriptAction."
+    },
+    {
+      "fact_ids": [
+        "link_target:032"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:032",
+      "text": "The getting started guide introduces the core concepts and initial setup steps for using Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:033"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:033",
+      "text": "The how-to guides and FAQ provide practical examples and answers to common questions about PDF operations in Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:034"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:034",
+      "text": "The full API reference documents all exported types, functions, and methods available in the github.com/aspose-pdf-foss/aspose-pdf-foss-for-go package."
+    },
+    {
+      "fact_ids": [
+        "link_target:035"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:035",
+      "text": "The contributing guide outlines the process for submitting code changes, reporting issues, and collaborating on Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:036"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:036",
+      "text": "The changelog records notable changes, bug fixes, and new features introduced in each release of Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "link_target:037"
+      ],
+      "section": "documentation_resources",
+      "slot": "link:link_target:037",
+      "text": "The issue tracker allows users to report bugs, request features, and discuss improvements for Aspose PDF FOSS for Go."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository",
+        "identity:revision",
+        "inherited_unit:082.heading",
+        "inherited_unit:083.list",
+        "package:go_version",
+        "package:name"
+      ],
+      "section": "scope_limitations",
+      "slot": "scope",
+      "text": "Aspose PDF FOSS for Go provides core PDF creation, manipulation, and conversion capabilities for the Go programming language, targeting developers who need programmatic control over PDF documents without requiring a commercial license."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:document.setencryption"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:1",
+      "text": "Viewer permissions enforced by PDF viewers are written as an encryption bitfield but the library itself does not act as a DRM mechanism, and linearization cannot be combined with encryption or digital signing in the same document."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:document.savelinearized"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:2",
+      "text": "The SaveLinearized method optimizes PDFs for fast web viewing but cannot be used together with encryption or digital signing in the same document."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:encryptionoptions.recipients"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:3",
+      "text": "Certificate-based encryption via Recipients accepts RSA recipients only using PKCS#1 v1.5 key transport, and does not support elliptic curve recipients or the legacy RC4 sub-filters."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:document.replacetext",
+        "public_symbol:document.searchtext"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:4",
+      "text": "SearchText and ReplaceText match content only within a single text line, so queries that span line breaks are not found or replaced."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:page.renderimage"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:5",
+      "text": "Page.RenderImage does not support mesh shadings (PDF shading types 4-7); other shading types, patterns, and blend modes render normally."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:083.list",
+        "public_symbol:table"
+      ],
+      "section": "scope_limitations",
+      "slot": "limitation:6",
+      "text": "Table does not yet support content-driven auto-fit column widths, per-side border dash patterns, or a RowSpan group splitting across a page break."
+    },
+    {
+      "fact_ids": [
+        "package:go_version",
+        "package:name",
+        "build_test_asset:ci"
+      ],
+      "section": "development_testing",
+      "slot": "summary",
+      "text": "Build and test the Aspose PDF FOSS for Go library by running go build ./... and go test ./... in the repository root, which uses the Go 1.24 runtime and the module github.com/aspose-pdf-foss/aspose-pdf-foss-for-go."
+    },
+    {
+      "fact_ids": [
+        "identity:ecosystem",
+        "identity:family",
+        "identity:platform",
+        "identity:repository"
+      ],
+      "section": "enterprise_relationship",
+      "slot": "context",
+      "text": "Aspose PDF FOSS for Go provides open-source PDF processing capabilities in Go, while Aspose.PDF for Go via C++ extends functionality with advanced features such as digital signature verification, form filling, and document conversion workflows."
+    }
+  ]
+}

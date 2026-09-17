@@ -1,0 +1,268 @@
+{
+  "audience": {
+    "fact_ids": [
+      "identity:platform",
+      "identity:ecosystem",
+      "package:go_version",
+      "dependency:none"
+    ],
+    "text": "Go developers building server-side or cross-platform applications that require PDF processing capabilities without external dependencies."
+  },
+  "capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.rotate",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp"
+      ],
+      "text": "Split, merge, extract, rotate, reorder pages, manage page labels, and handle document metadata including Info dictionary and XMP packets.",
+      "title": "Page operations and metadata"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render"
+      ],
+      "text": "Build documents top-to-bottom using the Flow layout engine with automatic pagination for paragraphs, headings, images, tables, lists, and floating boxes.",
+      "title": "Content authoring with Flow engine"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:formfieldtype"
+      ],
+      "text": "Create and manipulate form fields including text boxes, checkboxes, radio buttons, combo boxes, list boxes, push buttons, and specialized field types with value round-tripping in JSON/FDF/XFDF.",
+      "title": "AcroForms and interactive fields"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:linkannotation",
+        "public_symbol:highlightannotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:newhighlightannotation"
+      ],
+      "text": "Add and manage annotations including links, highlights, underlines, strikeouts, squares, circles, lines, ink, text, freetext, stamps, polygons, polylines, carets, file attachments, and redactions with auto-regenerated appearance streams.",
+      "title": "Annotations and interactive elements"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:path",
+        "public_symbol:lineargradient",
+        "public_symbol:radialgradient",
+        "public_symbol:tilingpattern",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream"
+      ],
+      "text": "Draw vector graphics using paths, shapes, gradients, and tiling patterns; import and render SVG 1.1 content including shapes, gradients, clipping, masks, and text.",
+      "title": "Vector graphics and SVG"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:tableabsorber",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.savexlsx",
+        "public_symbol:document.saveepub"
+      ],
+      "text": "Detect tables from page geometry using TableAbsorber and convert to DOCX, XLSX, and EPUB with real tables, headers, and styling preserved.",
+      "title": "Table detection and Office conversion"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport"
+      ],
+      "text": "Validate structural integrity, PDF/A archival conformance (1A/1B/2A/2B/3A/3B), and PDF/UA accessibility compliance with detailed reporting and conversion assistance.",
+      "title": "PDF/A and PDF/UA validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "text": "Perform OCR on scanned pages, generate document summaries, answer questions via chat with conversation history, and create alt-text for figures using AI copilots over OpenAI-compatible endpoints.",
+      "title": "AI document analysis"
+    }
+  ],
+  "limitations": [
+    {
+      "fact_ids": [
+        "install_command:go"
+      ],
+      "text": "Viewer permissions are enforced by PDF viewers, not by the library itself."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.savelinearized"
+      ],
+      "text": "Linearization cannot be combined with encryption or digital signing in the same document."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:encryptionoptions.recipients"
+      ],
+      "text": "Certificate-based encryption accepts RSA recipients only; elliptic curve recipients are not supported."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.searchtext",
+        "public_symbol:document.replacetext"
+      ],
+      "text": "SearchText and ReplaceText match within a single text line only; queries spanning line breaks are not found."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:page.renderimage"
+      ],
+      "text": "The built-in renderer does not support mesh shadings (PDF shading types 4-7)."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:table"
+      ],
+      "text": "Table does not yet support content-driven auto-fit column widths, per-side border dash patterns, or RowSpan groups splitting across page breaks."
+    }
+  ],
+  "problems_solved": [
+    {
+      "fact_ids": [
+        "example:001",
+        "example:002",
+        "example:003",
+        "example:005",
+        "example:006"
+      ],
+      "text": "Enables PDF document creation, editing, and conversion entirely in Go without requiring native libraries or CGo bindings."
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render"
+      ],
+      "text": "Provides a high-level Flow layout engine for building documents from structured content like paragraphs, headings, tables, and lists with automatic pagination."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:encryptionoptions",
+        "public_symbol:signoptions"
+      ],
+      "text": "Supports document security through password encryption (AES-128/AES-256/RC4), certificate-based encryption, and digital signatures (PKCS#7, PAdES, timestamps)."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "text": "Offers AI-powered document analysis including OCR, summarization, chat-based Q&A, and alt-text generation via OpenAI-compatible endpoints."
+    }
+  ],
+  "product_summary": {
+    "fact_ids": [
+      "identity:repository",
+      "identity:family",
+      "identity:platform",
+      "identity:ecosystem",
+      "package:name",
+      "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go"
+    ],
+    "text": "Aspose-PDF-FOSS-for-Go is a pure Go library for creating, editing, rendering, signing, encrypting, converting, and validating PDF documents without CGo, native libraries, or third-party dependencies."
+  },
+  "uncertainties": [],
+  "workflows": [
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:newdocument",
+        "public_symbol:newdocumentfromformat",
+        "public_symbol:flow",
+        "public_symbol:flow.render"
+      ],
+      "name": "Document creation and layout",
+      "text": "Developers create new documents using NewDocument or NewDocumentFromFormat, then use the Flow layout engine to add paragraphs, headings, tables, and lists with automatic pagination."
+    },
+    {
+      "fact_ids": [
+        "example:001",
+        "public_symbol:document.split",
+        "public_symbol:document.append"
+      ],
+      "name": "Document merging and splitting",
+      "text": "Developers split documents into per-page files using Split() or merge multiple documents using Append() to combine pages in place."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.exportjson",
+        "public_symbol:form.flatten"
+      ],
+      "name": "Form filling and validation",
+      "text": "Developers read and write AcroForm field values using Form API methods, export/import data in JSON/FDF/XFDF formats, and flatten forms to make them non-editable."
+    },
+    {
+      "fact_ids": [
+        "example:003",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.verifysignatures"
+      ],
+      "name": "Document security and signing",
+      "text": "Developers encrypt documents with passwords or certificates, apply digital signatures with PKCS#7/PAdES support, and verify existing signatures for integrity."
+    },
+    {
+      "fact_ids": [
+        "example:006",
+        "public_symbol:document.renderimage",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.savemarkdown",
+        "public_symbol:document.extracttextwithlayout"
+      ],
+      "name": "Content rendering and export",
+      "text": "Developers render pages to images (PNG/JPEG/GIF/BMP/TIFF), convert to HTML/SVG/Markdown, and extract text with layout information."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:comparedocumentspagebypage",
+        "public_symbol:compareflatdocuments",
+        "public_symbol:redactannotation",
+        "public_symbol:document.applyredactions"
+      ],
+      "name": "Document comparison and redaction",
+      "text": "Developers compare documents page-by-page or flat, identify word-level changes, and apply redactions to permanently remove sensitive content."
+    }
+  ]
+}
