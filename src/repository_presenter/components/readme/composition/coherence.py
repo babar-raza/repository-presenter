@@ -40,10 +40,7 @@ def coherence_packet(
     # Batch-authored type descriptions are per-type sentences, not narrative: the coherence
     # pass neither receives nor returns them, so its output stays within the budget.
     tasks = [task for task in tasks if not task.is_batch]
-    accepted_ids: list[str] = []
-    for task in tasks:
-        accepted_ids.extend(fact_id for fact_id in sorted(task.accepted_ids))
-    accepted_ids = list(dict.fromkeys(accepted_ids))
+    accepted_ids = coherence_citable_ids(tasks)
     slots = [f"{task.section_id}/{slot}" for task in tasks for slot in task.slots]
     spellings = section_spellings(accepted_ids, facts)[:_SPELLING_CAP]
     return {
@@ -84,11 +81,33 @@ def coherence_packet(
     }
 
 
+def coherence_citable_ids(tasks: list[SectionTask]) -> list[str]:
+    """Every fact ID any unit the coherence call returns may legitimately cite: the union of
+    every authored section task's own accepted set - exactly the ids ``coherence_packet`` already
+    shows the job as ``accepted_facts`` - batch/type tasks excluded as they carry no coherence
+    unit at all.
+
+    G4-W17 arrival item 123: this is the shared, per-call enum ``reconciliation_schema``'s own
+    ``citable_fact_ids`` already builds for its per-batch ``fact_ids``, not a per-unit
+    ``prefixItems`` restriction like ``authoring_schema``'s - the coherence call, like a
+    reconciliation batch, returns many different units in one reply, so one decoder constraint
+    covering everything any of them could legitimately cite is what bounds the runaway risk;
+    each unit's own narrower, section-scoped set is still enforced post-hoc by
+    ``coherence_checks``' per-section ``unit_checks`` call, exactly as it already was.
+    """
+    tasks = [task for task in tasks if not task.is_batch]
+    ids: list[str] = []
+    for task in tasks:
+        ids.extend(fact_id for fact_id in sorted(task.accepted_ids))
+    return list(dict.fromkeys(ids))
+
+
 def coherence_schema(
-    manifest: LoadedManifest, existing_units: list[dict[str, Any]]
+    manifest: LoadedManifest, existing_units: list[dict[str, Any]], tasks: list[SectionTask]
 ) -> dict[str, Any]:
     """The section_authoring schema specialised for the one coherence call: exactly as many units
-    back as were given.
+    back as were given, and each unit's own ``fact_ids`` limited to what any of them could
+    legitimately cite.
 
     G4-W17 arrival item 75 (lane F F23, Email-.NET; lane B LANE-B-W14R2-F1, Cells-TS):
     section_authoring's per-task calls already get an exact ``units`` count from
@@ -97,11 +116,25 @@ def coherence_schema(
     construction - used the bare manifest schema with no bound of its own beyond ``minItems: 1``.
     Nothing here changes ``text``'s or ``omitted``'s bounds; those come from the manifest schema
     this deep-copies, so the same ``maxLength`` fix covers this call too.
+
+    G4-W17 arrival item 123: the units count bound above says nothing about any unit's own
+    ``fact_ids`` - the one call site among section_authoring's five shapes (S3, S4's per-entry
+    calls, S5, S6's per-task calls) that never got the per-kind bound treatment
+    ``authoring_schema``/``reconciliation_schema`` already apply, and structurally the single
+    largest section_authoring reply in the pipeline (every LLM-owned unit in the document, one
+    call). A count bound alone still lets a runaway completion spend its whole budget on
+    well-formed but wrong IDs (item 121's own reasoning), so ``fact_ids`` now carries the same
+    enum-of-citable-IDs treatment the other two functions apply, via ``coherence_citable_ids``.
     """
     schema = copy.deepcopy(manifest.manifest.output.schema_)
+    units = schema["properties"]["units"]
+    citable = coherence_citable_ids(tasks)
+    if citable:
+        units["items"]["properties"]["fact_ids"]["items"] = {"type": "string", "enum": citable}
+    else:
+        units["items"]["properties"]["fact_ids"] = {"type": "array", "maxItems": 0}
     count = len(existing_units)
     if count:
-        units = schema["properties"]["units"]
         units["minItems"] = count
         units["maxItems"] = count
     return schema

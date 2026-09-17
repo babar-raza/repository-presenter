@@ -278,7 +278,7 @@ def run_round(tx: TransactionInputs) -> Round:
         loaded,
         coherence_task_packet,
         checks=functools.partial(coherence_checks, tasks=tasks, facts=facts, name=name),
-        call_schema=coherence_schema(loaded, coherence_task_packet["existing_units"]),
+        call_schema=coherence_schema(loaded, coherence_task_packet["existing_units"], tasks),
         **common,
     )
     units, revised = apply_coherence(units, coherent.output)
