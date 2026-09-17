@@ -23,8 +23,19 @@ toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   note: See project/lanes/lane-b.yaml toolchains block (LANE-B-00 receipt); resolve .cmd shims; nothing on PATH.
 progress:
-  sealed_by_lane: 2
-  dispositions_by_lane: 1
+  sealed_by_lane: 3
+  dispositions_by_lane: 0
+  status_line_observed_2026_09_17: '2026-09-17 13:33, from this lane branch rebased onto origin/main
+    at 0ced0a5: candidates 19/34 current reviewable no-op-proven - up from 18.
+    aspose-pdf-foss/Aspose-PDF-FOSS-for-Go is lane D''s third candidate and its own first-ever seal:
+    with items 112 (PROPOSAL P25), 113 (PROPOSAL P26) and 114 (PROPOSAL P30) all confirmed landed on
+    the rebased tree, the repository reached S10 for the first time in this lane''s log and the
+    independent review returned ACCEPT on the first attempt - 0 findings, 0 advisory. BC-01 to BC-11
+    all PASS, no-op proven in a fresh process with zero provider calls. 19 ever sealed, 19
+    integrity-valid, 8 current-code reproducible; examples 115/155 verified across counted
+    candidates. state.yaml''s cursor read 18 against 19 sealed bundles on disk in the just-rebased
+    tree, so this commit recomputes that one field per loop-prompt-lane.md section 0.
+    aspose-cells-foss/Aspose.Cells-FOSS-for-Go and -for-Rust were not run this item.'
   status_line_observed_2026_09_16: '2026-09-16 15:44, from this lane branch off origin/main at
     4cd0219: candidates 10/34 current reviewable no-op-proven - unchanged by this item, which sealed
     nothing. 10 ever sealed, 10 integrity-valid, 7 current-code reproducible, 0 independently
@@ -443,3 +454,35 @@ items:
     BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED beside it - routing half closed, cause
     half open on P30. sealed_by_lane stays 2 and dispositions_by_lane stays 1. BC-10 and BC-11 were
     never judged in any run and neither is claimed. See docs/RESEARCH_LANE_D.md.'
+- id: G4-W15-RERUN6
+  status: ACCEPTED
+  accepted_at: '2026-09-17T13:33:00+05:00'
+  receipt: evidence/build/lanes/lane-d/G4-W15-RERUN6.json
+  purpose: 'Re-draw aspose-pdf-foss/Aspose-PDF-FOSS-for-Go (owner/supervisor, 2026-09-17): a genuine
+    changed-input retry after items 112 (PROPOSAL P25), 113 (PROPOSAL P26) and 114 (PROPOSAL P30) -
+    the repository''s three named blockers - all landed on main. Verified independently before
+    drawing (git merge-base --is-ancestor against the rebased tree, then reading each diff), not
+    assumed from the hand-off. Evidence evidence/build/lanes/lane-d/G4-W15-RERUN6.json.'
+  outcome: 'SEALED - the repository''s first ever seal, and lane D''s third candidate. All three
+    named blockers'' resume predicates were met and verified landed on the rebased tree
+    (origin/main at 0ced0a5): item 112/P25 as e184973 (registry.py _LOWER_WORD right-side hyphen
+    guard), item 113/P26 as b93e480 (authoring.py _MODULE_PATH) with version-bump follow-ups
+    c55531e and 0f9960d, item 114/P30 as c791de9 (placement.py planned_heading_slugs). Facts stage
+    unchanged from RERUN5 at the same source revision 6784921e: 1,715 facts, 1,714 supported, 1
+    unresolved, 0 contradicted. Composition reached S10 for the first time in this repository''s
+    history in this lane''s log - every earlier run died at BC-06/07/08 first - and S9 passed BC-01
+    to BC-09 clean: a 17-of-18-section plan, 42 units across 9 sections, README.md at 206 visible
+    lines of 767. One unrelated review finding (F03, an additional_example_ids lead-in ordering
+    mismatch, the class items 8/29 exist for) escalated once from S6 to a plan-level repair at S5
+    and repaired clean with no re-raise. S10''s independent review returned ACCEPT on the first
+    attempt: identity_separate true, second_reader.read 2, 0 findings, 0 advisory. BC-11: a second,
+    genuinely fresh process reproduced every artifact byte-identical with zero provider calls;
+    bundle moved ACCEPTED -> READY_FOR_PROPOSAL, check 11 judged. BC-01 to BC-11 all PASS, 0
+    advisory, verified by reading the bundle''s own validation.json rather than the CLI''s summary
+    line. manifest.json records components normalisation "9" (item 113''s bump), renderer "23",
+    reviewer_logic "10", shell "6". No lane-owned code changed and no src/ or tests/ change of any
+    kind. aspose-cells-foss/Aspose.Cells-FOSS-for-Go and -for-Rust were not run this item.
+    sealed_by_lane 2 -> 3, dispositions_by_lane 1 -> 0. Fresh from the rebased tree,
+    repository-presenter status printed candidates 19/34 where state.yaml''s cursor still read 18;
+    that one field is corrected in this same commit per loop-prompt-lane.md section 0''s named
+    exception, recomputed from disk in the just-rebased tree. See docs/RESEARCH_LANE_D.md.'

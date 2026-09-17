@@ -34,8 +34,8 @@ repositories:
 - aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp
 - aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp
 progress:
-  sealed_by_lane: 2
-  dispositions_by_lane: 8
+  sealed_by_lane: 3
+  dispositions_by_lane: 7
   note: 'G4-W13 closed its box with the C++ spec, plugin and a fresh cmake/g++ verifier in: 7244 facts
     and 6664 public symbols read from the four repositories with no provider call, 794 internal-header
     symbols withheld, and 16 of 32 README examples compiled with 14 failing on real diagnostics in their
@@ -442,7 +442,34 @@ progress:
     docs-only commits unrelated to this repository''s own facts) before landing;
     repository-presenter status reads 18/34 in the just-rebased tree, unchanged by this draw - the
     rise since RERUN9''s 15/34 is RERUN10''s own concurrent PDF-Cpp seal, recorded as observed
-    rather than assumed.'
+    rather than assumed.
+    G4-W13-RERUN11 2026-09-17 13:17 against origin/main at 0ced0a5, rebased from 47735e2 mid-run
+    (branch lane-b/G4-W13-RERUN11, fresh worktree C:/w/b18): first draw of
+    aspose-email-foss/Aspose.Email-FOSS-for-Cpp since RERUN3, now that arrival item 25 (commit
+    fb0306e) has landed, verified directly against origin/main before drawing. SEALED on the
+    first completed draw:
+    candidates/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/c844a467cf7f2503819b655f4d6ceaef91056c40,
+    READY_FOR_PROPOSAL, no_op_proof.byte_identical true after a fresh-process rerun with zero
+    provider calls. The pinned upstream clone moved from every prior draw''s fef9c934c3ad7a2 to a
+    genuinely new c844a467cf7f250 with facts staying byte-identical in shape (357 records, same
+    per-kind breakdown, same two examples). A first top-level invocation raised JobError from
+    independent_review (two response_invalid samples on the same request hash, an unknown fact ID
+    "deviations:at_a_glance") before any verdict existed - a technical job failure, not a genuine
+    BC-10 rejection, so redrawing was not a W-card violation; the second invocation reached ACCEPT
+    on second_reader corroboration (read=2, 8 corroborated, 0 findings, 17 advisory). Item 25''s
+    own DEFER_UNRESOLVED branch was NOT directly exercised - this draw''s live S5 plan used only
+    one quick start (example:001) and kept example:002 as an additional example, so the excluded-
+    placement condition never triggered; the seal closes the resume predicate without itself
+    corroborating the mechanism, exactly as RERUN10 measured for item 106 on PDF C++.
+    sealed_by_lane rises 2 to 3; dispositions_by_lane falls 8 to 7. Tooling hazard found and
+    worked around: the Edit/Write tools used for this item''s own record-keeping silently failed
+    to persist to disk when targeted at this short-path worktree outside the harness''s primary
+    working directory (each reported success but left the target file''s mtime at its original
+    checkout time, invisible to Bash, git status and pytest); worked around by writing every
+    record-keeping file in this item through a Python script invoked via Bash instead. Full
+    findings in docs/RESEARCH_LANE_B.md and evidence/build/lanes/lane-b/G4-W13-RERUN11.json, the
+    live source. repository-presenter status after the run: 19/34, risen by this draw''s own
+    seal.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -894,4 +921,27 @@ items:
     SUPPORTED fact as grounding a claim that substantially restates it, not only one it quotes
     verbatim), or once the primary rules a narrower fix or an exception sufficient.'
   run_2026_09_17_r16: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN7.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W13-RERUN11
+  status: ACCEPTED
+  accepted_at: '2026-09-17T13:17:11+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W13-RERUN11.json
+  purpose: 'Task instruction 2026-09-17: Email C++''s blocker (arrival item 25) landed as commit
+    fb0306e, "defer a placement only this plan''s own recomputation excludes"; verify against
+    origin/main before drawing, then re-draw aspose-email-foss/Aspose.Email-FOSS-for-Cpp as a
+    genuine changed-input retry of G4-W13-RERUN3''s BLOCKED_PLANNING (S5) disposition. Verified
+    directly against the checked-out source before drawing rather than trusted at face value:
+    git merge-base --is-ancestor fb0306e origin/main and git show fb0306e confirm plan_checks now
+    defers an excluded placement to DEFER_UNRESOLVED in place instead of failing closed. Never force
+    a seal, never weaken a check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item: Email C++ was drawn end to end and sealed on the first
+    completed draw (a first, technically-failed invocation raised JobError from independent_review
+    before any verdict existed and is not a re-roll of a genuine rejection; a second invocation
+    reached ACCEPT on second_reader corroboration; a third fresh-process invocation reproduced the
+    seal byte-for-byte with zero provider calls - READY_FOR_PROPOSAL). Item 25''s own mechanism was
+    not directly exercised this draw (this draw''s live S5 plan used only one quick start, so the
+    excluded-placement branch never ran) - recorded literally rather than claimed as proof, mirroring
+    G4-W13-RERUN10''s identical finding for item 106 on PDF C++. Nothing remains open for this
+    repository.'
+  run_2026_09_17_r17: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN11.json,
     which is the live source for this run rather than a copy.

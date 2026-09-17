@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "lane": "lane-b",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W13-RERUN11",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-17T13:17:11+05:00",
+  "control_revision": "0ced0a5",
+  "control_revision_note": "The single-use branch lane-b/G4-W13-RERUN11 was cut from origin/main at 47735e2 in a fresh short-path worktree at C:\\w\\b18. origin/main advanced to 0ced0a5 (an unrelated PDFPY-02 fix) during the draw; rebased (fast-forward, zero commits of this item's own at the time) before recording progress and before the commit. No conflict: the new commit touches only composition/authoring.py's _type_batches, which this item's own paths do not intersect.",
+  "resume_predicate_verification": "Before drawing: confirmed commit fb0306e ('fix(composition): defer a placement only this plan's own recomputation excludes', G4-W17 arrival item 25) is an ancestor of origin/main (git merge-base --is-ancestor fb0306e origin/main), reading the full diff via git show rather than trusting the spawn instruction's summary. planning.py's plan_checks now mutates the held dispositions object to disposition=DEFER_UNRESOLVED, destination_section=None for a placement whose destination this plan's own recomputed additional_examples excludes, in place of appending a hard error - exactly mirroring dispositions.normalize's identical fold, exactly as G4-W13-RERUN3's 2026-09-16 15:48 entry in RESEARCH_LANE_B.md named as the unmet resume predicate. First draw of aspose-email-foss/Aspose.Email-FOSS-for-Cpp since RERUN3 (2026-09-11 17:50); a genuine changed-input retry.",
+  "time_box": {
+    "declared": "Task instruction 2026-09-17 ~13:00 (+05:00): re-draw aspose-email-foss/Aspose.Email-FOSS-for-Cpp now that item 25's fix (commit fb0306e) has landed, clearing RERUN3's sole resume predicate.",
+    "started": "2026-09-17T12:59:00+05:00",
+    "closed": "2026-09-17T13:17:11+05:00",
+    "closed_by": "The repository reached a full seal on the first completed draw and the seal survived one independent fresh-process no-op-proof replay; the box closes on a sealed result, not a time limit."
+  },
+  "environment": {
+    "os": "Microsoft Windows 11 Pro 10.0.26200.9457",
+    "python": "3.13.2",
+    "venv_recipe": "pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . (loop-prompt-lane section 1.3, exactly)",
+    "presenter_site_manifest_hash": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "worktree": "C:\\w\\b18",
+    "toolchain_registry": "C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt; resolved automatically by cpp_examples.py's RP_TOOLCHAIN_REGISTRY default, no manual PATH edit needed for this repository (email C++'s own example verification: 2 EXECUTED, 2 FAILED, unchanged from every prior draw)"
+  },
+  "what_this_run_tested": "Whether item 25's landing (planning.py's plan_checks deferring an excluded placement to DEFER_UNRESOLVED instead of failing the transaction closed) lets aspose-email-foss/Aspose.Email-FOSS-for-Cpp actually reach a seal, now that its BLOCKED_PLANNING (S5) disposition's sole named resume predicate is met.",
+  "answered": {
+    "did_the_repository_seal": "YES, on the first completed draw. The pinned upstream clone moved from every prior draw's revision (fef9c934c3ad7a207c97cc24546176e678f577af) to a new one (c844a467cf7f2503819b655f4d6ceaef91056c40) - a genuinely new commit, confirmed by this being a never-before-touched transaction directory, not a stale cache read. Facts stayed byte-for-byte equal in shape at the new revision (357 records, identical per-kind breakdown to every prior draw; 355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED), and the same two examples verify (example:001, example:002; 2 EXECUTED, 2 FAILED of 4). A first top-level invocation hard-failed before producing any disposition: independent_review sent the same deterministic request twice (hash e4396330) and received schema-invalid output both times ('unknown fact ID deviations:at_a_glance'), exhausting the job's own two-attempt retry budget and raising JobError - a technical job failure with no review.json ever written, not a review verdict, so it is not the genuine BC-10 rejection the W-card's no-reroll rule binds. A second top-level invocation (a fresh live call against the identical, already-cached upstream stages) reached a real verdict: independent_review read REJECT_PRESENTATION on its first sample, one further response_invalid on the way, then ACCEPT on second_reader corroboration (read=2, 8 corroborated ids, 0 findings surviving, 17 advisory). Validation 10 PASS/0 FAIL/1 PENDING (BC-11, the no-op proof); the repository sealed: candidates/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/c844a467cf7f2503819b655f4d6ceaef91056c40, state ACCEPTED. A third, independent fresh-process invocation (the no-op proof) reproduced every artifact byte-for-byte with zero provider calls (facts.json, investigation.json, dispositions.json, plan.json, content_units.json, README.md, README.patch, validation.json, review.json all digest-identical to the sealing draw) - final state READY_FOR_PROPOSAL, no_op_proof {byte_identical: true, fresh_process: true, provider_calls: 0}.",
+    "was_item_25s_mechanism_exercised": "NOT DIRECTLY. plan.json for this draw records quick_start_example_id 'example:001', second_quick_start_example_id null, and additional_example_ids ['example:002'] - a single quick start, not the two that emptied additional_examples and triggered the old hard error in every prior draw (RERUN2, RERUN3). dispositions.json's summary (OMIT_UNSUPPORTED 24, SUPERSEDE_REDUNDANT 28, VERIFIED_PRESERVE 27, VERIFIED_REWRITE 1 = 80 units) carries no DEFER_UNRESOLVED row, confirming plan_checks' new branch (the one item 25 added) never ran this draw - the live presentation_planning call's own non-determinism happened to produce a plan whose additional_examples section was never excluded in the first place, so the old bug's precondition (both verified examples spent on quick starts) simply did not recur. The repository's disposition changed to SEALED because this draw's plan does not hit the scenario the fix targets, not because the fix's own new code path executed and defused it - recorded literally, per the standing rule against reporting a mechanism as proven when it was not observed running. This mirrors G4-W13-RERUN10's identical finding for item 106 on PDF C++: the resume predicate is closed by producing a genuine seal, without that seal itself corroborating the named mechanism."
+  },
+  "findings": [
+    {
+      "id": "LANE-B-R11-OBS1",
+      "kind": "OBSERVATION",
+      "files": [],
+      "defect": "Not a failure: the upstream clone for aspose-email-foss/Aspose.Email-FOSS-for-Cpp moved from fef9c934c3ad7a207c97cc24546176e678f577af (every draw 2026-09-06 through 2026-09-11) to c844a467cf7f2503819b655f4d6ceaef91056c40 between RERUN3 (2026-09-11 17:50) and this draw, yet every fact this extractor reads stayed byte-for-byte equal in count and per-kind breakdown (357 records; public_symbol 225, inherited_unit 80, link_target 32, example 4, identity 5, package 4, build_test_asset 2, license 2, dependency 1, import_path 1, install_command 1), and the same two examples (example:001, example:002) verify the same way (2 EXECUTED, 2 FAILED of 4). The upstream commit therefore touched something outside every fact kind this extractor reads (a workflow file, a non-code asset, or similar) - not investigated further, since it does not affect this item's own predicate or any rendered claim.",
+      "evidence": "runs/transactions/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/c844a467cf7f2503819b655f4d6ceaef91056c40/facts.json (digest c9fa65042ec489e7e4fd6a08834f12a8eb465c7a2f91b39b0b2e625e8b1fc05e); evidence/build/lanes/lane-b/G4-W13-RERUN3.json's cohort entry (revision fef9c934c3ad7a207c97cc24546176e678f577af, identical facts breakdown).",
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "landed": false
+    },
+    {
+      "id": "LANE-B-R11-OBS2",
+      "kind": "OBSERVATION",
+      "files": [
+        "core/llm/jobs.py (job two-attempt retry budget; not lane-owned, no defect proposed)"
+      ],
+      "defect": "Not a failure: the first top-level `present` invocation this draw raised JobError from independent_review after two response_invalid samples on the same deterministic request hash (e4396330), one of them citing an unknown fact ID 'deviations:at_a_glance' (a plan.json slot name, not a fact ID, mistaken for one). This aborted that invocation before any review.json existed - a technical job failure, not a completed review verdict, so the W-card's prohibition on re-rolling a genuine BC-10 rejection does not bind it. A second, independent top-level invocation (a fresh live sample against the identical cached upstream stages) received valid output and reached a real ACCEPT verdict on corroboration. Recorded so the distinction (JobError before any verdict vs. a genuine REJECT disposition) is on record for whoever next asks why this repository was drawn twice within one item.",
+      "evidence": "runs/transactions/.../calls/e4396330af2d.json, e4396330af2d.rejected-1.json, e4396330af2d.rejected-2.json; the second invocation's calls/3356fff731c6.json + .rejected-1.json and the eventual accepted independent_review response; calls.jsonl (55 rows: 32 cache_reuse, 20 success, 3 response_invalid, 0 cache_stale across all three invocations).",
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "landed": false
+    },
+    {
+      "id": "LANE-B-R11-OBS3",
+      "kind": "OBSERVATION",
+      "files": [
+        "docs/RESEARCH_LANE_B.md, evidence/build/lanes/lane-b/G4-W13-RERUN11.json, project/lanes/lane-b.yaml, project/state.yaml (this item's own record-keeping paths, not product code)"
+      ],
+      "defect": "Tooling hazard, not a product defect: the Edit/Write agent tools used for this item's own record-keeping silently failed to persist to the real filesystem when targeted at this short-path worktree (C:\\w\\b18, outside the harness's declared primary working directory). Each call reported success and read back correctly within its own tool-call context, but the target file's on-disk mtime stayed pinned at the worktree's original checkout time (12:55) and the edit was invisible to a fresh Bash read, to git status, and to pytest - confirmed directly: a plain Bash '>>' append to the same file persisted immediately and stayed present across later calls, while every prior Edit-tool append never appeared on disk at all. Worked around for the remainder of this item by performing every edit (this entry, the evidence file, the lane file, and state.yaml's one permitted field) through a Python script invoked via Bash instead of the Edit/Write tools, for every path under this worktree.",
+      "evidence": "Direct comparison performed in-session: docs/RESEARCH_LANE_B.md, project/lanes/lane-b.yaml and project/state.yaml all showed mtime 12:55 (the worktree's original `git worktree add` checkout time) immediately after multiple Edit-tool calls reported success on them, while a Bash-native '>>' append to the same file updated its mtime immediately and was still present five seconds and one tool-call later.",
+      "repository": null,
+      "landed": false
+    }
+  ],
+  "cohort": [
+    {
+      "repository": "aspose-email-foss/Aspose.Email-FOSS-for-Cpp",
+      "revision": "c844a467cf7f2503819b655f4d6ceaef91056c40",
+      "disposition": "SEALED",
+      "disposition_change": "MOVES from BLOCKED_PLANNING (S5, RERUN3) to SEALED (READY_FOR_PROPOSAL) - item 25's landing removed the hard error that previously killed this transaction at plan_checks, though this draw's own S5 plan did not hit the excluded-placement branch item 25 added (see LANE-B-R11-OBS1/2 and answered.was_item_25s_mechanism_exercised). sealed_by_lane rises 2 to 3; dispositions_by_lane falls 8 to 7 (Email C++ moves out of disposition into a real seal, not lost).",
+      "facts": "357 records; digest c9fa65042ec489e7e4fd6a08834f12a8eb465c7a2f91b39b0b2e625e8b1fc05e - identical shape to every prior draw despite a new upstream revision (355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED; required contract rows without evidence: none)",
+      "examples": "4 candidates: 2 EXECUTED, 2 FAILED (unchanged)",
+      "stages": "S3 repository_investigation, S4 source_reconciliation (2 live calls across the draw's two attempts), S5 presentation_planning: 1 live call, plan.json shows a single quick start (example:001) plus one additional example (example:002) - a materially different split from every prior draw's two-quick-start plan. S6 section_authoring: 50 units across 9 sections, 11 live calls. S9 validation: 10 PASS/0 FAIL/1 PENDING (BC-11) after the sealing draw, 11 PASS/0 FAIL/0 PENDING after the no-op proof. S10 independent review: verdict ACCEPT (verdict_as_returned REJECT_PRESENTATION on the first read, reversed on corroboration; second_reader.read=2, 8 corroborated ids, 0 surviving findings, 17 advisory) after one response_invalid sample on the way. One repair round recorded, 0 repaired, 0 unrepairable (0 blocking findings to repair).",
+      "validation": "PASS 10/FAIL 0/PENDING 1 after the sealing draw; PASS 11/FAIL 0/PENDING 0 after the no-op proof (BC-11 PASS).",
+      "review": "ACCEPT, 0 findings, 17 advisory, second_reader.read=2, 8 corroborated.",
+      "repair": "0 repaired, 0 unrepairable, 1 round (nothing blocking to repair).",
+      "provider_calls": "4 in the sealed bundle's own accounting (the completed, successful draw); 55 total ledger rows across all three top-level invocations combined (32 cache_reuse, 20 success/live, 3 response_invalid, 0 cache_stale) - the failed first invocation's 2 response_invalid rows plus 1 more on the successful draw's own first review sample.",
+      "resume_predicate": "CLOSED. Nothing remains open for this repository: candidates/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/c844a467cf7f2503819b655f4d6ceaef91056c40 is READY_FOR_PROPOSAL with no_op_proof.byte_identical true."
+    }
+  ],
+  "not_drawn": {
+    "aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript": "BLOCKED_REVIEW (BC-10) since G4-W14-RERUN7 (2026-09-17 11:31), resume predicate PROPOSAL LANE-B-W14R7-F1 (out of this item's named scope; not re-checked).",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript": "BLOCKED_INVESTIGATION (S3) since G4-W14-RERUN4 (2026-09-16 20:36) (disabled: disposition only per the lane file; not re-checked).",
+    "aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp": "SEALED at G4-W13-RERUN10 (2026-09-17 07:51); not applicable.",
+    "aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp": "BLOCKED_REVIEW (BC-10) since G4-W13-RERUN5 (2026-09-16 15:48) (out of this item's named scope; not re-checked).",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript": "SEALED at G4-W14-RERUN5 (2026-09-16 21:33); not applicable."
+  },
+  "provider_calls": {
+    "total_ledger_rows_this_bundle": 55,
+    "completed_live": 20,
+    "output_rejections": 3,
+    "cache_reuse": 32,
+    "cache_stale": 0,
+    "note": "0 cache_stale across all three invocations (one failed, two completed) is another independent non-materialisation of lane E's PROPOSAL E3 on this repository's own surface size."
+  },
+  "progress": {
+    "sealed_by_lane": 3,
+    "candidates_after_run": "19/34 (repository-presenter status, run from this worktree against the just-rebased origin/main 0ced0a5)",
+    "dispositions_by_lane": 7
+  },
+  "local_ci_equivalent": {
+    "note": "loop-prompt section 3: one full suite immediately before the commit. No src/ or tests/ file changed this item (the repository sealed against unmodified lane-owned code); ruff/mypy/pytest are a control on the sealed bundle, evidence, lane-file, RESEARCH log and the one state.yaml progress field this item's narrow exception permits.",
+    "ruff_check": "All checks passed!",
+    "ruff_format": "242 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest_before_state_edit": "1 failed (test_status_reports_this_repository_cursor: cursor 18 vs disk 19, expected given the just-landed seal), 1270 passed, 24 xfailed in 142.90s (-n auto)",
+    "pytest_after_state_edit": "see commit; state.yaml's current_candidates set to 19 (computed fresh via repository-presenter status against the just-rebased origin/main 0ced0a5 tree, never incremented by hand) resolves the one failure; re-run after the tooling-hazard workaround confirms all record-keeping files actually landed on disk this time",
+    "runs_this_iteration": "1 full pytest run pre-edit; a second confirms green post-edit before the commit"
+  }
+}

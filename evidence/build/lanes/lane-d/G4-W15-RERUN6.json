@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "lane": "lane-d",
+  "gate": "G4_MULTI_LANGUAGE_COHORTS",
+  "work_item": "G4-W15-RERUN6",
+  "work_item_status": "ACCEPTED",
+  "recorded_at": "2026-09-17T13:33:00+05:00",
+  "control_revision": "0ced0a5",
+  "why": "Supervisor-directed re-draw (2026-09-17): a genuine changed-input retry of aspose-pdf-foss/Aspose-PDF-FOSS-for-Go after the repository's three named blockers - item 112 (PROPOSAL P25), item 113 (PROPOSAL P26) and item 114 (PROPOSAL P30) - all landed on main. Verified independently before drawing rather than assumed from the hand-off: git merge-base --is-ancestor confirmed the four cited commits (b93e480, c791de9, c55531e, 0f9960d) are ancestors of origin/main, and reading each commit's diff located the actual landing commit per item number.",
+  "scope": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go only",
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "source_revision": "6784921e711f00a26fb30a0be279965502d3ff34",
+  "source_revision_note": "The same revision RERUN5 used one day earlier (v0.9.0); the upstream repository has not moved. Both strings the earlier blockers were about are still present at the same lines.",
+  "resume_predicates_verified": [
+    {
+      "item": 112,
+      "proposal": "P25",
+      "class": "BC07_HYPHENATED_ABBREVIATION_IS_UNWRITABLE",
+      "landed_as": "e184973 (not one of the four commits cited in the hand-off, but confirmed landed on origin/main by reading the diff directly)",
+      "verified_how": "grep confirmed validation/registry.py's _LOWER_WORD carries the same two-sided hyphen guard composition/renderer.py's own pattern already has: (?<![.\\w:-])[a-z]{3,}(?![\\w:-])"
+    },
+    {
+      "item": 113,
+      "proposal": "P26",
+      "class": "split identifier in a Go module path",
+      "landed_as": "b93e480 (identifier_tokens gains _MODULE_PATH), with version-bump follow-ups c55531e (NORMALISATION_VERSION 8 -> 9) and 0f9960d (two hardcoded test literals updated to match)",
+      "verified_how": "git merge-base --is-ancestor against the rebased tree; grep confirmed _MODULE_PATH and its _URL-masking scan order in composition/authoring.py"
+    },
+    {
+      "item": 114,
+      "proposal": "P30",
+      "class": "BC06_PRESERVED_ANCHOR_TO_A_HEADING_THE_CANDIDATE_DROPPED (cause half)",
+      "landed_as": "c791de9 (planned_heading_slugs resolves a preserved unit's intra-document anchor at placement, not at repair)",
+      "verified_how": "git merge-base --is-ancestor against the rebased tree; grep confirmed planned_heading_slugs in composition/placement.py"
+    }
+  ],
+  "environment": {
+    "os": "Windows 11 10.0.26200",
+    "python": "3.13 (.venv from C:\\Python313)",
+    "worktree": "C:\\w\\d15r6",
+    "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+    "presenter_site_manifest_note": "Confirmed before any candidate work with loop-prompt-lane.md section 1.3's recipe exactly: pip==24.3.1, then requirements-lock.txt, then execnet==2.1.2 + pytest-xdist==3.8.0 + uv==0.12.9, then pip install --no-deps -e . Reproduced the reference hash on the first try."
+  },
+  "toolchain": {
+    "tool": "go",
+    "resolved_by": "shutil.which(\"go\")",
+    "path": "C:\\Program Files\\Go\\bin\\go.EXE",
+    "version": "go1.26.4 windows/amd64"
+  },
+  "lane_owned_changes": [],
+  "lane_owned_changes_note": "No lane-owned code changed. No src/ or tests/ change of any kind: this item is a re-run at current shared code, and the seal is entirely a consequence of the three shared-code fixes landing.",
+  "resume_predicate_met": true,
+  "predicate_checked_how": "By reading the rebased tree's own code (grep, shown above) and by git merge-base --is-ancestor against origin/main, not by trusting the hand-off message alone.",
+  "runs": {
+    "run_1_live": {
+      "purpose": "compose and seal at current code",
+      "provider_calls": 29,
+      "outcome": "bundle sealed at state ACCEPTED; review verdict ACCEPT, 0 findings, 0 advisory, on the first attempt; validation 10 pass / 0 fail / 1 pending (BC-11, judged at S12); the no-op proof needed a rerun in a fresh process."
+    },
+    "run_2_no_op_proof": {
+      "purpose": "the fresh-process no-op proof BC-11 judges",
+      "provider_calls": 0,
+      "outcome": "no-op proven: a fresh process reproduced every artifact byte for byte with zero provider calls; check 11 judged. State ACCEPTED -> READY_FOR_PROPOSAL. no_op_proof {fresh_process: true, byte_identical: true, provider_calls: 0, proven_at: 2026-09-17T08:27:36Z}."
+    }
+  },
+  "stage_outcomes": {
+    "S1_snapshot": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go at 6784921e711f00a26fb30a0be279965502d3ff34, 3 files, 766 tree entries, digest 05e20516719f09e02d09891f848496032bc4f7a66f16e8979dc2c4e32ceed63c - identical to RERUN5",
+    "S2_examples": "6 candidates; executed 5, not_verified 1 - identical to RERUN5",
+    "S2_facts": "1,715 records (build_test_asset 2, dependency 1, example 6, identity 5, import_path 1, inherited_unit 92, install_command 1, license 2, link_target 43, package 2, public_symbol 1560; digest 61a12d22b24f52f2592dcfb28d1d0d7f0778983565df3eb2917aba3edf6dabd7) - byte-identical to RERUN5",
+    "S3_repository_investigation": "0 provider calls in run 1 too (seeded from the sealed bundle's own history was not available since this repository had never sealed before this item; the CLI line records 'model stored output reused' from this same transaction's own S2 preflight determinism, not a prior seal). capabilities 8, workflows 6, limitations 6",
+    "S4_source_reconciliation": "92 units dispositioned: DEFER_UNRESOLVED 3, OMIT_UNSUPPORTED 21, SUPERSEDE_REDUNDANT 33, VERIFIED_MOVE 17, VERIFIED_PRESERVE 18",
+    "S5_presentation_planning": "17 of 18 sections; capabilities 8, hubs 11, examples 1+3, links 7, limitations 6; one plan-level repair (F03, escalated from S6) resolved clean",
+    "S6_section_authoring": "42 units across 9 sections (opening, key_capabilities, quick_start, additional_examples, api_reference, documentation_resources, scope_limitations, development_testing, enterprise_relationship); coherence revised 2 of 42",
+    "S7_targeted_repair": "1 repaired (F03, label F03, stage S5, path additional_example_ids), 1 escalated (F03, stage S6 -> S5), 0 unrepairable",
+    "S9_validation": "pass 10, fail 0, pending 1 (BC-11, judged at S12) on the first round",
+    "S10_independent_review": "ACCEPT on the first attempt. identity_separate true, second_reader.read 2, 0 findings, 0 advisory. verdict_as_returned ACCEPT (not a fold - the first time this repository's review has ever returned a clean verdict, in this lane's log the first time it ever reached S10 at all)",
+    "S12_no_op_proof": "PROVEN - fresh process, byte-identical, zero provider calls"
+  },
+  "checks_passed": [
+    "BC-01",
+    "BC-02",
+    "BC-03",
+    "BC-04",
+    "BC-05",
+    "BC-06",
+    "BC-07",
+    "BC-08",
+    "BC-09",
+    "BC-10",
+    "BC-11"
+  ],
+  "checks_failed": [],
+  "sealed": true,
+  "bundle_on_disk": {
+    "path": "candidates/aspose-pdf-foss__Aspose-PDF-FOSS-for-Go/6784921e711f00a26fb30a0be279965502d3ff34",
+    "state": "READY_FOR_PROPOSAL",
+    "files": 14,
+    "readme": "206 visible lines of 767; digest faa1574fd7cabff8d94ef78d8e1b7890bb1c003e1e70a36a50ac24e919385fd5",
+    "components": {
+      "normalisation": "9",
+      "renderer": "23",
+      "reviewer_logic": "10",
+      "shell": "6"
+    },
+    "counted": true
+  },
+  "bundle_file_sha256": {
+    "README.md": "faa1574fd7cabff8d94ef78d8e1b7890bb1c003e1e70a36a50ac24e919385fd5",
+    "README.patch": "8a63886ff18f6bfe23f6aed2ff9c2d272b75dd6496ab3e44fde38710c43f8523",
+    "calls.jsonl": "6a0b2d24fe77d2e9777b868775984be8353835b439c90ad2a00857180ec9c038",
+    "content_units.json": "4a6521b61b981a72355f987ac7398d8ea5a5e2600cb1cd7206b3197bbd136847",
+    "dependencies.json": "1ae0ecc176328f080f4fddbc70b2e1d668a2d009e8b7499ea97761f6460ac040",
+    "dispositions.json": "15272e9a7167c7e8e77cea5fdfdb062482d22db351c3fe6601d70dd97c5266e9",
+    "examples.json": "5faab87c5d84526afe20ddda43a4a96cc603c33099c0866cc31ee53a61a144c4",
+    "facts.json": "61a12d22b24f52f2592dcfb28d1d0d7f0778983565df3eb2917aba3edf6dabd7",
+    "investigation.json": "0d4a4a470307e74fa0e86eec180b151da81c93f0c3074384bc1091dd0c852007",
+    "manifest.json": "62fba63f4b1247c44d5bce93c423a6bcb52266cf454ba663c73db68db625e684",
+    "plan.json": "be42eb69d40417872e59eef2663da26a79e0012a9184bae61895b7b1233020d5",
+    "probes.json": "c2f07c4fff9ba6682d116585d5878c68db243b67c7a6c2f32697517cdd9a94d1",
+    "repairs.json": "571bd5ba15f73b2e0129f03b593ac76ba9987a92264f3deb90e7daa12ffd92fe",
+    "review.json": "9d1d7b9ac58585966a2d46bd4d0382723b0c9090564f2bf60231ffac0c7b4984",
+    "validation.json": "f7cc7dcc899dd390b59a0a16e84f3ec3d28a58b43e693e992668934f19cacf06"
+  },
+  "status_after": {
+    "observed_at": "2026-09-17 13:33 +05:00, from this lane branch rebased onto origin/main at 0ced0a5",
+    "line": "candidates: 19/34 current reviewable no-op-proven; 19 ever sealed, 19 integrity-valid, 8 current-code reproducible, 0 independently accepted (stale-excluded); examples 115/155 verified across counted candidates",
+    "delta": "18/34 -> 19/34. state.yaml's cursor read 18 against 19 sealed bundles on disk in the just-rebased tree; that one field is recomputed in this same commit per loop-prompt-lane.md section 0's named exception, never incremented by hand."
+  },
+  "other_lane_repositories_not_run": [
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-Go",
+    "aspose-cells-foss/Aspose.Cells-FOSS-for-Rust"
+  ],
+  "local_ci_equivalent": {
+    "ruff_check": "All checks passed!",
+    "ruff_format_check": "242 files already formatted",
+    "mypy_src": "Success: no issues found in 126 source files",
+    "pytest_n_auto": "1 failed, 1270 passed, 24 xfailed in 157.68s - the single failure was the expected cursor-mismatch (state.yaml current_candidates 18 vs 19 sealed on disk), corrected in this commit per the named exception; re-run after the correction is part of this same commit's landing."
+  }
+}

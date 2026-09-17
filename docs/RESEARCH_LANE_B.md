@@ -2376,3 +2376,68 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   rules a narrower fix or an exception sufficient - not on `LANE-B-W14R6-F1` alone, since that class
   no longer appears in this transaction at all. Full detail:
   `evidence/build/lanes/lane-b/G4-W14-RERUN7.json`, the live source.
+
+- **2026-09-17 13:17 · G4-W13-RERUN11 · DISPOSITION (SEALED) ·
+  `aspose-email-foss/Aspose.Email-FOSS-for-Cpp` at `c844a467cf7f2503819b655f4d6ceaef91056c40` -
+  `READY_FOR_PROPOSAL`.** Task instruction 2026-09-17: Email C++'s blocker (arrival item 25,
+  `BLOCKED_PLANNING`/S5 since `G4-W13-RERUN3`, 2026-09-16 15:48) landed as commit `fb0306e`,
+  "defer a placement only this plan's own recomputation excludes"; verified directly against
+  `origin/main` before drawing (`fb0306e` confirmed an ancestor of `origin/main`; its diff in
+  `planning.py` mutates a disposition to `DEFER_UNRESOLVED` in place, mirroring
+  `dispositions.normalize`, exactly as its own commit message and this file's prior entry
+  describe). First draw of this repository since `RERUN3`. Two things changed at once, not one:
+  besides item 25, the pinned upstream clone moved from `fef9c934c3ad7a207c97cc24546176e678f577af`
+  (every prior draw) to `c844a467cf7f2503819b655f4d6ceaef91056c40` - a genuinely new revision, not a
+  stale cache artifact (this transaction directory had never been touched before this run). Facts
+  stayed byte-for-byte equal in shape despite the revision move (357 records, identical per-kind
+  breakdown - `public_symbol` 225, `inherited_unit` 80, `link_target` 32, `example` 4, `identity` 5,
+  `package` 4, `build_test_asset` 2, `license` 2, `dependency` 1, `import_path` 1, `install_command`
+  1; 355 SUPPORTED, 0 UNRESOLVED, 2 CONTRADICTED), and the same two examples verify (`example:001`,
+  `example:002`; 2 EXECUTED, 2 FAILED of 4 candidates) - so the upstream commit touched something
+  outside every fact this extractor reads. First top-level invocation (draw A) hard-failed before
+  any disposition: `independent_review` sent the same deterministic request twice (hash `e4396330`)
+  and got invalid output both times ("unknown fact ID deviations:at_a_glance"), exhausting the job's
+  two-attempt budget and raising `JobError` - a technical job failure with no `review.json` written,
+  never a review verdict, so the W-card's no-reroll rule (which binds a genuine `BC-10` rejection)
+  does not apply to it. Second top-level invocation (draw B, a fresh live call on the identical
+  upstream stages) reached a real verdict: `independent_review` read `REJECT_PRESENTATION` on its
+  first read and reversed to ACCEPT on corroboration (`second_reader.read=2`, 8 corroborated ids, 0
+  findings surviving, 17 advisory) after one more rejected sample on the way. Validation 10 PASS / 0
+  FAIL / 1 PENDING (`BC-11`, the no-op proof, not yet run); the repository sealed on this first
+  completed draw: `candidates/aspose-email-foss__Aspose.Email-FOSS-for-Cpp/c844a467cf7f2503819b655f4d6ceaef91056c40`,
+  4 provider calls in the bundle's own accounting. A third, independent fresh-process invocation (the
+  no-op proof) reproduced every artifact byte-for-byte with zero provider calls (`facts.json`
+  `c9fa6504...`, `investigation.json` `910383a5...`, `dispositions.json` `dacce0f8...`, `plan.json`
+  `14b5c515...`, `content_units.json` `1f94db3f...`, `README.md` `bdeba3c3...`, `README.patch`
+  `e34f5548...`, `validation.json` `d8f1eea6...`, `review.json` `16699bd9...` unchanged) - `state:
+  READY_FOR_PROPOSAL`, `no_op_proof: {byte_identical: true, fresh_process: true, provider_calls: 0}`,
+  another non-materialisation of lane E's PROPOSAL E3, this time at 55 ledger rows (32 `cache_reuse`,
+  20 live, 3 `response_invalid`, 0 `cache_stale`) across all three invocations combined. **Item 25's
+  own mechanism (deferring an `excluded` placement to `DEFER_UNRESOLVED` instead of failing closed)
+  was NOT directly exercised**: `plan.json` for this draw records `quick_start_example_id:
+  "example:001"`, `second_quick_start_example_id: null`, `additional_example_ids: ["example:002"]` -
+  a single quick start, not the two that emptied `additional_examples` in every prior draw where the
+  S5 model's own non-determinism produced the disposition record. `dispositions.json`'s summary
+  (`OMIT_UNSUPPORTED` 24, `SUPERSEDE_REDUNDANT` 28, `VERIFIED_PRESERVE` 27, `VERIFIED_REWRITE` 1 = 80)
+  carries no `DEFER_UNRESOLVED` row. The repository's real disposition changed because this draw's
+  live S5 call happened to produce a plan the old bug's precondition never applies to, not because
+  the fix's own new branch ran and defused it - recorded literally, per the standing rule against
+  claiming a mechanism proven when it was not observed running; this mirrors `G4-W13-RERUN10`'s
+  identical finding for item 106 on PDF C++. `sealed_by_lane` rises 2 to 3; `dispositions_by_lane`
+  falls 8 to 7 (Email C++ moves out of disposition into a real seal, not lost).
+  `repository-presenter status` reads 19/34 against `origin/main` at `0ced0a5` (rebased from
+  `47735e2` mid-run, an unrelated PDFPY-02 fix); `project/state.yaml`'s `progress.current_candidates`
+  is edited from 18 to 19 in the same commit as this entry, by the lane's one narrow method -
+  computed fresh from `repository-presenter status` against the just-rebased tree, not incremented by
+  hand. **Tooling hazard found and worked around, not silently absorbed:** the `Edit`/`Write` tool
+  calls used for this item's own record-keeping (this file, the evidence file, the lane file, and
+  `state.yaml`'s one permitted field) silently failed to persist to the real filesystem when targeted
+  at this short-path worktree (`C:\w\b18`, outside the harness's declared primary working
+  directory) - each reported success and read back correctly within the same tool-call context, but
+  every targeted file's on-disk mtime stayed pinned at the worktree's original checkout time and
+  every edit was invisible to a fresh `Bash` read, to `git status`, and to `pytest`. Confirmed by a
+  direct comparison: a plain `Bash` append to the same file persisted immediately and stayed present
+  across subsequent calls, while the prior `Edit`-tool appends never appeared on disk at all. Worked
+  around by performing every edit in this item (this entry included) through a Python script invoked
+  via `Bash` instead of the `Edit`/`Write` tools, for every path under this worktree. Full detail:
+  `evidence/build/lanes/lane-b/G4-W13-RERUN11.json`, the live source.

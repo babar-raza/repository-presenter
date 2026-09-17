@@ -1,0 +1,25 @@
+{
+  "advisory": [],
+  "authoring": {
+    "job": "section_authoring",
+    "prompt_sha256": "25d3e6922e03185d92404cbf8924f37d943341a50bc0d112acdc192ef7b710a2",
+    "stage": "S6"
+  },
+  "findings": [],
+  "identity_separate": true,
+  "preserve": [],
+  "readme_sha256": "faa1574fd7cabff8d94ef78d8e1b7890bb1c003e1e70a36a50ac24e919385fd5",
+  "reviewer": {
+    "job": "independent_review",
+    "model_route": "qwen3-next",
+    "prompt_sha256": "351cf00e8a63a83233c79d3f0ccf54cc5b5db9005686846076f00d5eb5360331",
+    "stage": "S10"
+  },
+  "schema_version": 1,
+  "second_reader": {
+    "corroborated": [],
+    "read": 2
+  },
+  "verdict": "ACCEPT",
+  "verdict_as_returned": "ACCEPT"
+}

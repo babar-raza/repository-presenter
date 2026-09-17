@@ -1,0 +1,134 @@
+{
+  "call_variance": [
+    {
+      "distinct_responses": 2,
+      "job": "independent_review",
+      "response_sha256s": [
+        "8b45c2cb0f3c560b7ccdc78ca92cb3344b5cf43c760aadc3bbac65cb7d300a6d",
+        "b65a38ae2f6797fbbc3a8dc14edda877dbc6f9f3fbc3148b0b72c51ce21c6db7"
+      ]
+    },
+    {
+      "distinct_responses": 2,
+      "job": "presentation_planning",
+      "response_sha256s": [
+        "63f04ff74bc24682e600117fe79f4af06f66ac05555615bfbe1ddc7272b69e84",
+        "746aed1d96578725416dae0dae5ad4fd671425222425178f85ccf84c46e1f9ca"
+      ]
+    },
+    {
+      "distinct_responses": 12,
+      "job": "section_authoring",
+      "response_sha256s": [
+        "16e298284639e555253e85a530698e858c2eb57d2088615bbf29ec9999b08534",
+        "275e4288264f95b81cb53ad68566e7ab2166276cdb8bf48effb227f1c9cc845c",
+        "592d1e15331a027e2dbfab66177d58fd93b4a0f5dedd2f417169daa11cc67ba3",
+        "5ff8ee36d8d3d92048c54f533c8c4941361ca5dd2754f134506b223c581fdfd6",
+        "71eccd2a0f195265903c6a720419a149699a983823bf54531c8f3088da5234d5",
+        "82afc265628556e08d85be121da18e4b645feb3c7e4368328c0675daae638952",
+        "a23eeb4c3e421ba209f47df3774342b10e11b0b35834fd918b0c95e0d72327ab",
+        "b9b5afff408fb75e762fb5084952e7a15df3140df21fa41ce5aa0ddcf8055da4",
+        "c3c2114443f3508d7168a8541fd2f9c105b317be41ef054f1a7afb3b6f8ddb70",
+        "f3d2bf60a491aac6c97dfee6493d96894fa266733796eee58b49a7dfabaaf47b",
+        "fca24df6db68e30644400c4bdcd06034820c6f669141e478274ac3e1fb5c16dc",
+        "fdd30c63078dfa9c54d5a8efcd2a0a42163122f141255947912f5b56b56e0ae0"
+      ]
+    },
+    {
+      "distinct_responses": 3,
+      "job": "source_reconciliation",
+      "response_sha256s": [
+        "48ed58619420df3fd900fbd53044a82b4e0509161b0c8b0cb5d3103dd518df94",
+        "724d1e2d0510fd2b3fb29e347553488bcef9a642b4aa2388b82467ba0a316358",
+        "96e174e101ff6bbe6176e86584eadf7769378259465a4ee585f5fd10b2aa2d06"
+      ]
+    },
+    {
+      "distinct_responses": 4,
+      "job": "targeted_repair",
+      "response_sha256s": [
+        "1c6c761ef3a6dc92abd50f06cab7daa1b0328edd5a76afc98bb3a08b8bdaa7a4",
+        "2e529b8819f63af2ad7930f7ef51e334b36be1b74d1cf65285479ef31d72ed22",
+        "96255d17e2a370ad93557922582473eb5b2f201bbdc4fe7dab4b1fae2120d511",
+        "c59f08d7b19bc901d88c484ffd011327b69c92c3d04ff1545288a47be85f2bae"
+      ]
+    }
+  ],
+  "composition": {
+    "advisories": 0,
+    "blocking_failures": [],
+    "coverage_advisories": 0,
+    "review_verdict": "ACCEPT",
+    "review_verdict_as_returned": "ACCEPT"
+  },
+  "files": {
+    "README.md": {
+      "bytes": 62243,
+      "sha256": "faa1574fd7cabff8d94ef78d8e1b7890bb1c003e1e70a36a50ac24e919385fd5"
+    },
+    "README.patch": {
+      "bytes": 100009,
+      "sha256": "8a63886ff18f6bfe23f6aed2ff9c2d272b75dd6496ab3e44fde38710c43f8523"
+    },
+    "calls.jsonl": {
+      "bytes": 43939,
+      "sha256": "6a0b2d24fe77d2e9777b868775984be8353835b439c90ad2a00857180ec9c038"
+    },
+    "content_units.json": {
+      "bytes": 23803,
+      "sha256": "4a6521b61b981a72355f987ac7398d8ea5a5e2600cb1cd7206b3197bbd136847"
+    },
+    "dependencies.json": {
+      "bytes": 188771,
+      "sha256": "1ae0ecc176328f080f4fddbc70b2e1d668a2d009e8b7499ea97761f6460ac040"
+    },
+    "dispositions.json": {
+      "bytes": 50251,
+      "sha256": "15272e9a7167c7e8e77cea5fdfdb062482d22db351c3fe6601d70dd97c5266e9"
+    },
+    "examples.json": {
+      "bytes": 2141,
+      "sha256": "5faab87c5d84526afe20ddda43a4a96cc603c33099c0866cc31ee53a61a144c4"
+    },
+    "facts.json": {
+      "bytes": 922573,
+      "sha256": "61a12d22b24f52f2592dcfb28d1d0d7f0778983565df3eb2917aba3edf6dabd7"
+    },
+    "investigation.json": {
+      "bytes": 10454,
+      "sha256": "0d4a4a470307e74fa0e86eec180b151da81c93f0c3074384bc1091dd0c852007"
+    },
+    "plan.json": {
+      "bytes": 18231,
+      "sha256": "be42eb69d40417872e59eef2663da26a79e0012a9184bae61895b7b1233020d5"
+    },
+    "probes.json": {
+      "bytes": 3560,
+      "sha256": "c2f07c4fff9ba6682d116585d5878c68db243b67c7a6c2f32697517cdd9a94d1"
+    },
+    "repairs.json": {
+      "bytes": 1110,
+      "sha256": "571bd5ba15f73b2e0129f03b593ac76ba9987a92264f3deb90e7daa12ffd92fe"
+    },
+    "review.json": {
+      "bytes": 674,
+      "sha256": "9d1d7b9ac58585966a2d46bd4d0382723b0c9090564f2bf60231ffac0c7b4984"
+    },
+    "validation.json": {
+      "bytes": 10738,
+      "sha256": "f7cc7dcc899dd390b59a0a16e84f3ec3d28a58b43e693e992668934f19cacf06"
+    }
+  },
+  "no_op_proof": {
+    "byte_identical": true,
+    "fresh_process": true,
+    "proven_at": "2026-09-17T08:27:36Z",
+    "provider_calls": 0
+  },
+  "provider_calls": 0,
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Go",
+  "revision": "6784921e711f00a26fb30a0be279965502d3ff34",
+  "schema_version": 1,
+  "sealed_at": "2026-09-17T08:27:36Z",
+  "state": "READY_FOR_PROPOSAL"
+}
