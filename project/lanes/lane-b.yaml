@@ -379,7 +379,37 @@ progress:
     shared code landed since draw 8, not by this repository''s own facts changing (digest
     bd8f4a98... unchanged). No lane-owned code changed this run. sealed_by_lane stays 1,
     dispositions_by_lane stays 9 (moved, not a new repository). repository-presenter status
-    after the run: 15/34, unchanged by this draw.'
+    after the run: 15/34, unchanged by this draw.
+    G4-W14-RERUN6 2026-09-17 08:21 against origin/main at bec76ba (branch lane-b/G4-W14-RERUN6,
+    fresh worktree C:/w/b16): resume 3D-TS now that arrival item 83 (commit 7ea9c38,
+    LANE-B-W14R3-F1) has landed, verified directly - git show 7ea9c38 confirms
+    cited_fact_defect/factuality_defect now also read the reviewed unit''s own inherited_unit
+    citations. A genuine changed-input retry: same revision and 1190-fact digest
+    (2257a892...) as RERUN3, but not a cache replay - 45 ledger rows, 23 live provider calls,
+    19 cache_reuse, 3 response_invalid, 0 cache_stale. LANE-B-W14R3-F1 is CLOSED, confirmed by
+    measurement: RERUN3''s surviving finding (the binary glTF binaryMode claim) does not
+    appear anywhere in this draw''s review.json, blocking or advisory. It did not seal: a
+    second, distinct, genuine finding blocks. Validation 9 PASS / 1 FAIL / 1 PENDING, BC-10
+    FAILs at COMPOSING on REJECT_FACTUAL after 2 repair rounds. The surviving finding (F05)
+    says scope_limitations omits that Scene.render, Node.selectSingleObject and
+    Node.selectObjects throw not-implemented errors - real, not invented: inherited_unit:077.list
+    (SUPPORTED, verbatim upstream text) names all three in the same sentence as the methods
+    the candidate did keep (Mesh.union/difference/intersect, Watermark encode/decode), plus
+    three more never even raised by review (Mesh.doBoolean/optimize/isManifold). The S4
+    disposition record for inherited_unit:077.list cites only 7 of the roughly dozen symbols
+    its own text names; S6 wrote a separate limitation bullet for FileSystem from the same
+    sentence but never one for these three despite equally-available SUPPORTED facts. One
+    repair attempt touched revised_output.omitted rather than the unit''s own text and the
+    equivalent failure re-raised. New PROPOSAL LANE-B-W14R6-F1 (shared code:
+    reconciliation''s S4 disposition record for a multi-symbol inherited_unit sentence,
+    and/or composition/authoring.py''s S6 use of that citation set; secondarily
+    repair/targeted.py''s repair for this finding shape) is in docs/RESEARCH_LANE_B.md and
+    evidence/build/lanes/lane-b/G4-W14-RERUN6.json, the live source. Disposition RESTATED,
+    not moved: BLOCKED_REVIEW (BC-10), same check and stage as RERUN3, cause changed. No
+    lane-owned code changed this run. sealed_by_lane stays 1, dispositions_by_lane stays 9
+    (restated, not a new repository). repository-presenter status after the run: 17/34,
+    unchanged by this draw - the rise since RERUN9''s 15/34 is other lanes'' work, recorded
+    as observed rather than assumed.'
 toolchains:
   registry: C:/tools/rp-toolchains/TOOLCHAIN_PATHS.txt
   receipt: evidence/build/lanes/lane-b/LANE-B-00.json
@@ -768,4 +798,34 @@ items:
     test of item 106''s mechanism - recorded literally, not claimed as proof. Nothing remains
     open for this repository.'
   run_2026_09_17_r14: See progress.note above and evidence/build/lanes/lane-b/G4-W13-RERUN10.json,
+    which is the live source for this run rather than a copy.
+- id: G4-W14-RERUN6
+  status: ACCEPTED
+  accepted_at: '2026-09-17T08:21:00+05:00'
+  evidence: evidence/build/lanes/lane-b/G4-W14-RERUN6.json
+  purpose: 'Owner instruction 2026-09-17: re-draw aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript, a
+    genuine changed-input retry of G4-W14-RERUN3''s BLOCKED_REVIEW (BC-10) disposition
+    (LANE-B-W14R3-F1, arrival item 83, review.py''s cited_fact_defect/factuality_defect
+    structurally excluding every inherited_unit fact from refuting a factuality finding) now that
+    commit 7ea9c38 has landed on origin/main. Verified directly against the checked-out source
+    before drawing rather than trusted at face value: git show 7ea9c38 confirms the fix and its
+    own commit message names item 83/LANE-B-W14R3-F1/3D-TS. Never force a seal, never weaken a
+    check, report the verdict literally.'
+  resume_predicate: 'CLOSED for this item, in two parts. LANE-B-W14R3-F1 itself is CLOSED: 3D
+    TypeScript was redrawn end to end (same revision and 1190-fact digest as RERUN3, but not a
+    cache replay - 45 ledger rows, 23 live provider calls, 19 cache_reuse, 0 cache_stale), and
+    RERUN3''s surviving finding (the binary glTF binaryMode claim) does not appear anywhere in
+    this draw''s review.json, blocking or advisory - the fix functions as measured at landing.
+    The repository itself did not seal: validation is again 9 PASS / 1 FAIL / 1 PENDING, BC-10
+    FAILs at COMPOSING on REJECT_FACTUAL after 2 repair rounds, on a second, distinct, genuine
+    finding (F05: scope_limitations omits that Scene.render, Node.selectSingleObject and
+    Node.selectObjects throw not-implemented errors, though inherited_unit:077.list - SUPPORTED,
+    verbatim upstream text - names all three in the same sentence as the methods the candidate
+    did keep). What remains open is shared code the lane may not land:
+    aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript, BLOCKED_REVIEW (BC-10) - re-run once PROPOSAL
+    LANE-B-W14R6-F1 lands (reconciliation''s S4 disposition record for a multi-symbol
+    inherited_unit sentence, and/or composition/authoring.py''s S6 use of that citation set;
+    secondarily repair/targeted.py''s repair for this finding shape), or once the primary rules
+    a narrower fix or an exception sufficient.'
+  run_2026_09_17_r15: See progress.note above and evidence/build/lanes/lane-b/G4-W14-RERUN6.json,
     which is the live source for this run rather than a copy.

@@ -2199,3 +2199,90 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   confirmed by a second full local CI-equivalent run after the edit (1242 passed, 23 xfailed, 91s;
   the one failure before the edit, `test_status_reports_this_repository_cursor`, resolved). Full detail:
   `evidence/build/lanes/lane-b/G4-W13-RERUN10.json`, the live source.
+
+- **2026-09-17 08:21 (`date` checked) · G4-W14-RERUN6 · resume predicate verified, not assumed, before
+  drawing: `LANE-B-W14R3-F1` (arrival item 83) is landed.** `git show 7ea9c38` read in full against
+  `origin/main` at `bec76ba` confirms `cited_fact_defect`/`factuality_defect` now also read the reviewed
+  unit's own `inherited_unit` citations via new `_reviewed_unit_fact_ids`, `REVIEWER_LOGIC_VERSION` 5 to 6
+  at landing (now 9 on current `origin/main`, per its own version-history comment: "7"/item 86 adds
+  `excluded_disposition_defect` for an inherited_unit S4 marked `OMIT_UNSUPPORTED`; "8"/items 79+96 fold
+  a groundless presentation finding the same way item 39 already folds a groundless factuality one; "9"/
+  item 101 (`LANE-B-R8-F1`) recognizes the bare `<details>`/`</details>` tag as renderer chrome). A
+  genuine changed-input retry against whatever shared code stands now, not a re-roll of `RERUN3`'s own
+  transaction.
+
+- **2026-09-17 08:21 · G4-W14-RERUN6 · `LANE-B-W14R3-F1` CLOSED, confirmed by measurement, not merely by
+  the commit landing.** Redrew `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` end to end from a fresh
+  worktree (`C:\w\b16`, branch `lane-b/G4-W14-RERUN6`) against `origin/main` at `bec76ba`. Same revision
+  (`7b959706f2ad976db929f26ec079f43a07d578e1`), same 1190-fact digest (`2257a892ca080c6e76c7f13201efef0a6be9311fc4d37219cdad018d2770a5c4`)
+  as `G4-W14-RERUN3`'s draw - same facts, but NOT a pure cache replay: this draw's ledger holds 45 rows,
+  23 live provider calls (all HTTP 200) and 19 `cache_reuse` across S3-S6 and S10 (`repository_investigation`
+  1 live/1 reused, `source_reconciliation` 3 live/3 reused, `presentation_planning` 1 live/1 reused,
+  `section_authoring` 15 live/13 reused/2 `response_invalid`, `independent_review` 1 live/1 reused,
+  `targeted_repair` 2 live/1 `response_invalid`), 0 `cache_stale` (a further non-materialisation of lane
+  E's PROPOSAL E3 at this repository). Genuinely re-run, not assumed identical to RERUN3.
+  `RERUN3`'s surviving finding (F04: the binary glTF `binaryMode: true` claim, refuted only by the
+  reviewed unit's own SUPPORTED `inherited_unit:046.paragraph` citation, the case item 83's own commit
+  message names by this repository) no longer appears anywhere in this draw's `review.json` - not
+  blocking, not even advisory. The fix functions exactly as measured at landing time. `LANE-B-W14R3-F1`
+  is CLOSED.
+
+- **2026-09-17 08:21 · G4-W14-RERUN6 · did not seal: a second, distinct, genuine finding blocks.**
+  Validation is 9 PASS / 1 FAIL / 1 PENDING (unchanged shape from RERUN3): BC-01 through BC-09 PASS,
+  BC-10 FAILs at COMPOSING on REJECT_FACTUAL after 2 repair rounds (1 repaired, 1 re-raised - the
+  equivalent failure stands), BC-11 PENDING (S12 never reached). The one surviving finding, F05
+  (`second_reader.read = 1`), says `scope_limitations` omits that `Scene.render`, `Node.selectSingleObject`
+  and `Node.selectObjects` "throw not implemented errors", citing `public_symbol:scene.render`,
+  `public_symbol:node.selectsingleobject`, `public_symbol:node.selectobjects` (all SUPPORTED) plus
+  matching `absent` strings. This is real, not a repeat of `LANE-B-W14R3-F1`'s class:
+  `inherited_unit:077.list` (SUPPORTED, verbatim, lines 470-487 of the upstream README) names ALL of
+  these methods in the very same sentence as the ones the candidate DID keep (`Mesh.union`/`difference`/
+  `intersect`, `Watermark.encodeWatermark`/`decodeWatermark`) - "path-based scene queries
+  (`Node.selectSingleObject()`/`Node.selectObjects()`), `Scene.render()`" - plus three more never even
+  raised by review (`Mesh.doBoolean()`, `Mesh.optimize()`, `Mesh.isManifold()`, also named in the same
+  sentence). `dispositions.json`'s own S4 record for `inherited_unit:077.list` (`VERIFIED_PRESERVE`)
+  cites only 7 fact_ids as its evidence, none of the six symbols above; S6 authoring wrote a separate
+  limitation bullet for `FileSystem` (citing `public_symbol:filesystem` alongside the same inherited
+  unit) but never one for `Scene.render`/`selectSingleObject`/`selectObjects` despite equally-available
+  SUPPORTED facts for all three - the same mechanism that produced the `FileSystem` bullet was available
+  and unused. The one repair attempt (`b0e43fe2abafc344b9b794eb`, label F05, request
+  `69ebe76749371f67515ed39504a80dc9f6088158b529e3254d190ef9e8cbd2ad`) touched `revised_output.omitted`
+  rather than the `scope_limitations` unit's own text, and the re-review re-raised the identical finding.
+
+- **2026-09-17 08:21 · G4-W14-RERUN6 · PROPOSAL `LANE-B-W14R6-F1` (shared code: reconciliation's S4
+  disposition record for a single `inherited_unit` fact that enumerates many symbols in one sentence,
+  and/or `composition/authoring.py`'s S6 use of that citation set when splitting the sentence into
+  separate limitation bullets; secondarily `repair/targeted.py`'s repair for this finding shape) · an
+  inherited unit naming N symbols in one sentence gets a citation set covering only some of them, so the
+  rest have no path into the composed candidate even though they are equally SUPPORTED, equally named in
+  the same verbatim sentence, and equally available at S6 - measured on 3D-TS: one finding raised (3 of
+  roughly 9 omitted symbols named) and two more genuinely missing that review never even flagged
+  (`Mesh.doBoolean`, `Mesh.optimize`, `Mesh.isManifold`).** The `FileSystem` bullet, cited from the same
+  source sentence in a separate limitation slot, proves the mechanism to surface an individually-named
+  symbol from this inherited unit exists and works; it simply was not applied to every symbol the
+  sentence names. Full mechanical detail (fact IDs, the disposition record, the repair attempt) in
+  `evidence/build/lanes/lane-b/G4-W14-RERUN6.json`, the live source. No check weakened; the lane may not
+  edit `reconciliation/`, `composition/`, or `repair/`.
+
+- **2026-09-17 08:21 · G4-W14-RERUN6 · DISPOSITION (RESTATED, cause changed) ·
+  `aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript` at `7b959706f2ad976db929f26ec079f43a07d578e1` -
+  `BLOCKED_REVIEW (BC-10, REJECT_FACTUAL)`.** Same check and stage as `RERUN3`, different cause:
+  `LANE-B-W14R3-F1` is CLOSED (see above); the standing finding is now `LANE-B-W14R6-F1`'s class. 1190
+  facts unchanged (digest `2257a892...`); examples unchanged (8 EXECUTED, 1 CONTRADICTED, example:002).
+  45 ledger rows this draw: 23 live provider calls, 19 `cache_reuse`, 3 `response_invalid`, 0
+  `cache_stale`, 34,243 completion tokens; by job, `repository_investigation` 1 live/1 reused,
+  `source_reconciliation` 3 live/3 reused, `presentation_planning` 1 live/1 reused, `section_authoring`
+  15 live/13 reused/2 invalid, `independent_review` 1 live/1 reused, `targeted_repair` 2 live/1 invalid -
+  a genuine re-run mixing fresh samples with reuse, not a byte-identical replay of RERUN3. All 10 review
+  findings (1 blocking F05, 9 advisory F01-F04/F06-F10) are read fresh from this draw's own
+  `review.json`; the deterministic fold logic (current on `origin/main`) decided which stand.
+  `repository-presenter status` from this worktree measured 17/34 before rebasing; after rebasing onto
+  `origin/main`'s new head (`8bacc16`, which carries `G4-W13-RERUN10`'s own concurrent PDF-Cpp seal,
+  immediately above), the observed count is 18/34 - risen by that concurrent seal, not by this draw,
+  recorded as observed in the just-rebased tree rather than assumed. `lane-b.yaml`'s own
+  `sealed_by_lane`/`dispositions_by_lane` counters move 1/9 to 2/8 for the same reason (PDF-Cpp moving
+  from disposition to seal) - not this draw's doing, and 3D-TS's own disposition is still one of the 8,
+  restated rather than a new repository. Resume predicate: re-run once PROPOSAL
+  `LANE-B-W14R6-F1` lands, or once the primary rules a narrower fix or an exception sufficient - not on
+  `LANE-B-W14R3-F1` alone, since that class no longer appears in this transaction at all. Full detail:
+  `evidence/build/lanes/lane-b/G4-W14-RERUN6.json`, the live source.
