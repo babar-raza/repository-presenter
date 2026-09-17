@@ -221,7 +221,14 @@ found here: investigation 06 §4 (this project's own prior report) documented th
 disposition's own `fact_ids` array may cite (`dispositions["items"]["properties"]["fact_ids"]["items"]
 = {"enum": citable}`) but sets no `maxItems` on that array itself - only the outer `dispositions`
 array is bounded to the batch's own unit count (lines 260-262). Read again here against the current
-tree: **still true, unchanged.** This is a different failure shape from §3/§5 above (an unbounded
+tree: **still true, unchanged.** **While this report was being pushed, `origin/main` advanced a
+second time, to `9e1ebdd`** (`docs(research): admit arrival item 121, F27's fact_ids maxItems gap in
+reconciliation_schema`, `2026-09-17 15:10:45 +0500`) - the identical gap described in this paragraph,
+independently admitted as its own numbered arrival item while this investigation was in flight, by
+the same queue-only mechanism item 120 used (no `src/` change in that commit either). Two admissions
+landed mid-session, both matching findings this report independently reached by reading the code -
+worth naming plainly rather than silently folding into a report that reads as if it were written
+against a static tree. This is a different failure shape from §3/§5 above (an unbounded
 *count of citations inside one disposition*, not an unbounded *count of facts or dispositions in a
 packet*) and was found on Aspose.PDF for .NET, not PDF-TypeScript - but it sits in the same job (S4)
 this repository's own 437-unit, 3,133-fact surface would exercise at real scale, and is recorded here
