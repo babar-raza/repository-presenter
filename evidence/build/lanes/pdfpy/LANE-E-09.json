@@ -1,0 +1,75 @@
+{
+ "schema_version": 1,
+ "worker": "pdfpy (one-off, branch pdfpy/LANE-E-09, label primary)",
+ "gate": "G4_MULTI_LANGUAGE_COHORTS",
+ "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+ "recorded_at": "2026-09-17T06:36:00Z",
+ "control_revision": "5e5db67",
+ "control_revision_note": "Worktree C:\\w\\pdfpy2, single-use branch pdfpy/LANE-E-09, created off origin/main at ec33096 (contains 14cb4d3), rebased onto 5e5db67 before this commit (the two intervening commits are docs-only investigations, no overlap). Task: re-draw this repository now that PDFPY-01/item 91 (14cb4d3) has landed, per pdfpy/LANE-E-08's recorded resume predicate for this repository.",
+ "environment": {
+  "os": "Windows 11 10.0.26200",
+  "python": "3.13.2 (.venv from C:\\Python313)",
+  "worktree": "C:\\w\\pdfpy2",
+  "presenter_site_manifest": "f4406f1b04d81ecdf2ea4e421776ef2be7f8cdc27090f395a815277a561fd411",
+  "presenter_site_manifest_note": "Matches the primary and every sealed bundle, on the first attempt (pip==24.3.1, requirements-lock.txt, execnet==2.1.2, pytest-xdist==3.8.0, uv==0.12.9, then pip install --no-deps -e .), confirmed before any candidate work."
+ },
+ "blocker_reverification_before_any_provider_call": {
+  "method": "git merge-base --is-ancestor 14cb4d3 origin/main (true, from the primary checkout before the worktree was even created), then git log --oneline -3 in the fresh worktree, then grep -n unit_fact_ids src/repository_presenter/components/readme/review/independent/review.py.",
+  "result": "14cb4d3 is an ancestor of origin/main (tip ec33096 at fetch time, then 5e5db67 after rebase). review.py's factuality_defect CONTRADICTED-stands gate at line 341 now reads `if any(fact.polarity == \"CONTRADICTED\" and fact.id in unit_fact_ids for fact in product):` - scoped to unit_fact_ids exactly as item 91/PDFPY-01 proposed. Confirmed real by reading the landed code, not merely by the commit message."
+ },
+ "present_run_attempt_1": {
+  "command": "repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "revision": "7c472f37e815193f0dc80923457054ed66e05aef",
+  "mode": "dry_run (push disabled, verified; target_writes_authorized: false)",
+  "outcome": "ABORTED - new class, JobError TruncatedOutput at S6 section_authoring; never reached S7-S10, so PDFPY-01's fix could not be independently re-exercised live this run",
+  "stages": {
+   "examples": "13 candidates; executed 8, failed 5 (unchanged from the pdfpy/LANE-E-08 draw)",
+   "facts": "1598 records; digest ccbd0cfce6ec6d767d0201e885e362913849a462d6989da9c8a10a62c8b0795c (1393 public_symbol, 115 inherited_unit, 35 link_target, ...)",
+   "S3_S5": "repository_investigation and source_reconciliation succeeded live; presentation_planning succeeded live (12 api_hubs, 43 hub fact_ids total)",
+   "S6_section_authoring": "3 calls succeeded (documentation_resources 5512 prompt tokens, scope_limitations 5549, opening 3155), then the 4th call (request_sha256 dacb3beecddd..., prompt_tokens 27268) returned completion_tokens exactly 8000 (the manifest's max_output_tokens) and was rejected as TruncatedOutput - core/llm/jobs.py raises immediately on finish_reason=='length' ('a re-ask under the same budget cannot help ... never retry'), aborting the whole present command (exit code 1)."
+  },
+  "calls_jsonl_evidence": "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/calls.jsonl, rows 11-16 (stage S6, job section_authoring): three success rows then call_id dacb3beecddd5b13-01-success-...-0015 (completion_tokens 8000, total_tokens 35268) immediately followed by dacb3beecddd5b13-01-response_invalid-...-0016 (error_class TruncatedOutput, rejection [\"output truncated at the manifest's max_output_tokens\"])."
+ },
+ "present_run_attempt_2": {
+  "command": "repository-presenter present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python (same worktree, same revision, no code change, no --fresh)",
+  "revision": "7c472f37e815193f0dc80923457054ed66e05aef",
+  "purpose": "Establish whether attempt 1 was upstream sampling variance (the project's own precedent: 'a fresh top-level attempt is a new random sample, not the same call retried' - docs/DECISION_LOG.md 2026-09-16 words-net/LANE-F-02 entry and the 2026-09-16 lane-e G4-W17 item 105 entry) before treating the class as structural.",
+  "outcome": "REPRODUCED IDENTICALLY - the 3 earlier calls served from the call store (outcome cache_reuse, zero new provider calls), then the SAME request_sha256 dacb3beecddd... made a genuinely live call (attempt 1, no re-ask) and again returned completion_tokens exactly 8000, again TruncatedOutput, again exit code 1. Two independent live samples of the identical request, both consumed the full 8000-token budget - not a one-off sampling fluke.",
+  "decision": "loop-prompt.md section 5: two equivalent failed attempts prohibit a third equivalent attempt. No third present run was made; the cause was narrowed by reading and executing the production code offline (zero provider calls) instead."
+ },
+ "root_cause_of_the_new_blocker": {
+  "check": "S6 section_authoring, the api_reference#types-1 batch task (composition/authoring.py::_type_batches)",
+  "method": "Zero-provider-call reconstruction: loaded this run's own stored facts.json/investigation.json/dispositions.json/plan.json in the worktree's venv, called the production authoring_tasks() and authoring_schema() directly, and measured each task's real packet+schema size.",
+  "measurement": "9 authoring_tasks() sections all produced packet+schema well under 10K approx tokens (opening 3.9K, key_capabilities 5.0K, api_reference-main 7.0K, ...) except api_reference#types-1 (the 32-undocumented-type batch, all 32 fit in one _TYPE_BATCH=40 call): schema alone 66,130 characters, ~5x every other task's total. Isolated why: _type_batches() (authoring.py lines 555-604) builds each type's SectionTask via `SectionTask(\"api_reference\", packet, frozenset(ids), slots, key=...)` with no `slot_facts=` argument - unlike authoring_tasks()'s own main loop (line 742-751), which always passes `slot_facts=slot_facts`. SectionTask.slot_facts therefore defaults to `{}` (authoring.py line 270) for every type-batch task. citable() (lines 649-660) reads `bound = task.slot_facts.get(slot)`, gets None for every one of the 32 slots, and falls back to `task.accepted_ids` - the FULL 32-id batch - as the citable enum for EVERY slot, instead of that one type's own single fact ID. authoring_schema() (lines 607-646) then embeds this 32-entry enum once per prefixItem, 32 times over: an O(n^2) schema, not O(n). The `fact_ids` array itself carries `minItems: 1` and no `maxItems` at all (confirmed by inspecting the built schema directly), so nothing bounds how many of those wrongly-offered 32 identifiers a single type's unit may cite either - each of the 32 units is free to enumerate up to 32 long dotted fact IDs (~40-50 characters each) instead of exactly its own one, which is a direct, concrete mechanism for a completion that can grow far past what 32 one-sentence units should ever need.",
+  "counterfactual": "Reconstructed the same batch with slot_facts corrected to `{f'type:{fid}': frozenset({fid}) for fid in batch.accepted_ids}` (each type slot bound only to its own fact - the same shape every other section already uses) via dataclasses.replace, never edited into the source file. Schema shrank from 66,130 to 14,360 characters (4.6x) and the first slot's own enum from 1,670 characters/32 entries to 48 characters/1 entry - a direct, measured reduction, not an estimate.",
+  "distinct_from_pdfpy_01": "This is a different causal stage (S6 section_authoring) and a different mechanism than item 91/PDFPY-01's S10 review.py fold-logic defect. PDFPY-01 is landed and confirmed present in the code (see blocker_reverification above), but this repository never reached S7 in either attempt this run, so PDFPY-01's own fix could not be independently re-exercised live end to end on this repository - it stands verified by code-reading, not yet by a live green run past S6."
+ },
+ "proposal": {
+  "id": "PDFPY-02",
+  "for": "the primary/supervisor - needs arrival-list admission before any lane or worker may land it",
+  "file": "src/repository_presenter/components/readme/composition/authoring.py, _type_batches (lines 555-604) and citable (lines 649-660)",
+  "proposed_shape": "Scope each type-batch slot to its own single fact ID, the same shape authoring_tasks()'s main loop already uses for every other section: in _type_batches, build `slot_facts = {f'type:{fact.id}': frozenset({fact.id}) for fact in batch}` and pass it into the SectionTask (`slot_facts=slot_facts`), so citable() returns exactly one identifier per type slot instead of falling back to the whole batch. Complementary, smaller hardening also proposed: give the `fact_ids` array a `maxItems` in authoring_schema() proportional to the slot's own allowed set size (already true for every section that sets slot_facts; this closes the same gap for the one section that currently does not) so a future omission of slot_facts fails safe (a small, bounded array) rather than reopening this exact O(n^2)/unbounded-citation shape.",
+  "explicitly_not_proposed": "NO change to _TYPE_BATCH (40) or to undocumented_types()'s own lack of a cap - that is a different, already-tracked class (tests/components/readme/composition/test_authoring.py's xfail test_undocumented_type_count_grows_sub_linearly_not_proportionally, 'J1'), about the NUMBER of batches on a very large undocumented-type count, not the per-batch schema-enum-scoping defect this proposal targets. NO raise of section_authoring's max_output_tokens (8000) alone - the project's own standing precedent (docs/DECISION_LOG.md, the presentation_planning/source_reconciliation entries) rejects raising an output ceiling as the fix for an unbounded array, for the same reason here: it only moves the observed failure to a larger repository. Needs its own mutation test (a type batch with >1 undocumented type, red before/green after: before the fix every slot's enum contains every other slot's fact id; after, each slot's enum contains only its own) before landing, per loop-prompt.md section 6 rule 14.",
+  "repository_and_finding": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python at 7c472f37e815193f0dc80923457054ed66e05aef; S6 section_authoring, api_reference#types-1, request_sha256 dacb3beecddd5b1343834b7ae562f0df628a212290e86dde876a86ad4135d1f2, reproduced identically on two independent live attempts (prompt_tokens 27268, completion_tokens 8000 both times).",
+  "evidence_paths": [
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/calls.jsonl",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/plan.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/facts.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/investigation.json",
+   "runs/transactions/aspose-pdf-foss__Aspose-PDF-FOSS-for-Python/7c472f37e815193f0dc80923457054ed66e05aef/dispositions.json"
+  ],
+  "note_on_evidence_path_lifetime": "These paths are under runs/ (gitignored, disposable) in worktree C:\\w\\pdfpy2; they are not committed. This evidence file records the measurement inline so the finding is reproducible after the worktree is removed; the schema/packet reconstruction used only the production authoring_tasks()/authoring_schema()/citable() functions, unmodified, called offline against this run's own stored artifacts (zero provider calls, reproducible by anyone with the same facts.json/investigation.json/dispositions.json/plan.json)."
+ },
+ "disposition": {
+  "repository": "aspose-pdf-foss/Aspose-PDF-FOSS-for-Python",
+  "state": "NOT_SEALED",
+  "class": "SECTION_AUTHORING_TYPE_BATCH_SLOT_FACTS_UNSET_CAUSES_UNBOUNDED_CROSS_SLOT_CITATION",
+  "resume_predicate": "PROPOSAL PDFPY-02 (composition/authoring.py _type_batches/citable, lines 555-660) lands with its mutation test, then a fresh present --repo aspose-pdf-foss/Aspose-PDF-FOSS-for-Python. PDFPY-01/item 91 is CLOSED and confirmed present in review.py by reading the landed code, but NOT yet independently re-exercised by a live run that reaches S10 on this repository - PDFPY-02 (or an equivalent fix) is now the gating predicate for that re-exercise, since S6 stops the pipeline first.",
+  "never_attempted_a_third_equivalent_run": "Two independent live top-level present attempts against the identical request_sha256 (dacb3beecddd...) both hit completion_tokens exactly 8000 and TruncatedOutput; loop-prompt.md section 5 prohibits a third equivalent attempt once two have failed the same way. The cause was narrowed to a specific, cited line range and a measured, reproducible schema-size counterfactual (66,130 to 14,360 characters) by reading and executing the production code offline instead."
+ },
+ "counted_unit": {
+  "before": "18/34 (project/state.yaml progress.current_candidates at the start of this run)",
+  "after": "unchanged - no seal produced by this run",
+  "method": "no state.yaml edit made; nothing sealed; the narrow lane-prompt exception for progress.current_candidates does not apply because no candidate was sealed this run"
+ }
+}
