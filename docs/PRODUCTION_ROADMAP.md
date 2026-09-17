@@ -18,10 +18,11 @@ five workstreams below are gates and standing obligations `plans/idea.md` alread
 project has not yet built. This document is the first record connecting sprint-level sealing work
 to that larger, already-authorized scope — it does not invent new obligations.
 
-## The five workstreams (owner-named, 2026-09-17)
+## The six workstreams (five owner-named 2026-09-17, WS6 added same day)
 
-Each gets its own investigation before any implementation starts. Status column is honest, not
-aspirational — `not started` means exactly that.
+Each has its own investigation, now complete for all six (see the reference list below). Status
+column is honest, not aspirational — as of 2026-09-17, every workstream has moved past `not
+started`; several have real ready-now pieces, none has landed `src/`/`tests/` code yet.
 
 | # | Workstream | `plans/idea.md` anchor | Status | Investigation owner |
 |---|---|---|---|---|
@@ -56,21 +57,31 @@ aspirational — `not started` means exactly that.
   ("Visual Assets and Social Preview"). A social-preview image has no supported GitHub automation
   mechanism as of the document's writing — the fallback is a validated asset plus a precise
   manual-application handoff, never a claim that it was applied automatically.
-- **Workstream 3**: also explicitly **not required to be fully delivered during the initial
-  pilot** — a bounded interim fallback (an evidence-backed handoff for a human to file) is
-  acceptable until direct issue creation is authorized. Filing bar: independently confirmed
-  defect (not suspected), deduplicated against agent-filed and existing upstream issues, never
-  fabricated severity, never a claimed fix the agent hasn't verified. The seed example named in
-  the document is Aspose.Email FOSS for .NET's genuine `CS1929` build failure.
+- **Workstream 3**: `idea.md` itself explicitly allows deferring this past the initial pilot — the
+  owner ruled otherwise same day (see "Rulings landed" above: elevated, no longer pilot-optional).
+  Filing bar: independently confirmed defect (not suspected), deduplicated against agent-filed and
+  existing upstream issues, never fabricated severity, never a claimed fix the agent hasn't
+  verified. The seed example `idea.md` names, Aspose.Email FOSS for .NET's `CS1929` build failure,
+  is **no longer genuine** — independently re-verified live 2026-09-17 and confirmed fixed upstream
+  (`plans/idea.md`'s own authority-note table carries the correction; full detail in investigation
+  11's "Post-publication corrections"). A future exercise of this component needs a current seed
+  example, not this one.
 - **Workstream 4**: `plans/idea.md`'s Gate C0 already specifies the shape — authenticated
   all-visibility pagination across every explicitly authorized source, recording public, private,
   internal, archived, unmatched, ambiguous, inaccessible, renamed, and transferred observations by
   stable provider identity; new eligible repositories enter **disabled and read-only**. The
   document names "aspose.org" as an existing discovery/extraction source under a "pull discipline"
-  (pinned revision, one file record per file, ported tests, cut import closure, typed façade) —
-  **this session found no `aspose.org` checkout on this machine** (only `products.aspose.*`
-  sibling directories under `..\`); confirming whether that source exists anywhere accessible, and
-  where, is the investigation's first job before assuming reuse is possible.
+  (pinned revision, one file record per file, ported tests, cut import closure, typed façade).
+  **Resolved by investigation 04**: no local checkout exists on this machine, but the real source
+  does — `Aspose/aspose.org` (org-owned, private), not the `babar-raza/aspose.org` address
+  `migration/reuse-manifest.yaml` previously recorded (that address doesn't resolve). Its
+  `update_product_registry.py` and `readme_refresh_run.py` are the concrete reuse targets WS4 and
+  WS6 are built against.
+- **Workstream 6** (added 2026-09-17, not part of the original five): Gate C's own scope per
+  `idea.md` — creating/merging the PR carrying a sealed candidate. `idea.md`'s ordering rule
+  applies directly: this cannot start live against a real repository before every current registry
+  repository has passed Gates A and B and the exact effect has fresh authorization, "not before."
+  Design principles are ruled adopted (see "Rulings landed" above); the first live push is not.
 - **Workstream 5**: `plans/idea.md`'s bar is specific, not vague — "a prototype, collection of
   disconnected capabilities, or system that works only through routine manual intervention does
   not meet this standard," but also "does not require every possible enhancement to be complete."
@@ -82,29 +93,45 @@ aspirational — `not started` means exactly that.
 ## How this relates to current sealing work
 
 Sealing continues at full priority — it is Gate A's own completion criterion and the nearer-term,
-better-understood goal. The five workstreams above are investigated in parallel (research only,
-isolated worktrees, no shared-checkout contention with active sealing/fix-landing work) rather
-than sequenced after sealing finishes, since they are independent of the G4-W17 candidate queue
-and estimated to need substantial dedicated design before any implementation begins.
+better-understood goal. All six workstreams were investigated in isolated worktrees, no
+shared-checkout contention with active sealing/fix-landing work; investigation for all six is now
+complete, and several have real, ready-now implementation pieces (not merely research) per the
+rulings above.
 
-**Standing rule for whoever reads this next:** all five workstreams are now investigated and ruled
-(see "Rulings landed 2026-09-17" above) — implementation may proceed on exactly the pieces each
-ruling clears (WS1's `ci.yml` cache; WS4's `repository_id`/`node_id`
-fix). Everything else stays blocked on the owner item or gate its ruling names (most commonly
-`OWNER-04`/G5) — a ruling clearing the *decision* does not itself clear a credential or gate
-precondition that decision depends on. Investigation reports:
+**Standing rule for whoever reads this next — the actual ready-now list, kept current:**
+- WS1: `ci.yml` pip cache — **landed** (`e74077b`).
+- WS2: repo description/topics/homepage capture-and-proposal logic — **ready for a taskcard**
+  (write calls stay gated on `OWNER-04`/G5).
+- WS3: the dedup ledger and re-detection/auto-close-on-fix pass — **ready for a taskcard** (the
+  actual `gh issue create`/`close` calls stay gated).
+- WS4: `Registry.validate_stable_identities`'s `node_id`-relaxation fix, and porting the
+  family/platform classifier from `Aspose/aspose.org` into `tools/discovery/` — **both ready for a
+  taskcard**.
+- WS5: worktree-isolation-for-every-write-role — **already standing practice**, effective now, no
+  code change needed. Two hardening items (push-retry wrapper, PROPOSAL-sweep) queued, unscheduled.
+- WS6: design principles adopted; **no code ready** — this gate cannot execute live before Gates A
+  and B are complete for the current registry, per `idea.md`'s own ordering rule, and the first
+  live push needs separate owner authorization regardless.
 
-- Workstream 1: `docs/investigations/01-ci-deployment-sustainability.md` (pending)
-- Workstream 2: `docs/investigations/02-repo-metadata-community-files.md` (pending)
-- Workstream 3: `docs/investigations/03-issue-tracking.md` (pending)
-- Workstream 4: `docs/investigations/04-portfolio-discovery.md` (design analysis); a first live
-  enumeration pass and its reusable, read-only tool followed on 2026-09-17:
-  `docs/investigations/10-portfolio-discovery.md`, `tools/discovery/portfolio_discovery.py`. This
-  covers only the discover-and-report half of Gate C0 (org/repo enumeration, diff against
-  `data/registry.json`) — the staging/observation artifact, exclusions ledger, and reconciliation
-  step investigation 04 §4 recommends before any intake remain undone; the workstream's own
-  `not started` status above still stands for the gate as a whole.
-- Workstream 5: `docs/investigations/05-production-autonomy.md` (pending)
+Everything above the "ready for a taskcard" line still needs the credential or gate its own ruling
+names (most commonly `OWNER-04`/G5) before it can actually *write* anywhere — a ruling clearing the
+decision does not itself clear that precondition. Investigation reports (all complete):
+
+- Workstream 1: `docs/investigations/01-ci-deployment-sustainability.md`
+- Workstream 2: `docs/investigations/02-repo-metadata-community-files.md`
+- Workstream 3: `docs/investigations/03-issue-tracking.md`
+- Workstream 4: `docs/investigations/04-portfolio-discovery.md` (design analysis) plus
+  `docs/investigations/10-portfolio-discovery.md` (the first live enumeration pass) and
+  `tools/discovery/portfolio_discovery.py` (the reusable, read-only tool it produced). Covers only
+  discover-and-report (org/repo enumeration, diff against `data/registry.json`); the staging/
+  observation artifact, exclusions ledger, and family/platform classification investigation 04 §4
+  recommends remain undone — the gate as a whole is not complete.
+- Workstream 5: `docs/investigations/05-production-autonomy.md`
+- Workstream 6: no standalone investigation file — findings recorded directly in "Rulings landed"
+  above and in `docs/DECISION_LOG.md`'s 2026-09-17 15:55 UTC entry.
+- **Cross-cutting**: `docs/investigations/11-idea-md-gap-analysis.md` maps all of `plans/idea.md`
+  against the state machine, decision logs, and current implementation — broader than any single
+  workstream; read it for what's confirmed clean vs. gap, independent of the six-workstream frame.
 
 ## Reverse by
 

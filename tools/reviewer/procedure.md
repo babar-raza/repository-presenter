@@ -55,7 +55,13 @@ own instruments before trusting anything they report:
 5. **Sweep for stranded work**: `gh pr list --state open --json number,createdAt,labels` (no label
    filter; anything >30 min without `hold` is adopted or closed this wake) and `git worktree list`
    (orphans inspected, then pruned).
-6. **Then §1** — run the check with `--record`; act on every flag per §2. Only after a clean §0 is
+6. **Check for ready-but-unexecuted work beyond sealing** (added 2026-09-17, after a same-day audit
+   found nothing in this checklist ever surfaces it): read `docs/PRODUCTION_ROADMAP.md`'s workstream
+   table for any row marked "ready for a taskcard"/"ready now" not yet landed, and
+   `project/state.yaml`'s `owner_items` for any entry `status: OPEN` — report both in this wake's
+   summary even when neither blocks sealing. Nothing else in this checklist or in `docs/
+   investigations/` is otherwise surfaced to a fresh session; this step is the only mechanical link.
+7. **Then §1** — run the check with `--record`; act on every flag per §2. Only after a clean §0 is
    any quiet report believable.
 
 ## 1. Run the check (one Bash)
