@@ -2085,3 +2085,74 @@ Lane: `lane-b` (project/lanes/lane-b.yaml). Prompt: project/loop-prompt-lane-b.m
   narrower fix sufficient, or rules the corroborated F08 finding itself unblocking on some other
   ground - not on BC-01..BC-09 passing alone, since BC-10 is again precisely what failed, on a real
   finding, now a different one than draw 7's. Full detail: `evidence/build/lanes/lane-b/G4-W13-RERUN8.json`.
+
+- **2026-09-17 05:41 (`date` checked) · G4-W13-RERUN9 · resume predicate verified, not assumed, before
+  drawing: `LANE-B-R8-F1` is landed.** `git show fd65028` read in full against `origin/main` at `9cbd522`
+  confirms `_RENDERED_CHROME` now carries the two literal tag strings `"<details>"`/`"</details>"` beside
+  `ADDITIONAL_EXAMPLES_SUMMARY`/`API_SURFACE_SUMMARY`, `REVIEWER_LOGIC_VERSION` 8 to 9, with a new mutation
+  test (`test_a_finding_quoting_the_bare_details_tag_is_the_reviewers_defect`) and two updated pins. Also
+  read directly: five more shared-code commits landed since draw 8's `25aae12` (`912aa62` a duplicate-subject
+  reconciliation guard, `54fed24` domain checks run regardless of binding-error state, `4df1b08` a unit never
+  restates its own slot's rendered title, `c83d2c4` `WORD_EXTENSIONS` admits `.one`, `9cbd522` BC-07 admits a
+  subsystem noun and a hyphen-continued name) - none named as this repository's own resume predicate, but a
+  genuine changed-input retry draws against whatever shared code stands on `origin/main`, not only the one
+  named commit.
+
+- **2026-09-17 05:41 (`date` checked) · G4-W13-RERUN9 · PROPOSAL LANE-B-R9-F1 (shared code:
+  `composition/authoring.py`'s `unit_checks` title-restatement guard, lines ~1190-1197, added by arrival item
+  99/E19 at `4df1b08`; and possibly `composition/planning.py`'s `core_capabilities` title selection in S5
+  presentation_planning) · a single-purpose capability's plan-assigned title can be the only accurate short
+  description of its own facts, giving the model no compliant way to open the unit's text without echoing it
+  - measured on PDF-Cpp, four independent live samples, two independent draws, one recurring failure.**
+  `plan.json`'s `core_capabilities[2]` (S5 output, unchanged and `cache_reuse`d across both of this run's
+  draws) assigns `capability:3` the title `"Render pages to raster images"` from facts `example:001` and
+  `public_symbol:aspose.pdf.devices` - a device set (`PngDevice`, `JpegDevice`, `BmpDevice`, `TiffDevice`)
+  that does exactly and only that. `composition/authoring.py`'s packet already carries the correct
+  `title_rule` sentence ("the unit never restates it... it adds what the title does not say"), and the
+  one-shot re-ask quotes the exact violation back verbatim - yet in every one of four independent live
+  `section_authoring` completions measured (draw 1 attempts 1 and 2; draw 2 attempts 1 and 2; four distinct
+  `response_sha256` values, so four genuinely different samples, not a cache artifact), `capability:3`'s
+  unit opened with `"Render pages to raster images through PngDevice, JpegDevice, and BmpDevice..."` -
+  the title, verbatim, as its own first clause. `unit_checks`' guard (an unqualified, case-insensitive
+  substring match) correctly rejects this every time, `core/llm/jobs.py` raises
+  `JobError("section_authoring: output rejected twice; ...")` after the manifest's own one-retry budget is
+  spent, and the whole transaction aborts before S9 validation or S10 review ever run - `LANE-B-R8-F1`'s own
+  fix (the very reason this repository was redrawn) was never exercised either time. Full evidence:
+  `runs/transactions/aspose-pdf-foss__Aspose.PDF-FOSS-for-Cpp/888700a8e361d32df21d0810c2eb939345e0603e/calls.jsonl`
+  (four `section_authoring` `response_invalid` rows, 2026-09-17T00:32:34, 00:33:11, 00:38:14, 00:38:57Z, all
+  four citing the capability:3 title restatement; the two attempt-1 rejections additionally cite an
+  unrelated, non-recurring identifier defect, `adbe.pkcs7.detached`, that the correction resolved both
+  times) and `.../calls/ffa0718357e7.rejected-1.json` / `.rejected-2.json` (draw 1's two full rejected
+  texts). Per loop-prompt section 5 ("two equivalent failed attempts... prohibit a third equivalent
+  attempt"), a third draw was not run: the cause is narrowed to this specific title/facts pairing, not to
+  bad luck, and re-drawing a third time with nothing changed would be exactly the prohibited re-roll. Not a
+  dispute of `4df1b08`'s own design - it correctly closed a real coherence-revert defect on Words-Python -
+  but an edge case its author had not measured: a capability this narrowly scoped admits no accurate
+  alternative topic sentence. No check weakened; the lane may not edit `composition/`. Reverse by: the
+  guard gains tolerance for a title that is itself the only accurate short description of its slot's facts
+  (e.g. permitting the restatement when the unit's remaining text, after removing the title-matching prefix,
+  still adds member-level or format-level detail the title does not name), or S5's title selection is
+  revised for a single-purpose capability to something the body can elaborate on without echoing, with a
+  mutation test proving either fix lets a real single-purpose capability's unit pass while the Words-Python
+  coherence-revert case `4df1b08` fixed still fails.
+
+- **2026-09-17 05:41 (`date` checked) · G4-W13-RERUN9 · DISPOSITION (MOVED) · `aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp`
+  at `888700a8e361d32df21d0810c2eb939345e0603e` - `BLOCKED_COMPOSING (S6)`.** Moves from draw 8's
+  `BLOCKED_REVIEW (BC-10)`: a stage regression, not a restatement - draw 8 reached S10 independent review and
+  failed there; this draw never reaches S9 validation at all, because arrival item 99/E19 (`4df1b08`), landed
+  in shared code after draw 8's revision, now blocks `section_authoring` itself on a title-restatement defect
+  this repository never faced before. 1,846 facts, digest `bd8f4a983c791ea927ae01b7b0b848a8f88b1005863a5930e32560f8377965bb`
+  unchanged from every prior draw (deterministic facts stage); 1,839 SUPPORTED, 5 UNRESOLVED, 2 CONTRADICTED;
+  11 examples (4 EXECUTED, 2 FAILED, 5 NOT_VERIFIED) - all unchanged. S3/S4/S5 ran once live in draw 1 (1
+  `repository_investigation`, 4 `source_reconciliation`, 1 `presentation_planning` call, all accepted) and
+  were `cache_reuse`d unchanged in draw 2; S6 hard-failed in both draws after exactly two attempts each, the
+  manifest's own one-retry shape - no `content_units.json`, `validation.json`, or `review.json` in either
+  draw's transaction directory. 22 ledger rows across both draws: 11 live completions (all HTTP 200), 7
+  `cache_reuse`, 4 `response_invalid`, 0 `cache_stale` (an eighth independent non-materialisation of lane E's
+  PROPOSAL E3 at this repository, its sixth). Validation, review and repair: NOT REACHED - the failure is a
+  generation-time `JobError`, before either stage runs. `repository-presenter status` from this worktree
+  (already at `origin/main`'s head, no rebase needed): 15/34, unchanged by this draw. sealed_by_lane stays 1;
+  dispositions_by_lane stays 9 (moved, not a new repository). Resume predicate: re-run once PROPOSAL
+  `LANE-B-R9-F1` lands, or once the primary rules a narrower fix or an exception sufficient - not on
+  `LANE-B-R8-F1` alone, since this draw never reached the stage `LANE-B-R8-F1` fixes. Full detail:
+  `evidence/build/lanes/lane-b/G4-W13-RERUN9.json`, the live source.
