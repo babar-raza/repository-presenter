@@ -2231,3 +2231,157 @@ several identifiers the fact spells) shares any mechanism with E20 or E21 — it
 correctly and is not investigated further this run. No seal is claimed and the counted unit does not
 move: `repository-presenter status` reads **15/34** both before and after (unrelated cohorts sealed
 since this lane's last run), and `project/state.yaml` was not opened.
+
+## 2026-09-17 00:37 UTC (`date -u` checked) — LANE-E-05 run 3, Words for Python re-drawn against the landed E19 fix, blocked one stage earlier by a new, unrelated class
+
+Branch `lane-e/LANE-E-05-R3`, worktree `C:\w\e05r3`, off `origin/main` at `9cbd522` (fresh worktree,
+own git worktree add off a `git fetch origin` first; no rebase needed - main did not move during this
+run). Receipt: `evidence/build/lanes/lane-e/LANE-E-05.json` (overwritten with this run's figures; runs
+1 and 2's are in this file's dated entries above). Drawn because commit `4df1b08`
+(`G4_MULTI_LANGUAGE_COHORTS/G4-W17`, landed 2026-09-17T04:17:32+05:00) extends `unit_checks` with a
+deterministic rule against a unit restating its own slot's title, shared by both `section_authoring`
+and `coherence_checks` call sites (`NORMALISATION_VERSION` 4 → 5) - PROPOSAL E19's own named fix
+(arrival item 99). The environment matched `f4406f1b04d8…` on the first attempt, confirmed before any
+candidate work; `runs/verify/py311` and `runs/verify/py312` were provisioned fresh via
+`uv venv --python 3.1{1,2}` (a fresh worktree ships none of its own).
+
+### E19 is closed as a mechanism, verified by reading the landed diff against the repository's own recorded defect - the repository itself could not be run far enough this time to re-observe it
+
+`present --facts-only` against `2d2efee2787cb9e56d071d17f8d7b740dce8b784` (unchanged - the repository
+did not move) reproduced runs 1 and 2's own measurement exactly once `runs/verify/py311`/`py312` were
+provisioned: **839 facts, examples 12 candidates, executed 12**, required rows without evidence none,
+matching digest for digest. `src/repository_presenter/components/readme/composition/authoring.py`
+(this worktree, unchanged since 4df1b08) was read directly against the two live artifacts run 2 named:
+`unit_checks` now walks `output.get("units", [])`, reads `task.slot_titles.get(str(unit.get("slot")))`,
+and rejects any unit whose own text contains its slot's title (case-insensitive substring) - exactly
+the six `key_capabilities` units run 2's `calls/bec2a9264398.json` regenerated back to the
+pre-repair, title-restating text. `coherence_checks` (`composition/coherence.py:110-125`) calls this
+same `unit_checks` with no override, so the rule now binds at the S8 coherence call run 2 showed
+silently discarding a correct repair, closing E19's named mechanism. **This run could not reach S6,
+S8, or S10 to re-observe the fix acting on this repository's own artifacts** - it stopped two stages
+earlier, at S3, both times it was attempted (below) - so this closure is verified by code reading and
+by the unconditional sharing E19's fix already guarantees (`coherence_checks` takes no schema or
+checks parameter of its own that could exempt it from `unit_checks`'s new rule), not by a fresh S10
+review the way runs 1 and 2 verified their own predicates. `EXAMPLE_RUNNER_IGNORES_REQUIRES_PYTHON`
+(item 52) and `REVIEW_FOLD_STACK_CANNOT_SEE_RECONCILIATIONS_OWN_OMIT_UNSUPPORTED_DISPOSITION`
+(PROPOSAL E17, closed run 2) remain closed - nothing downstream of S3 changed.
+
+### PROPOSAL E22 - `repository_investigation` (S3) is the one fact-citing job with no enum pin on its `fact_ids` arrays, and it live-hallucinated a plausible but wrong fact ID twice in a row, on the identical request
+
+**Decision.** Lane E writes no fix: the schema construction lives in
+`src/repository_presenter/components/readme/composition/planning.py` (the `_pin_fact_id_arrays`/
+`citable_fact_ids` mechanism) and the call site lives in
+`src/repository_presenter/components/readme/repair/rounds.py:189-191` - both shared code, neither a
+lane-E path. Words for Python takes a disposition naming this proposal as its resume predicate.
+
+**The defect, measured on two independent live calls against the identical request, not inferred.**
+Both attempts this run failed identically in shape: `repository_investigation: output rejected twice;
+last rejection: unknown fact ID …`. `rounds.py:189-191` calls
+`run_job(loaded, investigation_packet(entry, facts, loaded.manifest), **common)` with **no
+`call_schema=`** - the only one of the four fact-citing S3-S6 jobs without one:
+`source_reconciliation` passes `call_schema=reconciliation_schema(...)` (`rounds.py:209-215`),
+`presentation_planning` passes `call_schema=planning_schema(...)` (`rounds.py:235`), and
+`section_authoring` computes `call_schema = authoring_schema(loaded, task)` per task
+(`rounds.py:241`). `prompts/repository_investigation.yaml`'s own schema (lines 58, 69, 81, 96) types
+every `fact_ids` array as bare `{"type": "array", "items": {"type": "string"}}` - no enum, unlike the
+`$defs`/`$ref`-pinned arrays `_pin_fact_id_arrays` (`planning.py:334-354`) writes for the three jobs
+that do pass a `call_schema`. The only gate left is `core/llm/binding.py:192-221`'s post-hoc
+`binding_errors`, which fires **after** the call, not before it - so a hallucinated ID costs a live
+provider call before anything catches it, and `repository_investigation`'s retry budget is exactly one
+re-ask (`job … output rejected twice` is the whole budget, confirmed by both runs below).
+
+Run 1 (this worktree, first attempt): `calls/81dae25fffe5.rejected-1.json`'s `rejection` list was
+`['unknown fact ID format:input.txt', 'unknown fact ID public_symbol:aspose.words_foss.markdown_save_options', 'unknown fact ID public_symbol:aspose.words_foss.ooxml_save_options', 'unknown fact ID public_symbol:aspose.words_foss.pdf_save_options']`
+(4 fabricated IDs, directly observed before the second run's identical request hash overwrote the
+file); the re-ask narrowed to one: `rejected-2.json`'s `rejection` was
+`['unknown fact ID format:input.txt']`. Run 2 (immediately after, same revision, same worktree, no
+code change): the identical request hash `81dae25fffe5` (confirmed by `request_hash`'s own inputs -
+`manifest.sha256` and the rendered payload - being unchanged: `git diff` between this run's base and
+run 2/LANE-E-05-R2's base at `prompts/repository_investigation.yaml`,
+`src/repository_presenter/components/readme/investigation/`, and `core/llm/binding.py` is empty)
+produced a **different** hallucination: `rejected-1.json`'s list was
+`['unknown fact ID format:input.txt', 'unknown fact ID public_symbol:aspose.words_foss.ooxml_save_options']`,
+narrowing to `rejected-2.json`: `['unknown fact ID public_symbol:aspose.words_foss.ooxml_save_options']`.
+Two live calls against byte-identical input (`temperature: 0.0`, `seed: 1` per the manifest) produced
+two different wrong answers - upstream model-serving variance the manifest's own sampling block cannot
+control, landing on a schema with no enum floor to catch it before spending the call.
+
+**Neither hallucination is an invented capability - both are real, evidenced claims cited under the
+wrong exact ID.** `facts.json` (839 records) carries `format:input.doc/.docx/.md/.rtf` and
+`format:output.txt` but **no `format:input.txt` fact at all** (not even `UNRESOLVED` - no evidence
+entry exists for that key), even though the clone's own
+`aspose/words_foss/reader_factory.py:39-42` dispatches `.txt` to a real `TextFileReader`
+(`public_symbol:aspose.words_foss.text_reader.textfilereader`, with `load_file`/`load_bytes`/
+`load_stream`/`to_light_document`, all present in `facts.json`) - the model's claim that the library
+reads plain-text input is true and symbol-evidenced, but no `format` fact says so, because
+`evidence/facts/formats.py`'s only static-corroboration path
+(`extractors/platforms/python_format_declarations.py`) recognizes one specific code shape - a
+`register_plugin(XPlugin())` call binding an `importer`/`exporter` pair to a `FileFormat.py`-declared
+format class - and this repository has no `FileFormat.py` at all: `reader_factory.py`'s
+`create_reader()` dispatches by a plain `if suffix == ".txt": … elif suffix == ".doc": …` chain the
+declarations scanner's AST walk never matches, so **every** format claim here depends entirely on an
+executed example touching that extension, and none of the 12 executed examples opens a `.txt` file.
+Likewise `public_symbol:aspose.words_foss.ooxml_save_options` does not exist, but
+`public_symbol:aspose.words_foss.saving.ooxmlsaveoptions` (the real `OoxmlSaveOptions` class, under
+the `saving` submodule) does - the model dropped the `saving.` segment and the `Ooxml`/`ooxml`
+casing convention `fact_id()` actually uses. This is the identical *shape* of defect items 59/77 named
+for planning (`format:msg`/`format:eml`/`format:cfb` - well-formed IDs naming no fact) one stage
+earlier and one layer more literal (a real symbol's path misremembered, not merely a plausible-sounding
+one invented).
+
+**What lane E proposes, and what it does not.** The minimal, most direct fix mirrors items 59/77
+exactly at the one remaining unpinned call site: give `repository_investigation` its own
+`call_schema=investigation_schema(loaded, facts)` at `rounds.py:190`, built the same way
+`planning_schema` is (`$defs.citable_fact_id` enum, `$ref`'d from every `fact_ids` array:
+`problems_solved[].fact_ids`, `workflows[].fact_ids`, `capabilities[].fact_ids`,
+`limitations[].fact_ids`, and the two top-level `product_summary`/`audience` statements) - the
+schema's own `$defs`/`$ref` shape `_pin_fact_id_arrays`'s docstring (`planning.py:340`) already cites
+`repository_investigation` as decoding through. The citable set itself must be **narrower** than
+`planning.py`'s `citable_fact_ids()`: S3 has no `investigation` or `dispositions` output yet (both are
+downstream of it), so the enum is simply the packet's own `fact_dossier` - the same
+`bounded_records(facts, manifest.packet.fact_kinds)` call `investigation_packet()`
+(`investigation/dossier.py:38`) already computes - not a call to `citable_fact_ids()` itself, which
+takes those two later-stage arguments and cannot run here. Lane E does **not** propose widening
+`format_facts()`'s static-corroboration path to recognize an `if/elif` dispatch factory alongside the
+`register_plugin` pattern - that is a materially larger, separate extractor change (a second code
+shape to parse, on a Python-cohort platform module lane E does not own) that would only add one more
+`SUPPORTED` fact for one repository, not close the class this proposal names; an enum pin closes the
+class for every job and every repository that can reach S3 with an imperfect memory of a real symbol's
+path, whether or not the underlying capability was ever extracted as a fact.
+
+**Evidence.** `runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/
+2d2efee2787cb9e56d071d17f8d7b740dce8b784/calls/81dae25fffe5.rejected-1.json` and `.rejected-2.json`
+(run 2's final state; run 1's distinct rejection lists quoted above from direct observation before
+being overwritten by the identical request hash); `facts.json` (839 records: no `format:input.txt`
+key; `public_symbol:aspose.words_foss.text_reader.textfilereader` and
+`public_symbol:aspose.words_foss.saving.ooxmlsaveoptions` both present);
+`runs/clones/aspose-words-foss__Aspose.Words-FOSS-for-Python/aspose/words_foss/reader_factory.py:26-54`;
+`prompts/repository_investigation.yaml:58,69,81,96`; `repair/rounds.py:189-191,209-215,235,241`;
+`composition/planning.py:277-354`; `core/llm/binding.py:192-221`;
+`evidence/facts/formats.py:72-99`; `extractors/platforms/python_format_declarations.py` (whole file -
+the `register_plugin`/`FileFormat.py` pattern it recognizes, absent from this repository).
+
+**Reversal path.** A `repository_investigation` job schema shown to already constrain `fact_ids` some
+other way this reading missed, or a live call reproducing the *identical* hallucinated ID twice in a
+row on the *same* request hash (which would point at a deterministic decoding bug rather than
+upstream sampling variance), refutes the "no enum pin" diagnosis as the proximate cause; neither is
+what these two runs measured.
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-words-foss/Aspose.Words-FOSS-for-Python` | NOT_SEALED, stage S3 `repository_investigation` (two live attempts, both rejected twice, no repair round reached) | `INVESTIGATION_FACT_ID_ARRAYS_HAVE_NO_ENUM_PIN_SO_A_MISREMEMBERED_SYMBOL_PATH_COSTS_THE_WHOLE_JOB_BUDGET` | PROPOSAL E22 lands, then re-run `present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python`. `COHERENCE_PASS_REVERTS_AN_ACCEPTED_REPAIR_WITH_NO_TITLE_RESTATEMENT_GUARD` (PROPOSAL E19, item 99) is **closed as a mechanism** (verified by reading the landed diff) but **not re-observed on this repository**, because S3 now blocks before S6/S8 are ever reached; it is not a predicate for the re-run, but the next run that reaches S8 on this repository is this class's own re-verification. `F02` (opening, dependency completeness) still has no repair attempt and remains open regardless. |
+
+### What this run does not claim
+
+It does not claim E19 is unverified - the diff read against run 2's own named call sites is direct,
+not inferential, and `coherence_checks`'s unconditional delegation to `unit_checks` leaves no path for
+S8 to escape the new rule. It does not claim `format:input.txt`'s absence is itself blocking anything
+by proof of a review finding - no review was reached this run; the absence is offered only as *why* a
+true claim had no exact fact ID to cite, not as a class review already judged. It does not claim two
+occurrences of an unpinned hallucination generalizes to every repository's investigation call - it
+generalizes only as far as "a job with no enum pin can hallucinate a plausible ID," the same claim
+items 59/77 already established for planning; whether it recurs elsewhere is for whoever runs the next
+S3 to measure. No seal is claimed and the counted unit does not move: `repository-presenter status`
+reads **15/34** both before and after, and `project/state.yaml` was not opened.
