@@ -338,6 +338,58 @@ def test_unit_checks_reject_markdown_urls_commands_stray_identifiers_and_outside
     ]
 
 
+def test_unit_checks_silently_strips_a_units_own_echoed_fact_ids_bracket_list() -> None:
+    """G4-W17 arrival item 124 (E24). Measured on Words-Python (LANE-E-05 run 5, PROPOSAL E24,
+    docs/investigations/09-words-python-pattern-analysis.md section 4): the model appended its
+    own cited ``fact_ids`` as a bracketed, comma-separated list inside a unit's visible text
+    (``"[format:input.doc, format:input.docx, ...]"``) on all six ``key_capabilities`` slots -
+    correctly rejected by the stray-identifier check below (a fact ID is provenance, never a word
+    in prose), but the one generic re-ask - which quotes ``rejection_template``'s own on-topic
+    sentence for exactly this rule, landed 11 days earlier as ``ef40284`` - reproduced 5 of 6
+    slots byte-identical and mis-corrected the sixth. The renderer owns citation syntax exactly as
+    it already owns a code span (the precedent immediately above in ``unit_checks``): a unit's own
+    ``fact_ids`` echoed verbatim as a bracketed list in its own text is stripped in place, so the
+    unit is corrected instead of rejected."""
+    task = SectionTask(
+        "key_capabilities",
+        {},
+        frozenset({"public_symbol:aspose.threed.scene", "format:output.glb"}),
+        ("capability:1",),
+    )
+    echoed = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": (
+                    "Scene objects hold a scene graph and save as GLB files. "
+                    "[public_symbol:aspose.threed.scene, format:output.glb]"
+                ),
+                "fact_ids": ["public_symbol:aspose.threed.scene", "format:output.glb"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(echoed, task, FACTS, NAME) == []
+    # Corrected in place, not merely tolerated: the echo is gone from the unit's own text.
+    assert echoed["units"][0]["text"] == ("Scene objects hold a scene graph and save as GLB files.")
+    # A bracket that is NOT a verbatim echo of the unit's own fact_ids - a genuine aside - is
+    # left untouched and still judged on its own contents like any other prose.
+    aside = {
+        "units": [
+            {
+                "section": "key_capabilities",
+                "slot": "capability:1",
+                "text": "Scene objects hold a scene graph [optional attachment].",
+                "fact_ids": ["public_symbol:aspose.threed.scene"],
+            }
+        ],
+        "omitted": [],
+    }
+    assert unit_checks(aside, task, FACTS, NAME) == []
+    assert aside["units"][0]["text"] == "Scene objects hold a scene graph [optional attachment]."
+
+
 def test_a_hyphen_or_asterisk_mid_sentence_is_prose_not_a_markdown_list() -> None:
     """G4-W17 arrival item 20. Measured 2026-09-06 on Aspose.Cells for C++: a limitation reading
     "workbook- or sheet-scoped" was rejected twice as "a Markdown list ('- ')" - the marker

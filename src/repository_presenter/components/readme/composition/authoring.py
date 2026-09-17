@@ -135,7 +135,12 @@ _TYPE_OBJECTIVE = (
 # authoring_tasks()'s own main loop already passes for every other section - a real meaning
 # change to citable()'s fallback (every type slot's schema enum used to carry the whole batch's
 # accepted_ids instead of that one type's single fact, measured 4.6x larger than scoped).
-NORMALISATION_VERSION = "10"
+# "10" -> "11" (G4-W17 arrival item 124, E24): unit_checks now strips a unit's own fact_ids,
+# echoed verbatim as a bracketed list inside its text, in place - the same silent correction
+# the code-span precedent already gets - instead of leaving the echo for the strays guard to
+# reject. A real meaning change to what unit_checks accepts (a shape that used to be rejected,
+# and sometimes survive a re-ask uncorrected, is now normalised away on the first attempt).
+NORMALISATION_VERSION = "11"
 _EXCEPTION_SUFFIXES = ("Error", "Exception", "Warning")
 # "the Enterprise Edition" reads as "the commercial edition"; a bare mention loses only the
 # proper name the shell already carries.
@@ -210,6 +215,38 @@ def _bare_angle_bracket(raw_text: str) -> bool:
     span - still is.
     """
     return "<" in _CODE_SPAN.sub("", raw_text)
+
+
+# A bracketed, comma-separated list a unit's own text echoes: matched together with any single
+# run of whitespace immediately before it, so removing the whole match (G4-W17 arrival item 124,
+# below) leaves the surrounding prose's own spacing intact whether the echo sat mid-sentence or
+# was appended at the end.
+_BRACKETED_LIST = re.compile(r"\s*\[([^\[\]]*)\]")
+
+
+def _strip_echoed_fact_ids(text: str, fact_ids: Any) -> str | None:
+    """``text`` with a bracketed echo of the unit's own ``fact_ids`` removed, or ``None`` when
+    ``text`` carries no such echo.
+
+    G4-W17 arrival item 124 (E24): a fact ID is provenance, never a word in prose
+    (``section_authoring.yaml`` states this twice - system prompt and ``rejection_template`` -
+    and the one generic re-ask still did not reliably hold it; measured on Words-Python,
+    LANE-E-05 run 5: the re-ask reproduced 5 of 6 ``key_capabilities`` slots byte-identical).
+    Only a bracket whose entire comma-separated content matches, verbatim, one or more of this
+    exact unit's own cited fact IDs is an echo; a bracket carrying anything else - a genuine aside
+    such as ``"[optional]"`` - is left untouched, the same "leave prose alone unless it is
+    unambiguously the artifact" discipline the code-span strip just above already follows.
+    """
+    ids = {str(fact_id) for fact_id in fact_ids if isinstance(fact_id, str)}
+    if not ids:
+        return None
+
+    def _drop(match: re.Match[str]) -> str:
+        items = [item.strip() for item in match.group(1).split(",")]
+        return "" if items and all(item in ids for item in items) else match.group(0)
+
+    stripped = _BRACKETED_LIST.sub(_drop, text)
+    return stripped if stripped != text else None
 
 
 _OBJECTIVES: dict[str, tuple[str, str]] = {
@@ -1358,6 +1395,14 @@ def unit_checks(
             # The renderer owns every code span: a span the job wrote is dropped in place and
             # the identifier it wrapped is judged like any other token.
             text = text.replace("`", "")
+            unit["text"] = text
+        # G4-W17 arrival item 124: the renderer owns citation syntax exactly as it owns a code
+        # span - a unit's own fact_ids echoed verbatim as a bracketed list in its own text is
+        # dropped in place, the same silent correction the code span above already gets, rather
+        # than spending the one generic re-ask on a rule the model has already been told twice.
+        unstripped = _strip_echoed_fact_ids(text, unit.get("fact_ids", []))
+        if unstripped is not None:
+            text = unstripped
             unit["text"] = text
         for marker, meaning in _FORBIDDEN:
             if marker == "<":
