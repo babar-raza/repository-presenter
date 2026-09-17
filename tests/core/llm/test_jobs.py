@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 from dataclasses import replace
 from pathlib import Path
@@ -11,6 +12,7 @@ import httpx
 import pytest
 
 from repository_presenter.components.readme.bundle.seal import seed_call_store
+from repository_presenter.components.readme.composition.authoring import SectionTask, unit_checks
 from repository_presenter.core.config import GatewayConfig
 from repository_presenter.core.errors import ConfigError, JobError
 from repository_presenter.core.facts import Evidence, Fact, FactsDocument
@@ -38,6 +40,7 @@ FACTS = FactsDocument(
     ),
 )
 MANIFEST = load_manifests(REPO_ROOT / "prompts")["repository_investigation"]
+SA_MANIFEST = load_manifests(REPO_ROOT / "prompts")["section_authoring"]
 PACKET: dict[str, Any] = {
     "repository": "org/repo",
     "ecosystem": "python",
@@ -274,6 +277,73 @@ def test_a_jobs_own_checks_are_quoted_in_the_re_ask(
     assert (
         "capability titles repeat the keyword Do" in gateway.requests[1]["messages"][-1]["content"]
     )
+
+
+def test_a_forbidden_marker_rejection_names_how_to_rewrite_the_unit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """G4-W17 arrival item 115 (PGPY-05). ``section_authoring``'s ``rejection_template`` was
+    written entirely for the identifier/citation defect class and gave no instruction at all for
+    a ``_FORBIDDEN``-marker rejection (``authoring.py``'s own guard against a unit narrating a
+    literal command, URL, or Markdown/HTML fragment the renderer already owns) - measured live on
+    Page-Python (docs/DECISION_LOG.md 2026-09-17 06:33 UTC): a ``scope_limitations`` unit narrated
+    ``pip install`` literally, and the model's sole re-ask returned the units list byte-for-byte
+    identical, because the template gave it nothing to act on. This exercises the real production
+    path - ``run_job`` with the real ``section_authoring`` manifest and the real ``unit_checks`` -
+    so the correction the model actually receives is proven, not merely the prompt file's text.
+    """
+    facts = FactsDocument(
+        "org/repo",
+        "a" * 40,
+        (
+            Fact("identity:repository", "identity", "org/repo", (Evidence("x"),)),
+            Fact("package:name", "package", "widget", (Evidence("x"),)),
+        ),
+    )
+    packet = {
+        "repository": "org/repo",
+        "product_name": "Widget",
+        "mode": "author",
+        "section_id": "scope_limitations",
+        "objective": "State known limitations.",
+        "slots": [{"slot": "limitation:1", "fact_ids": ["package:name"]}],
+        "accepted_facts": [{"id": "package:name", "kind": "package", "value": "widget"}],
+        "do_not_claim": [],
+        "length_budget": "one unit, one sentence",
+        "rendered_document": "",
+        "existing_units": [],
+    }
+    task = SectionTask("scope_limitations", packet, frozenset({"package:name"}), ("limitation:1",))
+
+    def unit(text: str) -> dict[str, Any]:
+        return {
+            "section": "scope_limitations",
+            "slot": "limitation:1",
+            "text": text,
+            "fact_ids": ["package:name"],
+        }
+
+    gateway = _Gateway(
+        monkeypatch,
+        _completion({"units": [unit("Run pip install widget-extra first.")], "omitted": []}),
+        _completion(
+            {"units": [unit("An optional extra must be installed separately.")], "omitted": []}
+        ),
+    )
+    result = run_job(
+        SA_MANIFEST,
+        packet,
+        config=CONFIG,
+        facts=facts,
+        ledger=Ledger(tmp_path / "calls.jsonl"),
+        store=CallStore(tmp_path / "calls"),
+        context=CONTEXT,
+        checks=functools.partial(unit_checks, task=task, facts=facts, name="Widget"),
+    )
+    assert result.attempts == 2
+    correction = gateway.requests[1]["messages"][-1]["content"]
+    assert "unit limitation:1: text contains a command ('pip install')" in correction
+    assert "no literal command, URL, code, or markup" in correction
 
 
 def test_a_binding_defect_does_not_suppress_a_simultaneous_domain_check_defect(
