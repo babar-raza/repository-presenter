@@ -2081,3 +2081,77 @@ not kept.
 **Fix, smallest first.** Store the truncated body like any other rejection, so the next occurrence is
 readable. Then bound the five unbounded arrays, as `authoring_schema()` already bounds its slots.
 Raising the budget alone treats the symptom and moves the ceiling.
+
+## 2026-09-17 13:33 — G4-W15-RERUN6, Aspose.PDF for Go: SEALED, its first ever, lane D's third candidate
+
+`origin/main` rebased to `0ced0a5`, branch `lane-d/G4-W15-RERUN6`, worktree `C:\w\d15r6`. Receipt:
+`evidence/build/lanes/lane-d/G4-W15-RERUN6.json`. Scope: `aspose-pdf-foss/Aspose-PDF-FOSS-for-Go` at
+`6784921e711f00a26fb30a0be279965502d3ff34` only, the same revision RERUN5 used one day earlier — the
+upstream repository has not moved. Toolchain `go1.26.4 windows/amd64` at
+`C:\Program Files\Go\bin\go.EXE`, `shutil.which("go")`. Environment hash `f4406f1b04d8…` confirmed on
+the first try. No lane-owned code changed; no `src/` or `tests/` change of any kind — this item is a
+re-run at current shared code and nothing else.
+
+### The three named blockers were verified landed, not assumed
+
+Before drawing, each commit was checked directly against the rebased tree rather than trusted from
+the hand-off message: `git merge-base --is-ancestor` confirmed all four cited commits
+(`b93e480`, `c791de9`, `c55531e`, `0f9960d`) are ancestors of `origin/main`, and reading their diffs
+located the actual landing commits by item number — item 112/PROPOSAL P25 as `e184973` (the
+right-side hyphen guard on `validation/registry.py`'s `_LOWER_WORD`, not one of the four cited, but
+confirmed landed all the same), item 113/PROPOSAL P26 as `b93e480` (`_MODULE_PATH` in
+`composition/authoring.py::identifier_tokens`) with its version-bump follow-ups `c55531e` and
+`0f9960d`, and item 114/PROPOSAL P30 as `c791de9` (`planned_heading_slugs` resolving a preserved
+unit's anchor at placement, `composition/placement.py`). Grepping the rebased source directly showed
+all three fixes present and none reverted. Items 115–119, landed in between, all name other
+repositories (Page-Python, 3D-TS, Slides-Java, PDF-Python) and touch nothing this repository's prior
+dispositions named.
+
+### Facts stage: unchanged, as expected
+
+`present --facts-only` reproduced RERUN5's facts stage exactly: 1,715 facts (1,560 `public_symbol`,
+92 `inherited_unit`, 43 `link_target`, the rest identity/license/example/install/package/dependency),
+1,714 supported, 1 unresolved, 0 contradicted, no required contract row without evidence. Nothing
+about extraction changed; only composition-side code did.
+
+### Composition reached S10 for the first time in this repository's history, and the review returned ACCEPT clean
+
+Every earlier run in this lane's log for this repository died before S10: BC-06/BC-07/BC-08 always
+closed the transaction first. This run reached S9 with BC-01 to BC-09 all `PASS` — 1,715 facts, a
+17-of-18-section plan (capabilities 8, hubs 11, examples 1+3, links 7, limitations 6), 42 units across
+9 sections (opening, key_capabilities, quick_start, additional_examples, api_reference,
+documentation_resources, scope_limitations, development_testing, enterprise_relationship),
+`README.md` at 206 visible lines of 767 — then S10's independent review returned `ACCEPT` on the
+first attempt: `identity_separate` true, `second_reader.read` 2, 0 findings, 0 advisory. One review
+finding did surface mid-composition and is unrelated to P25/P26/P30's classes: F03 (an
+`additional_example_ids` / Quick Start lead-in ordering mismatch, the class items 8/29 exist for)
+escalated once from S6 to a plan-level repair at S5 and was repaired clean with no re-raise —
+`repairs.json` records one `repaired` and one `escalated`, both label `F03`, neither blocking.
+
+### BC-11 passes: the no-op proof, in a fresh process
+
+| run | purpose | provider calls | result |
+| --- | --- | --- | --- |
+| 1 | compose and seal at current code | 29 | state `ACCEPTED`, review `ACCEPT` 0/0, validation 10 pass / 0 fail / 1 pending |
+| 2 | the no-op proof, fresh process | **0** | every artifact byte-identical, state `READY_FOR_PROPOSAL`, check 11 judged |
+
+BC-01 to BC-11 **all PASS**, 0 advisory, on the bundle now on disk (verified by reading
+`validation.json` directly, not by trusting the CLI's summary line, which prints a `pending 1`
+during the run before BC-11 is judged into the stored record). `manifest.json` records
+`components: {normalisation: "9", renderer: "23", reviewer_logic: "10", shell: "6"}` — item 113's
+`NORMALISATION_VERSION` bump to `9` is exactly what this candidate sealed under. 14 bundle files;
+sha256 of all 14 recorded in the receipt. Not repeated as a third byte-stability control run
+(RERUN4's precedent): BC-11 as the check itself defines it — "judged by the fresh-process replay:
+every artifact byte-identical, zero provider calls" — is already met by run 2 alone.
+
+### What this seal claims and what it does not
+
+It claims eleven passing checks and a no-op proof reproduced once, in a genuinely fresh process, with
+zero provider calls. It does not claim the F03 repair class is now generally fixed anywhere else, only
+that it did not block here. `aspose-cells-foss/Aspose.Cells-FOSS-for-Go` and
+`aspose-cells-foss/Aspose.Cells-FOSS-for-Rust` were not run this item; the former is already recorded
+`KNOWN_BLOCKED_STALE` in `tests/test_sealed_bytes.py` against item 113's own rendering change (a
+shared-code test file, not touched here). `sealed_by_lane` 2 → 3, `dispositions_by_lane` 1 → 0. Fresh
+from the rebased tree, `repository-presenter status` printed `candidates: 19/34` where `state.yaml`'s
+cursor still read 18; that one field is corrected in this same commit per `loop-prompt-lane.md` §0's
+named exception, recomputed from disk in the just-rebased tree, never incremented by hand.

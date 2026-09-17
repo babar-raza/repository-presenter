@@ -1,0 +1,609 @@
+{
+  "additional_example_ids": [
+    "example:003",
+    "example:005",
+    "example:006"
+  ],
+  "api_hubs": [
+    {
+      "fact_ids": [
+        "public_symbol:document",
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.rotate",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:document.renderimage",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.savemarkdown",
+        "public_symbol:document.searchtext",
+        "public_symbol:document.replacetext"
+      ],
+      "symbol_fact_id": "public_symbol:document"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render",
+        "public_symbol:flowoptions"
+      ],
+      "symbol_fact_id": "public_symbol:flow"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:formfieldtype",
+        "public_symbol:form.exportjson",
+        "public_symbol:form.flatten"
+      ],
+      "symbol_fact_id": "public_symbol:form"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:annotationcollection",
+        "public_symbol:annotationtype",
+        "public_symbol:linkannotation",
+        "public_symbol:highlightannotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:page.annotations"
+      ],
+      "symbol_fact_id": "public_symbol:annotation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:path",
+        "public_symbol:lineargradient",
+        "public_symbol:radialgradient",
+        "public_symbol:tilingpattern",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:svgfontresolver"
+      ],
+      "symbol_fact_id": "public_symbol:path"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:tableabsorber",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.savexlsx",
+        "public_symbol:document.saveepub"
+      ],
+      "symbol_fact_id": "public_symbol:tableabsorber"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport"
+      ],
+      "symbol_fact_id": "public_symbol:document.validatepdfa"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "symbol_fact_id": "public_symbol:ai"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:encryptionoptions",
+        "public_symbol:signoptions",
+        "public_symbol:document.verifysignatures"
+      ],
+      "symbol_fact_id": "public_symbol:document.setencryption"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:page",
+        "public_symbol:page.renderimage",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:page.addtable",
+        "public_symbol:page.addtext",
+        "public_symbol:page.searchtext",
+        "public_symbol:page.replacetext"
+      ],
+      "symbol_fact_id": "public_symbol:page"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.javascript",
+        "public_symbol:document.openaction",
+        "public_symbol:document.removeopenaction",
+        "public_symbol:document.setopenaction",
+        "public_symbol:gotoaction",
+        "public_symbol:gotouriaction",
+        "public_symbol:javascriptaction",
+        "public_symbol:javascriptcollection"
+      ],
+      "symbol_fact_id": "public_symbol:document.javascript"
+    }
+  ],
+  "at_a_glance": {
+    "capability_titles": [
+      "Page operations and metadata",
+      "Content authoring with Flow engine",
+      "AcroForms and interactive fields",
+      "Annotations and interactive elements",
+      "Vector graphics and SVG",
+      "Table detection and Office conversion",
+      "PDF/A and PDF/UA validation",
+      "AI document analysis"
+    ],
+    "input_format_ids": [],
+    "output_format_ids": []
+  },
+  "core_capabilities": [
+    {
+      "fact_ids": [
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.rotate",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp"
+      ],
+      "shared_fact_ids": [],
+      "title": "Page operations and metadata"
+    },
+    {
+      "fact_ids": [
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render"
+      ],
+      "shared_fact_ids": [],
+      "title": "Content authoring with Flow engine"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:formfieldtype"
+      ],
+      "shared_fact_ids": [],
+      "title": "AcroForms and interactive fields"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:annotation",
+        "public_symbol:linkannotation",
+        "public_symbol:highlightannotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:newhighlightannotation"
+      ],
+      "shared_fact_ids": [],
+      "title": "Annotations and interactive elements"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:path",
+        "public_symbol:lineargradient",
+        "public_symbol:radialgradient",
+        "public_symbol:tilingpattern",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream"
+      ],
+      "shared_fact_ids": [],
+      "title": "Vector graphics and SVG"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:tableabsorber",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.savexlsx",
+        "public_symbol:document.saveepub"
+      ],
+      "shared_fact_ids": [],
+      "title": "Table detection and Office conversion"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport"
+      ],
+      "shared_fact_ids": [],
+      "title": "PDF/A and PDF/UA validation"
+    },
+    {
+      "fact_ids": [
+        "public_symbol:ai",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "shared_fact_ids": [],
+      "title": "AI document analysis"
+    }
+  ],
+  "deviations": [
+    {
+      "fact_ids": [
+        "inherited_unit:026.heading",
+        "inherited_unit:027.paragraph",
+        "inherited_unit:028.heading",
+        "inherited_unit:029.code_block",
+        "inherited_unit:030.paragraph",
+        "inherited_unit:031.html_block",
+        "inherited_unit:032.heading",
+        "inherited_unit:033.code_block",
+        "inherited_unit:034.heading",
+        "inherited_unit:035.code_block",
+        "inherited_unit:036.heading",
+        "inherited_unit:037.code_block",
+        "inherited_unit:038.heading",
+        "inherited_unit:039.code_block",
+        "inherited_unit:040.html_block"
+      ],
+      "section_id": "additional_examples",
+      "text": "The Additional Examples section is omitted because the inherited README's additional example headings and code blocks were not supported by facts and were omitted."
+    },
+    {
+      "fact_ids": [
+        "inherited_unit:046.heading"
+      ],
+      "section_id": "api_reference",
+      "text": "The '#### Detailed Member Reference' heading was omitted because no fact supports it."
+    },
+    {
+      "fact_ids": [
+        "link_target:011",
+        "link_target:012",
+        "link_target:product.banner",
+        "link_target:product.homepage"
+      ],
+      "section_id": "banner",
+      "text": "The banner image and link are included because both product.banner and product.homepage facts are verified."
+    },
+    {
+      "fact_ids": [
+        "link_target:product.enterprise"
+      ],
+      "section_id": "enterprise_relationship",
+      "text": "The Enterprise Edition relationship is included because link_target:product.enterprise is verified."
+    },
+    {
+      "fact_ids": [
+        "identity:repository"
+      ],
+      "section_id": "identity",
+      "text": "The H1 heading is preserved because identity:repository matches the canonical product name."
+    },
+    {
+      "fact_ids": [
+        "install_command:go"
+      ],
+      "section_id": "installation",
+      "text": "The installation command is preserved because install_command:go is verified."
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.rotate",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setpagelabels",
+        "public_symbol:document.info",
+        "public_symbol:document.xmp",
+        "example:002",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render",
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:formfieldtype",
+        "public_symbol:annotation",
+        "public_symbol:linkannotation",
+        "public_symbol:highlightannotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:newlinkannotation",
+        "public_symbol:newhighlightannotation",
+        "public_symbol:path",
+        "public_symbol:lineargradient",
+        "public_symbol:radialgradient",
+        "public_symbol:tilingpattern",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:tableabsorber",
+        "public_symbol:document.savedocx",
+        "public_symbol:document.savexlsx",
+        "public_symbol:document.saveepub",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:pdfavalidationreport",
+        "public_symbol:pdfuavalidationreport",
+        "public_symbol:ai",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.imagedescriptioncopilot"
+      ],
+      "section_id": "key_capabilities",
+      "text": "The Key Capabilities list is preserved because all listed capabilities are supported by facts."
+    },
+    {
+      "fact_ids": [
+        "identity:repository",
+        "identity:family",
+        "identity:platform",
+        "identity:ecosystem",
+        "package:name",
+        "import_path:github.com-aspose-pdf-foss-aspose-pdf-foss-for-go",
+        "package:go_version",
+        "dependency:none",
+        "public_symbol:ai",
+        "public_symbol:ai.chatcopilot",
+        "public_symbol:ai.summarycopilot",
+        "public_symbol:ai.ocrcopilot",
+        "public_symbol:ai.imagedescriptioncopilot",
+        "public_symbol:document",
+        "public_symbol:document.split",
+        "public_symbol:document.append",
+        "public_symbol:document.extract",
+        "public_symbol:document.rotate",
+        "public_symbol:document.reorder",
+        "public_symbol:document.setencryption",
+        "public_symbol:document.sign",
+        "public_symbol:document.validatepdfa",
+        "public_symbol:document.validatepdfua",
+        "public_symbol:document.renderimage",
+        "public_symbol:document.savehtml",
+        "public_symbol:document.savesvg",
+        "public_symbol:document.savemarkdown",
+        "public_symbol:document.searchtext",
+        "public_symbol:document.replacetext",
+        "public_symbol:form",
+        "public_symbol:form.addtextfield",
+        "public_symbol:form.addcheckbox",
+        "public_symbol:form.addcombobox",
+        "public_symbol:form.addradiogroup",
+        "public_symbol:table",
+        "public_symbol:tableabsorber",
+        "public_symbol:annotation",
+        "public_symbol:stampannotation",
+        "public_symbol:redactannotation",
+        "public_symbol:path",
+        "public_symbol:page.addsvg",
+        "public_symbol:page.addsvgfromstream",
+        "public_symbol:flow",
+        "public_symbol:flow.addparagraph",
+        "public_symbol:flow.addheading",
+        "public_symbol:flow.addtable",
+        "public_symbol:flow.addlist",
+        "public_symbol:flow.render"
+      ],
+      "section_id": "opening",
+      "text": "The opening paragraph is preserved because it is supported by the product_summary and capabilities facts."
+    },
+    {
+      "fact_ids": [
+        "example:001"
+      ],
+      "section_id": "quick_start",
+      "text": "The Quick Start example is preserved because example:001 is verified and executable."
+    }
+  ],
+  "flagship_example_id": "example:003",
+  "links": [
+    {
+      "link_fact_id": "link_target:032",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:033",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:034",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:035",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:036",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:037",
+      "section_id": "documentation_resources"
+    },
+    {
+      "link_fact_id": "link_target:038",
+      "section_id": "enterprise_relationship"
+    }
+  ],
+  "material_limitations": [
+    {
+      "fact_ids": [
+        "public_symbol:document.setencryption"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.savelinearized"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:encryptionoptions.recipients"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:document.searchtext",
+        "public_symbol:document.replacetext"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:page.renderimage"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    },
+    {
+      "fact_ids": [
+        "public_symbol:table"
+      ],
+      "unit_ids": [
+        "inherited_unit:083.list"
+      ]
+    }
+  ],
+  "quick_start_example_id": "example:001",
+  "second_quick_start_example_id": "example:002",
+  "sections": [
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "identity"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "badges"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "banner"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "opening"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "navigation"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "at_a_glance"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "key_capabilities"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "installation"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "dependencies"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "quick_start"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "additional_examples"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "api_reference"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "documentation_resources"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "scope_limitations"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "development_testing"
+    },
+    {
+      "include": true,
+      "reason": "its condition holds",
+      "section_id": "enterprise_relationship"
+    },
+    {
+      "include": false,
+      "reason": "its condition does not hold",
+      "section_id": "third_party_notices"
+    },
+    {
+      "include": true,
+      "reason": "the shell requires it",
+      "section_id": "license"
+    }
+  ]
+}
