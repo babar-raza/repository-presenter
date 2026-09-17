@@ -11,8 +11,9 @@ Authoritative copy: this file, edited only by the supervisor, each edit recorded
   the G4 predicate (every enabled `data/registry.json` entry sealed + 34 dispositions). 23
   sealable remained at open — zero margin; TeX-Python's upstream is confirmed unchanged (F10,
   2026-09-11: no source commit since the broken 26.5 release), so no margin arrives.
-- Scale: full multi-lane (primary + lanes B/C/D + supervisor). Fallback on a missed Sunday
-  checkpoint: maximize count. Supervisor never patches `src/` or `tests/`.
+- Scale: full multi-lane (primary + lanes B/C/D + supervisor), with a best-effort ≥4 active-role
+  concurrency floor (`docs/SUPERVISION.md` "Concurrency floor", PHASE1/F13). Fallback on a missed
+  Sunday checkpoint: maximize count. Supervisor never patches `src/` or `tests/`.
 - Human dependence: none except machine uptime and usage caps. RC-03/PA-05/item-54 rulings are
   §31-delegated (2026-09-11); OWNER-01 branch protection stays OPEN deliberately (would break
   lane self-merge).
@@ -77,6 +78,7 @@ disk + hosted CI green + count recomputed from disk.
 | F10 | supervisor | — (read-only) | GATE-0 | TeX-Python upstream check. RESULT 2026-09-11: no source commit since the broken 26.5 release — NOT recoverable; stays NOT_PROCESSABLE; zero margin stands. | n/a |
 | F11 | supervisor | tools/reviewer/procedure.md, docs/SUPERVISION.md, plans/sprint/PHASE1-SPRINT-PLAN.md, docs/DECISION_LOG.md, tools/reviewer/reviewer_check.py, plans/sprint/loop-instructions.jsonl | GATE-0 | Lane/background spawn model policy: rule text in the three prose files; §31 decision entry; reviewer_check.py behavioural check flags any observed Agent-tool spawn whose model isn't exactly sonnet; adds card F12 to this table. Accept: none of the three prose files still route a spawn to Opus or Fable in any of F12's six banned phrasings pairing the spawn-model key or the lane-agent-type phrase with either model name (this row deliberately avoids quoting them verbatim, since doing so here would trip F12's own check — DECISION_LOG.md §31 carries the literal diff as evidence instead, and is not one of F12's scanned files); `reviewer_check.py --record` runs clean against the live transcript; a synthetic transcript line with an Agent spawn whose model is one of the two banned values produces the new [FLAG], sonnet does not. | `git revert` the commit; tools/ never imported by src/; prose reverts cleanly since nothing downstream depends on the wording |
 | F12 | primary | tests/test_governance_consistency.py | after F11 | Add a test (test_lane_spawn_recipes_never_name_opus_or_fable) asserting procedure.md, SUPERVISION.md, PHASE1-SPRINT-PLAN.md never contain the six literal substrings pairing the spawn-model key or the lane-agent-type phrase with Opus or Fable (enumerated in the test itself and in DECISION_LOG.md §31's F11 entry — not quoted in this row, since quoting them here would trip the very check this row describes). Literal-substring checks only, not a loose regex/blanket absence check — procedure.md's own historical sentence naming both models must keep passing. Accept: red against F11's pre-image, green against F11's post-image; mirrors this file's existing text-membership check style. | revert test file only |
+| F13 | supervisor | docs/SUPERVISION.md, tools/reviewer/procedure.md, plans/sprint/PHASE1-SPRINT-PLAN.md, tools/reviewer/reviewer_check.py, docs/DECISION_LOG.md | GATE-0 | Concurrency floor: whenever ready, unblocked lane work exists and no usage cap is active, the supervisor keeps ≥4 roles concurrently live (itself + primary + lanes) — best-effort, never forcing speculative work or overriding the usage-cap pause order. Rule text: `docs/SUPERVISION.md` new "Concurrency floor" section; `procedure.md` §2b clause (compare live-role count to the floor each wake, spawn from the ready-lanes list) + a correction-ladder row; this file's §0 Scale line + §13 control-plane clause. Mechanical check: `reviewer_check.py`'s `concurrency_floor_flag(active, ready, capped)` reads `metrics["lanes"]` (already built), `reviewer_state.json`'s `lanes.<lane>.live_run`, and the transcript's `limit_hit`/`last_ts`, flagging when active roles < 4 with ready lane work and no cap. §31 decision entry. Accept: `reviewer_check.py --record` runs clean against the live transcript; synthetic `concurrency_floor_flag` cases (active=2 + one ready lane + not capped → flags naming the lane; same capped, or `ready=[]`, or active=4 → no flag) behave as specified; none of the four prose files contradicts the existing usage-cap pause order or the per-lane "at most one live run" cap. | `git revert` the commit; prose reverts cleanly, the check is a self-contained diff |
 | W-* | lanes/primary | candidates/, runs/ | GATE-B | Waves per §11; per-candidate acceptance above; real rejection → disposition + move on (stop-don't-force); fold-don't-code for content classes (DIRECTIVE rule 16). | failed seal leaves no bundle; broken re-seal → KNOWN_BLOCKED_STALE + card ref |
 | Z1 | supervisor | evidence/build/PHASE1_SPRINT/ | GATE-Z | Evidence bundle: manifest.json (card statuses + evidence, gate verdicts, checkpoint counts, CI + liveness run ids, final `status --stale` output, PA-03 four-count), kill-test outputs, channel copies. Remove ACTIVE. Final report names the bundle's absolute path. | n/a |
 
@@ -201,7 +203,9 @@ extended to lanes 2026-09-16 (§31).
 
 Supervisor cadence: event notifications (lane completions, monitor lines) + hourly heartbeat
 (first act: `reviewer_check.py --record` + liveness poll) + the dead-man under both + the dated
-checkpoints as scheduled wakes. Channels, roles, lane liveness contract, wakeup policy,
+checkpoints as scheduled wakes. The concurrency floor check (`docs/SUPERVISION.md` "Concurrency
+floor", PHASE1/F13) runs inside that same `reviewer_check.py --record` heartbeat step — no new
+cadence needed. Channels, roles, lane liveness contract, wakeup policy,
 enforcement placement: `docs/SUPERVISION.md` (authoritative). Precedence: loop-prompt.md §0/§6
 always win; this plan replaces only selection/cadence; the instructions channel overrides a
 card's text for that card.

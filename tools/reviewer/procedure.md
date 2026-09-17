@@ -94,6 +94,7 @@ stopped. Every message is also a one-line §31 reviewer entry.
 | An "ACCEPTED" gate/work-item evidence manifest with no visible evidence field | Read the full manifest before trusting the status line; if the acceptance is unearned, message the loop and record a §31 reviewer entry naming the exact unmet predicate. | — |
 | Growth (module with no importer; ≥3 new check definitions; deferral language in evidence) | §31 entry asking for the importer or removal; accept-in-part → owning item named in §27.9. | Second wake → message. |
 | Lane/spawn model violation (a spawn's `model` was Opus, Fable, or omitted, instead of Sonnet) | Don't spawn further with the wrong model; correct at the next spawn; never interrupts a run already in flight. | Persisting (second occurrence): §31 note + PushNotification the owner. |
+| Concurrency floor (< 4 active roles while ready lane work exists and no usage cap) | Spawn per §2b for a ready lane. | Persisting (spawn blocked — worktree conflict, no ready lanes, cap active): §31 note, no forced work. |
 
 ## 2b. Lanes (parallel loops; owner decisions 2026-09-06 01:20 and 08:00, RESEARCH §28.12 "Lanes")
 
@@ -124,7 +125,12 @@ for several minutes is not "still queued", it is `mergeable: CONFLICTING` agains
 GitHub never dispatched the workflow** (`gh pr view <n> --json mergeable,mergeStateStatus` confirms;
 the lane rebases per its prompt §4) — `docs/RESEARCH_LANE_B.md` entries
 (same confirm/flag rules as §31), and that its commits touch only its owned paths (`git log lane-b
---name-only`) — a lane commit outside them is reverted on `main` after merge and messaged. A lane
+--name-only`) — a lane commit outside them is reverted on `main` after merge and messaged. Each wake,
+also compare the live-role count (supervisor + primary + lanes with a live run) against the
+concurrency floor of 4 (`docs/SUPERVISION.md` "Concurrency floor") and spawn from the ready-lanes
+list — printed per lane above ("open items ... — a run must be live for the first one, else spawn")
+— until the floor is met or ready work is exhausted; best-effort only, never overriding the usage-cap
+pause order below. A lane
 `PROPOSAL` entry that needs a shared-file change is the owner's decision: admit it into §27.9 for the
 primary, or decline in §31. If the account's usage cap is hit, lane B pauses first (do not re-spawn
 until the primary is running again). Lane B's sealed bundles count in `status` once merged.

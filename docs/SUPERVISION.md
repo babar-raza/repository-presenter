@@ -93,6 +93,20 @@ Respawn: SendMessage to the same agent id first (context intact), else a fresh s
 unblock ledger (`unblocked.jsonl`) fires the moment a landed shared-code item makes a lane's
 disposition re-runnable.
 
+## Concurrency floor
+
+Whenever `execution_limits.parallel_repository_work_allowed` is true and at least one lane has
+ready, unblocked work with no live run, the supervisor keeps **≥4 roles concurrently live** —
+itself, the primary executor, and lanes — spawning per the lane spawn recipe (procedure §2b) until
+the floor is met or ready work runs out. Best-effort: this never forces speculative work and never
+overrides the standing usage-cap pause order (procedure §2b/§8: lane B pauses first, then D;
+primary never). The only concurrency rule that existed before this one was a cap, not a floor
+("Keep at most one live run per lane", procedure §2b); PHASE1's own diagnosis (`plans/sprint/
+PHASE1-SPRINT-PLAN.md` §1) named "idle gaps to 9 h" as a measured symptom of exactly that gap —
+parallel capacity sat idle even when independent ready work and machine headroom both existed,
+because nothing forced the supervisor to notice ready work promptly. Mechanical reader:
+`tools/reviewer/reviewer_check.py`'s `concurrency_floor_flag` (§31 PHASE1/F13).
+
 ## Wakeup policy
 
 The executor self-schedules every iteration, productive or not (`loop-prompt.md` §7) — that is the

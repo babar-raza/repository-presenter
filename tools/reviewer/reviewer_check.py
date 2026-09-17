@@ -528,6 +528,18 @@ LOOP_ALLOWED_PREFIXES = ("src/", "tests/", "prompts/", "candidates/", "evidence/
 ITERATION_BUDGET_MIN = 90
 
 
+def concurrency_floor_flag(active: int, ready: list[str], capped: bool) -> str | None:
+    """PHASE1/F13 (docs/SUPERVISION.md 'Concurrency floor'): the supervisor keeps >=4 roles
+    concurrently live (itself + primary + lanes) whenever ready, unblocked lane work exists and no
+    usage cap is active. Best-effort — never forces speculative work (empty `ready` is fine) and
+    never overrides the standing usage-cap pause order (`capped` yields). Pure so it can be
+    exercised directly with synthetic inputs (mirrors the PR-age and spawn-model checks' acceptance
+    style, no permanent pytest file — see PHASE1-SPRINT-PLAN.md F13 / DECISION_LOG.md §31)."""
+    if active < 4 and ready and not capped:
+        return f"active roles {active}/4 with ready lane(s) {ready} and no usage cap — spawn per procedure §2b until the floor is met"
+    return None
+
+
 def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: dt.datetime, loop_commits: list[dict]) -> list[str]:
     out: list[str] = []
     events = t["events"]
@@ -742,6 +754,19 @@ def behaviour_checks(t: dict, state: dict, metrics: dict, since_iso: str, now: d
         out.append(flag(f"worktrees needing attention — prunable: {prunable_wt}; .claude leftovers: {leftover_wt} — a dead lane leaves its worktree behind; inspect for unlanded work, then `git worktree prune`"))
     else:
         out.append(ok("no stale worktrees"))
+    # --- concurrency floor (PHASE1/F13, docs/SUPERVISION.md "Concurrency floor"): >=4 roles
+    # (supervisor + primary + lanes) concurrently live whenever ready, unblocked lane work exists
+    # and no usage cap is active. Reuses metrics["lanes"] (built above) and reviewer_state.json's
+    # own lanes.<lane>.live_run — the first reader of that field outside the supervisor's own
+    # eyeballing (PHASE1 diagnosis (C): "prose copies with no reader").
+    idle_min_now = (now - parse_ts(t["last_ts"]).astimezone()).total_seconds() / 60 if t["last_ts"] else None
+    primary_live = idle_min_now is not None and idle_min_now < 45
+    state_lanes = state.get("lanes", {}) or {}
+    active_roles = 1 + (1 if primary_live else 0) + sum(1 for name in metrics["lanes"] if state_lanes.get(name, {}).get("live_run"))
+    ready_lanes = [name for name, li in metrics["lanes"].items() if li["open"] and not state_lanes.get(name, {}).get("live_run")]
+    capped = bool(t["limit_hit"])
+    cf_msg = concurrency_floor_flag(active_roles, ready_lanes, capped)
+    out.append(flag(cf_msg) if cf_msg else ok(f"active roles {active_roles}/4 (primary live: {primary_live}; ready lanes: {ready_lanes or 'none'}; capped: {capped})"))
     # --- deadline
     hours_left = (DEADLINE - now).total_seconds() / 3600
     q = [x["id"] for x in sy.get("next_ready_items") or []]
