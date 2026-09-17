@@ -25,11 +25,19 @@ aspirational — `not started` means exactly that.
 
 | # | Workstream | `plans/idea.md` anchor | Status | Investigation owner |
 |---|---|---|---|---|
-| 1 | CI/deployment sustainability — verify locally via `act`, then on real GitHub Actions runners | "Execution Environments and GitHub Access" | not started | pending assignment |
-| 2 | Repo metadata / social appearance / community-files component | "Visual Assets and Social Preview", "Central Agent" responsibilities bullet 2 | not started | pending assignment |
-| 3 | Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones | "Upstream Defect Reporting" | not started | pending assignment |
-| 4 | Portfolio discovery module — find new repos/products, reuse an existing aspose.org discovery mechanism if one exists | "Common Gate C0" | not started | pending assignment |
-| 5 | Full production autonomy — the system runs without routine human intervention | "Operating Model", "Production-Readiness Standard" | not started | pending assignment |
+| 1 | CI/deployment sustainability — verify locally via `act`, then on real GitHub Actions runners | "Execution Environments and GitHub Access" | investigated; one ruling landed (pip caching, `e74077b`/`ci.yml`), rest blocked on `OWNER-04`/G5 | supervisor, 2026-09-17 |
+| 2 | Repo metadata / social appearance / community-files component | "Visual Assets and Social Preview", "Central Agent" responsibilities bullet 2 | investigated; ruled, Phase 0 (read-only) startable now, Phase 1/2 blocked on `OWNER-04`/G5, `OWNER-07` blocks SECURITY.md specifically | supervisor, 2026-09-17 |
+| 3 | Issue-tracking component — file confirmed upstream defects, dedupe, close stale ones | "Upstream Defect Reporting" | schema + evidence layout landed (`a024836`); write path (`gh issue create`) ruled, blocked on `OWNER-04`/G5 | supervisor, 2026-09-17 |
+| 4 | Portfolio discovery module — find new repos/products, reuse an existing aspose.org discovery mechanism if one exists | "Common Gate C0" | scanner built and run (`ea8ab8c`, `10-portfolio-discovery.md`); one admission decision pending (`OWNER-08`) | supervisor, 2026-09-17 |
+| 5 | Full production autonomy — the system runs without routine human intervention | "Operating Model", "Production-Readiness Standard" | investigated (`05-production-autonomy.md`); worktree-isolation-for-every-write-role ruled as standing practice; two concrete hardening items queued, unscheduled | supervisor, 2026-09-17 |
+
+### Rulings landed 2026-09-17 (full ruling text: `docs/DECISION_LOG.md`, 2026-09-17 entries)
+
+- **WS1**: `ci.yml` gets `cache: pip` (this commit); same for `monitor.yml`/`present.yml` when authored (G5). Never a shared/symlinked venv across a worktree or job — each isolated unit installs independently; speed comes only from the pip cache, not shared install state.
+- **WS2**: Phase 0 (capture `description`/`homepage`/`topics`/`social_preview_image_url`/`community/profile`, no write, no new credential) may start any time — it needs nothing this ruling doesn't already clear. Phase 1/2 (writes) share G5's GitHub App/credential effort rather than building a separate one (`OWNER-04` covers this too now). A community-file candidate is a new section of the existing README candidate bundle, not a new sealed-artifact type. SECURITY.md content is blocked on `OWNER-07` (no fabricated contact, ever). Custom repository properties: out of scope, not revisited unless a governance-tagging need arises.
+- **WS3**: write capability (`gh issue create`) shares the same G5/`OWNER-04` GitHub App gate as WS2 — Issues:Write is one more scope on that App, not a separate credential. A defect must be independently reproduced by the filing agent at file-time (not merely cited from a prior investigation) before it is ever filed — the discipline already applied to the HTML-Python/TeX-Python backfills becomes the standing bar. This system only ever creates and follows up on issues carrying its own fingerprint; it never comments on or closes an issue it did not file.
+- **WS4**: `repository_id` is the authoritative anti-rename/anti-transfer identity signal; `node_id` is corroborating/informational only, never compared strictly against a frozen historical value (GitHub's 2021-2022 global-ID re-encoding already broke that assumption once) — `Registry.validate_stable_identities` needs a follow-up code change to stop treating them as equally load-bearing; not yet implemented, ready for a taskcard. Registry admission (`OWNER-08`) stays a per-repository owner decision, never automatic. Re-scan cadence: on demand (rerun `tools/discovery/portfolio_discovery.py`) until G5's `monitor.yml` exists to schedule it — no new infrastructure needed before then.
+- **WS5**: every write-capable role runs in its own isolated worktree, effective immediately as standing supervisor practice — never a shared checkout among concurrently live write-capable agents. Two concrete, code-level hardening items are queued (unscheduled, no taskcard yet): a deterministic fetch→rebase→retry push wrapper (closes failure classes A/D at the root), and a scheduled sweep of `docs/RESEARCH_LANE_*.md` for un-admitted `PROPOSAL` headings (closes class H). The detection/remediation split (`liveness.yml` detects, a human still remediates) stays as-is for now — closing it is G5-adjacent, not ruled today.
 
 ### Known constraints already on record, before investigation starts
 
@@ -76,10 +84,12 @@ isolated worktrees, no shared-checkout contention with active sealing/fix-landin
 than sequenced after sealing finishes, since they are independent of the G4-W17 candidate queue
 and estimated to need substantial dedicated design before any implementation begins.
 
-**Standing rule for whoever reads this next:** do not start implementing any of the five
-workstreams from this document alone — each needs its own investigation report (recorded under
-`docs/investigations/`, one file per workstream, linked below once written) reconciled with
-`plans/idea.md` and the current codebase before a taskcard is written. Investigation reports:
+**Standing rule for whoever reads this next:** all five workstreams are now investigated and ruled
+(see "Rulings landed 2026-09-17" above) — implementation may proceed on exactly the pieces each
+ruling clears (WS1's `ci.yml` cache; WS2 Phase 0 read-only capture; WS4's `repository_id`/`node_id`
+fix). Everything else stays blocked on the owner item or gate its ruling names (most commonly
+`OWNER-04`/G5) — a ruling clearing the *decision* does not itself clear a credential or gate
+precondition that decision depends on. Investigation reports:
 
 - Workstream 1: `docs/investigations/01-ci-deployment-sustainability.md` (pending)
 - Workstream 2: `docs/investigations/02-repo-metadata-community-files.md` (pending)

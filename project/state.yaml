@@ -122,6 +122,19 @@ owner_items:
     last_checked_at: "2026-09-06T01:50:00+05:00"
     note: "Installed and verified by the owner's reviewer session on 2026-09-06 (RESEARCH section 28.11, 28.12, section 31); G4-W13 runs in lane B (project/lanes/lane-b.yaml) and reads TOOLCHAIN_PATHS.txt."
 
+  - id: OWNER-07
+    status: OPEN
+    summary: Provide a verified, authoritative Aspose security-reporting contact/process (address or form) for SECURITY.md generation (workstream 2). Under the "never fabricate" rule already governing README composition, no SECURITY.md content can be generated for any repository without this.
+    resume_predicate: An owner-provided, verified security-contact value is recorded as evidence this project can cite the same way ProductFactsV2/ecosystem facts are cited today.
+    consumed_by: [WORKSTREAM_2_REPO_METADATA]
+    recorded_at: "2026-09-17T15:10:00+05:00"
+  - id: OWNER-08
+    status: OPEN
+    summary: Admit aspose-imaging-foss/Aspose.Imaging-FOSS-for-.NET to data/registry.json (mode disabled, per Gate C0's disabled-and-read-only intake shape)? Found real and populated by the 2026-09-17 discovery scan (docs/investigations/10-portfolio-discovery.md); not added automatically per the owner's standing rule (chat, 2026-09-17) that registry additions always need explicit go-ahead.
+    resume_predicate: Owner says yes/no; on yes, a registry.json edit adds the entry at mode disabled, active true, with provider_identity {repository_id 1359836523, node_id R_kgDOUQ11aw} (already captured by the scan, no re-fetch needed).
+    consumed_by: [WORKSTREAM_4_PORTFOLIO_DISCOVERY]
+    recorded_at: "2026-09-17T15:10:00+05:00"
+
 legacy_source:
   repository: babar-raza/foss-readme-optimizer
   revision: a8a163f7e9a7beeac1d2ef8b7c02e8e4bd5a7815
