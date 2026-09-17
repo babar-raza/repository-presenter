@@ -2385,3 +2385,118 @@ generalizes only as far as "a job with no enum pin can hallucinate a plausible I
 items 59/77 already established for planning; whether it recurs elsewhere is for whoever runs the next
 S3 to measure. No seal is claimed and the counted unit does not move: `repository-presenter status`
 reads **15/34** both before and after, and `project/state.yaml` was not opened.
+
+## 2026-09-17 03:23 UTC (`date -u` checked) — LANE-E-05 run 4, Words for Python re-drawn against the landed E22 fix - E22 verified CLOSED live, blocked one stage later by a new, unrelated class
+
+Branch `lane-e/LANE-E-05-R4`, worktree `C:\w\e05r4`, off `origin/main` at `bec76ba` (own
+`git fetch origin` then `git worktree add` off the fetched tip; fresh worktree, no rebase needed - main
+did not move during this run's own preflight and composition). Receipt:
+`evidence/build/lanes/lane-e/LANE-E-05.json` (overwritten with this run's figures; runs 1-3's are in
+this file's dated entries above). Drawn because commit `bec76ba`
+(`G4_MULTI_LANGUAGE_COHORTS/G4-W17`, landed 2026-09-17T07:49:01+05:00, verified an ancestor of the
+`origin/main` this worktree branched from before drawing) lands PROPOSAL E22's own named fix - the one
+predicate run 3's disposition named. The environment matched `f4406f1b04d8…` on the first attempt,
+confirmed before any candidate work; `runs/verify/py311` and `runs/verify/py312` were provisioned
+fresh via `uv venv --python 3.1{1,2}` (a fresh worktree ships none of its own).
+
+### E22 is CLOSED, verified live - not just by reading the diff - by the exact mechanism this run made a real S3 call against
+
+`present --facts-only` against `2d2efee2787cb9e56d071d17f8d7b740dce8b784` (unchanged - the repository
+did not move) reproduced runs 1-3's own measurement exactly: **839 facts, examples 12 candidates,
+executed 12**, required rows without evidence none, digest-identical facts.json. The full pipeline
+then ran a genuinely live `repository_investigation` call
+(`calls/c55209257fd0.json`, `request_hash` differs from run 3's `81dae25fffe5` because `bec76ba`
+changed `investigation_packet`'s own schema input) and **it succeeded on attempt 1 with zero
+rejections** - `calls.jsonl` line 1: `"stage":"S3","job":"repository_investigation","outcome":
+"success","attempt":1,"rejection":[]`. Run 3 measured two independent live attempts against this exact
+revision each ending `output rejected twice`; this run's identical revision, through the landed fix,
+cleared S3 outright. The pipeline then continued live through **S4** `source_reconciliation` (three
+calls, all `success` attempt 1) and **S5** `presentation_planning` (`success` attempt 1) and into
+**S6** `section_authoring` - the furthest any lane-E attempt has ever driven this repository, four full
+stages past run 3's S3 stall. `INVESTIGATION_FACT_ID_ARRAYS_HAVE_NO_ENUM_PIN…` (PROPOSAL E22, item
+105) is closed for this repository, not merely for the mechanism in the abstract.
+
+### PROPOSAL E23 - `stage_fixtures` stages a fixture under every file-like literal regardless of whether the example reads or writes it, and `format_facts` then reports every staged-and-executed fixture as proof of *input*, contradicting the same example's own `save()`-derived output claim
+
+**Decision.** Lane E writes no fix: both call sites are shared code outside every lane-E owned path -
+`src/repository_presenter/components/readme/extractors/platforms/python_examples.py` is the mature,
+shared Python extractor this lane's own file explicitly disclaims ownership of ("a Python-extractor
+defect is a PROPOSAL to the primary, never edited here"), and
+`src/repository_presenter/components/readme/evidence/facts/formats.py` is core evidence-extraction
+code, not a platform module at all. Words for Python takes a disposition naming this proposal as its
+resume predicate.
+
+**The defect, measured on three independent live attempts across two present invocations, not
+inferred.** `section_authoring`'s second `key_capabilities` logical call was rejected with the
+identical objection on every one of three separate live attempts against the byte-varying request (run
+1 attempt 1, `calls/0f0c8e1510f5.rejected-1.json`; run 2 attempt 1, freshly re-asked since only
+accepted output is cached; run 2 attempt 2): `"unit capability:1: names .md as input, but example 1's
+own recorded format claims say output"` (run 1's first attempt additionally named a second, same-shape
+contradiction on `capability:6`/`.docx`/example 12, which cleared on the next attempt - `capability:1`
+never did, across all three). Reading the two format facts both attempts and both raised runs cite
+settles why, with zero inference: `facts.json`'s `format:input.md` fact
+(`evidence/facts/formats.py:60-71`) carries the evidence line `"staged as report.md; example 1 read it:
+EXECUTED"`, while the separately-computed `format:output.md` fact
+(same file, the `claims_for`-derived branch at lines 39-57) carries `"line 138; example 1: output
+.md"` - both `SUPPORTED`, both citing example 1, for opposite directions of the same extension.
+`README.md:131-138`'s actual Quick Start code settles which is true: `doc = aw.Document("report.docx")`
+followed by `doc.save("report.md", aw.SaveFormat.MARKDOWN)` - `report.md` is written, never opened;
+`.docx` is the only format example 1 reads. The comment on the `Document(...)` line, `# or .doc, .rtf,
+.txt, .md`, is what makes `.md` a file-like literal `stage_fixtures`'s static scan (`_string_literals`,
+`python_examples.py:137-141`) picks up as a name worth staging at all - `_stage_one` (`:149-179`) then
+copies a real repository file (`tests/data/input/test_markdown.md`) to `report.md` in the run
+directory purely because the literal `"report.md"` appears in the source, with **no check anywhere in
+`stage_fixtures` for whether that literal is an argument to a read call or a write call** - staging
+happens before the process ever runs, from a pure text scan. `format_facts`
+(`evidence/facts/formats.py:60-71`) then walks `receipt.fixtures` for every executed example and
+unconditionally emits `("input", extension)` evidence for each binding, with no cross-check against
+the same example's own `claims_for`-derived direction for the identical extension it computed three
+lines earlier in the same function (`:39-57`) - so the function produces two contradictory `SUPPORTED`
+facts about the same example from its own two branches and never notices.
+
+**What lane E proposes, and what it does not.** The minimal, most direct fix is in `format_facts`
+itself, at the exact point of contradiction: when an executed example's fixture-staging evidence for
+`("input", extension)` and its own `claims_for` evidence for `("output", extension)` name the *same*
+example ordinal, the syntax-tree-derived direction (from an actual `.open(...)`/`.save(...)` call site,
+already line-numbered) is the more precise source and should suppress the fixture-staging claim for
+that example, or `stage_fixtures` itself should skip staging a literal that `claims_for` already
+resolved as an output argument for that same example - either closes the class without touching the
+`register_plugin`/`FileFormat.py` static-corroboration path E22's evidence already named as a separate,
+larger, out-of-scope change. Lane E does **not** propose making `stage_fixtures` parse call-site
+argument position (read vs. write) in general - that is a materially larger static-analysis change;
+resolving the conflict against `claims_for`'s own already-computed, more specific evidence is the
+narrower fix that uses a signal the function already has in hand.
+
+**Evidence.**
+`runs/transactions/aspose-words-foss__Aspose.Words-FOSS-for-Python/2d2efee2787cb9e56d071d17f8d7b740dce8b784/calls/0f0c8e1510f5.rejected-1.json`
+(run 1's two-item rejection list, directly observed); `calls.jsonl` lines 8-19 (all three live attempts'
+identical `capability:1` objection); `facts.json` (`format:input.md` and `format:output.md` records,
+both citing example 1, opposite directions); `examples.json` ordinal 1 (`report.md` fixture,
+`"produced_by": null`); `README.md:131-138` (the Quick Start code block: `Document("report.docx")`
+then `.save("report.md", …)`); `extractors/platforms/python_examples.py:113-146` (`stage_fixtures`,
+no read/write distinction), `:149-179` (`_stage_one`); `evidence/facts/formats.py:28-113`
+(`format_facts`, both branches side by side in the same function).
+
+**Reversal path.** An example shown to genuinely read a file under a literal that also names a save
+target elsewhere in the same script (so the two directions are both true for one example) would
+refute treating this as a pure contradiction; none of example 1's twelve lines does that - it opens
+exactly one path (`report.docx`) and writes exactly one (`report.md`).
+
+### Disposition written this run
+
+| repository | outcome | class | resume predicate |
+| --- | --- | --- | --- |
+| `aspose-words-foss/Aspose.Words-FOSS-for-Python` | NOT_SEALED, stage S6 `section_authoring` (two logical calls; the first repaired past an unrelated HTML-escaping rejection on retry, the second rejected twice on the `capability:1`/`.md` contradiction across three live attempts) | `FIXTURE_STAGING_AND_FORMAT_FACTS_DISAGREE_ON_ONE_EXAMPLES_DIRECTION_FOR_THE_SAME_EXTENSION` | PROPOSAL E23 lands, then re-run `present --repo aspose-words-foss/Aspose.Words-FOSS-for-Python`. `INVESTIGATION_FACT_ID_ARRAYS_HAVE_NO_ENUM_PIN…` (PROPOSAL E22, item 105) is **closed**, verified live on this repository this run, and is not a predicate for the re-run. |
+
+### What this run does not claim
+
+It does not claim E23 is the only remaining blocker for this repository - S6's first logical call
+needed one retry of its own (an unrelated HTML-escaping rejection, cleared on attempt 2), and S7
+onward (coherence, validation, review) have never been reached, so nothing here is a claim about what
+those stages would find. It does not claim the fixture-staging/format-facts disagreement recurs on any
+other repository - it generalizes only as far as "a file-like literal that is also a save-target names
+a real, present contradiction this function cannot resolve," which is exactly what this repository's
+own facts and source measure; whether it recurs elsewhere is for whoever runs the next affected
+repository to measure. No seal is claimed and the counted unit does not move:
+`repository-presenter status` reads **17/34** both before and after this run's attempts, and
+`project/state.yaml` was not opened.
